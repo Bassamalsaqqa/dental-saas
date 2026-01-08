@@ -1,0 +1,69 @@
+# ----------------------------------------------------------------------
+# Security Hardening (P0-02)
+# ----------------------------------------------------------------------
+
+# Apache 2.4+
+<IfModule mod_authz_core.c>
+    # Block access to dotfiles (except .htaccess)
+    <FilesMatch "^\.(?!well-known)">
+        Require all denied
+    </FilesMatch>
+
+    # Block access to specific sensitive files
+    <FilesMatch "^(ENVIRONMENT|environment\.env|composer\.json|composer\.lock|package\.json|package-lock\.json)$">
+        Require all denied
+    </FilesMatch>
+
+    # Block access to sensitive extensions
+    <FilesMatch "\.(sql|log|bak|dist|ini|sh|md|dump)$">
+        Require all denied
+    </FilesMatch>
+
+    # Block access to potentially dangerous scripts
+    <FilesMatch "^(install|debug_env|repair_db.*|init_database|simple_login_test)\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# Apache 2.2 Fallback
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.(?!well-known)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "^(ENVIRONMENT|environment\.env|composer\.json|composer\.lock|package\.json|package-lock\.json)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "\.(sql|log|bak|dist|ini|sh|md|dump)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "^(install|debug_env|repair_db.*|init_database|simple_login_test)\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# ----------------------------------------------------------------------
+# Rewrite Rules (Routing & Directory Blocking)
+# ----------------------------------------------------------------------
+DirectoryIndex index.php
+RewriteEngine On
+
+# Block access to sensitive directories (Repo-Root Docroot Scenario)
+# This MUST be before other rewrite rules.
+RewriteRule ^(app|system|tests|writable|scripts|docs|lib|src|vendor|node_modules)/ - [F,L]
+
+# Handle assets (CSS, JS, images) - serve them directly from public directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Handle all other requests through the root index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

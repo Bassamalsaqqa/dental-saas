@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation - DentaCare Pro</title>
+    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto px-6 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <div class="text-green-600 text-6xl mb-6">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Secure Installation</h1>
+            <p class="text-xl text-gray-600 mb-8">
+                DentaCare Pro uses a hardened, CLI-based deployment process to ensure maximum security.
+                Browser-based installers have been disabled.
+            </p>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-left">
+                <h3 class="text-lg font-semibold text-blue-900 mb-3">Deployment Steps:</h3>
+                <ol class="list-decimal list-inside space-y-2 text-blue-800">
+                    <li>Configure your web server (Apache/Nginx) with security rules.</li>
+                    <li>Set up environment variables using <code>.env.example</code>.</li>
+                    <li>Import the database schema via CLI.</li>
+                    <li>Rotate the generated admin credentials on first login.</li>
+                </ol>
+            </div>
+
+            <a href="deployment/hardened-deployment.md" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-book-reader mr-2"></i>
+                Read the Hardened Deployment Guide
+            </a>
+            
+            <p class="mt-6 text-sm text-gray-500">
+                <a href="index.html" class="text-blue-600 hover:underline">Return to Overview</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

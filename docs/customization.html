@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customization Guide - DentaCare Pro</title>
+    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+    <meta name="description" content="Customization guide for extending DentaCare Pro dental practice management system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+        .code-block {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile menu button -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="bg-blue-600 text-white p-2 rounded-lg shadow-lg">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg sidebar-transition sidebar-hidden md:translate-x-0">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 bg-blue-600 text-white">
+                <i class="fas fa-tooth mr-2"></i>
+                <h1 class="text-xl font-bold">DentaCare Pro</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <div class="space-y-1">
+                    <a href="index.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-home mr-3"></i>
+                        Overview
+                    </a>
+                    <a href="installation.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-download mr-3"></i>
+                        Installation
+                    </a>
+                    <a href="deployment/hardened-deployment.md" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-shield-alt mr-3"></i>
+                        Secure Deployment
+                    </a>
+                    <a href="user-guide.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-user mr-3"></i>
+                        User Guide
+                    </a>
+                    <a href="customization.html" class="flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-cog mr-3"></i>
+                        Customization
+                    </a>
+                    <a href="troubleshooting.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-tools mr-3"></i>
+                        Troubleshooting
+                    </a>
+                </div>
+            </nav>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t">
+                <div class="text-xs text-gray-500 text-center">
+                    <p>DentaCare Pro v1.0</p>
+                    <p>© 2025 Code Aristos. All Rights Reserved</p>
+                    <p><a href="https://codecanyon.net/user/codearistos/portfolio" target="_blank" class="text-blue-600 hover:text-blue-800">CodeCanyon Portfolio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Main content -->
+    <div class="md:ml-64 min-h-screen">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Customization Guide</h1>
+                <p class="text-xl text-gray-600">Learn how to customize and extend DentaCare Pro for your specific needs</p>
+            </div>
+
+            <!-- Overview -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Customization Overview
+                </h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="text-gray-600 mb-4">DentaCare Pro is built with modern web technologies and follows best practices, making it highly customizable and extensible. This guide covers various customization options available to tailor the system to your specific requirements.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">What You Can Customize</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>User interface and styling</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Business logic and workflows</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Database structure</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>User roles and permissions</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Email templates</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Reports and forms</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Technologies Used</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-code text-blue-500 mr-2"></i>CodeIgniter 4 Framework</li>
+                                <li><i class="fas fa-paint-brush text-purple-500 mr-2"></i>Tailwind CSS</li>
+                                <li><i class="fas fa-database text-green-500 mr-2"></i>MySQL Database</li>
+                                <li><i class="fas fa-mobile-alt text-orange-500 mr-2"></i>Responsive Design</li>
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Security Features</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UI Customization -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-paint-brush mr-2"></i>
+                    UI Customization
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Styling with Tailwind CSS</h3>
+                        <p class="text-gray-600 mb-4">DentaCare Pro uses Tailwind CSS for styling. You can customize the appearance by modifying the CSS classes or adding custom styles.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Main CSS File</h4>
+                            <div class="code-block">
+/* File: public/assets/css/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.custom-button {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700;
+}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Custom Color Scheme</h4>
+                            <div class="code-block">
+/* File: tailwind.config.js */
+module.exports = {
+    theme: {
+        extend: {
+            colors: {
+                primary: {
+                    50: '#eff6ff',
+                    500: '#3b82f6',
+                    600: '#2563eb',
+                    700: '#1d4ed8',
+                },
+                secondary: {
+                    50: '#f0fdf4',
+                    500: '#22c55e',
+                    600: '#16a34a',
+                    700: '#15803d',
+                }
+            }
+        }
+    }
+}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Layout Customization</h3>
+                        <p class="text-gray-600 mb-4">Customize the main layout by modifying the layout files:</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Main Layout File</h4>
+                            <div class="code-block">
+<!-- File: app/Views/layouts/main.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $title ?? 'DentaCare Pro' ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Your custom header -->
+    <header class="bg-white shadow-sm">
+        <!-- Header content -->
+    </header>
+    
+    <!-- Main content -->
+    <main>
+        <?= $this->renderSection('content') ?>
+    </main>
+    
+    <!-- Your custom footer -->
+    <footer class="bg-gray-800 text-white">
+        <!-- Footer content -->
+    </footer>
+</body>
+</html>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Component Customization</h3>
+                        <p class="text-gray-600 mb-4">Customize individual components by modifying their view files:</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Patient Card Component</h4>
+                                <div class="code-block">
+<!-- File: app/Views/components/patient_card.php -->
+<div class="bg-white rounded-lg shadow-md p-4">
+    <h3 class="text-lg font-semibold"><?= $patient['first_name'] ?> <?= $patient['last_name'] ?></h3>
+    <p class="text-gray-600"><?= $patient['email'] ?></p>
+    <p class="text-gray-600"><?= $patient['phone'] ?></p>
+</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Appointment Card Component</h4>
+                                <div class="code-block">
+<!-- File: app/Views/components/appointment_card.php -->
+<div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
+    <h3 class="text-lg font-semibold"><?= $appointment['patient_name'] ?></h3>
+    <p class="text-gray-600"><?= $appointment['appointment_date'] ?></p>
+    <p class="text-gray-600"><?= $appointment['appointment_time'] ?></p>
+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Logic Customization -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-cogs mr-2"></i>
+                    Business Logic Customization
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Adding New Features</h3>
+                        <p class="text-gray-600 mb-4">Follow the MVC pattern to add new features to DentaCare Pro:</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">1. Create Model</h4>
+                                <div class="code-block">
+<?php
+// File: app/Models/CustomModel.php
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class CustomModel extends Model
+{
+    protected $table = 'custom_table';
+    protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
+    protected $useSoftDeletes = true;
+    protected $protectFields = true;
+    protected $allowedFields = [
+        'name',
+        'description',
+        'status',
+        'created_at',
+        'updated_at'
+    ];
+    
+    protected $useTimestamps = true;
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
+}
+?>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">2. Create Controller</h4>
+                                <div class="code-block">
+<?php
+// File: app/Controllers/Custom.php
+namespace App\Controllers;
+
+use App\Models\CustomModel;
+
+class Custom extends BaseController
+{
+    protected $customModel;
+    
+    public function __construct()
+    {
+        $this->customModel = new CustomModel();
+    }
+    
+    public function index()
+    {
+        $data = [
+            'title' => 'Custom Feature',
+            'items' => $this->customModel->findAll()
+        ];
+        
+        return view('custom/index', $data);
+    }
+    
+    public function create()
+    {
+        $data = [
+            'title' => 'Create New Item'
+        ];
+        
+        return view('custom/create', $data);
+    }
+    
+    public function store()
+    {
+        $rules = [
+            'name' => 'required|min_length[3]',
+            'description' => 'required'
+        ];
+        
+        if ($this->validate($rules)) {
+            $this->customModel->insert($this->request->getPost());
+            return redirect()->to('/custom')->with('success', 'Item created successfully');
+        }
+        
+        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    }
+}
+?>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">3. Create Views</h4>
+                                <div class="code-block">
+<!-- File: app/Views/custom/index.php -->
+<?= $this->extend('layouts/main') ?>
+
+<?= $this->section('content') ?>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Custom Feature</h1>
+    
+    <div class="mb-4">
+        <a href="/custom/create" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Add New Item
+        </a>
+    </div>
+    
+    <div class="grid gap-4">
+        <?php foreach ($items as $item): ?>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <h3 class="text-lg font-semibold"><?= $item['name'] ?></h3>
+            <p class="text-gray-600"><?= $item['description'] ?></p>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?= $this->endSection() ?>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">4. Add Routes</h4>
+                                <div class="code-block">
+// File: app/Config/Routes.php
+$routes->group('custom', function($routes) {
+    $routes->get('/', 'Custom::index');
+    $routes->get('create', 'Custom::create');
+    $routes->post('store', 'Custom::store');
+    $routes->get('edit/(:num)', 'Custom::edit/$1');
+    $routes->post('update/(:num)', 'Custom::update/$1');
+    $routes->delete('delete/(:num)', 'Custom::delete/$1');
+});
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Extending Existing Features</h3>
+                        <p class="text-gray-600 mb-4">You can extend existing features by:</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Adding Custom Fields</h4>
+                                <div class="code-block">
+// Add custom fields to existing models
+protected $allowedFields = [
+    'first_name',
+    'last_name',
+    'email',
+    'phone',
+    'custom_field_1',  // New custom field
+    'custom_field_2',  // New custom field
+    'created_at',
+    'updated_at'
+];
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Adding Custom Validation Rules</h4>
+                                <div class="code-block">
+// File: app/Config/Validation.php
+public $customRules = [
+    'custom_field' => 'required|min_length[5]|max_length[50]'
+];
+
+// Or in your controller
+$rules = [
+    'email' => 'required|valid_email',
+    'phone' => 'required|regex_match[/^\+?[1-9]\d{1,14}$/]',
+    'custom_field' => 'required|min_length[5]'
+];
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Customization -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-database mr-2"></i>
+                    Database Customization
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Adding New Tables</h3>
+                        <p class="text-gray-600 mb-4">Create database migrations to add new tables or modify existing ones:</p>
+                        
+                        <div class="code-block">
+<?php
+// File: app/Database/Migrations/2024-01-01-000000_CreateCustomTable.php
+namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class CreateCustomTable extends Migration
+{
+    public function up()
+    {
+        $this->forge->addField([
+            'id' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'auto_increment' => true,
+            ],
+            'name' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+            ],
+            'description' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+            'status' => [
+                'type' => 'ENUM',
+                'constraint' => ['active', 'inactive'],
+                'default' => 'active',
+            ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+        ]);
+        
+        $this->forge->addKey('id', true);
+        $this->forge->createTable('custom_table');
+    }
+    
+    public function down()
+    {
+        $this->forge->dropTable('custom_table');
+    }
+}
+?>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Modifying Existing Tables</h3>
+                        <p class="text-gray-600 mb-4">Add new columns to existing tables:</p>
+                        
+                        <div class="code-block">
+<?php
+// File: app/Database/Migrations/2024-01-01-000001_AddCustomFieldsToPatients.php
+namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class AddCustomFieldsToPatients extends Migration
+{
+    public function up()
+    {
+        $fields = [
+            'custom_field_1' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
+            ],
+            'custom_field_2' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+        ];
+        
+        $this->forge->addColumn('patients', $fields);
+    }
+    
+    public function down()
+    {
+        $this->forge->dropColumn('patients', ['custom_field_1', 'custom_field_2']);
+    }
+}
+?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Roles and Permissions -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-users-cog mr-2"></i>
+                    User Roles and Permissions
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Adding New Roles</h3>
+                        <p class="text-gray-600 mb-4">Create custom user roles with specific permissions:</p>
+                        
+                        <div class="code-block">
+// File: app/Config/Permissions.php
+public static function getDefaultPermissions()
+{
+    return [
+        // Existing permissions...
+        
+        // Custom role permissions
+        'custom_module' => [
+            'view' => 'View Custom Module',
+            'create' => 'Create Custom Items',
+            'edit' => 'Edit Custom Items',
+            'delete' => 'Delete Custom Items',
+            'export' => 'Export Custom Data'
+        ],
+    ];
+}
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Permission Checks in Controllers</h3>
+                        <p class="text-gray-600 mb-4">Implement permission checks in your controllers:</p>
+                        
+                        <div class="code-block">
+<?php
+// In your controller
+public function index()
+{
+    // Check if user has permission to view custom module
+    if (!$this->hasPermission('custom_module', 'view')) {
+        return redirect()->to('/dashboard')->with('error', 'You do not have permission to access this feature');
+    }
+    
+    // Your controller logic here
+}
+
+private function hasPermission($module, $action)
+{
+    $userRole = session()->get('user_role');
+    $permissions = session()->get('permissions');
+    
+    return isset($permissions[$module][$action]) && $permissions[$module][$action];
+}
+?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Templates -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-envelope mr-2"></i>
+                    Email Template Customization
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Customizing Email Templates</h3>
+                        <p class="text-gray-600 mb-4">Modify email templates to match your practice branding:</p>
+                        
+                        <div class="code-block">
+<!-- File: app/Views/emails/appointment_reminder.php -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Reminder</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { background-color: #3b82f6; color: white; padding: 20px; }
+        .content { padding: 20px; }
+        .footer { background-color: #f3f4f6; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Your Practice Name</h1>
+    </div>
+    
+    <div class="content">
+        <h2>Appointment Reminder</h2>
+        <p>Dear <?= $patient['first_name'] ?>,</p>
+        <p>This is a reminder that you have an appointment scheduled for:</p>
+        <ul>
+            <li><strong>Date:</strong> <?= $appointment['appointment_date'] ?></li>
+            <li><strong>Time:</strong> <?= $appointment['appointment_time'] ?></li>
+            <li><strong>Type:</strong> <?= $appointment['type'] ?></li>
+        </ul>
+        <p>Please arrive 15 minutes early for your appointment.</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Your Practice Name. All rights reserved.</p>
+    </div>
+</body>
+</html>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    Customization Best Practices
+                </h2>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Code Organization</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Follow the MVC pattern consistently</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Keep custom code in separate files when possible</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Use meaningful names for classes, methods, and variables</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Add comments to explain complex logic</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Security Considerations</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Always validate user input</li>
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Use prepared statements for database queries</li>
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Implement proper permission checks</li>
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Sanitize output to prevent XSS attacks</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Performance Optimization</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>Use database indexes for frequently queried fields</li>
+                                <li><i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>Implement pagination for large datasets</li>
+                                <li><i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>Cache frequently accessed data</li>
+                                <li><i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>Optimize database queries</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Maintenance</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-tools text-orange-500 mr-2"></i>Keep backups of your customizations</li>
+                                <li><i class="fas fa-tools text-orange-500 mr-2"></i>Test changes in a development environment first</li>
+                                <li><i class="fas fa-tools text-orange-500 mr-2"></i>Document your customizations</li>
+                                <li><i class="fas fa-tools text-orange-500 mr-2"></i>Version control your custom code</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="bg-gray-100 rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-life-ring mr-2"></i>
+                    Customization Support
+                </h2>
+                <p class="text-gray-600 mb-4">Need help with customization or have questions about extending DentaCare Pro? Our support team is here to help.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="troubleshooting.html" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-tools mr-2"></i>
+                        Troubleshooting Guide
+                    </a>
+                    <a href="mailto:rizvi.mahmud.plabon@gmail.com" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Email Support
+                    </a>
+                    <a href="https://wa.me/8801777024443" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Close sidebar on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('sidebar-hidden');
+                overlay.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

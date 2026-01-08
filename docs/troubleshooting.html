@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting Guide - DentaCare Pro</title>
+    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+    <meta name="description" content="Troubleshooting guide and common solutions for DentaCare Pro dental practice management system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+        .code-block {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .error-highlight {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+        .warning-highlight {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+        }
+        .success-highlight {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile menu button -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="bg-blue-600 text-white p-2 rounded-lg shadow-lg">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg sidebar-transition sidebar-hidden md:translate-x-0">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 bg-blue-600 text-white">
+                <i class="fas fa-tooth mr-2"></i>
+                <h1 class="text-xl font-bold">DentaCare Pro</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <div class="space-y-1">
+                    <a href="index.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-home mr-3"></i>
+                        Overview
+                    </a>
+                    <a href="installation.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-download mr-3"></i>
+                        Installation
+                    </a>
+                    <a href="user-guide.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-user mr-3"></i>
+                        User Guide
+                    </a>
+                    <a href="customization.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-cog mr-3"></i>
+                        Customization
+                    </a>
+                    <a href="troubleshooting.html" class="flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-tools mr-3"></i>
+                        Troubleshooting
+                    </a>
+                </div>
+            </nav>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t">
+                <div class="text-xs text-gray-500 text-center">
+                    <p>DentaCare Pro v1.0</p>
+                    <p>© 2025 Code Aristos. All Rights Reserved</p>
+                    <p><a href="https://codecanyon.net/user/codearistos/portfolio" target="_blank" class="text-blue-600 hover:text-blue-800">CodeCanyon Portfolio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Main content -->
+    <div class="md:ml-64 min-h-screen">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Troubleshooting Guide</h1>
+                <p class="text-xl text-gray-600">Common issues and solutions for DentaCare Pro</p>
+            </div>
+
+            <!-- Quick Diagnostics -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-stethoscope mr-2"></i>
+                    Quick Diagnostics
+                </h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="text-gray-600 mb-4">Before diving into specific issues, run these quick diagnostics to identify common problems:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">System Check</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>PHP version ≥ 7.4</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>MySQL service running</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>Web server running</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>File permissions correct</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Application Check</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>Database connection</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>.env file configured</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>Writable directories</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-3"></i>
+                                    <span>URL rewriting enabled</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installation Issues -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Installation Issues
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Database Connection Error -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="error-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-database text-red-500 mr-2"></i>
+                                Database Connection Error
+                            </h3>
+                            <p class="text-gray-600">Error: "Unable to connect to your database server using the provided settings"</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Possible Causes:</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Incorrect database credentials in .env file</li>
+                                    <li>• MySQL service not running</li>
+                                    <li>• Database doesn't exist</li>
+                                    <li>• User doesn't have proper permissions</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check .env file:</p>
+                                        <div class="code-block">
+database.default.hostname = localhost
+database.default.database = dentacare_pro
+database.default.username = your_username
+database.default.password = your_password
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Verify MySQL service:</p>
+                                        <div class="code-block">
+# Check if MySQL is running
+sudo systemctl status mysql
+# Start MySQL if not running
+sudo systemctl start mysql
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">3. Test database connection:</p>
+                                        <div class="code-block">
+mysql -u your_username -p -h localhost dentacare_pro
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permission Denied Errors -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="error-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-lock text-red-500 mr-2"></i>
+                                Permission Denied Errors
+                            </h3>
+                            <p class="text-gray-600">Error: "Permission denied" or "Unable to write to directory"</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Set correct permissions:</p>
+                                        <div class="code-block">
+# Set permissions for writable directories
+chmod -R 755 writable/
+chmod -R 755 public/assets/
+
+# Set ownership (replace www-data with your web server user)
+chown -R www-data:www-data writable/
+chown -R www-data:www-data public/assets/
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Check .env file permissions:</p>
+                                        <div class="code-block">
+chmod 644 .env
+chown www-data:www-data .env
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 404 Not Found Errors -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="error-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                                404 Not Found Errors
+                            </h3>
+                            <p class="text-gray-600">All pages return "404 Not Found" except the homepage</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check .htaccess file (Apache):</p>
+                                        <div class="code-block">
+# Ensure .htaccess exists in public directory
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Enable mod_rewrite (Apache):</p>
+                                        <div class="code-block">
+# Enable mod_rewrite
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">3. Check Nginx configuration:</p>
+                                        <div class="code-block">
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Verification -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-user-shield mr-2"></i>
+                    Security Verification
+                </h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="text-gray-600 mb-4">Ensure your installation is secure by verifying the following:</p>
+                    <div class="space-y-4">
+                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-semibold text-green-900">1. Web Server Rules</h4>
+                            <p class="text-green-800 text-sm">Accessing <code>/.env</code> or <code>/app/Config/Database.php</code> via browser must return <strong>403 Forbidden</strong>.</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-semibold text-green-900">2. Secrets Management</h4>
+                            <p class="text-green-800 text-sm">Ensure <code>.env</code> is NOT in the webroot and database credentials are NOT hardcoded in files.</p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="deployment/hardened-deployment.md" class="text-blue-600 hover:underline font-medium">
+                                View full security checklist →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Runtime Issues -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-bug mr-2"></i>
+                    Runtime Issues
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Login Issues -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="warning-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-sign-in-alt text-yellow-500 mr-2"></i>
+                                Login Issues
+                            </h3>
+                            <p class="text-gray-600">Cannot log in with generated credentials.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Reset admin password (CLI/SQL only):</p>
+                                        <div class="code-block">
+# Run this SQL query in your database
+UPDATE users SET password = 'YOUR_GENERATED_BCRYPT_HASH' 
+WHERE email = 'your_admin_email@example.com';
+# Note: You must generate a valid bcrypt hash for your new password.
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Check session configuration:</p>
+                                        <div class="code-block">
+# In .env file
+app.sessionDriver = 'CodeIgniter\Session\Handlers\DatabaseHandler'
+app.sessionSavePath = 'ci_sessions'
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">3. Clear browser cache and cookies</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Issues -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="warning-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-tachometer-alt text-yellow-500 mr-2"></i>
+                                Performance Issues
+                            </h3>
+                            <p class="text-gray-600">Slow page loading or database queries taking too long</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Enable query caching:</p>
+                                        <div class="code-block">
+# In .env file
+database.default.cacheOn = true
+database.default.cacheDir = 'writable/cache/database/'
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Add database indexes:</p>
+                                        <div class="code-block">
+# Add indexes for frequently queried fields
+ALTER TABLE patients ADD INDEX idx_email (email);
+ALTER TABLE appointments ADD INDEX idx_date (appointment_date);
+ALTER TABLE examinations ADD INDEX idx_patient_date (patient_id, examination_date);
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">3. Clear application cache:</p>
+                                        <div class="code-block">
+# Clear cache files
+rm -rf writable/cache/*
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Issues -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="warning-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-envelope text-yellow-500 mr-2"></i>
+                                Email Issues
+                            </h3>
+                            <p class="text-gray-600">Appointment reminders or notifications not being sent</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Configure SMTP settings:</p>
+                                        <div class="code-block">
+# In .env file
+email.SMTPHost = 'smtp.gmail.com'
+email.SMTPUser = 'your-email@gmail.com'
+email.SMTPPass = 'your-app-password'
+email.SMTPPort = 587
+email.SMTPCrypto = 'tls'
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Test email configuration:</p>
+                                        <div class="code-block">
+# Create a test email script
+$email = \Config\Services::email();
+$email->setTo('test@example.com');
+$email->setSubject('Test Email');
+$email->setMessage('This is a test email');
+$email->send();
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Issues -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-database mr-2"></i>
+                    Data Issues
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Missing Data -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="error-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-question-circle text-red-500 mr-2"></i>
+                                Missing Data
+                            </h3>
+                            <p class="text-gray-600">Patient records, appointments, or other data not displaying correctly</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check database import:</p>
+                                        <div class="code-block">
+# Verify tables exist
+SHOW TABLES;
+
+# Check table structure
+DESCRIBE patients;
+DESCRIBE appointments;
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Re-import sample data:</p>
+                                        <div class="code-block">
+# Drop and recreate database
+DROP DATABASE dentacare_pro;
+CREATE DATABASE dentacare_pro;
+USE dentacare_pro;
+SOURCE democa_dental.sql;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Corruption -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="error-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                Data Corruption
+                            </h3>
+                            <p class="text-gray-600">Data appears corrupted or displays incorrectly</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check character encoding:</p>
+                                        <div class="code-block">
+# Ensure database uses UTF-8
+ALTER DATABASE dentacare_pro CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Repair database tables:</p>
+                                        <div class="code-block">
+# Repair corrupted tables
+REPAIR TABLE patients;
+REPAIR TABLE appointments;
+REPAIR TABLE examinations;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browser Issues -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-globe mr-2"></i>
+                    Browser Issues
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- JavaScript Errors -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="warning-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-code text-yellow-500 mr-2"></i>
+                                JavaScript Errors
+                            </h3>
+                            <p class="text-gray-600">Interactive features not working or console showing errors</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check browser console:</p>
+                                        <p class="text-gray-600">Press F12 and check the Console tab for JavaScript errors</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Clear browser cache:</p>
+                                        <p class="text-gray-600">Hard refresh the page (Ctrl+F5 or Cmd+Shift+R)</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">3. Check file permissions:</p>
+                                        <div class="code-block">
+# Ensure JS files are readable
+chmod 644 public/assets/js/*
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSS Issues -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="warning-highlight p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-paint-brush text-yellow-500 mr-2"></i>
+                                CSS Issues
+                            </h3>
+                            <p class="text-gray-600">Page styling appears broken or missing</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Solutions:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">1. Check CSS file loading:</p>
+                                        <p class="text-gray-600">Verify CSS files are loading in browser developer tools</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-900 mb-1">2. Rebuild Tailwind CSS:</p>
+                                        <div class="code-block">
+# Rebuild Tailwind CSS
+npm run build
+# Or
+npx tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css --watch
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debugging Tools -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-tools mr-2"></i>
+                    Debugging Tools
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Enable Debug Mode</h3>
+                        <p class="text-gray-600 mb-4">Enable debug mode to get detailed error information:</p>
+                        
+                        <div class="code-block">
+# In .env file
+CI_ENVIRONMENT = development
+
+# Enable error reporting
+error_reporting = E_ALL
+display_errors = 1
+log_errors = 1
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-yellow-800">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Warning:</strong> Only enable debug mode in development environments. Never enable it in production.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Log Files</h3>
+                        <p class="text-gray-600 mb-4">Check log files for detailed error information:</p>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <p class="font-semibold text-gray-900 mb-1">Application logs:</p>
+                                <div class="code-block">
+tail -f writable/logs/log-$(date +%Y-%m-%d).php
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-gray-900 mb-1">Web server logs:</p>
+                                <div class="code-block">
+# Apache
+tail -f /var/log/apache2/error.log
+
+# Nginx
+tail -f /var/log/nginx/error.log
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Database Debugging</h3>
+                        <p class="text-gray-600 mb-4">Enable database query logging:</p>
+                        
+                        <div class="code-block">
+# In .env file
+database.default.DBDebug = true
+database.default.DBLogQueries = true
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prevention Tips -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    Prevention Tips
+                </h2>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Regular Maintenance</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Regular database backups</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Keep PHP and MySQL updated</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Monitor disk space usage</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Check error logs regularly</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Security Best Practices</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-shield-alt text-blue-500 mr-2"></i>Use strong passwords</li>
+                                <li><i class="fas fa-shield-alt text-blue-500 mr-2"></i>Keep .env file secure</li>
+                                <li><i class="fas fa-shield-alt text-blue-500 mr-2"></i>Regular security updates</li>
+                                <li><i class="fas fa-shield-alt text-blue-500 mr-2"></i>Use HTTPS in production</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Performance Optimization</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-tachometer-alt text-purple-500 mr-2"></i>Enable caching</li>
+                                <li><i class="fas fa-tachometer-alt text-purple-500 mr-2"></i>Optimize database queries</li>
+                                <li><i class="fas fa-tachometer-alt text-purple-500 mr-2"></i>Use database indexes</li>
+                                <li><i class="fas fa-tachometer-alt text-purple-500 mr-2"></i>Monitor server resources</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="bg-gray-100 rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-life-ring mr-2"></i>
+                    Still Need Help?
+                </h2>
+                <p class="text-gray-600 mb-4">If you've tried the solutions above and are still experiencing issues, our support team is here to help.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="mailto:rizvi.mahmud.plabon@gmail.com" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Email Support
+                    </a>
+                    <a href="https://wa.me/8801777024443" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        WhatsApp
+                    </a>
+                    <a href="installation.html" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>
+                        Reinstall Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Close sidebar on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('sidebar-hidden');
+                overlay.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

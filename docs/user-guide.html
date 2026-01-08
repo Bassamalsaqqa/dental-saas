@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - DentaCare Pro</title>
+    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+    <meta name="description" content="Complete user guide for DentaCare Pro dental practice management system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+        .feature-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile menu button -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="bg-blue-600 text-white p-2 rounded-lg shadow-lg">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg sidebar-transition sidebar-hidden md:translate-x-0">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 bg-blue-600 text-white">
+                <i class="fas fa-tooth mr-2"></i>
+                <h1 class="text-xl font-bold">DentaCare Pro</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <div class="space-y-1">
+                    <a href="index.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-home mr-3"></i>
+                        Overview
+                    </a>
+                    <a href="installation.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-download mr-3"></i>
+                        Installation
+                    </a>
+                    <a href="deployment/hardened-deployment.md" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-shield-alt mr-3"></i>
+                        Secure Deployment
+                    </a>
+                    <a href="user-guide.html" class="flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-user mr-3"></i>
+                        User Guide
+                    </a>
+                    <a href="customization.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-cog mr-3"></i>
+                        Customization
+                    </a>
+                    <a href="troubleshooting.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-tools mr-3"></i>
+                        Troubleshooting
+                    </a>
+                </div>
+            </nav>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t">
+                <div class="text-xs text-gray-500 text-center">
+                    <p>DentaCare Pro v1.0</p>
+                    <p>© 2025 Code Aristos. All Rights Reserved</p>
+                    <p><a href="https://codecanyon.net/user/codearistos/portfolio" target="_blank" class="text-blue-600 hover:text-blue-800">CodeCanyon Portfolio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Main content -->
+    <div class="md:ml-64 min-h-screen">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">User Guide</h1>
+                <p class="text-xl text-gray-600">Complete guide to using all features of DentaCare Pro</p>
+            </div>
+
+            <!-- Quick Navigation -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Quick Navigation</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="#dashboard" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-tachometer-alt text-blue-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Dashboard</h3>
+                    </a>
+                    <a href="#patients" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-users text-green-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Patient Management</h3>
+                    </a>
+                    <a href="#appointments" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-calendar-alt text-purple-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Appointments</h3>
+                    </a>
+                    <a href="#examinations" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-stethoscope text-red-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Examinations</h3>
+                    </a>
+                    <a href="#odontogram" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-tooth text-yellow-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Odontogram</h3>
+                    </a>
+                    <a href="#finance" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-dollar-sign text-indigo-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Finance</h3>
+                    </a>
+                    <a href="#inventory" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-warehouse text-gray-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Inventory Management</h3>
+                    </a>
+                    <a href="#reports" class="bg-white p-4 rounded-lg shadow-md feature-card hover:shadow-lg">
+                        <i class="fas fa-chart-line text-teal-600 text-2xl mb-2"></i>
+                        <h3 class="font-semibold">Reports</h3>
+                    </a>
+                </div>
+            </div>
+
+            <!-- First Login & Security -->
+            <div id="security" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-lock mr-2"></i>
+                    First Login & Security
+                </h2>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
+                    <h3 class="text-xl font-semibold text-yellow-900 mb-4">Mandatory Setup</h3>
+                    <p class="text-yellow-800 mb-4">Upon your first login with the generated admin credentials, you must:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-yellow-800">
+                        <li>Navigate to <strong>Profile Settings</strong>.</li>
+                        <li>Change your password immediately to a strong, unique value.</li>
+                        <li>Verify your email address for recovery.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-tachometer-alt mr-2"></i>
+                    Dashboard Overview
+                </h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="text-gray-600 mb-6">The dashboard provides a comprehensive overview of your dental practice with key metrics and quick access to common tasks.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Key Metrics</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center">
+                                    <i class="fas fa-chart-line text-blue-500 mr-3"></i>
+                                    <span>Total patients registered</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-calendar-check text-green-500 mr-3"></i>
+                                    <span>Today's appointments</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-yellow-500 mr-3"></i>
+                                    <span>Monthly revenue</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-user-md text-purple-500 mr-3"></i>
+                                    <span>Active examinations</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center">
+                                    <i class="fas fa-plus text-green-500 mr-3"></i>
+                                    <span>Add new patient</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-calendar-plus text-blue-500 mr-3"></i>
+                                    <span>Schedule appointment</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-file-medical text-red-500 mr-3"></i>
+                                    <span>Start examination</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-receipt text-orange-500 mr-3"></i>
+                                    <span>Generate invoice</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Management Section -->
+            <div id="patients" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-users mr-2"></i>
+                    Patient Management
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Adding New Patients</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Navigate to Patients</h4>
+                                    <p class="text-gray-600">Click on "Patients" in the main navigation menu</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Click "Add New Patient"</h4>
+                                    <p class="text-gray-600">Use the "Add New Patient" button in the top right corner</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Fill Patient Information</h4>
+                                    <p class="text-gray-600">Complete all required fields including personal details, contact information, and medical history</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Save Patient Record</h4>
+                                    <p class="text-gray-600">Click "Save Patient" to create the new patient record</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Patient Search and Filtering</h3>
+                        <p class="text-gray-600 mb-4">Use the search functionality to quickly find patients:</p>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><i class="fas fa-search text-blue-500 mr-2"></i>Search by patient name, phone number, or email</li>
+                            <li><i class="fas fa-filter text-green-500 mr-2"></i>Filter by registration date, age group, or status</li>
+                            <li><i class="fas fa-sort text-purple-500 mr-2"></i>Sort by name, registration date, or last visit</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Patient Profile</h3>
+                        <p class="text-gray-600 mb-4">Each patient profile contains:</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                                <ul class="space-y-1 text-gray-600">
+                                    <li>• Full name and contact details</li>
+                                    <li>• Date of birth and age</li>
+                                    <li>• Emergency contact information</li>
+                                    <li>• Insurance information</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Medical Records</h4>
+                                <ul class="space-y-1 text-gray-600">
+                                    <li>• Medical history and allergies</li>
+                                    <li>• Previous treatments</li>
+                                    <li>• Current medications</li>
+                                    <li>• Treatment timeline</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Management Section -->
+            <div id="appointments" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Appointment Management
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Scheduling Appointments</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Access Calendar</h4>
+                                    <p class="text-gray-600">Click on "Appointments" in the main navigation</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Select Date and Time</h4>
+                                    <p class="text-gray-600">Choose an available time slot from the calendar view</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Choose Patient</h4>
+                                    <p class="text-gray-600">Select the patient from the dropdown or search for existing patients</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Add Appointment Details</h4>
+                                    <p class="text-gray-600">Specify appointment type, duration, and any special notes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Calendar Views</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <i class="fas fa-calendar-day text-blue-600 text-2xl mb-2"></i>
+                                <h4 class="font-semibold">Day View</h4>
+                                <p class="text-sm text-gray-600">Detailed view of appointments for a single day</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <i class="fas fa-calendar-week text-green-600 text-2xl mb-2"></i>
+                                <h4 class="font-semibold">Week View</h4>
+                                <p class="text-sm text-gray-600">Overview of appointments for the current week</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <i class="fas fa-calendar text-purple-600 text-2xl mb-2"></i>
+                                <h4 class="font-semibold">Month View</h4>
+                                <p class="text-sm text-gray-600">Monthly overview of all scheduled appointments</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Appointment Management</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Appointment Status</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Scheduled</li>
+                                    <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>Confirmed</li>
+                                    <li><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>In Progress</li>
+                                    <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>Cancelled</li>
+                                    <li><span class="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>Completed</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Appointment Actions</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><i class="fas fa-edit text-blue-500 mr-2"></i>Edit appointment details</li>
+                                    <li><i class="fas fa-times text-red-500 mr-2"></i>Cancel appointment</li>
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i>Mark as completed</li>
+                                    <li><i class="fas fa-bell text-yellow-500 mr-2"></i>Send reminders</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examination System Section -->
+            <div id="examinations" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-stethoscope mr-2"></i>
+                    Examination System
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Creating Examinations</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Start New Examination</h4>
+                                    <p class="text-gray-600">From the patient profile, click "Start Examination"</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Record Clinical Findings</h4>
+                                    <p class="text-gray-600">Document symptoms, observations, and clinical findings</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Add Diagnosis</h4>
+                                    <p class="text-gray-600">Specify diagnosis and treatment recommendations</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Create Treatment Plan</h4>
+                                    <p class="text-gray-600">Develop a comprehensive treatment plan with follow-up appointments</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Examination Components</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Clinical Assessment</h4>
+                                <ul class="space-y-1 text-gray-600">
+                                    <li>• Chief complaint</li>
+                                    <li>• Medical history review</li>
+                                    <li>• Clinical observations</li>
+                                    <li>• Vital signs (if applicable)</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Dental Assessment</h4>
+                                <ul class="space-y-1 text-gray-600">
+                                    <li>• Oral hygiene status</li>
+                                    <li>• Gum condition</li>
+                                    <li>• Tooth condition</li>
+                                    <li>• Bite analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Odontogram Section -->
+            <div id="odontogram" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-tooth mr-2"></i>
+                    Interactive Odontogram
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Using the Odontogram</h3>
+                        <p class="text-gray-600 mb-4">The interactive odontogram is a visual representation of all 32 teeth, allowing you to track conditions and treatments for each tooth.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Tooth Conditions</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                                        <span class="text-sm">Healthy</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                                        <span class="text-sm">Cavity</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                                        <span class="text-sm">Filling</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                                        <span class="text-sm">Crown</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                                        <span class="text-sm">Root Canal</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">How to Use</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><i class="fas fa-mouse-pointer text-blue-500 mr-2"></i>Click on any tooth to edit its condition</li>
+                                    <li><i class="fas fa-edit text-green-500 mr-2"></i>Add treatment notes and dates</li>
+                                    <li><i class="fas fa-save text-purple-500 mr-2"></i>Changes are saved automatically</li>
+                                    <li><i class="fas fa-print text-orange-500 mr-2"></i>Print or export odontogram</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Tooth Numbering System</h3>
+                        <p class="text-gray-600 mb-4">The system uses the Universal Numbering System for tooth identification:</p>
+                        <div class="grid md:grid-cols-4 gap-4 text-center">
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900">Upper Right</h4>
+                                <p class="text-sm text-gray-600">Teeth 1-8</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900">Upper Left</h4>
+                                <p class="text-sm text-gray-600">Teeth 9-16</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900">Lower Left</h4>
+                                <p class="text-sm text-gray-600">Teeth 17-24</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900">Lower Right</h4>
+                                <p class="text-sm text-gray-600">Teeth 25-32</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finance Section -->
+            <div id="finance" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-dollar-sign mr-2"></i>
+                    Financial Management
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Creating Invoices</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Access Finance Module</h4>
+                                    <p class="text-gray-600">Click on "Finance" in the main navigation</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Create New Invoice</h4>
+                                    <p class="text-gray-600">Click "New Invoice" and select the patient</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Add Services</h4>
+                                    <p class="text-gray-600">Select treatments and services provided</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Generate Invoice</h4>
+                                    <p class="text-gray-600">Review totals and generate the final invoice</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Payment Tracking</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Payment Methods</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><i class="fas fa-money-bill text-green-500 mr-2"></i>Cash</li>
+                                    <li><i class="fas fa-credit-card text-blue-500 mr-2"></i>Credit Card</li>
+                                    <li><i class="fas fa-university text-purple-500 mr-2"></i>Bank Transfer</li>
+                                    <li><i class="fas fa-shield-alt text-orange-500 mr-2"></i>Insurance</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Payment Status</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>Pending</li>
+                                    <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>Paid</li>
+                                    <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>Overdue</li>
+                                    <li><span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Partial</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Financial Reports</h3>
+                        <p class="text-gray-600 mb-4">Generate comprehensive financial reports to track practice performance:</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900 mb-2">Revenue Reports</h4>
+                                <ul class="space-y-1 text-gray-600 text-sm">
+                                    <li>• Daily revenue summary</li>
+                                    <li>• Monthly revenue trends</li>
+                                    <li>• Service-wise revenue</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-900 mb-2">Payment Reports</h4>
+                                <ul class="space-y-1 text-gray-600 text-sm">
+                                    <li>• Outstanding payments</li>
+                                    <li>• Payment method analysis</li>
+                                    <li>• Collection efficiency</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Management Section -->
+            <div id="inventory" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-warehouse mr-2"></i>
+                    Inventory Management
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Managing Inventory</h3>
+                        <p class="text-gray-600 mb-4">Track dental supplies, equipment, and medications used in your practice.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Adding Inventory Items</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Navigate to Inventory Management</li>
+                                    <li>• Click "Add New Item"</li>
+                                    <li>• Fill in item details (name, category, quantity)</li>
+                                    <li>• Set minimum stock levels</li>
+                                    <li>• Add supplier and price information</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Inventory Categories</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• <strong>Medication:</strong> Prescription drugs</li>
+                                    <li>• <strong>Equipment:</strong> Dental tools and devices</li>
+                                    <li>• <strong>Supplies:</strong> Consumable materials</li>
+                                    <li>• <strong>Consumables:</strong> Single-use items</li>
+                                    <li>• <strong>Other:</strong> Miscellaneous items</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Usage Tracking</h3>
+                        <p class="text-gray-600 mb-4">Monitor how inventory items are being used during treatments:</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Usage Features</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Record item usage during treatments</li>
+                                    <li>• Track consumption patterns</li>
+                                    <li>• Monitor low stock alerts</li>
+                                    <li>• Generate usage reports</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    Reports and Analytics
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Available Reports</h3>
+                        <p class="text-gray-600 mb-4">Generate comprehensive reports to analyze practice performance:</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Financial Reports</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Revenue summaries by period</li>
+                                    <li>• Payment tracking reports</li>
+                                    <li>• Outstanding balance reports</li>
+                                    <li>• Service-wise revenue analysis</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Clinical Reports</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Patient demographics</li>
+                                    <li>• Treatment outcome summaries</li>
+                                    <li>• Examination statistics</li>
+                                    <li>• Appointment analytics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Generating Reports</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Report Options</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Filter by date ranges</li>
+                                    <li>• Select specific patients or treatments</li>
+                                    <li>• Export to PDF or Excel</li>
+                                    <li>• Print reports directly</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2">Dashboard Analytics</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• Key performance indicators</li>
+                                    <li>• Patient growth metrics</li>
+                                    <li>• Revenue trends</li>
+                                    <li>• Treatment statistics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips and Best Practices -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    Tips and Best Practices
+                </h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Data Management</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Regularly backup your database</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Keep patient information up to date</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Use consistent naming conventions</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Workflow Optimization</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Use quick actions on dashboard</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Set up appointment reminders</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                                    <span class="text-gray-600">Regularly review financial reports</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="bg-gray-100 rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-life-ring mr-2"></i>
+                    Need More Help?
+                </h2>
+                <p class="text-gray-600 mb-4">If you need additional assistance or have questions about specific features, please refer to our other documentation sections or contact support.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="troubleshooting.html" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-tools mr-2"></i>
+                        Troubleshooting Guide
+                    </a>
+                    <a href="mailto:rizvi.mahmud.plabon@gmail.com" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Email Support
+                    </a>
+                    <a href="https://wa.me/8801777024443" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Close sidebar on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('sidebar-hidden');
+                overlay.classList.add('hidden');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

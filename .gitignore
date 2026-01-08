@@ -1,0 +1,43 @@
+# Environment (never commit secrets)
+.env
+.env.*
+!.env.example
+environment.env
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# CodeIgniter writable
+/writable/*
+!/writable/.htaccess
+!/writable/index.html
+
+# Logs/cache/test artifacts
+*.log
+*.cache
+.phpunit.result.cache
+/coverage/
+/tmp/
+/cache/
+/logs/
+public/error_log
+error_log
+rg_docs_findings.txt
+
+# Dumps/backups
+*.sql
+*.bak
+*.dump
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+npm-debug.log
+yarn-error.log
+pnpm-debug.log

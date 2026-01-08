@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentaCare Pro - Documentation</title>
+    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+    <meta name="description" content="Complete documentation for DentaCare Pro dental practice management system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile menu button -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="bg-blue-600 text-white p-2 rounded-lg shadow-lg">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg sidebar-transition sidebar-hidden md:translate-x-0">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 bg-blue-600 text-white">
+                <i class="fas fa-tooth mr-2"></i>
+                <h1 class="text-xl font-bold">DentaCare Pro</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <div class="space-y-1">
+                    <a href="index.html" class="flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
+                        <i class="fas fa-home mr-3"></i>
+                        Overview
+                    </a>
+                    <a href="installation.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-download mr-3"></i>
+                        Installation
+                    </a>
+                    <a href="user-guide.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-user mr-3"></i>
+                        User Guide
+                    </a>
+                    <a href="customization.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-cog mr-3"></i>
+                        Customization
+                    </a>
+                    <a href="troubleshooting.html" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <i class="fas fa-tools mr-3"></i>
+                        Troubleshooting
+                    </a>
+                </div>
+            </nav>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t">
+                <div class="text-xs text-gray-500 text-center">
+                    <p>DentaCare Pro v1.0</p>
+                    <p>© 2025 Code Aristos. All Rights Reserved</p>
+                    <p><a href="https://codecanyon.net/user/codearistos/portfolio" target="_blank" class="text-blue-600 hover:text-blue-800">CodeCanyon Portfolio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Main content -->
+    <div class="md:ml-64 min-h-screen">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">DentaCare Pro Documentation</h1>
+                <p class="text-xl text-gray-600">Complete guide to installing, configuring, and using your dental practice management system</p>
+            </div>
+
+            <!-- Deployment -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                <h2 class="text-2xl font-semibold text-blue-900 mb-4">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    Secure Deployment
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-blue-800 mb-2">Hardened Installation</h3>
+                        <p class="text-blue-700 mb-3">Deploy DentaCare Pro securely using our canonical guide.</p>
+                        <a href="deployment/hardened-deployment.md" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-lock mr-2"></i>
+                            View Deployment Guide
+                        </a>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-blue-800 mb-2">Security Features</h3>
+                        <p class="text-blue-700 mb-3">Enterprise-grade security configuration.</p>
+                        <ul class="text-blue-800 space-y-1 text-sm">
+                            <li>• CLI-only administration</li>
+                            <li>• Environment-based secrets</li>
+                            <li>• Web server hardening</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">System Overview</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-blue-600 text-3xl mb-4">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Patient Management</h3>
+                        <p class="text-gray-600">Complete patient records with medical history, insurance information, and contact details.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-green-600 text-3xl mb-4">
+                            <i class="fas fa-tooth"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Interactive Odontogram</h3>
+                        <p class="text-gray-600">Visual tooth chart with condition tracking, treatment notes, and real-time updates.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-purple-600 text-3xl mb-4">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Appointment Scheduling</h3>
+                        <p class="text-gray-600">Calendar-based appointment management with time slot availability.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-red-600 text-3xl mb-4">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Examination System</h3>
+                        <p class="text-gray-600">Comprehensive dental examination records with clinical findings and diagnosis.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-yellow-600 text-3xl mb-4">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Financial Management</h3>
+                        <p class="text-gray-600">Invoice generation, payment tracking, and comprehensive financial reporting.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="text-indigo-600 text-3xl mb-4">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Reports & Analytics</h3>
+                        <p class="text-gray-600">Comprehensive practice statistics and insights for better decision making.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Specifications -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Technical Specifications</h2>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">System Requirements</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>PHP 7.4 or higher</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>MySQL 5.7 or higher</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Web server (Apache/Nginx)</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Composer (optional)</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>mod_rewrite enabled</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Framework & Technologies</h3>
+                            <ul class="space-y-2 text-gray-600">
+                                <li><i class="fas fa-code text-blue-500 mr-2"></i>CodeIgniter 4 Framework</li>
+                                <li><i class="fas fa-database text-green-500 mr-2"></i>MySQL Database</li>
+                                <li><i class="fas fa-paint-brush text-purple-500 mr-2"></i>Tailwind CSS</li>
+                                <li><i class="fas fa-mobile-alt text-orange-500 mr-2"></i>Responsive Design</li>
+                                <li><i class="fas fa-shield-alt text-red-500 mr-2"></i>Role-based Security</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentation Sections -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Documentation Sections</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-download text-blue-600 mr-2"></i>
+                            Installation Guide
+                        </h3>
+                        <p class="text-gray-600 mb-4">Step-by-step instructions for installing DentaCare Pro on your server.</p>
+                        <a href="installation.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Read Installation Guide →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-user text-green-600 mr-2"></i>
+                            User Guide
+                        </h3>
+                        <p class="text-gray-600 mb-4">Complete guide to using all features of DentaCare Pro.</p>
+                        <a href="user-guide.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Read User Guide →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-cogs text-orange-600 mr-2"></i>
+                            Settings & Configuration
+                        </h3>
+                        <p class="text-gray-600 mb-4">Configure your practice settings, user roles, and system preferences.</p>
+                        <a href="customization.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                            View Settings Guide →
+                        </a>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-cog text-orange-600 mr-2"></i>
+                            Customization
+                        </h3>
+                        <p class="text-gray-600 mb-4">Guide to customizing and extending DentaCare Pro.</p>
+                        <a href="customization.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Read Customization Guide →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="bg-gray-100 rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-life-ring mr-2"></i>
+                    Need Help?
+                </h2>
+                <p class="text-gray-600 mb-4">If you need assistance with installation, customization, or have any questions, our support team is here to help.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="troubleshooting.html" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-tools mr-2"></i>
+                        Troubleshooting
+                    </a>
+                    <a href="mailto:rizvi.mahmud.plabon@gmail.com" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Email Support
+                    </a>
+                    <a href="https://wa.me/8801777024443" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            overlay.classList.add('hidden');
+        });
+
+        // Close sidebar on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('sidebar-hidden');
+                overlay.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
