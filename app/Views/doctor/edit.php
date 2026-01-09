@@ -168,9 +168,17 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                        <input type="text" name="department" value="<?= old('department', $doctor['department'] ?? '') ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                               placeholder="e.g., General Dentistry, Orthodontics">
+                        <select name="department" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                            <option value="">Select Department</option>
+                            <option value="general" <?= old('department', $doctor['department'] ?? '') == 'general' ? 'selected' : '' ?>>General Dentistry</option>
+                            <option value="dental" <?= old('department', $doctor['department'] ?? '') == 'dental' ? 'selected' : '' ?>>Dental Clinic</option>
+                            <option value="orthodontics" <?= old('department', $doctor['department'] ?? '') == 'orthodontics' ? 'selected' : '' ?>>Orthodontics</option>
+                            <option value="oral_surgery" <?= old('department', $doctor['department'] ?? '') == 'oral_surgery' ? 'selected' : '' ?>>Oral Surgery</option>
+                            <option value="periodontics" <?= old('department', $doctor['department'] ?? '') == 'periodontics' ? 'selected' : '' ?>>Periodontics</option>
+                            <option value="pediatrics" <?= old('department', $doctor['department'] ?? '') == 'pediatrics' ? 'selected' : '' ?>>Pediatrics</option>
+                            <option value="endodontics" <?= old('department', $doctor['department'] ?? '') == 'endodontics' ? 'selected' : '' ?>>Endodontics</option>
+                            <option value="prosthodontics" <?= old('department', $doctor['department'] ?? '') == 'prosthodontics' ? 'selected' : '' ?>>Prosthodontics</option>
+                        </select>
                     </div>
                     
                     <div>

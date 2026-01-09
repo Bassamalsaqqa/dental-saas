@@ -46,6 +46,7 @@
                 <div class="p-8">
 
                     <form action="<?= base_url('prescription/store') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Patient Selection -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">

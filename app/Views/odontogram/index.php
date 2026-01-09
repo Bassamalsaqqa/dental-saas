@@ -942,6 +942,7 @@ function getStatusText($status) {
             <!-- Enhanced Form Content -->
             <div class="p-6">
                 <form id="toothForm" class="space-y-6">
+                    <?= csrf_field() ?>
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <input type="hidden" name="patient_id" value="<?= $patient['id'] ?>">
                     <input type="hidden" name="examination_id" value="">
@@ -1398,6 +1399,10 @@ document.getElementById('toothForm').addEventListener('submit', function(e) {
         return response.json();
     })
     .then(data => {
+        if (data.csrf_token) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+
         if (data.success) {
             // Update the odontogramData array with the new data
             const toothNumber = parseInt(formData.get('tooth_number'));
@@ -1478,6 +1483,7 @@ function removeToothCondition() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                [window.csrfConfig.header]: window.getCsrfToken()
             },
             body: `patient_id=${patientId}&tooth_number=${toothNumber}`
         })
@@ -1488,6 +1494,10 @@ function removeToothCondition() {
             return response.json();
         })
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            
             if (data.success) {
                 if (toothElement) {
                     toothElement.classList.remove('updating');

@@ -607,6 +607,7 @@
             </div>
             
             <form id="completeForm">
+                <?= csrf_field() ?>
                 <input type="hidden" id="examinationId" name="examination_id">
                 
                 <div class="mb-6">
@@ -736,9 +737,18 @@ $(document).ready(function() {
         ajax: {
             url: '<?= base_url('examination/getExaminationsData') ?>',
             type: 'POST',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(window.csrfConfig.header, window.getCsrfToken());
+            },
             data: function(d) {
+                d[window.csrfConfig.name] = window.getCsrfToken();
                 // Add any additional filters here if needed
                 return d;
+            },
+            complete: function(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
+                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
+                }
             },
             error: function(xhr, error, thrown) {
                 console.error('DataTables Ajax error:', {
@@ -749,6 +759,10 @@ $(document).ready(function() {
                     status: xhr.status,
                     statusText: xhr.statusText
                 });
+                
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
+                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
+                }
                 
                 let errorMessage = 'Error loading data';
                 try {
@@ -1137,10 +1151,17 @@ function completeExamination(examinationId) {
 function deleteExamination(examinationId) {
     if (confirm('Are you sure you want to delete this examination?')) {
         fetch(`<?= base_url('examination') ?>/${examinationId}/delete`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                [window.csrfConfig.header]: window.getCsrfToken()
+            }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            
             if (data.success) {
                 examinationsTable.ajax.reload();
             } else {
@@ -1170,6 +1191,10 @@ document.getElementById('completeForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        if (data.csrf_token) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+        
         if (data.success) {
             closeCompleteModal();
             examinationsTable.ajax.reload();

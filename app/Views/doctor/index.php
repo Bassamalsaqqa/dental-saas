@@ -183,15 +183,25 @@ function closeDeleteModal() {
 
 document.getElementById('confirmDelete').addEventListener('click', function() {
     if (doctorToDelete) {
+        // Get current token from global if available, otherwise fallback to initial
+        const csrfHeader = '<?= csrf_header() ?>';
+        const csrfToken = window.csrfHash || '<?= csrf_hash() ?>';
+
         fetch(`<?= base_url('doctors/') ?>${doctorToDelete}`, {
             method: 'DELETE',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
             }
         })
         .then(response => response.json())
         .then(data => {
+            // Handle CSRF token refresh if provided in response
+            if (data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+
             if (data.success) {
                 location.reload();
             } else {

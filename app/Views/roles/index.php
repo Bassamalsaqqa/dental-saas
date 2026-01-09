@@ -266,11 +266,15 @@ function deleteRole(roleId) {
             method: 'DELETE',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                // Update global token variables if you store them, or just rely on reload
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -291,7 +295,8 @@ function toggleRoleStatus(roleId, newStatus) {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
             },
             body: JSON.stringify({ status: newStatus })
         })

@@ -37,6 +37,7 @@ class Filters extends BaseFilters
         'auth'          => \App\Filters\AuthFilter::class,
         'admin'         => \App\Filters\AdminFilter::class,
         'permission'    => \App\Filters\PermissionFilter::class,
+        'csrfjson'      => \App\Filters\CsrfJson::class,
     ];
 
     /**
@@ -80,6 +81,7 @@ class Filters extends BaseFilters
         'after' => [
             'toolbar',
             'secureheaders',
+            'csrfjson',
             // 'honeypot',
         ],
     ];

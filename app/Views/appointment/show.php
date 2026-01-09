@@ -211,11 +211,15 @@ function confirmAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -235,11 +239,15 @@ function completeAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -259,11 +267,15 @@ function cancelAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {

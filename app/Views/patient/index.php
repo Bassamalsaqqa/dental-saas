@@ -458,6 +458,40 @@
 <script>
 // Global variables
 let patientsTable;
+const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
+const csrfMetaToken = document.querySelector('meta[name="csrf-token"]');
+const csrfCookieName = '<?= esc(config('Security')->cookieName) ?>';
+
+function getCookieValue(name) {
+    if (!name) {
+        return '';
+    }
+
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [key, ...valueParts] = cookie.trim().split('=');
+        if (key === name) {
+            return decodeURIComponent(valueParts.join('='));
+        }
+    }
+
+    return '';
+}
+
+function getCsrfName() {
+    return csrfMetaName ? csrfMetaName.getAttribute('content') : '<?= csrf_token() ?>';
+}
+
+function getCsrfToken() {
+    return csrfMetaToken ? csrfMetaToken.getAttribute('content') : '';
+}
+
+function refreshCsrfToken() {
+    const cookieToken = getCookieValue(csrfCookieName);
+    if (cookieToken && csrfMetaToken) {
+        csrfMetaToken.setAttribute('content', cookieToken);
+    }
+}
 
 $(document).ready(function() {
     // Check if table exists before initializing DataTable
@@ -474,13 +508,34 @@ $(document).ready(function() {
         ajax: {
             url: '<?= base_url('patient/get-data') ?>',
             type: 'POST',
+            beforeSend: function(xhr) {
+                const csrfToken = getCsrfToken();
+                if (csrfToken) {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                }
+            },
             data: function(d) {
                 d.status = $('#statusFilter').val();
                 d.search_term = $('#searchInput').val();
+                const csrfName = getCsrfName();
+                const csrfToken = getCsrfToken();
+                if (csrfName && csrfToken) {
+                    d[csrfName] = csrfToken;
+                }
+                return d;
+            },
+            complete: function(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token && csrfMetaToken) {
+                    csrfMetaToken.setAttribute('content', xhr.responseJSON.csrf_token);
+                }
             },
             error: function(xhr, error, thrown) {
                 console.error('DataTables AJAX error:', error, thrown);
                 console.error('Response:', xhr.responseText);
+                
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token && csrfMetaToken) {
+                    csrfMetaToken.setAttribute('content', xhr.responseJSON.csrf_token);
+                }
                 
                 // Check if it's an authentication error
                 if (xhr.status === 401 || xhr.status === 403) {
@@ -728,17 +783,17 @@ $(document).ready(function() {
 
     // Search functionality
     $('#searchInput').on('keyup', function() {
-        table.search(this.value).draw();
+        patientsTable.search(this.value).draw();
     });
 
     // Status filter
     $('#statusFilter').on('change', function() {
-        table.draw();
+        patientsTable.draw();
     });
     
     // Add a fallback if the table fails to load
     setTimeout(function() {
-        if (table && table.data().count() === 0) {
+        if (patientsTable && patientsTable.data().count() === 0) {
             console.log('Table appears empty, checking for errors...');
             // You could add fallback logic here if needed
         }

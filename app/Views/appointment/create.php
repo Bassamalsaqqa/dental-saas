@@ -45,6 +45,7 @@
                 <!-- Form Content -->
                 <div class="p-8">
                     <form action="<?= base_url('appointment/store') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Patient Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
@@ -240,14 +241,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Received data:', data);
                     timeSelect.innerHTML = '<option value="">Select time</option>';
                     
-                    if (Array.isArray(data) && data.length > 0) {
-                        data.forEach(timeSlot => {
+                    // Handle CSRF token if present
+                    if (data.csrf_token && window.refreshCsrfToken) {
+                        window.refreshCsrfToken(data.csrf_token);
+                    }
+
+                    let slots = [];
+                    if (Array.isArray(data)) {
+                        slots = data;
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Filter out csrf_token and keep only slot objects
+                        slots = Object.values(data).filter(item => 
+                            typeof item === 'object' && item !== null && item.hasOwnProperty('value') && item.hasOwnProperty('display')
+                        );
+                    }
+
+                    if (slots.length > 0) {
+                        slots.forEach(timeSlot => {
                             const option = document.createElement('option');
                             option.value = timeSlot.value;
                             option.textContent = timeSlot.display;
                             timeSelect.appendChild(option);
                         });
-                        console.log('Added', data.length, 'time slots');
+                        console.log('Added', slots.length, 'time slots');
                     } else {
                         timeSelect.innerHTML = '<option value="">No available time slots</option>';
                         console.log('No time slots available');

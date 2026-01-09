@@ -653,22 +653,21 @@ $(document).ready(function() {
         ajax: {
             url: '<?= base_url('inventory/getUsageHistoryData') ?>',
             type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(window.csrfConfig.header, window.getCsrfToken());
             },
             data: function(d) {
-                console.log('Sending Usage History DataTables request:', d);
-                console.log('CSRF name:', csrf_name);
-                console.log('CSRF hash:', csrf_hash);
-                d[csrf_name] = csrf_hash;
-                console.log('Final request data:', d);
+                d[window.csrfConfig.name] = window.getCsrfToken();
                 return d;
             },
             dataSrc: function(json) {
                 console.log('Received Usage History DataTables response:', json);
-                console.log('Response type:', typeof json);
-                console.log('Response keys:', Object.keys(json));
                 
+                // Refresh CSRF token if present
+                if (json.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(json.csrf_token);
+                }
+
                 if (json.error) {
                     console.error('Server error:', json.error);
                     alert('Error: ' + json.error);
@@ -784,7 +783,9 @@ $(document).ready(function() {
         drawCallback: function(settings) {
             console.log('Usage History DataTable draw callback triggered');
             // Re-initialize any interactive elements after table redraw
-            $('[data-toggle="tooltip"]').tooltip();
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
             
             // Ensure loading indicator is hidden after each draw
             hideLoadingIndicators();

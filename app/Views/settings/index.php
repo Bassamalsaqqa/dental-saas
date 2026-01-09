@@ -123,6 +123,7 @@
                     
                     <div class="p-8">
                             <form action="<?= base_url('settings/updateClinic') ?>" method="POST">
+                                <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Name</label>
@@ -173,6 +174,7 @@
 
                         <div class="p-8">
                             <form action="<?= base_url('settings/updateSystem') ?>" method="POST">
+                                <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Timezone</label>
@@ -432,6 +434,7 @@
                                     
                         <div class="p-8">
                             <form action="<?= base_url('settings/updateWorkingHours') ?>" method="POST">
+                                <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label>
@@ -547,6 +550,7 @@
                                             </button>
                                             <?php else: ?>
                                             <form action="<?= base_url('settings/create-backup') ?>" method="POST" class="inline">
+                                                    <?= csrf_field() ?>
                                                     <button type="submit" class="group/btn relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-lg font-bold rounded-2xl shadow-xl shadow-purple-500/25 hover:shadow-2xl hover:shadow-purple-500/30 focus:outline-none focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 hover:scale-105">
                                                         <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                                     <i class="fas fa-download w-5 h-5 mr-3 relative z-10"></i>
@@ -735,6 +739,12 @@ function confirmRestore(filename) {
     form.method = 'POST';
     form.action = '<?= base_url('settings/restore') ?>';
     
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '<?= csrf_token() ?>';
+    csrfInput.value = '<?= csrf_hash() ?>';
+    form.appendChild(csrfInput);
+
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'backup_file';

@@ -471,8 +471,17 @@ $(document).ready(function() {
             url: '<?= base_url('prescription/get-prescriptions') ?>',
             type: 'POST',
             data: function(d) {
-                // Add any additional filters here if needed
+                // Add CSRF token to body
+                d[window.csrfConfig.name] = window.getCsrfToken();
                 return d;
+            },
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(window.csrfConfig.header, window.getCsrfToken());
+            },
+            complete: function(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
+                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
+                }
             },
             error: function(xhr, error, thrown) {
                 console.error('DataTables Ajax error:', {
@@ -483,6 +492,11 @@ $(document).ready(function() {
                     status: xhr.status,
                     statusText: xhr.statusText
                 });
+                
+                // Refresh token on error too
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
+                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
+                }
                 
                 let errorMessage = 'Error loading data';
                 try {
@@ -501,7 +515,7 @@ $(document).ready(function() {
                             <div class="flex items-center justify-center space-x-2">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <span>${errorMessage}</span>
-                </div>
+                            </div>
                         </td>
                     </tr>
                 `);

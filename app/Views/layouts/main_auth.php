@@ -29,7 +29,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <meta name="description" content="Professional dental management system with comprehensive patient care, examination tracking, and appointment scheduling.">
     <meta name="theme-color" content="#0284c7">
+    <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
+
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Toast Notification System -->
@@ -466,6 +468,48 @@
 
 <!-- JavaScript -->
 <script>
+    // Global CSRF configuration
+    window.csrfConfig = {
+        name: document.querySelector('meta[name="csrf-name"]')?.getAttribute('content') || '<?= csrf_token() ?>',
+        header: 'X-CSRF-TOKEN',
+        cookieName: '<?= esc(config('Security')->cookieName) ?>'
+    };
+
+    // Initialize global hash
+    window.csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?= csrf_hash() ?>';
+
+    // Global CSRF helper functions
+    window.getCsrfToken = function() {
+        return window.csrfHash;
+    };
+
+    window.refreshCsrfToken = function(serverToken) {
+        let token = serverToken;
+        if (!token) {
+            const name = window.csrfConfig.cookieName;
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) {
+                token = parts.pop().split(';').shift();
+            }
+        }
+
+        if (token) {
+            window.csrfHash = token;
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) {
+                meta.setAttribute('content', token);
+                // Also update any hidden CSRF inputs in forms
+                document.querySelectorAll(`input[name="${window.csrfConfig.name}"]`).forEach(input => {
+                    input.value = token;
+                });
+            }
+            console.log('CSRF token refreshed successfully');
+            return token;
+        }
+        return window.csrfHash;
+    };
+
     // Sidebar toggle functionality
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -562,6 +606,8 @@
     });
 
 
+    const notificationsApiUrl = '<?= base_url('api/notifications') ?>';
+
     // Notifications toggle
     function toggleNotifications() {
         const dropdown = document.getElementById('notifications-dropdown');
@@ -608,7 +654,7 @@
 
     // Load notifications
     function loadNotifications() {
-        fetch('<?= base_url('api/notifications') ?>')
+        fetch(notificationsApiUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -617,6 +663,12 @@
             })
             .then(data => {
                 console.log('Notifications API response:', data);
+                
+                // Handle CSRF token refresh if provided in response
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
                 if (data.success) {
                     console.log('Updating notification count to:', data.count);
                     updateNotificationCount(data.count);
@@ -1000,9 +1052,14 @@
 
     // Load notification count from API
     function loadNotificationCount() {
-        fetch('<?= base_url('notifications/api') ?>')
+        fetch(notificationsApiUrl)
             .then(response => response.json())
             .then(data => {
+                // Handle CSRF token refresh if provided in response
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
                 if (data.success) {
                     updateNotificationCount(data.count);
                 } else {

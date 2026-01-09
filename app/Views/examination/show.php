@@ -467,6 +467,7 @@
             </div>
             
             <form id="completeForm">
+                <?= csrf_field() ?>
                 <input type="hidden" id="examinationId" name="examination_id">
                 
                 <div class="mb-6">
@@ -517,6 +518,9 @@ document.getElementById('completeForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        if (data.csrf_token) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
         if (data.success) {
             closeCompleteModal();
             location.reload();

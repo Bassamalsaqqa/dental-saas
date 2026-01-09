@@ -278,21 +278,38 @@ class RoleController extends BaseController
     {
         // Check if user can manage roles
         if (!$this->canManageRoles()) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage roles.']);
+            }
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
         }
 
         $role = $this->roleModel->find($id);
         
         if (!$role) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Role not found.']);
+            }
             return redirect()->to('/roles')->with('error', 'Role not found.');
         }
 
         // Prevent deletion of Super Admin role
         if ($role['slug'] === 'super_admin') {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the Super Admin role.']);
+            }
             return redirect()->to('/roles')->with('error', 'Cannot delete the Super Admin role.');
         }
 
         $success = $this->roleModel->deleteRole($id);
+
+        if ($this->request->isAJAX()) {
+            if ($success) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Role deleted successfully.']);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete role. It may be a system role or has users assigned.']);
+            }
+        }
 
         if ($success) {
             return redirect()->to('/roles')
@@ -392,23 +409,41 @@ class RoleController extends BaseController
     {
         // Check if user can manage roles
         if (!$this->canManageRoles()) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage roles.']);
+            }
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
         }
 
         $role = $this->roleModel->find($id);
         
         if (!$role) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Role not found.']);
+            }
             return redirect()->to('/roles')->with('error', 'Role not found.');
         }
 
         // Prevent toggling Super Admin role status
         if ($role['slug'] === 'super_admin') {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the Super Admin role status.']);
+            }
             return redirect()->to('/roles')->with('error', 'Cannot modify the Super Admin role status.');
         }
 
         $newStatus = $role['is_active'] ? 0 : 1;
         
         $success = $this->roleModel->update($id, ['is_active' => $newStatus]);
+
+        if ($this->request->isAJAX()) {
+            if ($success) {
+                $status = $newStatus ? 'activated' : 'deactivated';
+                return $this->response->setJSON(['success' => true, 'message' => "Role {$status} successfully."]);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update role status.']);
+            }
+        }
 
         if ($success) {
             $status = $newStatus ? 'activated' : 'deactivated';

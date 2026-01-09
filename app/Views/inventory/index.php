@@ -672,12 +672,19 @@ function adjustStock(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             },
-            body: JSON.stringify({ quantity: parseInt(newQuantity) })
+            body: JSON.stringify({ 
+                quantity: parseInt(newQuantity),
+                [window.csrfConfig.name]: window.getCsrfToken()
+            })
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -704,7 +711,7 @@ function deleteItem(id) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => {
@@ -714,6 +721,9 @@ function deleteItem(id) {
             return response.json();
         })
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 // Show success message
                 showNotification('Item deleted successfully!', 'success');
@@ -801,10 +811,6 @@ $(document).ready(function() {
         return;
     }
     
-    // CSRF token setup
-    const csrf_name = '<?= csrf_token() ?>';
-    const csrf_hash = '<?= csrf_hash() ?>';
-    
     // Load statistics
     loadInventoryStats();
     
@@ -832,18 +838,19 @@ $(document).ready(function() {
         ajax: {
             url: '<?= base_url('inventory/getInventoryData') ?>',
             type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(window.csrfConfig.header, window.getCsrfToken());
             },
             data: function(d) {
-                console.log('Sending DataTables request:', d);
-                console.log('CSRF name:', csrf_name);
-                console.log('CSRF hash:', csrf_hash);
-                d[csrf_name] = csrf_hash;
-                console.log('Final request data:', d);
+                d[window.csrfConfig.name] = window.getCsrfToken();
                 return d;
             },
             dataSrc: function(json) {
+                // Check if new CSRF token is returned
+                if (json.csrf_token) {
+                    window.refreshCsrfToken(json.csrf_token);
+                }
+                
                 console.log('Received DataTables response:', json);
                 console.log('Response type:', typeof json);
                 console.log('Response keys:', Object.keys(json));
@@ -887,6 +894,10 @@ $(document).ready(function() {
                     status: xhr.status,
                     statusText: xhr.statusText
                 });
+                
+                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
+                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
+                }
                 
                 let errorMessage = 'Error loading data';
                 try {
@@ -1008,7 +1019,9 @@ $(document).ready(function() {
         drawCallback: function(settings) {
             console.log('DataTable draw callback triggered');
             // Re-initialize any interactive elements after table redraw
-            $('[data-toggle="tooltip"]').tooltip();
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
             
             // Ensure loading indicator is hidden after each draw
             hideLoadingIndicators();
@@ -1023,17 +1036,29 @@ $(document).ready(function() {
 
 // Load inventory statistics
 function loadInventoryStats() {
-    fetch('<?= base_url('inventory/getInventoryStats') ?>')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('totalItems').textContent = data.total_items || 0;
-            document.getElementById('activeItems').textContent = data.active_items || 0;
-            document.getElementById('lowStockItems').textContent = data.low_stock_items || 0;
-            document.getElementById('outOfStockItems').textContent = data.out_of_stock_items || 0;
-        })
-        .catch(error => {
-            console.error('Error loading statistics:', error);
-        });
+    $.ajax({
+        url: '<?= base_url('inventory/getInventoryStats') ?>',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // Update the stats cards if they exist
+            if (data.total_items !== undefined) {
+                $('.total-items-count').text(data.total_items);
+            }
+            if (data.active_items !== undefined) {
+                $('.active-items-count').text(data.active_items);
+            }
+            if (data.low_stock_items !== undefined) {
+                $('.low-stock-count').text(data.low_stock_items);
+            }
+            if (data.out_of_stock_items !== undefined) {
+                $('.out-of-stock-count').text(data.out_of_stock_items);
+            }
+        },
+        error: function() {
+            console.error('Failed to load inventory statistics');
+        }
+    });
 }
 
 // Export Functions
@@ -1219,7 +1244,7 @@ function exportInventoryToCSV() {
 
 // Load statistics on page load
 document.addEventListener('DOMContentLoaded', function() {
-    loadInventoryStats();
+    // loadInventoryStats is already called in $(document).ready
 });
 </script>
 <?= $this->endSection() ?>

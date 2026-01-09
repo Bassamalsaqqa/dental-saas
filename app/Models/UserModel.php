@@ -51,7 +51,7 @@ class UserModel extends Model
         'username' => 'required|min_length[3]|max_length[30]|is_unique[users.username,id,{id}]',
         'password' => 'permit_empty|min_length[8]|max_length[255]',
         'role' => 'permit_empty|integer',
-        'department' => 'permit_empty|in_list[dental,orthodontics,oral_surgery,periodontics,pediatrics,general]',
+        'department' => 'permit_empty|in_list[dental,orthodontics,oral_surgery,periodontics,pediatrics,general,endodontics,prosthodontics]',
         'phone' => 'permit_empty|min_length[10]|max_length[20]',
         'address' => 'permit_empty|max_length[500]',
         'hire_date' => 'permit_empty|valid_date',

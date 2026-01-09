@@ -134,23 +134,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Hide loading indicator
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
+                // Refresh CSRF token if present
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
                 }
-                
-                if (data.error) {
-                    console.error('Calendar events error:', data.error);
-                    failureCallback(data.error);
-                } else {
-                    // Add CSS classes based on status
-                    const events = data.map(event => ({
-                        ...event,
-                        className: `examination-event ${event.status}`
-                    }));
-                    
-                    successCallback(events);
+
+                // Handle both array and object responses
+                let eventsData = [];
+                if (Array.isArray(data)) {
+                    eventsData = data;
+                } else if (typeof data === 'object' && data !== null) {
+                    // Filter out csrf_token and keep only event objects
+                    eventsData = Object.values(data).filter(item => 
+                        typeof item === 'object' && item !== null && item.hasOwnProperty('id')
+                    );
                 }
+
+                const events = eventsData.map(event => ({
+                    id: event.id,
+                    title: event.title,
+                    start: event.start,
+                    end: event.end,
+                    backgroundColor: getStatusColor(event.status),
+                    borderColor: getStatusColor(event.status),
+                    textColor: '#ffffff',
+                    url: `<?= base_url('examination') ?>/${event.id}`,
+                    extendedProps: {
+                        status: event.status,
+                        patient_id: event.patient_id
+                    }
+                }));
+                successCallback(events);
             })
             .catch(error => {
                 console.error('Error fetching calendar events:', error);

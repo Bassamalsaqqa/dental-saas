@@ -467,9 +467,15 @@ class OdontogramTable {
             formData.append('order[0][column]', this.orderColumn);
             formData.append('order[0][dir]', this.orderDir);
             
+            // Add CSRF token
+            formData.append(window.csrfConfig.name, window.getCsrfToken());
+            
             const response = await fetch('<?= base_url('odontogram/get-patients-data') ?>', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    [window.csrfConfig.header]: window.getCsrfToken()
+                }
             });
             
             if (!response.ok) {
@@ -479,6 +485,11 @@ class OdontogramTable {
             const data = await response.json();
             
             console.log('Response data:', data);
+
+            // Update token from response if available
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             
             if (data.error) {
                 throw new Error(data.error);

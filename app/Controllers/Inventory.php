@@ -345,13 +345,16 @@ class Inventory extends BaseController
 
     public function getInventoryStats()
     {
+        $totalValueData = $this->inventoryModel->select('SUM(quantity * unit_price) as total_value')->where('status', 'active')->first();
+        $totalValue = $totalValueData['total_value'] ?? 0;
+
         $stats = [
             'total_items' => $this->inventoryModel->countAllResults(),
             'active_items' => $this->inventoryModel->where('status', 'active')->countAllResults(),
-            'low_stock_items' => $this->inventoryModel->where('quantity <=', 'min_quantity')->countAllResults(),
-            'out_of_stock_items' => $this->inventoryModel->where('quantity', 0)->countAllResults(),
-            'expired_items' => $this->inventoryModel->where('expiry_date <', date('Y-m-d'))->countAllResults(),
-            'total_value' => $this->inventoryModel->selectSum('quantity * unit_price')->first()['quantity * unit_price'] ?? 0,
+            'low_stock_items' => $this->inventoryModel->where('quantity <=', 'min_quantity')->where('status', 'active')->countAllResults(),
+            'out_of_stock_items' => $this->inventoryModel->where('quantity', 0)->where('status', 'active')->countAllResults(),
+            'expired_items' => $this->inventoryModel->where('expiry_date <', date('Y-m-d'))->where('status', 'active')->countAllResults(),
+            'total_value' => $totalValue,
         ];
 
         return $this->response->setJSON($stats);

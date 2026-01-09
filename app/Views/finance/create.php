@@ -45,6 +45,7 @@
                 <!-- Form Content -->
                 <div class="p-8">
                     <form action="<?= base_url('finance/store') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Patient and Transaction Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">

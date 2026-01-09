@@ -221,7 +221,7 @@ Documentation must **not** instruct insecure actions.
 ---
 
 ### P1-02a-V Runtime Verification (API AuthN/AuthZ Response Evidence)
-**Status:** PLANNED  
+**Status:** DONE  
 
 **Definition of Done:**
 - Runtime HTTP evidence captured for:

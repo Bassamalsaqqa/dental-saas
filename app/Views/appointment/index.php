@@ -719,11 +719,15 @@ function confirmAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 showNotification('Appointment confirmed successfully!', 'success');
                 setTimeout(() => location.reload(), 1500);
@@ -744,11 +748,15 @@ function completeAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 showNotification('Appointment marked as completed successfully!', 'success');
                 setTimeout(() => location.reload(), 1500);
@@ -769,11 +777,15 @@ function cancelAppointment(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 showNotification('Appointment cancelled successfully!', 'success');
                 setTimeout(() => location.reload(), 1500);
@@ -794,11 +806,15 @@ function deleteAppointment(id) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 showNotification('Appointment deleted successfully!', 'success');
                 setTimeout(() => location.reload(), 1500);

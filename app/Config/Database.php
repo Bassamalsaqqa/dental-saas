@@ -63,11 +63,11 @@ class Database extends Config
         }
         
         // Load credentials from environment variables
-        $this->default['hostname'] = env('database.default.hostname', 'localhost');
-        $this->default['database'] = env('database.default.database', '');
-        $this->default['username'] = env('database.default.username', '');
-        $this->default['password'] = env('database.default.password', '');
-        $this->default['DBDriver'] = env('database.default.DBDriver', 'MySQLi');
-        $this->default['port']     = env('database.default.port', 3306);
+        $this->default['hostname'] = (string) env('database.default.hostname', 'localhost');
+        $this->default['database'] = (string) env('database.default.database', '');
+        $this->default['username'] = (string) env('database.default.username', '');
+        $this->default['password'] = (string) env('database.default.password', '');
+        $this->default['DBDriver'] = (string) env('database.default.DBDriver', 'MySQLi');
+        $this->default['port']     = (int) env('database.default.port', 3306);
     }
 } 

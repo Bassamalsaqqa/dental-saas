@@ -46,6 +46,7 @@
                 <div class="p-8">
 
                     <form action="<?= base_url('inventory/store') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Item Name and Category -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">

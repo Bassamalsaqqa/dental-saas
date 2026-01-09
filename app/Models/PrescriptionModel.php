@@ -13,6 +13,7 @@ class PrescriptionModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'prescription_id',
         'patient_id',
         'medication_name',
         'dosage',
@@ -76,7 +77,7 @@ class PrescriptionModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert = [];
+    protected $beforeInsert = ['generatePrescriptionId'];
     protected $afterInsert = [];
     protected $beforeUpdate = [];
     protected $afterUpdate = [];
@@ -84,6 +85,15 @@ class PrescriptionModel extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
+
+    protected function generatePrescriptionId(array $data)
+    {
+        if (!isset($data['data']['prescription_id'])) {
+            // Generate a unique prescription ID: RX-{YYYYMMDD}-{UniqueHash}
+            $data['data']['prescription_id'] = 'RX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+        }
+        return $data;
+    }
 
     public function getPrescriptionsWithPatientInfo()
     {

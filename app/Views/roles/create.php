@@ -55,6 +55,7 @@
     <?php endif; ?>
 
     <form action="<?= base_url('roles/store') ?>" method="post" id="roleForm" class="space-y-8">
+        <?= csrf_field() ?>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Role Information -->
             <div class="lg:col-span-1">

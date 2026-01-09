@@ -468,11 +468,17 @@ function toggleStatus(id) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
             }
         })
         .then(response => response.json())
         .then(data => {
+            // Handle CSRF token refresh if provided in response
+            if (data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            
             if (data.success) {
                 location.reload();
             } else {
@@ -492,11 +498,17 @@ function deleteUser(id) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
             }
         })
         .then(response => response.json())
         .then(data => {
+            // Handle CSRF token refresh if provided in response
+            if (data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            
             if (data.success) {
                 location.reload();
             } else {

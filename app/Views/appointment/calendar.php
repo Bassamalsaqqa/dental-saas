@@ -115,7 +115,23 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Calendar events loaded:', data);
                 
-                const events = data.map(event => ({
+                // Refresh CSRF token if present
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
+                // Handle both array and object responses
+                let eventsData = [];
+                if (Array.isArray(data)) {
+                    eventsData = data;
+                } else if (typeof data === 'object' && data !== null) {
+                    // Filter out csrf_token and keep only event objects
+                    eventsData = Object.values(data).filter(item => 
+                        typeof item === 'object' && item !== null && item.hasOwnProperty('id')
+                    );
+                }
+                
+                const events = eventsData.map(event => ({
                     id: event.id,
                     title: event.title,
                     start: event.start,

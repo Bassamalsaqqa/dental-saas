@@ -45,6 +45,7 @@
                 <!-- Form Content -->
                 <div class="p-8">
                     <form action="<?= base_url('patient/store') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Personal Information -->
                         <div class="group/section relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
