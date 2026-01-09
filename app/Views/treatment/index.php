@@ -646,6 +646,10 @@ $(document).ready(function() {
             }
         },
         drawCallback: function(settings) {
+            // Re-initialize tooltips if the function exists
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
             // Apply custom styling after each draw
             applyDataTablesStyling();
         }
@@ -686,12 +690,12 @@ $(document).ready(function() {
 
     // Search functionality
     $('#searchInput').on('keyup', function() {
-        table.search(this.value).draw();
+        treatmentsTable.search(this.value).draw();
     });
 
     // Status filter
     $('#statusFilter').on('change', function() {
-        table.draw();
+        treatmentsTable.draw();
     });
 });
     

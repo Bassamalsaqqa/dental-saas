@@ -743,6 +743,12 @@ $(document).ready(function() {
             }
         },
         drawCallback: function(settings) {
+            console.log('Patients DataTable draw callback triggered');
+            // Re-initialize tooltips if the function exists
+            if (typeof $.fn.tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+            
             // Apply custom styling after each draw
             applyDataTablesStyling();
         }
