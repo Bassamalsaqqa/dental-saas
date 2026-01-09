@@ -15,3 +15,10 @@ This log records significant architectural and security decisions made during th
 - **Decision:** All scripts in the `/scripts` directory are now "CLI-Only" and blocked at both the web server level (`.htaccess`) and the application level (PHP SAPI check).
 - **Rationale:** Direct HTTP access to utility or setup scripts is a high-risk attack vector. Fail-closed security requires multiple layers of blocking.
 - **Impact:** These scripts can only be executed via the command line (e.g., `php scripts/init_database.php`).
+
+## 2026-01-09: XSS Prevention Policy (P2-01)
+- **Decision:** `innerHTML` and jQuery `.html()` are banned for rendering user-controlled, database, or API-sourced strings.
+- **Enforcement:** Use `textContent` for plain text, `setAttribute` for attributes, and explicit `document.createElement`/`appendChild` for building complex nodes.
+- **Rationale:** Prevent DOM-based and Persistent XSS by ensuring data is always treated as literal text rather than executable markup.
+- **Exception:** Static markup with NO variable interpolation is allowed but discouraged.
+

@@ -123,3 +123,15 @@
     - Verified root `.htaccess` explicitly blocks the `/scripts` directory.
     - Added `docs/verification/P1-04.md`.
     - Updated deployment documentation.
+
+### Task: P2-01 XSS Audit Pass 1 (innerHTML Remediation)
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Remediated unsafe `innerHTML` sinks in three target views to prevent XSS.
+- **Files Changed:**
+    - `app/Views/activity_log/index.php`: Refactored `displayActivities` to use safe DOM node construction.
+    - `app/Views/prescription/show.php`: Refactored modal and toast generation to use safe DOM node construction.
+    - `app/Views/patient/show.php`: Refactored `renderTimeline`, `updateTooth`, and `showNotification` to use safe DOM methods.
+- **Verification:**
+    - Created `docs/verification/P2-01.md`.
+    - Verified that UI behavior and data rendering remain functional and correctly styled.

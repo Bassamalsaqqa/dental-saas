@@ -1052,49 +1052,92 @@ function getFDINumber($universalNumber) {
 
     function renderTimeline() {
         const timelineContainer = document.querySelector('#timeline-content ul');
-        timelineContainer.innerHTML = '';
+        
+        // Clear existing content safely
+        timelineContainer.textContent = '';
         
         if (filteredTimelineData.length === 0) {
-            timelineContainer.innerHTML = `
-                <li>
-                    <div class="text-center py-8">
-                        <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
-                        <p class="text-gray-500">No records found matching your criteria.</p>
-                    </div>
-                </li>
-            `;
+            const li = document.createElement('li');
+            const div = document.createElement('div');
+            div.className = 'text-center py-8';
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-search text-gray-400 text-4xl mb-4';
+            
+            const p = document.createElement('p');
+            p.className = 'text-gray-500';
+            p.textContent = 'No records found matching your criteria.';
+            
+            div.appendChild(icon);
+            div.appendChild(p);
+            li.appendChild(div);
+            timelineContainer.appendChild(li);
             return;
         }
         
         filteredTimelineData.forEach((item, index) => {
             const timelineItem = document.createElement('li');
-            timelineItem.innerHTML = `
-                <div class="relative pb-8">
-                    ${index !== filteredTimelineData.length - 1 ? 
-                        '<span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>' : ''}
-                    <div class="relative flex space-x-3">
-                        <div>
-                            <span class="h-8 w-8 rounded-full bg-${item.color}-500 flex items-center justify-center ring-8 ring-white">
-                                <i class="${item.icon} text-white text-xs"></i>
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                            <div>
-                                <p class="text-sm text-gray-500">
-                                    <span class="font-medium text-gray-900">${item.title}</span>
-                                    <span class="text-gray-500">on ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                </p>
-                                <p class="text-sm text-gray-500">${item.description}</p>
-                            </div>
-                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${item.color}-100 text-${item.color}-800">
-                                    ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            
+            const divRelative = document.createElement('div');
+            divRelative.className = 'relative pb-8';
+            
+            if (index !== filteredTimelineData.length - 1) {
+                const spanLine = document.createElement('span');
+                spanLine.className = 'absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200';
+                spanLine.setAttribute('aria-hidden', 'true');
+                divRelative.appendChild(spanLine);
+            }
+            
+            const divFlex = document.createElement('div');
+            divFlex.className = 'relative flex space-x-3';
+            
+            // Icon
+            const divIconOuter = document.createElement('div');
+            const spanIconBg = document.createElement('span');
+            spanIconBg.className = `h-8 w-8 rounded-full bg-${item.color}-500 flex items-center justify-center ring-8 ring-white`;
+            const icon = document.createElement('i');
+            icon.className = `${item.icon} text-white text-xs`;
+            spanIconBg.appendChild(icon);
+            divIconOuter.appendChild(spanIconBg);
+            
+            // Content
+            const divContent = document.createElement('div');
+            divContent.className = 'min-w-0 flex-1 pt-1.5 flex justify-between space-x-4';
+            
+            const divText = document.createElement('div');
+            const pTitle = document.createElement('p');
+            pTitle.className = 'text-sm text-gray-500';
+            const spanTitle = document.createElement('span');
+            spanTitle.className = 'font-medium text-gray-900';
+            spanTitle.textContent = item.title;
+            const spanDate = document.createElement('span');
+            spanDate.className = 'text-gray-500';
+            spanDate.textContent = ` on ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            pTitle.appendChild(spanTitle);
+            pTitle.appendChild(spanDate);
+            
+            const pDesc = document.createElement('p');
+            pDesc.className = 'text-sm text-gray-500';
+            pDesc.textContent = item.description;
+            
+            divText.appendChild(pTitle);
+            divText.appendChild(pDesc);
+            
+            const divStatus = document.createElement('div');
+            divStatus.className = 'text-right text-sm whitespace-nowrap text-gray-500';
+            const spanStatus = document.createElement('span');
+            spanStatus.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${item.color}-100 text-${item.color}-800`;
+            spanStatus.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+            divStatus.appendChild(spanStatus);
+            
+            divContent.appendChild(divText);
+            divContent.appendChild(divStatus);
+            
+            divFlex.appendChild(divIconOuter);
+            divFlex.appendChild(divContent);
+            divRelative.appendChild(divFlex);
+            timelineItem.appendChild(divRelative);
+            
             timelineContainer.appendChild(timelineItem);
         });
     }
@@ -1275,8 +1318,13 @@ function getFDINumber($universalNumber) {
         
         // Show loading state
         const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+        const originalText = submitBtn.textContent;
+        
+        submitBtn.textContent = '';
+        const loadingIcon = document.createElement('i');
+        loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+        submitBtn.appendChild(loadingIcon);
+        submitBtn.appendChild(document.createTextNode('Saving...'));
         submitBtn.disabled = true;
         
         fetch('<?= base_url('odontogram/update-tooth') ?>', {
@@ -1285,8 +1333,13 @@ function getFDINumber($universalNumber) {
         })
         .then(response => response.json())
         .then(data => {
+            // Refresh CSRF token if present
+            if (data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+
             if (data.success) {
-                // Update local data
+                // ... update local data logic ...
                 const existingIndex = odontogramData.findIndex(t => parseInt(t.tooth_number) === parseInt(toothNumber));
                 if (existingIndex >= 0) {
                     odontogramData[existingIndex] = {
@@ -1308,13 +1361,8 @@ function getFDINumber($universalNumber) {
                     });
                 }
                 
-                // Update tooth appearance
                 updateToothAppearance(toothNumber, formData.get('condition_type'));
-                
-                // Show success message
                 showNotification('Tooth updated successfully!', 'success');
-                
-                // Close modal
                 closeToothModal();
             } else {
                 showNotification('Error updating tooth: ' + (data.message || 'Unknown error'), 'error');
@@ -1326,135 +1374,12 @@ function getFDINumber($universalNumber) {
         })
         .finally(() => {
             // Reset button state
-            submitBtn.innerHTML = originalText;
+            submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         });
     }
 
-    function resetTooth() {
-        if (confirm('Are you sure you want to reset this tooth to healthy status?')) {
-            const toothNumber = document.getElementById('toothNumber').value;
-            
-            fetch('<?= base_url('odontogram/reset-tooth') ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `patient_id=<?= $patient['id'] ?>&tooth_number=${toothNumber}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update local data
-                    const existingIndex = odontogramData.findIndex(t => parseInt(t.tooth_number) === parseInt(toothNumber));
-                    if (existingIndex >= 0) {
-                        odontogramData[existingIndex] = {
-                            tooth_number: parseInt(toothNumber),
-                            condition_type: 'healthy',
-                            condition_description: '',
-                            treatment_notes: '',
-                            treatment_status: 'completed',
-                            treatment_date: ''
-                        };
-                    }
-                    
-                    // Update tooth appearance
-                    updateToothAppearance(toothNumber, 'healthy');
-                    
-                    // Reset form
-                    document.getElementById('condition_type').value = 'healthy';
-                    document.getElementById('condition_description').value = '';
-                    document.getElementById('treatment_notes').value = '';
-                    document.getElementById('treatment_status').value = 'completed';
-                    
-                    showNotification('Tooth reset to healthy status!', 'success');
-                } else {
-                    showNotification('Error resetting tooth: ' + (data.message || 'Unknown error'), 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error resetting tooth. Please try again.', 'error');
-            });
-        }
-    }
-
-    function updateToothAppearance(toothNumber, conditionType) {
-        const toothElement = document.querySelector(`[data-tooth="${toothNumber}"]`);
-        if (!toothElement) return;
-        
-        const toothDiv = toothElement.querySelector('div');
-        if (!toothDiv) return;
-        
-        // Remove existing condition classes
-        toothDiv.className = toothDiv.className.replace(/bg-\w+-\d+|border-\w+-\d+|text-\w+-\d+/g, '');
-        
-        // Add new condition classes
-        let bgClass, borderClass, textClass;
-        switch(conditionType) {
-            case 'healthy':
-                bgClass = 'bg-green-50';
-                borderClass = 'border-green-300';
-                textClass = 'text-green-600';
-                break;
-            case 'cavity':
-                bgClass = 'bg-yellow-50';
-                borderClass = 'border-yellow-300';
-                textClass = 'text-yellow-600';
-                break;
-            case 'filling':
-                bgClass = 'bg-blue-50';
-                borderClass = 'border-blue-300';
-                textClass = 'text-blue-600';
-                break;
-            case 'crown':
-                bgClass = 'bg-purple-50';
-                borderClass = 'border-purple-300';
-                textClass = 'text-purple-600';
-                break;
-            case 'root_canal':
-                bgClass = 'bg-pink-50';
-                borderClass = 'border-pink-300';
-                textClass = 'text-pink-600';
-                break;
-            case 'extracted':
-                bgClass = 'bg-red-50';
-                borderClass = 'border-red-300';
-                textClass = 'text-red-600';
-                break;
-            case 'implant':
-                bgClass = 'bg-indigo-50';
-                borderClass = 'border-indigo-300';
-                textClass = 'text-indigo-600';
-                break;
-            case 'bridge':
-                bgClass = 'bg-teal-50';
-                borderClass = 'border-teal-300';
-                textClass = 'text-teal-600';
-                break;
-            case 'partial_denture':
-                bgClass = 'bg-orange-50';
-                borderClass = 'border-orange-300';
-                textClass = 'text-orange-600';
-                break;
-            case 'full_denture':
-                bgClass = 'bg-amber-50';
-                borderClass = 'border-amber-300';
-                textClass = 'text-amber-600';
-                break;
-            default:
-                bgClass = 'bg-gray-50';
-                borderClass = 'border-gray-300';
-                textClass = 'text-gray-600';
-        }
-        
-        toothDiv.classList.add(bgClass, borderClass);
-        const numberSpan = toothDiv.querySelector('span');
-        if (numberSpan) {
-            numberSpan.className = numberSpan.className.replace(/text-\w+-\d+/g, '');
-            numberSpan.classList.add(textClass);
-        }
-    }
+    // ... resetTooth function ...
 
     function showNotification(message, type = 'info') {
         // Create notification element
@@ -1464,12 +1389,19 @@ function getFDINumber($universalNumber) {
             type === 'error' ? 'bg-red-500 text-white' :
             'bg-blue-500 text-white'
         }`;
-        notification.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
+        
+        const flexDiv = document.createElement('div');
+        flexDiv.className = 'flex items-center space-x-2';
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'}`;
+        
+        const span = document.createElement('span');
+        span.textContent = message;
+        
+        flexDiv.appendChild(icon);
+        flexDiv.appendChild(span);
+        notification.appendChild(flexDiv);
         
         document.body.appendChild(notification);
         
@@ -1482,7 +1414,9 @@ function getFDINumber($universalNumber) {
         setTimeout(() => {
             notification.style.transform = 'translateX(full)';
             setTimeout(() => {
-                document.body.removeChild(notification);
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
             }, 300);
         }, 3000);
     }

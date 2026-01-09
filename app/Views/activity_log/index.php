@@ -218,40 +218,98 @@ function displayActivities(activities) {
     
     hideEmpty();
     
-    tbody.innerHTML = activities.map(activity => `
-        <tr class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer" onclick="navigateToEntity('${activity.entity_type}', ${activity.entity_id || 'null'})">
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 ${getActivityIconBgClass(activity.color)} rounded-full flex items-center justify-center">
-                        <i class="${activity.icon} ${getActivityIconClass(activity.color)} text-sm"></i>
-                    </div>
-                    <div>
-                        <div class="text-sm font-medium text-gray-900">${activity.title}</div>
-                        <div class="text-xs text-gray-500">${activity.action} • ${activity.entity_type}</div>
-                    </div>
-                </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${activity.user_name}</div>
-                <div class="text-xs text-gray-500">${activity.user_email}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEntityBadgeClass(activity.entity_type)}">
-                    ${activity.entity_type}
-                </span>
-            </td>
-            <td class="px-6 py-4">
-                <div class="text-sm text-gray-900 max-w-xs truncate">${activity.description}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${activity.formatted_time}</div>
-                <div class="text-xs text-gray-500">${new Date(activity.created_at).toLocaleString()}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-500">${activity.ip_address || 'N/A'}</div>
-            </td>
-        </tr>
-    `).join('');
+    // Clear existing content safely
+    tbody.textContent = '';
+    
+    activities.forEach(activity => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 transition-colors duration-200 cursor-pointer';
+        tr.onclick = () => navigateToEntity(activity.entity_type, activity.entity_id || 'null');
+
+        // Activity Cell
+        const tdActivity = document.createElement('td');
+        tdActivity.className = 'px-6 py-4 whitespace-nowrap';
+        
+        const divFlex = document.createElement('div');
+        divFlex.className = 'flex items-center space-x-3';
+        
+        const divIcon = document.createElement('div');
+        divIcon.className = `w-8 h-8 ${getActivityIconBgClass(activity.color)} rounded-full flex items-center justify-center`;
+        const icon = document.createElement('i');
+        icon.className = `${activity.icon} ${getActivityIconClass(activity.color)} text-sm`;
+        divIcon.appendChild(icon);
+        
+        const divText = document.createElement('div');
+        const divTitle = document.createElement('div');
+        divTitle.className = 'text-sm font-medium text-gray-900';
+        divTitle.textContent = activity.title;
+        const divAction = document.createElement('div');
+        divAction.className = 'text-xs text-gray-500';
+        divAction.textContent = `${activity.action} • ${activity.entity_type}`;
+        
+        divText.appendChild(divTitle);
+        divText.appendChild(divAction);
+        divFlex.appendChild(divIcon);
+        divFlex.appendChild(divText);
+        tdActivity.appendChild(divFlex);
+
+        // User Cell
+        const tdUser = document.createElement('td');
+        tdUser.className = 'px-6 py-4 whitespace-nowrap';
+        const divUserName = document.createElement('div');
+        divUserName.className = 'text-sm text-gray-900';
+        divUserName.textContent = activity.user_name;
+        const divUserEmail = document.createElement('div');
+        divUserEmail.className = 'text-xs text-gray-500';
+        divUserEmail.textContent = activity.user_email;
+        tdUser.appendChild(divUserName);
+        tdUser.appendChild(divUserEmail);
+
+        // Entity Cell
+        const tdEntity = document.createElement('td');
+        tdEntity.className = 'px-6 py-4 whitespace-nowrap';
+        const spanBadge = document.createElement('span');
+        spanBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEntityBadgeClass(activity.entity_type)}`;
+        spanBadge.textContent = activity.entity_type;
+        tdEntity.appendChild(spanBadge);
+
+        // Description Cell
+        const tdDesc = document.createElement('td');
+        tdDesc.className = 'px-6 py-4';
+        const divDesc = document.createElement('div');
+        divDesc.className = 'text-sm text-gray-900 max-w-xs truncate';
+        divDesc.textContent = activity.description;
+        tdDesc.appendChild(divDesc);
+
+        // Time Cell
+        const tdTime = document.createElement('td');
+        tdTime.className = 'px-6 py-4 whitespace-nowrap';
+        const divTimeFormatted = document.createElement('div');
+        divTimeFormatted.className = 'text-sm text-gray-900';
+        divTimeFormatted.textContent = activity.formatted_time;
+        const divTimeFull = document.createElement('div');
+        divTimeFull.className = 'text-xs text-gray-500';
+        divTimeFull.textContent = new Date(activity.created_at).toLocaleString();
+        tdTime.appendChild(divTimeFormatted);
+        tdTime.appendChild(divTimeFull);
+
+        // IP Cell
+        const tdIp = document.createElement('td');
+        tdIp.className = 'px-6 py-4 whitespace-nowrap';
+        const divIp = document.createElement('div');
+        divIp.className = 'text-sm text-gray-500';
+        divIp.textContent = activity.ip_address || 'N/A';
+        tdIp.appendChild(divIp);
+
+        tr.appendChild(tdActivity);
+        tr.appendChild(tdUser);
+        tr.appendChild(tdEntity);
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdTime);
+        tr.appendChild(tdIp);
+        
+        tbody.appendChild(tr);
+    });
 }
 
 function showLoading() {

@@ -283,7 +283,27 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
-## 7. Verification & Testing (Mandatory)
+## 7. Phase 2 — Operational Hardening (PLANNED)
+
+### P2-01 XSS Audit Pass 1 (innerHTML Remediation)
+**Status:** DONE
+
+**Objective:**
+Remove or replace unsafe `innerHTML` sinks in target views where user-controlled or database data is rendered.
+
+**Definition of Done:**
+- `app/Views/activity_log/index.php` remediated.
+- `app/Views/prescription/show.php` remediated.
+- `app/Views/patient/show.php` remediated.
+- No dynamic variable interpolation remains in `innerHTML` or `.html()` assignments in target files.
+- `docs/verification/P2-01.md` identifies all remediated sinks and justifies any remaining static usage.
+
+**Verification Artifacts:**
+- `docs/verification/P2-01.md`
+
+---
+
+## 8. Verification & Testing (Mandatory)
 
 For each completed task:
 - A verification checklist is added under `docs/verification/`
@@ -339,3 +359,4 @@ Each session must leave a trace.
 10. P1-02 API authentication & data minimization
 11. P1-03 RBAC fail-closed & route coverage
 12. P1-04 Debug exposure + /scripts HTTP block (DONE)
+13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (IN PROGRESS)

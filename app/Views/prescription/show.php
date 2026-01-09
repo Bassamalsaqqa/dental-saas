@@ -210,61 +210,116 @@ function deletePrescription(id) {
     // Create a custom confirmation modal
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
-    modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div class="flex items-center space-x-4 mb-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900">Delete Prescription</h3>
-                    <p class="text-sm text-gray-600">This action cannot be undone</p>
-                </div>
-            </div>
-            <p class="text-gray-700 mb-6">Are you sure you want to delete this prescription? All associated data will be permanently removed.</p>
-            <div class="flex space-x-3">
-                <button onclick="this.closest('.fixed').remove()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
-                    Cancel
-                </button>
-                <button onclick="confirmDelete(${id})" class="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-pink-700 transition-all duration-300">
-                    Delete
-                </button>
-            </div>
-        </div>
-    `;
+    
+    const container = document.createElement('div');
+    container.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full p-6';
+    
+    const header = document.createElement('div');
+    header.className = 'flex items-center space-x-4 mb-4';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center';
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle text-white text-xl';
+    iconContainer.appendChild(icon);
+    
+    const titleContainer = document.createElement('div');
+    const title = document.createElement('h3');
+    title.className = 'text-lg font-bold text-gray-900';
+    title.textContent = 'Delete Prescription';
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-sm text-gray-600';
+    subtitle.textContent = 'This action cannot be undone';
+    
+    titleContainer.appendChild(title);
+    titleContainer.appendChild(subtitle);
+    header.appendChild(iconContainer);
+    header.appendChild(titleContainer);
+    
+    const message = document.createElement('p');
+    message.className = 'text-gray-700 mb-6';
+    message.textContent = 'Are you sure you want to delete this prescription? All associated data will be permanently removed.';
+    
+    const actions = document.createElement('div');
+    actions.className = 'flex space-x-3';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = () => modal.remove();
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-pink-700 transition-all duration-300';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => confirmDelete(id);
+    
+    actions.appendChild(cancelBtn);
+    actions.appendChild(deleteBtn);
+    
+    container.appendChild(header);
+    container.appendChild(message);
+    container.appendChild(actions);
+    modal.appendChild(container);
+    
     document.body.appendChild(modal);
 }
 
 function confirmDelete(id) {
     // Remove modal
-    document.querySelector('.fixed.inset-0').remove();
+    const modal = document.querySelector('.fixed.inset-0.bg-black\/50');
+    if (modal) modal.remove();
     
     // Show loading state
     const loadingToast = document.createElement('div');
     loadingToast.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-xl shadow-lg z-50';
-    loadingToast.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting prescription...';
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+    loadingToast.appendChild(loadingIcon);
+    
+    const loadingText = document.createTextNode('Deleting prescription...');
+    loadingToast.appendChild(loadingText);
+    
     document.body.appendChild(loadingToast);
 
-    fetch(`/prescription/${id}`, {
+    // Get current token from global mechanism
+    const csrfHeader = '<?= csrf_header() ?>';
+    const csrfToken = window.csrfHash || '<?= csrf_hash() ?>';
+
+    fetch(`<?= base_url() ?>prescription/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            [csrfHeader]: csrfToken
         }
     })
     .then(response => response.json())
     .then(data => {
         loadingToast.remove();
+        
+        // Refresh CSRF token if present
+        if (data.csrf_token && window.refreshCsrfToken) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+
         if (data.success) {
             // Show success toast
             const successToast = document.createElement('div');
             successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50';
-            successToast.innerHTML = '<i class="fas fa-check mr-2"></i>Prescription deleted successfully';
+            
+            const successIcon = document.createElement('i');
+            successIcon.className = 'fas fa-check mr-2';
+            successToast.appendChild(successIcon);
+            
+            const successText = document.createTextNode('Prescription deleted successfully');
+            successToast.appendChild(successText);
+            
             document.body.appendChild(successToast);
             
             // Redirect to prescriptions list after a short delay
             setTimeout(() => {
-                window.location.href = '/prescription';
+                window.location.href = '<?= base_url('prescription') ?>';
             }, 1500);
         } else {
             throw new Error(data.message || 'Failed to delete prescription');
@@ -276,8 +331,16 @@ function confirmDelete(id) {
         
         // Show error toast
         const errorToast = document.createElement('div');
-        errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg z-50';
-        errorToast.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Error: ' + error.message;
+        errorToast.className = 'fixed top-4 right-4 bg-red-50 text-red-600 px-6 py-3 rounded-xl shadow-lg z-50 border border-red-200';
+        
+        const errorIcon = document.createElement('i');
+        errorIcon.className = 'fas fa-exclamation-circle mr-2';
+        errorToast.appendChild(errorIcon);
+        
+        const errorText = document.createElement('span');
+        errorText.textContent = 'Error: ' + error.message;
+        errorToast.appendChild(errorText);
+        
         document.body.appendChild(errorToast);
         
         // Auto remove error toast
