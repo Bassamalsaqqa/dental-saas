@@ -41,3 +41,7 @@ desktop.ini
 npm-debug.log
 yarn-error.log
 pnpm-debug.log
+
+# Local-only artifacts
+.env
+democa_dental.sql
