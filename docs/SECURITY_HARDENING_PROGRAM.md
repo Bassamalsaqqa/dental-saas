@@ -359,4 +359,4 @@ Each session must leave a trace.
 10. P1-02 API authentication & data minimization
 11. P1-03 RBAC fail-closed & route coverage
 12. P1-04 Debug exposure + /scripts HTTP block (DONE)
-13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (IN PROGRESS)
+13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (DONE)

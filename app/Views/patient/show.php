@@ -1318,13 +1318,15 @@ function getFDINumber($universalNumber) {
         
         // Show loading state
         const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
         
-        submitBtn.textContent = '';
+        // Cache original children once if not already cached
+        if (!submitBtn.hasOwnProperty('_originalChildren')) {
+            submitBtn._originalChildren = Array.from(submitBtn.childNodes).map(node => node.cloneNode(true));
+        }
+        
         const loadingIcon = document.createElement('i');
         loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
-        submitBtn.appendChild(loadingIcon);
-        submitBtn.appendChild(document.createTextNode('Saving...'));
+        submitBtn.replaceChildren(loadingIcon, document.createTextNode('Saving...'));
         submitBtn.disabled = true;
         
         fetch('<?= base_url('odontogram/update-tooth') ?>', {
@@ -1373,8 +1375,8 @@ function getFDINumber($universalNumber) {
             showNotification('Error updating tooth. Please try again.', 'error');
         })
         .finally(() => {
-            // Reset button state
-            submitBtn.textContent = originalText;
+            // Restore original button state
+            submitBtn.replaceChildren(...submitBtn._originalChildren.map(node => node.cloneNode(true)));
             submitBtn.disabled = false;
         });
     }
