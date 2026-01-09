@@ -1,6 +1,7 @@
 <?php
 if (php_sapi_name() !== 'cli') {
-    http_response_code(404);
+    header('HTTP/1.1 403 Forbidden');
+    echo "Direct HTTP access to scripts is forbidden.";
     exit;
 }
 

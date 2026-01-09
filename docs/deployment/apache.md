@@ -2,6 +2,14 @@
 
 This document outlines the required Apache configuration for securing the DentaCare Pro application.
 
+## 0. Document Root (CRITICAL)
+
+For security reasons, the **DocumentRoot** of your virtual host MUST point to the `public/` directory:
+```apache
+DocumentRoot "/var/www/dental/public"
+```
+Pointing the DocumentRoot to the repository root is considered insecure and requires active `.htaccess` protection.
+
 ## 1. Root .htaccess (Hardening)
 
 The `.htaccess` file in the repository root (`/`) must include the following blocking rules **before** any rewrite logic. This is critical if the web server's document root is set to the repository root (legacy hosting).

@@ -20,7 +20,7 @@
     - Deleted `public/dbtest.php`, `public/envtest.php`.
     - Updated `docs/verification/P1-02a-V.md`.
     - Updated `docs/SECURITY_HARDENING_PROGRAM.md`.
-- **Note:** Created and removed temporary seeder `App\Database\Seeds\TestUserSeeder` and `CleanupTestUserSeeder` for verification.
+- **Note:** Created and removed temporary seeder `App\Database\Seeds\TestUserSeeder` and `CleanupTestUserSeeder` for verification.        
 
 ### Task: Settings Module CSRF Hardening
 - **Date:** 2026-01-09
@@ -72,7 +72,7 @@
 - **Date:** 2026-01-09
 - **Description:** Fixed "No medical roles" in Doctor creation and CSRF errors in User status toggle.
 - **Fixes Applied:**
-    - **Medical Roles:** Updated `roles` table to set `is_medical = 1` for `doctor`, `senior_doctor`, and `dental_assistant` roles.
+    - **Medical Roles:** Updated `roles` table to set `is_medical = 1` for `doctor`, `senior_doctor`, and `dental_assistant` roles.       
     - **CSRF Fixes:** Added CSRF headers to `toggleStatus` and `deleteUser` AJAX requests in `app/Views/users/index.php` and `app/Views/users/show.php`. Added CSRF token refresh logic to `app/Views/users/index.php`.
 - **Verification:**
     - Medical roles now appear in the Doctor creation dropdown.
@@ -106,3 +106,20 @@
 - **Verification:**
     - Calendars now load events correctly without JS errors.
     - Patients list search and status filters are now functional.
+
+### Task: P0-06 Repo Secret + Dump Hygiene
+- **Status:** Completed
+- **Changes:**
+    - Verified `.env` and `*.sql` files are ignored and untracked.
+    - Updated `.env.example` with comprehensive keys and placeholders.
+    - Created `docs/development/LOCAL_SETUP.md` with secure import instructions and prerequisites.
+    - Added `docs/verification/P0-06.md`.
+
+### Task: P1-04 Debug Exposure + /scripts HTTP Block
+- **Status:** Completed
+- **Changes:**
+    - Modified `app/Config/Database.php` to make `DBDebug` environment-controlled (defaults to FALSE in production).
+    - Updated `scripts/init_database.php` and `scripts/simple_login_test.php` with 403 Forbidden CLI-only guards.
+    - Verified root `.htaccess` explicitly blocks the `/scripts` directory.
+    - Added `docs/verification/P1-04.md`.
+    - Updated deployment documentation.

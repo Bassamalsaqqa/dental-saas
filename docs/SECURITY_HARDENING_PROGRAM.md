@@ -3,7 +3,7 @@
 **Owner:** Bassam Alsaqqa  
 **Phase:** 0 — Containment  
 **Start Date:** 2026-01-05  
-**Last Updated:** 2026-01-05  
+**Last Updated:** 2026-01-09  
 **Status:** ACTIVE — NO-SHIP UNTIL COMPLETED
 
 ---
@@ -111,6 +111,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 
 ---
 
+
 ### P0-02 Block Sensitive Files at Web Server Level
 **Status:** DONE  
 
@@ -119,6 +120,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 - Apache/Nginx rules documented in `docs/deployment/`
 
 ---
+
 
 ### P0-03 Secrets Removal & Rotation
 **Status:** DONE  
@@ -129,6 +131,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 - Rotation steps documented
 
 ---
+
 
 ### P0-04 Documentation Rewrite (Phase 0 Scope)
 **Status:** DONE  
@@ -149,6 +152,7 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
+
 ### P0-05 Non-Operational Audit/Review Documentation Sanitization
 **Status:** DONE
 
@@ -167,10 +171,24 @@ Documentation must **not** instruct insecure actions.
 - Placeholders like `[REDACTED_ENDPOINT]`, `[REDACTED_PATH]`, `[REDACTED_COMPONENT]` allowed.
 
 **Verification:**
-- `rg -n "^(\\s*[-*]\\s*)?(Run|Enable|Disable|Remove|Fix|Ensure|Verify|Set|Apply|Configure|Execute)\\b" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
-- `rg -n "http://|https://|curl|mysql\\b|\\brm\\b|GET /|POST /|/api/|Reproduction steps|Test:" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
+- `rg -n "^(\s*[-*]\s*)?(Run|Enable|Disable|Remove|Fix|Ensure|Verify|Set|Apply|Configure|Execute)\b" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
+- `rg -n "http://|https://|curl|mysql\b|\brm\b|GET /|POST /|/api/|Reproduction steps|Test:" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
 - `rg -n "```" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
 - Manual review for playbook-like remediation steps.
+
+---
+
+
+### P0-06 Repo Secret + Dump Hygiene
+**Status:** DONE
+
+**Definition of Done:**
+- `.env` and `democa_dental.sql` are untracked and in `.gitignore`.
+- `.env.example` updated with comprehensive keys and no real secrets.
+- `docs/development/LOCAL_SETUP.md` created with secure setup instructions.
+
+**Verification Artifacts:**
+- `docs/verification/P0-06.md`
 
 ---
 
@@ -192,6 +210,7 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
+
 ### P1-02 API Authentication & Data Minimization
 **Status:** DONE
 
@@ -204,6 +223,7 @@ Documentation must **not** instruct insecure actions.
 - `docs/verification/P1-02.md` with authenticated/unauthenticated API checks and field-minimization evidence.
 
 ---
+
 
 ### P1-02a API Fail-Closed AuthN/AuthZ Filter Behavior
 **Status:** DONE  
@@ -220,6 +240,7 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
+
 ### P1-02a-V Runtime Verification (API AuthN/AuthZ Response Evidence)
 **Status:** DONE  
 
@@ -234,6 +255,7 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
+
 ### P1-03 RBAC Fail-Closed & Route Coverage
 **Status:** DONE  
 
@@ -247,6 +269,20 @@ Documentation must **not** instruct insecure actions.
 
 ---
 
+
+### P1-04 Debug Exposure + /scripts HTTP Block
+**Status:** DONE
+
+**Definition of Done:**
+- `DBDebug` is environment-controlled and defaults to FALSE.
+- `/scripts` directory blocked over HTTP via `.htaccess`.
+- `scripts/init_database.php` and `scripts/simple_login_test.php` have 403 CLI-only guards.
+
+**Verification Artifacts:**
+- `docs/verification/P1-04.md`
+
+---
+
 ## 7. Verification & Testing (Mandatory)
 
 For each completed task:
@@ -257,6 +293,7 @@ For each completed task:
   - screenshots/log paths if applicable
 
 ---
+
 
 ## 8. Implementation Protocol (LLM Governance)
 
@@ -275,6 +312,7 @@ For each completed task:
 
 ---
 
+
 ## 9. Logs (Append Only)
 
 ### Decision Log
@@ -287,14 +325,17 @@ Each session must leave a trace.
 
 ---
 
+
 ## 10. Current Priority Order
 1. P0-01 Remove dangerous scripts
 2. P0-02 Block sensitive files
 3. P0-03 Secrets rotation
 4. P0-04 Documentation rewrite
-5. P0-05 Non-operational audit/review docs (DONE)
-6. P1-01 Global CSRF, secure headers, secure cookies
-7. P1-02a API fail-closed authn/authz filters
-8. P1-02a-V runtime API authn/authz verification
-9. P1-02 API authentication & data minimization
-10. P1-03 RBAC fail-closed & route coverage
+5. P0-05 Non-operational audit/review docs
+6. P0-06 Repo secret + dump hygiene (DONE)
+7. P1-01 Global CSRF, secure headers, secure cookies
+8. P1-02a API fail-closed authn/authz filters
+9. P1-02a-V runtime API authn/authz verification
+10. P1-02 API authentication & data minimization
+11. P1-03 RBAC fail-closed & route coverage
+12. P1-04 Debug exposure + /scripts HTTP block (DONE)

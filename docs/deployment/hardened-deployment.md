@@ -25,12 +25,14 @@ DentaCare Pro enforces a **Secure-by-Design** deployment model:
 Point your web server's **Document Root** to the `public/` directory.
 *   Path: `/var/www/dental/public`
 *   URL: `https://your-domain.com/`
+*   **SECURITY:** The `/scripts` directory is blocked at the application level and must be blocked at the web server level.
 
 ### Legacy Setup (Repo Root - NOT Recommended)
 If you must serve from the repository root:
 *   Path: `/var/www/dental`
 *   URL: `https://your-domain.com/public/`
-*   **CRITICAL:** You MUST ensure the root `.htaccess` rules (or Nginx equivalents) are active to block access to `app/`, `system/`, and `.env`.
+*   **CRITICAL:** You MUST ensure the root `.htaccess` rules (or Nginx equivalents) are active to block access to `app/`, `system/`, `.env`, and especially `scripts/`.
+*   **FAIL-CLOSED:** Direct HTTP access to any file in `scripts/` will return a 403 Forbidden.
 
 **See:**
 *   [Apache Configuration](apache.md)
