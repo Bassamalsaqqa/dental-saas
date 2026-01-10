@@ -117,3 +117,14 @@
     - Created \docs/verification/P3-10.md\.
     - Confirmed zero \innerHTML\ sinks in the view.
     - Verified dynamic card rendering and notification behavior.
+
+### Task: P3-10 Appointment Index UI Remediation (Correction Append - Final)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Append-only correction. The earlier corrupted P3-10 block remains unchanged to preserve the audit trail.
+- **Files Changed (P3-10 code):**
+  - `app/Views/appointment/index.php` - Removed DOM-string sinks from notification and appointment card rendering.
+- **Verification:**
+  - `docs/verification/P3-10.md`
+  - `rg -n ""innerHTML|\.html\(|insertAdjacentHTML|outerHTML"" app/Views/appointment/index.php` -> (empty)
+
