@@ -736,36 +736,97 @@
     function displayNotifications(notifications) {
         const listElement = document.getElementById('notifications-list');
         
+        // Clear existing content safely
+        listElement.textContent = '';
+        
         if (notifications.length === 0) {
-            listElement.innerHTML = `
-                <div class="p-4 text-center text-gray-500">
-                    <i class="fas fa-bell-slash text-2xl mb-2"></i>
-                    <p>No new notifications</p>
-                </div>
-            `;
+            const emptyState = document.createElement('div');
+            emptyState.className = 'p-4 text-center text-gray-500';
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-bell-slash text-2xl mb-2';
+            
+            const message = document.createElement('p');
+            message.textContent = 'No new notifications';
+            
+            emptyState.appendChild(icon);
+            emptyState.appendChild(message);
+            listElement.appendChild(emptyState);
             return;
         }
 
-        listElement.innerHTML = notifications.map(notification => `
-            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="navigateToEntityFromNotification('${notification.entity_type || 'system'}', ${notification.entity_id || 'null'}); return false;">
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 ${getNotificationIconBgClass(notification.color)} rounded-full flex items-center justify-center">
-                            <i class="${notification.icon} ${getNotificationIconClass(notification.color)} text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">${notification.title}</p>
-                        <p class="text-sm text-gray-500">${notification.message}</p>
-                        <div class="flex items-center justify-between mt-1">
-                            <p class="text-xs text-gray-400">${formatTime(notification.created_at)}</p>
-                            ${notification.user_name ? `<p class="text-xs text-gray-500">by ${notification.user_name}</p>` : ''}
-                        </div>
-                    </div>
-                    ${!notification.is_read ? '<div class="w-2 h-2 bg-blue-500 rounded-full"></div>' : ''}
-                </div>
-            </div>
-        `).join('');
+        const fragment = document.createDocumentFragment();
+        
+        notifications.forEach(notification => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer';
+            itemDiv.onclick = function() {
+                navigateToEntityFromNotification(notification.entity_type || 'system', notification.entity_id || 'null');
+                return false;
+            };
+            
+            const flexDiv = document.createElement('div');
+            flexDiv.className = 'flex items-start space-x-3';
+            
+            // Icon container
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'flex-shrink-0';
+            
+            const iconBg = document.createElement('div');
+            iconBg.className = `w-8 h-8 ${getNotificationIconBgClass(notification.color)} rounded-full flex items-center justify-center`;
+            
+            const icon = document.createElement('i');
+            icon.className = `${notification.icon} ${getNotificationIconClass(notification.color)} text-sm`;
+            
+            iconBg.appendChild(icon);
+            iconContainer.appendChild(iconBg);
+            
+            // Content container
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex-1 min-w-0';
+            
+            const title = document.createElement('p');
+            title.className = 'text-sm font-medium text-gray-900';
+            title.textContent = notification.title;
+            
+            const message = document.createElement('p');
+            message.className = 'text-sm text-gray-500';
+            message.textContent = notification.message;
+            
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'flex items-center justify-between mt-1';
+            
+            const time = document.createElement('p');
+            time.className = 'text-xs text-gray-400';
+            time.textContent = formatTime(notification.created_at);
+            metaDiv.appendChild(time);
+            
+            if (notification.user_name) {
+                const user = document.createElement('p');
+                user.className = 'text-xs text-gray-500';
+                user.textContent = `by ${notification.user_name}`;
+                metaDiv.appendChild(user);
+            }
+            
+            contentDiv.appendChild(title);
+            contentDiv.appendChild(message);
+            contentDiv.appendChild(metaDiv);
+            
+            flexDiv.appendChild(iconContainer);
+            flexDiv.appendChild(contentDiv);
+            
+            // Unread indicator
+            if (!notification.is_read) {
+                const unreadDot = document.createElement('div');
+                unreadDot.className = 'w-2 h-2 bg-blue-500 rounded-full';
+                flexDiv.appendChild(unreadDot);
+            }
+            
+            itemDiv.appendChild(flexDiv);
+            fragment.appendChild(itemDiv);
+        });
+        
+        listElement.appendChild(fragment);
     }
 
     // Clear notification read status (for testing)

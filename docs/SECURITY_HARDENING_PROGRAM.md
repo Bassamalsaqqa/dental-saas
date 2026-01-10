@@ -309,21 +309,29 @@ Documentation must **not** instruct insecure actions.
 ### P2-04 Inventory UI Remediation
 **Status:** DONE
 
-**Objective:**
-Remove all dynamic `innerHTML` sinks from the Inventory list view.
-
-**Definition of Done:**
-- `app/Views/inventory/index.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains for dynamic data.
-- Button icons preserved via child node caching.
-- Table rendering, notifications, and print functionality preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P2-04.md`
+...
 
 ---
 
-## 8. Verification & Testing (Mandatory)
+## 8. Phase 3 — Global UI Hardening
+
+### P3-01 Notifications UI Remediation
+**Status:** DONE
+
+**Objective:**
+Remove dynamic HTML string rendering from the global notifications system.
+
+**Definition of Done:**
+- `app/Views/layouts/main_auth.php` refactored to use safe DOM methods.
+- No `innerHTML` sinks remain for notification data.
+- Polling, unread counts, and navigation preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-01.md`
+
+---
+
+## 9. Verification & Testing (Mandatory)
 
 For each completed task:
 - A verification checklist is added under `docs/verification/`
@@ -383,3 +391,4 @@ Each session must leave a trace.
 14. P2-02 Toast component remediation (remove innerHTML) (DONE)
 15. P2-03 Odontogram UI remediation (remove innerHTML) (DONE)
 16. P2-04 Inventory UI remediation (remove innerHTML) (DONE)
+17. P3-01 Notifications UI remediation (remove innerHTML) (DONE)

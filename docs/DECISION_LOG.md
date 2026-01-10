@@ -35,4 +35,9 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Inventory List Remediation (P2-04)
 - **Decision:** All dynamic `innerHTML` and `outerHTML` usage is banned in the `inventory/index.php` view.
 - **Enforcement:** Notifications, table updates, and error messages must use `createElement` and `textContent`. Print functionality must use DOM cloning instead of `outerHTML` serialization.
-- **Rationale:** Prevents XSS when rendering inventory item names, descriptions, or error messages from the server.
+- Rationale: Prevents XSS when rendering inventory item names, descriptions, or error messages from the server.
+
+## 2026-01-09: Notifications UI Remediation (P3-01)
+- **Decision:** The global notifications UI in `main_auth.php` must not use `innerHTML` or template literals for rendering.
+- **Enforcement:** Use `DocumentFragment`, `createElement`, and `textContent` to build the notification list.
+- **Rationale:** Notifications contain user-generated content (names, messages) and are a persistent UI element, making them a critical XSS vector if not handled safely.
