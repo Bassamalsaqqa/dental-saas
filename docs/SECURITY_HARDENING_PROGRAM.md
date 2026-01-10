@@ -441,6 +441,22 @@ Remove DOM-string sinks from the Appointment Index view (`index.php`).
 
 ---
 
+### P3-11 Remove Remaining DOM String Sinks
+**Status:** DONE
+
+**Objective:**
+Remove all remaining DOM-string sinks from allowlisted high and medium priority views.
+
+**Definition of Done:**
+- All `innerHTML`, `outerHTML`, `insertAdjacentHTML`, and jQuery `.html()` sinks removed from the targeted files.
+- Safe DOM construction using `createElement`, `textContent`, `appendChild`, and `replaceChildren` implemented.
+- UI behavior, event wiring, and dynamic updates preserved exactly.
+
+**Verification Artifacts:**
+- `docs/verification/P3-11.md`
+
+---
+
 ## 9. Verification & Testing (Mandatory)
 
 For each completed task:
@@ -511,3 +527,4 @@ Each session must leave a trace.
 24. P3-08 Patient index modal UI remediation (remove innerHTML) (DONE)
 25. P3-09 Settings modal UI remediation (remove innerHTML) (DONE)
 26. P3-10 Appointment index UI remediation (remove innerHTML) (DONE)
+27. P3-11 Remove remaining DOM string sinks (DONE)

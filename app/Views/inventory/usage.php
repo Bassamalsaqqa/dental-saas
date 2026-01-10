@@ -335,8 +335,9 @@ document.getElementById('usageForm').addEventListener('submit', function(e) {
     
     // Show loading state
     const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recording...';
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+    submitBtn.replaceChildren(loadingIcon, document.createTextNode('Recording...'));
     submitBtn.disabled = true;
 });
 </script>

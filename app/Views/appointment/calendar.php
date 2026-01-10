@@ -220,16 +220,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create error notification
         const errorDiv = document.createElement('div');
         errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-        errorDiv.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
         
+        const flexContainer = document.createElement('div');
+        flexContainer.className = 'flex items-center space-x-2';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-exclamation-triangle';
+        
+        const text = document.createElement('span');
+        text.textContent = message;
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'ml-2 text-white hover:text-gray-200';
+        closeBtn.onclick = function() {
+            errorDiv.remove();
+        };
+        const closeIcon = document.createElement('i');
+        closeIcon.className = 'fas fa-times';
+        closeBtn.appendChild(closeIcon);
+        
+        flexContainer.appendChild(icon);
+        flexContainer.appendChild(text);
+        flexContainer.appendChild(closeBtn);
+        
+        errorDiv.appendChild(flexContainer);
         document.body.appendChild(errorDiv);
         
         // Auto remove after 5 seconds

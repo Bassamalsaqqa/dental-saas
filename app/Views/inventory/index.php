@@ -950,7 +950,7 @@ $(document).ready(function() {
                 
                 // Show a user-friendly message in the table
                 const tbody = document.querySelector('#inventoryTable tbody');
-                tbody.innerHTML = ''; // Clear existing content
+                tbody.replaceChildren(); // Clear existing content
                 
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
@@ -1001,7 +1001,7 @@ $(document).ready(function() {
                     return data; // Return text for sorting/filtering
                 },
                 createdCell: function(td, cellData, rowData, row, col) {
-                    td.innerHTML = ''; // Clear content
+                    td.replaceChildren(); // Clear content
                     
                     const container = document.createElement('div');
                     container.className = 'flex items-center space-x-3';
@@ -1038,7 +1038,7 @@ $(document).ready(function() {
                     return data;
                 },
                 createdCell: function(td, cellData, rowData, row, col) {
-                    td.innerHTML = '';
+                    td.replaceChildren();
                     
                     const span = document.createElement('span');
                     span.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
@@ -1062,7 +1062,7 @@ $(document).ready(function() {
                     return data || 'N/A';
                 },
                 createdCell: function(td, cellData, rowData, row, col) {
-                    td.innerHTML = '';
+                    td.replaceChildren();
                     
                     if (!cellData || cellData === 'N/A') {
                         const span = document.createElement('span');

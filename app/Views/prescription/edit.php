@@ -257,78 +257,107 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
     // Create medicine item
     const medicineItem = document.createElement('div');
     medicineItem.className = 'medicine-item bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300';
-    medicineItem.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-pills text-white text-sm"></i>
-                </div>
-                <h4 class="text-lg font-semibold text-gray-900">Medicine ${count}</h4>
-            </div>
-            <button type="button" onclick="removeMedicine(this)" class="group/btn relative p-2 text-red-600 hover:text-red-800 rounded-lg hover:bg-red-50 transition-all duration-300">
-                <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-lg blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-trash relative z-10"></i>
-            </button>
-        </div>
+    
+    // Header section
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'flex items-center justify-between mb-4';
+    
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'flex items-center space-x-3';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center';
+    const pillIcon = document.createElement('i');
+    pillIcon.className = 'fas fa-pills text-white text-sm';
+    iconContainer.appendChild(pillIcon);
+    
+    const titleH4 = document.createElement('h4');
+    titleH4.className = 'text-lg font-semibold text-gray-900';
+    titleH4.textContent = 'Medicine ' + count;
+    
+    titleContainer.appendChild(iconContainer);
+    titleContainer.appendChild(titleH4);
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'group/btn relative p-2 text-red-600 hover:text-red-800 rounded-lg hover:bg-red-50 transition-all duration-300';
+    removeBtn.onclick = function() {
+        removeMedicine(this);
+    };
+    
+    const btnBg = document.createElement('div');
+    btnBg.className = 'absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-lg blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300';
+    const trashIcon = document.createElement('i');
+    trashIcon.className = 'fas fa-trash relative z-10';
+    
+    removeBtn.appendChild(btnBg);
+    removeBtn.appendChild(trashIcon);
+    
+    headerDiv.appendChild(titleContainer);
+    headerDiv.appendChild(removeBtn);
+    medicineItem.appendChild(headerDiv);
+    
+    // Grid section
+    const gridDiv = document.createElement('div');
+    gridDiv.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
+    
+    const createField = (label, iconClass, inputName, val, placeholder, iconColor) => {
+        const fieldContainer = document.createElement('div');
+        fieldContainer.className = 'group/field relative';
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Medicine Name -->
-            <div class="group/field relative">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2">
-                    <i class="fas fa-pills text-blue-600"></i>
-                    <span>Medicine Name *</span>
-                </label>
-                <div class="relative">
-                    <input type="text" name="medicines[${count}][name]" value="${name}" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" placeholder="e.g., Amoxicillin" required>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <i class="fas fa-pills text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Dosage -->
-            <div class="group/field relative">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2">
-                    <i class="fas fa-weight text-purple-600"></i>
-                    <span>Dosage *</span>
-                </label>
-                <div class="relative">
-                    <input type="text" name="medicines[${count}][dosage]" value="${dosage}" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300" placeholder="e.g., 500mg" required>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <i class="fas fa-capsules text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Frequency -->
-            <div class="group/field relative">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2">
-                    <i class="fas fa-clock text-amber-600"></i>
-                    <span>Frequency *</span>
-                </label>
-                <div class="relative">
-                    <input type="text" name="medicines[${count}][frequency]" value="${frequency}" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300" placeholder="e.g., Twice daily" required>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <i class="fas fa-repeat text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Duration -->
-            <div class="group/field relative">
-                <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2">
-                    <i class="fas fa-calendar-alt text-rose-600"></i>
-                    <span>Duration *</span>
-                </label>
-                <div class="relative">
-                    <input type="text" name="medicines[${count}][duration]" value="${duration}" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300" placeholder="e.g., 7 days" required>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <i class="fas fa-calendar-check text-gray-400 text-xs"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+        const labelElem = document.createElement('label');
+        labelElem.className = 'block text-sm font-bold text-gray-700 mb-2 flex items-center space-x-2';
+        const labelIcon = document.createElement('i');
+        labelIcon.className = iconClass + ' ' + iconColor;
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = label + ' *';
+        labelElem.appendChild(labelIcon);
+        labelElem.appendChild(labelSpan);
+        
+        const relativeDiv = document.createElement('div');
+        relativeDiv.className = 'relative';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = inputName;
+        input.value = val;
+        input.className = 'w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300';
+        input.placeholder = placeholder;
+        input.required = true;
+        
+        const innerIconContainer = document.createElement('div');
+        innerIconContainer.className = 'absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none';
+        const innerIcon = document.createElement('i');
+        innerIcon.className = iconClass + ' text-gray-400 text-xs';
+        innerIconContainer.appendChild(innerIcon);
+        
+        relativeDiv.appendChild(input);
+        relativeDiv.appendChild(innerIconContainer);
+        
+        fieldContainer.appendChild(labelElem);
+        fieldContainer.appendChild(relativeDiv);
+        return fieldContainer;
+    };
+    
+    gridDiv.appendChild(createField('Medicine Name', 'fas fa-pills', `medicines[${count}][name]`, name, 'e.g., Amoxicillin', 'text-blue-600'));
+    gridDiv.appendChild(createField('Dosage', 'fas fa-weight', `medicines[${count}][dosage]`, dosage, 'e.g., 500mg', 'text-purple-600'));
+    gridDiv.appendChild(createField('Frequency', 'fas fa-clock', `medicines[${count}][frequency]`, frequency, 'e.g., Twice daily', 'text-amber-600'));
+    gridDiv.appendChild(createField('Duration', 'fas fa-calendar-alt', `medicines[${count}][duration]`, duration, 'e.g., 7 days', 'text-rose-600'));
+    
+    medicineItem.appendChild(gridDiv);
+    
+    // Add to container
+    document.getElementById('medicines-container').appendChild(medicineItem);
+    
+    // Add animation
+    medicineItem.style.opacity = '0';
+    medicineItem.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+        medicineItem.style.transition = 'all 0.3s ease';
+        medicineItem.style.opacity = '1';
+        medicineItem.style.transform = 'translateY(0)';
+    }, 10);
+}
     
     // Add to container
     document.getElementById('medicines-container').appendChild(medicineItem);

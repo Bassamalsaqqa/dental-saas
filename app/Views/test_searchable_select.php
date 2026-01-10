@@ -154,10 +154,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const resultsList = document.getElementById('testResults');
+        resultsList.replaceChildren();
+        
         if (results.length > 0) {
-            resultsList.innerHTML = results.map(result => `<li>${result}</li>`).join('');
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.textContent = result;
+                resultsList.appendChild(li);
+            });
         } else {
-            resultsList.innerHTML = '<li>No selections made yet</li>';
+            const li = document.createElement('li');
+            li.textContent = 'No selections made yet';
+            resultsList.appendChild(li);
         }
     }
     

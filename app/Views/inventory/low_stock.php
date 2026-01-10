@@ -661,20 +661,45 @@ $(document).ready(function() {
                 console.error('DataTables Error: ' + errorMessage);
                 
                 // Show a user-friendly message in the table
-                $('#lowStockTable tbody').html(`
-                    <tr>
-                        <td colspan="9" class="text-center py-8 text-gray-500">
-                            <div class="flex flex-col items-center space-y-2">
-                                <i class="fas fa-exclamation-triangle text-4xl text-yellow-500"></i>
-                                <p class="text-lg font-medium">Unable to load low stock data</p>
-                                <p class="text-sm">Please check your connection and try again.</p>
-                                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                                    <i class="fas fa-refresh mr-2"></i>Retry
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                const tbody = document.querySelector('#lowStockTable tbody');
+                if (tbody) {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.setAttribute('colspan', '9');
+                    td.className = 'text-center py-8 text-gray-500';
+                    
+                    const flexDiv = document.createElement('div');
+                    flexDiv.className = 'flex flex-col items-center space-y-2';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
+                    
+                    const p1 = document.createElement('p');
+                    p1.className = 'text-lg font-medium';
+                    p1.textContent = 'Unable to load low stock data';
+                    
+                    const p2 = document.createElement('p');
+                    p2.className = 'text-sm';
+                    p2.textContent = 'Please check your connection and try again.';
+                    
+                    const retryBtn = document.createElement('button');
+                    retryBtn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
+                    retryBtn.onclick = function() { location.reload(); };
+                    
+                    const retryIcon = document.createElement('i');
+                    retryIcon.className = 'fas fa-refresh mr-2';
+                    retryBtn.appendChild(retryIcon);
+                    retryBtn.appendChild(document.createTextNode('Retry'));
+                    
+                    flexDiv.appendChild(icon);
+                    flexDiv.appendChild(p1);
+                    flexDiv.appendChild(p2);
+                    flexDiv.appendChild(retryBtn);
+                    td.appendChild(flexDiv);
+                    tr.appendChild(td);
+                    
+                    tbody.replaceChildren(tr);
+                }
                 
                 // Hide loading indicators on error
                 hideLoadingIndicators();
@@ -833,36 +858,61 @@ function printLowStockTableContent() {
     const table = document.getElementById('lowStockTable');
     const tableClone = table.cloneNode(true);
     
-    // Create print content
-    const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title><?= lang('Inventory.lowStockItems') ?> Report</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { color: #333; text-align: center; margin-bottom: 30px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f5f5f5; font-weight: bold; }
-                .no-print { display: none; }
-                @media print {
-                    body { margin: 0; }
-                    .no-print { display: none !important; }
-                }
-            </style>
-        </head>
-        <body>
-            <h1><?= lang('Inventory.lowStockItems') ?> Report</h1>
-            <p><strong><?= lang('Inventory.generatedOn') ?>:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong><?= lang('Inventory.totalItemsCount') ?>:</strong> ${lowStockTable ? lowStockTable.page.info().recordsTotal : 'N/A'}</p>
-            ${tableClone.outerHTML}
-        </body>
-        </html>
-    `;
+    // Set up print document
+    const doc = printWindow.document;
+    doc.open();
     
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+    // Create basic structure
+    const html = doc.createElement('html');
+    const head = doc.createElement('head');
+    const title = doc.createElement('title');
+    title.textContent = '<?= lang('Inventory.lowStockItems') ?> Report';
+    head.appendChild(title);
+    
+    // Add styles
+    const style = doc.createElement('style');
+    style.textContent = `
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        .no-print { display: none; }
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none !important; }
+        }
+    `;
+    head.appendChild(style);
+    
+    const body = doc.createElement('body');
+    
+    const h1 = doc.createElement('h1');
+    h1.textContent = '<?= lang('Inventory.lowStockItems') ?> Report';
+    
+    const p1 = doc.createElement('p');
+    const strong1 = doc.createElement('strong');
+    strong1.textContent = '<?= lang('Inventory.generatedOn') ?>:';
+    p1.appendChild(strong1);
+    p1.appendChild(document.createTextNode(` ${new Date().toLocaleDateString()}`));
+    
+    const p2 = doc.createElement('p');
+    const strong2 = doc.createElement('strong');
+    strong2.textContent = '<?= lang('Inventory.totalItemsCount') ?>:';
+    p2.appendChild(strong2);
+    p2.appendChild(document.createTextNode(` ${lowStockTable ? lowStockTable.page.info().recordsTotal : 'N/A'}`));
+    
+    body.appendChild(h1);
+    body.appendChild(p1);
+    body.appendChild(p2);
+    body.appendChild(tableClone);
+    
+    html.appendChild(head);
+    html.appendChild(body);
+    
+    // Write the built DOM to the new window
+    doc.appendChild(html);
+    doc.close();
     
     // Wait for content to load, then print
     printWindow.onload = function() {

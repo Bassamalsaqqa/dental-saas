@@ -320,28 +320,70 @@ function exportReport() {
     // Create a more modern confirmation dialog
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-download text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Export Report</h3>
-                <p class="text-gray-600 mb-6">Choose the format for your financial report</p>
-                <div class="flex space-x-3">
-                    <button onclick="downloadReport('pdf'); this.closest('.fixed').remove()" class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all">
-                        <i class="fas fa-file-pdf mr-2"></i>PDF
-                    </button>
-                    <button onclick="downloadReport('excel'); this.closest('.fixed').remove()" class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all">
-                        <i class="fas fa-file-excel mr-2"></i>Excel
-                    </button>
-                </div>
-                <button onclick="this.closest('.fixed').remove()" class="mt-4 px-6 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    `;
+    
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4';
+    
+    const textCenter = document.createElement('div');
+    textCenter.className = 'text-center';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4';
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-download text-white text-2xl';
+    iconContainer.appendChild(icon);
+    
+    const title = document.createElement('h3');
+    title.className = 'text-xl font-bold text-gray-800 mb-2';
+    title.textContent = 'Export Report';
+    
+    const description = document.createElement('p');
+    description.className = 'text-gray-600 mb-6';
+    description.textContent = 'Choose the format for your financial report';
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'flex space-x-3';
+    
+    const pdfBtn = document.createElement('button');
+    pdfBtn.className = 'px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all';
+    pdfBtn.onclick = function() {
+        downloadReport('pdf');
+        modal.remove();
+    };
+    const pdfIcon = document.createElement('i');
+    pdfIcon.className = 'fas fa-file-pdf mr-2';
+    pdfBtn.appendChild(pdfIcon);
+    pdfBtn.appendChild(document.createTextNode('PDF'));
+    
+    const excelBtn = document.createElement('button');
+    excelBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all';
+    excelBtn.onclick = function() {
+        downloadReport('excel');
+        modal.remove();
+    };
+    const excelIcon = document.createElement('i');
+    excelIcon.className = 'fas fa-file-excel mr-2';
+    excelBtn.appendChild(excelIcon);
+    excelBtn.appendChild(document.createTextNode('Excel'));
+    
+    buttonContainer.appendChild(pdfBtn);
+    buttonContainer.appendChild(excelBtn);
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'mt-4 px-6 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = function() {
+        modal.remove();
+    };
+    
+    textCenter.appendChild(iconContainer);
+    textCenter.appendChild(title);
+    textCenter.appendChild(description);
+    textCenter.appendChild(buttonContainer);
+    textCenter.appendChild(cancelBtn);
+    
+    card.appendChild(textCenter);
+    modal.appendChild(card);
     document.body.appendChild(modal);
 }
 

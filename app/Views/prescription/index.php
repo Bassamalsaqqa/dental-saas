@@ -509,16 +509,29 @@ $(document).ready(function() {
                 }
                 
                 // Show error message
-                $('#prescriptionsTableBody').html(`
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-red-500">
-                            <div class="flex items-center justify-center space-x-2">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>${errorMessage}</span>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                const tbody = document.getElementById('prescriptionsTableBody');
+                if (tbody) {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.setAttribute('colspan', '6');
+                    td.className = 'px-6 py-4 text-center text-red-500';
+                    
+                    const flexDiv = document.createElement('div');
+                    flexDiv.className = 'flex items-center justify-center space-x-2';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-exclamation-triangle';
+                    
+                    const span = document.createElement('span');
+                    span.textContent = errorMessage;
+                    
+                    flexDiv.appendChild(icon);
+                    flexDiv.appendChild(span);
+                    td.appendChild(flexDiv);
+                    tr.appendChild(td);
+                    
+                    tbody.replaceChildren(tr);
+                }
             }
         },
         columns: [

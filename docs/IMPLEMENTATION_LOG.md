@@ -152,3 +152,25 @@
 - **Verification:**
   - `rg -n "innerHTML|\.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
 
+
+### Task: P3-11 Remove Remaining DOM String Sinks
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Remediated all remaining DOM-string sinks in allowlisted views across Finance, Prescription, Calendar, Examination, and Inventory modules.
+- **Files Changed:**
+    - `app/Views/finance/reports.php`: Refactored export modal construction.
+    - `app/Views/finance/index.php`: Refactored DataTable error handling.
+    - `app/Views/prescription/create.php`: Refactored dynamic medicine item addition.
+    - `app/Views/prescription/edit.php`: Refactored dynamic medicine item addition.
+    - `app/Views/prescription/index.php`: Refactored DataTable error handling.
+    - `app/Views/appointment/calendar.php`: Refactored error notification logic.
+    - `app/Views/examination/calendar.php`: Refactored event details modal content generation.
+    - `app/Views/examination/index.php`: Refactored pagination icons and daily calendar grid generation.
+    - `app/Views/inventory/low_stock.php`: Refactored DataTable error handling and print logic.
+    - `app/Views/inventory/usage.php`: Refactored submit button loading state.
+    - `app/Views/test_searchable_select.php`: Refactored test results rendering.
+    - `app/Views/inventory/index.php`: Refactored innerHTML clearing to replaceChildren().
+- **Verification:**
+    - Created `docs/verification/P3-11.md`.
+    - Confirmed zero dynamic DOM-string sinks in targeted files via ripgrep.
+    - Verified exact UI behavior preservation for all modules.

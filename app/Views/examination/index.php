@@ -695,11 +695,17 @@ function applyDataTablesStyling() {
         $('.dataTables_filter').prepend('<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-search mr-2 text-gray-500"></i>Search:</label>');
     }
     
-    // Add icons to pagination buttons
-    $('.dataTables_paginate .paginate_button.first').html('<i class="fas fa-angle-double-left"></i>');
-    $('.dataTables_paginate .paginate_button.previous').html('<i class="fas fa-angle-left"></i>');
-    $('.dataTables_paginate .paginate_button.next').html('<i class="fas fa-angle-right"></i>');
-    $('.dataTables_paginate .paginate_button.last').html('<i class="fas fa-angle-double-right"></i>');
+    // Add icons to pagination buttons using safe DOM construction
+    const createIcon = (cls) => {
+        const icon = document.createElement('i');
+        icon.className = cls;
+        return icon;
+    };
+
+    $('.dataTables_paginate .paginate_button.first').each(function() { this.replaceChildren(createIcon('fas fa-angle-double-left')); });
+    $('.dataTables_paginate .paginate_button.previous').each(function() { this.replaceChildren(createIcon('fas fa-angle-left')); });
+    $('.dataTables_paginate .paginate_button.next').each(function() { this.replaceChildren(createIcon('fas fa-angle-right')); });
+    $('.dataTables_paginate .paginate_button.last').each(function() { this.replaceChildren(createIcon('fas fa-angle-double-right')); });
     
     console.log('DataTables styling applied');
 }
@@ -1073,7 +1079,7 @@ function generateCalendar() {
     document.getElementById('currentMonth').textContent = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     
     // Clear calendar
-    calendarGrid.innerHTML = '';
+    calendarGrid.replaceChildren();
     
     // Add day headers
     const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -1101,12 +1107,16 @@ function generateCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'h-20 p-2 border border-gray-200 hover:bg-gray-50 cursor-pointer';
-        dayCell.innerHTML = `
-            <div class="text-sm font-medium text-gray-900">${day}</div>
-            <div class="mt-1 space-y-1">
-                <!-- Calendar will be populated by JavaScript -->
-            </div>
-        `;
+        
+        const dayNum = document.createElement('div');
+        dayNum.className = 'text-sm font-medium text-gray-900';
+        dayNum.textContent = day;
+        
+        const dayContent = document.createElement('div');
+        dayContent.className = 'mt-1 space-y-1';
+        
+        dayCell.appendChild(dayNum);
+        dayCell.appendChild(dayContent);
         calendarGrid.appendChild(dayCell);
     }
 }

@@ -98,3 +98,9 @@ This log records significant architectural and security decisions made during th
 - **Rationale:** Appointment index renders user- and database-derived strings in a high-traffic workflow; DOM-string sinks increase DOM XSS risk.
 - **Enforcement:** Use createElement, textContent, appendChild, and replaceChildren for all dynamic rendering. Icons must be DOM nodes only.
 - **Scope:** Append-only correction. Existing corrupted entries remain unchanged to preserve audit history.
+
+## 2026-01-10: Global DOM-String Sink Remediation (P3-11)
+- **Decision:** All dynamic content rendering across allowlisted high and medium priority views must avoid `innerHTML`, `outerHTML`, `insertAdjacentHTML`, and jQuery `.html()`.
+- **Enforcement:** Use safe DOM construction methods: `document.createElement`, `textContent`, `appendChild`, and `element.replaceChildren`. For SVG, use `createElementNS`.
+- **Rationale:** Standardizing on safe DOM APIs eliminates the primary vector for DOM-based XSS by ensuring all dynamic data (from database, user input, or external APIs) is treated as literal text or safe DOM nodes rather than executable markup.
+- **Scope:** Applied to Finance, Prescription, Examination, Appointment, and Inventory view modules.

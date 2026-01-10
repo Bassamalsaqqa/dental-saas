@@ -199,33 +199,41 @@ function showExaminationDetails(event) {
     const detailsContainer = document.getElementById('examinationDetails');
     const editBtn = document.getElementById('editExaminationBtn');
     
-    // Populate details
-    detailsContainer.innerHTML = `
-        <div class="space-y-3">
-            <div>
-                <label class="text-sm font-medium text-gray-600">Patient</label>
-                <p class="text-gray-900">${event.title}</p>
-            </div>
-            <div>
-                <label class="text-sm font-medium text-gray-600">Date & Time</label>
-                <p class="text-gray-900">${event.start.toLocaleDateString()} at ${event.start.toLocaleTimeString()}</p>
-            </div>
-            <div>
-                <label class="text-sm font-medium text-gray-600">Status</label>
-                <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-${getStatusColor(event.extendedProps.status)}-100 text-${getStatusColor(event.extendedProps.status)}-800">
-                    ${event.extendedProps.status || 'Scheduled'}
-                </span>
-            </div>
-            <div>
-                <label class="text-sm font-medium text-gray-600">Examination Type</label>
-                <p class="text-gray-900">${event.extendedProps.examination_type || 'General Examination'}</p>
-            </div>
-            <div>
-                <label class="text-sm font-medium text-gray-600">Duration</label>
-                <p class="text-gray-900">${event.extendedProps.duration || 30} minutes</p>
-            </div>
-        </div>
-    `;
+    // Populate details using safe DOM APIs
+    detailsContainer.replaceChildren();
+    
+    const createDetail = (label, value, isStatus = false) => {
+        const div = document.createElement('div');
+        const labelElem = document.createElement('label');
+        labelElem.className = 'text-sm font-medium text-gray-600';
+        labelElem.textContent = label;
+        div.appendChild(labelElem);
+        
+        if (isStatus) {
+            const span = document.createElement('span');
+            const color = getStatusColor(event.extendedProps.status);
+            span.className = `inline-block px-2 py-1 text-xs font-medium rounded-full bg-${color}-100 text-${color}-800`;
+            span.textContent = value || 'Scheduled';
+            div.appendChild(span);
+        } else {
+            const p = document.createElement('p');
+            p.className = 'text-gray-900';
+            p.textContent = value;
+            div.appendChild(p);
+        }
+        return div;
+    };
+    
+    const mainWrapper = document.createElement('div');
+    mainWrapper.className = 'space-y-3';
+    
+    mainWrapper.appendChild(createDetail('Patient', event.title));
+    mainWrapper.appendChild(createDetail('Date & Time', `${event.start.toLocaleDateString()} at ${event.start.toLocaleTimeString()}`));
+    mainWrapper.appendChild(createDetail('Status', event.extendedProps.status, true));
+    mainWrapper.appendChild(createDetail('Examination Type', event.extendedProps.examination_type || 'General Examination'));
+    mainWrapper.appendChild(createDetail('Duration', (event.extendedProps.duration || 30) + ' minutes'));
+    
+    detailsContainer.appendChild(mainWrapper);
     
     // Set edit button action
     editBtn.onclick = () => {
