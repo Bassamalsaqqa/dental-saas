@@ -260,3 +260,12 @@
     - app/Views/auth/login.php: Replaced hard-coded tagline with settings-driven value.
     - app/Views/settings/index.php: Neutralized clinic tagline placeholder.
 - **Verification:** docs/verification/P4-02a.md
+
+### Task: P4-02b Secure Logo Upload Pipeline
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Implemented secure logo upload with validation and deterministic storage.
+- **Files Changed:**
+    - app/Controllers/Settings.php: Added file upload handling in updateClinic() with strict validation and cleanup.
+    - app/Views/settings/index.php: Added multipart encoding and file input for logo.
+- **Verification:** docs/verification/P4-02b.md

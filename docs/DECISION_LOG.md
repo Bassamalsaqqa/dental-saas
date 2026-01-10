@@ -127,3 +127,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** All logo source URLs must be escaped at the point of output. Hard-coded branding/tagline strings (e.g., 'Professional Suite') are prohibited in production views.
 - **Context:** To ensure security and full white-label capability.
 - **Impact:** System relies entirely on settings for branding identity.
+
+### Decision: P4-02b Secure Logo Upload
+- **Decision:** Use deterministic naming (clinic-logo.ext) and exclude SVG support.
+- **Rationale:** Deterministic naming prevents filename-based path traversal or attribute injection. SVG exclusion eliminates XSS risks via XML/scripts in images.
+- **Impact:** Robust and secure branding customization via the UI.

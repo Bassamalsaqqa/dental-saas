@@ -22,3 +22,9 @@ To customize your clinic's appearance in the system, navigate to **Settings > Cl
 - **Fallback:** If no logo path is provided, the system displays a default tooth icon.
 
 *Note: Direct file upload is not supported in this version. Please ensure the logo file is available at the provided path or URL.*
+
+### Logo Upload
+- **Supported Formats:** PNG, JPG/JPEG, WEBP (No SVG).
+- **Size Limit:** 512 KB.
+- **Recommended Dimensions:** 40x40 pixels (square).
+- **Storage:** Successfully uploaded logos are stored in \public/uploads/clinic/\ and will overwrite previous uploads.

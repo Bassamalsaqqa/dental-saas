@@ -45,6 +45,7 @@ class Settings extends BaseController
             'clinic_website' => 'permit_empty|valid_url|max_length[200]',
             'clinic_logo_path' => 'permit_empty|max_length[255]',
             'clinic_tagline' => 'permit_empty|max_length[100]',
+            'clinic_logo' => 'permit_empty|is_image[clinic_logo]|mime_in[clinic_logo,image/png,image/jpg,image/jpeg,image/webp]|max_size[clinic_logo,512]|ext_in[clinic_logo,png,jpg,jpeg,webp]',
         ];
 
         if (!$this->validate($rules)) {
@@ -60,6 +61,34 @@ class Settings extends BaseController
             'clinic_logo_path' => $this->request->getPost('clinic_logo_path'),
             'clinic_tagline' => $this->request->getPost('clinic_tagline'),
         ];
+
+        // Handle Secure Logo Upload
+        $logoFile = $this->request->getFile('clinic_logo');
+        if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+            $uploadPath = FCPATH . 'uploads/clinic';
+            
+            // Ensure directory exists
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Delete existing clinic-logo.*
+            $existingLogos = glob($uploadPath . '/clinic-logo.*');
+            if ($existingLogos) {
+                foreach ($existingLogos as $file) {
+                    if (is_file($file)) unlink($file);
+                }
+            }
+
+            $ext = $logoFile->guessExtension();
+            if (!empty($ext)) {
+                $newName = 'clinic-logo.' . $ext;
+                $logoFile->move($uploadPath, $newName);
+                $settingsData['clinic_logo_path'] = 'uploads/clinic/' . $newName;
+            } else {
+                return redirect()->back()->withInput()->with('error', 'Failed to determine logo file extension.');
+            }
+        }
 
         log_message('info', 'Saving clinic settings: ' . json_encode($settingsData));
         

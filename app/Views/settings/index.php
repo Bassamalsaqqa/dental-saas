@@ -122,7 +122,7 @@
                     </div>
                     
                     <div class="p-8">
-                            <form action="<?= base_url('settings/updateClinic') ?>" method="POST">
+                            <form action="<?= base_url('settings/updateClinic') ?>" method="POST" enctype="multipart/form-data">
                                 <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
@@ -144,6 +144,11 @@
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Tagline</label>
                                         <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Clinic tagline">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Upload</label>
+                                        <input type="file" name="clinic_logo" accept=".png,.jpg,.jpeg,.webp" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                        <p class="text-xs text-gray-500 mt-1">Allowed: PNG, JPG, WEBP. Max size: 512 KB. Recommended: 40x40 px (square).</p>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Path (URL or Relative Path)</label>
