@@ -325,17 +325,23 @@ Documentation must **not** instruct insecure actions.
 ### P3-03 Inventory Usage History Remediation
 **Status:** DONE
 
+...
+
+---
+
+### P3-04 User Management Permissions UI Remediation
+**Status:** DONE
+
 **Objective:**
-Remove all dynamic `innerHTML` sinks from the Inventory Usage History view.
+Remove all dynamic `innerHTML` sinks from the User Management permissions view.
 
 **Definition of Done:**
-- `app/Views/inventory/usage_history.php` refactored to use safe DOM methods.
+- `app/Views/user_management/index.php` refactored to use safe DOM methods.
 - No `innerHTML` or `.html()` remains for dynamic data.
-- Print functionality avoids `outerHTML` serialization.
-- Details modal rendering preserved.
+- Permission interface placeholder and error messages constructed safely.
 
 **Verification Artifacts:**
-- `docs/verification/P3-03.md`
+- `docs/verification/P3-04.md`
 
 ---
 
@@ -402,3 +408,4 @@ Each session must leave a trace.
 17. P3-01 Notifications UI remediation (remove innerHTML) (DONE)
 18. P3-02 RBAC setup UI remediation (remove innerHTML) (DONE)
 19. P3-03 Inventory usage history UI remediation (remove innerHTML) (DONE)
+20. P3-04 User management permissions UI remediation (remove innerHTML) (DONE)

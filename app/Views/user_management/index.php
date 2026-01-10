@@ -335,25 +335,48 @@ function submitRoleAssignment() {
 }
 
 function managePermissions(userId) {
+    const container = document.getElementById('permissionContent');
     const modal = new bootstrap.Modal(document.getElementById('permissionModal'));
+    
+    // Clear and show spinner
+    container.replaceChildren();
+    const spinnerDiv = document.createElement('div');
+    spinnerDiv.className = 'text-center';
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner-border';
+    spinner.setAttribute('role', 'status');
+    const srOnly = document.createElement('span');
+    srOnly.className = 'visually-hidden';
+    srOnly.textContent = 'Loading...';
+    spinner.appendChild(srOnly);
+    spinnerDiv.appendChild(spinner);
+    container.appendChild(spinnerDiv);
+
     modal.show();
     
     // Load user permissions
     fetch(`<?= base_url('user-management/') ?>${userId}/permissions`)
     .then(response => response.json())
     .then(data => {
+        container.replaceChildren();
         if (data.success) {
-            document.getElementById('permissionContent').innerHTML = 
-                '<p>Permission management interface will be implemented here.</p>';
+            const p = document.createElement('p');
+            p.textContent = 'Permission management interface will be implemented here.';
+            container.appendChild(p);
         } else {
-            document.getElementById('permissionContent').innerHTML = 
-                '<div class="alert alert-danger">Error loading permissions: ' + data.error + '</div>';
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger';
+            alert.textContent = 'Error loading permissions: ' + data.error;
+            container.appendChild(alert);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('permissionContent').innerHTML = 
-            '<div class="alert alert-danger">An error occurred while loading permissions.</div>';
+        container.replaceChildren();
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-danger';
+        alert.textContent = 'An error occurred while loading permissions.';
+        container.appendChild(alert);
     });
 }
 </script>

@@ -50,6 +50,11 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Inventory Usage History Remediation (P3-03)
 - **Decision:** All dynamic `innerHTML` and `outerHTML` usage is banned in `inventory/usage_history.php`.
 - **Enforcement:** Details panels, print views, and error messages must be constructed using `createElement` and `textContent`.
-- **Rationale:** The usage history view displays detailed records including user notes and item names. Safe DOM construction prevents XSS from these potentially user-controlled fields.
+- Rationale: The usage history view displays detailed records including user notes and item names. Safe DOM construction prevents XSS from these potentially user-controlled fields.
+
+## 2026-01-09: User Management Permissions Remediation (P3-04)
+- **Decision:** All dynamic `innerHTML` usage is banned in `user_management/index.php`.
+- **Enforcement:** Loading indicators, error messages, and the permission interface must be constructed using `createElement` and `textContent`.
+- **Rationale:** User management views handle sensitive administrative functions. Using safe DOM methods prevents XSS in the context of user roles and permissions management.
 
 
