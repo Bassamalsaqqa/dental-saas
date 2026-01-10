@@ -998,23 +998,53 @@ $(document).ready(function() {
             { 
                 data: 1, // Item Name
                 render: function(data, type, row) {
-                    return `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-box text-blue-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-sm text-gray-500">ID: ${row[0]}</div>
-                            </div>
-                        </div>
-                    `;
+                    return data; // Return text for sorting/filtering
+                },
+                createdCell: function(td, cellData, rowData, row, col) {
+                    td.innerHTML = ''; // Clear content
+                    
+                    const container = document.createElement('div');
+                    container.className = 'flex items-center space-x-3';
+                    
+                    const iconBox = document.createElement('div');
+                    iconBox.className = 'w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-box text-blue-600 text-sm';
+                    iconBox.appendChild(icon);
+                    
+                    const textBox = document.createElement('div');
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'text-sm font-medium text-gray-900';
+                    nameDiv.textContent = cellData;
+                    
+                    const idDiv = document.createElement('div');
+                    idDiv.className = 'text-sm text-gray-500';
+                    idDiv.textContent = 'ID: ' + rowData[0];
+                    
+                    textBox.appendChild(nameDiv);
+                    textBox.appendChild(idDiv);
+                    
+                    container.appendChild(iconBox);
+                    container.appendChild(textBox);
+                    
+                    td.appendChild(container);
                 }
             },
             { 
                 data: 2, // Category
                 render: function(data, type, row) {
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${data}</span>`;
+                    return data;
+                },
+                createdCell: function(td, cellData, rowData, row, col) {
+                    td.innerHTML = '';
+                    
+                    const span = document.createElement('span');
+                    span.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+                    span.textContent = cellData;
+                    
+                    td.appendChild(span);
                 }
             },
             { 
@@ -1029,13 +1059,32 @@ $(document).ready(function() {
             { 
                 data: 6, // Expiry Date
                 render: function(data, type, row) {
-                    if (!data || data === 'N/A') return '<span class="text-gray-400">N/A</span>';
-                    return `
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-calendar text-orange-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${data}</span>
-                        </div>
-                    `;
+                    return data || 'N/A';
+                },
+                createdCell: function(td, cellData, rowData, row, col) {
+                    td.innerHTML = '';
+                    
+                    if (!cellData || cellData === 'N/A') {
+                        const span = document.createElement('span');
+                        span.className = 'text-gray-400';
+                        span.textContent = 'N/A';
+                        td.appendChild(span);
+                        return;
+                    }
+                    
+                    const container = document.createElement('div');
+                    container.className = 'flex items-center space-x-2';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-calendar text-orange-600 text-xs';
+                    
+                    const dateText = document.createElement('span');
+                    dateText.className = 'text-sm text-gray-900';
+                    dateText.textContent = cellData;
+                    
+                    container.appendChild(icon);
+                    container.appendChild(dateText);
+                    td.appendChild(container);
                 }
             },
             { 
