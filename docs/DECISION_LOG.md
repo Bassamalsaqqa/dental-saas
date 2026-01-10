@@ -86,3 +86,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** `innerHTML` is banned for modal construction in `settings/index.php`.
 - **Enforcement:** Use `createElement`, `className`, and `textContent` to build download and restore confirmation modals.
 - **Rationale:** Eliminate XSS risks in high-privilege administrative views by ensuring all dynamic content (e.g., filenames) is treated as literal text.
+
+## 2026-01-10: Appointment Index Remediation (P3-10)
+- **Decision:** \innerHTML\ is banned for dynamic content in \ppointment/index.php\.
+- **Enforcement:** Use \createElement\, \className\, and \	extContent\ to build notification toasts and dynamic appointment cards.
+- **Rationale:** Eliminate XSS risks in the high-traffic appointment management interface by ensuring all patient and appointment data is treated as literal text.

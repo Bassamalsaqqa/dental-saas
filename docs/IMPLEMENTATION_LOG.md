@@ -106,3 +106,14 @@
     - Created `docs/verification/P3-09.md`.
     - Confirmed zero `innerHTML` sinks in the view.
     - Verified modal appearance and functionality.
+
+### Task: P3-10 Appointment Index UI Remediation
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Removed DOM-string sinks from the Appointment Index view (\index.php\) related to notifications and dynamic appointment card construction.
+- **Files Changed:**
+    - \pp/Views/appointment/index.php\: Refactored \showNotification\ and \createAppointmentElement\ functions to use safe DOM construction methods.
+- **Verification:**
+    - Created \docs/verification/P3-10.md\.
+    - Confirmed zero \innerHTML\ sinks in the view.
+    - Verified dynamic card rendering and notification behavior.

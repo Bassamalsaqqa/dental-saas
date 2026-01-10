@@ -867,21 +867,39 @@ function showNotification(message, type = 'info') {
             icon = 'fas fa-info-circle';
     }
 
-    notification.innerHTML = `
-        <div class="${bgColor} ${textColor} rounded-lg shadow-lg p-4 flex items-center space-x-3 animate-slide-in">
-            <div class="flex-shrink-0">
-                <i class="${icon} ${iconColor} text-xl"></i>
-            </div>
-            <div class="flex-1">
-                <p class="text-sm font-medium">${message}</p>
-            </div>
-            <div class="flex-shrink-0">
-                <button onclick="this.closest('.notification-toast').remove()" class="text-white hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    `;
+    const innerContainer = document.createElement('div');
+    innerContainer.className = `${bgColor} ${textColor} rounded-lg shadow-lg p-4 flex items-center space-x-3 animate-slide-in`;
+
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'flex-shrink-0';
+    const iconElem = document.createElement('i');
+    iconElem.className = `${icon} ${iconColor} text-xl`;
+    iconDiv.appendChild(iconElem);
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'flex-1';
+    const messageP = document.createElement('p');
+    messageP.className = 'text-sm font-medium';
+    messageP.textContent = message;
+    messageDiv.appendChild(messageP);
+
+    const closeDiv = document.createElement('div');
+    closeDiv.className = 'flex-shrink-0';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'text-white hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors duration-200';
+    closeBtn.onclick = function() {
+        this.closest('.notification-toast').remove();
+    };
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+    closeDiv.appendChild(closeBtn);
+
+    innerContainer.appendChild(iconDiv);
+    innerContainer.appendChild(messageDiv);
+    innerContainer.appendChild(closeDiv);
+
+    notification.appendChild(innerContainer);
 
     // Add CSS animation
     const style = document.createElement('style');
@@ -1066,80 +1084,186 @@ function createAppointmentElement(appointment) {
     
     const status = statusConfig[appointment.status] || statusConfig['scheduled'];
     
-    div.innerHTML = `
-        <!-- Patient Information -->
-        <div class="flex items-start space-x-6">
-            <div class="relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300">
-                    ${appointment.first_name.charAt(0).toUpperCase()}${appointment.last_name.charAt(0).toUpperCase()}
-                </div>
-            </div>
-            <div class="space-y-2">
-                <h4 class="text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
-                    ${appointment.first_name} ${appointment.last_name}
-                </h4>
-                <div class="flex flex-col space-y-2 text-sm text-gray-600 font-medium" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-phone text-blue-500"></i>
-                        <span>${appointment.phone}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-envelope text-emerald-500"></i>
-                        <span>${appointment.email}</span>
-                    </div>
-                </div>
-            </div>  
-        </div>
-        
-        <!-- Time Information -->
-        <div class="text-center space-y-2">
-            <div class="relative">
-                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 rounded-xl border border-amber-200">
-                    <p class="text-2xl font-black text-amber-900">${formattedTime}</p>
-                    <p class="text-sm text-amber-700 font-bold">${appointment.duration} min</p>
-                    <p class="text-xs text-amber-600 font-semibold mt-1">${formattedDate}</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Appointment Type -->
-        <div class="text-center space-y-2">
-            <div class="relative">
-                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 rounded-xl border border-emerald-200">
-                    <p class="text-lg font-bold text-emerald-900">${appointment.appointment_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                    <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Type</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Status Badge -->
-        <div class="text-center">
-            <div class="relative">
-                <div class="absolute inset-0 bg-gradient-to-r ${status.bg} rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative bg-gradient-to-r ${status.bg} px-4 py-3 rounded-xl shadow-lg">
-                    <p class="text-lg font-bold ${status.text}">${status.label}</p>
-                    <p class="text-xs ${status.text.replace('900', '700')} font-semibold uppercase tracking-wider">Status</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-3">
-            <a href="<?= base_url('appointment/show') ?>/${appointment.id}" class="group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
-                <i class="fas fa-eye mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                <span class="relative z-10">View</span>
-            </a>
-            <a href="<?= base_url('appointment/edit') ?>/${appointment.id}" class="group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
-                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
-                <i class="fas fa-edit mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                <span class="relative z-10">Edit</span>
-            </a>
-        </div>
-    `;
+    // 1. Patient Information
+    const patientInfoDiv = document.createElement('div');
+    patientInfoDiv.className = 'flex items-start space-x-6';
+    
+    const avatarContainer = document.createElement('div');
+    avatarContainer.className = 'relative';
+    const avatarBg = document.createElement('div');
+    avatarBg.className = 'absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    const avatarContent = document.createElement('div');
+    avatarContent.className = 'relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300';
+    avatarContent.textContent = appointment.first_name.charAt(0).toUpperCase() + appointment.last_name.charAt(0).toUpperCase();
+    avatarContainer.appendChild(avatarBg);
+    avatarContainer.appendChild(avatarContent);
+    patientInfoDiv.appendChild(avatarContainer);
+
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'space-y-2';
+    const nameH4 = document.createElement('h4');
+    nameH4.className = 'text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300';
+    nameH4.textContent = appointment.first_name + ' ' + appointment.last_name;
+    
+    const contactDiv = document.createElement('div');
+    contactDiv.className = 'flex flex-col space-y-2 text-sm text-gray-600 font-medium';
+    contactDiv.style.display = 'flex';
+    contactDiv.style.flexDirection = 'column';
+    contactDiv.style.gap = '0.5rem';
+
+    const phoneDiv = document.createElement('div');
+    phoneDiv.className = 'flex items-center space-x-2';
+    const phoneIcon = document.createElement('i');
+    phoneIcon.className = 'fas fa-phone text-blue-500';
+    const phoneSpan = document.createElement('span');
+    phoneSpan.textContent = appointment.phone;
+    phoneDiv.appendChild(phoneIcon);
+    phoneDiv.appendChild(phoneSpan);
+
+    const emailDiv = document.createElement('div');
+    emailDiv.className = 'flex items-center space-x-2';
+    const emailIcon = document.createElement('i');
+    emailIcon.className = 'fas fa-envelope text-emerald-500';
+    const emailSpan = document.createElement('span');
+    emailSpan.textContent = appointment.email;
+    emailDiv.appendChild(emailIcon);
+    emailDiv.appendChild(emailSpan);
+
+    contactDiv.appendChild(phoneDiv);
+    contactDiv.appendChild(emailDiv);
+    detailsDiv.appendChild(nameH4);
+    detailsDiv.appendChild(contactDiv);
+    patientInfoDiv.appendChild(detailsDiv);
+
+    div.appendChild(patientInfoDiv);
+    
+    // 2. Time Information
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'text-center space-y-2';
+    const timeRelative = document.createElement('div');
+    timeRelative.className = 'relative';
+    const timeBg = document.createElement('div');
+    timeBg.className = 'absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    const timeContent = document.createElement('div');
+    timeContent.className = 'relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 rounded-xl border border-amber-200';
+    
+    const timeP = document.createElement('p');
+    timeP.className = 'text-2xl font-black text-amber-900';
+    timeP.textContent = formattedTime;
+    
+    const durationP = document.createElement('p');
+    durationP.className = 'text-sm text-amber-700 font-bold';
+    durationP.textContent = appointment.duration + ' min';
+    
+    const dateP = document.createElement('p');
+    dateP.className = 'text-xs text-amber-600 font-semibold mt-1';
+    dateP.textContent = formattedDate;
+
+    timeContent.appendChild(timeP);
+    timeContent.appendChild(durationP);
+    timeContent.appendChild(dateP);
+    timeRelative.appendChild(timeBg);
+    timeRelative.appendChild(timeContent);
+    timeDiv.appendChild(timeRelative);
+    div.appendChild(timeDiv);
+    
+    // 3. Appointment Type
+    const typeDiv = document.createElement('div');
+    typeDiv.className = 'text-center space-y-2';
+    const typeRelative = document.createElement('div');
+    typeRelative.className = 'relative';
+    const typeBg = document.createElement('div');
+    typeBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
+    const typeContent = document.createElement('div');
+    typeContent.className = 'relative bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 rounded-xl border border-emerald-200';
+    
+    const typeP = document.createElement('p');
+    typeP.className = 'text-lg font-bold text-emerald-900';
+    typeP.textContent = appointment.appointment_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    
+    const typeLabel = document.createElement('p');
+    typeLabel.className = 'text-xs text-emerald-700 font-semibold uppercase tracking-wider';
+    typeLabel.textContent = 'Type';
+
+    typeContent.appendChild(typeP);
+    typeContent.appendChild(typeLabel);
+    typeRelative.appendChild(typeBg);
+    typeRelative.appendChild(typeContent);
+    typeDiv.appendChild(typeRelative);
+    div.appendChild(typeDiv);
+    
+    // 4. Status Badge
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'text-center';
+    const statusRelative = document.createElement('div');
+    statusRelative.className = 'relative';
+    
+    const statusBg = document.createElement('div');
+    statusBg.className = `absolute inset-0 bg-gradient-to-r ${status.bg} rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300`;
+    
+    const statusContent = document.createElement('div');
+    statusContent.className = `relative bg-gradient-to-r ${status.bg} px-4 py-3 rounded-xl shadow-lg`;
+    
+    const statusTextP = document.createElement('p');
+    statusTextP.className = `text-lg font-bold ${status.text}`;
+    statusTextP.textContent = status.label;
+    
+    const statusLabelP = document.createElement('p');
+    const labelColorClass = status.text.replace('900', '700');
+    statusLabelP.className = `text-xs ${labelColorClass} font-semibold uppercase tracking-wider`;
+    statusLabelP.textContent = 'Status';
+
+    statusContent.appendChild(statusTextP);
+    statusContent.appendChild(statusLabelP);
+    statusRelative.appendChild(statusBg);
+    statusRelative.appendChild(statusContent);
+    statusDiv.appendChild(statusRelative);
+    div.appendChild(statusDiv);
+    
+    // 5. Action Buttons
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'flex items-center space-x-3';
+    
+    const viewBtn = document.createElement('a');
+    viewBtn.href = `<?= base_url('appointment/show') ?>/${appointment.id}`;
+    viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25';
+    
+    const viewBg = document.createElement('div');
+    viewBg.className = 'absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    
+    const viewIcon = document.createElement('i');
+    viewIcon.className = 'fas fa-eye mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';
+    
+    const viewText = document.createElement('span');
+    viewText.className = 'relative z-10';
+    viewText.textContent = 'View';
+    
+    viewBtn.appendChild(viewBg);
+    viewBtn.appendChild(viewIcon);
+    viewBtn.appendChild(viewText);
+    
+    const editBtn = document.createElement('a');
+    editBtn.href = `<?= base_url('appointment/edit') ?>/${appointment.id}`;
+    editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25';
+    
+    const editBg = document.createElement('div');
+    editBg.className = 'absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100';
+    
+    const editIcon = document.createElement('i');
+    editIcon.className = 'fas fa-edit mr-2 text-sm relative z-10 group-hover/btn:scale-110 transition-transform duration-300';
+    
+    const editText = document.createElement('span');
+    editText.className = 'relative z-10';
+    editText.textContent = 'Edit';
+    
+    editBtn.appendChild(editBg);
+    editBtn.appendChild(editIcon);
+    editBtn.appendChild(editText);
+    
+    actionsDiv.appendChild(viewBtn);
+    actionsDiv.appendChild(editBtn);
+    
+    div.appendChild(actionsDiv);
     
     return div;
 }

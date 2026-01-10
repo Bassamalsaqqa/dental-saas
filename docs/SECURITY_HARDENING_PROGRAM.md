@@ -408,6 +408,22 @@ Remove DOM-string sinks from the Settings Index view (`index.php`).
 
 ---
 
+### P3-10 Appointment Index UI Remediation
+**Status:** DONE
+
+**Objective:**
+Remove DOM-string sinks from the Appointment Index view (`index.php`).
+
+**Definition of Done:**
+- `app/Views/appointment/index.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains.
+- Notification and appointment card rendering behavior preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-10.md`
+
+---
+
 ## 9. Verification & Testing (Mandatory)
 
 For each completed task:
@@ -477,3 +493,4 @@ Each session must leave a trace.
 23. P3-07 Odontogram UI remediation (remove innerHTML) (DONE)
 24. P3-08 Patient index modal UI remediation (remove innerHTML) (DONE)
 25. P3-09 Settings modal UI remediation (remove innerHTML) (DONE)
+26. P3-10 Appointment index UI remediation (remove innerHTML) (DONE)
