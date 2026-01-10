@@ -680,25 +680,57 @@ function downloadBackup(filename) {
     // Create a more modern confirmation dialog
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-download text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Download Backup</h3>
-                <p class="text-gray-600 mb-6">Are you sure you want to download "${filename}"?</p>
-                <div class="flex space-x-3">
-                    <button onclick="this.closest('.fixed').remove()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                        Cancel
-                    </button>
-                    <button onclick="confirmDownload('${filename}'); this.closest('.fixed').remove()" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all">
-                        Download
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4';
+    
+    const textCenter = document.createElement('div');
+    textCenter.className = 'text-center';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4';
+    
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-download text-white text-2xl';
+    iconContainer.appendChild(icon);
+    
+    const title = document.createElement('h3');
+    title.className = 'text-xl font-bold text-gray-800 mb-2';
+    title.textContent = 'Download Backup';
+    
+    const message = document.createElement('p');
+    message.className = 'text-gray-600 mb-6';
+    message.textContent = 'Are you sure you want to download "' + filename + '"?';
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'flex space-x-3';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = function() {
+        modal.remove();
+    };
+    
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all';
+    downloadBtn.textContent = 'Download';
+    downloadBtn.onclick = function() {
+        confirmDownload(filename);
+        modal.remove();
+    };
+    
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(downloadBtn);
+    
+    textCenter.appendChild(iconContainer);
+    textCenter.appendChild(title);
+    textCenter.appendChild(message);
+    textCenter.appendChild(buttonContainer);
+    
+    card.appendChild(textCenter);
+    modal.appendChild(card);
+    
     document.body.appendChild(modal);
 }
 
@@ -711,26 +743,62 @@ function restoreBackup(filename) {
     // Create a more modern confirmation dialog
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Restore Backup</h3>
-                <p class="text-gray-600 mb-2">Are you sure you want to restore from "${filename}"?</p>
-                <p class="text-red-600 text-sm font-medium mb-6">⚠️ This will overwrite your current data!</p>
-                <div class="flex space-x-3">
-                    <button onclick="this.closest('.fixed').remove()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                        Cancel
-                    </button>
-                    <button onclick="confirmRestore('${filename}'); this.closest('.fixed').remove()" class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all">
-                        Restore
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4';
+    
+    const textCenter = document.createElement('div');
+    textCenter.className = 'text-center';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4';
+    
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle text-white text-2xl';
+    iconContainer.appendChild(icon);
+    
+    const title = document.createElement('h3');
+    title.className = 'text-xl font-bold text-gray-800 mb-2';
+    title.textContent = 'Restore Backup';
+    
+    const message = document.createElement('p');
+    message.className = 'text-gray-600 mb-2';
+    message.textContent = 'Are you sure you want to restore from "' + filename + '"?';
+    
+    const warning = document.createElement('p');
+    warning.className = 'text-red-600 text-sm font-medium mb-6';
+    warning.textContent = '⚠️ This will overwrite your current data!';
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'flex space-x-3';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = function() {
+        modal.remove();
+    };
+    
+    const restoreBtn = document.createElement('button');
+    restoreBtn.className = 'px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all';
+    restoreBtn.textContent = 'Restore';
+    restoreBtn.onclick = function() {
+        confirmRestore(filename);
+        modal.remove();
+    };
+    
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(restoreBtn);
+    
+    textCenter.appendChild(iconContainer);
+    textCenter.appendChild(title);
+    textCenter.appendChild(message);
+    textCenter.appendChild(warning);
+    textCenter.appendChild(buttonContainer);
+    
+    card.appendChild(textCenter);
+    modal.appendChild(card);
+    
     document.body.appendChild(modal);
 }
 
