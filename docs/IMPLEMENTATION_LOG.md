@@ -1,3 +1,13 @@
+### Task: P2-04 Inventory UI Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed all dynamic `innerHTML` sinks from the Inventory list view.
+- **Files Changed:**
+    - `app/Views/inventory/index.php`: Refactored `updateTableDisplay`, `deleteItem`, `showNotification`, `DataTables error handling`, and `printInventoryTable` to use safe DOM construction.
+- **Verification:**
+    - Created `docs/verification/P2-04.md`.
+    - Confirmed zero dynamic `innerHTML` sinks in the view.
+
 ### Task: P3-01 Notifications UI Remediation
 - **Date:** 2026-01-09
 - **Status:** Completed
@@ -19,3 +29,14 @@
     - Created `docs/verification/P3-02.md`.
     - Confirmed zero dynamic `innerHTML` sinks in the view.
     - Verified status updates, notifications, and modal behavior remain functional.
+
+### Task: P3-03 Inventory Usage History Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed all dynamic `innerHTML` sinks from the Inventory Usage History view.
+- **Files Changed:**
+    - `app/Views/inventory/usage_history.php`: Refactored `viewUsageDetails`, `printUsageHistoryTable`, and DataTables error handling to use safe DOM construction.
+- **Verification:**
+    - Created `docs/verification/P3-03.md`.
+    - Confirmed zero dynamic `innerHTML` sinks in the view.
+    - Verified details modal rendering and print functionality.

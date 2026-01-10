@@ -45,5 +45,11 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: RBAC Setup UI Remediation (P3-02)
 - **Decision:** All `innerHTML`, `insertAdjacentHTML`, and `outerHTML` usage is banned in `app/Views/rbac/setup.php`.
 - **Enforcement:** Status updates, notifications, and modal dialogs must be constructed using `createElement` and `textContent`. Button state changes must use child node caching (`cloneNode`) instead of string replacement.
-- **Rationale:** The setup page handles system configuration and status reporting. While currently mostly internal, using safe DOM methods ensures resilience against future changes that might introduce user-controlled data.
+- Rationale: The setup page handles system configuration and status reporting. While currently mostly internal, using safe DOM methods ensures resilience against future changes that might introduce user-controlled data.
+
+## 2026-01-09: Inventory Usage History Remediation (P3-03)
+- **Decision:** All dynamic `innerHTML` and `outerHTML` usage is banned in `inventory/usage_history.php`.
+- **Enforcement:** Details panels, print views, and error messages must be constructed using `createElement` and `textContent`.
+- **Rationale:** The usage history view displays detailed records including user notes and item names. Safe DOM construction prevents XSS from these potentially user-controlled fields.
+
 

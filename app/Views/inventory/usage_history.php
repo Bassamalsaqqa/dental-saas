@@ -526,79 +526,146 @@ function formatDate(dateString) {
 }
 
 function viewUsageDetails(usageId) {
+    const contentDiv = document.getElementById('usageDetailsContent');
+    const modal = document.getElementById('usageDetailsModal');
+    
+    // Clear existing content
+    contentDiv.textContent = '';
+    
     // Fetch usage details via AJAX
     fetch(`<?= base_url() ?>inventory/usage-details/${usageId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const usage = data.usage;
-                const items = JSON.parse(usage.items_used);
+                let items = [];
+                try {
+                    items = JSON.parse(usage.items_used);
+                } catch (e) {
+                    console.error('Error parsing items_used:', e);
+                }
                 
-                let itemsHtml = '';
+                const container = document.createElement('div');
+                container.className = 'space-y-4';
+                
+                // Header Grid
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-2 gap-4';
+                
+                // Date Section
+                const dateDiv = document.createElement('div');
+                const dateLabel = document.createElement('label');
+                dateLabel.className = 'text-sm font-medium text-gray-500';
+                dateLabel.textContent = 'Usage Date';
+                const dateP = document.createElement('p');
+                dateP.className = 'text-lg font-semibold text-gray-900';
+                dateP.textContent = formatDate(usage.usage_date);
+                dateDiv.appendChild(dateLabel);
+                dateDiv.appendChild(dateP);
+                
+                // Cost Section
+                const costDiv = document.createElement('div');
+                const costLabel = document.createElement('label');
+                costLabel.className = 'text-sm font-medium text-gray-500';
+                costLabel.textContent = 'Total Cost';
+                const costP = document.createElement('p');
+                costP.className = 'text-lg font-semibold text-green-600';
+                costP.textContent = formatCurrency(parseFloat(usage.total_cost));
+                costDiv.appendChild(costLabel);
+                costDiv.appendChild(costP);
+                
+                gridDiv.appendChild(dateDiv);
+                gridDiv.appendChild(costDiv);
+                container.appendChild(gridDiv);
+                
+                // Items List
+                const itemsSection = document.createElement('div');
+                const itemsLabel = document.createElement('label');
+                itemsLabel.className = 'text-sm font-medium text-gray-500';
+                itemsLabel.textContent = 'Items Used';
+                itemsSection.appendChild(itemsLabel);
+                
+                const itemsList = document.createElement('div');
+                itemsList.className = 'mt-2 space-y-2';
+                
                 items.forEach(item => {
-                    itemsHtml += `
-                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                            <div>
-                                <div class="font-medium text-gray-900">${item.item_name}</div>
-                                <div class="text-sm text-gray-500">Quantity: ${item.quantity_used}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium text-gray-900">${formatCurrency(parseFloat(item.unit_cost))}</div>
-                                <div class="text-sm text-gray-500">Total: ${formatCurrency(parseFloat(item.total_cost))}</div>
-                            </div>
-                        </div>
-                    `;
+                    const itemRow = document.createElement('div');
+                    itemRow.className = 'flex justify-between items-center py-2 border-b border-gray-200';
+                    
+                    const leftCol = document.createElement('div');
+                    const itemName = document.createElement('div');
+                    itemName.className = 'font-medium text-gray-900';
+                    itemName.textContent = item.item_name;
+                    const itemQty = document.createElement('div');
+                    itemQty.className = 'text-sm text-gray-500';
+                    itemQty.textContent = `Quantity: ${item.quantity_used}`;
+                    leftCol.appendChild(itemName);
+                    leftCol.appendChild(itemQty);
+                    
+                    const rightCol = document.createElement('div');
+                    rightCol.className = 'text-right';
+                    const unitCost = document.createElement('div');
+                    unitCost.className = 'font-medium text-gray-900';
+                    unitCost.textContent = formatCurrency(parseFloat(item.unit_cost));
+                    const totalLineCost = document.createElement('div');
+                    totalLineCost.className = 'text-sm text-gray-500';
+                    totalLineCost.textContent = `Total: ${formatCurrency(parseFloat(item.total_cost))}`;
+                    rightCol.appendChild(unitCost);
+                    rightCol.appendChild(totalLineCost);
+                    
+                    itemRow.appendChild(leftCol);
+                    itemRow.appendChild(rightCol);
+                    itemsList.appendChild(itemRow);
                 });
                 
-                document.getElementById('usageDetailsContent').innerHTML = `
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Usage Date</label>
-                                <p class="text-lg font-semibold text-gray-900">${formatDate(usage.usage_date)}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Total Cost</label>
-                                <p class="text-lg font-semibold text-green-600">${formatCurrency(parseFloat(usage.total_cost))}</p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="text-sm font-medium text-gray-500">Items Used</label>
-                            <div class="mt-2 space-y-2">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                        
-                        ${usage.notes ? `
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Notes</label>
-                                <p class="text-gray-900 mt-1">${usage.notes}</p>
-                            </div>
-                        ` : ''}
-                        
-                        <div class="text-sm text-gray-500">
-                            Recorded by: ${usage.recorded_by_name} on ${formatDate(usage.created_at)}
-                        </div>
-                    </div>
-                `;
+                itemsSection.appendChild(itemsList);
+                container.appendChild(itemsSection);
+                
+                // Notes (Optional)
+                if (usage.notes) {
+                    const notesDiv = document.createElement('div');
+                    const notesLabel = document.createElement('label');
+                    notesLabel.className = 'text-sm font-medium text-gray-500';
+                    notesLabel.textContent = 'Notes';
+                    const notesP = document.createElement('p');
+                    notesP.className = 'text-gray-900 mt-1';
+                    notesP.textContent = usage.notes;
+                    notesDiv.appendChild(notesLabel);
+                    notesDiv.appendChild(notesP);
+                    container.appendChild(notesDiv);
+                }
+                
+                // Footer (Recorded By)
+                const footerDiv = document.createElement('div');
+                footerDiv.className = 'text-sm text-gray-500';
+                footerDiv.textContent = `Recorded by: ${usage.recorded_by_name} on ${formatDate(usage.created_at)}`;
+                container.appendChild(footerDiv);
+                
+                contentDiv.appendChild(container);
             } else {
-                document.getElementById('usageDetailsContent').innerHTML = `
-                    <div class="p-4 bg-red-50 rounded-lg">
-                        <p class="text-red-600">Error loading usage details: ${data.message}</p>
-                    </div>
-                `;
+                renderError('Error loading usage details: ' + data.message);
             }
-            document.getElementById('usageDetailsModal').classList.remove('hidden');
+            modal.classList.remove('hidden');
         })
         .catch(error => {
-            document.getElementById('usageDetailsContent').innerHTML = `
-                <div class="p-4 bg-red-50 rounded-lg">
-                    <p class="text-red-600">Error loading usage details: ${error.message}</p>
-                </div>
-            `;
-            document.getElementById('usageDetailsModal').classList.remove('hidden');
+            renderError('Error loading usage details: ' + error.message);
+            modal.classList.remove('hidden');
         });
+}
+
+function renderError(message) {
+    const contentDiv = document.getElementById('usageDetailsContent');
+    contentDiv.textContent = '';
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'p-4 bg-red-50 rounded-lg';
+    
+    const p = document.createElement('p');
+    p.className = 'text-red-600';
+    p.textContent = message;
+    
+    errorDiv.appendChild(p);
+    contentDiv.appendChild(errorDiv);
 }
 
 function closeUsageDetails() {
@@ -721,20 +788,45 @@ $(document).ready(function() {
                 console.error('DataTables Error: ' + errorMessage);
                 
                 // Show a user-friendly message in the table
-                $('#usageHistoryTable tbody').html(`
-                    <tr>
-                        <td colspan="7" class="text-center py-8 text-gray-500">
-                            <div class="flex flex-col items-center space-y-2">
-                                <i class="fas fa-exclamation-triangle text-4xl text-yellow-500"></i>
-                                <p class="text-lg font-medium"><?= lang('Inventory.unableToLoadData') ?></p>
-                                <p class="text-sm"><?= lang('Inventory.checkConnection') ?></p>
-                                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                                    <i class="fas fa-refresh mr-2"></i><?= lang('Inventory.retry') ?>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                const tbody = document.querySelector('#usageHistoryTable tbody');
+                tbody.innerHTML = '';
+                
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 7;
+                td.className = 'text-center py-8 text-gray-500';
+                
+                const container = document.createElement('div');
+                container.className = 'flex flex-col items-center space-y-2';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
+                
+                const title = document.createElement('p');
+                title.className = 'text-lg font-medium';
+                title.textContent = '<?= lang("Inventory.unableToLoadData") ?>';
+                
+                const msg = document.createElement('p');
+                msg.className = 'text-sm';
+                msg.textContent = '<?= lang("Inventory.checkConnection") ?>';
+                
+                const btn = document.createElement('button');
+                btn.onclick = () => location.reload();
+                btn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
+                
+                const btnIcon = document.createElement('i');
+                btnIcon.className = 'fas fa-refresh mr-2';
+                btn.appendChild(btnIcon);
+                btn.appendChild(document.createTextNode('<?= lang("Inventory.retry") ?>'));
+                
+                container.appendChild(icon);
+                container.appendChild(title);
+                container.appendChild(msg);
+                container.appendChild(btn);
+                
+                td.appendChild(container);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
                 
                 // Hide loading indicators on error
                 hideLoadingIndicators();
@@ -888,46 +980,68 @@ function printUsageHistoryTable() {
     // Create a new window for printing
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     
+    if (!printWindow) {
+        alert('Please allow popups for this website');
+        return;
+    }
+
     // Get table data
     const table = document.getElementById('usageHistoryTable');
     const tableClone = table.cloneNode(true);
     
-    // Create print content
-    const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title><?= lang('Inventory.usageHistoryReport') ?></title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { color: #333; text-align: center; margin-bottom: 30px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f5f5f5; font-weight: bold; }
-                .no-print { display: none; }
-                @media print {
-                    body { margin: 0; }
-                    .no-print { display: none !important; }
-                }
-            </style>
-        </head>
-        <body>
-            <h1><?= lang('Inventory.usageHistoryReport') ?></h1>
-            <p><strong><?= lang('Inventory.generatedOn') ?>:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong><?= lang('Inventory.totalRecordsCount') ?>:</strong> ${usageHistoryTable ? usageHistoryTable.page.info().recordsTotal : 'N/A'}</p>
-            ${tableClone.outerHTML}
-        </body>
-        </html>
+    // Set up the print document
+    const doc = printWindow.document;
+    doc.open();
+    doc.write('<!DOCTYPE html><html><head><title><?= lang("Inventory.usageHistoryReport") ?></title></head><body></body></html>');
+    doc.close();
+    
+    const head = doc.head;
+    const body = doc.body;
+    
+    // Add styles
+    const style = doc.createElement('style');
+    style.textContent = `
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        .no-print { display: none; }
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none !important; }
+        }
     `;
+    head.appendChild(style);
     
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+    // Add content
+    const h1 = doc.createElement('h1');
+    h1.textContent = '<?= lang("Inventory.usageHistoryReport") ?>';
+    body.appendChild(h1);
     
-    // Wait for content to load, then print
-    printWindow.onload = function() {
+    const pDate = doc.createElement('p');
+    const dateStrong = doc.createElement('strong');
+    dateStrong.textContent = '<?= lang("Inventory.generatedOn") ?>: ';
+    pDate.appendChild(dateStrong);
+    pDate.appendChild(doc.createTextNode(new Date().toLocaleDateString()));
+    body.appendChild(pDate);
+    
+    const pTotal = doc.createElement('p');
+    const totalStrong = doc.createElement('strong');
+    totalStrong.textContent = '<?= lang("Inventory.totalRecordsCount") ?>: ';
+    pTotal.appendChild(totalStrong);
+    const totalText = usageHistoryTable ? usageHistoryTable.page.info().recordsTotal : 'N/A';
+    pTotal.appendChild(doc.createTextNode(totalText));
+    body.appendChild(pTotal);
+    
+    // Append cloned table
+    body.appendChild(tableClone);
+    
+    // Wait for content to load (styles), then print
+    setTimeout(function() {
         printWindow.print();
         printWindow.close();
-    };
+    }, 500);
 }
 
 function exportUsageHistoryToCSV() {
