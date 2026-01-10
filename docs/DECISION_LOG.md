@@ -88,12 +88,13 @@ This log records significant architectural and security decisions made during th
 - **Rationale:** Eliminate XSS risks in high-privilege administrative views by ensuring all dynamic content (e.g., filenames) is treated as literal text.
 
 ## 2026-01-10: Appointment Index Remediation (P3-10)
-- **Decision:** `innerHTML` is banned for dynamic content in `appointment/index.php`.
-- **Enforcement:** Use `createElement`, `className`, and `textContent` to build notification toasts and dynamic appointment cards.
+- **Decision:** \innerHTML\ is banned for dynamic content in \ppointment/index.php\.
+- **Enforcement:** Use \createElement\, \className\, and \	extContent\ to build notification toasts and dynamic appointment cards.
 - **Rationale:** Eliminate XSS risks in the high-traffic appointment management interface by ensuring all patient and appointment data is treated as literal text.
-## 2026-01-10: Appointment Index Remediation (P3-10) — Correction Append
 
-- **Decision:** Dynamic DOM-string sinks (\innerHTML\, \insertAdjacentHTML\, \outerHTML\, jQuery \.html()\) are prohibited in \pp/Views/appointment/index.php\.
+## 2026-01-10: Appointment Index Remediation (P3-10) â€” Correction Append (Clean)
+
+- **Decision:** Dynamic DOM-string sinks (`innerHTML`, `insertAdjacentHTML`, `outerHTML`, jQuery `.html()`) are prohibited in `app/Views/appointment/index.php`.
 - **Rationale:** Appointment index content renders user- and database-derived strings in a high-traffic workflow; DOM-string sinks increase DOM XSS risk.
-- **Enforcement:** Use \createElement\, \	extContent\, \ppendChild\, and \eplaceChildren\ for all dynamic rendering. Icons must be DOM nodes only.
-- **Scope:** Correction append only. The original P3-10 entry remains unchanged to preserve append-only audit history.
+- **Enforcement:** Use `createElement`, `textContent`, `appendChild`, and `replaceChildren` for all dynamic rendering. Icons must be DOM nodes only.
+- **Scope:** Append-only correction. Existing corrupted entries remain unchanged to preserve audit history.
