@@ -295,17 +295,24 @@ Documentation must **not** instruct insecure actions.
 ### P2-02 Toast Component Remediation
 **Status:** DONE
 
+...
+
+---
+
+### P2-03 Odontogram UI Remediation
+**Status:** DONE
+
 **Objective:**
-Remove all `innerHTML` sinks from the global toast component.
+Remove all dynamic `innerHTML` sinks from the Odontogram list view.
 
 **Definition of Done:**
-- `app/Views/components/toast.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains in the file.
-- Support for icons, titles, and auto-dismiss preserved.
-- `confirmDelete` workflow remains functional.
+- `app/Views/odontogram/list.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains for dynamic data.
+- Button icons preserved via child node caching.
+- Table rendering, pagination, and notifications functional.
 
 **Verification Artifacts:**
-- `docs/verification/P2-02.md`
+- `docs/verification/P2-03.md`
 
 ---
 
@@ -367,3 +374,4 @@ Each session must leave a trace.
 12. P1-04 Debug exposure + /scripts HTTP block (DONE)
 13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (DONE)
 14. P2-02 Toast component remediation (remove innerHTML) (DONE)
+15. P2-03 Odontogram UI remediation (remove innerHTML) (DONE)

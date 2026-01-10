@@ -25,4 +25,9 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Toast Component Hardening (P2-02)
 - **Decision:** All `innerHTML` and `.html()` usage is banned in the `toast.php` component.
 - **Enforcement:** The component must build its DOM nodes explicitly using `createElement` and `textContent`.
-- **Rationale:** As a global component that handles arbitrary messages (including those from database or external APIs), the toast system is a high-impact XSS vector. Strict adherence to safe DOM APIs is required.
+- Rationale: As a global component that handles arbitrary messages (including those from database or external APIs), the toast system is a high-impact XSS vector. Strict adherence to safe DOM APIs is required.
+
+## 2026-01-09: Odontogram List Remediation (P2-03)
+- **Decision:** All dynamic `innerHTML` usage is banned in the `odontogram/list.php` view.
+- **Enforcement:** Table row rendering, pagination, and notifications must use `createElement` and `textContent`. Button state transitions must use `cloneNode` caching to preserve icons.
+- **Rationale:** The Odontogram list processes sensitive patient data from AJAX responses. Safe DOM construction is mandatory to prevent XSS.

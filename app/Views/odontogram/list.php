@@ -520,104 +520,209 @@ class OdontogramTable {
     renderTable(data) {
         const tbody = document.getElementById('patientsList');
         
+        // Clear existing content safely
+        tbody.textContent = '';
+        
         if (data.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-16 text-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                            <i class="fas fa-users text-gray-400 text-3xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">No patients found</h3>
-                        <p class="text-gray-500 mb-6 max-w-md mx-auto">No patients match your search criteria.</p>
-                        <button onclick="odontogramTable.clearSearch()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-times mr-2"></i>Clear Search
-                        </button>
-                    </td>
-                </tr>
-            `;
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.className = 'px-6 py-16 text-center';
+            td.colSpan = 6;
+            
+            const divIcon = document.createElement('div');
+            divIcon.className = 'w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-users text-gray-400 text-3xl';
+            divIcon.appendChild(icon);
+            
+            const h3 = document.createElement('h3');
+            h3.className = 'text-xl font-bold text-gray-900 mb-3';
+            h3.textContent = 'No patients found';
+            
+            const p = document.createElement('p');
+            p.className = 'text-gray-500 mb-6 max-w-md mx-auto';
+            p.textContent = 'No patients match your search criteria.';
+            
+            const btn = document.createElement('button');
+            btn.onclick = () => odontogramTable.clearSearch();
+            btn.className = 'inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl';
+            
+            const btnIcon = document.createElement('i');
+            btnIcon.className = 'fas fa-times mr-2';
+            btn.appendChild(btnIcon);
+            btn.appendChild(document.createTextNode('Clear Search'));
+            
+            td.appendChild(divIcon);
+            td.appendChild(h3);
+            td.appendChild(p);
+            td.appendChild(btn);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
             return;
         }
         
-        tbody.innerHTML = data.map(patient => `
-            <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 cursor-pointer group hover:shadow-sm" onclick="viewOdontogram(${patient.id})">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 transition-transform duration-200">
-                            ${patient.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">
-                                ${patient.name}
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                Added: ${patient.created_at}
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="space-y-1">
-                        <div class="flex items-center text-sm text-gray-900">
-                            <i class="fas fa-phone w-4 mr-2 text-blue-500"></i>
-                            ${patient.contact.phone}
-                        </div>
-                        <div class="flex items-center text-sm text-gray-500">
-                            <i class="fas fa-envelope w-4 mr-2 text-green-500"></i>
-                            ${patient.contact.email}
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 group-hover:bg-blue-200 transition-colors duration-200">
-                        ${patient.patient_id}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${patient.age}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${patient.last_visit}
-                </td>
-                <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium">
-                     <div class="flex flex-col space-y-3">
-                         <button onclick="event.stopPropagation(); viewOdontogram(${patient.id})" class="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:via-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 transition-all duration-500 transform hover:scale-110 hover:shadow-2xl shadow-lg w-full overflow-hidden">
-                             <!-- Animated background -->
-                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 group-hover:animate-shimmer"></div>
-                             
-                             <!-- Button content -->
-                             <div class="flex items-center relative z-10">
-                                 <div class="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3 group-hover:bg-opacity-30 transition-all duration-300">
-                                     <i class="fas fa-tooth text-lg group-hover:animate-bounce"></i>
-                                 </div>
-                                 <div class="text-left">
-                                     <div class="text-sm font-bold">View Chart</div>
-                                     <div class="text-xs opacity-90 group-hover:opacity-100">Dental Records</div>
-                                 </div>
-                             </div>
-                             
-                             <!-- Hover effect overlay -->
-                             <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl opacity-0 group-hover:opacity-10 transition-all duration-500"></div>
-                             
-                             <!-- Shine effect -->
-                             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-shine"></div>
-                         </button>
-                         
-                         <!-- Enhanced status indicator -->
-                         <div class="flex items-center justify-center space-x-2 text-xs">
-                             <div class="flex items-center space-x-1">
-                                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                 <span class="text-gray-600 font-medium">Active Patient</span>
-                             </div>
-                             <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
-                             <div class="flex items-center space-x-1">
-                                 <i class="fas fa-chart-line text-blue-500"></i>
-                                 <span class="text-gray-500">Dental Chart</span>
-                             </div>
-                         </div>
-                     </div>
-                </td>
-            </tr>
-        `).join('');
+        const fragment = document.createDocumentFragment();
+        data.forEach(patient => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 cursor-pointer group hover:shadow-sm';
+            tr.onclick = () => viewOdontogram(patient.id);
+
+            // Patient Info Cell
+            const tdPatient = document.createElement('td');
+            tdPatient.className = 'px-6 py-4 whitespace-nowrap';
+            const divFlex = document.createElement('div');
+            divFlex.className = 'flex items-center';
+            
+            const divAvatar = document.createElement('div');
+            divAvatar.className = 'w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 transition-transform duration-200';
+            divAvatar.textContent = patient.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            const divText = document.createElement('div');
+            divText.className = 'ml-4';
+            const divName = document.createElement('div');
+            divName.className = 'text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200';
+            divName.textContent = patient.name;
+            const divCreated = document.createElement('div');
+            divCreated.className = 'text-sm text-gray-500';
+            divCreated.textContent = `Added: ${patient.created_at}`;
+            divText.appendChild(divName);
+            divText.appendChild(divCreated);
+            
+            divFlex.appendChild(divAvatar);
+            divFlex.appendChild(divText);
+            tdPatient.appendChild(divFlex);
+
+            // Contact Info Cell
+            const tdContact = document.createElement('td');
+            tdContact.className = 'px-6 py-4 whitespace-nowrap';
+            const divContactStack = document.createElement('div');
+            divContactStack.className = 'space-y-1';
+            
+            const divPhone = document.createElement('div');
+            divPhone.className = 'flex items-center text-sm text-gray-900';
+            const iconPhone = document.createElement('i');
+            iconPhone.className = 'fas fa-phone w-4 mr-2 text-blue-500';
+            divPhone.appendChild(iconPhone);
+            divPhone.appendChild(document.createTextNode(patient.contact.phone));
+            
+            const divEmail = document.createElement('div');
+            divEmail.className = 'flex items-center text-sm text-gray-500';
+            const iconEmail = document.createElement('i');
+            iconEmail.className = 'fas fa-envelope w-4 mr-2 text-green-500';
+            divEmail.appendChild(iconEmail);
+            divEmail.appendChild(document.createTextNode(patient.contact.email));
+            
+            divContactStack.appendChild(divPhone);
+            divContactStack.appendChild(divEmail);
+            tdContact.appendChild(divContactStack);
+
+            // ID Cell
+            const tdId = document.createElement('td');
+            tdId.className = 'px-6 py-4 whitespace-nowrap';
+            const spanId = document.createElement('span');
+            spanId.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 group-hover:bg-blue-200 transition-colors duration-200';
+            spanId.textContent = patient.patient_id;
+            tdId.appendChild(spanId);
+
+            // Age Cell
+            const tdAge = document.createElement('td');
+            tdAge.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+            tdAge.textContent = patient.age;
+
+            // Visit Cell
+            const tdVisit = document.createElement('td');
+            tdVisit.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+            tdVisit.textContent = patient.last_visit;
+
+            // Actions Cell
+            const tdActions = document.createElement('td');
+            tdActions.className = 'px-4 py-4 whitespace-nowrap text-center text-sm font-medium';
+            const divActionStack = document.createElement('div');
+            divActionStack.className = 'flex flex-col space-y-3';
+            
+            const btnView = document.createElement('button');
+            btnView.className = 'group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:via-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 transition-all duration-500 transform hover:scale-110 hover:shadow-2xl shadow-lg w-full overflow-hidden';
+            btnView.onclick = (e) => { e.stopPropagation(); viewOdontogram(patient.id); };
+            
+            const divShimmer = document.createElement('div');
+            divShimmer.className = 'absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 group-hover:animate-shimmer';
+            
+            const divBtnContent = document.createElement('div');
+            divBtnContent.className = 'flex items-center relative z-10';
+            const divIconBox = document.createElement('div');
+            divIconBox.className = 'w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3 group-hover:bg-opacity-30 transition-all duration-300';
+            const iconTooth = document.createElement('i');
+            iconTooth.className = 'fas fa-tooth text-lg group-hover:animate-bounce';
+            divIconBox.appendChild(iconTooth);
+            
+            const divBtnLabels = document.createElement('div');
+            divBtnLabels.className = 'text-left';
+            const divBtnTitle = document.createElement('div');
+            divBtnTitle.className = 'text-sm font-bold';
+            divBtnTitle.textContent = 'View Chart';
+            const divBtnSub = document.createElement('div');
+            divBtnSub.className = 'text-xs opacity-90 group-hover:opacity-100';
+            divBtnSub.textContent = 'Dental Records';
+            divBtnLabels.appendChild(divBtnTitle);
+            divBtnLabels.appendChild(divBtnSub);
+            
+            divBtnContent.appendChild(divIconBox);
+            divBtnContent.appendChild(divBtnLabels);
+            
+            const divGlow = document.createElement('div');
+            divGlow.className = 'absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl opacity-0 group-hover:opacity-10 transition-all duration-500';
+            const divShine = document.createElement('div');
+            divShine.className = 'absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-shine';
+            
+            btnView.appendChild(divShimmer);
+            btnView.appendChild(divBtnContent);
+            btnView.appendChild(divGlow);
+            btnView.appendChild(divShine);
+
+            const divStatus = document.createElement('div');
+            divStatus.className = 'flex items-center justify-center space-x-2 text-xs';
+            
+            // Re-implementing static markup safely
+            const divActive = document.createElement('div');
+            divActive.className = 'flex items-center space-x-1';
+            const divPulse = document.createElement('div');
+            divPulse.className = 'w-2 h-2 bg-green-400 rounded-full animate-pulse';
+            const spanActive = document.createElement('span');
+            spanActive.className = 'text-gray-600 font-medium';
+            spanActive.textContent = 'Active Patient';
+            divActive.appendChild(divPulse);
+            divActive.appendChild(spanActive);
+            
+            const divDot = document.createElement('div');
+            divDot.className = 'w-1 h-1 bg-gray-300 rounded-full';
+            
+            const divChart = document.createElement('div');
+            divChart.className = 'flex items-center space-x-1';
+            const iconChart = document.createElement('i');
+            iconChart.className = 'fas fa-chart-line text-blue-500';
+            const spanChart = document.createElement('span');
+            spanChart.className = 'text-gray-500';
+            spanChart.textContent = 'Dental Chart';
+            divChart.appendChild(iconChart);
+            divChart.appendChild(spanChart);
+            
+            divStatus.appendChild(divActive);
+            divStatus.appendChild(divDot);
+            divStatus.appendChild(divChart);
+
+            divActionStack.appendChild(btnView);
+            divActionStack.appendChild(divStatus);
+            tdActions.appendChild(divActionStack);
+
+            tr.appendChild(tdPatient);
+            tr.appendChild(tdContact);
+            tr.appendChild(tdId);
+            tr.appendChild(tdAge);
+            tr.appendChild(tdVisit);
+            tr.appendChild(tdActions);
+            fragment.appendChild(tr);
+        });
+        tbody.appendChild(fragment);
     }
     
     updatePagination() {
@@ -629,8 +734,9 @@ class OdontogramTable {
         prevBtn.disabled = this.currentPage === 1;
         nextBtn.disabled = this.currentPage === this.totalPages;
         
-        // Generate pagination numbers
-        let paginationHTML = '';
+        // Clear existing numbers safely
+        paginationNumbers.textContent = '';
+        
         const maxVisiblePages = 5;
         let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
         let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
@@ -641,19 +747,26 @@ class OdontogramTable {
         
         for (let i = startPage; i <= endPage; i++) {
             const isActive = i === this.currentPage;
-            paginationHTML += `
-                <button onclick="odontogramTable.goToPage(${i})" 
-                        style="padding: 8px 12px; font-size: 14px; font-weight: 500; border-radius: 4px; cursor: pointer; border: 2px solid #d1d5db; ${
-                            isActive 
-                                ? 'background: #3b82f6; color: white; border-color: #3b82f6;' 
-                                : 'background: white; color: #374151;'
-                        }">
-                    ${i}
-                </button>
-            `;
+            const btn = document.createElement('button');
+            btn.onclick = () => odontogramTable.goToPage(i);
+            btn.textContent = i;
+            btn.style.padding = '8px 12px';
+            btn.style.fontSize = '14px';
+            btn.style.fontWeight = '500';
+            btn.style.borderRadius = '4px';
+            btn.style.cursor = 'pointer';
+            btn.style.border = '2px solid #d1d5db';
+            
+            if (isActive) {
+                btn.style.background = '#3b82f6';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#3b82f6';
+            } else {
+                btn.style.background = 'white';
+                btn.style.color = '#374151';
+            }
+            paginationNumbers.appendChild(btn);
         }
-        
-        paginationNumbers.innerHTML = paginationHTML;
     }
     
     updateInfo() {
@@ -736,20 +849,41 @@ class OdontogramTable {
     
     showError(message) {
         const tbody = document.getElementById('patientsList');
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="px-6 py-16 text-center">
-                    <div class="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Error Loading Data</h3>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">${message}</p>
-                    <button onclick="odontogramTable.loadData()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-redo mr-2"></i>Try Again
-                    </button>
-                </td>
-            </tr>
-        `;
+        tbody.textContent = '';
+        
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.className = 'px-6 py-16 text-center';
+        td.colSpan = 6;
+        
+        const divIcon = document.createElement('div');
+        divIcon.className = 'w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-exclamation-triangle text-red-400 text-3xl';
+        divIcon.appendChild(icon);
+        
+        const h3 = document.createElement('h3');
+        h3.className = 'text-xl font-bold text-gray-900 mb-3';
+        h3.textContent = 'Error Loading Data';
+        
+        const p = document.createElement('p');
+        p.className = 'text-gray-500 mb-6 max-w-md mx-auto';
+        p.textContent = message;
+        
+        const btn = document.createElement('button');
+        btn.onclick = () => odontogramTable.loadData();
+        btn.className = 'inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl';
+        const btnIcon = document.createElement('i');
+        btnIcon.className = 'fas fa-redo mr-2';
+        btn.appendChild(btnIcon);
+        btn.appendChild(document.createTextNode('Try Again'));
+        
+        td.appendChild(divIcon);
+        td.appendChild(h3);
+        td.appendChild(p);
+        td.appendChild(btn);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
     }
 }
 
@@ -770,14 +904,28 @@ function viewOdontogram(patientId) {
     // Add loading state to the button
     const button = event.target.closest('button');
     if (button) {
+        if (!button.hasOwnProperty('_originalChildren')) {
+            button._originalChildren = Array.from(button.childNodes).map(n => n.cloneNode(true));
+        }
+
         button.classList.add('loading');
-        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Loading...</span>';
+        
+        const loadingIcon = document.createElement('i');
+        loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+        const loadingText = document.createElement('span');
+        loadingText.textContent = 'Loading...';
+        button.replaceChildren(loadingIcon, loadingText);
         
         // Add success state briefly before navigation
         setTimeout(() => {
             button.classList.remove('loading');
             button.classList.add('success');
-            button.innerHTML = '<i class="fas fa-check mr-2"></i><span>Opening...</span>';
+            
+            const successIcon = document.createElement('i');
+            successIcon.className = 'fas fa-check mr-2';
+            const successText = document.createElement('span');
+            successText.textContent = 'Opening...';
+            button.replaceChildren(successIcon, successText);
             
             // Navigate after success animation
             setTimeout(() => {
@@ -849,8 +997,13 @@ function submitAddPatient() {
     }
     
     // Add loading state
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding Patient...';
+    if (!submitButton.hasOwnProperty('_originalChildren')) {
+        submitButton._originalChildren = Array.from(submitButton.childNodes).map(n => n.cloneNode(true));
+    }
+
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+    submitButton.replaceChildren(loadingIcon, document.createTextNode('Adding Patient...'));
     submitButton.disabled = true;
     
     // Submit form data
@@ -914,7 +1067,7 @@ function submitAddPatient() {
     })
     .finally(() => {
         // Reset button
-        submitButton.innerHTML = originalText;
+        submitButton.replaceChildren(...submitButton._originalChildren.map(n => n.cloneNode(true)));
         submitButton.disabled = false;
     });
 }
@@ -928,16 +1081,22 @@ function showNotification(message, type = 'info') {
         'bg-blue-500 text-white'
     }`;
     
-    notification.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas ${
-                type === 'success' ? 'fa-check-circle' :
-                type === 'error' ? 'fa-exclamation-circle' :
-                'fa-info-circle'
-            } mr-2"></i>
-            <span>${message}</span>
-        </div>
-    `;
+    const flexDiv = document.createElement('div');
+    flexDiv.className = 'flex items-center';
+    
+    const icon = document.createElement('i');
+    icon.className = `fas ${
+        type === 'success' ? 'fa-check-circle' :
+        type === 'error' ? 'fa-exclamation-circle' :
+        'fa-info-circle'
+    } mr-2`;
+    
+    const span = document.createElement('span');
+    span.textContent = message;
+    
+    flexDiv.appendChild(icon);
+    flexDiv.appendChild(span);
+    notification.appendChild(flexDiv);
     
     document.body.appendChild(notification);
     
@@ -950,7 +1109,9 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.style.transform = 'translateX(full)';
         setTimeout(() => {
-            document.body.removeChild(notification);
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
         }, 300);
     }, 5000);
 }
@@ -978,9 +1139,14 @@ document.addEventListener('keydown', function(event) {
 // Test AJAX connection
 function testAjaxConnection() {
     const button = event.target;
-    const originalText = button.innerHTML;
     
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Testing...';
+    if (!button.hasOwnProperty('_originalChildren')) {
+        button._originalChildren = Array.from(button.childNodes).map(n => n.cloneNode(true));
+    }
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin mr-1';
+    button.replaceChildren(loadingIcon, document.createTextNode('Testing...'));
     button.disabled = true;
     
     fetch('<?= base_url('patient/test-ajax') ?>', {
@@ -1016,7 +1182,7 @@ function testAjaxConnection() {
         showNotification('AJAX connection test failed: ' + error.message, 'error');
     })
     .finally(() => {
-        button.innerHTML = originalText;
+        button.replaceChildren(...button._originalChildren.map(n => n.cloneNode(true)));
         button.disabled = false;
     });
 }
