@@ -92,7 +92,7 @@ This log records significant architectural and security decisions made during th
 - **Enforcement:** Use \createElement\, \className\, and \	extContent\ to build notification toasts and dynamic appointment cards.
 - **Rationale:** Eliminate XSS risks in the high-traffic appointment management interface by ensuring all patient and appointment data is treated as literal text.
 
-## 2026-01-10: Appointment Index Remediation (P3-10) — Correction Append (Clean)
+## 2026-01-10: Appointment Index Remediation (P3-10) - Correction Append (Clean)
 
 - **Decision:** Dynamic DOM-string sinks (`innerHTML`, `insertAdjacentHTML`, `outerHTML`, jQuery `.html()`) are prohibited in `app/Views/appointment/index.php`.
 - **Rationale:** Appointment index content renders user- and database-derived strings in a high-traffic workflow; DOM-string sinks increase DOM XSS risk.

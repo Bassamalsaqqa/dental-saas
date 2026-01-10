@@ -124,7 +124,7 @@
 - **Status:** Completed
 - **Description:** Correction append for P3-10 log formatting. The original P3-10 block is preserved verbatim (as in commit 1c539de) to maintain the append-only audit trail.
 - **Files Changed (P3-10 code):**
-  - `app/Views/appointment/index.php` — Removed DOM-string sinks from notification and appointment card rendering.
+  - `app/Views/appointment/index.php` - Removed DOM-string sinks from notification and appointment card rendering.
 - **Verification:**
   - `docs/verification/P3-10.md`
-  - `rg -n "innerHTML|\.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` → (empty)
+  - `rg -n "innerHTML|.html\("|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
