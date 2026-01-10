@@ -560,3 +560,5 @@ All future additions to this file must be appended at EOF only.
 
 28. P4-01 Branding Centralization (DONE)
 
+
+P4-02a: Settings-driven branding (Tagline + Logo Path) implemented. Centralized logo rendering and tagline display in main layouts.

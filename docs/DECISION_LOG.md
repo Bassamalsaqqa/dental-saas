@@ -117,3 +117,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Inject clinic info in initController() via Services::renderer()->setVar().
 - **Context:** Controllers using global view() helper missed injected data.
 - **Impact:** Clinic info is now available to all view() calls (both method and helper) while preserving local controller overrides. Sidebar display is safely escaped.
+
+### Decision: P4-02a Branding Centralization
+- **Decision:** Store tagline and logo path in settings. 'Professional Suite' is now a DB/Service default, not a layout literal.
+- **Context:** Layouts need to be white-label capable without code changes.
+- **Impact:** Clinic can customize tagline and logo via UI. Supports relative paths (base_url aware) and absolute URLs.

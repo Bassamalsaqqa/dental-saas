@@ -139,11 +139,19 @@
                                         </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Website</label>
-                                        <input type="url" name="clinic_website" value="<?= $settings['clinic_website'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                        <input type="url" name="clinic_website" value="<?= esc($settings['clinic_website'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Tagline</label>
+                                        <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="e.g., Professional Suite">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Path (URL or Relative Path)</label>
+                                        <input type="text" name="clinic_logo_path" value="<?= esc($settings['clinic_logo_path'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="e.g., assets/images/logo.png or https://example.com/logo.png">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Address</label>
-                                        <textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required><?= $settings['clinic_address'] ?? '' ?></textarea>
+                                        <textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required><?= esc($settings['clinic_address'] ?? '') ?></textarea>
                                     </div>
                                 </div>
 

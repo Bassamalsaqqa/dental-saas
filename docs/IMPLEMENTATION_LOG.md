@@ -237,3 +237,15 @@
 - **Description:** Corrected prior malformed log text; no existing lines changed.
 - **Note:** The phrase now reads "assignment to $displayName in the sidebar user block".
 
+
+### Task: P4-02a Settings-driven Branding
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Implemented settings-driven tagline and logo path. Centralized logo rendering in layouts.
+- **Files Changed:**
+    - app/Controllers/Settings.php: Added validation and defaults for clinic_logo_path and clinic_tagline.
+    - app/Services/SettingsService.php: Extended getClinicInfo() with logo_path and tagline.
+    - app/Views/settings/index.php: Added tagline and logo path fields to clinic info form.
+    - app/Views/layouts/main_auth.php: Implemented conditional logo rendering and dynamic tagline.
+    - app/Views/layouts/main.php: Implemented conditional logo rendering and dynamic tagline.
+- **Verification:** docs/verification/P4-02a.md

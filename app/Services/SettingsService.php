@@ -360,7 +360,9 @@ class SettingsService
             'address' => $this->get('clinic_address', '123 Dental Street, Medical District, City 12345'),
             'phone' => $this->get('clinic_phone', '+1 (555) 123-4567'),
             'email' => $this->get('clinic_email', 'info@dentalclinic.com'),
-            'website' => $this->get('clinic_website', 'https://dentalclinic.com')
+            'website' => $this->get('clinic_website', 'https://dentalclinic.com'),
+            'logo_path' => $this->get('clinic_logo_path', ''),
+            'tagline' => $this->get('clinic_tagline', 'Professional Suite')
         ];
     }
 

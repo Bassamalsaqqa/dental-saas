@@ -43,6 +43,8 @@ class Settings extends BaseController
             'clinic_phone' => 'required|min_length[10]|max_length[20]',
             'clinic_email' => 'required|valid_email|max_length[100]',
             'clinic_website' => 'permit_empty|valid_url|max_length[200]',
+            'clinic_logo_path' => 'permit_empty|max_length[255]',
+            'clinic_tagline' => 'permit_empty|max_length[100]',
         ];
 
         if (!$this->validate($rules)) {
@@ -55,6 +57,8 @@ class Settings extends BaseController
             'clinic_phone' => $this->request->getPost('clinic_phone'),
             'clinic_email' => $this->request->getPost('clinic_email'),
             'clinic_website' => $this->request->getPost('clinic_website'),
+            'clinic_logo_path' => $this->request->getPost('clinic_logo_path'),
+            'clinic_tagline' => $this->request->getPost('clinic_tagline'),
         ];
 
         log_message('info', 'Saving clinic settings: ' . json_encode($settingsData));
@@ -383,6 +387,8 @@ class Settings extends BaseController
                 'clinic_phone' => '+1 (555) 123-4567',
                 'clinic_email' => 'info@dentalclinic.com',
                 'clinic_website' => 'https://dentalclinic.com',
+                'clinic_logo_path' => '',
+                'clinic_tagline' => 'Professional Suite',
                 'timezone' => 'America/New_York',
                 'date_format' => 'Y-m-d',
                 'time_format' => '12',
@@ -403,6 +409,8 @@ class Settings extends BaseController
                 'clinic_phone' => '+1 (555) 123-4567',
                 'clinic_email' => 'info@dentalclinic.com',
                 'clinic_website' => 'https://dentalclinic.com',
+                'clinic_logo_path' => '',
+                'clinic_tagline' => 'Professional Suite',
                 'timezone' => 'America/New_York',
                 'date_format' => 'Y-m-d',
                 'time_format' => '12',
@@ -481,6 +489,8 @@ class Settings extends BaseController
             'clinic_phone' => '+1 (555) 123-4567',
             'clinic_email' => 'info@dentalclinic.com',
             'clinic_website' => 'https://dentalclinic.com',
+            'clinic_logo_path' => '',
+            'clinic_tagline' => 'Professional Suite',
             'timezone' => 'America/New_York',
             'date_format' => 'Y-m-d',
             'time_format' => '12',

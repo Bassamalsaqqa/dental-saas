@@ -22,14 +22,23 @@
                     <div class="relative group">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
                             <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                            <i class="fas fa-tooth text-white text-lg"></i>
+                            <?php if (!empty($clinic['logo_path'])): ?>
+                                <?php 
+                                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                                        ? esc($clinic['logo_path']) 
+                                        : base_url(ltrim($clinic['logo_path'], '/'));
+                                ?>
+                                <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain">
+                            <?php else: ?>
+                                <i class="fas fa-tooth text-white text-lg"></i>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div>
                         <h1 class="text-lg font-black text-gray-900"><?= esc($clinic['name']) ?></h1>
                         <div class="flex items-center space-x-1">
                             <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <p class="text-xs text-gray-500 font-medium">Professional Suite</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($clinic['tagline']) ?></p>
                         </div>
                     </div>
                 </div>
