@@ -528,3 +528,17 @@ Each session must leave a trace.
 25. P3-09 Settings modal UI remediation (remove innerHTML) (DONE)
 26. P3-10 Appointment index UI remediation (remove innerHTML) (DONE)
 27. P3-11 Remove remaining DOM string sinks (DONE)
+
+### CORRECTION APPEND - P3-11 Documentation Placement
+
+1) The earlier P3-11 content was inserted mid-file in error, violating the append-only guardrail.
+2) The canonical P3-11 record is this correction append block.
+
+- Objective: Remove all remaining DOM-string sinks from allowlisted high and medium priority views.
+- Definition of Done:
+  * All innerHTML, outerHTML, insertAdjacentHTML, and jQuery .html() sinks removed from the targeted files.
+  * Safe DOM construction using createElement, textContent, appendChild, and replaceChildren implemented.
+  * UI behavior, event wiring, and dynamic updates preserved exactly.
+- Verification Artifacts: docs/verification/P3-11.md
+
+All future additions to this file must be appended at EOF only.
