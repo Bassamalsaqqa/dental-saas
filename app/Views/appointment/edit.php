@@ -255,24 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     defaultOption.textContent = "Select time";
                     timeSelect.replaceChildren(defaultOption);
                     
-                    // Handle CSRF token if present
-                    if (data.csrf_token && window.refreshCsrfToken) {
-                        window.refreshCsrfToken(data.csrf_token);
-                    }
-
-                    let slots = [];
                     if (Array.isArray(data)) {
-                        slots = data;
-                    } else if (typeof data === 'object' && data !== null) {
-                        // Filter out csrf_token and keep only slot objects
-                        slots = Object.values(data).filter(item => 
-                            typeof item === 'object' && item !== null && item.hasOwnProperty('value') && item.hasOwnProperty('display')
-                        );
-                    }
-
-                    if (slots.length > 0) {
                         const fragment = document.createDocumentFragment();
-                        slots.forEach(timeSlot => {
+                        data.forEach(timeSlot => {
                             const option = document.createElement('option');
                             option.value = timeSlot.value;
                             option.textContent = timeSlot.display;
@@ -284,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         timeSelect.appendChild(fragment);
                         
                         // If current time is not in available slots, add it anyway for editing
-                        if (currentTime && !slots.some(slot => slot.value === currentTime)) {
+                        if (currentTime && !data.some(slot => slot.value === currentTime)) {
                             const currentOption = document.createElement('option');
                             currentOption.value = currentTime;
                             currentOption.textContent = currentTime + ' (Current)';
@@ -292,13 +277,17 @@ document.addEventListener('DOMContentLoaded', function() {
                             timeSelect.appendChild(currentOption);
                         }
                     } else {
-                        // If no slots but we have current time, keep just current time
-                        // If logic originally fell through to 'Invalid data format' for empty/object, 
-                        // we now handle empty valid array or object correctly.
+                        console.error('Invalid data format:', data);
+                        const errorOption = document.createElement('option');
+                        errorOption.value = "";
+                        errorOption.textContent = "Error loading times";
+                        timeSelect.replaceChildren(errorOption);
+                        
+                        // Add current time even if there's an error
                         if (currentTime) {
                             const currentOption = document.createElement('option');
                             currentOption.value = currentTime;
-                            currentOption.textContent = currentTime + ' (Current)';
+                            currentOption.textContent = currentTime;
                             currentOption.selected = true;
                             timeSelect.appendChild(currentOption);
                         }
