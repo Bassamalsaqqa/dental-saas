@@ -409,64 +409,118 @@ function loadStatus() {
             displayStatus(data.status);
             updateProgress(data.status);
         } else {
-            document.getElementById('statusContent').innerHTML = 
-                '<div class="alert alert-danger d-flex align-items-center">' +
-                '<i class="fas fa-exclamation-triangle me-2"></i>' +
-                'Error loading status: ' + data.error + 
-                '</div>';
+            renderErrorStatus(data.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('statusContent').innerHTML = 
-            '<div class="alert alert-danger d-flex align-items-center">' +
-            '<i class="fas fa-exclamation-triangle me-2"></i>' +
-            'Failed to load status' +
-            '</div>';
+        renderErrorStatus('Failed to load status');
     });
+}
+
+function renderErrorStatus(message) {
+    const statusContent = document.getElementById('statusContent');
+    statusContent.replaceChildren();
+    
+    const div = document.createElement('div');
+    div.className = 'alert alert-danger d-flex align-items-center';
+    
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle me-2';
+    
+    div.appendChild(icon);
+    div.appendChild(document.createTextNode(message));
+    
+    statusContent.appendChild(div);
 }
 
 function displayStatus(status) {
     const statusContent = document.getElementById('statusContent');
+    statusContent.replaceChildren();
     
-    let html = '<div class="space-y-4">';
+    const container = document.createElement('div');
+    container.className = 'space-y-4';
+    
+    // Helper to create status rows
+    const createStatusRow = (iconClass, label, isSynced, countText) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-3 bg-gradient-to-r rounded-lg border';
+        
+        if (label === 'Permissions') {
+            row.classList.add('from-blue-50', 'to-blue-100', 'border-blue-200');
+        } else if (label === 'Roles') {
+            row.classList.add('from-emerald-50', 'to-emerald-100', 'border-emerald-200');
+        } else {
+            row.classList.add('from-purple-50', 'to-purple-100', 'border-purple-200');
+        }
+        
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'flex items-center';
+        
+        const icon = document.createElement('i');
+        icon.className = `${iconClass} mr-2`;
+        if (label === 'Permissions') icon.classList.add('text-blue-600');
+        else if (label === 'Roles') icon.classList.add('text-emerald-600');
+        else icon.classList.add('text-purple-600');
+        
+        const spanLabel = document.createElement('span');
+        spanLabel.className = 'font-medium text-gray-900';
+        spanLabel.textContent = label;
+        
+        leftDiv.appendChild(icon);
+        leftDiv.appendChild(spanLabel);
+        
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'flex items-center space-x-1 bg-gradient-to-r px-3 py-1 rounded-full border';
+        
+        if (isSynced) {
+            rightDiv.classList.add('from-emerald-100', 'to-green-100', 'border-emerald-200');
+        } else {
+            rightDiv.classList.add('from-orange-100', 'to-red-100', 'border-orange-200');
+        }
+        
+        const dot = document.createElement('div');
+        dot.className = `w-1.5 h-1.5 rounded-full animate-pulse ${isSynced ? 'bg-emerald-500' : 'bg-orange-500'}`;
+        
+        const text = document.createElement('span');
+        text.className = `text-xs font-bold ${isSynced ? 'text-emerald-700' : 'text-orange-700'}`;
+        text.textContent = countText;
+        
+        rightDiv.appendChild(dot);
+        rightDiv.appendChild(text);
+        
+        row.appendChild(leftDiv);
+        row.appendChild(rightDiv);
+        
+        return row;
+    };
     
     // Permissions Status
-    html += '<div class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">';
-    html += '<div class="flex items-center">';
-    html += '<i class="fas fa-key text-blue-600 mr-2"></i>';
-    html += '<span class="font-medium text-gray-900">Permissions</span>';
-    html += '</div>';
-    html += `<div class="flex items-center space-x-1 bg-gradient-to-r ${status.permissions_synced ? 'from-emerald-100 to-green-100 border-emerald-200' : 'from-orange-100 to-red-100 border-orange-200'} px-3 py-1 rounded-full border">`;
-    html += `<div class="w-1.5 h-1.5 ${status.permissions_synced ? 'bg-emerald-500' : 'bg-orange-500'} rounded-full animate-pulse"></div>`;
-    html += `<span class="text-xs font-bold ${status.permissions_synced ? 'text-emerald-700' : 'text-orange-700'}">${status.db_permissions}/${status.config_permissions}</span>`;
-    html += '</div></div>';
+    container.appendChild(createStatusRow(
+        'fas fa-key', 
+        'Permissions', 
+        status.permissions_synced, 
+        `${status.db_permissions}/${status.config_permissions}`
+    ));
     
     // Roles Status
-    html += '<div class="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">';
-    html += '<div class="flex items-center">';
-    html += '<i class="fas fa-user-tag text-emerald-600 mr-2"></i>';
-    html += '<span class="font-medium text-gray-900">Roles</span>';
-    html += '</div>';
-    html += `<div class="flex items-center space-x-1 bg-gradient-to-r ${status.roles_synced ? 'from-emerald-100 to-green-100 border-emerald-200' : 'from-orange-100 to-red-100 border-orange-200'} px-3 py-1 rounded-full border">`;
-    html += `<div class="w-1.5 h-1.5 ${status.roles_synced ? 'bg-emerald-500' : 'bg-orange-500'} rounded-full animate-pulse"></div>`;
-    html += `<span class="text-xs font-bold ${status.roles_synced ? 'text-emerald-700' : 'text-orange-700'}">${status.db_roles}/${status.config_roles}</span>`;
-    html += '</div></div>';
+    container.appendChild(createStatusRow(
+        'fas fa-user-tag', 
+        'Roles', 
+        status.roles_synced, 
+        `${status.db_roles}/${status.config_roles}`
+    ));
     
     // Overall Status
-    html += '<div class="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">';
-    html += '<div class="flex items-center">';
-    html += '<i class="fas fa-shield-alt text-purple-600 mr-2"></i>';
-    html += '<span class="font-medium text-gray-900">Overall Status</span>';
-    html += '</div>';
-    html += `<div class="flex items-center space-x-1 bg-gradient-to-r ${status.permissions_synced && status.roles_synced ? 'from-emerald-100 to-green-100 border-emerald-200' : 'from-orange-100 to-red-100 border-orange-200'} px-3 py-1 rounded-full border">`;
-    html += `<div class="w-1.5 h-1.5 ${status.permissions_synced && status.roles_synced ? 'bg-emerald-500' : 'bg-orange-500'} rounded-full animate-pulse"></div>`;
-    html += `<span class="text-xs font-bold ${status.permissions_synced && status.roles_synced ? 'text-emerald-700' : 'text-orange-700'}">${status.permissions_synced && status.roles_synced ? 'Ready' : 'Setup Required'}</span>`;
-    html += '</div></div>';
+    const isOverallReady = status.permissions_synced && status.roles_synced;
+    container.appendChild(createStatusRow(
+        'fas fa-shield-alt', 
+        'Overall Status', 
+        isOverallReady, 
+        isOverallReady ? 'Ready' : 'Setup Required'
+    ));
     
-    html += '</div>';
-    
-    statusContent.innerHTML = html;
+    statusContent.appendChild(container);
 }
 
 function updateProgress(status) {
@@ -509,21 +563,31 @@ function initializeProgress() {
 
 function markStepComplete(step) {
     const statusElement = document.getElementById(`step${step}-status`);
-    if (statusElement && !statusElement.innerHTML) {
-        statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+    if (statusElement && statusElement.childElementCount === 0) {
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-check-circle text-success';
+        statusElement.appendChild(icon);
     }
 }
 
 function checkDatabase() {
-    const button = event.target;
-    const originalText = button.innerHTML;
+    const button = event.target.closest('button');
     
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Checking...';
+    // Cache original children once if not already cached
+    if (!button.hasOwnProperty('_originalChildren')) {
+        button._originalChildren = Array.from(button.childNodes).map(n => n.cloneNode(true));
+    }
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin me-1';
+    button.replaceChildren(loadingIcon, document.createTextNode(' Checking...'));
     button.disabled = true;
     
     // Simulate database check
     setTimeout(() => {
-        button.innerHTML = '<i class="fas fa-check me-1"></i> Verified';
+        const checkIcon = document.createElement('i');
+        checkIcon.className = 'fas fa-check me-1';
+        button.replaceChildren(checkIcon, document.createTextNode(' Verified'));
         button.className = 'btn btn-success btn-sm';
         markStepComplete('1');
         
@@ -533,15 +597,23 @@ function checkDatabase() {
 }
 
 function testSystem() {
-    const button = event.target;
-    const originalText = button.innerHTML;
+    const button = event.target.closest('button');
     
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Testing...';
+    // Cache original children once if not already cached
+    if (!button.hasOwnProperty('_originalChildren')) {
+        button._originalChildren = Array.from(button.childNodes).map(n => n.cloneNode(true));
+    }
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.className = 'fas fa-spinner fa-spin me-1';
+    button.replaceChildren(loadingIcon, document.createTextNode(' Testing...'));
     button.disabled = true;
     
     // Simulate system test
     setTimeout(() => {
-        button.innerHTML = '<i class="fas fa-check me-1"></i> Passed';
+        const checkIcon = document.createElement('i');
+        checkIcon.className = 'fas fa-check me-1';
+        button.replaceChildren(checkIcon, document.createTextNode(' Passed'));
         button.className = 'btn btn-success btn-sm';
         markStepComplete('4');
         
@@ -553,20 +625,37 @@ function testSystem() {
 function showNotification(message, type = 'info') {
     const bgClass = type === 'success' ? 'from-emerald-100 to-green-100 border-emerald-200' : 'from-blue-100 to-indigo-100 border-blue-200';
     const textClass = type === 'success' ? 'text-emerald-800' : 'text-blue-800';
-    const icon = type === 'success' ? 'fa-check-circle text-emerald-600' : 'fa-info-circle text-blue-600';
+    const iconClass = type === 'success' ? 'fa-check-circle text-emerald-600' : 'fa-info-circle text-blue-600';
     
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 p-4 bg-gradient-to-r ${bgClass} border rounded-xl shadow-lg backdrop-blur-xl`;
     notification.style.cssText = 'min-width: 300px;';
-    notification.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas ${icon} mr-3"></i>
-            <span class="font-medium ${textClass}">${message}</span>
-            <button type="button" class="ml-auto text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'flex items-center';
+    
+    const icon = document.createElement('i');
+    icon.className = `fas ${iconClass} mr-3`;
+    
+    const messageSpan = document.createElement('span');
+    messageSpan.className = `font-medium ${textClass}`;
+    messageSpan.textContent = message;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'ml-auto text-gray-400 hover:text-gray-600';
+    closeBtn.onclick = function() {
+        this.closest('.fixed').remove();
+    };
+    
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+    
+    contentDiv.appendChild(icon);
+    contentDiv.appendChild(messageSpan);
+    contentDiv.appendChild(closeBtn);
+    notification.appendChild(contentDiv);
     
     document.body.appendChild(notification);
     
@@ -579,46 +668,106 @@ function showNotification(message, type = 'info') {
 }
 
 function showHelp() {
-    const helpModal = `
-        <div class="modal fade" id="helpModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">RBAC Setup Help</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Step-by-Step Guide:</h6>
-                        <ol>
-                            <li><strong>Database Verification:</strong> Ensure all RBAC tables are created</li>
-                            <li><strong>Sync Permissions:</strong> Load permissions from config to database</li>
-                            <li><strong>Initialize RBAC:</strong> Create default roles and permissions</li>
-                            <li><strong>System Test:</strong> Verify everything works correctly</li>
-                        </ol>
-                        
-                        <h6 class="mt-4">Troubleshooting:</h6>
-                        <ul>
-                            <li>Check database connection</li>
-                            <li>Verify table permissions</li>
-                            <li>Run diagnostics at /test_rbac.php</li>
-                        </ul>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
     // Remove existing modal if any
     const existingModal = document.getElementById('helpModal');
     if (existingModal) {
         existingModal.remove();
     }
     
+    const modalDiv = document.createElement('div');
+    modalDiv.className = 'modal fade';
+    modalDiv.id = 'helpModal';
+    modalDiv.tabIndex = -1;
+    
+    const dialogDiv = document.createElement('div');
+    dialogDiv.className = 'modal-dialog modal-lg';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'modal-content';
+    
+    // Header
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'modal-header';
+    
+    const title = document.createElement('h5');
+    title.className = 'modal-title';
+    title.textContent = 'RBAC Setup Help';
+    
+    const closeBtnHeader = document.createElement('button');
+    closeBtnHeader.type = 'button';
+    closeBtnHeader.className = 'btn-close';
+    closeBtnHeader.setAttribute('data-bs-dismiss', 'modal');
+    
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(closeBtnHeader);
+    
+    // Body
+    const bodyDiv = document.createElement('div');
+    bodyDiv.className = 'modal-body';
+    
+    const h6Guide = document.createElement('h6');
+    h6Guide.textContent = 'Step-by-Step Guide:';
+    
+    const ol = document.createElement('ol');
+    const steps = [
+        { label: 'Database Verification:', text: ' Ensure all RBAC tables are created' },
+        { label: 'Sync Permissions:', text: ' Load permissions from config to database' },
+        { label: 'Initialize RBAC:', text: ' Create default roles and permissions' },
+        { label: 'System Test:', text: ' Verify everything works correctly' }
+    ];
+    
+    steps.forEach(step => {
+        const li = document.createElement('li');
+        const strong = document.createElement('strong');
+        strong.textContent = step.label;
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(step.text));
+        ol.appendChild(li);
+    });
+    
+    const h6Trouble = document.createElement('h6');
+    h6Trouble.className = 'mt-4';
+    h6Trouble.textContent = 'Troubleshooting:';
+    
+    const ul = document.createElement('ul');
+    const troubleshootItems = [
+        'Check database connection',
+        'Verify table permissions',
+        'Run diagnostics at /test_rbac.php'
+    ];
+    
+    troubleshootItems.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+    });
+    
+    bodyDiv.appendChild(h6Guide);
+    bodyDiv.appendChild(ol);
+    bodyDiv.appendChild(h6Trouble);
+    bodyDiv.appendChild(ul);
+    
+    // Footer
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'modal-footer';
+    
+    const closeBtnFooter = document.createElement('button');
+    closeBtnFooter.type = 'button';
+    closeBtnFooter.className = 'btn btn-secondary';
+    closeBtnFooter.setAttribute('data-bs-dismiss', 'modal');
+    closeBtnFooter.textContent = 'Close';
+    
+    footerDiv.appendChild(closeBtnFooter);
+    
+    // Assemble
+    contentDiv.appendChild(headerDiv);
+    contentDiv.appendChild(bodyDiv);
+    contentDiv.appendChild(footerDiv);
+    dialogDiv.appendChild(contentDiv);
+    modalDiv.appendChild(dialogDiv);
+    
     // Add new modal
-    document.body.insertAdjacentHTML('beforeend', helpModal);
+    document.body.appendChild(modalDiv);
     
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('helpModal'));

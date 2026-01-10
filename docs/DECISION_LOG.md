@@ -40,4 +40,10 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Notifications UI Remediation (P3-01)
 - **Decision:** The global notifications UI in `main_auth.php` must not use `innerHTML` or template literals for rendering.
 - **Enforcement:** Use `DocumentFragment`, `createElement`, and `textContent` to build the notification list.
-- **Rationale:** Notifications contain user-generated content (names, messages) and are a persistent UI element, making them a critical XSS vector if not handled safely.
+- Rationale: Notifications contain user-generated content (names, messages) and are a persistent UI element, making them a critical XSS vector if not handled safely.
+
+## 2026-01-09: RBAC Setup UI Remediation (P3-02)
+- **Decision:** All `innerHTML`, `insertAdjacentHTML`, and `outerHTML` usage is banned in `app/Views/rbac/setup.php`.
+- **Enforcement:** Status updates, notifications, and modal dialogs must be constructed using `createElement` and `textContent`. Button state changes must use child node caching (`cloneNode`) instead of string replacement.
+- **Rationale:** The setup page handles system configuration and status reporting. While currently mostly internal, using safe DOM methods ensures resilience against future changes that might introduce user-controlled data.
+
