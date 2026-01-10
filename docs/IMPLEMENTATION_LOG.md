@@ -1,14 +1,3 @@
-### Task: P3-01 Notifications UI Remediation
-- **Date:** 2026-01-09
-- **Status:** Completed
-- **Description:** Removed unsafe `innerHTML` usage from the global notifications system in the main layout.
-- **Files Changed:**
-    - `app/Views/layouts/main_auth.php`: Refactored `displayNotifications` to use `document.createElement`, `textContent`, and `DocumentFragment` for safe rendering.
-- **Verification:**
-    - Created `docs/verification/P3-01.md`.
-    - Verified zero `innerHTML` matches in the layout file.
-    - Confirmed notifications render correctly and navigation works.
-
 ### Task: P3-02 RBAC Setup UI Remediation
 - **Date:** 2026-01-09
 - **Status:** Completed
@@ -41,3 +30,14 @@
     - Created `docs/verification/P3-04.md`.
     - Confirmed zero dynamic `innerHTML` sinks in the view.
     - Verified permission modal loading and error states.
+
+### Task: P3-05 Appointment Create Time-Slot UI Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed all dynamic `innerHTML` sinks from the Appointment Creation view.
+- **Files Changed:**
+    - `app/Views/appointment/create.php`: Refactored `loadAvailableTimeSlots` to use safe DOM construction for select options and error messages.
+- **Verification:**
+    - Created `docs/verification/P3-05.md`.
+    - Confirmed zero dynamic `innerHTML` sinks in the view.
+    - Verified time slot loading, empty states, and error handling.

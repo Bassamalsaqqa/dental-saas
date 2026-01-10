@@ -332,16 +332,23 @@ Documentation must **not** instruct insecure actions.
 ### P3-04 User Management Permissions UI Remediation
 **Status:** DONE
 
+...
+
+---
+
+### P3-05 Appointment Create Time-Slot UI Remediation
+**Status:** DONE
+
 **Objective:**
-Remove all dynamic `innerHTML` sinks from the User Management permissions view.
+Remove all dynamic `innerHTML` sinks from the Appointment Creation view.
 
 **Definition of Done:**
-- `app/Views/user_management/index.php` refactored to use safe DOM methods.
+- `app/Views/appointment/create.php` refactored to use safe DOM methods.
 - No `innerHTML` or `.html()` remains for dynamic data.
-- Permission interface placeholder and error messages constructed safely.
+- Time slot loading, error states, and options population preserved.
 
 **Verification Artifacts:**
-- `docs/verification/P3-04.md`
+- `docs/verification/P3-05.md`
 
 ---
 
@@ -409,3 +416,4 @@ Each session must leave a trace.
 18. P3-02 RBAC setup UI remediation (remove innerHTML) (DONE)
 19. P3-03 Inventory usage history UI remediation (remove innerHTML) (DONE)
 20. P3-04 User management permissions UI remediation (remove innerHTML) (DONE)
+21. P3-05 Appointment create time-slot UI remediation (remove innerHTML) (DONE)

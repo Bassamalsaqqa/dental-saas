@@ -223,7 +223,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (date && duration) {
             // Show loading state
-            timeSelect.innerHTML = '<option value="">Loading time slots...</option>';
+            const loadingOption = document.createElement('option');
+            loadingOption.value = "";
+            loadingOption.textContent = "Loading time slots...";
+            timeSelect.replaceChildren(loadingOption);
             timeSelect.disabled = true;
 
             const url = `<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}`;
@@ -239,7 +242,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     console.log('Received data:', data);
-                    timeSelect.innerHTML = '<option value="">Select time</option>';
+                    
+                    const selectOption = document.createElement('option');
+                    selectOption.value = "";
+                    selectOption.textContent = "Select time";
+                    timeSelect.replaceChildren(selectOption);
                     
                     // Handle CSRF token if present
                     if (data.csrf_token && window.refreshCsrfToken) {
@@ -257,15 +264,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     if (slots.length > 0) {
+                        const fragment = document.createDocumentFragment();
                         slots.forEach(timeSlot => {
                             const option = document.createElement('option');
                             option.value = timeSlot.value;
                             option.textContent = timeSlot.display;
-                            timeSelect.appendChild(option);
+                            fragment.appendChild(option);
                         });
+                        timeSelect.appendChild(fragment);
                         console.log('Added', slots.length, 'time slots');
                     } else {
-                        timeSelect.innerHTML = '<option value="">No available time slots</option>';
+                        const noSlotsOption = document.createElement('option');
+                        noSlotsOption.value = "";
+                        noSlotsOption.textContent = "No available time slots";
+                        timeSelect.replaceChildren(noSlotsOption);
                         console.log('No time slots available');
                     }
                     
@@ -273,13 +285,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    timeSelect.innerHTML = '<option value="">Error loading time slots</option>';
+                    
+                    const errorOption = document.createElement('option');
+                    errorOption.value = "";
+                    errorOption.textContent = "Error loading time slots";
+                    timeSelect.replaceChildren(errorOption);
+                    
                     timeSelect.disabled = false;
                     
                     // Show error message to user
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'text-red-500 text-sm mt-2';
-                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Failed to load time slots. Please try again.';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-exclamation-circle mr-1';
+                    errorDiv.appendChild(icon);
+                    errorDiv.appendChild(document.createTextNode('Failed to load time slots. Please try again.'));
                     
                     // Remove any existing error message
                     const existingError = timeSelect.parentNode.querySelector('.text-red-500');
@@ -290,7 +311,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     timeSelect.parentNode.appendChild(errorDiv);
                 });
         } else {
-            timeSelect.innerHTML = '<option value="">Select date and duration first</option>';
+            const promptOption = document.createElement('option');
+            promptOption.value = "";
+            promptOption.textContent = "Select date and duration first";
+            timeSelect.replaceChildren(promptOption);
+            
             timeSelect.disabled = true;
             console.log('Date or duration missing - date:', date, 'duration:', duration);
         }

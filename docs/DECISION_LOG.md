@@ -55,6 +55,12 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: User Management Permissions Remediation (P3-04)
 - **Decision:** All dynamic `innerHTML` usage is banned in `user_management/index.php`.
 - **Enforcement:** Loading indicators, error messages, and the permission interface must be constructed using `createElement` and `textContent`.
-- **Rationale:** User management views handle sensitive administrative functions. Using safe DOM methods prevents XSS in the context of user roles and permissions management.
+- Rationale: User management views handle sensitive administrative functions. Using safe DOM methods prevents XSS in the context of user roles and permissions management.
+
+## 2026-01-09: Appointment Creation UI Remediation (P3-05)
+- **Decision:** All dynamic `innerHTML` usage is banned in `appointment/create.php`.
+- **Enforcement:** Time slot options, loading indicators, and error messages must be constructed using `createElement`, `textContent`, and `replaceChildren`.
+- **Rationale:** Ensures that dynamic data returned from the time slot API is rendered safely, preventing potential XSS vectors in the appointment scheduling flow.
+
 
 
