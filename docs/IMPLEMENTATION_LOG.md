@@ -181,3 +181,13 @@
 - **Files Changed:**
     - \pp/Views/prescription/create.php\: Removed duplicated code block and fixed closing braces in \ddMedicine\.
     - \pp/Views/prescription/edit.php\: Removed duplicated code block and fixed closing braces in \ddMedicineWithData\.
+
+### Task: P4-01 Branding Centralization
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Centralized branding strings by injecting clinic info globally from settings.
+- **Files Changed:**
+    - \pp/Controllers/BaseController.php\: Overrode view() to merge clinic info.
+    - \pp/Views/layouts/main_auth.php\, \main.php\: Updated titles, headers, footers.
+    - \pp/Views/auth/login.php\, \ppointment/print.php\, \prescription/print.php\, \odontogram/export.php\, \odontogram/pdf.php\: Replaced hard-coded strings.
+- **Verification:** docs/verification/P4-01.md

@@ -104,3 +104,7 @@ This log records significant architectural and security decisions made during th
 - **Enforcement:** Use safe DOM construction methods: `document.createElement`, `textContent`, `appendChild`, and `element.replaceChildren`. For SVG, use `createElementNS`.
 - **Rationale:** Standardizing on safe DOM APIs eliminates the primary vector for DOM-based XSS by ensuring all dynamic data (from database, user input, or external APIs) is treated as literal text or safe DOM nodes rather than executable markup.
 - **Scope:** Applied to Finance, Prescription, Examination, Appointment, and Inventory view modules.
+### 2026-01-10: Branding Centralization (P4-01)
+- **Decision:** Override BaseController::view() to inject clinic info globally.
+- **Context:** Hard-coded branding strings made the system difficult to white-label.
+- **Impact:** All views now have access to a \ array containing name, address, etc. Layouts and print views use this data with safe escaping (esc()).

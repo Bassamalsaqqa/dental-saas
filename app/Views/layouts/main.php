@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Dental Management System' ?></title>
+    <title><?= $title ?? esc($clinic['name'] ?? 'Dental Management System') ?></title>
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,7 +26,7 @@
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-lg font-black text-gray-900">DentalCare</h1>
+                        <h1 class="text-lg font-black text-gray-900"><?= esc($clinic['name'] ?? 'DentalCare') ?></h1>
                         <div class="flex items-center space-x-1">
                             <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                             <p class="text-xs text-gray-500 font-medium">Professional Suite</p>
@@ -558,7 +558,7 @@
             <div class="px-6">
                 <div class="flex justify-center items-center">
                     <p class="text-gray-500 text-sm">
-                        &copy; <?= date('Y') ?> DentalCare Pro Management System. All rights reserved.
+                        &copy; <?= date('Y') ?> <?= esc($clinic['name'] ?? 'DentalCare Pro') ?> Management System. All rights reserved.
                     </p>
                 </div>
             </div>

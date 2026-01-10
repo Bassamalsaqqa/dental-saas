@@ -128,7 +128,7 @@ abstract class BaseController extends Controller
     }
 
     /**
-     * Override the view method to automatically include user data
+     * Override the view method to automatically include user and clinic data
      *
      * @param string $name
      * @param array $data
@@ -139,7 +139,12 @@ abstract class BaseController extends Controller
     {
         // Automatically merge user data if user is logged in
         if ($this->isLoggedIn()) {
-            $data = array_merge($data, $this->getUserDataForView());
+            $data = array_merge($this->getUserDataForView(), $data);
+        }
+
+        // Add clinic info if not already present
+        if (!isset($data['clinic'])) {
+            $data['clinic'] = settings()->getClinicInfo();
         }
         
         return view($name, $data, $options);

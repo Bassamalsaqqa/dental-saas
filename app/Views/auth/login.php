@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                             
-                            <h1 class="text-2xl font-black text-gray-900 mb-2">DentalCare Pro</h1>
+                            <h1 class="text-2xl font-black text-gray-900 mb-2"><?= esc($clinic['name'] ?? 'DentalCare Pro') ?></h1>
                             <div class="flex items-center justify-center space-x-2 mb-3">
                                 <div class="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
                                 <p class="text-xs text-gray-600 font-semibold">Professional Suite</p>
@@ -163,7 +163,7 @@
             <!-- Footer --> 
             <div class="mt-6 text-center">
                 <p class="text-xs text-gray-400">
-                    &copy; <?= date('Y') ?> DentalCare Pro Management System. All rights reserved.
+                    &copy; <?= date('Y') ?> <?= esc($clinic['name'] ?? 'DentalCare Pro') ?> Management System. All rights reserved.
                 </p>
             </div>
         </div>

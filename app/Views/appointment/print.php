@@ -180,7 +180,7 @@
     <div class="print-container">
         <!-- Header -->
         <div class="header">
-            <div class="clinic-name">Dental Care Clinic</div>
+            <div class="clinic-name"><?= esc($clinic['name'] ?? 'Dental Care Clinic') ?></div>
             <div class="clinic-subtitle">Professional Dental Services</div>
             <div class="appointment-title">
                 Appointment Details
