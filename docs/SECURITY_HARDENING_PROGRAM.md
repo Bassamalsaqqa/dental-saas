@@ -99,7 +99,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 ## 5. Phase 0 — Containment Tasks (ACTIVE)
 
 ### P0-01 Remove Web-Accessible Dangerous Scripts
-**Status:** DONE  
+**Status:** DONE
 **Scope:**
 - Remove or relocate any installer, repair, debug, or test scripts
 - Scripts must be CLI-only if retained
@@ -113,7 +113,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 
 
 ### P0-02 Block Sensitive Files at Web Server Level
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - `.env`, `*.sql`, `*.bak`, `install.php`, debug scripts blocked
@@ -123,7 +123,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 
 
 ### P0-03 Secrets Removal & Rotation
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - No secrets in tracked files
@@ -134,7 +134,7 @@ Any instruction in these files that contradicts security posture is a **bug**.
 
 
 ### P0-04 Documentation Rewrite (Phase 0 Scope)
-**Status:** DONE  
+**Status:** DONE
 
 **Required Changes:**
 - `installation.html`:
@@ -197,7 +197,7 @@ Documentation must **not** instruct insecure actions.
 **Phase Gate:** NO-SHIP until all Phase 1 tasks are DONE. Fail-closed behavior required.
 
 ### P1-01 Global CSRF, Secure Headers, Secure Cookies Enforcement
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - CSRF protection enforced globally for all state-changing requests.
@@ -226,7 +226,7 @@ Documentation must **not** instruct insecure actions.
 
 
 ### P1-02a API Fail-Closed AuthN/AuthZ Filter Behavior
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - API requests return JSON 401 (unauthenticated) or 403 (unauthorized).
@@ -242,7 +242,7 @@ Documentation must **not** instruct insecure actions.
 
 
 ### P1-02a-V Runtime Verification (API AuthN/AuthZ Response Evidence)
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - Runtime HTTP evidence captured for:
@@ -257,7 +257,7 @@ Documentation must **not** instruct insecure actions.
 
 
 ### P1-03 RBAC Fail-Closed & Route Coverage
-**Status:** DONE  
+**Status:** DONE
 
 **Definition of Done:**
 - RBAC enforcement is consistent across singular/plural routes.
@@ -379,7 +379,16 @@ Remove DOM-string sinks from the Odontogram index view (button states, notificat
 ### P3-08 Patient Index Modal UI Remediation
 **Status:** DONE
 
-...
+**Objective:**
+Remove DOM-string sinks from the Patient Index view (`index_new.php`).
+
+**Definition of Done:**
+- `app/Views/patient/index_new.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains.
+- Modal content and behavior preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-08.md`
 
 ---
 
