@@ -136,3 +136,11 @@
 - **Verification:**
   - `rg -n "innerHTML|.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
 
+
+### Task: P3-10 Appointment Index UI Remediation (Correction Append - Quoting Fix)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Append-only quoting fix for the prior P3-10 correction block. Existing lines remain unchanged.
+- **Verification:**
+  - `rg -n "innerHTML|\.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
+
