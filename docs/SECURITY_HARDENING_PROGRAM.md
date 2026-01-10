@@ -346,7 +346,16 @@ Documentation must **not** instruct insecure actions.
 ### P3-06 Appointment Edit Time-Slot UI Remediation
 **Status:** DONE
 
-...
+**Objective:**
+Remove all dynamic `innerHTML` sinks from the Appointment Edit view.
+
+**Definition of Done:**
+- `app/Views/appointment/edit.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains for dynamic data.
+- Time slot loading, error states, and options population preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-06.md`
 
 ---
 
