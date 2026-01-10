@@ -66,8 +66,11 @@ abstract class BaseController extends Controller
         // Load settings helper
         helper('settings');
 
-        // Inject clinic info globally for all view() helper calls
-        \Config\Services::renderer()->setVar('clinic', settings()->getClinicInfo());
+        // Inject clinic info globally for all view() helper calls, unless already set
+        $renderer = \Config\Services::renderer();
+        if (!isset($renderer->getData()['clinic'])) {
+            $renderer->setVar('clinic', settings()->getClinicInfo());
+        }
     }
 
     /**

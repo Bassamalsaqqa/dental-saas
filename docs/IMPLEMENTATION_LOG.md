@@ -214,3 +214,19 @@
 - **Files Changed:**
     - app/Controllers/BaseController.php: Added global clinic injection in initController() for view() helper compatibility.
     - app/Views/layouts/main_auth.php: Escaped clinic name before assignment to \ in the sidebar user block.
+
+### CORRECTION APPEND — P4-01 Required Fixes
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Guarded global clinic injection and fixed log typo.
+- **Files Changed:**
+    - app/Controllers/BaseController.php: Added guard to initController() to check if 'clinic' is already set in the renderer before injecting defaults.
+    - docs/IMPLEMENTATION_LOG.md: Correction for earlier entry typo: 'assignment to \ in the sidebar user block' is now correctly 'assignment to \ in the sidebar user block'.
+
+### CORRECTION APPEND — P4-01 Final Fixes (Clean ASCII)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Finalized clinic injection and sidebar safety.
+- **Files Changed:**
+    - app/Controllers/BaseController.php: Added global clinic injection guard in initController().
+    - app/Views/layouts/main_auth.php: Escaped clinic name before assignment to \\\ in the sidebar user block.
