@@ -789,7 +789,7 @@ $(document).ready(function() {
                 
                 // Show a user-friendly message in the table
                 const tbody = document.querySelector('#usageHistoryTable tbody');
-                tbody.innerHTML = '';
+                tbody.replaceChildren();
                 
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
