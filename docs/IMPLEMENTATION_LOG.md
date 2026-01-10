@@ -230,3 +230,10 @@
 - **Files Changed:**
     - app/Controllers/BaseController.php: Added global clinic injection guard in initController().
     - app/Views/layouts/main_auth.php: Escaped clinic name before assignment to \\\ in the sidebar user block.
+
+### CORRECTION APPEND - P4-01 Doc Fix (Clean ASCII)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Corrected prior malformed log text; no existing lines changed.
+- **Note:** The phrase now reads "assignment to $displayName in the sidebar user block".
+
