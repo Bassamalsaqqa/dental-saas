@@ -51,6 +51,7 @@
                 <div class="p-8">
 
                     <form action="<?= base_url('prescription/' . $prescription['id'] . '/update') ?>" method="POST" class="space-y-8">
+                        <?= csrf_field() ?>
                         <!-- Patient and Medication Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
