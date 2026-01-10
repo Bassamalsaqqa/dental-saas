@@ -62,5 +62,11 @@ This log records significant architectural and security decisions made during th
 - **Enforcement:** Time slot options, loading indicators, and error messages must be constructed using `createElement`, `textContent`, and `replaceChildren`.
 - **Rationale:** Ensures that dynamic data returned from the time slot API is rendered safely, preventing potential XSS vectors in the appointment scheduling flow.
 
+## 2026-01-09: Appointment Edit UI Remediation (P3-06)
+- **Decision:** All dynamic `innerHTML` usage is banned in `appointment/edit.php`.
+- **Enforcement:** Time slot options and error states must be constructed using `createElement`, `textContent`, and `replaceChildren`.
+- **Rationale:** Prevents XSS when rendering dynamic time slot data. Also ensures robust handling of JSON object responses (with CSRF tokens) from the API.
+
+
 
 

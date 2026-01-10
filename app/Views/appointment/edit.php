@@ -250,60 +250,89 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&exclude_id=${appointmentId}`)
                 .then(response => response.json())
                 .then(data => {
-                    timeSelect.innerHTML = '<option value="">Select time</option>';
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = "Select time";
+                    timeSelect.replaceChildren(defaultOption);
+                    
+                    // Handle CSRF token if present
+                    if (data.csrf_token && window.refreshCsrfToken) {
+                        window.refreshCsrfToken(data.csrf_token);
+                    }
+
+                    let slots = [];
                     if (Array.isArray(data)) {
-                        data.forEach(timeSlot => {
+                        slots = data;
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Filter out csrf_token and keep only slot objects
+                        slots = Object.values(data).filter(item => 
+                            typeof item === 'object' && item !== null && item.hasOwnProperty('value') && item.hasOwnProperty('display')
+                        );
+                    }
+
+                    if (slots.length > 0) {
+                        const fragment = document.createDocumentFragment();
+                        slots.forEach(timeSlot => {
                             const option = document.createElement('option');
                             option.value = timeSlot.value;
                             option.textContent = timeSlot.display;
                             if (timeSlot.value === currentTime) {
                                 option.selected = true;
                             }
-                            timeSelect.appendChild(option);
+                            fragment.appendChild(option);
                         });
+                        timeSelect.appendChild(fragment);
                         
                         // If current time is not in available slots, add it anyway for editing
-                        if (currentTime && !data.some(slot => slot.value === currentTime)) {
-                            const option = document.createElement('option');
-                            option.value = currentTime;
-                            option.textContent = currentTime + ' (Current)';
-                            option.selected = true;
-                            timeSelect.appendChild(option);
+                        if (currentTime && !slots.some(slot => slot.value === currentTime)) {
+                            const currentOption = document.createElement('option');
+                            currentOption.value = currentTime;
+                            currentOption.textContent = currentTime + ' (Current)';
+                            currentOption.selected = true;
+                            timeSelect.appendChild(currentOption);
                         }
                     } else {
-                        console.error('Invalid data format:', data);
-                        timeSelect.innerHTML = '<option value="">Error loading times</option>';
-                        // Add current time even if there's an error
+                        // If no slots but we have current time, keep just current time
+                        // If logic originally fell through to 'Invalid data format' for empty/object, 
+                        // we now handle empty valid array or object correctly.
                         if (currentTime) {
-                            const option = document.createElement('option');
-                            option.value = currentTime;
-                            option.textContent = currentTime;
-                            option.selected = true;
-                            timeSelect.appendChild(option);
+                            const currentOption = document.createElement('option');
+                            currentOption.value = currentTime;
+                            currentOption.textContent = currentTime + ' (Current)';
+                            currentOption.selected = true;
+                            timeSelect.appendChild(currentOption);
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                    const errorOption = document.createElement('option');
+                    errorOption.value = "";
+                    errorOption.textContent = "Error loading times";
+                    timeSelect.replaceChildren(errorOption);
+                    
                     // Add current time even if there's an error
                     if (currentTime) {
-                        const option = document.createElement('option');
-                        option.value = currentTime;
-                        option.textContent = currentTime;
-                        option.selected = true;
-                        timeSelect.appendChild(option);
+                        const currentOption = document.createElement('option');
+                        currentOption.value = currentTime;
+                        currentOption.textContent = currentTime;
+                        currentOption.selected = true;
+                        timeSelect.appendChild(currentOption);
                     }
                 });
         } else {
             // If no date/duration, just show current time
-            timeSelect.innerHTML = '<option value="">Select time</option>';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Select time";
+            timeSelect.replaceChildren(defaultOption);
+            
             if (currentTime) {
-                const option = document.createElement('option');
-                option.value = currentTime;
-                option.textContent = currentTime;
-                option.selected = true;
-                timeSelect.appendChild(option);
+                const currentOption = document.createElement('option');
+                currentOption.value = currentTime;
+                currentOption.textContent = currentTime;
+                currentOption.selected = true;
+                timeSelect.appendChild(currentOption);
             }
         }
     }
