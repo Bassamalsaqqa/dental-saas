@@ -84,3 +84,14 @@
     - Created `docs/verification/P3-07.md`.
     - Confirmed zero `innerHTML` sinks in the view.
     - Verified button animations and notification rendering.
+
+### Task: P3-08 Patient Index Modal UI Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed DOM-string sinks from the Patient Index view (`index_new.php`).
+- **Files Changed:**
+    - `app/Views/patient/index_new.php`: Refactored `confirmDelete` to use safe DOM construction for the modal dialog.
+- **Verification:**
+    - Created `docs/verification/P3-08.md`.
+    - Confirmed zero `innerHTML` sinks in the view.
+    - Verified modal appearance and functionality.

@@ -70,7 +70,13 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Odontogram Interaction Remediation (P3-07)
 - **Decision:** `innerHTML` is banned for button state updates and notifications in `odontogram/index.php`.
 - **Enforcement:** Use `replaceChildren` with cached nodes for restoring button states. Use `createElement` and `textContent` for notifications.
-- **Rationale:** Ensures that even if notification messages or button text were to become dynamic (e.g., including user input), they would be rendered safely without risk of XSS.
+- Rationale: Ensures that even if notification messages or button text were to become dynamic (e.g., including user input), they would be rendered safely without risk of XSS.
+
+## 2026-01-09: Patient Index Modal Remediation (P3-08)
+- **Decision:** `innerHTML` is banned for modal construction in `patient/index_new.php`.
+- **Enforcement:** Use `createElement`, `className`, and `appendChild` to build the delete confirmation modal.
+- **Rationale:** Eliminate any risk of XSS in the modal construction, ensuring all content is treated as literal text or safe DOM nodes.
+
 
 
 

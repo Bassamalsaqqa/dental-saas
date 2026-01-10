@@ -376,6 +376,22 @@ Remove DOM-string sinks from the Odontogram index view (button states, notificat
 
 ---
 
+### P3-08 Patient Index Modal UI Remediation
+**Status:** DONE
+
+**Objective:**
+Remove DOM-string sinks from the Patient Index view (`index_new.php`).
+
+**Definition of Done:**
+- `app/Views/patient/index_new.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains.
+- Modal content and behavior preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-08.md`
+
+---
+
 ## 9. Verification & Testing (Mandatory)
 
 For each completed task:
@@ -443,3 +459,4 @@ Each session must leave a trace.
 21. P3-05 Appointment create time-slot UI remediation (remove innerHTML) (DONE)
 22. P3-06 Appointment edit time-slot UI remediation (remove innerHTML) (DONE)
 23. P3-07 Odontogram UI remediation (remove innerHTML) (DONE)
+24. P3-08 Patient index modal UI remediation (remove innerHTML) (DONE)

@@ -243,33 +243,67 @@ let patientToDelete = null;
 function confirmDelete(patientId) {
     patientToDelete = patientId;
     
-    // Create a beautiful confirmation modal
+    // Create a beautiful confirmation modal safely
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
-            <div class="p-6">
-                <div class="flex items-center space-x-4 mb-6">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Delete Patient</h3>
-                        <p class="text-gray-600">This action cannot be undone.</p>
-                    </div>
-                </div>
-                <p class="text-gray-700 mb-6">Are you sure you want to delete this patient? All associated data will be permanently removed.</p>
-                <div class="flex items-center justify-end space-x-3">
-                    <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors duration-200">
-                        Cancel
-                    </button>
-                    <button onclick="deletePatient()" class="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300">
-                        Delete Patient
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100';
+    
+    const content = document.createElement('div');
+    content.className = 'p-6';
+    
+    // Header section
+    const header = document.createElement('div');
+    header.className = 'flex items-center space-x-4 mb-6';
+    
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center';
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle text-white text-xl';
+    iconContainer.appendChild(icon);
+    
+    const titleContainer = document.createElement('div');
+    const title = document.createElement('h3');
+    title.className = 'text-xl font-bold text-gray-900';
+    title.textContent = 'Delete Patient';
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-gray-600';
+    subtitle.textContent = 'This action cannot be undone.';
+    titleContainer.appendChild(title);
+    titleContainer.appendChild(subtitle);
+    
+    header.appendChild(iconContainer);
+    header.appendChild(titleContainer);
+    
+    // Message
+    const message = document.createElement('p');
+    message.className = 'text-gray-700 mb-6';
+    message.textContent = 'Are you sure you want to delete this patient? All associated data will be permanently removed.';
+    
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'flex items-center justify-end space-x-3';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.onclick = closeDeleteModal;
+    cancelBtn.className = 'px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors duration-200';
+    cancelBtn.textContent = 'Cancel';
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.onclick = deletePatient;
+    deleteBtn.className = 'px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300';
+    deleteBtn.textContent = 'Delete Patient';
+    
+    actions.appendChild(cancelBtn);
+    actions.appendChild(deleteBtn);
+    
+    // Assemble
+    content.appendChild(header);
+    content.appendChild(message);
+    content.appendChild(actions);
+    card.appendChild(content);
+    modal.appendChild(card);
     
     document.body.appendChild(modal);
 }
