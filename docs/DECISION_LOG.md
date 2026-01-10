@@ -112,3 +112,8 @@ This log records significant architectural and security decisions made during th
 ### CORRECTION APPEND — P4-01
 - **Correction:** The previous entry for P4-01 contained a typo '\ array'. It should be ' array'.
 - **Clarification:** Clinic info is injected globally only if not already provided by the controller, preserving original merge precedence.
+
+### CORRECTION APPEND — P4-01 Final Fixes
+- **Decision:** Inject clinic info in initController() via Services::renderer()->setVar().
+- **Context:** Controllers using global view() helper missed injected data.
+- **Impact:** Clinic info is now available to all view() calls (both method and helper) while preserving local controller overrides. Sidebar display is safely escaped.

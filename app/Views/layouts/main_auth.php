@@ -232,7 +232,7 @@
                         <div class="text-sm font-bold text-gray-900 truncate">
                             <?php 
                             $user = $user ?? null;
-                            $displayName = $clinic['name'];
+                            $displayName = esc($clinic['name']);
                             if (isset($user) and $user) {
                                 // Try first_name + last_name combination
                                 if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 

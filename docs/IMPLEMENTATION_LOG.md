@@ -206,3 +206,11 @@
     - app/Views/odontogram/export.php: Removed fallback in footer.
     - app/Views/odontogram/pdf.php: Removed fallback in footer.
 - **Verification:** docs/verification/P4-01.md
+
+### CORRECTION APPEND — P4-01 Final Fixes
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Finalized clinic injection and sidebar safety.
+- **Files Changed:**
+    - app/Controllers/BaseController.php: Added global clinic injection in initController() for view() helper compatibility.
+    - app/Views/layouts/main_auth.php: Escaped clinic name before assignment to \ in the sidebar user block.
