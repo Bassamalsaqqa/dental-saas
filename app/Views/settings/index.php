@@ -143,7 +143,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Tagline</label>
-                                        <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="e.g., Professional Suite">
+                                        <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Clinic tagline">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Path (URL or Relative Path)</label>

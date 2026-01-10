@@ -42,7 +42,7 @@
                             <h1 class="text-2xl font-black text-gray-900 mb-2"><?= esc($clinic['name']) ?></h1>
                             <div class="flex items-center justify-center space-x-2 mb-3">
                                 <div class="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
-                                <p class="text-xs text-gray-600 font-semibold">Professional Suite</p>
+                                <p class="text-xs text-gray-600 font-semibold"><?= esc($clinic['tagline']) ?></p>
                             </div>
                             <p class="text-sm text-gray-600 font-medium">Sign in to your account</p>
                         </div>

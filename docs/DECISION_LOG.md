@@ -122,3 +122,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Store tagline and logo path in settings. 'Professional Suite' is now a DB/Service default, not a layout literal.
 - **Context:** Layouts need to be white-label capable without code changes.
 - **Impact:** Clinic can customize tagline and logo via UI. Supports relative paths (base_url aware) and absolute URLs.
+
+### Decision: P4-02a Logo and Tagline Safety
+- **Decision:** All logo source URLs must be escaped at the point of output. Hard-coded branding/tagline strings (e.g., 'Professional Suite') are prohibited in production views.
+- **Context:** To ensure security and full white-label capability.
+- **Impact:** System relies entirely on settings for branding identity.

@@ -249,3 +249,14 @@
     - app/Views/layouts/main_auth.php: Implemented conditional logo rendering and dynamic tagline.
     - app/Views/layouts/main.php: Implemented conditional logo rendering and dynamic tagline.
 - **Verification:** docs/verification/P4-02a.md
+
+### Task: P4-02a Branding Fixes
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Fixed logo source escaping, removed hard-coded tagline literal from login, and neutralized settings placeholder.
+- **Files Changed:**
+    - app/Views/layouts/main_auth.php: Escaped logo source URL.
+    - app/Views/layouts/main.php: Escaped logo source URL.
+    - app/Views/auth/login.php: Replaced hard-coded tagline with settings-driven value.
+    - app/Views/settings/index.php: Neutralized clinic tagline placeholder.
+- **Verification:** docs/verification/P4-02a.md
