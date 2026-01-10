@@ -315,6 +315,23 @@ Documentation must **not** instruct insecure actions.
 
 ## 8. Phase 3 — Global UI Hardening
 
+### P3-01 Notifications UI Remediation
+**Status:** DONE
+
+**Objective:**
+Remove DOM-string sinks from the global notifications UI.
+
+**Definition of Done:**
+- `app/Views/layouts/main_auth.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains in notification rendering.
+- Unread count, polling cadence, and navigation preserved.
+
+**Verification Artifacts:**
+- `docs/verification/P3-01.md`
+
+---
+
+
 ### P3-02 RBAC Setup UI Remediation
 **Status:** DONE
 
