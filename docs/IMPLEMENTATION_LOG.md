@@ -155,3 +155,13 @@
 - **Verification:**
     - Created `docs/verification/P2-03.md`.
     - Confirmed zero dynamic `innerHTML` sinks in the view.
+
+### Task: P2-04 Inventory UI Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed all dynamic `innerHTML` sinks from the Inventory list view.
+- **Files Changed:**
+    - `app/Views/inventory/index.php`: Refactored `updateTableDisplay`, `deleteItem`, `showNotification`, `DataTables error handling`, and `printInventoryTable` to use safe DOM construction.
+- **Verification:**
+    - Created `docs/verification/P2-04.md`.
+    - Confirmed zero dynamic `innerHTML` sinks in the view.

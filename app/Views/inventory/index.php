@@ -636,22 +636,40 @@ class InventoryFilterManager {
         
         // Show/hide "No items found" message
         const tbody = document.querySelector('tbody');
-        const noItemsRow = tbody.querySelector('tr[colspan="7"]');
+        const noItemsRow = tbody.querySelector('tr[data-no-items]');
         
         if (this.filteredItems.length === 0) {
             if (!noItemsRow) {
                 const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td colspan="7" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-search text-gray-400 text-2xl"></i>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">No items found</h3>
-                            <p class="text-gray-500 mb-4">Try adjusting your search criteria.</p>
-                        </div>
-                    </td>
-                `;
+                newRow.setAttribute('data-no-items', 'true');
+                
+                const cell = document.createElement('td');
+                cell.colSpan = 7;
+                cell.className = 'px-6 py-12 text-center';
+                
+                const container = document.createElement('div');
+                container.className = 'flex flex-col items-center';
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-search text-gray-400 text-2xl';
+                iconDiv.appendChild(icon);
+                
+                const title = document.createElement('h3');
+                title.className = 'text-lg font-medium text-gray-900 mb-2';
+                title.textContent = 'No items found';
+                
+                const message = document.createElement('p');
+                message.className = 'text-gray-500 mb-4';
+                message.textContent = 'Try adjusting your search criteria.';
+                
+                container.appendChild(iconDiv);
+                container.appendChild(title);
+                container.appendChild(message);
+                cell.appendChild(container);
+                newRow.appendChild(cell);
+                
                 tbody.appendChild(newRow);
             } else {
                 noItemsRow.style.display = '';
@@ -702,8 +720,15 @@ function deleteItem(id) {
     if (confirm('Are you sure you want to delete this inventory item? This action cannot be undone.')) {
         // Show loading state
         const deleteBtn = event.target.closest('button');
-        const originalText = deleteBtn.innerHTML;
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Cache original children once if not already cached
+        if (!deleteBtn.hasOwnProperty('_originalChildren')) {
+            deleteBtn._originalChildren = Array.from(deleteBtn.childNodes).map(node => node.cloneNode(true));
+        }
+        
+        const loadingIcon = document.createElement('i');
+        loadingIcon.className = 'fas fa-spinner fa-spin';
+        deleteBtn.replaceChildren(loadingIcon);
         deleteBtn.disabled = true;
         
         fetch(`<?= base_url('inventory') ?>/${id}`, {
@@ -734,7 +759,7 @@ function deleteItem(id) {
             } else {
                 showNotification('Error: ' + data.message, 'error');
                 // Restore button state
-                deleteBtn.innerHTML = originalText;
+                deleteBtn.replaceChildren(...deleteBtn._originalChildren.map(node => node.cloneNode(true)));
                 deleteBtn.disabled = false;
             }
         })
@@ -742,7 +767,7 @@ function deleteItem(id) {
             console.error('Error:', error);
             showNotification('An error occurred while deleting the item.', 'error');
             // Restore button state
-            deleteBtn.innerHTML = originalText;
+            deleteBtn.replaceChildren(...deleteBtn._originalChildren.map(node => node.cloneNode(true)));
             deleteBtn.disabled = false;
         });
     }
@@ -756,15 +781,27 @@ function showNotification(message, type = 'info') {
         'bg-blue-500 text-white'
     }`;
     
-    notification.innerHTML = `
-        <div class="flex items-center space-x-2">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
+    const container = document.createElement('div');
+    container.className = 'flex items-center space-x-2';
+    
+    const icon = document.createElement('i');
+    icon.className = `fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle'}`;
+    container.appendChild(icon);
+    
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    container.appendChild(msgSpan);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'ml-2 text-white hover:text-gray-200';
+    closeBtn.onclick = function() { this.closest('.fixed').remove(); };
+    
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+    container.appendChild(closeBtn);
+    
+    notification.appendChild(container);
     
     document.body.appendChild(notification);
     
@@ -912,20 +949,45 @@ $(document).ready(function() {
                 console.error('DataTables Error: ' + errorMessage);
                 
                 // Show a user-friendly message in the table
-                $('#inventoryTable tbody').html(`
-                    <tr>
-                        <td colspan="9" class="text-center py-8 text-gray-500">
-                            <div class="flex flex-col items-center space-y-2">
-                                <i class="fas fa-exclamation-triangle text-4xl text-yellow-500"></i>
-                                <p class="text-lg font-medium">Unable to load inventory data</p>
-                                <p class="text-sm">Please check your connection and try again.</p>
-                                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                                    <i class="fas fa-refresh mr-2"></i>Retry
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+                const tbody = document.querySelector('#inventoryTable tbody');
+                tbody.innerHTML = ''; // Clear existing content
+                
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 9;
+                td.className = 'text-center py-8 text-gray-500';
+                
+                const container = document.createElement('div');
+                container.className = 'flex flex-col items-center space-y-2';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-exclamation-triangle text-4xl text-yellow-500';
+                
+                const title = document.createElement('p');
+                title.className = 'text-lg font-medium';
+                title.textContent = 'Unable to load inventory data';
+                
+                const msg = document.createElement('p');
+                msg.className = 'text-sm';
+                msg.textContent = 'Please check your connection and try again.';
+                
+                const btn = document.createElement('button');
+                btn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
+                btn.onclick = () => location.reload();
+                
+                const btnIcon = document.createElement('i');
+                btnIcon.className = 'fas fa-refresh mr-2';
+                btn.appendChild(btnIcon);
+                btn.appendChild(document.createTextNode('Retry'));
+                
+                container.appendChild(icon);
+                container.appendChild(title);
+                container.appendChild(msg);
+                container.appendChild(btn);
+                
+                td.appendChild(container);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
             }
         },
         columns: [
@@ -1148,46 +1210,71 @@ function printInventoryTable() {
     // Create a new window for printing
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     
+    if (!printWindow) {
+        alert('Please allow popups for this website');
+        return;
+    }
+
     // Get table data
     const table = document.getElementById('inventoryTable');
     const tableClone = table.cloneNode(true);
     
-    // Create print content
-    const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Inventory Report</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { color: #333; text-align: center; margin-bottom: 30px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f5f5f5; font-weight: bold; }
-                .no-print { display: none; }
-                @media print {
-                    body { margin: 0; }
-                    .no-print { display: none !important; }
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Inventory Report</h1>
-            <p><strong>Generated on:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong>Total Items:</strong> ${inventoryTable ? inventoryTable.page.info().recordsTotal : 'N/A'}</p>
-            ${tableClone.outerHTML}
-        </body>
-        </html>
+    // Set up the print document
+    const doc = printWindow.document;
+    doc.open();
+    
+    // Create HTML structure safely
+    doc.write('<!DOCTYPE html><html><head><title>Inventory Report</title></head><body></body></html>');
+    doc.close();
+    
+    const head = doc.head;
+    const body = doc.body;
+    
+    // Add styles
+    const style = doc.createElement('style');
+    style.textContent = `
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        .no-print { display: none; }
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none !important; }
+        }
     `;
+    head.appendChild(style);
     
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+    // Add content
+    const h1 = doc.createElement('h1');
+    h1.textContent = 'Inventory Report';
+    body.appendChild(h1);
     
-    // Wait for content to load, then print
-    printWindow.onload = function() {
+    const pDate = doc.createElement('p');
+    const dateStrong = doc.createElement('strong');
+    dateStrong.textContent = 'Generated on: ';
+    pDate.appendChild(dateStrong);
+    pDate.appendChild(doc.createTextNode(new Date().toLocaleDateString()));
+    body.appendChild(pDate);
+    
+    const pTotal = doc.createElement('p');
+    const totalStrong = doc.createElement('strong');
+    totalStrong.textContent = 'Total Items: ';
+    pTotal.appendChild(totalStrong);
+    const totalText = inventoryTable ? inventoryTable.page.info().recordsTotal : 'N/A';
+    pTotal.appendChild(doc.createTextNode(totalText));
+    body.appendChild(pTotal);
+    
+    // Append cloned table
+    body.appendChild(tableClone);
+    
+    // Wait for content to load (styles), then print
+    // setTimeout is robust for ensuring rendering before print dialog
+    setTimeout(function() {
         printWindow.print();
         printWindow.close();
-    };
+    }, 500);
 }
 
 function exportToCSV() {

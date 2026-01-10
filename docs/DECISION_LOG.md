@@ -30,4 +30,9 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Odontogram List Remediation (P2-03)
 - **Decision:** All dynamic `innerHTML` usage is banned in the `odontogram/list.php` view.
 - **Enforcement:** Table row rendering, pagination, and notifications must use `createElement` and `textContent`. Button state transitions must use `cloneNode` caching to preserve icons.
-- **Rationale:** The Odontogram list processes sensitive patient data from AJAX responses. Safe DOM construction is mandatory to prevent XSS.
+- Rationale: The Odontogram list processes sensitive patient data from AJAX responses. Safe DOM construction is mandatory to prevent XSS.
+
+## 2026-01-09: Inventory List Remediation (P2-04)
+- **Decision:** All dynamic `innerHTML` and `outerHTML` usage is banned in the `inventory/index.php` view.
+- **Enforcement:** Notifications, table updates, and error messages must use `createElement` and `textContent`. Print functionality must use DOM cloning instead of `outerHTML` serialization.
+- **Rationale:** Prevents XSS when rendering inventory item names, descriptions, or error messages from the server.
