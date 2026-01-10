@@ -135,3 +135,13 @@
 - **Verification:**
     - Created `docs/verification/P2-01.md`.
     - Verified that UI behavior and data rendering remain functional and correctly styled.
+
+### Task: P2-02 Toast Component Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed all `innerHTML` sinks from the global toast component.
+- **Files Changed:**
+    - `app/Views/components/toast.php`: Refactored `showToast` and form submission handlers to use safe DOM construction methods.
+- **Verification:**
+    - Created `docs/verification/P2-02.md`.
+    - Confirmed zero `innerHTML` matches in the component.

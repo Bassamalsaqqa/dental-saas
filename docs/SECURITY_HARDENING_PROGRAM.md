@@ -288,18 +288,24 @@ Documentation must **not** instruct insecure actions.
 ### P2-01 XSS Audit Pass 1 (innerHTML Remediation)
 **Status:** DONE
 
+...
+
+---
+
+### P2-02 Toast Component Remediation
+**Status:** DONE
+
 **Objective:**
-Remove or replace unsafe `innerHTML` sinks in target views where user-controlled or database data is rendered.
+Remove all `innerHTML` sinks from the global toast component.
 
 **Definition of Done:**
-- `app/Views/activity_log/index.php` remediated.
-- `app/Views/prescription/show.php` remediated.
-- `app/Views/patient/show.php` remediated.
-- No dynamic variable interpolation remains in `innerHTML` or `.html()` assignments in target files.
-- `docs/verification/P2-01.md` identifies all remediated sinks and justifies any remaining static usage.
+- `app/Views/components/toast.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains in the file.
+- Support for icons, titles, and auto-dismiss preserved.
+- `confirmDelete` workflow remains functional.
 
 **Verification Artifacts:**
-- `docs/verification/P2-01.md`
+- `docs/verification/P2-02.md`
 
 ---
 
@@ -360,3 +366,4 @@ Each session must leave a trace.
 11. P1-03 RBAC fail-closed & route coverage
 12. P1-04 Debug exposure + /scripts HTTP block (DONE)
 13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (DONE)
+14. P2-02 Toast component remediation (remove innerHTML) (DONE)

@@ -22,3 +22,7 @@ This log records significant architectural and security decisions made during th
 - **Rationale:** Prevent DOM-based and Persistent XSS by ensuring data is always treated as literal text rather than executable markup.
 - **Exception:** Static markup with NO variable interpolation is allowed but discouraged.
 
+## 2026-01-09: Toast Component Hardening (P2-02)
+- **Decision:** All `innerHTML` and `.html()` usage is banned in the `toast.php` component.
+- **Enforcement:** The component must build its DOM nodes explicitly using `createElement` and `textContent`.
+- **Rationale:** As a global component that handles arbitrary messages (including those from database or external APIs), the toast system is a high-impact XSS vector. Strict adherence to safe DOM APIs is required.

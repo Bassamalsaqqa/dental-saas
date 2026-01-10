@@ -155,44 +155,60 @@
 
 <!-- Toast Notification JavaScript -->
 <script>
-    // Toast notification system
-    function showToast(type, title, message, duration = 5000) {
+(function() {
+    /**
+     * Toast notification system (Hardened)
+     */
+    window.showToast = function(type, title, message, duration = 5000) {
         const container = document.getElementById('toastContainer');
+        if (!container) return;
         
         // Create toast element
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
         // Get appropriate icon
-        let icon = '✓';
+        let iconChar = 'ℹ';
         switch(type) {
-            case 'success':
-                icon = '✓';
-                break;
-            case 'error':
-                icon = '✕';
-                break;
-            case 'warning':
-                icon = '⚠';
-                break;
-            case 'info':
-                icon = 'ℹ';
-                break;
+            case 'success': iconChar = '✓'; break;
+            case 'error':   iconChar = '✕'; break;
+            case 'warning': iconChar = '⚠'; break;
+            case 'info':    iconChar = 'ℹ'; break;
         }
         
-        // Create toast content
-        toast.innerHTML = `
-            <div class="toast-icon">
-                ${icon}
-            </div>
-            <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close" onclick="closeToast(this)">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
+        // Icon element
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'toast-icon';
+        iconDiv.textContent = iconChar;
+        
+        // Content element
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'toast-content';
+        
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'toast-title';
+        titleDiv.textContent = title;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'toast-message';
+        messageDiv.textContent = message;
+        
+        contentDiv.appendChild(titleDiv);
+        contentDiv.appendChild(messageDiv);
+        
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'toast-close';
+        closeBtn.onclick = function() { window.closeToast(this); };
+        
+        const closeIcon = document.createElement('i');
+        closeIcon.className = 'fas fa-times';
+        closeBtn.appendChild(closeIcon);
+        
+        // Assemble toast
+        toast.appendChild(iconDiv);
+        toast.appendChild(contentDiv);
+        toast.appendChild(closeBtn);
         
         // Add to container
         container.appendChild(toast);
@@ -204,12 +220,16 @@
         
         // Auto remove after duration
         setTimeout(() => {
-            closeToast(toast.querySelector('.toast-close'));
+            if (toast.parentNode) {
+                window.closeToast(closeBtn);
+            }
         }, duration);
-    }
+    };
     
-    function closeToast(closeButton) {
+    window.closeToast = function(closeButton) {
         const toast = closeButton.closest('.toast');
+        if (!toast) return;
+        
         toast.classList.remove('show');
         
         setTimeout(() => {
@@ -217,31 +237,31 @@
                 toast.parentNode.removeChild(toast);
             }
         }, 300);
-    }
+    };
     
     // Show flash messages as toasts
     document.addEventListener('DOMContentLoaded', function() {
         <?php if (session()->getFlashdata('success')): ?>
-            showToast('success', 'Success!', '<?= addslashes(session()->getFlashdata('success')) ?>');
+            window.showToast('success', 'Success!', '<?= addslashes(session()->getFlashdata('success')) ?>');
         <?php endif; ?>
         
         <?php if (session()->getFlashdata('error')): ?>
-            showToast('error', 'Error!', '<?= addslashes(session()->getFlashdata('error')) ?>');
+            window.showToast('error', 'Error!', '<?= addslashes(session()->getFlashdata('error')) ?>');
         <?php endif; ?>
         
         <?php if (session()->getFlashdata('warning')): ?>
-            showToast('warning', 'Warning!', '<?= addslashes(session()->getFlashdata('warning')) ?>');
+            window.showToast('warning', 'Warning!', '<?= addslashes(session()->getFlashdata('warning')) ?>');
         <?php endif; ?>
         
         <?php if (session()->getFlashdata('info')): ?>
-            showToast('info', 'Info!', '<?= addslashes(session()->getFlashdata('info')) ?>');
+            window.showToast('info', 'Info!', '<?= addslashes(session()->getFlashdata('info')) ?>');
         <?php endif; ?>
         
         <?php if (session()->getFlashdata('validation')): ?>
             const validation = <?= json_encode(session()->getFlashdata('validation')) ?>;
             if (validation && validation.errors) {
                 const errors = Object.values(validation.errors).join(', ');
-                showToast('error', 'Validation Error', errors);
+                window.showToast('error', 'Validation Error', errors);
             }
         <?php endif; ?>
     });
@@ -254,14 +274,20 @@
             form.addEventListener('submit', function(e) {
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
+                    // Cache original children once if not already cached
+                    if (!submitBtn.hasOwnProperty('_originalChildren')) {
+                        submitBtn._originalChildren = Array.from(submitBtn.childNodes).map(node => node.cloneNode(true));
+                    }
+
                     // Add loading state
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                    const loadingIcon = document.createElement('i');
+                    loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
+                    submitBtn.replaceChildren(loadingIcon, document.createTextNode('Processing...'));
                     submitBtn.disabled = true;
                     
                     // Re-enable after 5 seconds (in case of network issues)
                     setTimeout(() => {
-                        submitBtn.innerHTML = originalText;
+                        submitBtn.replaceChildren(...submitBtn._originalChildren.map(node => node.cloneNode(true)));
                         submitBtn.disabled = false;
                     }, 5000);
                 }
@@ -270,10 +296,10 @@
     });
     
     // Delete confirmation with toast
-    function confirmDelete(url, message = 'Are you sure you want to delete this item?') {
+    window.confirmDelete = function(url, message = 'Are you sure you want to delete this item?') {
         if (confirm(message)) {
             // Show loading toast
-            showToast('info', 'Processing...', 'Deleting item, please wait...', 3000);
+            window.showToast('info', 'Processing...', 'Deleting item, please wait...', 3000);
             
             // Create form for DELETE request
             const form = document.createElement('form');
@@ -300,5 +326,6 @@
             document.body.appendChild(form);
             form.submit();
         }
-    }
+    };
+})();
 </script>
