@@ -174,3 +174,10 @@
     - Created `docs/verification/P3-11.md`.
     - Confirmed zero dynamic DOM-string sinks in targeted files via ripgrep.
     - Verified exact UI behavior preservation for all modules.
+### Task: P3-11 Correction (Syntax Error Fix)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Fixed JavaScript syntax errors in prescription creation and edit views introduced during DOM sink remediation.
+- **Files Changed:**
+    - \pp/Views/prescription/create.php\: Removed duplicated code block and fixed closing braces in \ddMedicine\.
+    - \pp/Views/prescription/edit.php\: Removed duplicated code block and fixed closing braces in \ddMedicineWithData\.

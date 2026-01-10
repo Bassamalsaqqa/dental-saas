@@ -323,19 +323,6 @@ function addMedicine() {
         medicineItem.style.transform = 'translateY(0)';
     }, 10);
 }
-    
-    // Add to container
-    document.getElementById('medicines-container').appendChild(medicineItem);
-    
-    // Add animation
-    medicineItem.style.opacity = '0';
-    medicineItem.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-        medicineItem.style.transition = 'all 0.3s ease';
-        medicineItem.style.opacity = '1';
-        medicineItem.style.transform = 'translateY(0)';
-    }, 10);
-}
 
 function removeMedicine(button) {
     const medicineItem = button.closest('.medicine-item');
