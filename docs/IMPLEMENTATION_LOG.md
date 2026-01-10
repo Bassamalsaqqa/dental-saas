@@ -144,3 +144,11 @@
 - **Verification:**
   - `rg -n "innerHTML|\.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
 
+
+### Task: P3-10 Appointment Index UI Remediation (Final Correction Append)
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Final append-only correction to supersede prior malformed blocks. All previous P3-10 entries are preserved for audit purposes.
+- **Verification:**
+  - `rg -n "innerHTML|\.html\(|insertAdjacentHTML|outerHTML" app/Views/appointment/index.php` -> (empty)
+
