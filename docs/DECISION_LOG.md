@@ -132,3 +132,7 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Use deterministic naming (clinic-logo.ext) and exclude SVG support.
 - **Rationale:** Deterministic naming prevents filename-based path traversal or attribute injection. SVG exclusion eliminates XSS risks via XML/scripts in images.
 - **Impact:** Robust and secure branding customization via the UI.
+
+### Decision: P4-02b Logo Path Source
+- **Decision:** clinic_logo_path is only updated upon successful file upload, never directly from POST.
+- **Rationale:** Ensures that the stored path is always a system-generated relative path under uploads/clinic, preventing path traversal or attribute injection via manual path input.

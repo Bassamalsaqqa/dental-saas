@@ -269,3 +269,11 @@
     - app/Controllers/Settings.php: Added file upload handling in updateClinic() with strict validation and cleanup.
     - app/Views/settings/index.php: Added multipart encoding and file input for logo.
 - **Verification:** docs/verification/P4-02b.md
+
+### Task: P4-02b Required Fixes
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Removed clinic_logo_path from POST payload to ensure it only updates on successful upload. Added verbatim verification evidence.
+- **Files Changed:**
+    - app/Controllers/Settings.php: Removed clinic_logo_path from initial settingsData build.
+    - docs/verification/P4-02b.md: Appended verbatim evidence section.

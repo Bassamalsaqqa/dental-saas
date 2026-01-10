@@ -58,7 +58,6 @@ class Settings extends BaseController
             'clinic_phone' => $this->request->getPost('clinic_phone'),
             'clinic_email' => $this->request->getPost('clinic_email'),
             'clinic_website' => $this->request->getPost('clinic_website'),
-            'clinic_logo_path' => $this->request->getPost('clinic_logo_path'),
             'clinic_tagline' => $this->request->getPost('clinic_tagline'),
         ];
 
