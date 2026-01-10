@@ -65,7 +65,13 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: Appointment Edit UI Remediation (P3-06)
 - **Decision:** All dynamic `innerHTML` usage is banned in `appointment/edit.php`.
 - **Enforcement:** Time slot options and error states must be constructed using `createElement`, `textContent`, and `replaceChildren`.
-- **Rationale:** Prevents XSS when rendering dynamic time slot data. Also ensures robust handling of JSON object responses (with CSRF tokens) from the API.
+- Rationale: Prevents XSS when rendering dynamic time slot data. Also ensures robust handling of JSON object responses (with CSRF tokens) from the API.
+
+## 2026-01-09: Odontogram Interaction Remediation (P3-07)
+- **Decision:** `innerHTML` is banned for button state updates and notifications in `odontogram/index.php`.
+- **Enforcement:** Use `replaceChildren` with cached nodes for restoring button states. Use `createElement` and `textContent` for notifications.
+- **Rationale:** Ensures that even if notification messages or button text were to become dynamic (e.g., including user input), they would be rendered safely without risk of XSS.
+
 
 
 

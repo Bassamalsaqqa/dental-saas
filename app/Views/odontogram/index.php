@@ -1375,11 +1375,19 @@ document.getElementById('toothForm').addEventListener('submit', function(e) {
     
     const formData = new FormData(this);
     const submitButton = this.querySelector('button[type="submit"]');
-    const originalText = submitButton.innerHTML;
+    
+    // Cache original children if not already cached
+    if (!submitButton.hasOwnProperty('_originalChildren')) {
+        submitButton._originalChildren = Array.from(submitButton.childNodes).map(n => n.cloneNode(true));
+    }
     
     // Show loading state
     submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+    
+    const spinnerIcon = document.createElement('i');
+    spinnerIcon.className = 'fas fa-spinner fa-spin mr-2';
+    submitButton.replaceChildren(spinnerIcon, document.createTextNode('Saving...'));
+    
     submitButton.classList.add('opacity-75');
     
     // Add loading animation to tooth
@@ -1464,7 +1472,7 @@ document.getElementById('toothForm').addEventListener('submit', function(e) {
     .finally(() => {
         // Reset button state
         submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
+        submitButton.replaceChildren(...submitButton._originalChildren.map(n => n.cloneNode(true)));
         submitButton.classList.remove('opacity-75');
     });
 });
@@ -1567,15 +1575,33 @@ function showNotification(message, type = 'info') {
     };
     
     notification.className += ` ${colors[type] || colors.info}`;
-    notification.innerHTML = `
-        <div class="flex items-center space-x-3">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
+    
+    const container = document.createElement('div');
+    container.className = 'flex items-center space-x-3';
+    
+    const icon = document.createElement('i');
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+    icon.className = `fas fa-${iconClass}`;
+    
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'ml-4 text-white hover:text-gray-200';
+    closeBtn.onclick = function() {
+        if (this.parentElement && this.parentElement.parentElement) {
+            this.parentElement.parentElement.remove();
+        }
+    };
+    
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fas fa-times';
+    closeBtn.appendChild(closeIcon);
+    
+    container.appendChild(icon);
+    container.appendChild(msgSpan);
+    container.appendChild(closeBtn);
+    notification.appendChild(container);
     
     document.body.appendChild(notification);
     

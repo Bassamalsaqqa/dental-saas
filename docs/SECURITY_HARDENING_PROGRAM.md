@@ -346,16 +346,24 @@ Documentation must **not** instruct insecure actions.
 ### P3-06 Appointment Edit Time-Slot UI Remediation
 **Status:** DONE
 
+...
+
+---
+
+### P3-07 Odontogram UI Remediation
+**Status:** DONE
+
 **Objective:**
-Remove all dynamic `innerHTML` sinks from the Appointment Edit view.
+Remove DOM-string sinks from the Odontogram index view (button states, notifications).
 
 **Definition of Done:**
-- `app/Views/appointment/edit.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains for dynamic data.
-- Time slot loading, error states, and options population preserved.
+- `app/Views/odontogram/index.php` refactored to use safe DOM methods.
+- No `innerHTML` or `.html()` remains.
+- Button icons preserved via child node caching.
+- Notification rendering preserved via DOM construction.
 
 **Verification Artifacts:**
-- `docs/verification/P3-06.md`
+- `docs/verification/P3-07.md`
 
 ---
 
@@ -425,3 +433,4 @@ Each session must leave a trace.
 20. P3-04 User management permissions UI remediation (remove innerHTML) (DONE)
 21. P3-05 Appointment create time-slot UI remediation (remove innerHTML) (DONE)
 22. P3-06 Appointment edit time-slot UI remediation (remove innerHTML) (DONE)
+23. P3-07 Odontogram UI remediation (remove innerHTML) (DONE)

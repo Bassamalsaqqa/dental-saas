@@ -1,14 +1,3 @@
-### Task: P3-03 Inventory Usage History Remediation
-- **Date:** 2026-01-09
-- **Status:** Completed
-- **Description:** Removed all dynamic `innerHTML` sinks from the Inventory Usage History view.
-- **Files Changed:**
-    - `app/Views/inventory/usage_history.php`: Refactored `viewUsageDetails`, `printUsageHistoryTable`, and DataTables error handling to use safe DOM construction.
-- **Verification:**
-    - Created `docs/verification/P3-03.md`.
-    - Confirmed zero dynamic `innerHTML` sinks in the view.
-    - Verified details modal rendering and print functionality.
-
 ### Task: P3-04 User Management Permissions UI Remediation
 - **Date:** 2026-01-09
 - **Status:** Completed
@@ -41,3 +30,14 @@
     - Created `docs/verification/P3-06.md`.
     - Confirmed zero dynamic `innerHTML` sinks in the view.
     - Verified time slot loading and current value preservation.
+
+### Task: P3-07 Odontogram UI Remediation
+- **Date:** 2026-01-09
+- **Status:** Completed
+- **Description:** Removed DOM-string sinks in the Odontogram index view related to button state swaps and notifications.
+- **Files Changed:**
+    - `app/Views/odontogram/index.php`: Refactored `submitButton` state management to use child node caching and `replaceChildren`. Refactored `showNotification` to use safe DOM construction.
+- **Verification:**
+    - Created `docs/verification/P3-07.md`.
+    - Confirmed zero `innerHTML` sinks in the view.
+    - Verified button animations and notification rendering.
