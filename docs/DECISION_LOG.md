@@ -19,7 +19,7 @@ This log records significant architectural and security decisions made during th
 ## 2026-01-09: XSS Prevention Policy (P2-01)
 - **Decision:** `innerHTML` and jQuery `.html()` are banned for rendering user-controlled, database, or API-sourced strings.
 - **Enforcement:** Use `textContent` for plain text, `setAttribute` for attributes, and explicit `document.createElement`/`appendChild` for building complex nodes.
-- **Rationale:** Prevent DOM-based and Persistent XSS by ensuring data is always treated as literal text rather than executable markup.   
+- **Rationale:** Prevent DOM-based and Persistent XSS by ensuring data is always treated as literal text rather than executable markup.
 - **Exception:** Static markup with NO variable interpolation is allowed but discouraged.
 
 ## 2026-01-09: Toast Component Hardening (P2-02)
@@ -64,7 +64,7 @@ This log records significant architectural and security decisions made during th
 
 ## 2026-01-09: Appointment Edit UI Remediation (P3-06)
 - **Decision:** All dynamic `innerHTML` usage is banned in `appointment/edit.php`.
-- **Enforcement:** Time slot options and error states must be constructed using `createElement`, `textContent`, and `replaceChildren`.    
+- **Enforcement:** Time slot options and error states must be constructed using `createElement`, `textContent`, and `replaceChildren`.
 - **Rationale:** Prevents XSS when rendering dynamic time slot data. Also ensures robust handling of JSON object responses (with CSRF tokens) from the API.
 
 ## 2026-01-09: Odontogram Interaction Remediation (P3-07)
