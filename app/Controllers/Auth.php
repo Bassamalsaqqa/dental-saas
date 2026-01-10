@@ -10,7 +10,7 @@ namespace App\Controllers;
  * @author   Benoit VRIGNAUD <benoit.vrignaud@zaclys.net>
  * @license  https://opensource.org/licenses/MIT	MIT License
  */
-class Auth extends \CodeIgniter\Controller
+class Auth extends BaseController
 {
 
 	/**
@@ -25,20 +25,6 @@ class Auth extends \CodeIgniter\Controller
 	 * @var \App\Config\IonAuth
 	 */
 	protected $configIonAuth;
-
-	/**
-	 * IonAuth library
-	 *
-	 * @var \App\Libraries\IonAuth
-	 */
-	protected $ionAuth;
-
-	/**
-	 * Session
-	 *
-	 * @var \CodeIgniter\Session\Session
-	 */
-	protected $session;
 
 	/**
 	 * Validation library
