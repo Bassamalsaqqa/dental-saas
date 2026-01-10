@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? esc($clinic['name'] ?? 'Dental Management System') ?></title>
+    <title><?= $title ?? esc($clinic['name']) ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div id="sidebar-title" class="min-w-0 flex-shrink-0">
-                        <h1 class="text-lg font-black text-gray-900 whitespace-nowrap"><?= esc($clinic['name'] ?? 'DentalCare') ?></h1>
+                        <h1 class="text-lg font-black text-gray-900 whitespace-nowrap"><?= esc($clinic['name']) ?></h1>
                         <div class="flex items-center space-x-1">
                             <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                             <p class="text-xs text-gray-500 font-medium whitespace-nowrap">Professional Suite</p>
@@ -232,7 +232,7 @@
                         <div class="text-sm font-bold text-gray-900 truncate">
                             <?php 
                             $user = $user ?? null;
-                            $displayName = $clinic['name'] ?? 'Dental Management System';
+                            $displayName = $clinic['name'];
                             if (isset($user) and $user) {
                                 // Try first_name + last_name combination
                                 if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
@@ -293,7 +293,7 @@
                     
                     <!-- Page Title -->
                     <div class="flex items-center">
-                        <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= $pageTitle ?? $title ?? esc($clinic['name'] ?? 'DentalCare Pro') ?></h2>
+                        <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= $pageTitle ?? $title ?? esc($clinic['name']) ?></h2>
                     </div>
                 </div>
                 

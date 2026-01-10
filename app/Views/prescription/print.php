@@ -154,8 +154,8 @@
                         <p>Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
                     </div>
                     <div class="text-sm text-gray-600 text-right">
-                        <p><?= esc($clinic['name'] ?? 'Dental Management System') ?></p>
-                        <p><?= esc($clinic['website'] ?? 'www.dentalclinic.com') ?></p>
+                        <p><?= esc($clinic['name']) ?></p>
+                        <p>www.dentalclinic.com</p>
                     </div>
                 </div>
             </div>

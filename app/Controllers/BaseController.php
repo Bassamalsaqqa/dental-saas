@@ -139,7 +139,7 @@ abstract class BaseController extends Controller
     {
         // Automatically merge user data if user is logged in
         if ($this->isLoggedIn()) {
-            $data = array_merge($this->getUserDataForView(), $data);
+            $data = array_merge($data, $this->getUserDataForView());
         }
 
         // Add clinic info if not already present

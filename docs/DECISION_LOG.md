@@ -108,3 +108,7 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Override BaseController::view() to inject clinic info globally.
 - **Context:** Hard-coded branding strings made the system difficult to white-label.
 - **Impact:** All views now have access to a \ array containing name, address, etc. Layouts and print views use this data with safe escaping (esc()).
+
+### CORRECTION APPEND — P4-01
+- **Correction:** The previous entry for P4-01 contained a typo '\ array'. It should be ' array'.
+- **Clarification:** Clinic info is injected globally only if not already provided by the controller, preserving original merge precedence.

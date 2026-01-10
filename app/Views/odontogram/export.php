@@ -475,7 +475,7 @@
         <!-- Footer -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
             <div class="text-sm text-gray-600">
-                <p>This report was generated on <?= date('F j, Y \a\t g:i A') ?> by the <?= esc($clinic['name'] ?? 'Dental Management System') ?></p>
+                <p>This report was generated on <?= date('F j, Y \a\t g:i A') ?> by the <?= esc($clinic['name']) ?></p>
                 <p class="mt-2">For questions about this report, please contact your dental office</p>
             </div>
         </div>

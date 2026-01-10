@@ -191,3 +191,18 @@
     - \pp/Views/layouts/main_auth.php\, \main.php\: Updated titles, headers, footers.
     - \pp/Views/auth/login.php\, \ppointment/print.php\, \prescription/print.php\, \odontogram/export.php\, \odontogram/pdf.php\: Replaced hard-coded strings.
 - **Verification:** docs/verification/P4-01.md
+
+### CORRECTION APPEND — P4-01
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Fixed merge order regression in BaseController and removed all literal fallback strings from production views.
+- **Files Changed:**
+    - app/Controllers/BaseController.php: Restored original merge order; protected controller-provided clinic info.
+    - app/Views/layouts/main_auth.php: Removed fallbacks for title, sidebar, and header.
+    - app/Views/layouts/main.php: Removed fallbacks for title, sidebar, and footer.
+    - app/Views/auth/login.php: Removed fallbacks in header and footer.
+    - app/Views/appointment/print.php: Removed fallback in header.
+    - app/Views/prescription/print.php: Removed fallback and reverted website line change.
+    - app/Views/odontogram/export.php: Removed fallback in footer.
+    - app/Views/odontogram/pdf.php: Removed fallback in footer.
+- **Verification:** docs/verification/P4-01.md
