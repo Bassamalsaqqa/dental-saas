@@ -63,9 +63,9 @@
                 <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center overflow-hidden">
                     <?php if (!empty($clinic['logo_path'])): ?>
                         <?php 
-                            $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                                ? esc($clinic['logo_path']) 
-                                : base_url(ltrim($clinic['logo_path'], '/'));
+                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                            ? $clinic['logo_path'] 
+                            : base_url(ltrim($clinic['logo_path'], '/'));
                         ?>
                         <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain p-2">
                     <?php else: ?>

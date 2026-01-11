@@ -162,3 +162,8 @@ This log records significant architectural and security decisions made during th
  -   * * C o n t e x t : * *   L o g o   U R L s   i n   p r i n t   v i e w s   w e r e   o u t p u t   d i r e c t l y .   A l t h o u g h   v a l i d a t e d   d u r i n g   u p l o a d ,   e s c a p i n g   a t   t h e   o u t p u t   l a y e r   p r o v i d e s   d e f e n s e - i n - d e p t h   a g a i n s t   c o m p r o m i s e d   d a t a b a s e   v a l u e s . 
  -   * * D a t e : * *   2 0 2 6 - 0 1 - 1 1  
  
+### Decision: P4-04 Print Logo Escaping
+- **Decision:** Compute logoSrc from raw stored path and apply esc() only at output to avoid double-escaping.
+- **Rationale:** Prevents breaking valid URLs while maintaining output safety.
+- **Impact:** Print views render correct logo URLs with consistent escaping.
+

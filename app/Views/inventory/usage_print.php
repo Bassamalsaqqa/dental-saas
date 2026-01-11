@@ -138,9 +138,9 @@
         <?php if (!empty($clinic['logo_path'])): ?>
             <div style="text-align: center; margin-bottom: 10px;">
                 <?php 
-                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                        ? esc($clinic['logo_path']) 
-                        : base_url(ltrim($clinic['logo_path'], '/'));
+                $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                    ? $clinic['logo_path'] 
+                    : base_url(ltrim($clinic['logo_path'], '/'));
                 ?>
                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 60px; width: auto;">
             </div>

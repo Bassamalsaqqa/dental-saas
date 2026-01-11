@@ -9,9 +9,9 @@
             <?php if (!empty($clinic['logo_path'])): ?>
                 <div class="mb-4 flex justify-center">
                     <?php 
-                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                            ? esc($clinic['logo_path']) 
-                            : base_url(ltrim($clinic['logo_path'], '/'));
+                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                        ? $clinic['logo_path'] 
+                        : base_url(ltrim($clinic['logo_path'], '/'));
                     ?>
                     <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
                 </div>

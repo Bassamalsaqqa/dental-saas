@@ -184,7 +184,7 @@
                 <div style="text-align: center; margin-bottom: 10px;">
                     <?php 
                         $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                            ? esc($clinic['logo_path']) 
+                            ? $clinic['logo_path'] 
                             : base_url(ltrim($clinic['logo_path'], '/'));
                     ?>
                     <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 80px; width: auto;">

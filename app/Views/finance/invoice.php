@@ -24,9 +24,9 @@
                                 <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-3 overflow-hidden">
                                     <?php if (!empty($clinic['logo_path'])): ?>
                                         <?php 
-                                            $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
-                                                ? esc($clinic['logo_path']) 
-                                                : base_url(ltrim($clinic['logo_path'], '/'));
+                                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                                            ? $clinic['logo_path'] 
+                                            : base_url(ltrim($clinic['logo_path'], '/'));
                                         ?>
                                         <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain bg-white">
                                     <?php else: ?>

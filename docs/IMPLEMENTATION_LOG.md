@@ -326,3 +326,10 @@
          -   a p p / V i e w s / i n v e n t o r y / u s a g e _ p r i n t . p h p 
          -   a p p / V i e w s / f i n a n c e / i n v o i c e . p h p  
  
+### Task: P4-04 Documentation Fix (logoSrc double-escape)
+- **Date:** 2026-01-11
+- **Status:** Completed
+- **Description:** Appended correction evidence after removing double-escape on logo path in print views.
+- **Files Changed:**
+    - docs/verification/P4-04.md: Added correction append with updated logoSrc evidence.
+
