@@ -187,7 +187,7 @@
                             ? esc($clinic['logo_path']) 
                             : base_url(ltrim($clinic['logo_path'], '/'));
                     ?>
-                    <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 80px; width: auto;">
+                    <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 80px; width: auto;">
                 </div>
             <?php else: ?>
                 <div style="text-align: center; margin-bottom: 10px; font-size: 48px; color: #2563eb;">

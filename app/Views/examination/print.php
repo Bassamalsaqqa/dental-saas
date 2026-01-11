@@ -13,7 +13,7 @@
                             ? esc($clinic['logo_path']) 
                             : base_url(ltrim($clinic['logo_path'], '/'));
                     ?>
-                    <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
+                    <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
                 </div>
             <?php endif; ?>
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Examination Report</h1>

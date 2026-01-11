@@ -12,7 +12,7 @@
                         ? esc($clinic['logo_path']) 
                         : base_url(ltrim($clinic['logo_path'], '/'));
                 ?>
-                <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
+                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
             </div>
         <?php else: ?>
             <h1 class="text-2xl font-bold text-gray-900">PRESCRIPTION</h1>

@@ -311,3 +311,18 @@
     - app/Controllers/Settings.php: Handled logo removal and cleanup logic.
     - app/Views/*/print.php, app/Views/finance/invoice.php, app/Views/odontogram/*, app/Views/inventory/usage_print.php: Added dynamic logo rendering logic.
 - **Verification:** docs/verification/P4-04.md
+
+ # # #   T a s k :   P 4 - 0 4   L o g o   S R C   E s c a p i n g   ( C o r r e c t i o n ) 
+ -   * * D a t e : * *   2 0 2 6 - 0 1 - 1 1 
+ -   * * S t a t u s : * *   C o m p l e t e d 
+ -   * * D e s c r i p t i o n : * *   E s c a p e d   t h e   l o g o   U R L   o u t p u t   i n   a l l   p r i n t   v i e w s   t o   p r e v e n t   p o t e n t i a l   X S S   f r o m   d a t a b a s e   v a l u e s . 
+ -   * * F i l e s   C h a n g e d : * * 
+         -   a p p / V i e w s / a p p o i n t m e n t / p r i n t . p h p 
+         -   a p p / V i e w s / e x a m i n a t i o n / p r i n t . p h p 
+         -   a p p / V i e w s / p r e s c r i p t i o n / p r i n t . p h p 
+         -   a p p / V i e w s / o d o n t o g r a m / p r i n t . p h p 
+         -   a p p / V i e w s / o d o n t o g r a m / e x p o r t . p h p 
+         -   a p p / V i e w s / o d o n t o g r a m / p d f . p h p 
+         -   a p p / V i e w s / i n v e n t o r y / u s a g e _ p r i n t . p h p 
+         -   a p p / V i e w s / f i n a n c e / i n v o i c e . p h p  
+ 

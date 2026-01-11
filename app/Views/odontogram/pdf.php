@@ -67,7 +67,7 @@
                                 ? esc($clinic['logo_path']) 
                                 : base_url(ltrim($clinic['logo_path'], '/'));
                         ?>
-                        <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain p-2">
+                        <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain p-2">
                     <?php else: ?>
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>

@@ -28,7 +28,7 @@
                                                 ? esc($clinic['logo_path']) 
                                                 : base_url(ltrim($clinic['logo_path'], '/'));
                                         ?>
-                                        <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain bg-white">
+                                        <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain bg-white">
                                     <?php else: ?>
                                         <i class="fas fa-tooth text-white text-xl"></i>
                                     <?php endif; ?>

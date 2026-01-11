@@ -142,7 +142,7 @@
                         ? esc($clinic['logo_path']) 
                         : base_url(ltrim($clinic['logo_path'], '/'));
                 ?>
-                <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 60px; width: auto;">
+                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 60px; width: auto;">
             </div>
         <?php endif; ?>
         <h1>INVENTORY USAGE RECORD</h1>

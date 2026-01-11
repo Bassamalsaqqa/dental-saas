@@ -157,3 +157,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Clinic logo path is strictly system-managed via file upload. Manual path input is removed.
 - **Rationale:** Eliminates risk of storing arbitrary or malicious paths. Simplifies UX by providing clear upload/remove actions.
 - **Impact:** Users can only use uploaded images for branding.
+
+ -   * * D e c i s i o n : * *   E s c a p e   l o g o   U R L   i n   p r i n t   v i e w s . 
+ -   * * C o n t e x t : * *   L o g o   U R L s   i n   p r i n t   v i e w s   w e r e   o u t p u t   d i r e c t l y .   A l t h o u g h   v a l i d a t e d   d u r i n g   u p l o a d ,   e s c a p i n g   a t   t h e   o u t p u t   l a y e r   p r o v i d e s   d e f e n s e - i n - d e p t h   a g a i n s t   c o m p r o m i s e d   d a t a b a s e   v a l u e s . 
+ -   * * D a t e : * *   2 0 2 6 - 0 1 - 1 1  
+ 
