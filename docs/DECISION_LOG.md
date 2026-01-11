@@ -146,3 +146,9 @@ This log records significant architectural and security decisions made during th
 - **Decision:** Verification artifacts for branding tasks must include verbatim terminal outputs from ripgrep.
 - **Rationale:** Ensures empirical proof of literal removal and absence of DOM-string sinks.
 
+
+### Decision: P4-03 Verification Placeholder Superseded
+- **Decision:** When verification sections contain placeholders, append a correction note that supersedes them rather than editing existing lines.
+- **Rationale:** Append-only rules.
+- **Impact:** Maintains audit trail while clarifying authoritative evidence.
+
