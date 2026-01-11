@@ -64,6 +64,12 @@ class SettingsModel extends Model
     public function setSetting($key, $value, $type = 'string', $description = null)
     {
         $existing = $this->where('setting_key', $key)->first();
+
+        $skipValidation = false;
+        if ($value === '' && in_array($key, ['clinic_logo_path', 'clinic_website', 'clinic_tagline'], true)) {
+            $this->skipValidation(true);
+            $skipValidation = true;
+        }
         
         $data = [
             'setting_key' => $key,
@@ -77,10 +83,16 @@ class SettingsModel extends Model
         if ($existing) {
             $result = $this->update($existing['id'], $data);
             log_message('info', "Updated existing setting {$key}: " . ($result ? 'success' : 'failed'));
+            if ($skipValidation) {
+                $this->skipValidation(false);
+            }
             return $result;
         } else {
             $result = $this->insert($data);
             log_message('info', "Inserted new setting {$key}: " . ($result ? 'success' : 'failed'));
+            if ($skipValidation) {
+                $this->skipValidation(false);
+            }
             return $result;
         }
     }

@@ -63,6 +63,11 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
+# Handle uploads (e.g., clinic logos) - serve them directly from public/uploads
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
 # Handle all other requests through the root index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

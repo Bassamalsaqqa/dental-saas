@@ -65,6 +65,7 @@ class Settings extends BaseController
         $logoFile = $this->request->getFile('clinic_logo');
         $removeLogo = $this->request->getPost('clinic_logo_remove');
         $uploadPath = FCPATH . 'uploads/clinic';
+        $pendingLogoRemoval = false;
 
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
             // Ensure directory exists
@@ -89,14 +90,8 @@ class Settings extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Failed to determine logo file extension.');
             }
         } elseif ($removeLogo) {
-            // Delete existing clinic-logo.* if requested and no new file
-            $existingLogos = glob($uploadPath . '/clinic-logo.*');
-            if ($existingLogos) {
-                foreach ($existingLogos as $file) {
-                    if (is_file($file)) unlink($file);
-                }
-            }
             $settingsData['clinic_logo_path'] = '';
+            $pendingLogoRemoval = true;
         }
 
         log_message('info', 'Saving clinic settings: ' . json_encode($settingsData));
@@ -104,6 +99,14 @@ class Settings extends BaseController
         if ($this->saveSettings($settingsData)) {
             $this->settingsService->reloadSettings();
             log_message('info', 'Clinic settings saved successfully');
+            if ($pendingLogoRemoval) {
+                $existingLogos = glob($uploadPath . '/clinic-logo.*');
+                if ($existingLogos) {
+                    foreach ($existingLogos as $file) {
+                        if (is_file($file)) unlink($file);
+                    }
+                }
+            }
             return redirect()->to('/settings')->with('success', 'Clinic information updated successfully!');
         } else {
             log_message('error', 'Failed to save clinic settings');
