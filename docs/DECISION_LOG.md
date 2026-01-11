@@ -152,3 +152,8 @@ This log records significant architectural and security decisions made during th
 - **Rationale:** Append-only rules.
 - **Impact:** Maintains audit trail while clarifying authoritative evidence.
 
+
+### Decision: P4-04 Logo Path Control
+- **Decision:** Clinic logo path is strictly system-managed via file upload. Manual path input is removed.
+- **Rationale:** Eliminates risk of storing arbitrary or malicious paths. Simplifies UX by providing clear upload/remove actions.
+- **Impact:** Users can only use uploaded images for branding.

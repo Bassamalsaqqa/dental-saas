@@ -5,7 +5,18 @@
 <div class="min-h-screen bg-white print:bg-white">
     <!-- Print Header - Only visible when printing -->
     <div class="hidden print:block text-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">PRESCRIPTION</h1>
+        <?php if (!empty($clinic['logo_path'])): ?>
+            <div class="mb-4 flex justify-center">
+                <?php 
+                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                        ? esc($clinic['logo_path']) 
+                        : base_url(ltrim($clinic['logo_path'], '/'));
+                ?>
+                <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
+            </div>
+        <?php else: ?>
+            <h1 class="text-2xl font-bold text-gray-900">PRESCRIPTION</h1>
+        <?php endif; ?>
         <div class="text-sm text-gray-600 mt-2">
             <p><?= esc($clinic['name']) ?></p>
             <p><?= esc($clinic['address']) ?></p>

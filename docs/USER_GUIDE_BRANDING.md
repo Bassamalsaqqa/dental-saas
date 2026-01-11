@@ -11,20 +11,19 @@ To customize your clinic's appearance in the system, navigate to **Settings > Cl
 - **Max Length:** 100 characters.
 
 ### Clinic Logo
-- **Field:** `Clinic Logo Path`
-- **Description:** Provide a URL or a relative path to your clinic logo.
-- **Path Handling:**
-    - **Relative Path:** If you provide a path like `assets/images/my-logo.png`, the system will use your base URL.
-    - **URL:** If you provide a full URL like `https://example.com/logo.png`, the system will use it directly.
-- **Recommended Dimensions:** 
-    - Use a square or near-square source image (e.g., 256x256 pixels).
-    - The logo is rendered inside a 40x40 pixel container using `object-contain` to preserve aspect ratio.
-- **Fallback:** If no logo path is provided, the system displays a default tooth icon.
+- **Field:** `Clinic Logo Upload`
+- **Description:** Upload your clinic's logo to display on the dashboard and printouts.
+- **Upload Support:**
+    - **Formats:** PNG, JPG, WEBP.
+    - **Max Size:** 512 KB.
+    - **Recommended:** 40x40 pixels (square) for best dashboard fit. Printouts scale gracefully.
+- **Removing Logo:** Check "Remove logo (use default)" and save to revert to the default system icon.
+- **Rendering:**
+    - Dashboard: Displayed in the sidebar header.
+    - Printouts: Displayed at the top-center of invoices, prescriptions, and reports.
+- **Fallback:** If no logo is set, the system displays a default tooth icon.
 
-*Note: Direct file upload is not supported in this version. Please ensure the logo file is available at the provided path or URL.*
-
-### Logo Upload
-- **Supported Formats:** PNG, JPG/JPEG, WEBP (No SVG).
-- **Size Limit:** 512 KB.
-- **Recommended Dimensions:** 40x40 pixels (square).
-- **Storage:** Successfully uploaded logos are stored in \public/uploads/clinic/\ and will overwrite previous uploads.
+### Technical Details
+- **Storage:** Uploaded logos are stored securely in `public/uploads/clinic/`.
+- **Naming:** Files are renamed to `clinic-logo.[ext]` to ensure consistent loading.
+- **Path Handling:** The system automatically handles local paths vs URLs if manually configured in the database, but the UI enforces file upload for security.

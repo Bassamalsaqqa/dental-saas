@@ -180,6 +180,20 @@
     <div class="print-container">
         <!-- Header -->
         <div class="header">
+            <?php if (!empty($clinic['logo_path'])): ?>
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <?php 
+                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                            ? esc($clinic['logo_path']) 
+                            : base_url(ltrim($clinic['logo_path'], '/'));
+                    ?>
+                    <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 80px; width: auto;">
+                </div>
+            <?php else: ?>
+                <div style="text-align: center; margin-bottom: 10px; font-size: 48px; color: #2563eb;">
+                    <span style="font-family: 'Font Awesome 6 Free'; font-weight: 900;">&#xf5c9;</span>
+                </div>
+            <?php endif; ?>
             <div class="clinic-name"><?= esc($clinic['name']) ?></div>
             <div class="clinic-subtitle"><?= esc($clinic['tagline']) ?></div>
             <div class="appointment-title">

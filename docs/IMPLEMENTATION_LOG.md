@@ -301,3 +301,13 @@
 - **Files Changed:**
     - docs/verification/P4-03.md: Added correction append noting placeholders are superseded.
 
+
+### Task: P4-04 Logo Removal + Print Branding
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Removed manual logo path input, added logo removal option, and standardized logo rendering across all print views.
+- **Files Changed:**
+    - app/Views/settings/index.php: Replaced manual input with remove checkbox.
+    - app/Controllers/Settings.php: Handled logo removal and cleanup logic.
+    - app/Views/*/print.php, app/Views/finance/invoice.php, app/Views/odontogram/*, app/Views/inventory/usage_print.php: Added dynamic logo rendering logic.
+- **Verification:** docs/verification/P4-04.md

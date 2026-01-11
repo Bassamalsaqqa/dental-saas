@@ -150,9 +150,11 @@
                                         <input type="file" name="clinic_logo" accept=".png,.jpg,.jpeg,.webp" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
                                         <p class="text-xs text-gray-500 mt-1">Allowed: PNG, JPG, WEBP. Max size: 512 KB. Recommended: 40x40 px (square).</p>
                                     </div>
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Path (URL or Relative Path)</label>
-                                        <input type="text" name="clinic_logo_path" value="<?= esc($settings['clinic_logo_path'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="e.g., assets/images/logo.png or https://example.com/logo.png">
+                                    <div class="flex items-center">
+                                        <label class="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="clinic_logo_remove" value="1" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition-colors">
+                                            <span class="text-sm font-semibold text-gray-700">Remove logo (use default)</span>
+                                        </label>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Address</label>

@@ -37,7 +37,16 @@
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center">
                 <div class="flex items-center space-x-4 mb-4 lg:mb-0">
                     <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-tooth text-white text-2xl"></i>
+                        <?php if (!empty($clinic['logo_path'])): ?>
+                            <?php 
+                                $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                                    ? esc($clinic['logo_path']) 
+                                    : base_url(ltrim($clinic['logo_path'], '/'));
+                            ?>
+                            <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain p-2">
+                        <?php else: ?>
+                            <i class="fas fa-tooth text-white text-2xl"></i>
+                        <?php endif; ?>
                     </div>
                     <div>
                         <h1 class="text-3xl font-bold">Dental Chart Export</h1>

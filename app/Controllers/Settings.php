@@ -63,9 +63,10 @@ class Settings extends BaseController
 
         // Handle Secure Logo Upload
         $logoFile = $this->request->getFile('clinic_logo');
+        $removeLogo = $this->request->getPost('clinic_logo_remove');
+        $uploadPath = FCPATH . 'uploads/clinic';
+
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
-            $uploadPath = FCPATH . 'uploads/clinic';
-            
             // Ensure directory exists
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
@@ -87,6 +88,15 @@ class Settings extends BaseController
             } else {
                 return redirect()->back()->withInput()->with('error', 'Failed to determine logo file extension.');
             }
+        } elseif ($removeLogo) {
+            // Delete existing clinic-logo.* if requested and no new file
+            $existingLogos = glob($uploadPath . '/clinic-logo.*');
+            if ($existingLogos) {
+                foreach ($existingLogos as $file) {
+                    if (is_file($file)) unlink($file);
+                }
+            }
+            $settingsData['clinic_logo_path'] = '';
         }
 
         log_message('info', 'Saving clinic settings: ' . json_encode($settingsData));

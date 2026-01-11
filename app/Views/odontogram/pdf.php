@@ -57,14 +57,22 @@
     </style>
 </head>
 <body class="bg-white text-gray-900">
-    <!-- Header -->
     <div class="bg-blue-600 text-white py-6 mb-8">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
+                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center overflow-hidden">
+                    <?php if (!empty($clinic['logo_path'])): ?>
+                        <?php 
+                            $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                                ? esc($clinic['logo_path']) 
+                                : base_url(ltrim($clinic['logo_path'], '/'));
+                        ?>
+                        <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="w-full h-full object-contain p-2">
+                    <?php else: ?>
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    <?php endif; ?>
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold">Dental Chart Report</h1>

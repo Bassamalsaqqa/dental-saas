@@ -135,6 +135,16 @@
     <button class="print-button no-print" onclick="window.print()">🖨️ Print</button>
     
     <div class="header">
+        <?php if (!empty($clinic['logo_path'])): ?>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <?php 
+                    $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                        ? esc($clinic['logo_path']) 
+                        : base_url(ltrim($clinic['logo_path'], '/'));
+                ?>
+                <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 60px; width: auto;">
+            </div>
+        <?php endif; ?>
         <h1>INVENTORY USAGE RECORD</h1>
         <p>Dental Practice Management System</p>
     </div>

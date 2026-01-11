@@ -6,6 +6,16 @@
     <div class="max-w-4xl mx-auto p-8">
         <!-- Print Header -->
         <div class="text-center mb-8 border-b-2 border-gray-300 pb-6">
+            <?php if (!empty($clinic['logo_path'])): ?>
+                <div class="mb-4 flex justify-center">
+                    <?php 
+                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0) 
+                            ? esc($clinic['logo_path']) 
+                            : base_url(ltrim($clinic['logo_path'], '/'));
+                    ?>
+                    <img src="<?= $logoSrc ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
+                </div>
+            <?php endif; ?>
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Examination Report</h1>
             <p class="text-lg text-gray-600"><?= esc($clinic['name']) ?></p>
             <div class="text-sm text-gray-500 mt-2">
