@@ -277,3 +277,13 @@
 - **Files Changed:**
     - app/Controllers/Settings.php: Removed clinic_logo_path from initial settingsData build.
     - docs/verification/P4-02b.md: Appended verbatim evidence section.
+
+### Task: P4-03 Print Branding Consistency
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Implemented dynamic, settings-driven branding in print views.
+- **Files Changed:**
+    - app/Views/appointment/print.php: Replaced hard-coded tagline with dynamic value.
+    - app/Views/finance/invoice.php: Replaced hard-coded tagline with dynamic value.
+    - app/Views/prescription/print.php: Replaced hard-coded website with dynamic value.
+- **Verification:** docs/verification/P4-03.md

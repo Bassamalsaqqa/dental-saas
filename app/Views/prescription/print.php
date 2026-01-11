@@ -155,7 +155,7 @@
                     </div>
                     <div class="text-sm text-gray-600 text-right">
                         <p><?= esc($clinic['name']) ?></p>
-                        <p>www.dentalclinic.com</p>
+                        <p><?= esc($clinic['website']) ?></p>
                     </div>
                 </div>
             </div>

@@ -181,7 +181,7 @@
         <!-- Header -->
         <div class="header">
             <div class="clinic-name"><?= esc($clinic['name']) ?></div>
-            <div class="clinic-subtitle">Professional Dental Services</div>
+            <div class="clinic-subtitle"><?= esc($clinic['tagline']) ?></div>
             <div class="appointment-title">
                 Appointment Details
                 <span class="appointment-id">#<?= $appointment['appointment_id'] ?></span>

@@ -136,3 +136,8 @@ This log records significant architectural and security decisions made during th
 ### Decision: P4-02b Logo Path Source
 - **Decision:** clinic_logo_path is only updated upon successful file upload, never directly from POST.
 - **Rationale:** Ensures that the stored path is always a system-generated relative path under uploads/clinic, preventing path traversal or attribute injection via manual path input.
+
+### Decision: P4-03 Print Branding Consistency
+- **Decision:** All print views must use dynamic branding (tagline, website) from the settings service.
+- **Rationale:** Ensures visual identity remains consistent across physical/PDF outputs and reflects the latest configuration without code edits.
+- **Impact:** Unified white-labeling for all system-generated documents.

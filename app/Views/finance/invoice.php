@@ -26,7 +26,7 @@
                                 </div>
                                 <div>
                                     <h1 class="text-3xl font-bold text-gray-900"><?= esc($clinic['name']) ?></h1>
-                                    <p class="text-gray-600 text-sm">Professional Dental Services</p>
+                                    <p class="text-gray-600 text-sm"><?= esc($clinic['tagline']) ?></p>
                                 </div>
                             </div>
                             <div class="text-sm text-gray-600 space-y-1">
