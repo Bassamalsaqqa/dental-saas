@@ -141,3 +141,8 @@ This log records significant architectural and security decisions made during th
 - **Decision:** All print views must use dynamic branding (tagline, website) from the settings service.
 - **Rationale:** Ensures visual identity remains consistent across physical/PDF outputs and reflects the latest configuration without code edits.
 - **Impact:** Unified white-labeling for all system-generated documents.
+
+### Decision: P4-03 Documentation Standards
+- **Decision:** Verification artifacts for branding tasks must include verbatim terminal outputs from ripgrep.
+- **Rationale:** Ensures empirical proof of literal removal and absence of DOM-string sinks.
+

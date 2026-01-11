@@ -287,3 +287,9 @@
     - app/Views/finance/invoice.php: Replaced hard-coded tagline with dynamic value.
     - app/Views/prescription/print.php: Replaced hard-coded website with dynamic value.
 - **Verification:** docs/verification/P4-03.md
+
+### Task: P4-03 Documentation Fix
+- **Date:** 2026-01-10
+- **Status:** Completed
+- **Description:** Appended verbatim verification evidence to P4-03 verification document.
+
