@@ -1,0 +1,42 @@
+# Allowlist for existing raw tenant queries in the controller layer.
+# Entries must be removed when the offending code is refactored through TenantBaseModel or scoped services.
+app/Controllers/ActivityLog.php:75:            $builder = $this->activityLogModel->db->table('activity_logs al')
+app/Controllers/ActivityLog.php:105:            $builder = $this->activityLogModel->db->table('activity_logs al');
+app/Controllers/ActivityLog.php:222:            $entityTypes = $this->activityLogModel->db->table('activity_logs')
+app/Controllers/ActivityLog.php:228:            $actions = $this->activityLogModel->db->table('activity_logs')
+app/Controllers/DebugController.php:205:            $rolePermissions = $db->table('role_permissions')->get()->getResultArray();
+app/Controllers/Doctor.php:270:        return $db->table('users u')
+app/Controllers/Doctor.php:289:        $result = $db->table('users u')
+app/Controllers/Examination.php:341:            $totalRecords = $this->db->table('examinations')->countAllResults();
+app/Controllers/Examination.php:354:            $query = $this->db->table('examinations')
+app/Controllers/Examination.php:446:                $examinationCount = $this->db->table('examinations')->countAllResults();
+app/Controllers/Examination.php:452:                $patientCount = $this->db->table('patients')->countAllResults();
+app/Controllers/Examination.php:458:                $joinQuery = $this->db->table('examinations')
+app/Controllers/Examination.php:491:            $patientCount = $this->db->table('patients')->countAllResults();
+app/Controllers/Examination.php:500:            $patients = $this->db->table('patients')->limit(3)->get()->getResultArray();
+app/Controllers/Examination.php:518:            $this->db->table('examinations')->insertBatch($sampleExaminations);
+app/Controllers/Finance.php:380:            $financeCount = $this->db->table($financeTableName)->countAllResults();
+app/Controllers/Finance.php:383:            $sampleFinance = $this->db->table($financeTableName)->limit(1)->get()->getRowArray();
+app/Controllers/Finance.php:469:            $totalRecords = $this->db->table($financeTableName)->countAllResults();
+app/Controllers/Finance.php:482:            $query = $this->db->table($financeTableName)
+app/Controllers/Inventory.php:680:            $totalRecords = $this->db->table('inventory')->countAllResults();
+app/Controllers/Inventory.php:696:            $query = $this->db->table('inventory');
+app/Controllers/Inventory.php:792:            $directQuery = $this->db->table('inventory')->get()->getResultArray();
+app/Controllers/Inventory.php:1027:            $totalRecords = $this->db->table('inventory')->where('quantity <=', 'min_quantity')->countAllResults();
+app/Controllers/Inventory.php:1040:            $query = $this->db->table('inventory')->where('quantity <=', 'min_quantity');
+app/Controllers/Prescription.php:64:            $prescriptionCount = $this->db->table('prescriptions')->countAllResults();
+app/Controllers/Prescription.php:67:            $samplePrescription = $this->db->table('prescriptions')->limit(1)->get()->getRowArray();
+app/Controllers/Prescription.php:144:            $totalRecords = $this->db->table('prescriptions')->countAllResults();
+app/Controllers/Prescription.php:157:            $query = $this->db->table('prescriptions')
+app/Controllers/Treatment.php:144:            $totalRecords = $this->db->table('treatments')->countAllResults();
+app/Controllers/Treatment.php:157:            $query = $this->db->table('treatments')
+app/Controllers/RepairController.php:20:                $db->query("ALTER TABLE finances ADD COLUMN total_amount DECIMAL(10,2) DEFAULT 0.00 AFTER tax_amount");
+app/Controllers/RepairController.php:31:            $db->query("ALTER TABLE finances MODIFY COLUMN currency ENUM('USD','EUR','GBP','BDT','ILS') DEFAULT 'USD'");
+app/Controllers/RepairController.php:48:                        $db->query("ALTER TABLE users MODIFY COLUMN ip_address VARCHAR(45) NULL");
+app/Controllers/RepairController.php:51:                        $db->query("ALTER TABLE users MODIFY COLUMN created_on INT(11) UNSIGNED NULL");
+app/Controllers/RepairController.php:67:                        $db->query("ALTER TABLE users ADD COLUMN hire_date DATE NULL AFTER phone");
+app/Controllers/RepairController.php:69:                        $db->query("ALTER TABLE users ADD COLUMN active TINYINT(1) DEFAULT 1 AFTER hire_date");
+app/Controllers/RepairController.php:71:                        $db->query("ALTER TABLE users ADD COLUMN address TEXT NULL AFTER active");
+app/Controllers/Settings.php:276:            $db->query("SELECT 1"); // Simple test query
+app/Controllers/Settings.php:655:                    $query = $db->query("SHOW CREATE TABLE `{$table}`");
+app/Controllers/Settings.php:663:                        $dataQuery = $db->query("SELECT * FROM `{$table}`");

@@ -1,0 +1,2 @@
+# Allowlist for DOM sinks detected during Phase 0.
+# Leave this file empty once all innerHTML/outerHTML/insertAdjacentHTML/.html sinks are removed.
