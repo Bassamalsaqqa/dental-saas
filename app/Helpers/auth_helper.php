@@ -13,19 +13,6 @@ if (!function_exists('is_logged_in')) {
     }
 }
 
-if (!function_exists('is_admin')) {
-    /**
-     * Check if user is admin
-     *
-     * @return bool
-     */
-    function is_admin()
-    {
-        $ionAuth = new \App\Libraries\IonAuth();
-        return $ionAuth->isAdmin();
-    }
-}
-
 if (!function_exists('current_user')) {
     /**
      * Get current user
@@ -36,34 +23,6 @@ if (!function_exists('current_user')) {
     {
         $ionAuth = new \App\Libraries\IonAuth();
         return $ionAuth->user()->row();
-    }
-}
-
-if (!function_exists('user_groups')) {
-    /**
-     * Get current user groups
-     *
-     * @return array
-     */
-    function user_groups()
-    {
-        $ionAuth = new \App\Libraries\IonAuth();
-        return $ionAuth->getUsersGroups()->getResult();
-    }
-}
-
-if (!function_exists('in_group')) {
-    /**
-     * Check if user is in specific group
-     *
-     * @param string|array $group
-     * @param int|null $userId
-     * @return bool
-     */
-    function in_group($group, $userId = null)
-    {
-        $ionAuth = new \App\Libraries\IonAuth();
-        return $ionAuth->inGroup($group, $userId);
     }
 }
 
@@ -88,64 +47,8 @@ if (!function_exists('has_permission')) {
             $permissionService = new \App\Services\PermissionService();
             return $permissionService->hasPermission($user->id, $module, $action);
         } catch (\Exception $e) {
-            // Fallback to IonAuth groups if RBAC is not ready
-            log_message('debug', 'RBAC permission check failed, falling back to IonAuth groups: ' . $e->getMessage());
-            
-            $userGroups = $ionAuth->getUsersGroups($user->id)->getResult();
-            
-            $permissions = [
-                'admin' => [
-                    'dashboard' => ['read'],
-                    'patients' => ['view', 'create', 'edit', 'delete'],
-                    'examinations' => ['view', 'create', 'edit', 'delete'],
-                    'appointments' => ['view', 'create', 'edit', 'delete'],
-                    'treatments' => ['view', 'create', 'edit', 'delete'],
-                    'prescriptions' => ['view', 'create', 'edit', 'delete'],
-                    'finance' => ['view', 'create', 'edit', 'delete'],
-                    'reports' => ['view', 'export'],
-                    'inventory' => ['view', 'create', 'edit', 'delete'],
-                    'settings' => ['view', 'edit'],
-                    'users' => ['view', 'create', 'edit', 'delete'],
-                ],
-                'doctor' => [
-                    'dashboard' => ['read'],
-                    'patients' => ['view', 'create', 'edit'],
-                    'examinations' => ['view', 'create', 'edit'],
-                    'appointments' => ['view', 'create', 'edit'],
-                    'treatments' => ['view', 'create', 'edit'],
-                    'prescriptions' => ['view', 'create', 'edit'],
-                    'finance' => ['view'],
-                    'reports' => ['view'],
-                    'inventory' => ['view'],
-                ],
-                'receptionist' => [
-                    'dashboard' => ['read'],
-                    'patients' => ['view', 'create', 'edit'],
-                    'appointments' => ['view', 'create', 'edit'],
-                    'finance' => ['view', 'create', 'edit'],
-                    'reports' => ['view'],
-                ],
-                'staff' => [
-                    'dashboard' => ['read'],
-                    'patients' => ['view'],
-                    'appointments' => ['view'],
-                    'inventory' => ['view'],
-                ]
-            ];
-
-            $userPermissions = [];
-            foreach ($userGroups as $group) {
-                if (isset($permissions[$group->name])) {
-                    foreach ($permissions[$group->name] as $mod => $actions) {
-                        if (!isset($userPermissions[$mod])) {
-                            $userPermissions[$mod] = [];
-                        }
-                        $userPermissions[$mod] = array_unique(array_merge($userPermissions[$mod], $actions));
-                    }
-                }
-            }
-
-            return isset($userPermissions[$module]) && in_array($action, $userPermissions[$module]);
+            log_message('error', 'RBAC permission check failed: ' . $e->getMessage());
+            return false;
         }
     }
 }

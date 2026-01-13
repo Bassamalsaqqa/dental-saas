@@ -35,7 +35,8 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
-        'admin'         => \App\Filters\AdminFilter::class,
+        'controlplane'  => \App\Filters\ControlPlaneFilter::class,
+        'tenant'        => \App\Filters\TenantFilter::class,
         'permission'    => \App\Filters\PermissionFilter::class,
         'csrfjson'      => \App\Filters\CsrfJson::class,
     ];

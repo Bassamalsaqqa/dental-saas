@@ -5,7 +5,18 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// --------------------------------------------------------------------
+// Control Plane Entry/Exit (SaaS)
+// --------------------------------------------------------------------
+$routes->group('controlplane', function ($routes) {
+    $routes->post('enter', 'ControlPlane::enter'); // Auth check inside controller or via filter? Controller handles strict checks before session set.
+    $routes->post('exit', 'ControlPlane::exit');
+});
+
+// --------------------------------------------------------------------
 // Authentication routes
+// --------------------------------------------------------------------
 $routes->group('auth', function ($routes) {
     $routes->get('/', 'Auth::index');
     $routes->get('login', 'Auth::login');
@@ -36,18 +47,22 @@ $routes->group('auth', function ($routes) {
 $routes->get('logout', 'Auth::logout');
 $routes->post('logout', 'Auth::logout');
 
-// Redirect root to dashboard (will be protected by auth filter)
-$routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
+// Redirect root to dashboard (Tenant Plane)
+$routes->get('/', 'Dashboard::index', ['filter' => ['auth', 'tenant']]);
+
+// --------------------------------------------------------------------
+// Tenant Plane Routes
+// --------------------------------------------------------------------
 
 // Dashboard routes
-$routes->group('dashboard', ['filter' => 'auth'], function ($routes) {
+$routes->group('dashboard', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Dashboard::index', ['filter' => 'permission:dashboard:read']);
     $routes->get('stats', 'Dashboard::getStats', ['filter' => 'permission:dashboard:read']);
     $routes->get('chart-data', 'Dashboard::getChartData', ['filter' => 'permission:dashboard:read']);
 });
 
 // Patient routes
-$routes->group('patient', ['filter' => 'auth'], function ($routes) {
+$routes->group('patient', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Patient::index', ['filter' => 'permission:patients:view']);
     $routes->get('create', 'Patient::create', ['filter' => 'permission:patients:create']);
     $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
@@ -64,7 +79,7 @@ $routes->group('patient', ['filter' => 'auth'], function ($routes) {
 
 
 // Patient routes (plural alias)
-$routes->group('patients', ['filter' => 'auth'], function ($routes) {
+$routes->group('patients', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Patient::index', ['filter' => 'permission:patients:view']);
     $routes->get('create', 'Patient::create', ['filter' => 'permission:patients:create']);
     $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
@@ -80,7 +95,7 @@ $routes->group('patients', ['filter' => 'auth'], function ($routes) {
 });
 
 // Examination routes
-$routes->group('examination', ['filter' => 'auth'], function ($routes) {
+$routes->group('examination', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Examination::index', ['filter' => 'permission:examinations:view']);
     $routes->get('create', 'Examination::create', ['filter' => 'permission:examinations:create']);
     $routes->post('store', 'Examination::store', ['filter' => 'permission:examinations:create']);
@@ -102,7 +117,7 @@ $routes->group('examination', ['filter' => 'auth'], function ($routes) {
 });
 
 // Examination routes (plural alias)
-$routes->group('examinations', ['filter' => 'auth'], function ($routes) {
+$routes->group('examinations', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Examination::index', ['filter' => 'permission:examinations:view']);
     $routes->get('create', 'Examination::create', ['filter' => 'permission:examinations:create']);
     $routes->post('store', 'Examination::store', ['filter' => 'permission:examinations:create']);
@@ -124,7 +139,7 @@ $routes->group('examinations', ['filter' => 'auth'], function ($routes) {
 });
 
 // Odontogram routes
-$routes->group('odontogram', ['filter' => 'auth'], function ($routes) {
+$routes->group('odontogram', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Odontogram::list', ['filter' => 'permission:patients:view']);
     $routes->post('get-patients-data', 'Odontogram::getPatientsData', ['filter' => 'permission:patients:view']);
     $routes->get('(:num)', 'Odontogram::index/$1', ['filter' => 'permission:patients:view']);
@@ -139,7 +154,7 @@ $routes->group('odontogram', ['filter' => 'auth'], function ($routes) {
 });
 
 // Finance routes
-$routes->group('finance', ['filter' => 'auth'], function ($routes) {
+$routes->group('finance', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Finance::index', ['filter' => 'permission:finance:view']);
     $routes->get('create', 'Finance::create', ['filter' => 'permission:finance:create']);
     $routes->post('store', 'Finance::store', ['filter' => 'permission:finance:create']);
@@ -160,7 +175,7 @@ $routes->group('finance', ['filter' => 'auth'], function ($routes) {
 });
 
 // Appointment routes
-$routes->group('appointment', ['filter' => 'auth'], function ($routes) {
+$routes->group('appointment', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Appointment::index', ['filter' => 'permission:appointments:view']);
     $routes->get('create', 'Appointment::create', ['filter' => 'permission:appointments:create']);
     $routes->post('store', 'Appointment::store', ['filter' => 'permission:appointments:create']);
@@ -178,7 +193,7 @@ $routes->group('appointment', ['filter' => 'auth'], function ($routes) {
 });
 
 // Appointment routes (plural alias)
-$routes->group('appointments', ['filter' => 'auth'], function ($routes) {
+$routes->group('appointments', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Appointment::index', ['filter' => 'permission:appointments:view']);
     $routes->get('create', 'Appointment::create', ['filter' => 'permission:appointments:create']);
     $routes->post('store', 'Appointment::store', ['filter' => 'permission:appointments:create']);
@@ -195,7 +210,7 @@ $routes->group('appointments', ['filter' => 'auth'], function ($routes) {
 });
 
 // Treatment routes
-$routes->group('treatment', ['filter' => 'auth'], function ($routes) {
+$routes->group('treatment', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Treatment::index', ['filter' => 'permission:treatments:view']);
     $routes->get('create', 'Treatment::create', ['filter' => 'permission:treatments:create']);
     $routes->post('store', 'Treatment::store', ['filter' => 'permission:treatments:create']);
@@ -212,7 +227,7 @@ $routes->group('treatment', ['filter' => 'auth'], function ($routes) {
 });
 
 // Treatment routes (plural alias)
-$routes->group('treatments', ['filter' => 'auth'], function ($routes) {
+$routes->group('treatments', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Treatment::index', ['filter' => 'permission:treatments:view']);
     $routes->get('create', 'Treatment::create', ['filter' => 'permission:treatments:create']);
     $routes->post('store', 'Treatment::store', ['filter' => 'permission:treatments:create']);
@@ -229,7 +244,7 @@ $routes->group('treatments', ['filter' => 'auth'], function ($routes) {
 });
 
 // Prescription routes
-$routes->group('prescription', ['filter' => 'auth'], function ($routes) {
+$routes->group('prescription', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Prescription::index', ['filter' => 'permission:prescriptions:view']);
     $routes->get('create', 'Prescription::create', ['filter' => 'permission:prescriptions:create']);
     $routes->post('store', 'Prescription::store', ['filter' => 'permission:prescriptions:create']);
@@ -247,7 +262,7 @@ $routes->group('prescription', ['filter' => 'auth'], function ($routes) {
 });
 
 // Prescription routes (plural alias)
-$routes->group('prescriptions', ['filter' => 'auth'], function ($routes) {
+$routes->group('prescriptions', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Prescription::index', ['filter' => 'permission:prescriptions:view']);
     $routes->get('create', 'Prescription::create', ['filter' => 'permission:prescriptions:create']);
     $routes->post('store', 'Prescription::store', ['filter' => 'permission:prescriptions:create']);
@@ -262,14 +277,14 @@ $routes->group('prescriptions', ['filter' => 'auth'], function ($routes) {
 });
 
 // Reports routes
-$routes->group('reports', ['filter' => 'auth'], function ($routes) {
+$routes->group('reports', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Reports::index', ['filter' => 'permission:reports:view']);
     $routes->get('chart-data', 'Reports::getChartData', ['filter' => 'permission:reports:view']);
     $routes->get('export', 'Reports::export', ['filter' => 'permission:reports:export']);
 });
 
 // Inventory routes
-$routes->group('inventory', ['filter' => 'auth'], function ($routes) {
+$routes->group('inventory', ['filter' => ['auth', 'tenant']], function ($routes) {
     // Specific routes first (before generic (:num) routes)
     $routes->get('usage', 'Inventory::usage', ['filter' => 'permission:inventory:view']);
     $routes->post('record-usage', 'Inventory::recordUsage', ['filter' => 'permission:inventory:edit']);
@@ -303,8 +318,8 @@ $routes->group('inventory', ['filter' => 'auth'], function ($routes) {
 
 
 
-// Notifications routes (accessible to all authenticated users)
-$routes->group('', ['filter' => 'auth'], function ($routes) {
+// Notifications routes (accessible to all authenticated users - Tenant Plane)
+$routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('notifications', 'Notifications::index');
     $routes->get('api/notifications', 'Notifications::api');
     $routes->post('notifications/mark-read', 'Notifications::markAsRead');
@@ -312,14 +327,18 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->delete('notifications/delete/(:num)', 'Notifications::delete/$1');
 });
 
-// Activity Log routes (accessible to all authenticated users)
-$routes->group('', ['filter' => 'auth'], function ($routes) {
+// Activity Log routes (accessible to all authenticated users - Tenant Plane)
+$routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('activity-log', 'ActivityLog::index');
     $routes->get('activity-log/api', 'ActivityLog::api');
 });
 
+// --------------------------------------------------------------------
+// Control Plane Routes (Settings & RBAC)
+// --------------------------------------------------------------------
+
 // Settings routes
-$routes->group('settings', ['filter' => 'admin'], function ($routes) {
+$routes->group('settings', ['filter' => 'controlplane'], function ($routes) {
     $routes->get('/', 'Settings::index');
     $routes->post('update', 'Settings::update');
     $routes->post('updateClinic', 'Settings::updateClinic');
@@ -335,15 +354,15 @@ $routes->group('settings', ['filter' => 'admin'], function ($routes) {
     $routes->post('notifications/update', 'Settings::updateNotifications');
 });
 
-// Profile routes (accessible to all authenticated users)
-$routes->group('profile', ['filter' => 'auth'], function ($routes) {
+// Profile routes (accessible to all authenticated users - Tenant Plane)
+$routes->group('profile', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Profile::index');
     $routes->post('update', 'Profile::update');
     $routes->post('change-password', 'Profile::changePassword');
 });
 
-// Users routes (Enhanced with RBAC)
-$routes->group('users', ['filter' => 'auth'], function ($routes) {
+// Users routes (Enhanced with RBAC - Tenant Plane)
+$routes->group('users', ['filter' => ['auth', 'tenant']], function ($routes) {
     // Existing routes
     $routes->get('/', 'Users::index', ['filter' => 'permission:users:view']);
     $routes->get('create', 'Users::create', ['filter' => 'permission:users:create']);
@@ -365,8 +384,8 @@ $routes->group('users', ['filter' => 'auth'], function ($routes) {
     $routes->get('(:num)/permissions', 'Users::getUserPermissionsAjax/$1', ['filter' => 'permission:users:view']);
 });
 
-// Role Management routes
-$routes->group('roles', ['filter' => 'auth'], function ($routes) {
+// Role Management routes (Tenant Plane)
+$routes->group('roles', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'RoleController::index', ['filter' => 'permission:users:view']);
     $routes->get('create', 'RoleController::create', ['filter' => 'permission:users:create']);
     $routes->post('store', 'RoleController::store', ['filter' => 'permission:users:create']);
@@ -380,8 +399,8 @@ $routes->group('roles', ['filter' => 'auth'], function ($routes) {
     $routes->get('(:num)/permissions', 'RoleController::getPermissions', ['filter' => 'permission:users:view']);
 });
 
-// Doctor routes
-$routes->group('doctors', ['filter' => 'auth'], function ($routes) {
+// Doctor routes (Tenant Plane)
+$routes->group('doctors', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('/', 'Doctor::index', ['filter' => 'permission:users:view']);
     $routes->get('create', 'Doctor::create', ['filter' => 'permission:users:create']);
     $routes->post('store', 'Doctor::store', ['filter' => 'permission:users:create']);
@@ -391,8 +410,8 @@ $routes->group('doctors', ['filter' => 'auth'], function ($routes) {
     $routes->delete('(:num)', 'Doctor::delete/$1', ['filter' => 'permission:users:delete']);
 });
 
-// RBAC Sync routes
-$routes->group('rbac', ['filter' => 'auth'], function ($routes) {
+// RBAC Sync routes (Control Plane)
+$routes->group('rbac', ['filter' => 'controlplane'], function ($routes) {
     $routes->get('sync', 'SyncController::sync');
     $routes->get('status', 'SyncController::status');
     $routes->get('init', 'SyncController::init');
@@ -402,8 +421,8 @@ $routes->group('rbac', ['filter' => 'auth'], function ($routes) {
 });
 
 
-// API routes
-$routes->group('api', ['filter' => 'auth'], function ($routes) {
+// API routes (Tenant Plane)
+$routes->group('api', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->group('v1', function ($routes) {
         // Patients
         $routes->get('patients', 'Api\Patient::index', ['filter' => 'permission:patients:view']);
@@ -447,4 +466,3 @@ $routes->group('api', ['filter' => 'auth'], function ($routes) {
         $routes->get('roles', 'Api\Search::roles', ['filter' => 'permission:users:view']);
     });
 });
-

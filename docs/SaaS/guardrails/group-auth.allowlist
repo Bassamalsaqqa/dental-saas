@@ -1,3 +1,3 @@
 # Allowlist for existing `in_group`/`is_admin` usages outside of the helper definitions.
 # Remove entries as group-based checks are refactored away.
-app/Controllers/TestAuth.php:22:                    echo "<p>Is Admin: " . ($this->ionAuth->is_admin() ? "Yes" : "No") . "</p>";
+# ALL CLEARED - Phase 1 S1-02

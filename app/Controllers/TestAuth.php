@@ -19,7 +19,8 @@ class TestAuth extends BaseController
                     $user = $this->ionAuth->user()->row();
                     echo "<p>User: " . $user->first_name . " " . $user->last_name . "</p>";
                     echo "<p>Email: " . $user->email . "</p>";
-                    echo "<p>Is Admin: " . ($this->ionAuth->is_admin() ? "Yes" : "No") . "</p>";
+                    $permissionService = service('permission');
+                    echo "<p>Is Super Admin: " . ($permissionService->isSuperAdmin($user->id) ? "Yes" : "No") . "</p>";
                 }
             } else {
                 echo "<p>Ion Auth is null - authentication system not available</p>";

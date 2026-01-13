@@ -64,26 +64,6 @@ if (!function_exists('has_any_role')) {
     }
 }
 
-if (!function_exists('is_admin')) {
-    /**
-     * Check if current user is admin
-     *
-     * @return bool
-     */
-    function is_admin()
-    {
-        $ionAuth = new \App\Libraries\IonAuth();
-        $user = $ionAuth->user()->row();
-        
-        if (!$user) {
-            return false;
-        }
-
-        $permissionService = new \App\Services\PermissionService();
-        return $permissionService->isAdmin($user->id);
-    }
-}
-
 if (!function_exists('get_user_permissions')) {
     /**
      * Get current user permissions
