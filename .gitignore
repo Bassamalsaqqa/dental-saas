@@ -45,3 +45,5 @@ pnpm-debug.log
 # Local-only artifacts
 .env
 democa_dental.sql
+
+public/uploads/
