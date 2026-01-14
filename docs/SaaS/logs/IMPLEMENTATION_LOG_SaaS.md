@@ -1,9 +1,9 @@
-### Task: S4-02c Finance DataTables scoping
+
+### Task: S4-02d Appointments DataTables scoping
 - **Date:** 2026-01-14
 - **Status:** Completed
-- **Description:** Scoped `Finance` controller `getFinancesData` to the active clinic. Refactored `FinanceModel` to include scoped methods. Removed raw queries from controller and cleaned allowlist.
+- **Description:** Scoped `Appointment` controller read endpoints to the active clinic. Refactored `AppointmentModel` to include clinic-scoped methods with explicit join guards for the `patients` table. Verified no raw queries exist in the controller.
 - **Files Changed:**
-    - `app/Models/FinanceModel.php`
-    - `app/Controllers/Finance.php`
-    - `docs/SaaS/guardrails/raw-tenant-queries.allowlist`
-- **Verification:** `docs/SaaS/verification/S4-02c.md`
+    - `app/Models/AppointmentModel.php`
+    - `app/Controllers/Appointment.php`
+- **Verification:** `docs/SaaS/verification/S4-02d.md`

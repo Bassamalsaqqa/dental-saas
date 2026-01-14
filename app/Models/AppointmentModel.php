@@ -84,6 +84,132 @@ class AppointmentModel extends Model
         return $data;
     }
 
+    public function getAppointmentsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $status = '')
+    {
+        $query = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+            ->join('patients', 'patients.id = appointments.patient_id')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId); // Extra join guard
+        
+        // Apply search filter
+        if (!empty($search)) {
+            $query->groupStart()
+                ->like('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.phone', $search)
+                ->orLike('patients.email', $search)
+                ->orLike('appointments.appointment_type', $search)
+                ->orLike('appointments.notes', $search)
+                ->groupEnd();
+        }
+        
+        // Apply status filter
+        if (!empty($status)) {
+            $query->where('appointments.status', $status);
+        }
+        
+        return $query->orderBy('appointment_date', 'DESC')
+            ->orderBy('appointment_time', 'ASC')
+            ->limit($limit, $offset)
+            ->findAll();
+    }
+
+    public function countAppointmentsByClinic($clinicId, $search = '', $status = '')
+    {
+        $query = $this->select('COUNT(*) as total')
+            ->join('patients', 'patients.id = appointments.patient_id')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId); // Extra join guard
+        
+        // Apply search filter
+        if (!empty($search)) {
+            $query->groupStart()
+                ->like('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.phone', $search)
+                ->orLike('patients.email', $search)
+                ->orLike('appointments.appointment_type', $search)
+                ->orLike('appointments.notes', $search)
+                ->groupEnd();
+        }
+        
+        // Apply status filter
+        if (!empty($status)) {
+            $query->where('appointments.status', $status);
+        }
+        
+        $result = $query->get()->getRow();
+        return $result ? $result->total : 0;
+    }
+
+    public function getAppointmentStatsByClinic($clinicId)
+    {
+        try {
+            $builder = $this->db->table('appointments')
+                ->where('clinic_id', $clinicId);
+            
+            return [
+                'total_appointments' => $builder->countAllResults(false),
+                'today_appointments' => $builder->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(false),
+                'upcoming_appointments' => $builder->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(false),
+                'completed_appointments' => $builder->where('status', 'completed')->countAllResults(false),
+                'cancelled_appointments' => $builder->where('status', 'cancelled')->countAllResults(false)
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Appointment stats error: ' . $e->getMessage());
+            return [
+                'total_appointments' => 0,
+                'today_appointments' => 0,
+                'upcoming_appointments' => 0,
+                'completed_appointments' => 0,
+                'cancelled_appointments' => 0
+            ];
+        }
+    }
+
+    public function getUpcomingAppointmentsByClinic($clinicId, $limit = 10)
+    {
+        try {
+            return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+                ->join('patients', 'patients.id = appointments.patient_id')
+                ->where('appointments.clinic_id', $clinicId)
+                ->where('patients.clinic_id', $clinicId)
+                ->where('appointments.appointment_date >=', date('Y-m-d'))
+                ->where('appointments.status', 'scheduled')
+                ->orderBy('appointments.appointment_date', 'ASC')
+                ->orderBy('appointments.appointment_time', 'ASC')
+                ->limit($limit)
+                ->findAll();
+        } catch (\Exception $e) {
+            log_message('error', 'Upcoming appointments error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getAppointmentsByDateByClinic($clinicId, $date)
+    {
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+            ->join('patients', 'patients.id = appointments.patient_id')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId) // Join guard
+            ->where('DATE(appointment_date)', $date)
+            ->orderBy('appointment_time', 'ASC')
+            ->findAll();
+    }
+
+    public function getCalendarAppointmentsByClinic($clinicId, $startDate, $endDate)
+    {
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+            ->join('patients', 'patients.id = appointments.patient_id')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId) // Join guard
+            ->where('appointment_date >=', $startDate)
+            ->where('appointment_date <=', $endDate)
+            ->orderBy('appointment_date', 'ASC')
+            ->orderBy('appointment_time', 'ASC')
+            ->findAll();
+    }
+
     public function getAppointmentWithPatient($appointmentId)
     {
         return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
@@ -217,7 +343,9 @@ class AppointmentModel extends Model
 
     public function checkTimeSlotAvailability($date, $time, $duration, $excludeId = null)
     {
+        $clinicId = session()->get('active_clinic_id');
         $builder = $this->db->table('appointments');
+        $builder->where('clinic_id', $clinicId);
         $builder->where('DATE(appointment_date)', $date);
         $builder->where('status !=', 'cancelled');
         

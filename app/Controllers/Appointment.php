@@ -21,6 +21,12 @@ class Appointment extends BaseController
 
     public function index()
     {
+        // S4-02d: Fail closed if clinic context is missing
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view appointments.');
+        }
+
         $view = $this->request->getGet('view') ?? '';
         $date = $this->request->getGet('date') ?? date('Y-m-d');
         $status = $this->request->getGet('status') ?? '';
@@ -28,17 +34,18 @@ class Appointment extends BaseController
         
         // Get appointments with filters
         if ($view === 'all') {
-            // Get all appointments with pagination
+            // Get all appointments with pagination (scoped)
             $page = $this->request->getGet('page') ?? 1;
             $limit = 10;
             $offset = ($page - 1) * $limit;
             
-            $appointments = $this->appointmentModel->getAllAppointments($limit, $offset, $search, $status);
-            $totalCount = $this->appointmentModel->getAllAppointmentsCount($search, $status);
+            $appointments = $this->appointmentModel->getAppointmentsByClinic($clinicId, $limit, $offset, $search, $status);
+            $totalCount = $this->appointmentModel->countAppointmentsByClinic($clinicId, $search, $status);
             $hasMore = ($offset + $limit) < $totalCount;
         } else {
-            // Get appointments for specific date (default behavior)
-            $appointments = $this->appointmentModel->getAppointmentsByDate($date);
+            // Get appointments for specific date (scoped)
+            $appointments = $this->appointmentModel->getAppointmentsByDateByClinic($clinicId, $date);
+            
             $totalCount = count($appointments);
             $hasMore = false;
         }
@@ -84,7 +91,7 @@ class Appointment extends BaseController
             'selected_date_formatted' => formatDate($date),
             'selected_status' => $status,
             'search_term' => $search,
-            'stats' => $this->appointmentModel->getAppointmentStats(),
+            'stats' => $this->appointmentModel->getAppointmentStatsByClinic($clinicId),
             'pagination' => [
                 'total_count' => $totalCount,
                 'has_more' => $hasMore,
@@ -103,6 +110,11 @@ class Appointment extends BaseController
     public function loadMoreAppointments()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $page = $this->request->getGet('page') ?? 1;
             $search = $this->request->getGet('search') ?? '';
             $status = $this->request->getGet('status') ?? '';
@@ -110,8 +122,8 @@ class Appointment extends BaseController
             $limit = 10;
             $offset = ($page - 1) * $limit;
             
-            $appointments = $this->appointmentModel->getAllAppointments($limit, $offset, $search, $status);
-            $totalCount = $this->appointmentModel->getAllAppointmentsCount($search, $status);
+            $appointments = $this->appointmentModel->getAppointmentsByClinic($clinicId, $limit, $offset, $search, $status);
+            $totalCount = $this->appointmentModel->countAppointmentsByClinic($clinicId, $search, $status);
             $hasMore = ($offset + $limit) < $totalCount;
             
             // Format dates and times for display
@@ -498,9 +510,14 @@ class Appointment extends BaseController
 
     public function calendar()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view calendar.');
+        }
+
         $data = [
             'title' => 'Appointment Calendar',
-            'stats' => $this->appointmentModel->getAppointmentStats(),
+            'stats' => $this->appointmentModel->getAppointmentStatsByClinic($clinicId),
             'workingHours' => getWorkingHours()
         ];
 
@@ -512,6 +529,11 @@ class Appointment extends BaseController
         try {
             $this->response->setContentType('application/json');
             
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $start = $this->request->getGet('start');
             $end = $this->request->getGet('end');
 
@@ -524,7 +546,7 @@ class Appointment extends BaseController
 
             log_message('debug', 'Calendar events request - Start: ' . $start . ', End: ' . $end);
 
-            $appointments = $this->appointmentModel->getExaminationsByDateRange($start, $end);
+            $appointments = $this->appointmentModel->getCalendarAppointmentsByClinic($clinicId, $start, $end);
             
             log_message('debug', 'Found ' . count($appointments) . ' appointments for calendar');
             
