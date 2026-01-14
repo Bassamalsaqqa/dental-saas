@@ -171,11 +171,69 @@ class FinanceModel extends Model
         return $builder->countAllResults();
     }
 
+    public function getFinanceStatsByClinic($clinicId, $startDate = null, $endDate = null)
+    {
+        try {
+            $builder = $this->db->table('finances')->where('clinic_id', $clinicId);
+
+            if ($startDate) {
+                $builder->where('created_at >=', $startDate);
+            }
+            if ($endDate) {
+                $builder->where('created_at <=', $endDate);
+            }
+
+            $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
+
+            $totalRevenue = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
+            $totalInvoices = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
+            $pendingPayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'pending')->get()->getRow()->total_amount ?? 0;
+            $overduePayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'overdue')->get()->getRow()->total_amount ?? 0;
+
+            return [
+                'total_revenue' => floatval($totalRevenue),
+                'total_invoices' => floatval($totalInvoices),
+                'pending_payments' => floatval($pendingPayments),
+                'overdue_payments' => floatval($overduePayments),
+                'net_income' => floatval($totalRevenue) - floatval($totalInvoices)
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Finance stats error: ' . $e->getMessage());
+            return [
+                'total_revenue' => 0,
+                'total_invoices' => 0,
+                'pending_payments' => 0,
+                'overdue_payments' => 0,
+                'net_income' => 0
+            ];
+        }
+    }
+
+    public function getMonthlyRevenueByClinic($clinicId, $year = null)
+    {
+        try {
+            $year = $year ?? date('Y');
+            $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
+
+            return $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('YEAR(created_at)', $year)
+                ->where('transaction_type', 'payment')
+                ->groupBy('MONTH(created_at)')
+                ->orderBy('month', 'ASC')
+                ->findAll();
+        } catch (\Exception $e) {
+            log_message('error', 'Monthly revenue error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
     public function getFinanceByPatient($patientId)
     {
         return $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id')
             ->where('finances.patient_id', $patientId)
+            ->where('patients.clinic_id = finances.clinic_id') // Join guard
             ->orderBy('created_at', 'DESC')
             ->findAll();
     }

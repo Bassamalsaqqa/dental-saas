@@ -34,44 +34,34 @@ class Search extends BaseController
      */
     public function patients()
     {
-        $query = $this->request->getGet('q');
-        $limit = $this->request->getGet('limit') ?? 20;
-        
-        if (empty($query) || strlen($query) < 1) {
-            // Return recent active patients if no query
-            $patients = $this->patientModel
-                ->where('status', 'active')
-                ->orderBy('created_at', 'DESC')
-                ->limit($limit)
-                ->find();
-        } else {
-            // Search patients by name, phone, or patient_id
-            $patients = $this->patientModel
-                ->groupStart()
-                    ->like('first_name', $query)
-                    ->orLike('last_name', $query)
-                    ->orLike('CONCAT(first_name, " ", last_name)', $query)
-                    ->orLike('phone', $query)
-                    ->orLike('patient_id', $query)
-                ->groupEnd()
-                ->where('status', 'active')
-                ->orderBy('first_name', 'ASC')
-                ->limit($limit)
-                ->find();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
+
+        $query = $this->request->getGet('q');
+        $page = intval($this->request->getGet('page') ?? 1);
+        $limit = intval($this->request->getGet('limit') ?? 20);
+        $offset = ($page - 1) * $limit;
+        
+        $patients = $this->patientModel->searchPatientsByClinic($clinicId, $query, $limit, $offset);
+        $totalCount = $this->patientModel->countSearchPatientsByClinic($clinicId, $query);
 
         $results = [];
         foreach ($patients as $patient) {
             $results[] = [
                 'id' => $patient['id'],
-                'text' => $patient['first_name'] . ' ' . $patient['last_name'],
+                'text' => $patient['first_name'] . ' ' . $patient['last_name'] . ' (' . ($patient['phone'] ?? 'No Phone') . ')',
                 'value' => $patient['id']
             ];
         }
 
         return $this->response->setJSON([
             'results' => $results,
-            'total' => count($results)
+            'total' => $totalCount,
+            'pagination' => [
+                'more' => ($offset + $limit) < $totalCount
+            ]
         ]);
     }
 
@@ -80,34 +70,38 @@ class Search extends BaseController
      */
     public function users()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $query = $this->request->getGet('q');
         $limit = $this->request->getGet('limit') ?? 20;
-        $role = $this->request->getGet('role'); // Optional role filter
+        $roleId = $this->request->getGet('role_id'); // Changed from role slug to role_id
         
-        $builder = $this->userModel->where('status', 'active');
+        $builder = $this->userModel
+            ->join('clinic_users', 'clinic_users.user_id = users.id')
+            ->where('clinic_users.clinic_id', $clinicId)
+            ->where('users.active', 1);
         
-        if ($role) {
-            $builder->where('role', $role);
+        if ($roleId) {
+            $builder->where('clinic_users.role_id', $roleId);
         }
         
-        if (empty($query) || strlen($query) < 1) {
-            $users = $builder
-                ->orderBy('first_name', 'ASC')
-                ->limit($limit)
-                ->find();
-        } else {
-            $users = $builder
-                ->groupStart()
-                    ->like('first_name', $query)
-                    ->orLike('last_name', $query)
-                    ->orLike('CONCAT(first_name, " ", last_name)', $query)
-                    ->orLike('email', $query)
-                    ->orLike('username', $query)
-                ->groupEnd()
-                ->orderBy('first_name', 'ASC')
-                ->limit($limit)
-                ->find();
+        if (!empty($query) && strlen($query) >= 1) {
+            $builder->groupStart()
+                ->like('first_name', $query)
+                ->orLike('last_name', $query)
+                ->orLike('CONCAT(first_name, " ", last_name)', $query)
+                ->orLike('email', $query)
+                ->orLike('username', $query)
+                ->groupEnd();
         }
+
+        $users = $builder
+            ->orderBy('first_name', 'ASC')
+            ->limit($limit)
+            ->find();
 
         $results = [];
         foreach ($users as $user) {
@@ -129,33 +123,16 @@ class Search extends BaseController
      */
     public function examinations()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $query = $this->request->getGet('q');
         $limit = $this->request->getGet('limit') ?? 20;
         $status = $this->request->getGet('status') ?? 'completed';
         
-        $builder = $this->examinationModel
-            ->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id')
-            ->join('patients', 'patients.id = examinations.patient_id')
-            ->where('examinations.status', $status);
-        
-        if (empty($query) || strlen($query) < 1) {
-            $examinations = $builder
-                ->orderBy('examinations.created_at', 'DESC')
-                ->limit($limit)
-                ->find();
-        } else {
-            $examinations = $builder
-                ->groupStart()
-                    ->like('examinations.examination_id', $query)
-                    ->orLike('patients.first_name', $query)
-                    ->orLike('patients.last_name', $query)
-                    ->orLike('patients.patient_id', $query)
-                    ->orLike('examinations.chief_complaint', $query)
-                ->groupEnd()
-                ->orderBy('examinations.created_at', 'DESC')
-                ->limit($limit)
-                ->find();
-        }
+        $examinations = $this->examinationModel->searchExaminationsByClinic($clinicId, $query, $limit, $status);
 
         $results = [];
         foreach ($examinations as $examination) {
@@ -177,36 +154,16 @@ class Search extends BaseController
      */
     public function treatments()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $query = $this->request->getGet('q');
         $limit = $this->request->getGet('limit') ?? 20;
         $status = $this->request->getGet('status');
         
-        $builder = $this->treatmentModel
-            ->select('treatments.*, patients.first_name, patients.last_name, patients.patient_id')
-            ->join('patients', 'patients.id = treatments.patient_id');
-        
-        if ($status) {
-            $builder->where('treatments.status', $status);
-        }
-        
-        if (empty($query) || strlen($query) < 1) {
-            $treatments = $builder
-                ->orderBy('treatments.created_at', 'DESC')
-                ->limit($limit)
-                ->find();
-        } else {
-            $treatments = $builder
-                ->groupStart()
-                    ->like('treatments.treatment_type', $query)
-                    ->orLike('treatments.description', $query)
-                    ->orLike('patients.first_name', $query)
-                    ->orLike('patients.last_name', $query)
-                    ->orLike('patients.patient_id', $query)
-                ->groupEnd()
-                ->orderBy('treatments.created_at', 'DESC')
-                ->limit($limit)
-                ->find();
-        }
+        $treatments = $this->treatmentModel->searchTreatmentsByClinic($clinicId, $query, $limit, $status);
 
         $results = [];
         foreach ($treatments as $treatment) {
@@ -228,41 +185,24 @@ class Search extends BaseController
      */
     public function inventory()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $query = $this->request->getGet('q');
         $limit = $this->request->getGet('limit') ?? 20;
         $category = $this->request->getGet('category');
         
-        $builder = $this->inventoryModel->where('quantity >', 0);
-        
-        if ($category) {
-            $builder->where('category', $category);
-        }
-        
-        if (empty($query) || strlen($query) < 1) {
-            $items = $builder
-                ->orderBy('name', 'ASC')
-                ->limit($limit)
-                ->find();
-        } else {
-            $items = $builder
-                ->groupStart()
-                    ->like('name', $query)
-                    ->orLike('description', $query)
-                    ->orLike('category', $query)
-                    ->orLike('supplier', $query)
-                ->groupEnd()
-                ->orderBy('name', 'ASC')
-                ->limit($limit)
-                ->find();
-        }
+        $items = $this->inventoryModel->searchInventoryByClinic($clinicId, $query, $limit, $category);
 
         $results = [];
         foreach ($items as $item) {
             $results[] = [
                 'id' => $item['id'],
-                'text' => $item['name'] . ' (' . $item['category'] . ')',
+                'text' => $item['item_name'] . ' (' . $item['category'] . ')', // item_name instead of name
                 'value' => $item['id'],
-                'name' => $item['name'],
+                'name' => $item['item_name'],
                 'category' => $item['category'],
                 'quantity' => $item['quantity']
             ];

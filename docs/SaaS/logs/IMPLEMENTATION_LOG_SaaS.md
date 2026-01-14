@@ -1,9 +1,11 @@
-
-### Task: S4-02d Appointments DataTables scoping
+### Task: S4-02g Dashboard visual regression fix
 - **Date:** 2026-01-14
 - **Status:** Completed
-- **Description:** Scoped `Appointment` controller read endpoints to the active clinic. Refactored `AppointmentModel` to include clinic-scoped methods with explicit join guards for the `patients` table. Verified no raw queries exist in the controller.
+- **Description:** Restored dashboard UI by fixing broken HTML markup. Hardened dashboard data layer by implementing clinic-scoped methods in `FinanceModel`, `TreatmentModel`, and `ExaminationModel`. Enforced clinic isolation in `Dashboard` controller.
 - **Files Changed:**
-    - `app/Models/AppointmentModel.php`
-    - `app/Controllers/Appointment.php`
-- **Verification:** `docs/SaaS/verification/S4-02d.md`
+    - `app/Models/FinanceModel.php`
+    - `app/Models/TreatmentModel.php`
+    - `app/Models/ExaminationModel.php`
+    - `app/Controllers/Dashboard.php`
+    - `app/Views/dashboard/index.php`
+- **Verification:** `docs/SaaS/verification/S4-02g.md`. Dashboard renders correctly with scoped data.

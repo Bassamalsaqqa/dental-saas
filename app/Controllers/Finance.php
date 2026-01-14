@@ -40,11 +40,17 @@ class Finance extends BaseController
 
     public function create()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create a transaction.');
+        }
+
         $data = [
             'title' => 'New Financial Transaction',
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
-            'examinations' => $this->examinationModel->where('status', 'completed')->findAll(),
-            'validation' => \Config\Services::validation()
+            'patients' => [], // S4-02f: No bulk preload
+            'examinations' => [], // S4-02f: No bulk preload
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         return $this->view('finance/create', $data);
@@ -135,18 +141,32 @@ class Finance extends BaseController
 
     public function edit($id)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit transactions.');
+        }
+
         $finance = $this->financeModel->find($id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
         }
 
+        // S4-02f: Enforce clinic ownership
+        if ($finance['clinic_id'] != $clinicId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found in current clinic');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
+        $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
+
         $data = [
             'title' => 'Edit Financial Transaction - ' . $finance['transaction_id'],
             'finance' => $finance,
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
-            'examinations' => $this->examinationModel->where('status', 'completed')->findAll(),
-            'validation' => \Config\Services::validation()
+            'patients' => $patient ? [$patient] : [],
+            'examinations' => $examination ? [$examination] : [],
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         return $this->view('finance/edit', $data);

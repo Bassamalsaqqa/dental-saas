@@ -98,12 +98,44 @@ class PatientModel extends Model
         return $data;
     }
 
+    public function getPatientStatsByClinic($clinicId)
+    {
+        try {
+            $builder = $this->where('clinic_id', $clinicId);
+            
+            // Get total patients
+            $totalPatients = $builder->countAllResults(false);
+            
+            // Get active patients
+            $activePatients = $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(false);
+            
+            // Get new patients this month
+            $currentMonth = date('Y-m');
+            $newPatients = $this->where('clinic_id', $clinicId)->where('DATE_FORMAT(created_at, "%Y-%m")', $currentMonth)->countAllResults(false);
+            
+            return [
+                'total_patients' => $totalPatients,
+                'active_patients' => $activePatients,
+                'new_patients' => $newPatients,
+                'monthly_patients' => $newPatients
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Patient stats error: ' . $e->getMessage());
+            return [
+                'total_patients' => 0,
+                'active_patients' => 0,
+                'new_patients' => 0,
+                'monthly_patients' => 0
+            ];
+        }
+    }
+
     public function getPatientByPatientId($patientId)
     {
         return $this->where('patient_id', $patientId)->first();
     }
 
-    public function searchPatientsByClinic($clinicId, $searchTerm = null, $limit = 20)
+    public function searchPatientsByClinic($clinicId, $searchTerm = null, $limit = 20, $offset = 0)
     {
         $builder = $this->where('clinic_id', $clinicId)
                         ->where('status', 'active');
@@ -112,6 +144,7 @@ class PatientModel extends Model
             $builder->groupStart()
                 ->like('first_name', $searchTerm)
                 ->orLike('last_name', $searchTerm)
+                ->orLike('CONCAT(first_name, " ", last_name)', $searchTerm)
                 ->orLike('email', $searchTerm)
                 ->orLike('phone', $searchTerm)
                 ->orLike('patient_id', $searchTerm)
@@ -119,20 +152,27 @@ class PatientModel extends Model
         }
 
         return $builder->orderBy('first_name', 'ASC')
-                       ->limit($limit)
+                       ->limit($limit, $offset)
                        ->findAll();
     }
 
-    public function searchPatients($searchTerm)
+    public function countSearchPatientsByClinic($clinicId, $searchTerm = null)
     {
-        return $this->groupStart()
-            ->like('first_name', $searchTerm)
-            ->orLike('last_name', $searchTerm)
-            ->orLike('email', $searchTerm)
-            ->orLike('phone', $searchTerm)
-            ->orLike('patient_id', $searchTerm)
-            ->groupEnd()
-            ->findAll();
+        $builder = $this->where('clinic_id', $clinicId)
+                        ->where('status', 'active');
+
+        if (!empty($searchTerm)) {
+            $builder->groupStart()
+                ->like('first_name', $searchTerm)
+                ->orLike('last_name', $searchTerm)
+                ->orLike('CONCAT(first_name, " ", last_name)', $searchTerm)
+                ->orLike('email', $searchTerm)
+                ->orLike('phone', $searchTerm)
+                ->orLike('patient_id', $searchTerm)
+                ->groupEnd();
+        }
+
+        return $builder->countAllResults();
     }
 
     public function getPatientsWithStats()

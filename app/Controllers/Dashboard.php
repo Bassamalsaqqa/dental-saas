@@ -27,23 +27,24 @@ class Dashboard extends BaseController
 
     public function index()
     {
-        // Check if user is logged in (this will be handled by the auth filter)
-        // But we can add additional checks here if needed
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view the dashboard.');
+        }
         
         try {
             $data = [
                 'title' => 'Dental Management Dashboard',
                 'pageTitle' => 'Dashboard',
-                'stats' => $this->getDashboardStats(),
-                'recent_patients' => $this->getRecentPatients(),
-                'upcoming_appointments' => $this->getUpcomingAppointments(),
-                'recent_examinations' => $this->getRecentExaminations(),
-                'monthly_revenue' => $this->getMonthlyRevenue()
+                'stats' => $this->getDashboardStatsByClinic($clinicId),
+                'recent_patients' => $this->getRecentPatientsByClinic($clinicId),
+                'upcoming_appointments' => $this->getUpcomingAppointmentsByClinic($clinicId),
+                'recent_examinations' => $this->getRecentExaminationsByClinic($clinicId),
+                'monthly_revenue' => $this->getMonthlyRevenueByClinic($clinicId)
             ];
 
             return $this->view('dashboard/index', $data);
         } catch (\Exception $e) {
-            // Log the error and show a simplified dashboard
             log_message('error', 'Dashboard error: ' . $e->getMessage());
             
             $data = [
@@ -60,32 +61,36 @@ class Dashboard extends BaseController
         }
     }
 
-    private function getDashboardStats()
+    private function getDashboardStatsByClinic($clinicId)
     {
-        $patientStats = $this->patientModel->countAllResults();
-        $examinationStats = $this->examinationModel->getExaminationStats();
-        $appointmentStats = $this->appointmentModel->getAppointmentStats();
-        $financeStats = $this->financeModel->getFinanceStats();
-        $treatmentStats = $this->treatmentModel->getTreatmentStats();
+        $patientStats = $this->patientModel->getPatientStatsByClinic($clinicId);
+        $examinationStats = $this->examinationModel->getExaminationStatsByClinic($clinicId);
+        $appointmentStats = $this->appointmentModel->getAppointmentStatsByClinic($clinicId);
+        $financeStats = $this->financeModel->getFinanceStatsByClinic($clinicId);
+        $treatmentStats = $this->treatmentModel->getTreatmentStatsByClinic($clinicId);
 
         return [
-            'total_patients' => $patientStats,
-            'total_examinations' => $examinationStats['total_examinations'],
-            'today_examinations' => $examinationStats['today_examinations'],
-            'total_appointments' => $appointmentStats['total_appointments'],
-            'today_appointments' => $appointmentStats['today_appointments'],
-            'upcoming_appointments' => $appointmentStats['upcoming_appointments'],
-            'total_revenue' => $financeStats['total_revenue'],
-            'pending_payments' => $financeStats['pending_payments'],
-            'overdue_payments' => $financeStats['overdue_payments'],
-            'active_treatments' => $treatmentStats['active_treatments'],
-            'completed_treatments' => $treatmentStats['completed_treatments']
+            'total_patients' => $patientStats['total_patients'] ?? 0,
+            'total_examinations' => $examinationStats['total_examinations'] ?? 0,
+            'today_examinations' => $examinationStats['today_examinations'] ?? 0,
+            'total_appointments' => $appointmentStats['total_appointments'] ?? 0,
+            'today_appointments' => $appointmentStats['today_appointments'] ?? 0,
+            'upcoming_appointments' => $appointmentStats['upcoming_appointments'] ?? 0,
+            'total_revenue' => $financeStats['total_revenue'] ?? 0,
+            'pending_payments' => $financeStats['pending_payments'] ?? 0,
+            'overdue_payments' => $financeStats['overdue_payments'] ?? 0,
+            'active_treatments' => $treatmentStats['active_treatments'] ?? 0,
+            'completed_treatments' => $treatmentStats['completed_treatments'] ?? 0
         ];
     }
 
     public function getStats()
     {
-        $stats = $this->getDashboardStats();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+        $stats = $this->getDashboardStatsByClinic($clinicId);
         return $this->response->setJSON($stats);
     }
 
@@ -97,11 +102,13 @@ class Dashboard extends BaseController
     public function getChartData()
     {
         try {
-            // Get monthly revenue data
-            $monthlyRevenue = $this->getMonthlyRevenueForChart();
-            
-            // Get treatment types data
-            $treatmentTypes = $this->getTreatmentTypesForChart();
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $monthlyRevenue = $this->getMonthlyRevenueForChartByClinic($clinicId);
+            $treatmentTypes = $this->getTreatmentTypesForChartByClinic($clinicId);
             
             $data = [
                 'monthly_revenue' => $monthlyRevenue,
@@ -120,28 +127,24 @@ class Dashboard extends BaseController
         }
     }
 
-    private function getMonthlyRevenueForChart()
+    private function getMonthlyRevenueForChartByClinic($clinicId)
     {
         try {
-            // Get revenue data for the current year
             $currentYear = date('Y');
-            $monthlyRevenue = $this->financeModel->getMonthlyRevenue($currentYear);
+            $monthlyRevenue = $this->financeModel->getMonthlyRevenueByClinic($clinicId, $currentYear);
             
-            // Create a complete array for all 12 months
             $revenueData = [];
             $existingData = [];
             
-            // Convert existing data to associative array for easy lookup
             foreach ($monthlyRevenue as $data) {
                 $existingData[(int)$data['month']] = (float)$data['total_amount'];
             }
             
-            // Generate data for each month (1-12)
             for ($i = 1; $i <= 12; $i++) {
                 $revenueData[] = [
                     'month' => $i,
                     'year' => $currentYear,
-                    'total_amount' => isset($existingData[$i]) ? $existingData[$i] : 0
+                    'total_amount' => $existingData[$i] ?? 0
                 ];
             }
             
@@ -152,20 +155,18 @@ class Dashboard extends BaseController
         }
     }
 
-    private function getTreatmentTypesForChart()
+    private function getTreatmentTypesForChartByClinic($clinicId)
     {
         try {
-            // Get treatment types with counts using existing method
-            $treatmentTypes = $this->treatmentModel->getTreatmentTypesStats();
+            $treatmentTypes = $this->treatmentModel->getTreatmentTypesStatsByClinic($clinicId);
             
-            // Map to expected format
             $chartData = [];
             $defaultTypes = ['Cleaning', 'Extraction', 'Filling', 'Crown', 'Root Canal', 'Orthodontic', 'Implant', 'Other'];
             
             foreach ($defaultTypes as $type) {
                 $found = false;
                 foreach ($treatmentTypes as $treatment) {
-                    if (strtolower($treatment['treatment_type']) === strtolower($type)) {
+                    if (strtolower($treatment['treatment_type'] ?? '') === strtolower($type)) {
                         $chartData[] = [
                             'treatment_type' => $type,
                             'count' => (int)$treatment['count']
@@ -190,40 +191,40 @@ class Dashboard extends BaseController
         }
     }
 
-    private function getRecentPatients()
+    private function getRecentPatientsByClinic($clinicId)
     {
         try {
-            return $this->patientModel->orderBy('created_at', 'DESC')->limit(5)->findAll();
+            return $this->patientModel->where('clinic_id', $clinicId)->orderBy('created_at', 'DESC')->limit(5)->findAll();
         } catch (\Exception $e) {
             log_message('error', 'Recent patients error: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function getUpcomingAppointments()
+    private function getUpcomingAppointmentsByClinic($clinicId)
     {
         try {
-            return $this->appointmentModel->getUpcomingAppointments(5);
+            return $this->appointmentModel->getUpcomingAppointmentsByClinic($clinicId, 5);
         } catch (\Exception $e) {
             log_message('error', 'Upcoming appointments error: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function getRecentExaminations()
+    private function getRecentExaminationsByClinic($clinicId)
     {
         try {
-            return $this->examinationModel->getRecentExaminations(5);
+            return $this->examinationModel->getRecentExaminationsByClinic($clinicId, 5);
         } catch (\Exception $e) {
             log_message('error', 'Recent examinations error: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function getMonthlyRevenue()
+    private function getMonthlyRevenueByClinic($clinicId)
     {
         try {
-            return $this->financeModel->getMonthlyRevenue();
+            return $this->financeModel->getMonthlyRevenueByClinic($clinicId);
         } catch (\Exception $e) {
             log_message('error', 'Monthly revenue error: ' . $e->getMessage());
             return [];
@@ -232,37 +233,18 @@ class Dashboard extends BaseController
 
     private function getBasicStats()
     {
-        try {
-            $patientStats = $this->patientModel->countAllResults();
-            
-            return [
-                'total_patients' => $patientStats,
-                'total_examinations' => 0,
-                'today_examinations' => 0,
-                'total_appointments' => 0,
-                'today_appointments' => 0,
-                'upcoming_appointments' => 0,
-                'total_revenue' => 0,
-                'pending_payments' => 0,
-                'overdue_payments' => 0,
-                'active_treatments' => 0,
-                'completed_treatments' => 0
-            ];
-        } catch (\Exception $e) {
-            log_message('error', 'Basic stats error: ' . $e->getMessage());
-            return [
-                'total_patients' => 0,
-                'total_examinations' => 0,
-                'today_examinations' => 0,
-                'total_appointments' => 0,
-                'today_appointments' => 0,
-                'upcoming_appointments' => 0,
-                'total_revenue' => 0,
-                'pending_payments' => 0,
-                'overdue_payments' => 0,
-                'active_treatments' => 0,
-                'completed_treatments' => 0
-            ];
-        }
+        return [
+            'total_patients' => 0,
+            'total_examinations' => 0,
+            'today_examinations' => 0,
+            'total_appointments' => 0,
+            'today_appointments' => 0,
+            'upcoming_appointments' => 0,
+            'total_revenue' => 0,
+            'pending_payments' => 0,
+            'overdue_payments' => 0,
+            'active_treatments' => 0,
+            'completed_treatments' => 0
+        ];
     }
 }

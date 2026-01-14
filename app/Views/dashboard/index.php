@@ -70,11 +70,11 @@
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 font-medium"><?= formatDate(date('Y-m-d')) ?></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Today's Appointments Card -->
+                <!-- Today's Appointments Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -102,7 +102,7 @@
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 font-medium">Appointments</p>
-                    </div>
+                        </div>
                     </div>
                 </div>
 
@@ -356,8 +356,8 @@
                                             </div>
                                         </div>
                                     </a>
-                    <?php endforeach; ?>
-                <?php else: ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <div class="text-center py-16">
                                     <div class="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-transform duration-300">
                                         <i class="fas fa-stethoscope text-gray-400 text-3xl"></i>

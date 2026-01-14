@@ -1197,6 +1197,9 @@ document.getElementById('completeForm').addEventListener('submit', function(e) {
     
     fetch(`<?= base_url('examination') ?>/${examinationId}/complete`, {
         method: 'POST',
+        headers: {
+            [window.csrfConfig.header]: window.getCsrfToken()
+        },
         body: formData
     })
     .then(response => response.json())

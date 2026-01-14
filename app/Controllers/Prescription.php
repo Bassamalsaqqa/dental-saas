@@ -224,9 +224,14 @@ class Prescription extends BaseController
 
     public function create()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create a prescription.');
+        }
+
         $data = [
             'title' => 'Create New Prescription',
-            'patients' => $this->patientModel->findAll(),
+            'patients' => [], // S4-02f: No bulk preload
             'medications' => $this->getMedications(),
             'loadSelect2' => true  // Load Select2 for patient selection dropdowns
         ];
@@ -236,6 +241,11 @@ class Prescription extends BaseController
 
     public function store()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
         $rules = [
             'patient_id' => 'required|integer',
             'instructions' => 'permit_empty|min_length[10]',
@@ -265,6 +275,7 @@ class Prescription extends BaseController
         $medicinesJson = json_encode($medicines);
         
         $prescriptionData = [
+            'clinic_id' => $clinicId,
             'patient_id' => $this->request->getPost('patient_id'),
             'medication_name' => $medicinesJson, // Store as JSON
             'dosage' => '', // Not used in new structure
@@ -274,14 +285,13 @@ class Prescription extends BaseController
             'prescribed_date' => $this->request->getPost('prescribed_date'),
             'expiry_date' => $this->request->getPost('expiry_date') ?: null,
             'status' => 'active',
-            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($this->prescriptionModel->insert($prescriptionData)) {
             $prescriptionId = $this->prescriptionModel->getInsertID();
             
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($prescriptionData['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($prescriptionData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Count medicines for description
@@ -296,21 +306,23 @@ class Prescription extends BaseController
             
             return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been created successfully!');
         } else {
-            // Get detailed error information
-            $errors = $this->prescriptionModel->errors();
-            $errorMessage = 'Failed to create prescription. Please try again.';
-            
-            if (!empty($errors)) {
-                $errorMessage .= ' Errors: ' . implode(', ', $errors);
-            }
-            
             return redirect()->back()->withInput()->with('error', 'Failed to create prescription. Please check your input and try again.');
         }
     }
 
     public function show($id)
     {
-        $prescription = $this->prescriptionModel->getPrescriptionWithPatientInfo($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+                    ->join('patients', 'patients.id = prescriptions.patient_id')
+                    ->where('prescriptions.clinic_id', $clinicId)
+                    ->where('patients.clinic_id', $clinicId)
+                    ->where('prescriptions.id', $id)
+                    ->first();
         
         if (!$prescription) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Prescription not found');
@@ -326,17 +338,25 @@ class Prescription extends BaseController
 
     public function edit($id)
     {
-        $prescription = $this->prescriptionModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit prescriptions.');
+        }
+
+        $prescription = $this->prescriptionModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$prescription) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Prescription not found');
         }
 
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($prescription['patient_id']);
+
         $data = [
             'title' => 'Edit Prescription',
             'prescription' => $prescription,
-            'patients' => $this->patientModel->findAll(),
+            'patients' => $patient ? [$patient] : [],
             'medications' => $this->getMedications(),
+            'loadSelect2' => true
         ];
 
         return $this->view('prescription/edit', $data);
@@ -344,7 +364,12 @@ class Prescription extends BaseController
 
     public function update($id)
     {
-        $prescription = $this->prescriptionModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $prescription = $this->prescriptionModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$prescription) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Prescription not found');
@@ -389,12 +414,11 @@ class Prescription extends BaseController
             'prescribed_date' => $this->request->getPost('prescribed_date'),
             'expiry_date' => $this->request->getPost('expiry_date'),
             'status' => $this->request->getPost('status'),
-            'updated_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($this->prescriptionModel->update($id, $prescriptionData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($prescriptionData['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($prescriptionData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Count medicines for description
@@ -415,7 +439,12 @@ class Prescription extends BaseController
 
     public function delete($id)
     {
-        $prescription = $this->prescriptionModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $prescription = $this->prescriptionModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$prescription) {
             if ($this->request->isAJAX()) {
@@ -425,8 +454,8 @@ class Prescription extends BaseController
         }
 
         if ($this->prescriptionModel->delete($id)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($prescription['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($prescription['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the prescription deletion activity
@@ -455,7 +484,17 @@ class Prescription extends BaseController
 
     public function print($id)
     {
-        $prescription = $this->prescriptionModel->getPrescriptionWithPatientInfo($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+                    ->join('patients', 'patients.id = prescriptions.patient_id')
+                    ->where('prescriptions.clinic_id', $clinicId)
+                    ->where('patients.clinic_id', $clinicId)
+                    ->where('prescriptions.id', $id)
+                    ->first();
         
         if (!$prescription) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Prescription not found');
@@ -472,11 +511,16 @@ class Prescription extends BaseController
 
     public function getPrescriptionStats()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $stats = [
-            'total' => $this->prescriptionModel->countAllResults(),
-            'active' => $this->prescriptionModel->where('status', 'active')->countAllResults(),
-            'expired' => $this->prescriptionModel->where('status', 'expired')->countAllResults(),
-            'cancelled' => $this->prescriptionModel->where('status', 'cancelled')->countAllResults(),
+            'total' => $this->prescriptionModel->where('clinic_id', $clinicId)->countAllResults(),
+            'active' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+            'expired' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'expired')->countAllResults(),
+            'cancelled' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'cancelled')->countAllResults(),
         ];
 
         return $this->response->setJSON($stats);

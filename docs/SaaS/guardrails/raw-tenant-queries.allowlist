@@ -3,14 +3,6 @@
 app/Controllers/DebugController.php:205:            $rolePermissions = $db->table('role_permissions')->get()->getResultArray();
 app/Controllers/Doctor.php:270:        return $db->table('users u')
 app/Controllers/Doctor.php:289:        $result = $db->table('users u')
-app/Controllers/Examination.php:341:            $totalRecords = $this->db->table('examinations')->countAllResults();
-app/Controllers/Examination.php:354:            $query = $this->db->table('examinations')
-app/Controllers/Examination.php:446:                $examinationCount = $this->db->table('examinations')->countAllResults();
-app/Controllers/Examination.php:452:                $patientCount = $this->db->table('patients')->countAllResults();
-app/Controllers/Examination.php:458:                $joinQuery = $this->db->table('examinations')
-app/Controllers/Examination.php:491:            $patientCount = $this->db->table('patients')->countAllResults();
-app/Controllers/Examination.php:500:            $patients = $this->db->table('patients')->limit(3)->get()->getResultArray();
-app/Controllers/Examination.php:518:            $this->db->table('examinations')->insertBatch($sampleExaminations);
 app/Controllers/Inventory.php:680:            $totalRecords = $this->db->table('inventory')->countAllResults();
 app/Controllers/Inventory.php:696:            $query = $this->db->table('inventory');
 app/Controllers/Inventory.php:792:            $directQuery = $this->db->table('inventory')->get()->getResultArray();

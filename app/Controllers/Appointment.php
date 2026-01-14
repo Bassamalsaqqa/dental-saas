@@ -160,10 +160,16 @@ class Appointment extends BaseController
 
     public function create()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to schedule an appointment.');
+        }
+
         $data = [
             'title' => 'New Appointment',
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
-            'validation' => \Config\Services::validation()
+            'patients' => [], // S4-02e-FIX: Do not preload patient list server-side. Autocomplete will handle it.
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         // Ensure user data is included
@@ -272,17 +278,34 @@ class Appointment extends BaseController
 
     public function edit($id)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit appointments.');
+        }
+
         $appointment = $this->appointmentModel->getAppointmentWithPatient($id);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
         }
 
+        // S4-02e-FIX: Enforce clinic ownership
+        if ($appointment['clinic_id'] != $clinicId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found in current clinic');
+        }
+
+        // S4-02e-FIX: Only load the specific patient for this appointment
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($appointment['patient_id']);
+        if (!$patient) {
+             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found in current clinic');
+        }
+
         $data = [
             'title' => 'Edit Appointment - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
-            'validation' => \Config\Services::validation()
+            'patients' => [$patient], // Only emit the current patient as option
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         return $this->view('appointment/edit', $data);

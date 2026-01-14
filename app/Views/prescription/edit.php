@@ -62,19 +62,12 @@
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value="">Search patients by name, phone, or ID...</option>
-                                        <?php 
-                                        $selectedPatientId = old('patient_id', $prescription['patient_id']);
-                                        $selectedPatient = null;
-                                        foreach ($patients as $patient) {
-                                            if ($patient['id'] == $selectedPatientId) {
-                                                $selectedPatient = $patient;
-                                                break;
-                                            }
-                                        }
-                                        if ($selectedPatient): ?>
-                                            <option value="<?= $selectedPatient['id'] ?>" selected>
-                                                <?= $selectedPatient['first_name'] . ' ' . $selectedPatient['last_name'] ?> (<?= $selectedPatient['phone'] ?>)
-                                            </option>
+                                        <?php if (!empty($patients)): ?>
+                                            <?php foreach ($patients as $patient): ?>
+                                                <option value="<?= $patient['id'] ?>" selected>
+                                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                </option>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

@@ -644,27 +644,14 @@ class Patient extends BaseController
     public function getStatistics()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $this->response->setContentType('application/json');
             
-            // Get total patients
-            $totalPatients = $this->patientModel->countAllResults(false);
-            
-            // Get active patients
-            $activePatients = $this->patientModel->where('status', 'active')->countAllResults(false);
-            
-            // Get new patients this month
-            $currentMonth = date('Y-m');
-            $newPatients = $this->patientModel->where('DATE_FORMAT(created_at, "%Y-%m")', $currentMonth)->countAllResults(false);
-            
-            // Get patients created this month (for monthly count)
-            $monthlyPatients = $newPatients;
-            
-            $stats = [
-                'total_patients' => $totalPatients,
-                'active_patients' => $activePatients,
-                'new_patients' => $newPatients,
-                'monthly_patients' => $monthlyPatients
-            ];
+            $stats = $this->patientModel->getPatientStatsByClinic($clinicId);
             
             return $this->response->setJSON($stats);
             

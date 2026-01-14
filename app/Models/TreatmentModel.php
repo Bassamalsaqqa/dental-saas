@@ -129,10 +129,45 @@ class TreatmentModel extends Model
             ->findAll();
     }
 
+    public function getTreatmentStatsByClinic($clinicId)
+    {
+        try {
+            return [
+                'total' => $this->where('clinic_id', $clinicId)->countAllResults(),
+                'active' => $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+                'completed' => $this->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
+                'cancelled' => $this->where('clinic_id', $clinicId)->where('status', 'cancelled')->countAllResults(),
+                'on_hold' => $this->where('clinic_id', $clinicId)->where('status', 'on_hold')->countAllResults(),
+                'active_treatments' => $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+                'completed_treatments' => $this->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Treatment stats error: ' . $e->getMessage());
+            return [
+                'total' => 0,
+                'active' => 0,
+                'completed' => 0,
+                'cancelled' => 0,
+                'on_hold' => 0,
+                'active_treatments' => 0,
+                'completed_treatments' => 0,
+            ];
+        }
+    }
+
+    public function getTreatmentTypesStatsByClinic($clinicId)
+    {
+        return $this->select('treatment_type, COUNT(*) as count')
+                    ->where('clinic_id', $clinicId)
+                    ->groupBy('treatment_type')
+                    ->findAll();
+    }
+
     public function getTreatmentsWithPatientInfo()
     {
         return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email')
                     ->join('patients', 'patients.id = treatments.patient_id')
+                    ->where('patients.clinic_id = treatments.clinic_id') // Join guard
                     ->orderBy('treatments.created_at', 'DESC')
                     ->findAll();
     }
@@ -141,6 +176,16 @@ class TreatmentModel extends Model
     {
         return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
                     ->join('patients', 'patients.id = treatments.patient_id')
+                    ->where('treatments.id', $id)
+                    ->first();
+    }
+
+    public function getTreatmentWithPatientInfoByClinic($clinicId, $id)
+    {
+        return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+                    ->join('patients', 'patients.id = treatments.patient_id')
+                    ->where('treatments.clinic_id', $clinicId)
+                    ->where('patients.clinic_id', $clinicId)
                     ->where('treatments.id', $id)
                     ->first();
     }

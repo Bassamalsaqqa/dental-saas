@@ -42,19 +42,25 @@ class Examination extends BaseController
 
     public function create()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create an examination.');
+        }
+
         $patientId = $this->request->getGet('patient_id');
         $selectedPatient = null;
         
         if ($patientId) {
-            $selectedPatient = $this->patientModel->find($patientId);
+            $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         }
         
         $data = [
             'title' => 'New Examination',
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
+            'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'selected_patient_id' => $patientId,
             'selected_patient' => $selectedPatient,
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         // Ensure user data is included
@@ -127,7 +133,17 @@ class Examination extends BaseController
 
     public function show($id)
     {
-        $examination = $this->examinationModel->getExaminationWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+            ->join('patients', 'patients.id = examinations.patient_id')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId)
+            ->where('examinations.id', $id)
+            ->first();
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
@@ -136,8 +152,8 @@ class Examination extends BaseController
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
             'examination' => $examination,
-            'odontogram' => $this->odontogramModel->getOdontogramByExamination($id),
-            'treatments' => $this->treatmentModel->getTreatmentsByExamination($id),
+            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
+            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions()
         ];
@@ -147,17 +163,27 @@ class Examination extends BaseController
 
     public function edit($id)
     {
-        $examination = $this->examinationModel->getExaminationWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit examinations.');
+        }
+
+        // S4-02f-FIX2: Use scoped query
+        $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        // Only load the specific patient for this examination (scoped)
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($examination['patient_id']);
+
         $data = [
-            'title' => 'Edit Examination - ' . $examination['examination_id'],
+            'title' => 'Edit Examination - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
-            'patients' => $this->patientModel->where('status', 'active')->findAll(),
-            'validation' => \Config\Services::validation()
+            'patients' => $patient ? [$patient] : [], // Only emit current patient
+            'validation' => \Config\Services::validation(),
+            'loadSelect2' => true
         ];
 
         return $this->view('examination/edit', $data);
@@ -165,7 +191,12 @@ class Examination extends BaseController
 
     public function update($id)
     {
-        $examination = $this->examinationModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
@@ -201,8 +232,8 @@ class Examination extends BaseController
         ];
 
         if ($this->examinationModel->update($id, $examinationData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($examinationData['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($examinationData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the examination update activity
@@ -220,6 +251,11 @@ class Examination extends BaseController
 
     public function updateToothCondition()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $patientId = $this->request->getPost('patient_id');
         $examinationId = $this->request->getPost('examination_id');
         $toothNumber = $this->request->getPost('tooth_number');
@@ -227,7 +263,14 @@ class Examination extends BaseController
         $conditionDescription = $this->request->getPost('condition_description');
         $treatmentNotes = $this->request->getPost('treatment_notes');
 
+        // Verify patient ownership
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient context']);
+        }
+
         $conditionData = [
+            'clinic_id' => $clinicId,
             'examination_id' => $examinationId,
             'condition_type' => $conditionType,
             'condition_description' => $conditionDescription,
@@ -246,7 +289,13 @@ class Examination extends BaseController
 
     public function getExaminationData($id)
     {
-        $examination = $this->examinationModel->getExaminationWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        // Scoped check
+        $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
             return $this->response->setJSON(['error' => 'Examination not found']);
@@ -257,20 +306,31 @@ class Examination extends BaseController
 
     public function getExaminationsByDate()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $date = $this->request->getGet('date');
         
         if (empty($date)) {
             $date = date('Y-m-d');
         }
 
-        $examinations = $this->examinationModel->getExaminationsByDateRange($date, $date);
+        // Scoped query
+        $examinations = $this->examinationModel->where('clinic_id', $clinicId)->getExaminationsByDateRange($date, $date);
         
         return $this->response->setJSON($examinations);
     }
 
     public function complete($id)
     {
-        $examination = $this->examinationModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
             return $this->response->setJSON(['success' => false, 'message' => 'Examination not found']);
@@ -291,6 +351,11 @@ class Examination extends BaseController
     public function getExaminationsData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters with defaults
@@ -325,20 +390,8 @@ class Examination extends BaseController
             
             $orderColumnName = $columns[$orderColumn] ?? 'examinations.id';
             
-            // Check if tables exist first
-            $tables = $this->db->listTables();
-            if (!in_array('examinations', $tables) || !in_array('patients', $tables)) {
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Required tables do not exist'
-                ]);
-            }
-            
-            // Get total records count
-            $totalRecords = $this->db->table('examinations')->countAllResults();
+            // Get total records count (scoped)
+            $totalRecords = $this->examinationModel->countExaminationsByClinic($clinicId);
             
             // If no examinations exist, return empty result
             if ($totalRecords == 0) {
@@ -350,32 +403,11 @@ class Examination extends BaseController
                 ]);
             }
             
-            // Build query
-            $query = $this->db->table('examinations')
-                ->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
-                ->join('patients', 'patients.id = examinations.patient_id', 'left');
-            
-            // Apply search filter
-            if (!empty($searchValue)) {
-                $query->groupStart()
-                    ->like('examinations.examination_id', $searchValue)
-                    ->orLike('patients.first_name', $searchValue)
-                    ->orLike('patients.last_name', $searchValue)
-                    ->orLike('patients.patient_id', $searchValue)
-                    ->orLike('examinations.examination_type', $searchValue)
-                    ->orLike('examinations.status', $searchValue)
-                    ->orLike('examinations.chief_complaint', $searchValue)
-                    ->groupEnd();
-            }
-            
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $this->examinationModel->countExaminationsByClinic($clinicId, $searchValue);
             
-            // Get data with ordering and pagination
-            $examinations = $query->orderBy($orderColumnName, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            // Get data (scoped)
+            $examinations = $this->examinationModel->getExaminationsByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir);
             
             // Format data
             $data = [];
@@ -416,7 +448,12 @@ class Examination extends BaseController
 
     public function getExaminationStats()
     {
-        $stats = $this->examinationModel->getExaminationStats();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $stats = $this->examinationModel->getExaminationStatsByClinic($clinicId);
         return $this->response->setJSON($stats);
     }
 
@@ -435,45 +472,16 @@ class Examination extends BaseController
     public function debugDataTables()
     {
         try {
-            // Check if tables exist
-            $tables = $this->db->listTables();
-            $hasExaminations = in_array('examinations', $tables);
-            $hasPatients = in_array('patients', $tables);
-            
-            // Check examination count
-            $examinationCount = 0;
-            if ($hasExaminations) {
-                $examinationCount = $this->db->table('examinations')->countAllResults();
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
-            
-            // Check patient count
-            $patientCount = 0;
-            if ($hasPatients) {
-                $patientCount = $this->db->table('patients')->countAllResults();
-            }
-            
-            // Try a simple join query
-            $joinQuery = null;
-            if ($hasExaminations && $hasPatients) {
-                $joinQuery = $this->db->table('examinations')
-                    ->select('examinations.*, patients.first_name, patients.last_name')
-                    ->join('patients', 'patients.id = examinations.patient_id', 'left')
-                    ->limit(1)
-                    ->get()
-                    ->getResultArray();
-            }
+
+            $debugData = $this->examinationModel->getDebugDataByClinic($clinicId);
             
             return $this->response->setJSON([
-                'tables_exist' => [
-                    'examinations' => $hasExaminations,
-                    'patients' => $hasPatients
-                ],
-                'counts' => [
-                    'examinations' => $examinationCount,
-                    'patients' => $patientCount
-                ],
-                'join_test' => $joinQuery,
-                'all_tables' => $tables
+                'success' => true,
+                'debug' => $debugData
             ]);
             
         } catch (\Exception $e) {
@@ -487,8 +495,13 @@ class Examination extends BaseController
     public function createSampleData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             // Check if we have patients first
-            $patientCount = $this->db->table('patients')->countAllResults();
+            $patientCount = $this->patientModel->where('clinic_id', $clinicId)->countAllResults();
             if ($patientCount == 0) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -497,7 +510,7 @@ class Examination extends BaseController
             }
             
             // Get first few patients
-            $patients = $this->db->table('patients')->limit(3)->get()->getResultArray();
+            $patients = $this->patientModel->where('clinic_id', $clinicId)->limit(3)->findAll();
             
             // Create sample examinations
             $sampleExaminations = [];
@@ -515,7 +528,7 @@ class Examination extends BaseController
                 ];
             }
             
-            $this->db->table('examinations')->insertBatch($sampleExaminations);
+            $this->examinationModel->insertBatchByClinic($clinicId, $sampleExaminations);
             
             return $this->response->setJSON([
                 'success' => true,
@@ -533,7 +546,17 @@ class Examination extends BaseController
 
     public function print($id)
     {
-        $examination = $this->examinationModel->getExaminationWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+            ->join('patients', 'patients.id = examinations.patient_id')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId)
+            ->where('examinations.id', $id)
+            ->first();
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
@@ -542,8 +565,8 @@ class Examination extends BaseController
         $data = [
             'title' => 'Examination Report - ' . $examination['examination_id'],
             'examination' => $examination,
-            'odontogram' => $this->odontogramModel->getOdontogramByExamination($id),
-            'treatments' => $this->treatmentModel->getTreatmentsByExamination($id),
+            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
+            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'clinic' => settings()->getClinicInfo()
         ];
 
@@ -552,7 +575,12 @@ class Examination extends BaseController
 
     public function duplicate($id)
     {
-        $examination = $this->examinationModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
@@ -580,7 +608,12 @@ class Examination extends BaseController
     public function delete($id)
     {
         try {
-            $examination = $this->examinationModel->find($id);
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
             if (!$examination) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Examination not found']);
             }
@@ -599,6 +632,11 @@ class Examination extends BaseController
 
     public function calendar()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view calendar.');
+        }
+
         $data = [
             'title' => 'Examination Calendar'
         ];
@@ -609,6 +647,11 @@ class Examination extends BaseController
     public function getCalendarEvents()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $this->response->setContentType('application/json');
             
             $start = $this->request->getGet('start');
@@ -623,8 +666,8 @@ class Examination extends BaseController
 
             log_message('debug', 'Examination calendar events request - Start: ' . $start . ', End: ' . $end);
 
-            // Get examinations within the date range
-            $examinations = $this->examinationModel->getExaminationsByDateRange($start, $end);
+            // Get examinations within the date range (scoped)
+            $examinations = $this->examinationModel->where('clinic_id', $clinicId)->getExaminationsByDateRange($start, $end);
             
             log_message('debug', 'Found ' . count($examinations) . ' examinations for calendar');
             

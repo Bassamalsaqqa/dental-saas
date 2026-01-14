@@ -106,6 +106,125 @@ class ExaminationModel extends Model
             ->findAll();
     }
 
+    public function getExaminationsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'examinations.id', $orderDir = 'desc')
+    {
+        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+            ->join('patients', 'patients.id = examinations.patient_id')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId); // Join guard
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('examinations.examination_id', $search)
+                ->orLike('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.patient_id', $search)
+                ->orLike('examinations.examination_type', $search)
+                ->orLike('examinations.status', $search)
+                ->orLike('examinations.chief_complaint', $search)
+                ->groupEnd();
+        }
+
+        return $builder->orderBy($orderColumn, $orderDir)
+            ->limit($limit, $offset)
+            ->findAll();
+    }
+
+    public function countExaminationsByClinic($clinicId, $search = '')
+    {
+        $builder = $this->select('COUNT(*) as total')
+            ->join('patients', 'patients.id = examinations.patient_id')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId); // Join guard
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('examinations.examination_id', $search)
+                ->orLike('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.patient_id', $search)
+                ->orLike('examinations.examination_type', $search)
+                ->orLike('examinations.status', $search)
+                ->orLike('examinations.chief_complaint', $search)
+                ->groupEnd();
+        }
+
+        $result = $builder->get()->getRow();
+        return $result ? $result->total : 0;
+    }
+
+    public function getExaminationStatsByClinic($clinicId)
+    {
+        try {
+            $builder = $this->db->table('examinations')
+                ->where('clinic_id', $clinicId);
+            
+            return [
+                'total_examinations' => $builder->countAllResults(false),
+                'pending_examinations' => $builder->where('status', 'pending')->countAllResults(false),
+                'completed_examinations' => $builder->where('status', 'completed')->countAllResults(false),
+                'today_examinations' => $builder->where('status', 'completed')->where('DATE(examination_date)', date('Y-m-d'))->countAllResults(false),
+                'emergency_examinations' => $builder->where('examination_type', 'emergency')->countAllResults(false)
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Examination stats error: ' . $e->getMessage());
+            return [
+                'total_examinations' => 0,
+                'pending_examinations' => 0,
+                'completed_examinations' => 0,
+                'today_examinations' => 0,
+                'emergency_examinations' => 0
+            ];
+        }
+    }
+
+    public function getRecentExaminationsByClinic($clinicId, $limit = 10)
+    {
+        try {
+            return $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+                ->join('patients', 'patients.id = examinations.patient_id')
+                ->where('examinations.clinic_id', $clinicId)
+                ->where('patients.clinic_id', $clinicId)
+                ->orderBy('examination_date', 'DESC')
+                ->limit($limit)
+                ->findAll();
+        } catch (\Exception $e) {
+            log_message('error', 'Recent examinations error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function insertBatchByClinic($clinicId, array $data)
+    {
+        foreach ($data as &$row) {
+            $row['clinic_id'] = $clinicId;
+        }
+        return $this->db->table('examinations')->insertBatch($data);
+    }
+
+    public function getDebugDataByClinic($clinicId)
+    {
+        $patientModel = new \App\Models\PatientModel();
+        
+        $examinationCount = $this->where('clinic_id', $clinicId)->countAllResults();
+        $patientCount = $patientModel->where('clinic_id', $clinicId)->countAllResults();
+        
+        $joinQuery = $this->select('examinations.*, patients.first_name, patients.last_name')
+            ->join('patients', 'patients.id = examinations.patient_id', 'left')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId)
+            ->limit(1)
+            ->findAll();
+
+        return [
+            'counts' => [
+                'examinations' => $examinationCount,
+                'patients' => $patientCount
+            ],
+            'join_test' => $joinQuery
+        ];
+    }
+
     public function getExaminationWithPatient($examinationId)
     {
         return $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')

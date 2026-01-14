@@ -52,28 +52,18 @@
                                 <i class="fas fa-user text-blue-600"></i>
                                 <span>Select Patient *</span>
                             </label>
-                            <div class="relative">
-                                <select id="patient_id" name="patient_id" 
-                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
-                                        data-searchable-select 
-                                        data-search-url="<?= base_url('api/search/patients') ?>"
-                                        data-placeholder="Search patients by name, phone, or ID..."
-                                        required>
-                                    <option value="">Choose a patient...</option>
-                                    <?php if (!empty($patients)): ?>
-                                        <?php foreach ($patients as $patient): ?>
-                                            <option value="<?= $patient['id'] ?>" <?= old('patient_id') == $patient['id'] ? 'selected' : '' ?>>
-                                                <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> 
-                                                (<?= $patient['phone'] ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
-                            </div>
-                            <?php if ($validation && $validation->hasError('patient_id')): ?>
+                                                            <div class="relative">
+                                                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
+                                                                        data-searchable-select 
+                                                                        data-search-url="<?= base_url('api/search/patients') ?>"
+                                                                        data-placeholder="Search patients by name, phone, or ID..."
+                                                                        required>
+                                                                    <option value="">Select a patient</option>
+                                                                </select>
+                                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                                                </div>
+                                                            </div>                            <?php if ($validation && $validation->hasError('patient_id')): ?>
                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span><?= $validation->getError('patient_id') ?></span>

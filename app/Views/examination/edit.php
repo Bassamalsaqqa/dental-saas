@@ -29,18 +29,20 @@
                         <label for="patient_id" class="block text-sm font-medium text-gray-700 mb-2">
                             Patient <span class="text-red-500">*</span>
                         </label>
-                        <select name="patient_id" id="patient_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                            <option value="">Select a patient...</option>
-                            <?php if (!empty($patients)): ?>
-                                <?php foreach ($patients as $patient): ?>
-                                    <option value="<?= $patient['id'] ?>" 
-                                            <?= (old('patient_id', $examination['patient_id']) == $patient['id']) ? 'selected' : '' ?>>
-                                        <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> 
-                                        (<?= esc($patient['patient_id']) ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
+                                            data-searchable-select 
+                                            data-search-url="<?= base_url('api/search/patients') ?>"
+                                            data-placeholder="Search patients by name, phone, or ID..."
+                                            required>
+                                        <option value="">Select a patient</option>
+                                        <?php if (!empty($patients)): ?>
+                                            <?php foreach ($patients as $patient): ?>
+                                                <option value="<?= $patient['id'] ?>" selected>
+                                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
                         <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
                             <p class="text-red-500 text-sm mt-1"><?= session()->getFlashdata('validation')->getError('patient_id') ?></p>
                         <?php endif; ?>

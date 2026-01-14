@@ -54,19 +54,16 @@
                                     <span>Patient *</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="patient_id" id="patient_id" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" 
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
                                             data-searchable-select 
                                             data-search-url="<?= base_url('api/search/patients') ?>"
                                             data-placeholder="Search patients by name, phone, or ID..."
                                             required>
                                         <option value="">Select a patient</option>
-                                        <?php if (!empty($patients)): ?>
-                                            <?php foreach ($patients as $patient): ?>
-                                                <option value="<?= $patient['id'] ?>" <?= (old('patient_id', $selected_patient_id ?? '') == $patient['id']) ? 'selected' : '' ?>>
-                                                    <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> 
-                                                    (<?= esc($patient['patient_id']) ?>)
-                                                </option>
-                                            <?php endforeach; ?>
+                                        <?php if (!empty($selected_patient)): ?>
+                                            <option value="<?= $selected_patient['id'] ?>" selected>
+                                                <?= $selected_patient['first_name'] . ' ' . $selected_patient['last_name'] ?> (<?= $selected['phone'] ?>)
+                                            </option>
                                         <?php endif; ?>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
