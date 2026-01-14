@@ -37,6 +37,11 @@ class Settings extends BaseController
 
     public function updateClinic()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context required');
+        }
+
         $rules = [
             'clinic_name' => 'required|min_length[2]|max_length[100]',
             'clinic_address' => 'required|min_length[10]|max_length[500]',
@@ -61,56 +66,39 @@ class Settings extends BaseController
             'clinic_tagline' => $this->request->getPost('clinic_tagline'),
         ];
 
-        // Handle Secure Logo Upload
+        // Handle Secure Logo Upload via StorageService
         $logoFile = $this->request->getFile('clinic_logo');
         $removeLogo = $this->request->getPost('clinic_logo_remove');
-        $uploadPath = FCPATH . 'uploads/clinic';
-        $pendingLogoRemoval = false;
+        $storageService = service('storage');
 
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
-            // Ensure directory exists
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
+            // Delete old logo if exists in file_attachments
+            $oldLogoPath = $this->settingsService->get('clinic_logo_path');
+            if (!empty($oldLogoPath) && strpos($oldLogoPath, 'file/download/') === 0) {
+                $oldAttachmentId = str_replace('file/download/', '', $oldLogoPath);
+                $storageService->delete($oldAttachmentId, $clinicId);
             }
 
-            // Delete existing clinic-logo.*
-            $existingLogos = glob($uploadPath . '/clinic-logo.*');
-            if ($existingLogos) {
-                foreach ($existingLogos as $file) {
-                    if (is_file($file)) unlink($file);
-                }
-            }
-
-            $ext = $logoFile->guessExtension();
-            if (!empty($ext)) {
-                $newName = 'clinic-logo.' . $ext;
-                $logoFile->move($uploadPath, $newName);
-                $settingsData['clinic_logo_path'] = 'uploads/clinic/' . $newName;
-            } else {
-                return redirect()->back()->withInput()->with('error', 'Failed to determine logo file extension.');
-            }
+            // Store new logo
+            $attachment = $storageService->store($logoFile, $clinicId, 'logo');
+            $settingsData['clinic_logo_path'] = 'file/download/' . $attachment['id'];
+            
         } elseif ($removeLogo) {
+            $oldLogoPath = $this->settingsService->get('clinic_logo_path');
+            if (!empty($oldLogoPath) && strpos($oldLogoPath, 'file/download/') === 0) {
+                $oldAttachmentId = str_replace('file/download/', '', $oldLogoPath);
+                $storageService->delete($oldAttachmentId, $clinicId);
+            }
             $settingsData['clinic_logo_path'] = '';
-            $pendingLogoRemoval = true;
         }
 
-        log_message('info', 'Saving clinic settings: ' . json_encode($settingsData));
+        log_message('info', "Saving clinic settings for ID {$clinicId}: " . json_encode($settingsData));
         
         if ($this->saveSettings($settingsData)) {
             $this->settingsService->reloadSettings();
-            log_message('info', 'Clinic settings saved successfully');
-            if ($pendingLogoRemoval) {
-                $existingLogos = glob($uploadPath . '/clinic-logo.*');
-                if ($existingLogos) {
-                    foreach ($existingLogos as $file) {
-                        if (is_file($file)) unlink($file);
-                    }
-                }
-            }
             return redirect()->to('/settings')->with('success', 'Clinic information updated successfully!');
         } else {
-            log_message('error', 'Failed to save clinic settings');
-            return redirect()->back()->withInput()->with('error', 'Failed to update clinic information. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to update clinic information.');
         }
     }
 

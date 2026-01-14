@@ -59,7 +59,12 @@ class SettingsModel extends Model
      */
     public function getSetting($key, $default = null)
     {
-        $setting = $this->where('setting_key', $key)->first();
+        $clinicId = session()->get('active_clinic_id');
+        $query = $this->where('setting_key', $key);
+        if ($clinicId) {
+            $query->where('clinic_id', $clinicId);
+        }
+        $setting = $query->first();
         return $setting ? $this->parseValue($setting['setting_value'], $setting['setting_type']) : $default;
     }
 
@@ -68,7 +73,12 @@ class SettingsModel extends Model
      */
     public function setSetting($key, $value, $type = 'string', $description = null)
     {
-        $existing = $this->where('setting_key', $key)->first();
+        $clinicId = session()->get('active_clinic_id');
+        $query = $this->where('setting_key', $key);
+        if ($clinicId) {
+            $query->where('clinic_id', $clinicId);
+        }
+        $existing = $query->first();
 
         $skipValidation = false;
         if ($value === '' && in_array($key, ['clinic_logo_path', 'clinic_website', 'clinic_tagline'], true)) {
@@ -107,7 +117,12 @@ class SettingsModel extends Model
      */
     public function getAllSettings()
     {
-        $settings = $this->findAll();
+        $clinicId = session()->get('active_clinic_id');
+        $query = $this;
+        if ($clinicId) {
+            $query = $this->where('clinic_id', $clinicId);
+        }
+        $settings = $query->findAll();
         $result = [];
         
         foreach ($settings as $setting) {

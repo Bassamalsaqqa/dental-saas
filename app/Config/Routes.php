@@ -343,82 +343,31 @@ $routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('activity-log/api', 'ActivityLog::api');
 });
 
+// File routes (Tenant Plane)
+$routes->group('file', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('download/(:num)', 'FileController::download/$1');
+});
+
+// Settings routes (Tenant Plane)
+$routes->group('settings', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('/', 'Settings::index', ['filter' => 'permission:settings:view']);
+    $routes->post('update', 'Settings::update', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings:edit']);
+    $routes->get('backup', 'Settings::backup', ['filter' => 'permission:settings:view']);
+    $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);
+    $routes->post('restore', 'Settings::restore', ['filter' => 'permission:settings:edit']);
+    $routes->get('download-backup/(:segment)', 'Settings::downloadBackup/$1', ['filter' => 'permission:settings:view']);
+    $routes->get('security', 'Settings::security', ['filter' => 'permission:settings:view']);
+    $routes->post('security/update', 'Settings::updateSecurity', ['filter' => 'permission:settings:edit']);
+    $routes->get('notification-settings', 'Settings::notifications', ['filter' => 'permission:settings:view']);
+    $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
+});
+
 // --------------------------------------------------------------------
-// Control Plane Routes (Settings & RBAC)
+// Control Plane Routes (RBAC & Platform Admin)
 // --------------------------------------------------------------------
-
-// Settings routes
-$routes->group('settings', ['filter' => 'controlplane'], function ($routes) {
-    $routes->get('/', 'Settings::index');
-    $routes->post('update', 'Settings::update');
-    $routes->post('updateClinic', 'Settings::updateClinic');
-    $routes->post('updateSystem', 'Settings::updateSystem');
-    $routes->post('updateWorkingHours', 'Settings::updateWorkingHours');
-    $routes->get('backup', 'Settings::backup');
-    $routes->post('create-backup', 'Settings::createBackup');
-    $routes->post('restore', 'Settings::restore');
-    $routes->get('download-backup/(:segment)', 'Settings::downloadBackup/$1');
-    $routes->get('security', 'Settings::security');
-    $routes->post('security/update', 'Settings::updateSecurity');
-    $routes->get('notification-settings', 'Settings::notifications');
-    $routes->post('notifications/update', 'Settings::updateNotifications');
-});
-
-// Profile routes (accessible to all authenticated users - Tenant Plane)
-$routes->group('profile', ['filter' => ['auth', 'tenant']], function ($routes) {
-    $routes->get('/', 'Profile::index');
-    $routes->post('update', 'Profile::update');
-    $routes->post('change-password', 'Profile::changePassword');
-});
-
-// Users routes (Enhanced with RBAC - Tenant Plane)
-$routes->group('users', ['filter' => ['auth', 'tenant']], function ($routes) {
-    // Existing routes
-    $routes->get('/', 'Users::index', ['filter' => 'permission:users:view']);
-    $routes->get('create', 'Users::create', ['filter' => 'permission:users:create']);
-    $routes->post('store', 'Users::store', ['filter' => 'permission:users:create']);
-    $routes->get('(:num)', 'Users::show/$1', ['filter' => 'permission:users:view']);
-    $routes->get('(:num)/edit', 'Users::edit/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/update', 'Users::update/$1', ['filter' => 'permission:users:edit']);
-    $routes->delete('(:num)', 'Users::delete/$1', ['filter' => 'permission:users:delete']);
-    $routes->get('(:num)/change-password', 'Users::changePassword/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/update-password', 'Users::updatePassword/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/toggle-status', 'Users::toggleStatus/$1', ['filter' => 'permission:users:edit']);
-    $routes->get('stats', 'Users::getUserStats', ['filter' => 'permission:users:view']);
-
-    // RBAC routes
-    $routes->post('assign-role', 'Users::assignRole', ['filter' => 'permission:users:edit']);
-    $routes->post('remove-role', 'Users::removeRole', ['filter' => 'permission:users:edit']);
-    $routes->post('grant-permission', 'Users::grantPermission', ['filter' => 'permission:users:edit']);
-    $routes->post('revoke-permission', 'Users::revokePermission', ['filter' => 'permission:users:edit']);
-    $routes->get('(:num)/permissions', 'Users::getUserPermissionsAjax/$1', ['filter' => 'permission:users:view']);
-});
-
-// Role Management routes (Tenant Plane)
-$routes->group('roles', ['filter' => ['auth', 'tenant']], function ($routes) {
-    $routes->get('/', 'RoleController::index', ['filter' => 'permission:users:view']);
-    $routes->get('create', 'RoleController::create', ['filter' => 'permission:users:create']);
-    $routes->post('store', 'RoleController::store', ['filter' => 'permission:users:create']);
-    $routes->get('(:num)', 'RoleController::show/$1', ['filter' => 'permission:users:view']);
-    $routes->get('(:num)/edit', 'RoleController::edit/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/update', 'RoleController::update/$1', ['filter' => 'permission:users:edit']);
-    $routes->delete('(:num)', 'RoleController::delete/$1', ['filter' => 'permission:users:delete']);
-    $routes->post('(:num)/toggle-status', 'RoleController::toggleStatus/$1', ['filter' => 'permission:users:edit']);
-    $routes->get('sync', 'RoleController::sync', ['filter' => 'permission:settings:edit']);
-    $routes->get('stats', 'RoleController::stats', ['filter' => 'permission:users:view']);
-    $routes->get('(:num)/permissions', 'RoleController::getPermissions', ['filter' => 'permission:users:view']);
-});
-
-// Doctor routes (Tenant Plane)
-$routes->group('doctors', ['filter' => ['auth', 'tenant']], function ($routes) {
-    $routes->get('/', 'Doctor::index', ['filter' => 'permission:users:view']);
-    $routes->get('create', 'Doctor::create', ['filter' => 'permission:users:create']);
-    $routes->post('store', 'Doctor::store', ['filter' => 'permission:users:create']);
-    $routes->get('(:num)', 'Doctor::show/$1', ['filter' => 'permission:users:view']);
-    $routes->get('(:num)/edit', 'Doctor::edit/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/update', 'Doctor::update/$1', ['filter' => 'permission:users:edit']);
-    $routes->delete('(:num)', 'Doctor::delete/$1', ['filter' => 'permission:users:delete']);
-});
 
 // RBAC Sync routes (Control Plane)
 $routes->group('rbac', ['filter' => 'controlplane'], function ($routes) {

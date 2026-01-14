@@ -36,4 +36,16 @@ class Services extends BaseService
         return new \App\Services\SettingsService();
     }
 
+    /**
+     * Storage Service
+     */
+    public static function storage($getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('storage');
+        }
+
+        return new \App\Services\StorageService();
+    }
+
 }
