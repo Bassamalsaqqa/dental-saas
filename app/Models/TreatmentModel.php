@@ -103,6 +103,32 @@ class TreatmentModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
+    public function searchTreatmentsByClinic($clinicId, $searchTerm = null, $limit = 20, $status = null)
+    {
+        $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.patient_id')
+            ->join('patients', 'patients.id = treatments.patient_id')
+            ->where('treatments.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId); // Join guard
+
+        if ($status) {
+            $builder->where('treatments.status', $status);
+        }
+
+        if (!empty($searchTerm)) {
+            $builder->groupStart()
+                ->like('treatments.treatment_type', $searchTerm)
+                ->orLike('treatments.description', $searchTerm)
+                ->orLike('patients.first_name', $searchTerm)
+                ->orLike('patients.last_name', $searchTerm)
+                ->orLike('patients.patient_id', $searchTerm)
+            ->groupEnd();
+        }
+
+        return $builder->orderBy('treatments.created_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+
     public function getTreatmentsWithPatientInfo()
     {
         return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email')
