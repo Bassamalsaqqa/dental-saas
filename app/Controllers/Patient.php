@@ -196,6 +196,21 @@ class Patient extends BaseController
                 'data' => $data
             ];
             
+            $tenantDiag = getenv('TENANT_DIAG') === '1';
+            if ($tenantDiag) {
+                $clinicId = session()->get('active_clinic_id') ?? 'none';
+                $roleId = session()->get('active_clinic_role_id') ?? 'none';
+                $membershipId = session()->get('active_clinic_membership_id') ?? 'none';
+                $logPath = $request->getUri()->getPath();
+                log_message('notice', sprintf(
+                    '[TENANT-DIAG] path=%s clinic_id=%s role_id=%s membership=%s rows=%d query=PatientModel::find',
+                    $logPath,
+                    $clinicId,
+                    $roleId,
+                    $membershipId,
+                    count($patients)
+                ));
+            }
             log_message('debug', 'Patient getData - Final response: ' . json_encode($response));
             
             return $this->response->setJSON($response);
