@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class PatientModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'patients';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class PatientModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'first_name',
         'last_name',
@@ -84,7 +87,7 @@ class PatientModel extends Model
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generatePatientId'];
+    protected $beforeInsert = ['generatePatientId', 'setClinicId'];
     protected $beforeUpdate = [];
 
     protected function generatePatientId(array $data)

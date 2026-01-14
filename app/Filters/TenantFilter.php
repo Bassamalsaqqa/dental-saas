@@ -11,15 +11,67 @@ use CodeIgniter\HTTP\ResponseInterface;
  * 
  * Enforces tenant context for Tenant Plane routes.
  * 
- * S1-03 Implementation: Placeholder/Pass-through.
- * Phase 2 Implementation: Will enforce active_clinic_id and membership.
+ * S2 Implementation:
+ * - Checks active_clinic_id
+ * - Redirects to /clinic/select if missing (HTML)
+ * - Returns 403 JSON if missing (API)
+ * - Validates membership against DB
+ * - Enforces role_id truth from DB
  */
 class TenantFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Phase 2 Logic will go here.
-        // For now, allow request to proceed to satisfy S1-03 route structure.
+        $session = service('session');
+        $activeClinicId = $session->get('active_clinic_id');
+
+        // 1. Missing Context
+        if (!$activeClinicId) {
+            // Detect API/AJAX
+            if ($request->isAJAX() || strpos($request->getUri()->getPath(), 'api') !== false) {
+                 $response = service('response');
+                 return $response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
+        }
+
+        // 2. Validate Membership
+        $db = \Config\Database::connect();
+        // Use IonAuth strictly for user ID
+        $ionAuth = new \App\Libraries\IonAuth();
+        $userId = $ionAuth->getUserId();
+
+        if (!$userId) {
+             return redirect()->to('/auth/login');
+        }
+
+        $membership = $db->table('clinic_users')
+            ->where('user_id', $userId)
+            ->where('clinic_id', $activeClinicId)
+            ->where('status', 'active')
+            ->get()
+            ->getRowArray();
+
+        // 3. Invalid Context
+        if (!$membership) {
+            $session->remove(['active_clinic_id', 'active_clinic_role_id']);
+            
+            if ($request->isAJAX() || strpos($request->getUri()->getPath(), 'api') !== false) {
+                 $response = service('response');
+                 return $response->setStatusCode(403)->setJSON(['error' => 'INVALID_TENANT_CONTEXT']);
+            }
+            
+            // HTML fallback
+            $session->setFlashdata('error', 'Access denied to this clinic.');
+            return redirect()->to('/clinic/select');
+        }
+
+        // 4. Enforce Role Consistency
+        // We trust the DB over the session for role_id
+        if ($session->get('active_clinic_role_id') != $membership['role_id']) {
+            $session->set('active_clinic_role_id', $membership['role_id']);
+        }
+
         return null;
     }
 

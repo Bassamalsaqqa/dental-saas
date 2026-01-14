@@ -1,9 +1,5 @@
 # Allowlist for existing raw tenant queries in the controller layer.
 # Entries must be removed when the offending code is refactored through TenantBaseModel or scoped services.
-app/Controllers/ActivityLog.php:75:            $builder = $this->activityLogModel->db->table('activity_logs al')
-app/Controllers/ActivityLog.php:105:            $builder = $this->activityLogModel->db->table('activity_logs al');
-app/Controllers/ActivityLog.php:222:            $entityTypes = $this->activityLogModel->db->table('activity_logs')
-app/Controllers/ActivityLog.php:228:            $actions = $this->activityLogModel->db->table('activity_logs')
 app/Controllers/DebugController.php:205:            $rolePermissions = $db->table('role_permissions')->get()->getResultArray();
 app/Controllers/Doctor.php:270:        return $db->table('users u')
 app/Controllers/Doctor.php:289:        $result = $db->table('users u')

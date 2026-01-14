@@ -242,7 +242,8 @@ class ActivityLogger
      */
     public function getEntityActivities($entityType, $entityId, $limit = 20)
     {
-        return $this->activityLogModel->getEntityActivities($entityType, $entityId, $limit);
+        $clinicId = session()->get('active_clinic_id');
+        return $this->activityLogModel->getEntityActivities($entityType, $entityId, $limit, $clinicId);
     }
 
     /**
@@ -250,6 +251,7 @@ class ActivityLogger
      */
     public function getUserActivities($userId, $limit = 50)
     {
-        return $this->activityLogModel->getUserActivities($userId, $limit);
+        $clinicId = session()->get('active_clinic_id');
+        return $this->activityLogModel->getUserActivities($userId, $limit, $clinicId);
     }
 }

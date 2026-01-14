@@ -141,10 +141,32 @@ class Auth extends BaseController
 
 			if ($this->ionAuth->login($this->request->getVar('identity'), $this->request->getVar('password'), $remember))
 			{
+				// S2-02: Tenant Context Contract
+				$userId = $this->ionAuth->getUserId();
+				$clinicService = new \App\Services\ClinicService();
+
+				// 1. Clear global mode and tenant keys
+				$clinicService->clearContext();
+
+				// 2. Query memberships
+				$memberships = $clinicService->getMemberships($userId);
+
+				$count = count($memberships);
+
 				//if the login is successful
-				//redirect them to the dashboard with success message
 				$this->session->setFlashdata('success', 'Welcome back! You have been logged in successfully.');
-				return redirect()->to('/dashboard')->withCookies();
+
+				if ($count === 1) {
+					// Auto-select
+					$clinicService->setContext($memberships[0]);
+					return redirect()->to('/dashboard')->withCookies();
+				} elseif ($count > 1) {
+					// Selection Wall
+					return redirect()->to('/clinic/select')->withCookies();
+				} else {
+					// No Clinic
+					return redirect()->to('/clinic/no-clinic')->withCookies();
+				}
 			}
 			else
 			{

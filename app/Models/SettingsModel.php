@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class SettingsModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'settings';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class SettingsModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'setting_key',
         'setting_value',
         'setting_type',
@@ -48,6 +51,8 @@ class SettingsModel extends Model
 
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
+
+    protected $beforeInsert = ['setClinicId'];
 
     /**
      * Get a setting value by key

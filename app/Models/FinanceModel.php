@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class FinanceModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'finances';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class FinanceModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'examination_id',
         'transaction_id',
@@ -89,7 +92,7 @@ class FinanceModel extends Model
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generateTransactionId', 'calculateTotals'];
+    protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId'];
     protected $beforeUpdate = ['calculateTotals'];
 
     protected function generateTransactionId(array $data)

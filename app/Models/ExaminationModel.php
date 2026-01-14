@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class ExaminationModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'examinations';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class ExaminationModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'examination_id',
         'examination_date',
@@ -69,7 +72,7 @@ class ExaminationModel extends Model
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generateExaminationId'];
+    protected $beforeInsert = ['generateExaminationId', 'setClinicId'];
     protected $beforeUpdate = [];
 
     protected function generateExaminationId(array $data)

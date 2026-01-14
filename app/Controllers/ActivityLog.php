@@ -26,11 +26,22 @@ class ActivityLog extends BaseController
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to view activity logs.');
         }
 
+        // S4-02b: Fail closed if clinic context is missing
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view activity logs.');
+        }
+
+        // Get initial data for the view
+        // Note: index() loads the view which then calls api() via AJAX usually,
+        // but it passes 'activities' and 'filters' initially.
+        // We need to scope these too.
+        
         $data = [
             'title' => 'Activity Log',
             'pageTitle' => 'Activity Log',
-            'activities' => $this->getActivities(),
-            'filters' => $this->getFilters()
+            'activities' => $this->getActivities(50, 0, null, null, null, $clinicId),
+            'filters' => $this->getFilters($clinicId)
         ];
 
         return $this->view('activity_log/index', $data);
@@ -54,42 +65,35 @@ class ActivityLog extends BaseController
             ]);
         }
 
+        // S4-02b: Fail closed if clinic context is missing
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $limit = $this->request->getGet('limit') ?? 50;
         $offset = $this->request->getGet('offset') ?? 0;
         $entityType = $this->request->getGet('entity_type');
         $action = $this->request->getGet('action');
         $userId = $this->request->getGet('user_id');
 
-        $activities = $this->getActivities($limit, $offset, $entityType, $action, $userId);
+        $activities = $this->getActivities($limit, $offset, $entityType, $action, $userId, $clinicId);
 
         return $this->response->setJSON([
             'success' => true,
             'activities' => $activities,
-            'total' => $this->getTotalCount($entityType, $action, $userId)
+            'total' => $this->getTotalCount($entityType, $action, $userId, $clinicId)
         ]);
     }
 
-    private function getActivities($limit = 50, $offset = 0, $entityType = null, $action = null, $userId = null)
+    private function getActivities($limit = 50, $offset = 0, $entityType = null, $action = null, $userId = null, $clinicId = null)
     {
         try {
-            $builder = $this->activityLogModel->db->table('activity_logs al')
-                ->select('al.*, u.first_name, u.last_name, u.email')
-                ->join('users u', 'u.id = al.user_id', 'left')
-                ->orderBy('al.created_at', 'DESC')
-                ->limit($limit, $offset);
-
-            // Apply filters
-            if ($entityType) {
-                $builder->where('al.entity_type', $entityType);
-            }
-            if ($action) {
-                $builder->where('al.action', $action);
-            }
-            if ($userId) {
-                $builder->where('al.user_id', $userId);
+            if (!$clinicId) {
+                return [];
             }
 
-            $activities = $builder->get()->getResultArray();
+            $activities = $this->activityLogModel->getActivitiesByClinic($clinicId, $limit, $offset, $entityType, $action, $userId);
 
             // Format activities for display
             return array_map([$this, 'formatActivity'], $activities);
@@ -99,23 +103,14 @@ class ActivityLog extends BaseController
         }
     }
 
-    private function getTotalCount($entityType = null, $action = null, $userId = null)
+    private function getTotalCount($entityType = null, $action = null, $userId = null, $clinicId = null)
     {
         try {
-            $builder = $this->activityLogModel->db->table('activity_logs al');
-
-            // Apply filters
-            if ($entityType) {
-                $builder->where('al.entity_type', $entityType);
-            }
-            if ($action) {
-                $builder->where('al.action', $action);
-            }
-            if ($userId) {
-                $builder->where('al.user_id', $userId);
+            if (!$clinicId) {
+                return 0;
             }
 
-            return $builder->countAllResults();
+            return $this->activityLogModel->countActivitiesByClinic($clinicId, $entityType, $action, $userId);
         } catch (\Exception $e) {
             log_message('error', 'Failed to count activities: ' . $e->getMessage());
             return 0;
@@ -216,25 +211,17 @@ class ActivityLog extends BaseController
         }
     }
 
-    private function getFilters()
+    private function getFilters($clinicId = null)
     {
         try {
-            $entityTypes = $this->activityLogModel->db->table('activity_logs')
-                ->select('entity_type')
-                ->distinct()
-                ->get()
-                ->getResultArray();
+            if (!$clinicId) {
+                return [
+                    'entity_types' => [],
+                    'actions' => []
+                ];
+            }
 
-            $actions = $this->activityLogModel->db->table('activity_logs')
-                ->select('action')
-                ->distinct()
-                ->get()
-                ->getResultArray();
-
-            return [
-                'entity_types' => array_column($entityTypes, 'entity_type'),
-                'actions' => array_column($actions, 'action')
-            ];
+            return $this->activityLogModel->getFiltersByClinic($clinicId);
         } catch (\Exception $e) {
             log_message('error', 'Failed to fetch filters: ' . $e->getMessage());
             return [
@@ -242,5 +229,25 @@ class ActivityLog extends BaseController
                 'actions' => []
             ];
         }
+    }
+
+    public function getEntityActivities($entityType, $entityId, $limit = 20)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
+        return $this->activityLogModel->getEntityActivities($entityType, $entityId, $limit, $clinicId);
+    }
+
+    public function getUserActivities($userId, $limit = 50)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
+        return $this->activityLogModel->getUserActivities($userId, $limit, $clinicId);
     }
 }

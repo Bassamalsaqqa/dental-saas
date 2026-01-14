@@ -103,6 +103,12 @@ class Patient extends BaseController
             log_message('debug', 'Patient getData method called');
             $request = $this->request;
             
+            // S4-02a: Fail closed if clinic context is missing
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             // DataTables parameters
             $draw = intval($request->getPost('draw') ?? 1);
             $start = intval($request->getPost('start') ?? 0);
@@ -124,9 +130,13 @@ class Patient extends BaseController
                 $orderDir = $orderParam[0]['dir'] ?? 'desc';
             }
             
-            // Get total records count
-            $totalRecords = $this->patientModel->countAllResults(false);
-            log_message('debug', 'Patient getData - Total records: ' . $totalRecords);
+            // Base builder scoped to clinic
+            $baseBuilder = $this->patientModel->builder();
+            $baseBuilder->where('clinic_id', $clinicId);
+
+            // Get total records count scoped to clinic
+            $totalRecords = $baseBuilder->countAllResults(false);
+            log_message('debug', 'Patient getData - Total records (scoped): ' . $totalRecords);
             
             // If no patients exist, return empty result
             if ($totalRecords == 0) {
@@ -140,11 +150,12 @@ class Patient extends BaseController
             }
             
             // Build query
-            $builder = $this->patientModel;
-            
+            $baseBuilder = $this->patientModel->builder();
+            $baseBuilder->where('clinic_id', $clinicId);
+
             // Apply search filter
             if (!empty($searchValue)) {
-                $builder->groupStart()
+                $baseBuilder->groupStart()
                     ->like('first_name', $searchValue)
                     ->orLike('last_name', $searchValue)
                     ->orLike('email', $searchValue)
@@ -154,15 +165,18 @@ class Patient extends BaseController
                     ->orLike('city', $searchValue)
                     ->groupEnd();
             }
-            
+
             // Get filtered count
-            $filteredRecords = $builder->countAllResults(false);
+            $filteredBuilder = clone $baseBuilder;
+            $filteredRecords = $filteredBuilder->countAllResults(false);
             log_message('debug', 'Patient getData - Filtered records: ' . $filteredRecords);
-            
+
             // Get data with ordering and pagination
-            $patients = $builder->orderBy('created_at', $orderDir)
+            $dataBuilder = clone $filteredBuilder;
+            $patients = $dataBuilder->orderBy('created_at', $orderDir)
                 ->limit($length, $start)
-                ->find();
+                ->get()
+                ->getResultArray();
             
             log_message('debug', 'Patient getData - Retrieved patients count: ' . count($patients));
             
@@ -170,6 +184,7 @@ class Patient extends BaseController
             $data = [];
             foreach ($patients as $patient) {
                 // Get examination count for this patient
+                // NOTE: Examinations table should also be scoped, but for now we follow patient link
                 $examinationCount = $this->examinationModel->where('patient_id', $patient['id'])->countAllResults(false);
                 
                 // Format dates according to settings
@@ -196,21 +211,6 @@ class Patient extends BaseController
                 'data' => $data
             ];
             
-            $tenantDiag = getenv('TENANT_DIAG') === '1';
-            if ($tenantDiag) {
-                $clinicId = session()->get('active_clinic_id') ?? 'none';
-                $roleId = session()->get('active_clinic_role_id') ?? 'none';
-                $membershipId = session()->get('active_clinic_membership_id') ?? 'none';
-                $logPath = $request->getUri()->getPath();
-                log_message('notice', sprintf(
-                    '[TENANT-DIAG] path=%s clinic_id=%s role_id=%s membership=%s rows=%d query=PatientModel::find',
-                    $logPath,
-                    $clinicId,
-                    $roleId,
-                    $membershipId,
-                    count($patients)
-                ));
-            }
             log_message('debug', 'Patient getData - Final response: ' . json_encode($response));
             
             return $this->response->setJSON($response);

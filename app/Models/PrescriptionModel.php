@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class PrescriptionModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'prescriptions';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class PrescriptionModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'prescription_id',
         'patient_id',
         'medication_name',
@@ -77,7 +80,7 @@ class PrescriptionModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert = ['generatePrescriptionId'];
+    protected $beforeInsert = ['generatePrescriptionId', 'setClinicId'];
     protected $afterInsert = [];
     protected $beforeUpdate = [];
     protected $afterUpdate = [];

@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class InventoryModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'inventory';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class InventoryModel extends Model
     protected $useSoftDeletes = false; // Temporarily disabled until database is updated
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'item_name',
         'category',
         'description',
@@ -89,7 +92,7 @@ class InventoryModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert = [];
+    protected $beforeInsert = ['setClinicId'];
     protected $afterInsert = [];
     protected $beforeUpdate = [];
     protected $afterUpdate = [];

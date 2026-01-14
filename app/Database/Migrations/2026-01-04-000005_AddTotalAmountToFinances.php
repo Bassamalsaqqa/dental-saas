@@ -8,19 +8,23 @@ class AddTotalAmountToFinances extends Migration
 {
     public function up()
     {
-        $fields = [
-            'total_amount' => [
-                'type' => 'DECIMAL',
-                'constraint' => '10,2',
-                'default' => 0.00,
-                'after' => 'tax_amount'
-            ],
-        ];
-        $this->forge->addColumn('finances', $fields);
+        if (!$this->db->fieldExists('total_amount', 'finances')) {
+            $fields = [
+                'total_amount' => [
+                    'type' => 'DECIMAL',
+                    'constraint' => '10,2',
+                    'default' => 0.00,
+                    'after' => 'tax_amount'
+                ],
+            ];
+            $this->forge->addColumn('finances', $fields);
+        }
     }
 
     public function down()
     {
-        $this->forge->dropColumn('finances', 'total_amount');
+        if ($this->db->fieldExists('total_amount', 'finances')) {
+            $this->forge->dropColumn('finances', 'total_amount');
+        }
     }
 }

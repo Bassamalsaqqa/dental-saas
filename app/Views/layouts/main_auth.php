@@ -414,6 +414,10 @@
                                     <i class="fas fa-cog text-gray-500 w-5"></i>
                                     <span class="font-medium">System Settings</span>
                                 </a>
+                                <a href="<?= base_url('clinic/select') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                                    <i class="fas fa-exchange-alt text-gray-500 w-5"></i>
+                                    <span class="font-medium">Switch Clinic</span>
+                                </a>
                                 <div class="border-t border-gray-100 my-2"></div>
                                 <a href="<?= base_url('auth/logout') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-sign-out-alt text-red-500 w-5"></i>

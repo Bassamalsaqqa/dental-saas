@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class InventoryUsageModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'inventory_usage';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class InventoryUsageModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'treatment_id',
         'usage_date',
         'items_used',
@@ -66,7 +69,7 @@ class InventoryUsageModel extends Model
     protected $cleanValidationRules = true;
 
     // Callbacks
-    protected $beforeInsert = ['beforeInsert'];
+    protected $beforeInsert = ['beforeInsert', 'setClinicId'];
     protected $beforeUpdate = ['beforeUpdate'];
 
     protected function beforeInsert(array $data)

@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class OdontogramModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'odontograms';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class OdontogramModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'examination_id',
         'tooth_number',
@@ -67,6 +70,11 @@ class OdontogramModel extends Model
 
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
+    
+    // Callbacks
+    protected $allowCallbacks = true;
+    protected $beforeInsert = ['setClinicId'];
+    protected $afterInsert = [];
 
     public function getOdontogramByPatient($patientId)
     {

@@ -51,6 +51,16 @@ $routes->post('logout', 'Auth::logout');
 $routes->get('/', 'Dashboard::index', ['filter' => ['auth', 'tenant']]);
 
 // --------------------------------------------------------------------
+// Clinic Selection Wall (Auth Only)
+// --------------------------------------------------------------------
+$routes->group('clinic', ['filter' => 'auth'], function($routes) {
+    $routes->get('select', 'ClinicSelector::select');
+    $routes->post('select', 'ClinicSelector::processSelect');
+    $routes->get('no-clinic', 'ClinicSelector::noClinic');
+    $routes->post('switch', 'ClinicSelector::switchClinic');
+});
+
+// --------------------------------------------------------------------
 // Tenant Plane Routes
 // --------------------------------------------------------------------
 

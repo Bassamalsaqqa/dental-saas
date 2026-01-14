@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class AppointmentModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'appointments';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class AppointmentModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'appointment_id',
         'appointment_date',
@@ -70,7 +73,7 @@ class AppointmentModel extends Model
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
-    protected $beforeInsert = ['generateAppointmentId'];
+    protected $beforeInsert = ['generateAppointmentId', 'setClinicId'];
     protected $beforeUpdate = [];
 
     protected function generateAppointmentId(array $data)

@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 class TreatmentModel extends Model
 {
+    use \App\Traits\TenantTrait;
+
     protected $table = 'treatments';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -13,6 +15,7 @@ class TreatmentModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
+        'clinic_id',
         'patient_id',
         'examination_id',
         'treatment_id',
@@ -91,7 +94,7 @@ class TreatmentModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert = ['generateTreatmentId'];
+    protected $beforeInsert = ['generateTreatmentId', 'setClinicId'];
     protected $afterInsert = [];
     protected $beforeUpdate = [];
     protected $afterUpdate = [];
