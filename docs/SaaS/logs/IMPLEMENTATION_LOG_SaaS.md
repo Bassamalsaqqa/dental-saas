@@ -12,3 +12,4 @@
     - `app/Config/Services.php`
     - `app/Config/Routes.php`
 - **Verification:** `docs/SaaS/verification/P5-01.md`. Files are stored privately and gated by clinic context.
+- **Schema fix:** Ran `php spark migrate` to finish `2026-01-15-000000 AdjustSettingsUniqueIndex`, confirmed the composite `(clinic_id, setting_key)` index via `SHOW INDEX FROM settings`, and demonstrated Care Clinic names persist per clinic (`setting_key='clinic_name'`). Guardrails still pass (DOM=0, Group=0, Raw=24).
