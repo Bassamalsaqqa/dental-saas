@@ -83,6 +83,29 @@ class ExaminationModel extends Model
         return $data;
     }
 
+    public function searchExaminationsByClinic($clinicId, $searchTerm = null, $limit = 20, $status = 'completed')
+    {
+        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id')
+            ->join('patients', 'patients.id = examinations.patient_id')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId) // Join guard
+            ->where('examinations.status', $status);
+
+        if (!empty($searchTerm)) {
+            $builder->groupStart()
+                ->like('examinations.examination_id', $searchTerm)
+                ->orLike('patients.first_name', $searchTerm)
+                ->orLike('patients.last_name', $searchTerm)
+                ->orLike('patients.patient_id', $searchTerm)
+                ->orLike('examinations.chief_complaint', $searchTerm)
+            ->groupEnd();
+        }
+
+        return $builder->orderBy('examinations.created_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+
     public function getExaminationWithPatient($examinationId)
     {
         return $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
