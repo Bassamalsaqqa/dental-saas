@@ -1,10 +1,9 @@
-
-### Task: S4-02b-FIX Activity Log guardrail compliance
+### Task: S4-02c Finance DataTables scoping
 - **Date:** 2026-01-14
 - **Status:** Completed
-- **Description:** Fixed guardrail failure by removing all raw database queries from `ActivityLog` controller. Refactored `ActivityLogModel` to include clinic-scoped retrieval methods. Updated controller to use these model methods.
+- **Description:** Scoped `Finance` controller `getFinancesData` to the active clinic. Refactored `FinanceModel` to include scoped methods. Removed raw queries from controller and cleaned allowlist.
 - **Files Changed:**
-    - `app/Models/ActivityLogModel.php`
-    - `app/Controllers/ActivityLog.php`
+    - `app/Models/FinanceModel.php`
+    - `app/Controllers/Finance.php`
     - `docs/SaaS/guardrails/raw-tenant-queries.allowlist`
-- **Verification:** Updated `docs/SaaS/verification/S4-02b.md`. `rg` confirms 0 matches for raw queries in the controller.
+- **Verification:** `docs/SaaS/verification/S4-02c.md`

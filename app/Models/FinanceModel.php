@@ -121,6 +121,56 @@ class FinanceModel extends Model
         return $data;
     }
 
+    /**
+     * Get finances by clinic for DataTables
+     */
+    public function getFinancesByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'finances.id', $orderDir = 'desc')
+    {
+        $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.phone')
+            ->join('patients', 'patients.id = finances.patient_id', 'left')
+            ->where('finances.clinic_id', $clinicId);
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('finances.id', $search)
+                ->orLike('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.phone', $search)
+                ->orLike('finances.description', $search)
+                ->orLike('finances.transaction_type', $search)
+                ->orLike('finances.payment_status', $search)
+                ->groupEnd();
+        }
+
+        return $builder->orderBy($orderColumn, $orderDir)
+            ->limit($limit, $offset)
+            ->find();
+    }
+
+    /**
+     * Count finances by clinic for DataTables
+     */
+    public function countFinancesByClinic($clinicId, $search = '')
+    {
+        $builder = $this->select('finances.id')
+            ->join('patients', 'patients.id = finances.patient_id', 'left')
+            ->where('finances.clinic_id', $clinicId);
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('finances.id', $search)
+                ->orLike('patients.first_name', $search)
+                ->orLike('patients.last_name', $search)
+                ->orLike('patients.phone', $search)
+                ->orLike('finances.description', $search)
+                ->orLike('finances.transaction_type', $search)
+                ->orLike('finances.payment_status', $search)
+                ->groupEnd();
+        }
+
+        return $builder->countAllResults();
+    }
+
     public function getFinanceByPatient($patientId)
     {
         return $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')

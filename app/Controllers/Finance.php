@@ -372,20 +372,23 @@ class Finance extends BaseController
     public function testFinancesData()
     {
         try {
-            // Test database connection
-            $tables = $this->db->listTables();
+            // S4-02c: Fail closed if clinic context is missing
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'TENANT_CONTEXT_REQUIRED'
+                ]);
+            }
 
-            // Test finance table (check both possible names)
-            $financeTableName = in_array('finances', $tables) ? 'finances' : 'finance';
-            $financeCount = $this->db->table($financeTableName)->countAllResults();
+            // Test database connection
+            $financeCount = $this->financeModel->countFinancesByClinic($clinicId);
 
             // Get a sample finance record
-            $sampleFinance = $this->db->table($financeTableName)->limit(1)->get()->getRowArray();
+            $sampleFinance = $this->financeModel->getFinancesByClinic($clinicId, 1);
 
             return $this->response->setJSON([
                 'success' => true,
-                'tables' => $tables,
-                'finance_table_name' => $financeTableName,
                 'finance_count' => $financeCount,
                 'sample_finance' => $sampleFinance,
                 'message' => 'Database connection successful'
@@ -403,6 +406,12 @@ class Finance extends BaseController
     {
         try {
             $request = $this->request;
+
+            // S4-02c: Fail closed if clinic context is missing
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
 
             // DataTables parameters with defaults
             $draw = intval($request->getPost('draw') ?? 1);
@@ -436,37 +445,10 @@ class Finance extends BaseController
             ];
 
             $orderColumnName = $columns[$orderColumn] ?? 'finances.id';
-
-            // Log the request for debugging
-            log_message('debug', 'Finance DataTables Request - Draw: ' . $draw . ', Start: ' . $start . ', Length: ' . $length . ', Search: ' . $searchValue . ', OrderColumn: ' . $orderColumnName . ', OrderDir: ' . $orderDir);
-
-            // Validate sort order
             $orderDir = in_array(strtolower($orderDir), ['asc', 'desc']) ? strtolower($orderDir) : 'desc';
 
-            // Check if tables exist
-            $tables = $this->db->listTables();
-            log_message('debug', 'Available tables: ' . implode(', ', $tables));
-
-            // Check for both possible table names
-            $financeTableExists = in_array('finances', $tables) || in_array('finance', $tables);
-            $patientsTableExists = in_array('patients', $tables);
-
-            if (!$financeTableExists || !$patientsTableExists) {
-                log_message('error', 'Required tables missing. Finance table: ' . ($financeTableExists ? 'exists' : 'missing') . ', Patients: ' . ($patientsTableExists ? 'exists' : 'missing'));
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Required tables do not exist'
-                ]);
-            }
-
-            // Determine the correct table name
-            $financeTableName = in_array('finances', $tables) ? 'finances' : 'finance';
-
-            // Get total records count
-            $totalRecords = $this->db->table($financeTableName)->countAllResults();
+            // Get total records count (scoped)
+            $totalRecords = $this->financeModel->countFinancesByClinic($clinicId);
 
             // If no finances exist, return empty result
             if ($totalRecords == 0) {
@@ -478,39 +460,15 @@ class Finance extends BaseController
                 ]);
             }
 
-            // Build query
-            $query = $this->db->table($financeTableName)
-                ->select($financeTableName . '.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = ' . $financeTableName . '.patient_id', 'left');
-
-            // Apply search filter
-            if (!empty($searchValue)) {
-                $query->groupStart()
-                    ->like($financeTableName . '.id', $searchValue)
-                    ->orLike('patients.first_name', $searchValue)
-                    ->orLike('patients.last_name', $searchValue)
-                    ->orLike('patients.phone', $searchValue)
-                    ->orLike($financeTableName . '.description', $searchValue)
-                    ->orLike($financeTableName . '.transaction_type', $searchValue)
-                    ->orLike($financeTableName . '.payment_status', $searchValue)
-                    ->groupEnd();
-            }
-
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $this->financeModel->countFinancesByClinic($clinicId, $searchValue);
 
-            // Get data with ordering and pagination
-            $finances = $query->orderBy($orderColumnName, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            // Get data
+            $finances = $this->financeModel->getFinancesByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir);
 
             // Format data
             $data = [];
             foreach ($finances as $finance) {
-                // Log the raw finance data for debugging
-                log_message('debug', 'Raw finance data: ' . json_encode($finance));
-
                 $amount = floatval($finance['amount'] ?? 0);
                 $data[] = [
                     'id' => intval($finance['id'] ?? 0),
@@ -528,9 +486,6 @@ class Finance extends BaseController
                 ];
             }
 
-            // Calculate pagination
-            $totalPages = ceil($filteredRecords / $length);
-
             return $this->response->setJSON([
                 'draw' => $draw,
                 'recordsTotal' => $totalRecords,
@@ -540,9 +495,8 @@ class Finance extends BaseController
 
         } catch (\Exception $e) {
             log_message('error', 'Finance DataTables error: ' . $e->getMessage());
-            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
             return $this->response->setJSON([
-                'draw' => $draw,
+                'draw' => 1,
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
                 'data' => [],

@@ -11,10 +11,6 @@ app/Controllers/Examination.php:458:                $joinQuery = $this->db->tabl
 app/Controllers/Examination.php:491:            $patientCount = $this->db->table('patients')->countAllResults();
 app/Controllers/Examination.php:500:            $patients = $this->db->table('patients')->limit(3)->get()->getResultArray();
 app/Controllers/Examination.php:518:            $this->db->table('examinations')->insertBatch($sampleExaminations);
-app/Controllers/Finance.php:380:            $financeCount = $this->db->table($financeTableName)->countAllResults();
-app/Controllers/Finance.php:383:            $sampleFinance = $this->db->table($financeTableName)->limit(1)->get()->getRowArray();
-app/Controllers/Finance.php:469:            $totalRecords = $this->db->table($financeTableName)->countAllResults();
-app/Controllers/Finance.php:482:            $query = $this->db->table($financeTableName)
 app/Controllers/Inventory.php:680:            $totalRecords = $this->db->table('inventory')->countAllResults();
 app/Controllers/Inventory.php:696:            $query = $this->db->table('inventory');
 app/Controllers/Inventory.php:792:            $directQuery = $this->db->table('inventory')->get()->getResultArray();
