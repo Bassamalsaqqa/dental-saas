@@ -6,6 +6,7 @@ use App\Models\IonAuthModel;
 use App\Models\RoleModel;
 use App\Models\UserRoleModel;
 use App\Models\PermissionModel;
+use App\Models\ClinicUserModel;
 use App\Services\PermissionService;
 use App\Libraries\IonAuth;
 
@@ -17,6 +18,7 @@ class Users extends BaseController
     protected $userRoleModel;
     protected $permissionModel;
     protected $permissionService;
+    protected $clinicUserModel;
 
     public function __construct()
     {
@@ -26,13 +28,27 @@ class Users extends BaseController
         $this->userRoleModel = new UserRoleModel();
         $this->permissionModel = new PermissionModel();
         $this->permissionService = new PermissionService();
+        $this->clinicUserModel = new ClinicUserModel();
     }
 
     public function index()
     {
         try {
-            // Get all users using IonAuth
-            $users = $this->ionAuth->users()->result();
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select');
+            }
+
+            // Get users scoped to clinic
+            $userModel = new \App\Models\UserModel();
+            $usersArray = $userModel->getUsersByClinic($clinicId);
+            
+            // Convert to objects to match existing view expectation (if view expects objects)
+            // or modify view. IonAuth returns objects. findAll returns arrays.
+            // Let's cast to objects to be safe with existing view logic
+            $users = array_map(function($user) {
+                return (object)$user;
+            }, $usersArray);
             
             // Get RBAC roles for each user (prioritize RBAC over IonAuth groups)
             foreach ($users as $user) {
@@ -185,6 +201,18 @@ class Users extends BaseController
             $roleAssigned = $userRoleModel->assignRole($userId, $roleId, $currentUserId);
             
             if ($roleAssigned) {
+                // Assign to current clinic
+                $clinicId = session()->get('active_clinic_id');
+                if ($clinicId) {
+                    $this->clinicUserModel->insert([
+                        'clinic_id' => $clinicId,
+                        'user_id' => $userId,
+                        'role_id' => $roleId,
+                        'status' => 'active',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+
                 return redirect()->to(base_url('users'))->with('success', 'User created successfully!');
             } else {
                 // If role assignment fails, delete the user and show error

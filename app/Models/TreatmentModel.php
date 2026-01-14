@@ -103,29 +103,60 @@ class TreatmentModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    public function searchTreatmentsByClinic($clinicId, $searchTerm = null, $limit = 20, $status = null)
+    public function countTreatmentsByClinic($clinicId, $searchValue = null, $status = null, $type = null)
     {
-        $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.patient_id')
-            ->join('patients', 'patients.id = treatments.patient_id')
-            ->where('treatments.clinic_id', $clinicId)
-            ->where('patients.clinic_id', $clinicId); // Join guard
+        $builder = $this->join('patients', 'patients.id = treatments.patient_id', 'left')
+                        ->where('treatments.clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('patients.first_name', $searchValue)
+                ->orLike('patients.last_name', $searchValue)
+                ->orLike('patients.phone', $searchValue)
+                ->orLike('treatments.treatment_type', $searchValue)
+                ->orLike('treatments.status', $searchValue)
+                ->orLike('treatments.treatment_description', $searchValue)
+                ->groupEnd();
+        }
 
         if ($status) {
             $builder->where('treatments.status', $status);
         }
 
-        if (!empty($searchTerm)) {
-            $builder->groupStart()
-                ->like('treatments.treatment_type', $searchTerm)
-                ->orLike('treatments.description', $searchTerm)
-                ->orLike('patients.first_name', $searchTerm)
-                ->orLike('patients.last_name', $searchTerm)
-                ->orLike('patients.patient_id', $searchTerm)
-            ->groupEnd();
+        if ($type) {
+            $builder->where('treatments.treatment_type', $type);
         }
 
-        return $builder->orderBy('treatments.created_at', 'DESC')
-            ->limit($limit)
+        return $builder->countAllResults();
+    }
+
+    public function getTreatmentsByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $status = null, $type = null, $orderColumn = 'treatments.start_date', $orderDir = 'desc')
+    {
+        $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
+                        ->join('patients', 'patients.id = treatments.patient_id', 'left')
+                        ->where('treatments.clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('patients.first_name', $searchValue)
+                ->orLike('patients.last_name', $searchValue)
+                ->orLike('patients.phone', $searchValue)
+                ->orLike('treatments.treatment_type', $searchValue)
+                ->orLike('treatments.status', $searchValue)
+                ->orLike('treatments.treatment_description', $searchValue)
+                ->groupEnd();
+        }
+
+        if ($status) {
+            $builder->where('treatments.status', $status);
+        }
+
+        if ($type) {
+            $builder->where('treatments.treatment_type', $type);
+        }
+
+        return $builder->orderBy($orderColumn, $orderDir)
+            ->limit($limit, $offset)
             ->findAll();
     }
 

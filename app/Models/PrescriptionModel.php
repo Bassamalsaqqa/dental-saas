@@ -98,12 +98,45 @@ class PrescriptionModel extends Model
         return $data;
     }
 
-    public function getPrescriptionsWithPatientInfo()
+    public function countPrescriptionsByClinic($clinicId, $searchValue = null)
     {
-        return $this->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email')
-                    ->join('patients', 'patients.id = prescriptions.patient_id')
-                    ->orderBy('prescriptions.created_at', 'DESC')
-                    ->findAll();
+        $builder = $this->join('patients', 'patients.id = prescriptions.patient_id', 'left')
+                        ->where('prescriptions.clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('prescriptions.id', $searchValue)
+                ->orLike('patients.first_name', $searchValue)
+                ->orLike('patients.last_name', $searchValue)
+                ->orLike('patients.phone', $searchValue)
+                ->orLike('prescriptions.medication_name', $searchValue)
+                ->orLike('prescriptions.notes', $searchValue)
+                ->groupEnd();
+        }
+
+        return $builder->countAllResults();
+    }
+
+    public function getPrescriptionsByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $orderColumn = 'prescriptions.id', $orderDir = 'desc')
+    {
+        $builder = $this->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone')
+                        ->join('patients', 'patients.id = prescriptions.patient_id', 'left')
+                        ->where('prescriptions.clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('prescriptions.id', $searchValue)
+                ->orLike('patients.first_name', $searchValue)
+                ->orLike('patients.last_name', $searchValue)
+                ->orLike('patients.phone', $searchValue)
+                ->orLike('prescriptions.medication_name', $searchValue)
+                ->orLike('prescriptions.notes', $searchValue)
+                ->groupEnd();
+        }
+
+        return $builder->orderBy($orderColumn, $orderDir)
+            ->limit($limit, $offset)
+            ->findAll();
     }
 
     public function getPrescriptionWithPatientInfo($id)

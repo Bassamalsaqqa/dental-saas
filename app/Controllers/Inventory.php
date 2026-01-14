@@ -26,6 +26,11 @@ class Inventory extends BaseController
                 return redirect()->to('/auth/login');
             }
 
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select');
+            }
+
             $data = [
                 'title' => 'Inventory Management',
             ];
@@ -40,20 +45,21 @@ class Inventory extends BaseController
                 $data['out_of_stock_items'] = 0;
                 $data['error'] = 'Inventory table not found';
             } else {
-                // Get all inventory items
-                $inventory = $this->inventoryModel->findAll();
+                // Get all inventory items (scoped)
+                $inventory = $this->inventoryModel->where('clinic_id', $clinicId)->findAll();
                 
-                // Get unique categories from existing items
+                // Get unique categories from existing items (scoped)
                 $availableCategories = $this->inventoryModel->select('category')
                     ->distinct()
                     ->where('category IS NOT NULL')
+                    ->where('clinic_id', $clinicId)
                     ->findAll();
                 
                 $data['inventory'] = $inventory;
                 $data['available_categories'] = $availableCategories;
-                $data['total_items'] = $this->inventoryModel->countAllResults();
-                $data['low_stock_items'] = $this->inventoryModel->where('quantity <=', 'min_quantity')->countAllResults();
-                $data['out_of_stock_items'] = $this->inventoryModel->where('quantity', 0)->countAllResults();
+                $data['total_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults();
+                $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->countAllResults();
+                $data['out_of_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->countAllResults();
             }
 
             // Explicitly add user data to ensure it's available
@@ -154,7 +160,12 @@ class Inventory extends BaseController
 
     public function show($id)
     {
-        $item = $this->inventoryModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$item) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Item not found');
@@ -170,7 +181,12 @@ class Inventory extends BaseController
 
     public function edit($id)
     {
-        $item = $this->inventoryModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit inventory.');
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$item) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Item not found');
@@ -188,7 +204,12 @@ class Inventory extends BaseController
 
     public function update($id)
     {
-        $item = $this->inventoryModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$item) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Item not found');
@@ -250,7 +271,12 @@ class Inventory extends BaseController
         try {
             $this->response->setContentType('application/json');
             
-            $item = $this->inventoryModel->find($id);
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
             
             if (!$item) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
@@ -280,7 +306,12 @@ class Inventory extends BaseController
     {
         $this->response->setContentType('application/json');
         
-        $item = $this->inventoryModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$item) {
             return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
@@ -325,9 +356,14 @@ class Inventory extends BaseController
 
     public function lowStock()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $data = [
             'title' => 'Low Stock Items',
-            'items' => $this->inventoryModel->where('quantity <=', 'min_quantity')->findAll(),
+            'items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->findAll(),
         ];
 
         return $this->view('inventory/low_stock', $data);
@@ -335,9 +371,14 @@ class Inventory extends BaseController
 
     public function expired()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $data = [
             'title' => 'Expired Items',
-            'items' => $this->inventoryModel->where('expiry_date <', date('Y-m-d'))->findAll(),
+            'items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('expiry_date <', date('Y-m-d'))->findAll(),
         ];
 
         return $this->view('inventory/expired', $data);
@@ -384,8 +425,14 @@ class Inventory extends BaseController
 
     public function usage()
     {
-        // Get all active inventory items
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        // Get all active inventory items (scoped)
         $inventoryItems = $this->inventoryModel->where('status', 'active')
+            ->where('clinic_id', $clinicId)
             ->where('quantity >', 0)
             ->orderBy('item_name', 'ASC')
             ->findAll();
@@ -393,24 +440,12 @@ class Inventory extends BaseController
         // Get all active treatments for dropdown
         $treatmentModel = new \App\Models\TreatmentModel();
         
-        // First try without status filter to see if we have any treatments
-        $allTreatments = $treatmentModel->findAll();
-        log_message('info', 'All treatments count: ' . count($allTreatments));
-        
-        // Try with different status values
-        $activeTreatments = $treatmentModel->where('status', 'active')->findAll();
-        log_message('info', 'Active treatments count: ' . count($activeTreatments));
-        
-        $completedTreatments = $treatmentModel->where('status', 'completed')->findAll();
-        log_message('info', 'Completed treatments count: ' . count($completedTreatments));
-        
-        // Get treatments with patients
+        // Get treatments with patients (scoped)
         $treatments = $treatmentModel->join('patients', 'patients.id = treatments.patient_id')
             ->select('treatments.*, patients.first_name, patients.last_name')
+            ->where('treatments.clinic_id', $clinicId) // Scope treatments
             ->orderBy('treatments.start_date', 'DESC')
             ->findAll();
-        
-        log_message('info', 'Treatments with patients count: ' . count($treatments));
         
         $data = [
             'title' => 'Inventory Usage',
@@ -576,12 +611,18 @@ class Inventory extends BaseController
 
     public function usageDetails($id)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id')
-            ->join('patients', 'patients.id = treatments.patient_id')
-            ->join('users', 'users.id = inventory_usage.recorded_by')
+        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+            ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
             ->where('inventory_usage.id', $id)
+            ->where('treatments.clinic_id', $clinicId) // Scope via treatment
             ->first();
 
         if (!$usage) {
@@ -599,12 +640,18 @@ class Inventory extends BaseController
 
     public function usagePrint($id)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id')
-            ->join('patients', 'patients.id = treatments.patient_id')
-            ->join('users', 'users.id = inventory_usage.recorded_by')
+        $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+            ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
             ->where('inventory_usage.id', $id)
+            ->where('treatments.clinic_id', $clinicId) // Scope
             ->first();
 
         if (!$usage) {
@@ -622,12 +669,15 @@ class Inventory extends BaseController
     public function getInventoryData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // Debug logging
             log_message('info', 'getInventoryData called');
-            log_message('info', 'POST data: ' . json_encode($request->getPost()));
-            log_message('info', 'GET data: ' . json_encode($request->getGet()));
             
             // DataTables parameters with defaults - try both GET and POST
             $draw = intval($request->getPost('draw') ?? $request->getGet('draw') ?? 1);
@@ -664,25 +714,11 @@ class Inventory extends BaseController
             
             $orderColumnName = $columns[$orderColumn] ?? 'id';
             
-            // Check if inventory table exists
-            $tables = $this->db->listTables();
-            if (!in_array('inventory', $tables)) {
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Inventory table does not exist'
-                ]);
-            }
-            
-            // Get total records count
-            $totalRecords = $this->db->table('inventory')->countAllResults();
-            log_message('info', 'Total inventory records: ' . $totalRecords);
+            // Get total records count (scoped)
+            $totalRecords = $this->inventoryModel->countInventoryByClinic($clinicId);
             
             // If no inventory items exist, return empty result with proper structure
             if ($totalRecords == 0) {
-                log_message('info', 'No inventory items found, returning empty result');
                 return $this->response->setJSON([
                     'draw' => $draw,
                     'recordsTotal' => 0,
@@ -692,27 +728,11 @@ class Inventory extends BaseController
                 ]);
             }
             
-            // Build query
-            $query = $this->db->table('inventory');
-            
-            // Apply search filter
-            if (!empty($searchValue)) {
-                $query->groupStart()
-                    ->like('item_name', $searchValue)
-                    ->orLike('category', $searchValue)
-                    ->orLike('supplier', $searchValue)
-                    ->orLike('description', $searchValue)
-                    ->groupEnd();
-            }
-            
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $this->inventoryModel->countInventoryByClinic($clinicId, $searchValue);
             
             // Get data with ordering and pagination
-            $items = $query->orderBy($orderColumnName, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            $items = $this->inventoryModel->getInventoryByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir);
             
             // Format data for DataTables (array format)
             $data = [];
@@ -744,20 +764,12 @@ class Inventory extends BaseController
                 ];
             }
             
-            log_message('info', 'Formatted ' . count($data) . ' items for DataTables');
-            log_message('info', 'Sample formatted item: ' . json_encode(!empty($data) ? $data[0] : 'No data'));
-            
-            $response = [
+            return $this->response->setJSON([
                 'draw' => $draw,
                 'recordsTotal' => $totalRecords,
                 'recordsFiltered' => $filteredRecords,
                 'data' => $data
-            ];
-            
-            log_message('info', 'Inventory response: ' . json_encode($response));
-            log_message('info', 'Inventory response count: ' . count($data));
-            
-            return $this->response->setJSON($response);
+            ]);
             
         } catch (\Exception $e) {
             log_message('error', 'Inventory DataTables error: ' . $e->getMessage());
@@ -777,101 +789,14 @@ class Inventory extends BaseController
         }
     }
 
-    public function testInventoryData()
-    {
-        // Simple test endpoint to verify data access
-        try {
-            // Test database connection
-            $tables = $this->db->listTables();
-            $inventoryExists = in_array('inventory', $tables);
-            
-            // Get inventory items
-            $items = $this->inventoryModel->findAll();
-            
-            // Test direct database query
-            $directQuery = $this->db->table('inventory')->get()->getResultArray();
-            
-            $response = [
-                'success' => true,
-                'database_connected' => true,
-                'inventory_table_exists' => $inventoryExists,
-                'total_items_model' => count($items),
-                'total_items_direct' => count($directQuery),
-                'sample_item_model' => !empty($items) ? $items[0] : null,
-                'sample_item_direct' => !empty($directQuery) ? $directQuery[0] : null,
-                'available_tables' => $tables,
-                'message' => 'Inventory data test successful'
-            ];
-            
-            return $this->response->setJSON($response);
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Inventory data test failed'
-            ]);
-        }
-    }
-
-    public function testInventoryDataTable()
-    {
-        // Test endpoint that returns DataTable format
-        try {
-            $items = $this->inventoryModel->findAll();
-            
-            $data = [];
-            foreach ($items as $item) {
-                // Simple currency formatting without helper function
-                $unitPrice = '$' . number_format($item['unit_price'] ?? 0, 2);
-                
-                // Simple date formatting without helper function
-                $expiryDate = 'N/A';
-                if (!empty($item['expiry_date'])) {
-                    try {
-                        $date = new \DateTime($item['expiry_date']);
-                        $expiryDate = $date->format('Y-m-d');
-                    } catch (\Exception $e) {
-                        $expiryDate = $item['expiry_date'];
-                    }
-                }
-                
-                $data[] = [
-                    'id' => intval($item['id'] ?? 0),
-                    'item_name' => $item['item_name'] ?? '',
-                    'category' => $item['category'] ?? '',
-                    'quantity' => $item['quantity'] . ' ' . ($item['unit'] ?: 'pieces'),
-                    'unit_price' => $unitPrice,
-                    'supplier' => $item['supplier'] ?? '',
-                    'expiry_date' => $item['expiry_date'] ?? '',
-                    'expiry_date_formatted' => $expiryDate,
-                    'status' => $this->getStatusBadge($item['status'] ?? 'active'),
-                    'actions' => $this->getActionButtons($item['id'])
-                ];
-            }
-            
-            $response = [
-                'draw' => 1,
-                'recordsTotal' => count($items),
-                'recordsFiltered' => count($items),
-                'data' => $data
-            ];
-            
-            return $this->response->setJSON($response);
-            
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'draw' => 1,
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-                'data' => [],
-                'error' => 'Test error: ' . $e->getMessage()
-            ]);
-        }
-    }
-
     public function getUsageHistoryData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters with defaults
@@ -901,10 +826,12 @@ class Inventory extends BaseController
         
         // Build query
         $usageModel = new \App\Models\InventoryUsageModel();
-        $query = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id')
-            ->join('patients', 'patients.id = treatments.patient_id')
-            ->join('users', 'users.id = inventory_usage.recorded_by')
-            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name');
+        
+        $query = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left') // Use LEFT join to keep records without treatment?
+            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+            ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
+            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
+            ->where('treatments.clinic_id', $clinicId); // Enforce clinic scope. If treatment is null, this will exclude the row.
         
         // Apply search filter
         if (!empty($searchValue)) {
@@ -917,8 +844,8 @@ class Inventory extends BaseController
                 ->groupEnd();
         }
         
-        // Get total count
-        $totalRecords = $usageModel->countAllResults(false);
+        // Get total count (scoped)
+        $totalRecords = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')->where('treatments.clinic_id', $clinicId)->countAllResults(false);
         
         // Get filtered count
         $filteredRecords = $query->countAllResults(false);
@@ -974,6 +901,11 @@ class Inventory extends BaseController
     public function getLowStockData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters with defaults
@@ -1011,20 +943,9 @@ class Inventory extends BaseController
             
             $orderColumnName = $columns[$orderColumn] ?? 'id';
             
-            // Check if inventory table exists
-            $tables = $this->db->listTables();
-            if (!in_array('inventory', $tables)) {
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Inventory table does not exist'
-                ]);
-            }
-            
-            // Get total records count for low stock items
-            $totalRecords = $this->db->table('inventory')->where('quantity <=', 'min_quantity')->countAllResults();
+            // Get total records count for low stock items (scoped)
+            // Use model builder to avoid raw query
+            $totalRecords = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->countAllResults();
             
             // If no low stock items exist, return empty result
             if ($totalRecords == 0) {
@@ -1037,11 +958,11 @@ class Inventory extends BaseController
             }
             
             // Build query for low stock items
-            $query = $this->db->table('inventory')->where('quantity <=', 'min_quantity');
+            $builder = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity');
             
             // Apply search filter
             if (!empty($searchValue)) {
-                $query->groupStart()
+                $builder->groupStart()
                     ->like('item_name', $searchValue)
                     ->orLike('category', $searchValue)
                     ->orLike('supplier', $searchValue)
@@ -1049,13 +970,12 @@ class Inventory extends BaseController
             }
             
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $builder->countAllResults(false);
             
             // Get data with ordering and pagination
-            $items = $query->orderBy($orderColumnName, $orderDir)
+            $items = $builder->orderBy($orderColumnName, $orderDir)
                 ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+                ->findAll();
             
             // Format data for DataTables (array format)
             $data = [];
@@ -1114,7 +1034,7 @@ class Inventory extends BaseController
                 <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>
-                <button onclick="confirmDelete(\'' . base_url() . 'inventory/' . $id . '\', \'Are you sure you want to delete this inventory item? This action cannot be undone.\')" class="text-red-600 hover:text-red-900" title="Delete">
+                <button onclick="confirmDelete(\''. base_url() . 'inventory/' . $id . '\', \'Are you sure you want to delete this inventory item? This action cannot be undone.\')" class="text-red-600 hover:text-red-900" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>

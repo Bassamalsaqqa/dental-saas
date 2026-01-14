@@ -12,7 +12,13 @@ class Examination extends ResourceController
 
     public function index()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
+        }
+
         $data = $this->model->select('id, examination_id, patient_id, status, created_at')
+                            ->where('clinic_id', $clinicId)
                             ->orderBy('created_at', 'DESC')
                             ->findAll(100);
         return $this->respond($data);
@@ -20,7 +26,13 @@ class Examination extends ResourceController
 
     public function show($id = null)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
+        }
+
         $data = $this->model->select('id, examination_id, status, created_at')
+                            ->where('clinic_id', $clinicId)
                             ->find($id);
         
         if (! $data) {

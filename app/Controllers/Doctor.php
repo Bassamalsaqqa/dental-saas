@@ -5,18 +5,21 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Models\RoleModel;
 use App\Models\UserRoleModel;
+use App\Models\ClinicUserModel;
 
 class Doctor extends BaseController
 {
     protected $userModel;
     protected $roleModel;
     protected $userRoleModel;
+    protected $clinicUserModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->roleModel = new RoleModel();
         $this->userRoleModel = new UserRoleModel();
+        $this->clinicUserModel = new ClinicUserModel();
     }
 
     /**
@@ -24,9 +27,14 @@ class Doctor extends BaseController
      */
     public function index()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $data = [
             'title' => 'Doctor Management',
-            'doctors' => $this->getDoctorsWithDetails()
+            'doctors' => $this->userModel->getDoctorsWithDetails($clinicId)
         ];
 
         return $this->view('doctor/index', $data);
@@ -98,6 +106,18 @@ class Doctor extends BaseController
                 $this->getCurrentUser()->id
             );
 
+            // Assign to current clinic
+            $clinicId = session()->get('active_clinic_id');
+            if ($clinicId) {
+                $this->clinicUserModel->insert([
+                    'clinic_id' => $clinicId,
+                    'user_id' => $userId,
+                    'role_id' => $this->request->getPost('role_id'),
+                    'status' => 'active',
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
             return redirect()->to('/doctors')->with('success', 'Doctor added successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create doctor: ' . implode(', ', $this->userModel->errors()));
@@ -109,7 +129,7 @@ class Doctor extends BaseController
      */
     public function show($id)
     {
-        $doctor = $this->getDoctorWithDetails($id);
+        $doctor = $this->userModel->getDoctorWithDetails($id);
         
         if (!$doctor) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Doctor not found');
@@ -128,7 +148,7 @@ class Doctor extends BaseController
      */
     public function edit($id)
     {
-        $doctor = $this->getDoctorWithDetails($id);
+        $doctor = $this->userModel->getDoctorWithDetails($id);
         
         if (!$doctor) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Doctor not found');
@@ -258,44 +278,5 @@ class Doctor extends BaseController
                               ->where('is_active', 1)
                               ->orderBy('name', 'ASC')
                               ->findAll();
-    }
-
-    /**
-     * Get doctors with role details
-     */
-    private function getDoctorsWithDetails()
-    {
-        $db = \Config\Database::connect();
-        
-        return $db->table('users u')
-                 ->select('u.*, r.name as role_name, r.slug as role_slug')
-                 ->join('user_roles ur', 'ur.user_id = u.id')
-                 ->join('roles r', 'r.id = ur.role_id')
-                 ->where('r.is_medical', 1)
-                 ->where('ur.is_active', 1)
-                 ->where('u.active', 1)
-                 ->orderBy('u.first_name', 'ASC')
-                 ->get()
-                 ->getResultArray();
-    }
-
-    /**
-     * Get single doctor with role details
-     */
-    private function getDoctorWithDetails($id)
-    {
-        $db = \Config\Database::connect();
-        
-        $result = $db->table('users u')
-                    ->select('u.*, r.name as role_name, r.slug as role_slug, r.id as role_id')
-                    ->join('user_roles ur', 'ur.user_id = u.id')
-                    ->join('roles r', 'r.id = ur.role_id')
-                    ->where('u.id', $id)
-                    ->where('r.is_medical', 1)
-                    ->where('ur.is_active', 1)
-                    ->get()
-                    ->getRowArray();
-        
-        return $result;
     }
 }

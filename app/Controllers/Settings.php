@@ -258,16 +258,6 @@ class Settings extends BaseController
         
         $backupName = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
         
-        // Test database connection first
-        try {
-            $db = \Config\Database::connect();
-            $db->query("SELECT 1"); // Simple test query
-            log_message('info', 'Database connection test successful');
-        } catch (\Exception $e) {
-            log_message('error', 'Database connection test failed: ' . $e->getMessage());
-            return redirect()->to('/settings')->with('error', 'Database connection failed: ' . $e->getMessage());
-        }
-        
         if ($this->performBackup($backupName)) {
             return redirect()->to('/settings')->with('success', 'Backup created successfully!');
         } else {
@@ -569,23 +559,12 @@ class Settings extends BaseController
             
             $backupPath = $backupDir . $filename;
             
-            // Get database configuration
-            $db = \Config\Database::connect();
-            
-            // Get database config from the config file
-            $dbConfig = config('Database');
-            $defaultGroup = $dbConfig->defaultGroup;
-            $database = $dbConfig->{$defaultGroup}['database'];
-            $hostname = $dbConfig->{$defaultGroup}['hostname'];
-            $username = $dbConfig->{$defaultGroup}['username'];
-            $password = $dbConfig->{$defaultGroup}['password'];
-            
-            // Generate SQL backup content
-            $sqlContent = $this->generateDatabaseBackup($db);
+            // Use SettingsService to generate backup content
+            $sqlContent = $this->settingsService->generateDatabaseBackup();
             
             // Check if SQL content was generated
-            if (empty($sqlContent)) {
-                log_message('error', 'Generated SQL content is empty');
+            if (empty($sqlContent) || strpos($sqlContent, 'Error') === 0) {
+                log_message('error', 'Failed to generate backup content: ' . $sqlContent);
                 return false;
             }
             
@@ -608,82 +587,6 @@ class Settings extends BaseController
     {
         // In a real application, you would restore from the selected backup
         return true;
-    }
-    
-    private function generateDatabaseBackup($db)
-    {
-        try {
-            // Get database config from the config file
-            $dbConfig = config('Database');
-            $defaultGroup = $dbConfig->defaultGroup;
-            $database = $dbConfig->{$defaultGroup}['database'];
-            
-            $sql = "-- Dental Management System Database Backup\n";
-            $sql .= "-- Generated on: " . date('Y-m-d H:i:s') . "\n";
-            $sql .= "-- Database: " . $database . "\n\n";
-            
-            $sql .= "SET SQL_MODE = \"NO_AUTO_VALUE_ON_ZERO\";\n";
-            $sql .= "SET AUTOCOMMIT = 0;\n";
-            $sql .= "START TRANSACTION;\n";
-            $sql .= "SET time_zone = \"+00:00\";\n\n";
-            
-            // Get all tables
-            $tables = $db->listTables();
-            
-            if (empty($tables)) {
-                log_message('error', 'No tables found in database');
-                return $sql . "-- No tables found\nCOMMIT;\n";
-            }
-            
-            foreach ($tables as $table) {
-                $sql .= "-- Table structure for table `{$table}`\n";
-                
-                try {
-                    // Get table structure
-                    $query = $db->query("SHOW CREATE TABLE `{$table}`");
-                    $result = $query->getRow();
-                    
-                    if ($result && isset($result->{'Create Table'})) {
-                        $sql .= "DROP TABLE IF EXISTS `{$table}`;\n";
-                        $sql .= $result->{'Create Table'} . ";\n\n";
-                        
-                        // Get table data
-                        $dataQuery = $db->query("SELECT * FROM `{$table}`");
-                        $rows = $dataQuery->getResultArray();
-                        
-                        if (!empty($rows)) {
-                            $sql .= "-- Data for table `{$table}`\n";
-                            
-                            foreach ($rows as $row) {
-                                $values = [];
-                                foreach ($row as $value) {
-                                    if ($value === null) {
-                                        $values[] = 'NULL';
-                                    } else {
-                                        $values[] = "'" . addslashes($value) . "'";
-                                    }
-                                }
-                                
-                                $sql .= "INSERT INTO `{$table}` VALUES (" . implode(', ', $values) . ");\n";
-                            }
-                            $sql .= "\n";
-                        }
-                    } else {
-                        log_message('error', "Could not get CREATE TABLE statement for table: {$table}");
-                    }
-                } catch (\Exception $e) {
-                    log_message('error', "Error processing table {$table}: " . $e->getMessage());
-                    $sql .= "-- Error processing table {$table}: " . $e->getMessage() . "\n";
-                }
-            }
-            
-            $sql .= "COMMIT;\n";
-            
-            return $sql;
-        } catch (\Exception $e) {
-            log_message('error', 'Error in generateDatabaseBackup: ' . $e->getMessage());
-            return "-- Error generating backup: " . $e->getMessage() . "\n";
-        }
     }
     
     private function formatFileSize($bytes)

@@ -120,6 +120,22 @@ class UserModel extends Model
         return $data;
     }
 
+    public function getUsersByClinic($clinicId)
+    {
+        $db = \Config\Database::connect();
+        
+        return $this->select('users.*, 
+                            CASE 
+                                WHEN last_login IS NULL THEN "never"
+                                WHEN last_login < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN "inactive"
+                                ELSE "active"
+                            END as login_status')
+                    ->join('clinic_users', 'clinic_users.user_id = users.id')
+                    ->where('clinic_users.clinic_id', $clinicId)
+                    ->orderBy('users.first_name', 'ASC')
+                    ->findAll();
+    }
+
     public function getUsersWithStats()
     {
         return $this->select('users.*, 
@@ -305,17 +321,21 @@ class UserModel extends Model
     }
 
     /**
-     * Get all users with medical/doctor roles
+     * Get doctors with role details
      */
-    public function getDoctors()
+    public function getDoctorsWithDetails($clinicId = null)
     {
-        $db = \Config\Database::connect();
-        
-        return $db->table('users u')
-                 ->select('u.id, u.first_name, u.last_name, u.email, u.username, u.phone, u.address, u.hire_date, u.status, u.license_number, u.specialization, u.years_experience, u.consultation_fee, u.medical_qualifications, u.availability_schedule, u.department, r.name as role_name, r.slug as role_slug')
+        $builder = $this->db->table($this->table . ' u')
+                 ->select('u.*, r.name as role_name, r.slug as role_slug')
                  ->join('user_roles ur', 'ur.user_id = u.id')
-                 ->join('roles r', 'r.id = ur.role_id')
-                 ->where('r.is_medical', 1)
+                 ->join('roles r', 'r.id = ur.role_id');
+
+        if ($clinicId) {
+            $builder->join('clinic_users cu', 'cu.user_id = u.id')
+                    ->where('cu.clinic_id', $clinicId);
+        }
+
+        return $builder->where('r.is_medical', 1)
                  ->where('ur.is_active', 1)
                  ->where('u.active', 1)
                  ->orderBy('u.first_name', 'ASC')
@@ -326,12 +346,10 @@ class UserModel extends Model
     /**
      * Get single doctor with role details
      */
-    public function getDoctor($id)
+    public function getDoctorWithDetails($id)
     {
-        $db = \Config\Database::connect();
-        
-        $result = $db->table('users u')
-                    ->select('u.*, r.name as role_name, r.slug as role_slug')
+        return $this->db->table($this->table . ' u')
+                    ->select('u.*, r.name as role_name, r.slug as role_slug, r.id as role_id')
                     ->join('user_roles ur', 'ur.user_id = u.id')
                     ->join('roles r', 'r.id = ur.role_id')
                     ->where('u.id', $id)
@@ -339,7 +357,5 @@ class UserModel extends Model
                     ->where('ur.is_active', 1)
                     ->get()
                     ->getRowArray();
-        
-        return $result;
     }
 }

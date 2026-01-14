@@ -326,7 +326,52 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant']], function ($routes)
     $routes->post('(:num)/adjust', 'Inventory::adjust', ['filter' => 'permission:inventory:edit']);
 });
 
+// Doctors routes
+$routes->group('doctors', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('/', 'Doctor::index', ['filter' => 'permission:users:view']);
+    $routes->get('create', 'Doctor::create', ['filter' => 'permission:users:create']);
+    $routes->post('store', 'Doctor::store', ['filter' => 'permission:users:create']);
+    $routes->get('(:num)', 'Doctor::show/$1', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)/edit', 'Doctor::edit/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update', 'Doctor::update/$1', ['filter' => 'permission:users:edit']);
+    $routes->delete('(:num)', 'Doctor::delete/$1', ['filter' => 'permission:users:delete']);
+});
 
+// Users routes
+$routes->group('users', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('/', 'Users::index', ['filter' => 'permission:users:view']);
+    $routes->get('create', 'Users::create', ['filter' => 'permission:users:create']);
+    $routes->post('store', 'Users::store', ['filter' => 'permission:users:create']);
+    $routes->get('stats', 'Users::getUserStats', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)', 'Users::show/$1', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)/edit', 'Users::edit/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update', 'Users::update/$1', ['filter' => 'permission:users:edit']);
+    $routes->delete('(:num)', 'Users::delete/$1', ['filter' => 'permission:users:delete']);
+    $routes->get('(:num)/change-password', 'Users::changePassword/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update-password', 'Users::updatePassword/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/toggle-status', 'Users::toggleStatus/$1', ['filter' => 'permission:users:edit']);
+    // RBAC AJAX methods
+    $routes->post('assign-role', 'Users::assignRole', ['filter' => 'permission:users:edit']);
+    $routes->post('remove-role', 'Users::removeRole', ['filter' => 'permission:users:edit']);
+    $routes->post('grant-permission', 'Users::grantPermission', ['filter' => 'permission:users:edit']);
+    $routes->post('revoke-permission', 'Users::revokePermission', ['filter' => 'permission:users:edit']);
+    $routes->post('get-permissions', 'Users::getUserPermissionsAjax', ['filter' => 'permission:users:view']);
+});
+
+// Roles routes
+$routes->group('roles', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('/', 'RoleController::index', ['filter' => 'permission:users:view']);
+    $routes->get('create', 'RoleController::create', ['filter' => 'permission:users:create']);
+    $routes->post('store', 'RoleController::store', ['filter' => 'permission:users:create']);
+    $routes->get('stats', 'RoleController::stats', ['filter' => 'permission:users:view']);
+    $routes->get('sync', 'RoleController::sync', ['filter' => 'permission:users:edit']);
+    $routes->get('(:num)', 'RoleController::show/$1', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)/edit', 'RoleController::edit/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update', 'RoleController::update/$1', ['filter' => 'permission:users:edit']);
+    $routes->delete('(:num)', 'RoleController::delete/$1', ['filter' => 'permission:users:delete']);
+    $routes->post('(:num)/toggle-status', 'RoleController::toggleStatus/$1', ['filter' => 'permission:users:edit']);
+    $routes->get('(:num)/permissions', 'RoleController::getPermissions/$1', ['filter' => 'permission:users:view']);
+});
 
 // Notifications routes (accessible to all authenticated users - Tenant Plane)
 $routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {

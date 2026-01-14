@@ -24,15 +24,21 @@ class Treatment extends BaseController
     public function index()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select');
+            }
+
             // Get filter parameters from URL
             $search = $this->request->getGet('search') ?? '';
             $statusFilter = $this->request->getGet('status') ?? '';
             $typeFilter = $this->request->getGet('type') ?? '';
             
-            // Get treatments with patient information
+            // Get treatments with patient information (scoped)
             $query = $this->treatmentModel
                 ->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = treatments.patient_id', 'left');
+                ->join('patients', 'patients.id = treatments.patient_id', 'left')
+                ->where('treatments.clinic_id', $clinicId);
             
             // Apply filters if provided
             if (!empty($search)) {
@@ -62,9 +68,9 @@ class Treatment extends BaseController
             $data = [
                 'title' => 'Treatment Management',
                 'treatments' => $treatments ?? [],
-                'total_treatments' => $this->treatmentModel->countAllResults(),
-                'active_treatments' => $this->treatmentModel->where('status', 'active')->countAllResults(),
-                'completed_treatments' => $this->treatmentModel->where('status', 'completed')->countAllResults(),
+                'total_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->countAllResults(),
+                'active_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+                'completed_treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
                 'search_term' => $search,
                 'selected_status' => $statusFilter,
                 'selected_type' => $typeFilter,
@@ -90,6 +96,11 @@ class Treatment extends BaseController
     public function getTreatmentsData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters with defaults
@@ -128,20 +139,8 @@ class Treatment extends BaseController
             
             $orderColumnName = $columns[$orderColumn] ?? 'treatments.start_date';
             
-            // Check if tables exist first
-            $tables = $this->db->listTables();
-            if (!in_array('treatments', $tables) || !in_array('patients', $tables)) {
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Required tables do not exist'
-                ]);
-            }
-            
-            // Get total records count
-            $totalRecords = $this->db->table('treatments')->countAllResults();
+            // Get total records count (scoped)
+            $totalRecords = $this->treatmentModel->countTreatmentsByClinic($clinicId, null, $statusFilter, $typeFilter);
             
             // If no treatments exist, return empty result
             if ($totalRecords == 0) {
@@ -153,41 +152,11 @@ class Treatment extends BaseController
                 ]);
             }
             
-            // Build query
-            $query = $this->db->table('treatments')
-                ->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = treatments.patient_id', 'left');
-            
-            // Apply search filter
-            if (!empty($searchValue)) {
-                $query->groupStart()
-                    ->like('patients.first_name', $searchValue)
-                    ->orLike('patients.last_name', $searchValue)
-                    ->orLike('patients.phone', $searchValue)
-                    ->orLike('treatments.treatment_type', $searchValue)
-                    ->orLike('treatments.status', $searchValue)
-                    ->orLike('treatments.treatment_description', $searchValue)
-                    ->groupEnd();
-            }
-            
-            // Apply status filter
-            if (!empty($statusFilter)) {
-                $query->where('treatments.status', $statusFilter);
-            }
-            
-            // Apply type filter
-            if (!empty($typeFilter)) {
-                $query->where('treatments.treatment_type', $typeFilter);
-            }
-            
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $this->treatmentModel->countTreatmentsByClinic($clinicId, $searchValue, $statusFilter, $typeFilter);
             
             // Get data with ordering and pagination
-            $treatments = $query->orderBy($orderColumnName, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            $treatments = $this->treatmentModel->getTreatmentsByClinic($clinicId, $length, $start, $searchValue, $statusFilter, $typeFilter, $orderColumnName, $orderDir);
             
             // Format data for DataTables
             $data = [];
@@ -360,7 +329,12 @@ class Treatment extends BaseController
 
     public function update($id)
     {
-        $treatment = $this->treatmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$treatment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Treatment not found');
@@ -380,7 +354,7 @@ class Treatment extends BaseController
             $data = [
                 'title' => 'Edit Treatment',
                 'treatment' => $treatment,
-                'patients' => $this->patientModel->findAll(),
+                'patients' => $this->patientModel->where('clinic_id', $clinicId)->findAll(),
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
             ];
@@ -400,8 +374,8 @@ class Treatment extends BaseController
         ];
 
         if ($this->treatmentModel->update($id, $treatmentData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($treatmentData['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatmentData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the treatment update activity
@@ -419,7 +393,15 @@ class Treatment extends BaseController
 
     public function delete($id)
     {
-        $treatment = $this->treatmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
+        }
+
+        $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$treatment) {
             if ($this->request->isAJAX()) {
@@ -430,8 +412,8 @@ class Treatment extends BaseController
         }
 
         if ($this->treatmentModel->delete($id)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($treatment['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatment['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the treatment deletion activity
@@ -457,7 +439,12 @@ class Treatment extends BaseController
 
     public function complete($id)
     {
-        $treatment = $this->treatmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$treatment) {
             return $this->response->setJSON(['success' => false, 'message' => 'Treatment not found']);
@@ -470,8 +457,8 @@ class Treatment extends BaseController
         ];
 
         if ($this->treatmentModel->update($id, $updateData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($treatment['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatment['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the treatment completion activity

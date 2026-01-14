@@ -21,6 +21,11 @@ class Odontogram extends BaseController
 
     public function list()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $data = [
             'title' => 'Odontogram Management',
         ];
@@ -31,6 +36,11 @@ class Odontogram extends BaseController
     public function getPatientsData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters
@@ -41,8 +51,10 @@ class Odontogram extends BaseController
             $orderColumn = intval($request->getPost('order')[0]['column'] ?? 0);
             $orderDir = $request->getPost('order')[0]['dir'] ?? 'asc';
             
-            // Get all patients with stats (includes last_visit)
-            $allPatients = $this->patientModel->getPatientsWithStats();
+            // Get all patients with stats (includes last_visit) SCOPED
+            // Note: DataTables processing here is manual in-memory which is inefficient but preserving logic.
+            // Just ensuring fetch is scoped.
+            $allPatients = $this->patientModel->getPatientsWithStats($clinicId);
             $totalRecords = count($allPatients);
             
             // Apply search filter
@@ -140,7 +152,12 @@ class Odontogram extends BaseController
 
     public function index($patientId)
     {
-        $patient = $this->patientModel->find($patientId);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -160,8 +177,20 @@ class Odontogram extends BaseController
 
     public function updateTooth()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $patientId = $this->request->getPost('patient_id');
         $examinationId = $this->request->getPost('examination_id');
+        
+        // Verify patient ownership
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+             return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient']);
+        }
+
         $toothNumber = $this->request->getPost('tooth_number');
         $conditionType = $this->request->getPost('condition_type');
         $conditionDescription = $this->request->getPost('condition_description');
@@ -187,7 +216,19 @@ class Odontogram extends BaseController
 
     public function getToothCondition()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $patientId = $this->request->getGet('patient_id');
+        
+        // Verify patient ownership
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+             return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient']);
+        }
+
         $toothNumber = $this->request->getGet('tooth_number');
 
         $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber);
@@ -197,6 +238,17 @@ class Odontogram extends BaseController
 
     public function getOdontogramData($patientId)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        // Verify patient ownership
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+             return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient']);
+        }
+
         $odontogram = $this->odontogramModel->getOdontogramByPatient($patientId);
         $stats = $this->odontogramModel->getOdontogramStats($patientId);
         
@@ -210,7 +262,19 @@ class Odontogram extends BaseController
 
     public function resetTooth()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $patientId = $this->request->getPost('patient_id');
+        
+        // Verify patient ownership
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+             return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient']);
+        }
+
         $toothNumber = $this->request->getPost('tooth_number');
 
         $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber);
@@ -228,7 +292,12 @@ class Odontogram extends BaseController
 
     public function export($patientId)
     {
-        $patient = $this->patientModel->find($patientId);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+             return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -249,7 +318,12 @@ class Odontogram extends BaseController
 
     public function print($patientId)
     {
-        $patient = $this->patientModel->find($patientId);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+             return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -271,7 +345,12 @@ class Odontogram extends BaseController
 
     public function pdf($patientId)
     {
-        $patient = $this->patientModel->find($patientId);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+             return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -292,7 +371,12 @@ class Odontogram extends BaseController
 
     public function downloadPdf($patientId)
     {
-        $patient = $this->patientModel->find($patientId);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+             return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');

@@ -394,6 +394,87 @@ class SettingsService
     }
 
     /**
+     * Generate database backup content
+     */
+    public function generateDatabaseBackup()
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Get database config
+            $dbConfig = config('Database');
+            $defaultGroup = $dbConfig->defaultGroup;
+            $database = $dbConfig->{$defaultGroup}['database'];
+            
+            $sql = "-- Dental Management System Database Backup\n";
+            $sql .= "-- Generated on: " . date('Y-m-d H:i:s') . "\n";
+            $sql .= "-- Database: " . $database . "\n\n";
+            
+            $sql .= "SET SQL_MODE = \"NO_AUTO_VALUE_ON_ZERO\";\n";
+            $sql .= "SET AUTOCOMMIT = 0;\n";
+            $sql .= "START TRANSACTION;\n";
+            $sql .= "SET time_zone = \"+00:00\";\n\n";
+            
+            // Get all tables
+            $tables = $db->listTables();
+            
+            if (empty($tables)) {
+                log_message('error', 'No tables found in database');
+                return $sql . "-- No tables found\nCOMMIT;\n";
+            }
+            
+            foreach ($tables as $table) {
+                $sql .= "-- Table structure for table `{$table}`\n";
+                
+                try {
+                    // Get table structure
+                    $query = $db->query("SHOW CREATE TABLE `{$table}`");
+                    $result = $query->getRow();
+                    
+                    if ($result && isset($result->{'Create Table'})) {
+                        $sql .= "DROP TABLE IF EXISTS `{$table}`;\n";
+                        $sql .= $result->{'Create Table'} . ";\n\n";
+                        
+                        // Get table data
+                        $dataQuery = $db->query("SELECT * FROM `{$table}`");
+                        $rows = $dataQuery->getResultArray();
+                        
+                        if (!empty($rows)) {
+                            $sql .= "-- Data for table `{$table}`\n";
+                            
+                            foreach ($rows as $row) {
+                                $values = [];
+                                foreach ($row as $value) {
+                                    if ($value === null) {
+                                        $values[] = 'NULL';
+                                    } else {
+                                        $values[] = "'" . addslashes($value) . "'";
+                                    }
+                                }
+                                
+                                $sql .= "INSERT INTO `{$table}` VALUES (" . implode(', ', $values) . ");\n";
+                            }
+                            $sql .= "\n";
+                        }
+                    } else {
+                        log_message('error', "Could not get CREATE TABLE statement for table: {$table}");
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', "Error processing table {$table}: " . $e->getMessage());
+                    $sql .= "-- Error processing table {$table}: " . $e->getMessage() . "\n";
+                }
+            }
+            
+            $sql .= "COMMIT;\n";
+            
+            return $sql;
+        } catch (\Exception $e) {
+            log_message('error', 'Error in generateDatabaseBackup: ' . $e->getMessage());
+            return "-- Error generating backup: " . $e->getMessage() . "\n";
+        }
+    }
+
+    /**
      * Reload settings (useful after updates)
      */
     public function reloadSettings()

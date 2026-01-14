@@ -101,6 +101,40 @@ class InventoryModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
+    public function countInventoryByClinic($clinicId, $searchValue = null)
+    {
+        $builder = $this->where('clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('item_name', $searchValue)
+                ->orLike('category', $searchValue)
+                ->orLike('supplier', $searchValue)
+                ->orLike('description', $searchValue)
+                ->groupEnd();
+        }
+
+        return $builder->countAllResults();
+    }
+
+    public function getInventoryByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $orderColumn = 'id', $orderDir = 'asc')
+    {
+        $builder = $this->where('clinic_id', $clinicId);
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('item_name', $searchValue)
+                ->orLike('category', $searchValue)
+                ->orLike('supplier', $searchValue)
+                ->orLike('description', $searchValue)
+                ->groupEnd();
+        }
+
+        return $builder->orderBy($orderColumn, $orderDir)
+            ->limit($limit, $offset)
+            ->findAll();
+    }
+
     public function searchInventoryByClinic($clinicId, $searchTerm = null, $limit = 20, $category = null)
     {
         $builder = $this->where('clinic_id', $clinicId)

@@ -120,14 +120,19 @@ class Finance extends BaseController
 
     public function show($id)
     {
-        $finance = $this->financeModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
         }
 
-        $patient = $this->patientModel->find($finance['patient_id']);
-        $examination = $finance['examination_id'] ? $this->examinationModel->find($finance['examination_id']) : null;
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
+        $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
 
         $data = [
             'title' => 'Financial Transaction Details - ' . $finance['transaction_id'],
@@ -146,7 +151,7 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit transactions.');
         }
 
-        $finance = $this->financeModel->find($id);
+        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -174,7 +179,12 @@ class Finance extends BaseController
 
     public function update($id)
     {
-        $finance = $this->financeModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -211,8 +221,8 @@ class Finance extends BaseController
         ];
 
         if ($this->financeModel->update($id, $financeData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($financeData['patient_id']);
+            // Get patient name for the activity log (scoped)
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($financeData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
 
             // Log the finance update activity
@@ -231,7 +241,15 @@ class Finance extends BaseController
     public function delete($id)
     {
         try {
-            $finance = $this->financeModel->find($id);
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                if ($this->request->isAJAX()) {
+                    return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+                }
+                return redirect()->to('/clinic/select');
+            }
+
+            $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
             if (!$finance) {
                 if ($this->request->isAJAX()) {
@@ -242,8 +260,8 @@ class Finance extends BaseController
             }
 
             if ($this->financeModel->delete($id)) {
-                // Get patient name for the activity log
-                $patient = $this->patientModel->find($finance['patient_id']);
+                // Get patient name for the activity log (scoped)
+                $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
                 $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
 
                 // Calculate total amount for the activity log
@@ -335,7 +353,12 @@ class Finance extends BaseController
     public function markAsPaid($id)
     {
         try {
-            $finance = $this->financeModel->find($id);
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
             if (!$finance) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Financial transaction not found']);
@@ -369,14 +392,19 @@ class Finance extends BaseController
 
     public function generateInvoice($id)
     {
-        $finance = $this->financeModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
         }
 
-        $patient = $this->patientModel->find($finance['patient_id']);
-        $examination = $finance['examination_id'] ? $this->examinationModel->find($finance['examination_id']) : null;
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
+        $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
 
         $data = [
             'title' => 'Invoice - ' . $finance['transaction_id'],
@@ -528,6 +556,11 @@ class Finance extends BaseController
     public function export()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select');
+            }
+
             $format = $this->request->getGet('format') ?? 'csv';
             $startDate = $this->request->getGet('start_date');
             $endDate = $this->request->getGet('end_date');
@@ -536,7 +569,8 @@ class Finance extends BaseController
 
             // Build query
             $query = $this->financeModel->select('finances.*, patients.first_name, patients.last_name')
-                ->join('patients', 'patients.id = finances.patient_id', 'left');
+                ->join('patients', 'patients.id = finances.patient_id', 'left')
+                ->where('finances.clinic_id', $clinicId);
 
             if ($startDate && $endDate) {
                 $query->where('finances.created_at >=', $startDate . ' 00:00:00')
@@ -620,6 +654,11 @@ class Finance extends BaseController
     public function bulkMarkAsPaid()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $input = json_decode($this->request->getBody(), true);
             $ids = $input['ids'] ?? [];
 
@@ -633,7 +672,7 @@ class Finance extends BaseController
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
-            $this->financeModel->whereIn('id', $ids)->set($updateData)->update();
+            $this->financeModel->whereIn('id', $ids)->where('clinic_id', $clinicId)->set($updateData)->update();
 
             return $this->response->setJSON([
                 'success' => true,
@@ -648,6 +687,11 @@ class Finance extends BaseController
     public function bulkDelete()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $input = json_decode($this->request->getBody(), true);
             $ids = $input['ids'] ?? [];
 
@@ -655,7 +699,7 @@ class Finance extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'No transactions selected']);
             }
 
-            $this->financeModel->whereIn('id', $ids)->delete();
+            $this->financeModel->whereIn('id', $ids)->where('clinic_id', $clinicId)->delete();
 
             return $this->response->setJSON([
                 'success' => true,

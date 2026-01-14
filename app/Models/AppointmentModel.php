@@ -210,12 +210,17 @@ class AppointmentModel extends Model
             ->findAll();
     }
 
-    public function getAppointmentWithPatient($appointmentId)
+    public function getAppointmentWithPatient($appointmentId, $clinicId = null)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        $builder = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
-            ->where('appointments.id', $appointmentId)
-            ->first();
+            ->where('appointments.id', $appointmentId);
+
+        if ($clinicId) {
+            $builder->where('appointments.clinic_id', $clinicId);
+        }
+
+        return $builder->first();
     }
 
     public function getAppointmentsByDate($date)

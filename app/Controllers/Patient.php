@@ -335,7 +335,12 @@ class Patient extends BaseController
 
     public function show($id)
     {
-        $patient = $this->patientModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -344,7 +349,7 @@ class Patient extends BaseController
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
-            'examinations' => $this->examinationModel->getExaminationsByPatient($id),
+            'examinations' => $this->examinationModel->where('patient_id', $id)->findAll(), // TODO: Ensure these models are also scoped if needed, but patient_id + patient ownership implies scope.
             'appointments' => $this->appointmentModel->getAppointmentsByPatient($id),
             'finances' => $this->financeModel->getFinanceByPatient($id),
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
@@ -358,7 +363,12 @@ class Patient extends BaseController
 
     public function edit($id)
     {
-        $patient = $this->patientModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -375,7 +385,12 @@ class Patient extends BaseController
 
     public function update($id)
     {
-        $patient = $this->patientModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -397,9 +412,12 @@ class Patient extends BaseController
         // Check email uniqueness manually for updates
         $email = $this->request->getPost('email');
         if (!empty($email)) {
-            $existingPatient = $this->patientModel->where('email', $email)->where('id !=', $id)->first();
+            $existingPatient = $this->patientModel->where('email', $email)
+                                                ->where('clinic_id', $clinicId)
+                                                ->where('id !=', $id)
+                                                ->first();
             if ($existingPatient) {
-                return redirect()->back()->withInput()->with('error', 'This email is already registered to another patient');
+                return redirect()->back()->withInput()->with('error', 'This email is already registered to another patient in this clinic');
             }
         }
 
@@ -443,9 +461,20 @@ class Patient extends BaseController
 
     public function delete($id)
     {
-        $patient = $this->patientModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$patient) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(404)->setJSON(['error' => 'Patient not found']);
+            }
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
@@ -457,14 +486,25 @@ class Patient extends BaseController
                 "Patient '{$patient['first_name']} {$patient['last_name']}' deleted from the system"
             );
             
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true]);
+            }
             return redirect()->to('/patient')->with('success', 'Patient has been deleted successfully!');
         } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to delete patient']);
+            }
             return redirect()->back()->with('error', 'Failed to delete patient. Please try again.');
         }
     }
 
     public function search()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+             return redirect()->to('/clinic/select');
+        }
+
         $searchTerm = $this->request->getGet('q');
         
         if (empty($searchTerm)) {
@@ -473,7 +513,7 @@ class Patient extends BaseController
 
         $data = [
             'title' => 'Search Results for: ' . $searchTerm,
-            'patients' => $this->patientModel->searchPatients($searchTerm),
+            'patients' => $this->patientModel->searchPatientsByClinic($clinicId, $searchTerm),
             'search_term' => $searchTerm
         ];
 
@@ -482,7 +522,12 @@ class Patient extends BaseController
 
     public function getPatientData($id)
     {
-        $patient = $this->patientModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$patient) {
             return $this->response->setJSON(['error' => 'Patient not found']);

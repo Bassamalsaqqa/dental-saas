@@ -12,7 +12,13 @@ class Appointment extends ResourceController
 
     public function index()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
+        }
+
         $data = $this->model->select('id, patient_id, appointment_date, start_time, status')
+                            ->where('clinic_id', $clinicId)
                             ->where('appointment_date >=', date('Y-m-d'))
                             ->orderBy('appointment_date', 'ASC')
                             ->findAll(100);
@@ -21,7 +27,13 @@ class Appointment extends ResourceController
 
     public function show($id = null)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
+        }
+
         $data = $this->model->select('id, appointment_date, start_time, end_time, status, type')
+                            ->where('clinic_id', $clinicId)
                             ->find($id);
         
         if (! $data) {

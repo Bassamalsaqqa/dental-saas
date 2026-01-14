@@ -175,15 +175,20 @@ class PatientModel extends Model
         return $builder->countAllResults();
     }
 
-    public function getPatientsWithStats()
+    public function getPatientsWithStats($clinicId = null)
     {
-        return $this->select('patients.*, 
+        $builder = $this->select('patients.*, 
                              COUNT(examinations.id) as total_examinations,
                              TIMESTAMPDIFF(YEAR, patients.date_of_birth, CURDATE()) as age,
                              (SELECT MAX(a.appointment_date) FROM appointments a WHERE a.patient_id = patients.id AND a.deleted_at IS NULL) as last_visit')
             ->join('examinations', 'examinations.patient_id = patients.id', 'left')
-            ->where('patients.deleted_at', null)
-            ->groupBy('patients.id')
+            ->where('patients.deleted_at', null);
+
+        if ($clinicId) {
+            $builder->where('patients.clinic_id', $clinicId);
+        }
+
+        return $builder->groupBy('patients.id')
             ->paginate(10);
     }
 }

@@ -251,7 +251,12 @@ class Appointment extends BaseController
 
     public function show($id)
     {
-        $appointment = $this->appointmentModel->getAppointmentWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $appointment = $this->appointmentModel->getAppointmentWithPatient($id, $clinicId);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
@@ -283,15 +288,10 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit appointments.');
         }
 
-        $appointment = $this->appointmentModel->getAppointmentWithPatient($id);
+        $appointment = $this->appointmentModel->getAppointmentWithPatient($id, $clinicId);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
-        }
-
-        // S4-02e-FIX: Enforce clinic ownership
-        if ($appointment['clinic_id'] != $clinicId) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found in current clinic');
         }
 
         // S4-02e-FIX: Only load the specific patient for this appointment
@@ -313,7 +313,12 @@ class Appointment extends BaseController
 
     public function update($id)
     {
-        $appointment = $this->appointmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
@@ -369,7 +374,7 @@ class Appointment extends BaseController
 
         if ($this->appointmentModel->update($id, $appointmentData)) {
             // Get patient name for the activity log
-            $patient = $this->patientModel->find($appointmentData['patient_id']);
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($appointmentData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the appointment update activity
@@ -387,18 +392,26 @@ class Appointment extends BaseController
 
     public function delete($id)
     {
-        $appointment = $this->appointmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
+        }
+
+        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$appointment) {
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Appointment not found']);
+                return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
             }
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
         }
 
         if ($this->appointmentModel->delete($id)) {
             // Get patient name for the activity log
-            $patient = $this->patientModel->find($appointment['patient_id']);
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($appointment['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the appointment deletion activity
@@ -422,10 +435,15 @@ class Appointment extends BaseController
 
     public function confirm($id)
     {
-        $appointment = $this->appointmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$appointment) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Appointment not found']);
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
         }
 
         $updateData = ['status' => 'confirmed'];
@@ -439,10 +457,15 @@ class Appointment extends BaseController
 
     public function complete($id)
     {
-        $appointment = $this->appointmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$appointment) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Appointment not found']);
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
         }
 
         $updateData = ['status' => 'completed'];
@@ -456,10 +479,15 @@ class Appointment extends BaseController
 
     public function cancel($id)
     {
-        $appointment = $this->appointmentModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$appointment) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Appointment not found']);
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
         }
 
         $updateData = ['status' => 'cancelled'];
@@ -517,7 +545,12 @@ class Appointment extends BaseController
 
     public function print($id)
     {
-        $appointment = $this->appointmentModel->getAppointmentWithPatient($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $appointment = $this->appointmentModel->getAppointmentWithPatient($id, $clinicId);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');

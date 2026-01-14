@@ -25,12 +25,17 @@ class Prescription extends BaseController
     public function index()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select');
+            }
+
             $data = [
                 'title' => 'Prescription Management',
                 'prescriptions' => [], // Will be loaded via AJAX
-                'total_prescriptions' => $this->prescriptionModel->countAllResults(),
-                'active_prescriptions' => $this->prescriptionModel->where('status', 'active')->countAllResults(),
-                'expired_prescriptions' => $this->prescriptionModel->where('status', 'expired')->countAllResults(),
+                'total_prescriptions' => $this->prescriptionModel->where('clinic_id', $clinicId)->countAllResults(),
+                'active_prescriptions' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+                'expired_prescriptions' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'expired')->countAllResults(),
                 'loadSelect2' => true  // Load Select2 for patient selection dropdowns
             ];
 
@@ -54,37 +59,14 @@ class Prescription extends BaseController
         }
     }
 
-    public function testPrescriptionsData()
-    {
-        try {
-            // Test database connection
-            $tables = $this->db->listTables();
-            
-            // Test prescriptions table
-            $prescriptionCount = $this->db->table('prescriptions')->countAllResults();
-            
-            // Get a sample prescription
-            $samplePrescription = $this->db->table('prescriptions')->limit(1)->get()->getRowArray();
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'tables' => $tables,
-                'prescription_count' => $prescriptionCount,
-                'sample_prescription' => $samplePrescription,
-                'message' => 'Database connection successful'
-            ]);
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'message' => 'Database connection failed'
-            ]);
-        }
-    }
-
     public function getPrescriptionsData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $request = $this->request;
             
             // DataTables parameters with defaults
@@ -119,29 +101,11 @@ class Prescription extends BaseController
             
             $orderColumnName = $columns[$orderColumn] ?? 'prescriptions.id';
             
-            // Log the request for debugging
-            log_message('debug', 'Prescription DataTables Request - Draw: ' . $draw . ', Start: ' . $start . ', Length: ' . $length . ', Search: ' . $searchValue . ', OrderColumn: ' . $orderColumnName . ', OrderDir: ' . $orderDir);
-            
             // Validate sort order
             $orderDir = in_array(strtolower($orderDir), ['asc', 'desc']) ? strtolower($orderDir) : 'desc';
             
-            // Check if tables exist
-            $tables = $this->db->listTables();
-            log_message('debug', 'Available tables: ' . implode(', ', $tables));
-            
-            if (!in_array('prescriptions', $tables) || !in_array('patients', $tables)) {
-                log_message('error', 'Required tables missing. Prescriptions: ' . (in_array('prescriptions', $tables) ? 'exists' : 'missing') . ', Patients: ' . (in_array('patients', $tables) ? 'exists' : 'missing'));
-                return $this->response->setJSON([
-                    'draw' => $draw,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    'error' => 'Required tables do not exist'
-                ]);
-            }
-            
-            // Get total records count
-            $totalRecords = $this->db->table('prescriptions')->countAllResults();
+            // Get total records count (scoped)
+            $totalRecords = $this->prescriptionModel->countPrescriptionsByClinic($clinicId);
             
             // If no prescriptions exist, return empty result
             if ($totalRecords == 0) {
@@ -153,38 +117,15 @@ class Prescription extends BaseController
                 ]);
             }
             
-            // Build query
-            $query = $this->db->table('prescriptions')
-                ->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone')
-                ->join('patients', 'patients.id = prescriptions.patient_id', 'left');
-            
-            // Apply search filter
-            if (!empty($searchValue)) {
-                $query->groupStart()
-                    ->like('prescriptions.id', $searchValue)
-                    ->orLike('patients.first_name', $searchValue)
-                    ->orLike('patients.last_name', $searchValue)
-                    ->orLike('patients.phone', $searchValue)
-                    ->orLike('prescriptions.medication_name', $searchValue)
-                    ->orLike('prescriptions.notes', $searchValue)
-                    ->groupEnd();
-            }
-            
             // Get filtered count
-            $filteredRecords = $query->countAllResults(false);
+            $filteredRecords = $this->prescriptionModel->countPrescriptionsByClinic($clinicId, $searchValue);
             
             // Get data with ordering and pagination
-            $prescriptions = $query->orderBy($orderColumnName, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            $prescriptions = $this->prescriptionModel->getPrescriptionsByClinic($clinicId, $length, $start, $searchValue, $orderColumnName, $orderDir);
             
             // Format data
             $data = [];
             foreach ($prescriptions as $prescription) {
-                // Log the raw prescription data for debugging
-                log_message('debug', 'Raw prescription data: ' . json_encode($prescription));
-                
                 $data[] = [
                     'id' => intval($prescription['id'] ?? 0),
                     'prescription_id' => 'RX-' . str_pad($prescription['id'], 6, '0', STR_PAD_LEFT),
@@ -198,9 +139,6 @@ class Prescription extends BaseController
                     'patient_id' => intval($prescription['patient_id'] ?? 0)
                 ];
             }
-            
-            // Calculate pagination
-            $totalPages = ceil($filteredRecords / $length);
             
             return $this->response->setJSON([
                 'draw' => $draw,
