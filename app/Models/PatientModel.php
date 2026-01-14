@@ -103,6 +103,26 @@ class PatientModel extends Model
         return $this->where('patient_id', $patientId)->first();
     }
 
+    public function searchPatientsByClinic($clinicId, $searchTerm = null, $limit = 20)
+    {
+        $builder = $this->where('clinic_id', $clinicId)
+                        ->where('status', 'active');
+
+        if (!empty($searchTerm)) {
+            $builder->groupStart()
+                ->like('first_name', $searchTerm)
+                ->orLike('last_name', $searchTerm)
+                ->orLike('email', $searchTerm)
+                ->orLike('phone', $searchTerm)
+                ->orLike('patient_id', $searchTerm)
+                ->groupEnd();
+        }
+
+        return $builder->orderBy('first_name', 'ASC')
+                       ->limit($limit)
+                       ->findAll();
+    }
+
     public function searchPatients($searchTerm)
     {
         return $this->groupStart()
