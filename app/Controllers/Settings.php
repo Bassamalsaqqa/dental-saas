@@ -394,6 +394,65 @@ class Settings extends BaseController
         }
     }
 
+    /**
+     * Update global export retention policy (Superadmin only)
+     */
+    public function updateRetention()
+    {
+        // Strict Superadmin Check via Global Mode
+        if (!session()->get('global_mode')) {
+            return redirect()->to('/dashboard')->with('error', 'Unauthorized: Control Plane access required.');
+        }
+
+        $rules = [
+            'retention_mode'   => 'required|in_list[latest,keep_last_n,keep_x_days]',
+            'retention_last_n' => 'permit_empty|is_natural_no_zero',
+            'retention_days'   => 'permit_empty|is_natural_no_zero',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $settings = [
+            'retention_mode'   => $this->request->getPost('retention_mode'),
+            'retention_last_n' => $this->request->getPost('retention_last_n') ?: 5,
+            'retention_days'   => $this->request->getPost('retention_days') ?: 30,
+        ];
+
+        foreach ($settings as $key => $value) {
+            $this->settingsModel->setGlobalSetting($key, $value);
+        }
+
+        return redirect()->to('/settings')->with('success', 'Export retention policy updated successfully!');
+    }
+
+    /**
+     * Physically prune export files from disk (Superadmin only)
+     */
+    public function pruneExports()
+    {
+        // AJAX/Strict Superadmin Check
+        if (!session()->get('global_mode')) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        try {
+            $retentionService = new \App\Services\RetentionService();
+            $count = $retentionService->physicalCleanup();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'count'   => $count
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     private function getSettings()
     {
         try {

@@ -100,6 +100,12 @@
                             <i class="fas fa-database w-5 h-5 mr-3"></i>
                             DB Backup
                         </button>
+                        <?php if (session()->get('global_mode')): ?>
+                        <button onclick="showSettingsTab('retention')" id="tab-retention" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            <i class="fas fa-history w-5 h-5 mr-3"></i>
+                            Export Retention
+                        </button>
+                        <?php endif; ?>
                     </nav>
                 </div>
             </div>
@@ -646,12 +652,152 @@
                                             <p class="text-gray-500">Create your first backup to get started</p>
                                         </div>
                                     <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                    
+                                                    <!-- Export Retention Tab (Superadmin Only) -->
+                                                    <?php if (session()->get('global_mode')): ?>
+                                                    <div id="retention-tab" class="settings-tab hidden">
+                                                        <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
+                                                            <div class="bg-gradient-to-r from-red-500 via-rose-600 to-pink-600 p-8">
+                                                                <div class="flex items-center space-x-4">
+                                                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                                                        <i class="fas fa-history text-white text-xl"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h3 class="text-2xl font-bold text-white">Export Retention Policy</h3>
+                                                                        <p class="text-red-100">Configure how long generated exports and reports are kept</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                    
+                                                            <div class="p-8">
+                                                                <form action="<?= base_url('settings/updateRetention') ?>" method="POST">
+                                                                    <?= csrf_field() ?>
+                                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                                        <div>
+                                                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Retention Mode</label>
+                                                                            <select name="retention_mode" onchange="toggleRetentionOptions(this.value)" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-200" required>
+                                                                                <option value="latest" <?= ($settings['retention_mode'] ?? 'latest') == 'latest' ? 'selected' : '' ?>>Keep Only Latest (Default)</option>
+                                                                                <option value="keep_last_n" <?= ($settings['retention_mode'] ?? '') == 'keep_last_n' ? 'selected' : '' ?>>Keep Last N Exports</option>
+                                                                                <option value="keep_x_days" <?= ($settings['retention_mode'] ?? '') == 'keep_x_days' ? 'selected' : '' ?>>Keep for X Days</option>
+                                                                            </select>
+                                                                            <p class="text-xs text-gray-500 mt-2">Determines the rule for superseding previous exports of the same type.</p>
+                                                                        </div>
+                                    
+                                                                        <div id="retention-n-group" class="<?= ($settings['retention_mode'] ?? '') == 'keep_last_n' ? '' : 'hidden' ?>">
+                                                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Exports to Keep (N)</label>
+                                                                            <input type="number" name="retention_last_n" value="<?= $settings['retention_last_n'] ?? 5 ?>" min="1" max="100" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-200">
+                                                                        </div>
+                                    
+                                                                        <div id="retention-days-group" class="<?= ($settings['retention_mode'] ?? '') == 'keep_x_days' ? '' : 'hidden' ?>">
+                                                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Days to Keep (X)</label>
+                                                                            <input type="number" name="retention_days" value="<?= $settings['retention_days'] ?? 30 ?>" min="1" max="365" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-200">
+                                                                        </div>
+                                                                    </div>
+                                    
+                                                                    <div class="mt-8 flex justify-end">
+                                                                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                                                            <i class="fas fa-save mr-2"></i>Update Policy
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                    
+                                                                <div class="mt-12 pt-8 border-t border-gray-100">
+                                                                    <h4 class="text-lg font-bold text-gray-800 mb-4">Maintenance Operations</h4>
+                                                                    <div class="bg-gray-50 rounded-2xl p-6 border-2 border-gray-100">
+                                                                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                            <div>
+                                                                                <h5 class="font-bold text-gray-800">Physical Cleanup</h5>
+                                                                                <p class="text-sm text-gray-600">Permanently delete files from disk that have been soft-deleted by retention policies.</p>
+                                                                            </div>
+                                                                            <form action="<?= base_url('settings/pruneExports') ?>" method="POST">
+                                                                                <?= csrf_field() ?>
+                                                                                <button type="submit" onclick="return confirm('Are you sure you want to permanently delete all soft-deleted export files from disk? This cannot be undone.')" class="px-6 py-2 bg-white border-2 border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all">
+                                                                                    <i class="fas fa-broom mr-2"></i>Prune Disk Files
+                                                                                </button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                <!-- Export Retention Tab (Superadmin Only) -->
+                <?php if (session()->get('global_mode')): ?>
+                <div id="retention-tab" class="settings-tab hidden">
+                    <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-red-500 via-rose-600 to-pink-600 p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-history text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Export Retention Policy</h3>
+                                    <p class="text-red-100">Global policy for persisting and pruning export artifacts</p>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="p-8">
+                            <form action="<?= base_url('settings/updateRetention') ?>" method="POST">
+                                <?= csrf_field() ?>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-4">Retention Mode</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-all <?= ($settings['retention_mode'] ?? 'latest') == 'latest' ? 'border-red-500 bg-red-50' : 'border-gray-200' ?>">
+                                                <input type="radio" name="retention_mode" value="latest" class="sr-only" <?= ($settings['retention_mode'] ?? 'latest') == 'latest' ? 'checked' : '' ?>>
+                                                <span class="font-bold text-gray-900">Latest Only</span>
+                                                <span class="text-xs text-gray-500 mt-1">Keep only the most recent export per purpose.</span>
+                                            </label>
+                                            <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-all <?= ($settings['retention_mode'] ?? '') == 'keep_last_n' ? 'border-red-500 bg-red-50' : 'border-gray-200' ?>">
+                                                <input type="radio" name="retention_mode" value="keep_last_n" class="sr-only" <?= ($settings['retention_mode'] ?? '') == 'keep_last_n' ? 'checked' : '' ?>>
+                                                <span class="font-bold text-gray-900">Keep Last N</span>
+                                                <span class="text-xs text-gray-500 mt-1">Keep a specific number of previous exports.</span>
+                                            </label>
+                                            <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-all <?= ($settings['retention_mode'] ?? '') == 'keep_x_days' ? 'border-red-500 bg-red-50' : 'border-gray-200' ?>">
+                                                <input type="radio" name="retention_mode" value="keep_x_days" class="sr-only" <?= ($settings['retention_mode'] ?? '') == 'keep_x_days' ? 'checked' : '' ?>>
+                                                <span class="font-bold text-gray-900">Time Based</span>
+                                                <span class="text-xs text-gray-500 mt-1">Keep exports for a set number of days.</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="n-config" class="<?= ($settings['retention_mode'] ?? 'latest') == 'keep_last_n' ? '' : 'hidden' ?>">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Number of exports to keep (N)</label>
+                                        <input type="number" name="retention_last_n" value="<?= $settings['retention_last_n'] ?? 5 ?>" min="1" max="100" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all">
+                                    </div>
+
+                                    <div id="days-config" class="<?= ($settings['retention_mode'] ?? 'latest') == 'keep_x_days' ? '' : 'hidden' ?>">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Number of days to keep</label>
+                                        <input type="number" name="retention_days" value="<?= $settings['retention_days'] ?? 30 ?>" min="1" max="365" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all">
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-8 border-t border-gray-100 flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <button type="button" onclick="pruneExports()" class="px-6 py-3 bg-white border-2 border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all">
+                                            <i class="fas fa-broom mr-2"></i>Prune Exports Now
+                                        </button>
+                                        <p class="text-xs text-gray-500 max-w-xs italic">
+                                            Pruning will physically delete files from disk for all soft-deleted or expired attachments.
+                                        </p>
+                                    </div>
+                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-rose-700 transition-all shadow-lg">
+                                        <i class="fas fa-save mr-2"></i>Save Policy
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -836,6 +982,79 @@ function confirmRestore(filename) {
     form.appendChild(input);
     document.body.appendChild(form);
     form.submit();
+}
+
+// Retention Tab Logic
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.name === 'retention_mode') {
+        const mode = e.target.value;
+        const nConfig = document.getElementById('n-config');
+        const daysConfig = document.getElementById('days-config');
+        
+        // Hide all configs
+        nConfig?.classList.add('hidden');
+        daysConfig?.classList.add('hidden');
+        
+        // Show target config
+        if (mode === 'keep_last_n') nConfig?.classList.remove('hidden');
+        if (mode === 'keep_x_days') daysConfig?.classList.remove('hidden');
+        
+        // Update visual selection
+        document.querySelectorAll('input[name="retention_mode"]').forEach(radio => {
+            const label = radio.closest('label');
+            if (radio.checked) {
+                label.classList.add('border-red-500', 'bg-red-50');
+                label.classList.remove('border-gray-200');
+            } else {
+                label.classList.remove('border-red-500', 'bg-red-50');
+                label.classList.add('border-gray-200');
+            }
+        });
+    }
+});
+
+function pruneExports() {
+    if (!confirm('Are you sure you want to physically delete all expired/superseded export files from disk? This cannot be undone.')) {
+        return;
+    }
+    
+    const btn = event.currentTarget;
+    const originalText = btn.textContent;
+    const originalIcon = btn.querySelector('i');
+    
+    // Create spinner
+    const spinner = document.createElement('i');
+    spinner.className = 'fas fa-spinner fa-spin mr-2';
+    
+    btn.disabled = true;
+    btn.replaceChildren(spinner, document.createTextNode('Pruning...'));
+
+    fetch('<?= base_url('settings/prune-exports') ?>', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Success', data.message, 'success');
+        } else {
+            showNotification('Error', data.message || 'Pruning failed', 'error');
+        }
+    })
+    .catch(err => {
+        showNotification('Error', 'An unexpected error occurred.', 'error');
+        console.error(err);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.replaceChildren();
+        if (originalIcon) btn.appendChild(originalIcon);
+        btn.appendChild(document.createTextNode(originalText));
+    });
 }
 
 // Initialize Select2 for all select elements

@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class SettingsModel extends Model
+class SettingsModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'settings';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -59,12 +57,21 @@ class SettingsModel extends Model
      */
     public function getSetting($key, $default = null)
     {
-        $clinicId = session()->get('active_clinic_id');
-        $query = $this->where('setting_key', $key);
-        if ($clinicId) {
-            $query->where('clinic_id', $clinicId);
-        }
-        $setting = $query->first();
+        $clinicId = session()->get('active_clinic_id') ?? 0;
+        $setting = $this->where('setting_key', $key)
+                        ->where('clinic_id', $clinicId)
+                        ->first();
+        return $setting ? $this->parseValue($setting['setting_value'], $setting['setting_type']) : $default;
+    }
+
+    /**
+     * Get a global (platform-wide) setting
+     */
+    public function getGlobalSetting($key, $default = null)
+    {
+        $setting = $this->where('setting_key', $key)
+                        ->where('clinic_id', 0)
+                        ->first();
         return $setting ? $this->parseValue($setting['setting_value'], $setting['setting_type']) : $default;
     }
 
@@ -73,12 +80,10 @@ class SettingsModel extends Model
      */
     public function setSetting($key, $value, $type = 'string', $description = null)
     {
-        $clinicId = session()->get('active_clinic_id');
-        $query = $this->where('setting_key', $key);
-        if ($clinicId) {
-            $query->where('clinic_id', $clinicId);
-        }
-        $existing = $query->first();
+        $clinicId = session()->get('active_clinic_id') ?? 0;
+        $existing = $this->where('setting_key', $key)
+                         ->where('clinic_id', $clinicId)
+                         ->first();
 
         $skipValidation = false;
         if ($value === '' && in_array($key, ['clinic_logo_path', 'clinic_website', 'clinic_tagline'], true)) {
@@ -87,42 +92,72 @@ class SettingsModel extends Model
         }
         
         $data = [
-            'setting_key' => $key,
+            'clinic_id'     => $clinicId,
+            'setting_key'   => $key,
             'setting_value' => $this->serializeValue($value, $type),
-            'setting_type' => $type,
-            'description' => $description
+            'setting_type'  => $type,
+            'description'   => $description
         ];
 
-        log_message('info', "Setting {$key} = " . json_encode($value) . " (type: {$type})");
+        log_message('info', "Setting {$key} = " . json_encode($value) . " (type: {$type}) for Clinic: {$clinicId}");
 
         if ($existing) {
             $result = $this->update($existing['id'], $data);
-            log_message('info', "Updated existing setting {$key}: " . ($result ? 'success' : 'failed'));
-            if ($skipValidation) {
-                $this->skipValidation(false);
-            }
+            if ($skipValidation) $this->skipValidation(false);
             return $result;
         } else {
             $result = $this->insert($data);
-            log_message('info', "Inserted new setting {$key}: " . ($result ? 'success' : 'failed'));
-            if ($skipValidation) {
-                $this->skipValidation(false);
-            }
+            if ($skipValidation) $this->skipValidation(false);
             return $result;
         }
     }
 
     /**
-     * Get all settings as an associative array
+     * Set a global setting
+     */
+    public function setGlobalSetting($key, $value, $type = 'string', $description = null)
+    {
+        $existing = $this->where('setting_key', $key)
+                         ->where('clinic_id', 0)
+                         ->first();
+        
+        $data = [
+            'clinic_id'     => 0,
+            'setting_key'   => $key,
+            'setting_value' => $this->serializeValue($value, $type),
+            'setting_type'  => $type,
+            'description'   => $description
+        ];
+
+        if ($existing) {
+            return $this->update($existing['id'], $data);
+        } else {
+            return $this->insert($data);
+        }
+    }
+
+    /**
+     * Get all settings for current context as an associative array
      */
     public function getAllSettings()
     {
-        $clinicId = session()->get('active_clinic_id');
-        $query = $this;
-        if ($clinicId) {
-            $query = $this->where('clinic_id', $clinicId);
+        $clinicId = session()->get('active_clinic_id') ?? 0;
+        $settings = $this->where('clinic_id', $clinicId)->findAll();
+        $result = [];
+        
+        foreach ($settings as $setting) {
+            $result[$setting['setting_key']] = $this->parseValue($setting['setting_value'], $setting['setting_type']);
         }
-        $settings = $query->findAll();
+        
+        return $result;
+    }
+
+    /**
+     * Get all global (platform-wide) settings
+     */
+    public function getGlobalSettings()
+    {
+        $settings = $this->where('clinic_id', 0)->findAll();
         $result = [];
         
         foreach ($settings as $setting) {

@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class FileAttachmentModel extends Model
+class FileAttachmentModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'file_attachments';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
@@ -46,5 +44,13 @@ class FileAttachmentModel extends Model
                     ->where('entity_id', $entityId)
                     ->where('purpose', $purpose)
                     ->delete();
+    }
+
+    /**
+     * Permanently remove a soft-deleted record
+     */
+    public function deletePermanently($id)
+    {
+        return $this->db->table($this->table)->delete(['id' => $id]);
     }
 }
