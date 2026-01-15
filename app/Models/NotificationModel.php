@@ -23,6 +23,7 @@ class NotificationModel extends TenantAwareModel
         'failure_reason',
         'initiated_by_user_id',
         'job_audit_id',
+        'parent_notification_id',
         'created_at'
     ];
 

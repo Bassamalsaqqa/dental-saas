@@ -22,26 +22,81 @@ class NotificationService
         $this->patientModel = new PatientModel();
     }
 
-    /**
-     * Enqueue a notification (Governance Layer - No Sending)
-     *
-     * @param int $clinicId
-     * @param string $channelType 'email'|'sms'|'whatsapp'
-     * @param array $recipients Array of ['type' => 'user|patient|external', 'id' => int, 'address' => string]
-     * @param array $payload Content payload
-     * @param int|null $initiatedByUserId
-     * @param int|null $jobAuditId
-     * @return array Summary of operations
-     */
-    public function enqueue(
-        int $clinicId,
-        string $channelType,
-        array $recipients,
-        array $payload,
-        ?int $initiatedByUserId = null,
-        ?int $jobAuditId = null
-    ): array {
-        $result = [
+        /**
+         * Retry a failed/blocked notification (Governance Layer)
+         * 
+         * @param int $notificationId
+         * @param int $actorUserId
+         * @param int $clinicId Context check
+         * @return array Result of enqueue
+         * @throws \RuntimeException
+         */
+        public function retryNotification(int $notificationId, int $actorUserId, int $clinicId): array
+        {
+            $original = $this->notificationModel->find($notificationId);
+    
+            if (!$original) {
+                throw new \RuntimeException("Notification not found.");
+            }
+    
+            // Tenant Context Check
+            if ($original['clinic_id'] != $clinicId) {
+                throw new \RuntimeException("Access Denied: Cross-clinic retry attempt.");
+            }
+    
+            // Status Check (Allowed: failed, blocked)
+            if (!in_array($original['status'], ['failed', 'blocked'])) {
+                throw new \RuntimeException("Cannot retry notification with status: " . $original['status']);
+            }
+    
+            // Prepare Recipients
+            $recipients = [[
+                'type' => $original['recipient_type'],
+                'id' => $original['recipient_id'],
+                'address' => $original['recipient_address']
+            ]];
+    
+            // Prepare Payload
+            $payload = json_decode($original['payload_json'], true);
+    
+            // Enqueue (This will create new row, validate again, and set status)
+            // We need to pass parent_notification_id. 
+            // I need to modify enqueue to accept parent_notification_id first?
+            // Or I can update the row after insert?
+            // Enqueue is strict. Let's update enqueue signature to accept optional parentId.
+            
+            return $this->enqueue(
+                $clinicId,
+                $original['channel_type'],
+                $recipients,
+                $payload,
+                $actorUserId,
+                null, // jobAuditId
+                $notificationId // parentNotificationId
+            );
+        }
+    
+        /**
+         * Enqueue a notification (Governance Layer - No Sending)
+         * 
+         * @param int $clinicId
+         * @param string $channelType 'email'|'sms'|'whatsapp'
+         * @param array $recipients Array of ['type' => 'user|patient|external', 'id' => int, 'address' => string]
+         * @param array $payload Content payload
+         * @param int|null $initiatedByUserId
+         * @param int|null $jobAuditId
+         * @param int|null $parentNotificationId
+         * @return array Summary of operations
+         */
+        public function enqueue(
+            int $clinicId,
+            string $channelType,
+            array $recipients,
+            array $payload,
+            ?int $initiatedByUserId = null,
+            ?int $jobAuditId = null,
+            ?int $parentNotificationId = null
+        ): array {        $result = [
             'total' => 0,
             'pending' => 0,
             'blocked' => 0,
@@ -120,7 +175,8 @@ class NotificationService
                 'status' => $status,
                 'failure_reason' => $reason,
                 'initiated_by_user_id' => $initiatedByUserId,
-                'job_audit_id' => $jobAuditId
+                'job_audit_id' => $jobAuditId,
+                'parent_notification_id' => $parentNotificationId
             ];
 
             $notificationId = $this->notificationModel->insert($ledgerData);
