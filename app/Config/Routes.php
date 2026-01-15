@@ -377,6 +377,8 @@ $routes->group('roles', ['filter' => ['auth', 'tenant']], function ($routes) {
 // Notifications routes (accessible to all authenticated users - Tenant Plane)
 $routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('notifications', 'Notifications::index');
+    $routes->get('notifications/ledger', 'NotificationLedger::index', ['filter' => 'permission:settings:view']); // New
+    $routes->post('notifications/ledger/retry/(:num)', 'NotificationLedger::retry/$1', ['filter' => 'permission:settings:edit']); // New
     $routes->get('api/notifications', 'Notifications::api');
     $routes->post('notifications/mark-read', 'Notifications::markAsRead');
     $routes->post('notifications/mark-read/(:num)', 'Notifications::markAsRead/$1');
