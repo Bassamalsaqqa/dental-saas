@@ -228,11 +228,20 @@ class Users extends BaseController
 
     public function show($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        // Use tenant-aware model fetch
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
+        
+        $user = (object)$userArray;
 
         // Get RBAC roles for display (prioritize RBAC over IonAuth groups)
         try {
@@ -261,11 +270,19 @@ class Users extends BaseController
 
     public function edit($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
+        
+        $user = (object)$userArray;
 
         // Get user roles from user_roles table
         $userRoleModel = new \App\Models\UserRoleModel();
@@ -300,11 +317,19 @@ class Users extends BaseController
 
     public function update($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
+        
+        $user = (object)$userArray;
 
         // Prevent role changes for admin user (ID: 1)
         if ($user->id == 1) {
@@ -380,11 +405,25 @@ class Users extends BaseController
 
     public function delete($id)
     {
-        $user = $this->ionAuth->user($id)->row();
-        
-        if (!$user) {
-            return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
         }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
+        
+        if (!$userArray) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
+            }
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+        }
+        
+        $user = (object)$userArray;
 
         // Prevent deletion of admin user (ID: 1)
         if ($user->id == 1) {
@@ -399,21 +438,27 @@ class Users extends BaseController
             }
         }
 
-        if ($this->ionAuth->deleteUser($id)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully']);
-        } else {
-            $errors = $this->ionAuth->errors();
-            return $this->response->setJSON(['success' => false, 'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to delete user')]);
-        }
+        // Remove from clinic_users
+        $this->clinicUserModel->where('clinic_id', $clinicId)->where('user_id', $id)->delete();
+        
+        return $this->response->setJSON(['success' => true, 'message' => 'User removed from clinic successfully']);
     }
 
     public function changePassword($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
+        
+        $user = (object)$userArray;
 
         $data = array_merge([
             'title' => 'Change Password',
@@ -425,9 +470,15 @@ class Users extends BaseController
 
     public function updatePassword($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
 
@@ -453,11 +504,19 @@ class Users extends BaseController
 
     public function toggleStatus($id)
     {
-        $user = $this->ionAuth->user($id)->row();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
         
-        if (!$user) {
+        if (!$userArray) {
             return $this->response->setJSON(['success' => false, 'message' => 'User not found']);
         }
+        
+        $user = (object)$userArray;
 
         $newStatus = $user->active == 1 ? 0 : 1;
         
@@ -595,6 +654,12 @@ class Users extends BaseController
         }
 
         $userId = $this->request->getPost('user_id');
+        $clinicId = session()->get('active_clinic_id');
+        
+        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
+             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
+        }
+
         $roleId = $this->request->getPost('role_id');
         $expiresAt = $this->request->getPost('expires_at');
 
@@ -623,6 +688,12 @@ class Users extends BaseController
         }
 
         $userId = $this->request->getPost('user_id');
+        $clinicId = session()->get('active_clinic_id');
+        
+        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
+             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
+        }
+
         $roleId = $this->request->getPost('role_id');
 
         // Prevent role changes for admin user (ID: 1)
@@ -641,15 +712,33 @@ class Users extends BaseController
     }
 
     /**
-     * Grant permission to user (AJAX)
+     * Grant permission to user (AJAX) - RESTRICTED TO SUPER ADMIN
      */
     public function grantPermission()
     {
+        // 1. Must have manage users permission
         if (!$this->canManageUsers()) {
             return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
         }
 
+        // 2. Must be Super Admin to grant individual permissions (Control Plane logic)
+        try {
+            if (!$this->permissionService->isSuperAdmin($this->getCurrentUser()->id)) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
+            }
+        } catch (\Exception $e) {
+            if (!$this->ionAuth->isAdmin()) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
+            }
+        }
+
         $userId = $this->request->getPost('user_id');
+        $clinicId = session()->get('active_clinic_id');
+        
+        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
+             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
+        }
+
         $permissionId = $this->request->getPost('permission_id');
         $expiresAt = $this->request->getPost('expires_at');
 
@@ -669,15 +758,33 @@ class Users extends BaseController
     }
 
     /**
-     * Revoke permission from user (AJAX)
+     * Revoke permission from user (AJAX) - RESTRICTED TO SUPER ADMIN
      */
     public function revokePermission()
     {
+        // 1. Must have manage users permission
         if (!$this->canManageUsers()) {
             return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage users.']);
         }
 
+        // 2. Must be Super Admin to revoke individual permissions (Control Plane logic)
+        try {
+            if (!$this->permissionService->isSuperAdmin($this->getCurrentUser()->id)) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
+            }
+        } catch (\Exception $e) {
+            if (!$this->ionAuth->isAdmin()) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Direct permission overrides are restricted to system administrators.']);
+            }
+        }
+
         $userId = $this->request->getPost('user_id');
+        $clinicId = session()->get('active_clinic_id');
+        
+        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
+             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
+        }
+
         $permissionId = $this->request->getPost('permission_id');
 
         // Prevent permission changes for admin user (ID: 1)
@@ -706,6 +813,11 @@ class Users extends BaseController
 
         if (!$userId) {
             $userId = $this->request->getPost('user_id');
+        }
+        
+        $clinicId = session()->get('active_clinic_id');
+        if (!$this->clinicUserModel->isUserInClinic($clinicId, $userId)) {
+             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'User not found in this clinic']);
         }
 
         $permissions = $this->getUserPermissions($userId);

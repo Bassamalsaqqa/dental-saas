@@ -37,4 +37,14 @@ class ClinicUserModel extends Model
                     ->where('clinics.status', 'active')
                     ->first();
     }
+
+    /**
+     * Check if a user belongs to a clinic
+     */
+    public function isUserInClinic($clinicId, $userId)
+    {
+        return $this->where('clinic_id', $clinicId)
+                    ->where('user_id', $userId)
+                    ->countAllResults() > 0;
+    }
 }

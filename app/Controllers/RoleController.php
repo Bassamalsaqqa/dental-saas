@@ -60,6 +60,37 @@ class RoleController extends BaseController
     }
 
     /**
+     * Ensure the request is coming from the Control Plane (Super Admin)
+     */
+    private function ensureControlPlane()
+    {
+        $session = session();
+        $isSuperAdmin = false;
+        
+        try {
+            $user = $this->getCurrentUser();
+            if ($user) {
+                $isSuperAdmin = $this->permissionService->isSuperAdmin($user->id);
+            }
+        } catch (\Exception $e) {
+            $isSuperAdmin = $this->ionAuth->isAdmin();
+        }
+
+        // Must be Super Admin AND in global_mode (or just Super Admin for strict enforcement)
+        if (!$isSuperAdmin || $session->get('global_mode') !== true) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON([
+                    'success' => false, 
+                    'message' => 'This action is restricted to system administrators in control plane mode.'
+                ]);
+            }
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        
+        return null;
+    }
+
+    /**
      * Display roles list
      */
     public function index()
@@ -69,14 +100,17 @@ class RoleController extends BaseController
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
         }
 
+        $clinicId = session()->get('active_clinic_id');
+        $globalMode = session()->get('global_mode') === true;
+
         // Get all roles (active and inactive)
         $roles = $this->roleModel->findAll();
         
         // Enhance each role with additional data
         foreach ($roles as &$role) {
             try {
-                // Get user count for this role
-                $role['user_count'] = $this->roleModel->getUserCount($role['id']);
+                // Get user count for this role (scoped to clinic if tenant)
+                $role['user_count'] = $this->roleModel->getUserCount($role['id'], $clinicId);
                 
                 // Get permission count for this role
                 $rolePermissions = $this->roleModel->getPermissionsGrouped($role['id']);
@@ -105,6 +139,7 @@ class RoleController extends BaseController
             'roles' => $roles,
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories(),
+            'global_mode' => $globalMode,
             'diagnostics' => [
                 'total_permissions' => $totalPermissions,
                 'total_user_roles' => $totalUserRoles,
@@ -120,10 +155,7 @@ class RoleController extends BaseController
      */
     public function create()
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) { 
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $data = [
             'title' => 'Create New Role',
@@ -140,10 +172,7 @@ class RoleController extends BaseController
      */
     public function store()
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $rules = [
             'name' => 'required|max_length[100]|is_unique[roles.name]',
@@ -187,10 +216,7 @@ class RoleController extends BaseController
      */
     public function edit($id)
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $role = $this->roleModel->getWithPermissions($id);
         
@@ -220,10 +246,7 @@ class RoleController extends BaseController
      */
     public function update($id)
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $role = $this->roleModel->find($id);
         
@@ -276,13 +299,7 @@ class RoleController extends BaseController
      */
     public function delete($id)
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage roles.']);
-            }
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $role = $this->roleModel->find($id);
         
@@ -336,10 +353,12 @@ class RoleController extends BaseController
             return redirect()->to('/roles')->with('error', 'Role not found.');
         }
 
+        $clinicId = session()->get('active_clinic_id');
+
         $data = [
             'title' => 'Role Details: ' . $role['name'],
             'role' => $role,
-            'users' => $this->roleModel->getUsers($id),
+            'users' => $this->roleModel->getUsers($id, $clinicId),
             'permissions_grouped' => $this->roleModel->getPermissionsGrouped($id)
         ];
 
@@ -351,12 +370,21 @@ class RoleController extends BaseController
      */
     public function sync()
     { 
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
-        return redirect()->to('/rbac/sync');
+        try {
+            $result = $this->syncService->fullSync();
+            $message = "Successfully synced {$result['permissions_synced']} permissions and {$result['roles_synced']} roles.";
+            
+            if (isset($result['admin_assigned']) && $result['admin_assigned'] > 0) {
+                $message .= " Assigned {$result['admin_assigned']} admin user(s) to Super Admin role.";
+            }
+            
+            return redirect()->to('/roles')->with('success', $message);
+        } catch (\Exception $e) {
+            log_message('error', 'Permission sync failed: ' . $e->getMessage());
+            return redirect()->to('/roles')->with('error', 'Failed to sync permissions: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -364,7 +392,7 @@ class RoleController extends BaseController
      */
     public function getPermissions($id)
     {
-        // Check if user can manage roles
+        // View-only permissions fetch is okay for tenant admins to see what roles do
         if (!$this->canManageRoles()) {
             return $this->response->setJSON(['error' => 'Permission denied']);
         }
@@ -386,7 +414,7 @@ class RoleController extends BaseController
      */
     public function stats()
     {
-        // Check if user can manage roles
+        // Statistics view is okay for tenant admins
         if (!$this->canManageRoles()) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
         }
@@ -407,13 +435,7 @@ class RoleController extends BaseController
      */
     public function toggleStatus($id)
     {
-        // Check if user can manage roles
-        if (!$this->canManageRoles()) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'You do not have permission to manage roles.']);
-            }
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
-        }
+        if ($response = $this->ensureControlPlane()) return $response;
 
         $role = $this->roleModel->find($id);
         

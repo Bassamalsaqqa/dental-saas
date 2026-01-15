@@ -169,7 +169,13 @@ class Doctor extends BaseController
      */
     public function update($id)
     {
-        $doctor = $this->userModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        // Verify doctor belongs to clinic
+        $doctor = $this->userModel->getDoctorWithDetails($id, $clinicId);
         
         if (!$doctor) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Doctor not found');
@@ -255,7 +261,13 @@ class Doctor extends BaseController
      */
     public function delete($id)
     {
-        $doctor = $this->userModel->find($id);
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        // Verify doctor belongs to clinic
+        $doctor = $this->userModel->getDoctorWithDetails($id, $clinicId);
         
         if (!$doctor) {
             return $this->response->setJSON(['success' => false, 'message' => 'Doctor not found']);

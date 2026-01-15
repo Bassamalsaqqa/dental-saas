@@ -123,12 +123,16 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Medical Role *</label>
                         <select name="role_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" required>
-                            <option value="">Select Medical Role</option>
-                            <?php foreach ($medical_roles as $role): ?>
-                                <option value="<?= $role['id'] ?>" <?= old('role_id') == $role['id'] ? 'selected' : '' ?>>
-                                    <?= esc($role['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
+                            <?php if (empty($medical_roles)): ?>
+                                <option value="">No Medical Roles Found - Please Sync Permissions</option>
+                            <?php else: ?>
+                                <option value="">Select Medical Role</option>
+                                <?php foreach ($medical_roles as $role): ?>
+                                    <option value="<?= $role['id'] ?>" <?= old('role_id') == $role['id'] ? 'selected' : '' ?>>
+                                        <?= esc($role['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     

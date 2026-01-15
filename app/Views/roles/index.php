@@ -10,15 +10,21 @@
                 <p class="text-gray-600 text-lg">Manage system roles and their permissions</p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <?php if (has_permission('settings', 'edit')): ?>
-                    <a href="<?= base_url('roles/sync') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
-                    </a>
-                <?php endif; ?>
-                <?php if (has_permission('users', 'create')): ?>
-                    <a href="<?= base_url('roles/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-plus mr-2"></i>Create Role
-                    </a>
+                <?php if ($global_mode): ?>
+                    <?php if (has_permission('settings', 'edit')): ?>
+                        <a href="<?= base_url('roles/sync') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
+                        </a>
+                    <?php endif; ?>
+                    <?php if (has_permission('users', 'create')): ?>
+                        <a href="<?= base_url('roles/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-plus mr-2"></i>Create Role
+                        </a>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <span class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-500 text-xs font-medium rounded-lg border border-gray-200 shadow-sm" title="System roles are managed by the platform administrator">
+                        <i class="fas fa-lock mr-2"></i> System Managed Roles
+                    </span>
                 <?php endif; ?>
             </div>
         </div>
@@ -211,25 +217,29 @@
                     <!-- Action Buttons -->
                     <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                         <div class="flex items-center space-x-2">
-                            <?php if (has_permission('users', 'edit') && $role['slug'] !== 'super_admin'): ?>
-                                <a href="<?= base_url('roles/' . $role['id'] . '/edit') ?>" 
-                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                                    <i class="fas fa-edit mr-1"></i>
-                                    Edit
-                                </a>
-                            <?php endif; ?>
-                            
-                            <?php if (!$role['is_system'] && has_permission('users', 'delete') && $role['slug'] !== 'super_admin'): ?>
-                                <button onclick="deleteRole(<?= $role['id'] ?>)" 
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
-                                    <i class="fas fa-trash mr-1"></i>
-                                    Delete
-                                </button>
+                            <?php if ($global_mode): ?>
+                                <?php if (has_permission('users', 'edit') && $role['slug'] !== 'super_admin'): ?>
+                                    <a href="<?= base_url('roles/' . $role['id'] . '/edit') ?>" 
+                                       class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                                        <i class="fas fa-edit mr-1"></i>
+                                        Edit
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <?php if (!$role['is_system'] && has_permission('users', 'delete') && $role['slug'] !== 'super_admin'): ?>
+                                    <button onclick="deleteRole(<?= $role['id'] ?>)" 
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
+                                        <i class="fas fa-trash mr-1"></i>
+                                        Delete
+                                    </button>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="text-xs text-gray-400 italic">Read-only system role</span>
                             <?php endif; ?>
                         </div>
                         
                         <div class="flex items-center space-x-2">
-                            <?php if (has_permission('users', 'edit') && $role['slug'] !== 'super_admin'): ?>
+                            <?php if ($global_mode && has_permission('users', 'edit') && $role['slug'] !== 'super_admin'): ?>
                                 <button onclick="toggleRoleStatus(<?= $role['id'] ?>, <?= $role['is_active'] ? 0 : 1 ?>)" 
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium <?= $role['is_active'] ? 'text-orange-600 bg-orange-50 hover:bg-orange-100' : 'text-green-600 bg-green-50 hover:bg-green-100' ?> rounded-lg transition-colors duration-200">
                                     <i class="fas <?= $role['is_active'] ? 'fa-pause' : 'fa-play' ?> mr-1"></i>

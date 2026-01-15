@@ -54,10 +54,14 @@ class PermissionSyncService
         $configRoles = Permissions::getDefaultRoles();
         $syncedCount = 0;
         
+        $medicalRoles = ['senior_doctor', 'doctor', 'dental_assistant'];
+
         foreach ($configRoles as $slug => $roleData) {
             // Check if role exists
             $existingRole = $this->roleModel->getBySlug($slug);
             
+            $isMedical = in_array($slug, $medicalRoles) ? 1 : 0;
+
             if (!$existingRole) {
                 // Create new role
                 $roleId = $this->roleModel->insert([
@@ -65,6 +69,8 @@ class PermissionSyncService
                     'slug' => $slug,
                     'description' => $roleData['description'],
                     'is_system' => 1,
+                    'is_medical' => $isMedical,
+                    'is_active' => 1,
                     'created_by' => 1 // Super admin
                 ]);
                 
@@ -74,6 +80,12 @@ class PermissionSyncService
                     $syncedCount++;
                 }
             } else {
+                // Role exists, ensure it is marked as system and medical if applicable
+                $this->roleModel->update($existingRole['id'], [
+                    'is_system' => 1,
+                    'is_medical' => $isMedical
+                ]);
+                
                 // Role exists, but ensure permissions are assigned
                 $this->assignPermissionsToRole($existingRole['id'], $roleData['permissions']);
             }

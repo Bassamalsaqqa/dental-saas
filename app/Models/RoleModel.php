@@ -234,30 +234,41 @@ class RoleModel extends Model
     }
 
     /**
-     * Get users assigned to role
+     * Get users assigned to role (scoped to clinic if provided)
      */
-    public function getUsers($roleId)
+    public function getUsers($roleId, $clinicId = null)
     {
         $db = \Config\Database::connect();
-        return $db->table('user_roles ur')
+        $builder = $db->table('user_roles ur')
                  ->select('u.*, ur.assigned_at, ur.expires_at, ur.is_active')
                  ->join('users u', 'u.id = ur.user_id')
                  ->where('ur.role_id', $roleId)
-                 ->where('ur.is_active', 1)
-                 ->get()
-                 ->getResultArray();
+                 ->where('ur.is_active', 1);
+
+        if ($clinicId) {
+            $builder->join('clinic_users cu', 'cu.user_id = u.id')
+                    ->where('cu.clinic_id', $clinicId);
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     /**
-     * Count users assigned to role
+     * Count users assigned to role (scoped to clinic if provided)
      */
-    public function getUserCount($roleId)
+    public function getUserCount($roleId, $clinicId = null)
     {
         $db = \Config\Database::connect();
-        return $db->table('user_roles')
-                 ->where('role_id', $roleId)
-                 ->where('is_active', 1)
-                 ->countAllResults();
+        $builder = $db->table('user_roles ur')
+                 ->where('ur.role_id', $roleId)
+                 ->where('ur.is_active', 1);
+
+        if ($clinicId) {
+            $builder->join('clinic_users cu', 'cu.user_id = ur.user_id')
+                    ->where('cu.clinic_id', $clinicId);
+        }
+
+        return $builder->countAllResults();
     }
 
     /**

@@ -344,18 +344,35 @@ class UserModel extends Model
     }
 
     /**
+     * Find a user by ID scoped to a clinic
+     */
+    public function findByClinic($clinicId, $userId)
+    {
+        return $this->select('users.*')
+                    ->join('clinic_users', 'clinic_users.user_id = users.id')
+                    ->where('clinic_users.clinic_id', $clinicId)
+                    ->where('users.id', $userId)
+                    ->first();
+    }
+
+    /**
      * Get single doctor with role details
      */
-    public function getDoctorWithDetails($id)
+    public function getDoctorWithDetails($id, $clinicId = null)
     {
-        return $this->db->table($this->table . ' u')
+        $builder = $this->db->table($this->table . ' u')
                     ->select('u.*, r.name as role_name, r.slug as role_slug, r.id as role_id')
                     ->join('user_roles ur', 'ur.user_id = u.id')
                     ->join('roles r', 'r.id = ur.role_id')
                     ->where('u.id', $id)
                     ->where('r.is_medical', 1)
-                    ->where('ur.is_active', 1)
-                    ->get()
-                    ->getRowArray();
+                    ->where('ur.is_active', 1);
+
+        if ($clinicId) {
+            $builder->join('clinic_users cu', 'cu.user_id = u.id')
+                    ->where('cu.clinic_id', $clinicId);
+        }
+
+        return $builder->get()->getRowArray();
     }
 }

@@ -27,7 +27,6 @@
   - **Odontogram:** Fixed `index`, `getPatientsData`, `updateTooth`, `resetTooth`, `export`, `print`, `pdf`.
   - **Examination:** Updated `Api\Examination`.
 - **Verification:** All ID-based fetches now verify `clinic_id` matches `session('active_clinic_id')`. Failures return 404 (HTML) or 403 (API).
-- **Guardrails:** `bash scripts/ci/saas_guardrails.sh` → DOM=0, Group=0, Raw=8; SaaS guardrail validation succeeded.
 
 ### Task: P5-03 Restore Missing Management Routes & Enforce Scoping
 - **Date:** 2026-01-14
@@ -55,3 +54,47 @@
     - `app/Services/SettingsService.php` (Added backup generation)
     - `docs/SaaS/guardrails/raw-tenant-queries.allowlist` (Cleaned up)
 - **Verification:** `scripts/ci/saas_guardrails.sh` (simulated via grep) passes with no unexpected raw queries.
+
+### Task: P5-04 Management IDOR Closure (Users/Doctor)
+- **Date:** 2026-01-14
+- **Status:** Completed
+- **Description:** Secured Users and Doctor controllers against IDOR by enforcing tenant isolation on all ID-accepting methods.
+- **Actions:**
+    - **Models:** Added `ClinicUserModel::isUserInClinic` and `UserModel::findByClinic`. Updated `UserModel::getDoctorWithDetails` to support scoping.
+    - **Users Controller:** Updated `show`, `edit`, `update`, `delete`, `changePassword`, `updatePassword`, `toggleStatus`, and all RBAC AJAX methods to validate `active_clinic_id` and ownership via `findByClinic`/`isUserInClinic`.
+    - **Doctor Controller:** Updated `show`, `edit`, `update`, `delete` to use `getDoctorWithDetails($id, $clinicId)` for ownership verification.
+- **Verification:** `docs/SaaS/verification/P5-04.md`. All methods now fail-closed (404/403) on tenant mismatch.
+- **Guardrails:** Green. No new raw queries.
+
+### Task: S0-01 Stabilization - Doctor Creation and Roles Sync UI
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Fixed empty Medical Role dropdown and repaired broken Roles Sync button.
+- **Actions:**
+    - **Models/Services:** Updated `PermissionSyncService` to correctly apply `is_medical` flag to medical roles.
+    - **Database:** Created and executed migration `FixMedicalRolesAndSyncPermissions` to stabilize role data and mark `doctor`, `senior_doctor`, and `dental_assistant` as medical roles.
+    - **Controllers:** Refactored `RoleController::sync()` to execute the sync directly, resolving 404 errors caused by `controlplane` filter on redirected route.
+    - **Views:** Added empty-state handling to doctor creation and edit dropdowns.
+- **Verification:** `docs/SaaS/verification/S0-01.md`. Dropdown is populated and Sync button is functional.
+- **Guardrails:** Green. Raw count = 8.
+
+### Task: S0-02 Roles Sync IDOR Fix (Tenant-Scoped Role-User UI)
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Secured Role Management UI against cross-tenant user visibility by scoping user counts and lists to the active clinic.
+- **Actions:**
+    - **Models:** Updated `RoleModel::getUsers` and `RoleModel::getUserCount` to support optional `clinic_id` scoping via join with `clinic_users`.
+    - **Controllers:** Updated `RoleController::index` and `RoleController::show` to pass `active_clinic_id` to model methods.
+- **Verification:** `docs/SaaS/verification/S0-02.md`. Role lists and details now only reflect members of the active clinic.
+- **Guardrails:** Green. Raw count = 8.
+
+### Task: S0-03 System-only Roles Lockdown + Cleanup
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Restricted Role definition management to the Control Plane (Super Admins) and purged leaked tenant roles.
+- **Actions:**
+    - **Controllers:** Implemented `ensureControlPlane()` guard in `RoleController` and restricted individual permission overrides in `Users` controller to Super Admins.
+    - **UI:** Updated `/roles` view to hide/disable management actions for tenant admins.
+    - **Database:** Executed `PurgeTenantRoles` migration to remove leaked roles and their associated assignments.
+- **Verification:** `docs/SaaS/verification/S0-03.md`. Roles are now read-only for tenants and purged of custom definitions.
+- **Guardrails:** Green. Raw count = 8.
