@@ -453,6 +453,153 @@ class Settings extends BaseController
         }
     }
 
+    /**
+     * Notification Governance: Channel Registry (Mixed Access)
+     */
+    public function channels()
+    {
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        $isGlobal = session()->get('global_mode');
+        $data = [
+            'title' => 'Notification Channels',
+            'is_global' => $isGlobal,
+            'channels' => []
+        ];
+
+        if ($isGlobal) {
+            // Superadmin view: List all clinics and their channels
+            $clinicModel = new \App\Models\ClinicModel();
+            $clinics = $clinicModel->select('id, name')->findAll();
+            
+            foreach ($clinics as &$clinic) {
+                $clinic['channels'] = $channelModel->where('clinic_id', $clinic['id'])->findAll();
+                // If no channels exist for clinic, we might want to show placeholders?
+                // For now, only show what's in DB or assume 3 types.
+                $types = ['email', 'sms', 'whatsapp'];
+                $existingTypes = array_column($clinic['channels'], 'channel_type');
+                foreach ($types as $type) {
+                    if (!in_array($type, $existingTypes)) {
+                        $clinic['channels'][] = [
+                            'clinic_id' => $clinic['id'],
+                            'channel_type' => $type,
+                            'enabled_by_superadmin' => 0,
+                            'configured_by_clinic' => 0,
+                            'validated' => 0,
+                            'is_virtual' => true // Marker for UI
+                        ];
+                    }
+                }
+            }
+            $data['clinics'] = $clinics;
+        } else {
+            // Clinic Admin view: My channels
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/dashboard');
+            }
+            
+            $channels = $channelModel->where('clinic_id', $clinicId)->findAll();
+            // Fill gaps
+            $types = ['email', 'sms', 'whatsapp'];
+            $existingTypes = array_column($channels, 'channel_type');
+            foreach ($types as $type) {
+                if (!in_array($type, $existingTypes)) {
+                    $channels[] = [
+                        'clinic_id' => $clinicId,
+                        'channel_type' => $type,
+                        'enabled_by_superadmin' => 0, // Default closed
+                        'configured_by_clinic' => 0,
+                        'validated' => 0,
+                        'is_virtual' => true
+                    ];
+                }
+            }
+            $data['channels'] = $channels;
+        }
+
+        return $this->view('settings/channels', $data);
+    }
+
+    /**
+     * Superadmin: Toggle Channel Enablement
+     */
+    public function updateChannelStatus()
+    {
+        if (!session()->get('global_mode')) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $clinicId = $this->request->getPost('clinic_id');
+        $channelType = $this->request->getPost('channel_type');
+        $enabled = $this->request->getPost('enabled') == '1' ? 1 : 0;
+
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        
+        // Check if exists
+        $existing = $channelModel->where('clinic_id', $clinicId)
+                                 ->where('channel_type', $channelType)
+                                 ->first();
+
+        if ($existing) {
+            $channelModel->update($existing['id'], ['enabled_by_superadmin' => $enabled]);
+        } else {
+            // Create new
+            $channelModel->insert([
+                'clinic_id' => $clinicId,
+                'channel_type' => $channelType,
+                'enabled_by_superadmin' => $enabled,
+                'configured_by_clinic' => 0,
+                'validated' => 0
+            ]);
+        }
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
+    /**
+     * Clinic Admin: Update Config & Validation
+     */
+    public function updateChannelConfig()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'No context']);
+        }
+
+        $channelType = $this->request->getPost('channel_type');
+        $configJson = $this->request->getPost('config_json');
+        $action = $this->request->getPost('action'); // 'save_config' or 'validate'
+
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        
+        // Ensure enabled by superadmin first?
+        // Logic rule 2 says: If enabled_by_superadmin != 1 → blocked.
+        // But can they configure it? Yes, let's allow config even if disabled, just won't send.
+        
+        if ($action === 'save_config') {
+            $config = json_decode($configJson, true);
+            if (!$config && $configJson) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Invalid JSON']);
+            }
+            
+            $channelModel->setConfig($clinicId, $channelType, $config ?? []);
+            return $this->response->setJSON(['success' => true, 'message' => 'Configuration saved']);
+        } elseif ($action === 'validate') {
+            // Mark validated=1 (Manual override for now)
+            $existing = $channelModel->where('clinic_id', $clinicId)
+                                     ->where('channel_type', $channelType)
+                                     ->first();
+            
+            if ($existing) {
+                $channelModel->update($existing['id'], ['validated' => 1]);
+                return $this->response->setJSON(['success' => true, 'message' => 'Channel marked as validated']);
+            }
+            return $this->response->setJSON(['success' => false, 'message' => 'Channel not found or not configured']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid action']);
+    }
+
     private function getSettings()
     {
         try {

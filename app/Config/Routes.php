@@ -411,6 +411,11 @@ $routes->group('settings', ['filter' => ['auth', 'tenant']], function ($routes) 
     $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
     $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings:edit']);
     $routes->post('pruneExports', 'Settings::pruneExports', ['filter' => 'permission:settings:edit']);
+    
+    // Notification Channels (P5-09a)
+    $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);
+    $routes->post('updateChannelStatus', 'Settings::updateChannelStatus', ['filter' => 'permission:settings:edit']); // Gated by global_mode inside
+    $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
 });
 
 // --------------------------------------------------------------------
