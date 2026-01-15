@@ -24,6 +24,22 @@ class ClinicService
     }
 
     /**
+     * Get lightweight list of clinics for switcher
+     */
+    public function getUserClinics($userId)
+    {
+        $memberships = $this->getMemberships($userId);
+        $list = [];
+        foreach ($memberships as $m) {
+            $list[] = [
+                'id'   => $m['clinic_id'],
+                'name' => $m['clinic_name']
+            ];
+        }
+        return $list;
+    }
+
+    /**
      * Get specific membership
      */
     public function getMembership($userId, $clinicId)
