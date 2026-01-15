@@ -4,16 +4,19 @@ namespace App\Services;
 
 use CodeIgniter\Files\File;
 use App\Models\FileAttachmentModel;
+use App\Services\PlanGuard;
 
 class StorageService
 {
     protected $attachmentModel;
     protected $basePath;
+    protected $planGuard;
 
     public function __construct()
     {
         $this->attachmentModel = new FileAttachmentModel();
         $this->basePath = WRITEPATH . 'uploads';
+        $this->planGuard = new PlanGuard();
     }
 
     /**
@@ -57,6 +60,10 @@ class StorageService
      */
     public function storeExport($content, $fileName, $mimeType, $clinicId, $entityType = null, $entityId = null, $purpose = null)
     {
+        // Enforce Plan Limits (P5-10)
+        $this->planGuard->assertFeature($clinicId, 'exports.enabled');
+        $this->planGuard->assertQuota($clinicId, 'exports', 1);
+
         $tenantPath = 'clinic_' . $clinicId;
         $uploadPath = $this->basePath . DIRECTORY_SEPARATOR . $tenantPath;
 

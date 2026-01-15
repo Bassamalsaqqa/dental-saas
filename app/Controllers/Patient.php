@@ -237,55 +237,70 @@ class Patient extends BaseController
 
     public function store()
     {
-        // Set content type to JSON for AJAX requests
-        if ($this->request->isAJAX()) {
-            $this->response->setContentType('application/json');
-        }
+        $this->ensureTenantContext(); // Double check
 
-        $rules = [
-            'first_name' => 'required|min_length[2]|max_length[50]',
-            'last_name' => 'required|min_length[2]|max_length[50]',
-            'email' => 'permit_empty|valid_email|is_unique[patients.email]',
-            'phone' => 'required|min_length[10]|max_length[15]',
-            'date_of_birth' => 'required|valid_date',
-            'gender' => 'required|in_list[male,female,other]'
-        ];
-
-        if (!$this->validate($rules)) {
-            // Check if this is an AJAX request
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $this->validator->getErrors()
-                ]);
-            }
-            return redirect()->back()->withInput()->with('validation', $this->validator);
-        }
-
-        $patientData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'email' => $this->request->getPost('email'),
-            'phone' => $this->request->getPost('phone'),
-            'date_of_birth' => $this->request->getPost('date_of_birth'),
-            'gender' => $this->request->getPost('gender'),
-            'address' => $this->request->getPost('address'),
-            'city' => $this->request->getPost('city'),
-            'state' => $this->request->getPost('state'),
-            'zip_code' => $this->request->getPost('zip_code'),
-            'country' => $this->request->getPost('country'),
-            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-            'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
-            'medical_history' => $this->request->getPost('medical_history'),
-            'allergies' => $this->request->getPost('allergies'),
-            'insurance_provider' => $this->request->getPost('insurance_provider'),
-            'insurance_number' => $this->request->getPost('insurance_number'),
-            'notes' => $this->request->getPost('notes'),
-            'status' => 'active'
-        ];
-
+        $clinicId = session()->get('active_clinic_id');
+        
+        // P5-10: Plan Quota Enforcement (Patients)
+        $planGuard = new \App\Services\PlanGuard();
+        $db = \Config\Database::connect();
+        
+        $db->transStart();
         try {
+            // Check quota (snapshot based)
+            // assertQuota handles the check logic. For 'patients' key, it counts active patients.
+            // We pass delta=1 (the one we are about to add)
+            $planGuard->assertQuota($clinicId, 'patients', 1);
+            
+            // Set content type to JSON for AJAX requests
+            if ($this->request->isAJAX()) {
+                $this->response->setContentType('application/json');
+            }
+
+            $rules = [
+                'first_name' => 'required|min_length[2]|max_length[50]',
+                'last_name' => 'required|min_length[2]|max_length[50]',
+                'email' => 'permit_empty|valid_email|is_unique[patients.email]',
+                'phone' => 'required|min_length[10]|max_length[15]',
+                'date_of_birth' => 'required|valid_date',
+                'gender' => 'required|in_list[male,female,other]'
+            ];
+            
+            if (!$this->validate($rules)) {
+                $db->transRollback();
+                // Check if this is an AJAX request
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $this->validator->getErrors()
+                    ]);
+                }
+                return redirect()->back()->withInput()->with('validation', $this->validator);
+            }
+
+            $patientData = [
+                'first_name' => $this->request->getPost('first_name'),
+                'last_name' => $this->request->getPost('last_name'),
+                'email' => $this->request->getPost('email'),
+                'phone' => $this->request->getPost('phone'),
+                'date_of_birth' => $this->request->getPost('date_of_birth'),
+                'gender' => $this->request->getPost('gender'),
+                'address' => $this->request->getPost('address'),
+                'city' => $this->request->getPost('city'),
+                'state' => $this->request->getPost('state'),
+                'zip_code' => $this->request->getPost('zip_code'),
+                'country' => $this->request->getPost('country'),
+                'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
+                'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
+                'medical_history' => $this->request->getPost('medical_history'),
+                'allergies' => $this->request->getPost('allergies'),
+                'insurance_provider' => $this->request->getPost('insurance_provider'),
+                'insurance_number' => $this->request->getPost('insurance_number'),
+                'notes' => $this->request->getPost('notes'),
+                'status' => 'active'
+            ];
+
             if ($this->patientModel->insert($patientData)) {
                 $patientId = $this->patientModel->getInsertID();
                 
@@ -296,6 +311,7 @@ class Patient extends BaseController
                     "New patient '{$patientData['first_name']} {$patientData['last_name']}' registered successfully"
                 );
                 
+                $db->transCommit();
                 // Check if this is an AJAX request
                 if ($this->request->isAJAX()) {
                     return $this->response->setJSON([
@@ -306,6 +322,7 @@ class Patient extends BaseController
                 }
                 return redirect()->to('/patient')->with('success', 'Patient has been added successfully!');
             } else {
+                $db->transRollback();
                 // Check if this is an AJAX request
                 if ($this->request->isAJAX()) {
                     return $this->response->setJSON([
@@ -317,6 +334,7 @@ class Patient extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Failed to add patient. Please check your input and try again.');
             }
         } catch (\Exception $e) {
+            $db->transRollback();
             // Log the error
             log_message('error', 'Patient creation error: ' . $e->getMessage());
             

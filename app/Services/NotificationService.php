@@ -6,6 +6,7 @@ use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationModel;
 use App\Models\ClinicUserModel;
 use App\Models\PatientModel;
+use App\Services\PlanGuard;
 
 class NotificationService
 {
@@ -13,6 +14,7 @@ class NotificationService
     protected $notificationModel;
     protected $clinicUserModel;
     protected $patientModel;
+    protected $planGuard;
 
     public function __construct()
     {
@@ -20,6 +22,7 @@ class NotificationService
         $this->notificationModel = new NotificationModel();
         $this->clinicUserModel = new ClinicUserModel();
         $this->patientModel = new PatientModel();
+        $this->planGuard = new PlanGuard();
     }
 
         /**
@@ -108,6 +111,19 @@ class NotificationService
         if (!$clinicId) {
             throw new \InvalidArgumentException("NotificationService: clinicId is required.");
         }
+
+        // Plan Enforcement (Feature)
+        $this->planGuard->assertFeature($clinicId, "notifications.{$channelType}.enabled");
+        
+        // Plan Enforcement (Quota)
+        // We verify quota here but increment only? Or increment here?
+        // "optional quota: assertQuota($clinicId,'notifications_email', count(recipients))"
+        // If we increment here, we count "attempts". If we increment at dispatch, we count "sends".
+        // Usually, SaaS charges for *attempts* or *enqueued* items if they consume storage/resources.
+        // Let's increment here for simplicity and immediate feedback.
+        // Note: assertQuota increments.
+        $metricKey = "notifications_{$channelType}";
+        $this->planGuard->assertQuota($clinicId, $metricKey, count($recipients));
 
         // 2. Load Channel Registry
         $channel = $this->channelModel->where('clinic_id', $clinicId)
@@ -218,6 +234,21 @@ class NotificationService
         $channel = $this->channelModel->where('clinic_id', $clinicId)
                                       ->where('channel_type', 'email')
                                       ->first();
+
+        // Re-check Plan Feature (in case it was disabled since enqueue)
+        try {
+            $this->planGuard->assertFeature($clinicId, 'notifications.email.enabled');
+        } catch (\Exception $e) {
+            // If feature disabled now, fail all pending
+             foreach ($pending as $note) {
+                $this->notificationModel->update($note['id'], [
+                    'status' => 'blocked',
+                    'failure_reason' => 'PLAN_FEATURE_DISABLED_AT_DISPATCH'
+                ]);
+                $result['blocked']++;
+            }
+            return $result;
+        }
 
         $isReady = $config && 
                    ($channel['enabled_by_superadmin'] ?? 0) && 

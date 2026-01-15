@@ -189,4 +189,24 @@ class PatientModel extends TenantAwareModel
         return $builder->groupBy('patients.id')
             ->paginate(10);
     }
+
+    /**
+     * Count active patients for quota enforcement.
+     * Active = Not Soft Deleted AND (if status exists) Status = 'active'
+     * 
+     * @param int $clinicId
+     * @return int
+     */
+    public function countActivePatientsByClinic(int $clinicId)
+    {
+        $builder = $this->where('clinic_id', $clinicId)
+                        ->where('deleted_at', null);
+
+        // Apply status filter only if the column exists/is supported
+        if (in_array('status', $this->allowedFields)) {
+            $builder->where('status', 'active');
+        }
+
+        return $builder->countAllResults();
+    }
 }
