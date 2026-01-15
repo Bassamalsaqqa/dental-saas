@@ -82,6 +82,33 @@ class ClinicSelector extends BaseController
     }
 
     /**
+     * GET /clinic/switch/(:num)
+     * Secure clinic switch
+     */
+    public function switch($clinicId)
+    {
+        if (!$this->ionAuth->loggedIn()) {
+            return redirect()->to('/auth/login');
+        }
+
+        $userId = $this->ionAuth->getUserId();
+
+        // Validate membership
+        $membership = $this->clinicService->getMembership($userId, $clinicId);
+
+        if (!$membership) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Clinic membership not found.');
+        }
+
+        // Clear existing permissions cache from session if any
+        session()->remove('user_permissions');
+
+        $this->clinicService->setContext($membership);
+
+        return redirect()->to('/dashboard')->with('success', "Switched to {$membership['clinic_name']}");
+    }
+
+    /**
      * POST /clinic/switch
      * Switch active clinic
      */

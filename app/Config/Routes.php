@@ -58,6 +58,7 @@ $routes->group('clinic', ['filter' => 'auth'], function($routes) {
     $routes->post('select', 'ClinicSelector::processSelect');
     $routes->get('no-clinic', 'ClinicSelector::noClinic');
     $routes->post('switch', 'ClinicSelector::switchClinic');
+    $routes->get('switch/(:num)', 'ClinicSelector::switch/$1');
 });
 
 // --------------------------------------------------------------------
@@ -408,6 +409,8 @@ $routes->group('settings', ['filter' => ['auth', 'tenant']], function ($routes) 
     $routes->post('security/update', 'Settings::updateSecurity', ['filter' => 'permission:settings:edit']);
     $routes->get('notification-settings', 'Settings::notifications', ['filter' => 'permission:settings:view']);
     $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings:edit']);
+    $routes->post('pruneExports', 'Settings::pruneExports', ['filter' => 'permission:settings:edit']);
 });
 
 // --------------------------------------------------------------------
