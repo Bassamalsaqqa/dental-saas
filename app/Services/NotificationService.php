@@ -24,7 +24,7 @@ class NotificationService
 
     /**
      * Enqueue a notification (Governance Layer - No Sending)
-     * 
+     *
      * @param int $clinicId
      * @param string $channelType 'email'|'sms'|'whatsapp'
      * @param array $recipients Array of ['type' => 'user|patient|external', 'id' => int, 'address' => string]
@@ -55,19 +55,6 @@ class NotificationService
         }
 
         // 2. Load Channel Registry
-        // Note: Using find/where manually to ensure we verify against specific clinicId passed in args,
-        // ignoring global session state if called from a background job (though TenantAwareModel defaults to session)
-        // We must ensure we are looking at the target clinic's config.
-        // TenantAwareModel uses session('active_clinic_id') by default. 
-        // If this is a background job, session might be set mockingly, or we need to use 'forClinic' scope if available,
-        // or just rely on the fact that setClinicId in BeforeInsert/Update handles writes.
-        // For reads, TenantAwareModel usually applies a global scope if not careful.
-        // Let's assume the caller has set the context or we use specific where clauses that override/augment.
-        // Actually, TenantAwareModel enforces 'where clinic_id = session'. 
-        // If we are in CLI, we used 'tenant:run-job' which mocks session. 
-        // If we are in Control Plane, we might be 'global_mode'.
-        // Let's rely on standard Model methods but verify clinic_id explicitly if possible.
-        
         $channel = $this->channelModel->where('clinic_id', $clinicId)
                                       ->where('channel_type', $channelType)
                                       ->first();
@@ -108,7 +95,6 @@ class NotificationService
                     }
                 } elseif ($type === 'patient') {
                     // Check if patient belongs to clinic
-                    // Assuming PatientModel has a check or we query directly
                     $patient = $this->patientModel->findByClinic($clinicId, $id);
                     if (!$patient) {
                         $status = 'blocked';
@@ -137,15 +123,6 @@ class NotificationService
                 'job_audit_id' => $jobAuditId
             ];
 
-            // Use model to insert (TenantAwareModel will enforce clinic_id matching session if active, 
-            // but we explicitly pass clinic_id. TenantAwareModel beforeInsert sets it from session. 
-            // If we are sending for a clinic different than session, this might be tricky.
-            // However, typical flow is: User acts in Clinic A -> sends notif for Clinic A.
-            // Job runs for Clinic A -> mocks session for Clinic A -> sends notif for Clinic A.
-            // So implicit session usage is generally correct. 
-            // If explicit mismatch, TenantAwareModel might override.
-            // We should trust the context set up by the caller/framework.)
-            
             $notificationId = $this->notificationModel->insert($ledgerData);
             
             if ($notificationId) {
@@ -154,6 +131,152 @@ class NotificationService
             } else {
                 $result['failed']++;
                 log_message('error', 'Failed to write notification ledger: ' . json_encode($this->notificationModel->errors()));
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Dispatch pending email notifications for a specific clinic via SMTP.
+     * (P5-09b Implementation)
+     * 
+     * @param int $clinicId
+     * @return array Summary of dispatch results
+     */
+    public function dispatchPendingEmails(int $clinicId): array
+    {
+        if (!$clinicId) {
+            throw new \InvalidArgumentException("NotificationService: clinicId is required for dispatch.");
+        }
+
+        $result = [
+            'processed' => 0,
+            'sent' => 0,
+            'failed' => 0,
+            'blocked' => 0
+        ];
+
+        // 1. Load & Validate Channel Config
+        $config = $this->channelModel->getConfig($clinicId, 'email');
+        $channel = $this->channelModel->where('clinic_id', $clinicId)
+                                      ->where('channel_type', 'email')
+                                      ->first();
+
+        $isReady = $config && 
+                   ($channel['enabled_by_superadmin'] ?? 0) && 
+                   ($channel['configured_by_clinic'] ?? 0) && 
+                   ($channel['validated'] ?? 0);
+
+        // 2. Fetch Pending Notifications
+        $pending = $this->notificationModel->where('clinic_id', $clinicId)
+                                           ->where('channel_type', 'email')
+                                           ->where('status', 'pending')
+                                           ->findAll();
+
+        if (empty($pending)) {
+            return $result;
+        }
+
+        // If channel not ready, fail-close all pending
+        if (!$isReady) {
+            foreach ($pending as $note) {
+                $this->notificationModel->update($note['id'], [
+                    'status' => 'failed',
+                    'failure_reason' => 'CHANNEL_NOT_READY_AT_DISPATCH'
+                ]);
+                $result['failed']++;
+            }
+            return $result;
+        }
+
+        // 3. Process Each Notification
+        foreach ($pending as $note) {
+            $result['processed']++;
+            $recipientEmail = null;
+            $payload = json_decode($note['payload_json'], true);
+
+            // Resolve Recipient Email
+            if ($note['recipient_type'] === 'user') {
+                // Get user email
+                $user = model('UserModel')->find($note['recipient_id']);
+                // Verify user is still in clinic (double check safety)
+                if ($user && $this->clinicUserModel->isUserInClinic($clinicId, $user['id'])) {
+                    $recipientEmail = $user['email'];
+                }
+            } elseif ($note['recipient_type'] === 'patient') {
+                // Get patient email
+                $patient = $this->patientModel->findByClinic($clinicId, $note['recipient_id']);
+                if ($patient) {
+                    $recipientEmail = $patient['email'];
+                }
+            }
+
+            // Block if email missing
+            if (empty($recipientEmail)) {
+                $this->notificationModel->update($note['id'], [
+                    'status' => 'blocked',
+                    'failure_reason' => ($note['recipient_type'] === 'patient' ? 'PATIENT_EMAIL_MISSING' : 'USER_EMAIL_MISSING')
+                ]);
+                $result['blocked']++;
+                continue;
+            }
+
+            // Prepare Email
+            $emailService = \Config\Services::email();
+            $emailService->initialize([
+                'protocol' => 'smtp',
+                'SMTPHost' => $config['smtp_host'] ?? '',
+                'SMTPUser' => $config['smtp_user'] ?? '',
+                'SMTPPass' => $config['smtp_pass'] ?? '',
+                'SMTPPort' => (int)($config['smtp_port'] ?? 587),
+                'SMTPCrypto' => $config['smtp_crypto'] ?? 'tls',
+                'mailType' => 'html',
+                'charset'  => 'utf-8',
+                'newline'  => "\r\n"
+            ]);
+
+            $fromEmail = $config['smtp_from_email'] ?? $config['smtp_user']; // Fallback to user if from not set
+            $fromName = $config['smtp_from_name'] ?? 'Clinic Notification';
+
+            if (empty($fromEmail)) {
+                 $this->notificationModel->update($note['id'], [
+                    'status' => 'failed',
+                    'failure_reason' => 'SMTP_FROM_ADDRESS_MISSING'
+                ]);
+                $result['failed']++;
+                continue;
+            }
+
+            $emailService->setFrom($fromEmail, $fromName);
+            $emailService->setTo($recipientEmail);
+            $emailService->setSubject($payload['subject'] ?? 'Notification');
+            $emailService->setMessage($payload['body'] ?? ($payload['message'] ?? ''));
+
+            // Send
+            try {
+                if ($emailService->send()) {
+                    $this->notificationModel->update($note['id'], [
+                        'status' => 'sent'
+                    ]);
+                    $result['sent']++;
+                } else {
+                    $debugger = $emailService->printDebugger(['headers']);
+                    // Sanitize debugger output slightly
+                    $errorMsg = substr(strip_tags($debugger), 0, 255); 
+                    
+                    $this->notificationModel->update($note['id'], [
+                        'status' => 'failed',
+                        'failure_reason' => 'SMTP_SEND_FAILED: ' . $errorMsg
+                    ]);
+                    $result['failed']++;
+                }
+            } catch (\Exception $e) {
+                $this->notificationModel->update($note['id'], [
+                    'status' => 'failed',
+                    'failure_reason' => 'SMTP_EXCEPTION: ' . substr($e->getMessage(), 0, 200)
+                ]);
+                $result['failed']++;
             }
         }
 
