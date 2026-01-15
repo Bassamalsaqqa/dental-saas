@@ -127,7 +127,7 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+        $finance = $this->financeModel->findByClinic($clinicId, $id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -153,7 +153,7 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit transactions.');
         }
 
-        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+        $finance = $this->financeModel->findByClinic($clinicId, $id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -186,7 +186,7 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+        $finance = $this->financeModel->findByClinic($clinicId, $id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -251,7 +251,7 @@ class Finance extends BaseController
                 return redirect()->to('/clinic/select');
             }
 
-            $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
 
             if (!$finance) {
                 if ($this->request->isAJAX()) {
@@ -360,7 +360,7 @@ class Finance extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
 
             if (!$finance) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Financial transaction not found']);
@@ -399,7 +399,7 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $finance = $this->financeModel->where('clinic_id', $clinicId)->find($id);
+        $finance = $this->financeModel->findByClinic($clinicId, $id);
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -588,9 +588,9 @@ class Finance extends BaseController
             $ids = $this->request->getGet('ids');
 
             // Build query
-            $query = $this->financeModel->select('finances.*, patients.first_name, patients.last_name')
-                ->join('patients', 'patients.id = finances.patient_id', 'left')
-                ->where('finances.clinic_id', $clinicId);
+            $query = $this->financeModel->forClinic($clinicId)
+                ->select('finances.*, patients.first_name, patients.last_name')
+                ->join('patients', 'patients.id = finances.patient_id', 'left');
 
             if ($startDate && $endDate) {
                 $query->where('finances.created_at >=', $startDate . ' 00:00:00')

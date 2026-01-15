@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InventoryUsageModel extends Model
+class InventoryUsageModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'inventory_usage';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

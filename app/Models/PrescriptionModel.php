@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PrescriptionModel extends Model
+class PrescriptionModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'prescriptions';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

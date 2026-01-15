@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ActivityLogModel extends Model
+class ActivityLogModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'activity_logs';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

@@ -131,8 +131,7 @@ class Patient extends BaseController
             }
             
             // Base builder scoped to clinic
-            $baseBuilder = $this->patientModel->builder();
-            $baseBuilder->where('clinic_id', $clinicId);
+            $baseBuilder = $this->patientModel->forClinic($clinicId);
 
             // Get total records count scoped to clinic
             $totalRecords = $baseBuilder->countAllResults(false);
@@ -150,8 +149,7 @@ class Patient extends BaseController
             }
             
             // Build query
-            $baseBuilder = $this->patientModel->builder();
-            $baseBuilder->where('clinic_id', $clinicId);
+            $baseBuilder = $this->patientModel->forClinic($clinicId);
 
             // Apply search filter
             if (!empty($searchValue)) {
@@ -337,14 +335,15 @@ class Patient extends BaseController
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
-            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+            return redirect()->to('/clinic/select');
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
-        
+        $patient = $this->patientModel->findByClinic($clinicId, $id);
+
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
+
 
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
@@ -368,7 +367,7 @@ class Patient extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
+        $patient = $this->patientModel->findByClinic($clinicId, $id);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -390,7 +389,7 @@ class Patient extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
+        $patient = $this->patientModel->findByClinic($clinicId, $id);
         
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
@@ -469,7 +468,7 @@ class Patient extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
+        $patient = $this->patientModel->findByClinic($clinicId, $id);
         
         if (!$patient) {
             if ($this->request->isAJAX()) {
@@ -527,7 +526,7 @@ class Patient extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($id);
+        $patient = $this->patientModel->findByClinic($clinicId, $id);
         
         if (!$patient) {
             return $this->response->setJSON(['error' => 'Patient not found']);

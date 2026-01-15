@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class OdontogramModel extends Model
+class OdontogramModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'odontograms';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

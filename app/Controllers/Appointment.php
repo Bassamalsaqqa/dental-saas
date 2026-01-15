@@ -320,7 +320,7 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
+        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
@@ -402,7 +402,7 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
+        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
             if ($this->request->isAJAX()) {
@@ -442,7 +442,7 @@ class Appointment extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
+        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
             return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
@@ -464,7 +464,7 @@ class Appointment extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
+        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
             return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);
@@ -486,7 +486,7 @@ class Appointment extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $appointment = $this->appointmentModel->where('clinic_id', $clinicId)->find($id);
+        $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
             return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Appointment not found']);

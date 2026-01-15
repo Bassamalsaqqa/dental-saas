@@ -93,7 +93,23 @@ class ActivityLog extends BaseController
                 return [];
             }
 
-            $activities = $this->activityLogModel->getActivitiesByClinic($clinicId, $limit, $offset, $entityType, $action, $userId);
+            $builder = $this->activityLogModel->forClinic($clinicId)
+                ->select('activity_logs.*, users.first_name, users.last_name, users.email')
+                ->join('users', 'users.id = activity_logs.user_id', 'left')
+                ->orderBy('activity_logs.created_at', 'DESC')
+                ->limit($limit, $offset);
+
+            if ($entityType) {
+                $builder->where('activity_logs.entity_type', $entityType);
+            }
+            if ($action) {
+                $builder->where('activity_logs.action', $action);
+            }
+            if ($userId) {
+                $builder->where('activity_logs.user_id', $userId);
+            }
+
+            $activities = $builder->findAll();
 
             // Format activities for display
             return array_map([$this, 'formatActivity'], $activities);
@@ -110,7 +126,12 @@ class ActivityLog extends BaseController
                 return 0;
             }
 
-            return $this->activityLogModel->countActivitiesByClinic($clinicId, $entityType, $action, $userId);
+            $criteria = [];
+            if ($entityType) $criteria['entity_type'] = $entityType;
+            if ($action) $criteria['action'] = $action;
+            if ($userId) $criteria['user_id'] = $userId;
+
+            return $this->activityLogModel->countByClinic($clinicId, $criteria);
         } catch (\Exception $e) {
             log_message('error', 'Failed to count activities: ' . $e->getMessage());
             return 0;

@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class FinanceModel extends Model
+class FinanceModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'finances';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;

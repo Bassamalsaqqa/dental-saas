@@ -4,10 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ExaminationModel extends Model
+class ExaminationModel extends TenantAwareModel
 {
-    use \App\Traits\TenantTrait;
-
     protected $table = 'examinations';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
