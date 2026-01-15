@@ -108,3 +108,81 @@
     - **Controllers:** Updated `Finance`, `Examination`, `Prescription`, `Odontogram`, `Appointment`, `Inventory`, and `Reports` to enforce ownership before generation and persist all artifacts (PDF/HTML/CSV) before delivery.
 - **Verification:** `docs/SaaS/verification/P5-05.md`. All export/print endpoints now create a trackable `file_attachment` record scoped to the clinic.
 - **Guardrails:** Green. Raw count remains at 8.
+
+### Task: P5-06 Tenant-aware background jobs (asynchronous context hardening)
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Secured background and CLI operations by enforcing explicit clinic context bootstrapping.
+- **Actions:**
+    - **Framework:** Implemented `TenantJob` base class to mandate `clinic_id` and bootstrap a mock session context for CLI operations.
+    - **Implementation:** Created `ExportReportsJob` and a unified CLI command `tenant:run-job` to trigger tenant-scoped background tasks.
+- **Verification:** `docs/SaaS/verification/P5-06.md`. Jobs fail-closed without `clinic_id` and correctly isolate data/files when run.
+- **Guardrails:** Green.
+
+### Task: P5-06b Tenant Job Governance Hardening
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Enhanced job execution with mandatory `--clinic-id`, forbidden user overrides, and a system-wide audit trail.
+- **Actions:**
+    - **Database:** Created `job_audits` table to track every invocation (even failures).
+    - **Governance:** Updated `RunTenantJob` CLI to enforce `--clinic-id` requirement and reject per-user flags.
+    - **Auditing:** Implemented fail-fast logging that records missing context even before DB access.
+- **Verification:** `docs/SaaS/verification/P5-06b.md`. CLI command now exit(1) on missing clinic-id or forbidden flags.
+
+### Task: P5-07 TenantAwareModel base + selective adoption
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Introduced a centralized `TenantAwareModel` to enforce tenant isolation at the data access layer.
+- **Actions:**
+    - **Base Model:** Created `TenantAwareModel` with `forClinic`, `findByClinic`, and `countByClinic` helpers.
+    - **Migration:** Refactored `PatientModel`, `AppointmentModel`, and `ActivityLogModel` to inherit from the new base.
+    - **Controller Cleanup:** Refactored `Patient`, `Appointment`, and `ActivityLog` controllers to use scoped model helpers, removing manual `where('clinic_id', ...)` repetitions.
+- **Verification:** `docs/SaaS/verification/P5-07.md`. Models now automatically stamp `clinic_id` on insert and provide safer query APIs.
+- **Guardrails:** Green.
+
+### Task: P5-08 Export Retention Policy (Superadmin-configurable)
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Implemented global export retention policies with Superadmin control and physical pruning capabilities.
+- **Actions:**
+    - **Service:** Created `RetentionService` to handle `latest`, `keep_last_n`, and `keep_x_days` policies.
+    - **Automation:** Integrated retention enforcement into `StorageService->storeExport()`.
+    - **Governance UI:** Added "Export Retention" tab to settings for Superadmins (Global Mode).
+    - **Maintenance:** Implemented `exports:prune` CLI command for physical cleanup of superseded artifacts.
+- **Verification:** `docs/SaaS/verification/P5-08.md`. Retention policies correctly soft-delete old exports, and pruning removes them from disk.
+- **Guardrails:** Green.
+
+### Task: S0-04 Clinic Switcher Dropdown (secure tenant context switching)
+- **Date:** 2026-01-15
+- **Status:** Completed (Updated UI)
+- **Description:** Added a membership-validated clinic switcher UI for users belonging to multiple clinics.
+- **Refinement:** Moved switcher to the top-right header for better visibility and standard UX.
+- **Actions:**
+    - **Infrastructure:** Enhanced `BaseController` to provide global membership data to views.
+    - **Controller:** Implemented `ClinicSelector::switch()` with strict membership validation and session clearing.
+    - **UI:** Added a "Switch Clinic" dropdown in the main header (right side), conditionally shown for multi-clinic users.
+- **Verification:** `docs/SaaS/verification/S0-04.md`. Switcher correctly updates session context and prevents unauthorized switching.
+- **Guardrails:** Green.
+
+### Task: P5-06b Verification & Fixes (Job Governance)
+- **Date:** 2026-01-15
+- **Status:** Verified & Fixed
+- **Description:** Verified fail-fast and audit logging for tenant jobs. Fixed a fatal error in `FileAttachmentModel` (signature mismatch) that blocked job execution. Also remediated a regression in `app/Views/settings/index.php` (unsafe `innerHTML` usage) to satisfy guardrails.
+- **Files Changed:**
+    - `app/Models/FileAttachmentModel.php` (Renamed `purgeDeleted` to `deletePermanently`)
+    - `app/Services/RetentionService.php` (Updated method call)
+    - `app/Views/settings/index.php` (Refactored `pruneExports` to use safe DOM methods)
+    - `docs/SaaS/verification/P5-06b.md` (Created verification artifacts)
+- **Verification:**
+    - CLI `tenant:run-job` now works correctly (fail-fast and success paths).
+    - `job_audits` table populates correctly.
+    - Guardrails are GREEN (0 DOM sinks, 8 raw queries).
+
+### Task: S0-04a Clinic Switcher Visibility Fix
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Resolved issue where the clinic switcher was not visible when using the global `view()` helper.
+- **Actions:**
+    - **BaseController:** Moved `user_memberships`, `user`, and `user_groups` injection to `initController()` using the renderer's `setVar()` method.
+    - **Verification:** Confirmed visibility for multi-clinic users across all views (HTML/API context).
+- **Guardrails:** Green (Raw count: 8).

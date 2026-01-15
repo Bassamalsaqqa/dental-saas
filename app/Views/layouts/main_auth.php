@@ -301,13 +301,61 @@
                     </button>
                     
                     <!-- Page Title -->
-                    <div class="flex items-center">
+                    <div class="flex items-center space-x-4">
                         <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= $pageTitle ?? $title ?? esc($clinic['name']) ?></h2>
                     </div>
                 </div>
                 
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center space-x-4" id="header-right">
+                    <!-- Clinic Switcher (Moved here) -->
+                    <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
+                    <div class="relative group" id="clinic-switcher">
+                        <button onclick="toggleClinicSwitcher()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-50 to-blue-50 hover:from-indigo-50 hover:to-indigo-100 border border-indigo-200 hover:border-indigo-300 text-indigo-600 hover:text-indigo-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-indigo-500/10">
+                            <i class="fas fa-hospital text-sm"></i>
+                        </button>
+                        
+                        <!-- Tooltip -->
+                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                            Switch Clinic (<?= esc($clinic['name']) ?>)
+                            <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                        </div>
+
+                        <div id="clinicSwitcherMenu" class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform origin-top-right transition-all">
+                            <div class="p-4 border-b border-gray-50 bg-gray-50/50">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Switch Clinic</p>
+                            </div>
+                            <div class="p-2 max-h-64 overflow-y-auto">
+                                <?php foreach ($user_memberships as $m): ?>
+                                    <a href="<?= base_url('clinic/switch/' . $m['clinic_id']) ?>" class="flex items-center justify-between px-3 py-3 rounded-xl transition-all mb-1 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                                        <div class="flex items-center space-x-3 overflow-hidden">
+                                            <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 <?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gray-100 text-gray-400' ?>">
+                                                <i class="fas fa-hospital text-sm"></i>
+                                            </div>
+                                            <div class="flex flex-col overflow-hidden">
+                                                <span class="truncate font-bold text-sm"><?= esc($m['clinic_name']) ?></span>
+                                                <span class="text-[10px] opacity-60"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'Active Now' : 'Click to switch' ?></span>
+                                            </div>
+                                        </div>
+                                        <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>
+                                            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                <i class="fas fa-check text-white text-[8px]"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="p-3 border-t border-gray-50 bg-gray-50/30 text-center">
+                                <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] text-blue-600 hover:text-blue-700 font-bold uppercase tracking-wider transition-colors">
+                                    <i class="fas fa-th-large text-[10px]"></i>
+                                    <span>All Clinics</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-8 w-px bg-gray-200 mx-2"></div>
+                    <?php endif; ?>
+
                     <!-- System Action Icons -->
                     <div class="lg:flex items-center space-x-2 hidden">
                         <!-- New Patient -->
@@ -1184,13 +1232,29 @@
         }
     }
 
+    // Toggle Clinic Switcher Dropdown
+    function toggleClinicSwitcher() {
+        const menu = document.getElementById('clinicSwitcherMenu');
+        if (menu) {
+            menu.classList.toggle('hidden');
+        }
+    }
+
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('#userMenu') && !e.target.closest('button[onclick*="toggle"]')) {
+        // Handle User Menu
+        if (!e.target.closest('#userMenu') && !e.target.closest('button[onclick*="toggleUserMenu"]')) {
             const userMenu = document.getElementById('userMenu');
-            
             if (userMenu && !userMenu.classList.contains('hidden')) {
                 userMenu.classList.add('hidden');
+            }
+        }
+        
+        // Handle Clinic Switcher
+        if (!e.target.closest('#clinic-switcher')) {
+            const clinicMenu = document.getElementById('clinicSwitcherMenu');
+            if (clinicMenu && !clinicMenu.classList.contains('hidden')) {
+                clinicMenu.classList.add('hidden');
             }
         }
     });

@@ -71,6 +71,17 @@ abstract class BaseController extends Controller
         if (!isset($renderer->getData()['clinic'])) {
             $renderer->setVar('clinic', settings()->getClinicInfo());
         }
+
+        // Global data injection for authenticated users (Switcher, Profile, etc)
+        if ($this->isLoggedIn()) {
+            $user = $this->getCurrentUser();
+            if ($user) {
+                $clinicService = new \App\Services\ClinicService();
+                $renderer->setVar('user', $user);
+                $renderer->setVar('user_groups', $this->getUserGroups());
+                $renderer->setVar('user_memberships', $clinicService->getMemberships($user->id));
+            }
+        }
     }
 
     /**
@@ -127,9 +138,13 @@ abstract class BaseController extends Controller
         $user = $this->getCurrentUser();
         $userGroups = $this->getUserGroups();
         
+        $clinicService = new \App\Services\ClinicService();
+        $memberships = $user ? $clinicService->getMemberships($user->id) : [];
+        
         return [
             'user' => $user,
-            'user_groups' => $userGroups
+            'user_groups' => $userGroups,
+            'user_memberships' => $memberships
         ];
     }
 
