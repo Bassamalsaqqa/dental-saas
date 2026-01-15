@@ -11,6 +11,7 @@ class Prescription extends BaseController
     protected $prescriptionModel;
     protected $patientModel;
     protected $activityLogger;
+    protected $storageService;
 
     protected $db;
 
@@ -19,6 +20,7 @@ class Prescription extends BaseController
         $this->prescriptionModel = new PrescriptionModel();
         $this->patientModel = new PatientModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
     }
 
@@ -444,7 +446,24 @@ class Prescription extends BaseController
             'clinic' => settings()->getClinicInfo()
         ];
 
-        return $this->view('prescription/print', $data);
+        $html = view('prescription/print', $data);
+        
+        // Persist artifact
+        $fileName = 'prescription_' . str_pad($prescription['id'], 6, '0', STR_PAD_LEFT) . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'prescription', 
+            $id, 
+            'prescription_print'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"')
+            ->setBody($html);
     }
 
     public function getPrescriptionStats()

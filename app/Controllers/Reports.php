@@ -15,6 +15,7 @@ class Reports extends BaseController
     protected $appointmentModel;
     protected $financeModel;
     protected $treatmentModel;
+    protected $storageService;
 
     public function __construct()
     {
@@ -23,6 +24,7 @@ class Reports extends BaseController
         $this->appointmentModel = new AppointmentModel();
         $this->financeModel = new FinanceModel();
         $this->treatmentModel = new TreatmentModel();
+        $this->storageService = new \App\Services\StorageService();
     }
 
     public function index()
@@ -169,12 +171,14 @@ class Reports extends BaseController
             }
 
             if ($format === 'pdf') {
-                return $this->generatePDF($data);
+                $attachment = $this->generatePDF($data);
             } elseif ($format === 'excel') {
-                return $this->generateExcel($data);
+                $attachment = $this->generateExcel($data);
             } else {
-                return $this->generateCSV($data);
+                $attachment = $this->generateCSV($data);
             }
+
+            return redirect()->to(base_url('file/download/' . $attachment['id']));
         } catch (\Exception $e) {
             log_message('error', 'Export error: ' . $e->getMessage());
             
@@ -480,42 +484,64 @@ class Reports extends BaseController
 
     private function generatePDF($data)
     {
+        $clinicId = session()->get('active_clinic_id');
         // Generate HTML content for PDF
         $html = $this->generateReportHTML($data);
         
-        // Set headers for PDF download
-        $this->response->setHeader('Content-Type', 'application/pdf');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="report_' . date('Y-m-d') . '.pdf"');
+        // Persist artifact
+        $fileName = 'report_' . $data['report_type'] . '_' . date('Y-m-d') . '.html';
+        $attachment = $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'report', 
+            0, 
+            'report_pdf'
+        );
         
-        // For now, return HTML that can be printed as PDF by browser
-        // In production, you would use a library like TCPDF or DomPDF
-        $this->response->setHeader('Content-Type', 'text/html');
-        $this->response->setHeader('Content-Disposition', 'inline; filename="report_' . date('Y-m-d') . '.html"');
-        
-        return $html;
+        return $attachment;
     }
 
     private function generateExcel($data)
     {
+        $clinicId = session()->get('active_clinic_id');
         // Generate CSV content (Excel can open CSV files)
         $csv = $this->generateReportCSV($data);
         
-        // Set headers for Excel download
-        $this->response->setHeader('Content-Type', 'application/vnd.ms-excel');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="report_' . date('Y-m-d') . '.xls"');
+        // Persist artifact
+        $fileName = 'report_' . $data['report_type'] . '_' . date('Y-m-d') . '.csv';
+        $attachment = $this->storageService->storeExport(
+            $csv, 
+            $fileName, 
+            'text/csv', 
+            $clinicId, 
+            'report', 
+            0, 
+            'report_excel'
+        );
         
-        return $csv;
+        return $attachment;
     }
 
     private function generateCSV($data)
     {
+        $clinicId = session()->get('active_clinic_id');
         $csv = $this->generateReportCSV($data);
         
-        // Set headers for CSV download
-        $this->response->setHeader('Content-Type', 'text/csv');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="report_' . date('Y-m-d') . '.csv"');
+        // Persist artifact
+        $fileName = 'report_' . $data['report_type'] . '_' . date('Y-m-d') . '.csv';
+        $attachment = $this->storageService->storeExport(
+            $csv, 
+            $fileName, 
+            'text/csv', 
+            $clinicId, 
+            'report', 
+            0, 
+            'report_csv'
+        );
         
-        return $csv;
+        return $attachment;
     }
 
     private function generateReportHTML($data)

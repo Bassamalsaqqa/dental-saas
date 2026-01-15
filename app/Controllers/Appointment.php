@@ -11,12 +11,14 @@ class Appointment extends BaseController
     protected $appointmentModel;
     protected $patientModel;
     protected $activityLogger;
+    protected $storageService;
 
     public function __construct() 
     {
         $this->appointmentModel = new AppointmentModel();
         $this->patientModel = new PatientModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = new \App\Services\StorageService();
     }
 
     public function index()
@@ -561,7 +563,23 @@ class Appointment extends BaseController
             'clinic' => settings()->getClinicInfo()
         ];
 
-        return $this->view('appointment/print', $data);
+        $html = view('appointment/print', $data);
+        
+        // Persist artifact
+        $fileName = 'appointment_' . ($appointment['appointment_id'] ?? $id) . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'appointment', 
+            $id, 
+            'appointment_print'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setBody($html);
     }
 
     public function calendar()

@@ -98,3 +98,13 @@
     - **Database:** Executed `PurgeTenantRoles` migration to remove leaked roles and their associated assignments.
 - **Verification:** `docs/SaaS/verification/S0-03.md`. Roles are now read-only for tenants and purged of custom definitions.
 - **Guardrails:** Green. Raw count = 8.
+
+### Task: P5-05 Tenant-safe exports/PDFs/reports (Persist exports policy)
+- **Date:** 2026-01-15
+- **Status:** Completed
+- **Description:** Implemented mandatory persistence for all export and print actions across the platform.
+- **Actions:**
+    - **Models/Infrastructure:** Enhanced `FileAttachmentModel` and `StorageService` to support export persistence with hash-based idempotency.
+    - **Controllers:** Updated `Finance`, `Examination`, `Prescription`, `Odontogram`, `Appointment`, `Inventory`, and `Reports` to enforce ownership before generation and persist all artifacts (PDF/HTML/CSV) before delivery.
+- **Verification:** `docs/SaaS/verification/P5-05.md`. All export/print endpoints now create a trackable `file_attachment` record scoped to the clinic.
+- **Guardrails:** Green. Raw count remains at 8.

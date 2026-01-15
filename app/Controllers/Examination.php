@@ -15,6 +15,7 @@ class Examination extends BaseController
     protected $odontogramModel;
     protected $treatmentModel;
     protected $activityLogger;
+    protected $storageService;
     protected $db;
 
     public function __construct()
@@ -24,6 +25,7 @@ class Examination extends BaseController
         $this->odontogramModel = new OdontogramModel();
         $this->treatmentModel = new TreatmentModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
     }
 
@@ -563,14 +565,31 @@ class Examination extends BaseController
         }
 
         $data = [
-            'title' => 'Examination Report - ' . $examination['examination_id'],
+            'title' => 'Examination Report - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'clinic' => settings()->getClinicInfo()
         ];
 
-        return $this->view('examination/print', $data);
+        $html = view('examination/print', $data);
+        
+        // Persist artifact
+        $fileName = 'exam_' . ($examination['examination_id'] ?? $examination['id']) . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'examination', 
+            $id, 
+            'exam_print'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"')
+            ->setBody($html);
     }
 
     public function duplicate($id)

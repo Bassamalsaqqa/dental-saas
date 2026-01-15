@@ -23,6 +23,8 @@ class FileAttachmentModel extends Model
         'file_size',
         'entity_type',
         'entity_id',
+        'purpose',
+        'file_hash',
         'created_by'
     ];
 
@@ -33,4 +35,16 @@ class FileAttachmentModel extends Model
     protected $deletedField = 'deleted_at';
 
     protected $beforeInsert = ['setClinicId'];
+
+    /**
+     * Soft-delete previous attachments for same entity and purpose
+     */
+    public function supersedePrevious($clinicId, $entityType, $entityId, $purpose)
+    {
+        return $this->where('clinic_id', $clinicId)
+                    ->where('entity_type', $entityType)
+                    ->where('entity_id', $entityId)
+                    ->where('purpose', $purpose)
+                    ->delete();
+    }
 }

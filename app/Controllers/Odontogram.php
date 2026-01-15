@@ -11,12 +11,14 @@ class Odontogram extends BaseController
     protected $odontogramModel;
     protected $patientModel;
     protected $examinationModel;
+    protected $storageService;
 
     public function __construct()
     {
         $this->odontogramModel = new OdontogramModel();
         $this->patientModel = new PatientModel();
         $this->examinationModel = new ExaminationModel();
+        $this->storageService = new \App\Services\StorageService();
     }
 
     public function list()
@@ -313,7 +315,23 @@ class Odontogram extends BaseController
             'condition_types' => $this->odontogramModel->getConditionTypes()
         ];
 
-        return $this->view('odontogram/export', $data);
+        $html = view('odontogram/export', $data);
+        
+        // Persist artifact
+        $fileName = 'odontogram_export_' . ($patient['patient_id'] ?? $patientId) . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'patient', 
+            $patientId, 
+            'odontogram_export'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setBody($html);
     }
 
     public function print($patientId)
@@ -340,7 +358,23 @@ class Odontogram extends BaseController
             'clinic' => settings()->getClinicInfo()
         ];
 
-        return $this->view('odontogram/print', $data);
+        $html = view('odontogram/print', $data);
+        
+        // Persist artifact
+        $fileName = 'odontogram_print_' . ($patient['patient_id'] ?? $patientId) . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'patient', 
+            $patientId, 
+            'odontogram_print'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setBody($html);
     }
 
     public function pdf($patientId)
@@ -366,7 +400,23 @@ class Odontogram extends BaseController
             'condition_types' => $this->odontogramModel->getConditionTypes()
         ];
 
-        return $this->view('odontogram/pdf', $data);
+        $html = view('odontogram/pdf', $data);
+        
+        // Persist artifact
+        $fileName = 'odontogram_' . ($patient['patient_id'] ?? $patientId) . '.pdf';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'application/pdf', 
+            $clinicId, 
+            'patient', 
+            $patientId, 
+            'odontogram_pdf'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setBody($html);
     }
 
     public function downloadPdf($patientId)
@@ -395,15 +445,18 @@ class Odontogram extends BaseController
         // Generate HTML content for PDF
         $html = view('odontogram/pdf', $data);
         
-        // Set headers for PDF download with proper MIME type
+        // Persist artifact
         $filename = 'odontogram_' . $patient['patient_id'] . '_' . date('Y-m-d') . '.pdf';
+        $attachment = $this->storageService->storeExport(
+            $html, 
+            $filename, 
+            'application/pdf', 
+            $clinicId, 
+            'patient', 
+            $patientId, 
+            'odontogram_pdf_download'
+        );
         
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
-            ->setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-            ->setHeader('Pragma', 'no-cache')
-            ->setHeader('Expires', '0')
-            ->setBody($html);
+        return redirect()->to(base_url('file/download/' . $attachment['id']));
     }
 }

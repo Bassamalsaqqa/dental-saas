@@ -13,6 +13,7 @@ class Finance extends BaseController
     protected $patientModel;
     protected $examinationModel;
     protected $activityLogger;
+    protected $storageService;
     protected $db;
 
     public function __construct()
@@ -21,6 +22,7 @@ class Finance extends BaseController
         $this->patientModel = new PatientModel();
         $this->examinationModel = new ExaminationModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
     }
 
@@ -414,7 +416,25 @@ class Finance extends BaseController
             'clinic' => settings()->getClinicInfo()
         ];
 
-        return $this->view('finance/invoice', $data);
+        $html = view('finance/invoice', $data);
+        
+        // Persist artifact
+        $fileName = 'invoice_' . $finance['transaction_id'] . '.html';
+        $attachment = $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'finance', 
+            $id, 
+            'invoice_print'
+        );
+
+        // Stream the response (standard print behavior)
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"')
+            ->setBody($html);
     }
 
     public function testFinancesData()
@@ -588,25 +608,38 @@ class Finance extends BaseController
 
             $data = $query->findAll();
 
+            $content = '';
+            $mimeType = 'text/csv';
+            $fileName = 'financial_data_' . date('Y-m-d_H-i-s') . '.csv';
+
             if ($format === 'csv') {
-                $this->exportToCSV($data);
+                $content = $this->generateCSVContent($data);
             } else {
-                $this->exportToExcel($data);
+                $content = $this->generateCSVContent($data); // Fallback
             }
+
+            // Persist artifact
+            $attachment = $this->storageService->storeExport(
+                $content, 
+                $fileName, 
+                $mimeType, 
+                $clinicId, 
+                'finance', 
+                0, // Global export
+                'finance_export'
+            );
+
+            return redirect()->to(base_url('file/download/' . $attachment['id']));
+
         } catch (\Exception $e) {
             log_message('error', 'Export error: ' . $e->getMessage());
             return redirect()->to(base_url('finance'))->with('error', 'Export failed: ' . $e->getMessage());
         }
     }
 
-    private function exportToCSV($data)
+    private function generateCSVContent($data)
     {
-        $filename = 'financial_data_' . date('Y-m-d_H-i-s') . '.csv';
-
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-
-        $output = fopen('php://output', 'w');
+        $output = fopen('php://temp', 'r+');
 
         // CSV headers
         fputcsv($output, [
@@ -640,15 +673,21 @@ class Finance extends BaseController
             ]);
         }
 
+        rewind($output);
+        $content = stream_get_contents($output);
         fclose($output);
-        exit;
+
+        return $content;
+    }
+
+    private function exportToCSV($data)
+    {
+        // Deprecated - using generateCSVContent + persistence
     }
 
     private function exportToExcel($data)
     {
-        // For now, redirect to CSV export
-        // In a real application, you would use a library like PhpSpreadsheet
-        $this->exportToCSV($data);
+        // Deprecated - using generateCSVContent + persistence
     }
 
     public function bulkMarkAsPaid()

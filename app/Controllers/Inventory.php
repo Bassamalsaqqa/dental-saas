@@ -9,12 +9,14 @@ class Inventory extends BaseController
 {
     protected $inventoryModel;
     protected $activityLogger;
+    protected $storageService;
     protected $db;
 
     public function __construct()
     {
         $this->inventoryModel = new InventoryModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
     }
 
@@ -663,7 +665,23 @@ class Inventory extends BaseController
             'usage' => $usage
         ];
 
-        return $this->view('inventory/usage_print', $data);
+        $html = view('inventory/usage_print', $data);
+        
+        // Persist artifact
+        $fileName = 'inventory_usage_' . $id . '.html';
+        $this->storageService->storeExport(
+            $html, 
+            $fileName, 
+            'text/html', 
+            $clinicId, 
+            'inventory_usage', 
+            $id, 
+            'usage_print'
+        );
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setBody($html);
     }
 
     public function getInventoryData()
