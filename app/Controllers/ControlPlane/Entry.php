@@ -3,9 +3,16 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Services\ControlPlaneAuditService;
 
 class Entry extends BaseController
 {
+    protected $auditService;
+
+    public function __construct()
+    {
+        $this->auditService = new ControlPlaneAuditService();
+    }
     /**
      * Canonical Control Plane Entry
      * GET /controlplane
@@ -34,8 +41,15 @@ class Entry extends BaseController
 
         // 3. Global Mode Redirect
         if (session()->get('global_mode')) {
+            $this->auditService->logEvent('surface_get', [
+                'route' => '/controlplane'
+            ]);
             return redirect()->to('/controlplane/dashboard');
         }
+
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane'
+        ]);
 
         // 4. Render Entry Page
         return view('control_plane/entry', [

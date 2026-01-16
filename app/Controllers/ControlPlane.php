@@ -3,16 +3,19 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Services\ControlPlaneAuditService;
 
 class ControlPlane extends BaseController
 {
     protected $permissionService;
     protected $ionAuth;
+    protected $auditService;
 
     public function __construct()
     {
         $this->permissionService = service('permission');
         $this->ionAuth = new \App\Libraries\IonAuth();
+        $this->auditService = new ControlPlaneAuditService();
     }
 
     /**
@@ -43,6 +46,10 @@ class ControlPlane extends BaseController
         // Regenerate Session ID for security
         session()->regenerate();
 
+        $this->auditService->logEvent('global_enter', [
+            'route' => '/controlplane/enter'
+        ]);
+
         return redirect()->to('/controlplane/dashboard');
     }
 
@@ -61,6 +68,10 @@ class ControlPlane extends BaseController
         
         // Regenerate Session ID
         session()->regenerate();
+
+        $this->auditService->logEvent('global_exit', [
+            'route' => '/controlplane/exit'
+        ]);
 
         return redirect()->to('/dashboard');
     }

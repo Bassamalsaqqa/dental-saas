@@ -3,9 +3,16 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Services\ControlPlaneAuditService;
 
 class Dashboard extends BaseController
 {
+    protected $auditService;
+
+    public function __construct()
+    {
+        $this->auditService = new ControlPlaneAuditService();
+    }
     /**
      * Enforce Superadmin Global Mode check
      */
@@ -19,6 +26,10 @@ class Dashboard extends BaseController
     public function index()
     {
         $this->ensureGlobalMode();
+
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/dashboard'
+        ]);
 
         $data = [
             'title' => 'Control Plane Dashboard',

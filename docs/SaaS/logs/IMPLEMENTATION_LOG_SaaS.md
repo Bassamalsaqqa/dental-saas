@@ -9,3 +9,14 @@
     - **Layout:** Aligned `layouts/control_plane.php` navigation links to actual routes.
 - **Verification:** `docs/SaaS/verification/P5-19.md` confirms route completeness and security behavior.
 - **Guardrails:** Green.
+
+### Task: P5-20 Control Plane Audit & Evidence Layer
+- **Date:** 2026-01-16
+- **Status:** Completed
+- **Description:** Added immutable audit logging for control-plane entry, exits, surface access, and onboarding outcomes.
+- **Actions:**
+    - **Migration:** Created `control_plane_audits` table and model.
+    - **Service:** Added `ControlPlaneAuditService` for centralized audit logging.
+    - **Controllers:** Logged global enter/exit, surface GET access, and onboarding attempt/success/fail events.
+- **Verification:** `docs/SaaS/verification/P5-20.md`.
+- **Guardrails:** Green (Raw count: 8).

@@ -3,9 +3,16 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Services\ControlPlaneAuditService;
 
 class Danger extends BaseController
 {
+    protected $auditService;
+
+    public function __construct()
+    {
+        $this->auditService = new ControlPlaneAuditService();
+    }
     /**
      * Guard: Ensure Global Mode is active
      */
@@ -22,6 +29,10 @@ class Danger extends BaseController
     public function index()
     {
         $this->ensureGlobalMode();
+
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/danger'
+        ]);
 
         return view('control_plane/danger', [
             'title' => 'Danger Zone',
@@ -47,6 +58,10 @@ class Danger extends BaseController
         if ($phrase !== 'EXIT GLOBAL MODE') {
             return redirect()->back()->with('error', 'Incorrect termination phrase. Access retained.');
         }
+
+        $this->auditService->logEvent('global_exit', [
+            'route' => '/controlplane/danger/exit'
+        ]);
 
         // Execution: Reusing the core exit logic
         session()->set('global_mode', false);

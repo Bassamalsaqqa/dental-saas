@@ -5,16 +5,19 @@ namespace App\Controllers\ControlPlane;
 use App\Controllers\BaseController;
 use App\Models\PlanModel;
 use App\Services\OnboardingService;
+use App\Services\ControlPlaneAuditService;
 
 class Onboarding extends BaseController
 {
     protected $planModel;
     protected $onboardingService;
+    protected $auditService;
 
     public function __construct()
     {
         $this->planModel = new PlanModel();
         $this->onboardingService = new OnboardingService();
+        $this->auditService = new ControlPlaneAuditService();
     }
 
     /**
@@ -31,6 +34,10 @@ class Onboarding extends BaseController
     {
         $this->ensureGlobalMode();
 
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/onboarding/clinic/create'
+        ]);
+
         $data = [
             'title' => 'Onboard New Clinic',
             'plans' => $this->planModel->where('status', 'active')->findAll()
@@ -44,6 +51,13 @@ class Onboarding extends BaseController
     {
         $this->ensureGlobalMode();
 
+        $this->auditService->logEvent('onboarding_attempt', [
+            'route' => '/controlplane/onboarding/clinic/create',
+            'metadata' => [
+                'plan_id' => (int)$this->request->getPost('plan_id'),
+            ],
+        ]);
+
         $rules = [
             'clinic_name' => 'required|min_length[3]|max_length[100]',
             'admin_name' => 'required|min_length[3]|max_length[100]',
@@ -53,6 +67,14 @@ class Onboarding extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            $errors = array_keys($this->validator->getErrors());
+            $this->auditService->logEvent('onboarding_fail', [
+                'route' => '/controlplane/onboarding/clinic/create',
+                'metadata' => [
+                    'reason_code' => 'VALIDATION_FAILED',
+                    'error_fields' => $errors,
+                ],
+            ]);
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -68,9 +90,26 @@ class Onboarding extends BaseController
             $actorId = session()->get('user_id');
             $clinicId = $this->onboardingService->createClinicWithAdmin($dto, $actorId);
 
+            $this->auditService->logEvent('onboarding_success', [
+                'route' => '/controlplane/onboarding/clinic/create',
+                'metadata' => [
+                    'clinic_id' => $clinicId,
+                ],
+            ]);
+
             return redirect()->to('/settings')->with('success', "Clinic created successfully (ID: $clinicId).");
 
         } catch (\Exception $e) {
+            $reasonCode = 'UNKNOWN_ERROR';
+            if (preg_match('/^([A-Z_]+):/', $e->getMessage(), $matches)) {
+                $reasonCode = $matches[1];
+            }
+            $this->auditService->logEvent('onboarding_fail', [
+                'route' => '/controlplane/onboarding/clinic/create',
+                'metadata' => [
+                    'reason_code' => $reasonCode,
+                ],
+            ]);
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
