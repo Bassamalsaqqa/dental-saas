@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Plane - DentaCare Pro</title>
+    <title>CONTROL PLANE — <?= esc($title ?? 'CONSOLE') ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+    <body class="bg-slate-50 text-slate-900 font-sans antialiased">
     <div class="min-h-screen flex flex-col">
         <!-- Top Navigation -->
         <?php $hideNav = isset($hide_nav) && $hide_nav; ?>
@@ -15,8 +15,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 font-black text-xl tracking-tighter text-indigo-400">
-                            DENTACARE<span class="text-white">PRO</span> <span class="text-xs font-mono text-slate-500 ml-1">CP</span>
+                        <div class="flex-shrink-0 font-black text-sm tracking-[0.2em] text-indigo-400 uppercase">
+                            Control Plane
                         </div>
                         <?php if (!$hideNav): ?>
                             <div class="hidden md:block">

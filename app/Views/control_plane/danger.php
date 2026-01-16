@@ -1,12 +1,13 @@
+<?php $title = 'DANGER ZONE'; ?>
 <?= $this->extend('layouts/control_plane') ?>
 
 <?= $this->section('content') ?>
 <div class="max-w-2xl space-y-12">
     <!-- Header -->
     <section>
-        <h3 class="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em] mb-6">04. Destructive Actions</h3>
+        <h3 class="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em] mb-6">Control Plane — Destructive Actions</h3>
         <div class="bg-rose-50 border border-rose-200 p-8 rounded">
-            <h1 class="text-xl font-black text-rose-900 uppercase tracking-tighter mb-4">Danger Zone: Session Termination</h1>
+            <h1 class="text-lg font-black text-rose-900 uppercase tracking-tighter mb-4">Danger Zone: Session Termination</h1>
             <p class="text-sm text-rose-800 leading-relaxed">
                 You are about to terminate the Global Authority session. This action has the following consequences:
             </p>
@@ -36,7 +37,7 @@
                 </div>
 
                 <div class="space-y-3">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
                         Type <span class="text-rose-600">EXIT GLOBAL MODE</span> to confirm
                     </label>
                     <input type="text" name="termination_phrase" required autocomplete="off"

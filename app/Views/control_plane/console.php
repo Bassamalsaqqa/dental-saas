@@ -1,40 +1,41 @@
+<?php $title = 'OPERATOR CONSOLE'; ?>
 <?= $this->extend('layouts/control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-7xl mx-auto space-y-10">
     <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">Operator Console</h1>
-            <p class="text-sm text-slate-500">ReadOnly Governance Telemetry</p>
-        </div>
-        <div class="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-green-200">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span>Global Mode: ON</span>
+    <div class="space-y-3">
+        <h1 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Control Plane — Operator Console</h1>
+        <p class="text-sm text-slate-700">Read-only governance telemetry. No actions are executed here.</p>
+        <div class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+            Global Mode: ON
         </div>
     </div>
 
     <!-- Navigation Quick Links (Non-Destructive) -->
-    <div class="flex flex-wrap gap-3">
-        <a href="<?= base_url('controlplane/operations') ?>" class="inline-flex items-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+    <div class="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+        <a href="<?= base_url('controlplane/operations') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Operations
         </a>
-        <a href="<?= base_url('controlplane/plans') ?>" class="inline-flex items-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="<?= base_url('controlplane/plans') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Plans
         </a>
-        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex items-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Onboard Clinic
         </a>
-        <a href="<?= base_url('controlplane/settings') ?>" class="inline-flex items-center px-3 py-2 border border-slate-200 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="<?= base_url('controlplane/settings') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Settings
         </a>
     </div>
 
     <!-- 1. Governance KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section class="space-y-4">
+        <h2 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Governance Overview</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Plans -->
         <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Plans</h3>
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Plans</h3>
             <div class="flex items-baseline space-x-6">
                 <div>
                     <span class="text-2xl font-black text-slate-900"><?= esc($plansActive) ?></span>
@@ -49,7 +50,7 @@
         
         <!-- Clinics -->
         <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Clinics</h3>
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Clinics</h3>
             <div>
                 <span class="text-2xl font-black text-slate-900"><?= esc($clinicsTotal) ?></span>
                 <span class="text-xs text-slate-500 ml-1">Total Registered</span>
@@ -58,19 +59,20 @@
 
         <!-- Subscriptions -->
         <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Subscriptions</h3>
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Subscriptions</h3>
             <div>
                 <span class="text-2xl font-black text-emerald-600"><?= esc($subscriptionsActive) ?></span>
                 <span class="text-xs text-emerald-600 ml-1">Active</span>
             </div>
         </div>
-    </div>
+        </div>
+    </section>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- 2. Recent Governance Events -->
         <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-widest">Recent Governance Events</h3>
+                <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Recent Governance Events</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
@@ -103,7 +105,7 @@
         <!-- 3. Notifications Observability -->
         <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-widest">Notifications Ledger</h3>
+                <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Notifications Ledger</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">

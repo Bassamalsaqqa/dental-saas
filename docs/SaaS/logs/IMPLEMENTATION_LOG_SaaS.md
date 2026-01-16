@@ -39,6 +39,18 @@
 - **Verification:** `docs/SaaS/verification/P5-16.md`.
 - **Guardrails:** Green (Raw count: 8).
 
+### Task: P5-18 Control Plane Presentation Cleanup
+- **Date:** 2026-01-16
+- **Status:** Completed
+- **Description:** Normalized control-plane page presentation without changing behavior or data sources.
+- **Actions:**
+    - **Layout:** Standardized headings and spacing in `layouts/control_plane.php`.
+    - **Console:** Aligned section hierarchy and table labeling for read-only telemetry.
+    - **Onboarding:** Moved to control-plane layout and normalized form typography.
+    - **Dashboard/Danger:** Updated text hierarchy for consistent operator console tone.
+- **Verification:** `docs/SaaS/verification/P5-18.md`.
+- **Guardrails:** Green (Raw count: 8).
+
 ### Task: P5-17 Danger Zone (High-Friction Exit Global Mode)
 - **Date:** 2026-01-16
 - **Status:** Completed
