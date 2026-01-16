@@ -34,9 +34,9 @@ class Console extends BaseController
 
         $planModel = new PlanModel();
         $clinicModel = new ClinicModel();
-        $subscriptionModel = new ClinicSubscriptionModel();
-        $planAuditModel = new PlanAuditModel();
-        $notificationModel = new NotificationModel();
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
+        $notificationModel = (new NotificationModel())->withoutTenantScope();
 
         // 1. Governance KPIs
         $plansActive = $planModel->where('status', 'active')->countAllResults();

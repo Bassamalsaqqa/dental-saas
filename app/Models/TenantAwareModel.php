@@ -27,6 +27,19 @@ abstract class TenantAwareModel extends Model
         return $this;
     }
 
+    protected function initialize(): void
+    {
+        parent::initialize();
+
+        if (!is_array($this->beforeInsert)) {
+            $this->beforeInsert = [];
+        }
+
+        if (!in_array('setClinicId', $this->beforeInsert, true)) {
+            $this->beforeInsert[] = 'setClinicId';
+        }
+    }
+
     protected function enforceTenantScope(array $data)
     {
         if (!$this->checkTenantScope) {
@@ -35,15 +48,14 @@ abstract class TenantAwareModel extends Model
 
         $clinicId = session()->get('active_clinic_id');
         
-        // If we are in a web request context (Tenant Plane), we MUST have a clinic ID.
-        // If not, it might be a global request (blocked by filters usually) or CLI.
-        // To fail closed: if session is missing but we expect tenant scope, what do we do?
-        // If we force it, CLI jobs (which have no session) might break if they rely on find().
-        // BUT jobs are supposed to use specific methods. 
-        // Let's apply it ONLY if session exists. 
-        // NOTE: Filters should block access to Tenant Controllers if session is missing.
-        
-        if ($clinicId) {
+        if (!$clinicId) {
+            log_message('error', "TENANT_CONTEXT_MISSING: Active clinic is required for tenant-scoped queries on {$this->table}.");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Tenant context required.");
+        }
+
+        if (isset($data['builder']) && $data['builder'] instanceof \CodeIgniter\Database\BaseBuilder) {
+            $data['builder']->where($this->table . '.' . $this->tenantField, $clinicId);
+        } else {
             $this->where($this->table . '.' . $this->tenantField, $clinicId);
         }
         
@@ -101,7 +113,8 @@ abstract class TenantAwareModel extends Model
                 $data['data'][$this->tenantField] = $clinicId;
             } else {
                 // Fail-closed: If we are inserting into a tenant table without a clinic ID, abort.
-                throw new \RuntimeException("TENANT_CONTEXT_MISSING: Cannot insert into {$this->table} without clinic_id.");
+                log_message('error', "TENANT_CONTEXT_MISSING: Cannot insert into {$this->table} without clinic_id.");
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Tenant context required for creation.");
             }
         }
         return $data;
