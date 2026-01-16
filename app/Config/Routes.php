@@ -11,6 +11,7 @@ use CodeIgniter\Router\RouteCollection;
 // --------------------------------------------------------------------
 $routes->group('controlplane', function ($routes) {
     $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
+    $routes->get('console', 'ControlPlane\Console::index', ['filter' => 'controlplane']); // P5-16
     $routes->post('enter', 'ControlPlane::enter');
     
     // Danger Zone (P5-17)

@@ -27,6 +27,18 @@
     - **Verification:** Appended to `docs/SaaS/verification/P5-11-UX.md`.
 - **Guardrails:** Green.
 
+### Task: P5-16 Operator Console (Read-Only)
+- **Date:** 2026-01-16
+- **Status:** Completed
+- **Description:** Added a read-only control-plane operator console at `/controlplane/console` with global governance telemetry.
+- **Actions:**
+    - **Routes:** Added `GET /controlplane/console` under `controlplane` filter.
+    - **Controller:** Implemented `ControlPlane\Console` with model-only reads (no raw queries).
+    - **View:** Added `control_plane/console.php` with read-only tables and navigation links to control-plane surfaces.
+    - **Layout:** Updated `layouts/control_plane.php` to allow hiding navigation on static dashboard view.
+- **Verification:** `docs/SaaS/verification/P5-16.md`.
+- **Guardrails:** Green (Raw count: 8).
+
 ### Task: P5-17 Danger Zone (High-Friction Exit Global Mode)
 - **Date:** 2026-01-16
 - **Status:** Completed
