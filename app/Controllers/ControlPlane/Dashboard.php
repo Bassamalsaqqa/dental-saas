@@ -31,9 +31,15 @@ class Dashboard extends BaseController
             'route' => '/controlplane/dashboard'
         ]);
 
+        $clinicModel = new \App\Models\ClinicModel();
+        $activeClinics = $clinicModel->where('status', 'active')->countAllResults();
+
         $data = [
             'title' => 'Control Plane Dashboard',
-            'global_mode' => true
+            'global_mode' => true,
+            'stats' => [
+                'active_clinics' => $activeClinics
+            ]
         ];
 
         return view('control_plane/dashboard', $data);

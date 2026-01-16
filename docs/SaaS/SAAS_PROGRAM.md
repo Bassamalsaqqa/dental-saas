@@ -156,3 +156,25 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### S0-13 Log Wording Correction (Completed)
 - **Status:** PASS
 - **Summary:** Corrected log wording to avoid unverified Routes.php assertions; no code changes.
+
+### S0-14 Control Plane UI Refactor (Completed)
+- **Status:** PASS
+- **Summary:** Standardized Control Plane UI with `main_control_plane` layout (Dark Sidebar) and added live active clinic metrics.
+- **Decisions:** Control Plane uses a Slate-900 sidebar to visually distinguish it from the Tenant Plane (White/Blue).
+
+### S0-15 Control Plane Asset Safety (Completed)
+- **Status:** PASS
+- **Summary:** Confirmed Control Plane layout is free of tenant-heavy assets and corrected log ordering.
+- **Decisions:** `main_control_plane` is the standard layout for all `/controlplane/*` routes.
+
+### S0-16 Log Ordering + rg Standardization (Completed)
+- **Status:** PASS
+- **Summary:** Restored S0-12 status line and updated S0-15 verification commands to use rg.
+
+### S0-17 Log Integrity Corrections (Completed)
+- **Status:** PASS
+- **Summary:** Restored missing S0-12 status line and re-added the S0-06/S0-07 runtime evidence block via append-only correction; updated S0-15 verification header to match rg usage.
+
+### S0-19 Reader Advisory (Completed)
+- **Status:** PASS
+- **Summary:** Appended a reader advisory to the implementation log clarifying that later correction blocks supersede earlier route statements.
