@@ -10,8 +10,14 @@ use CodeIgniter\Router\RouteCollection;
 // Control Plane Entry/Exit (SaaS)
 // --------------------------------------------------------------------
 $routes->group('controlplane', function ($routes) {
-    $routes->post('enter', 'ControlPlane::enter'); // Auth check inside controller or via filter? Controller handles strict checks before session set.
+    $routes->post('enter', 'ControlPlane::enter');
     $routes->post('exit', 'ControlPlane::exit');
+    
+    // Onboarding (P5-11)
+    $routes->group('onboarding', ['filter' => 'controlplane'], function($routes) {
+        $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic');
+        $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic');
+    });
 });
 
 // --------------------------------------------------------------------
