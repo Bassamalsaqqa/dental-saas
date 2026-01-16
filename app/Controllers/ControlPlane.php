@@ -43,7 +43,7 @@ class ControlPlane extends BaseController
         // Regenerate Session ID for security
         session()->regenerate();
 
-        return redirect()->to('/settings');
+        return redirect()->to('/controlplane/dashboard');
     }
 
     /**

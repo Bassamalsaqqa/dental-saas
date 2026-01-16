@@ -1,46 +1,28 @@
-### Task: P5-11 Tenant Onboarding (Control Plane)
+### Task: P5-11-UX Control Plane UX & Profile
 - **Date:** 2026-01-16
 - **Status:** Completed
-- **Description:** Implemented a secure, transactional onboarding flow for Superadmins to create new clinics with admin users and subscriptions.
+- **Description:** Restored profile routes and added Control Plane visibility/dashboard.
 - **Actions:**
-    - **Service:** Created `OnboardingService` to handle multi-table insertion in a single transaction.
-    - **Controller/View:** Added Control Plane routes and UI for clinic creation.
-    - **Verification:** `verify:onboarding` script confirmed end-to-end creation integrity.
+    - **Routes:** Restored `/profile` routes (GET/POST) and added `/controlplane/dashboard`.
+    - **Controller:** Created `ControlPlane\Dashboard` and updated `BaseController` to inject superadmin status.
+    - **View:** Created `control_plane/dashboard.php` and updated `main_auth.php` navigation logic.
+- **Verification:** `docs/SaaS/verification/P5-11-UX.md` confirms route availability and navigation logic.
 - **Guardrails:** Green.
 
-### Task: P5-11-FIX Tenant Onboarding Hardening
+### Task: P5-11-UX-FIX Control Plane Enter Redirect
 - **Date:** 2026-01-16
 - **Status:** Completed
-- **Description:** Fixed runtime errors (slug helper) and double-hash password bug. Added Control Plane filters.
+- **Description:** Fixed redirect target after entering Global Mode.
 - **Actions:**
-    - **Service:** Loaded text helper in `OnboardingService`. Removed `password_hash` call (relied on Model callback).
-    - **Routes:** Applied `controlplane` filter to onboarding routes.
-    - **Verification:** Updated `docs/SaaS/verification/P5-11.md` with real SQL evidence and route checks.
+    - **Controller:** Updated `ControlPlane::enter()` to redirect to `/controlplane/dashboard`.
+- **Verification:** Appended to `docs/SaaS/verification/P5-11-UX.md`.
 - **Guardrails:** Green.
 
-## Correction Block (P5-11 Evidence) — 2026-01-16
-
-The earlier P5-11 log entry line stating:
-
-- **Verification:** `verify:onboarding` script confirmed end-to-end creation integrity.
-
-is inaccurate. No `verify:onboarding` script exists in this repository.
-
-**Authoritative verification was performed manually** and recorded in `docs/SaaS/verification/P5-11.md`, including:
-
-- CLI routes evidence:
-  - `php spark routes | findstr /I "control-plane controlplane onboarding"`
-- Tenant guardrails evidence:
-  - `bash scripts/ci/saas_guardrails.sh`
-- SQL evidence for created clinic/user/membership/subscription/audit rows.
-
-This correction is append-only and supersedes the incorrect verification claim above.
-
-### Task: P5-11 Verification Evidence Correction
+### Task: P5-11-UX-FIX2 ControlPlaneFilter Permission Guard
 - **Date:** 2026-01-16
 - **Status:** Completed
-- **Description:** Replaced non-existent `verify:onboarding` reference with manual CLI/SQL evidence.
+- **Description:** Fixed null `PermissionService` usage in `ControlPlaneFilter` to prevent fatal error when entering Global Mode.
 - **Actions:**
-    - **Verification:** Captured `php spark routes | findstr /I "controlplane/onboarding"` output and live SQL results via PHP mysqli.
-    - **Docs:** Updated `docs/SaaS/verification/P5-11.md` to reflect actual commands and outputs.
+    - **Filter:** Added fallback instantiation of `PermissionService` if `service('permission')` returns null.
+    - **Verification:** Appended to `docs/SaaS/verification/P5-11-UX.md`.
 - **Guardrails:** Green.

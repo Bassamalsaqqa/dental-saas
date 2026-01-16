@@ -80,6 +80,12 @@ abstract class BaseController extends Controller
                 $renderer->setVar('user', $user);
                 $renderer->setVar('user_groups', $this->getUserGroups());
                 $renderer->setVar('user_memberships', $clinicService->getMemberships($user->id));
+                
+                // P5-11-UX: Control Plane Visibility
+                $this->initPermissionService();
+                $isSuperAdmin = $this->permissionService->isSuperAdmin($user->id);
+                $renderer->setVar('is_super_admin', $isSuperAdmin);
+                $renderer->setVar('global_mode', session()->get('global_mode'));
             }
         }
     }

@@ -466,6 +466,32 @@
                                     <i class="fas fa-exchange-alt text-gray-500 w-5"></i>
                                     <span class="font-medium">Switch Clinic</span>
                                 </a>
+                                
+                                <?php if (!empty($is_super_admin)): ?>
+                                    <div class="border-t border-gray-100 my-2"></div>
+                                    <?php if (!empty($global_mode)): ?>
+                                        <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200 mb-1">
+                                            <i class="fas fa-network-wired text-indigo-500 w-5"></i>
+                                            <span class="font-medium">Control Plane</span>
+                                        </a>
+                                        <form action="<?= base_url('controlplane/exit') ?>" method="post" class="block w-full">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="flex w-full items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 text-left">
+                                                <i class="fas fa-sign-out-alt text-gray-500 w-5"></i>
+                                                <span class="font-medium">Exit Global Mode</span>
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form action="<?= base_url('controlplane/enter') ?>" method="post" class="block w-full">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="flex w-full items-center space-x-3 px-3 py-2.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 text-left">
+                                                <i class="fas fa-rocket text-indigo-500 w-5"></i>
+                                                <span class="font-medium">Enter Control Plane</span>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
                                 <div class="border-t border-gray-100 my-2"></div>
                                 <a href="<?= base_url('auth/logout') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-sign-out-alt text-red-500 w-5"></i>

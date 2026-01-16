@@ -10,6 +10,7 @@ use CodeIgniter\Router\RouteCollection;
 // Control Plane Entry/Exit (SaaS)
 // --------------------------------------------------------------------
 $routes->group('controlplane', function ($routes) {
+    $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
     $routes->post('enter', 'ControlPlane::enter');
     $routes->post('exit', 'ControlPlane::exit');
     
@@ -400,6 +401,14 @@ $routes->group('', ['filter' => ['auth', 'tenant']], function ($routes) {
 // File routes (Tenant Plane)
 $routes->group('file', ['filter' => ['auth', 'tenant']], function ($routes) {
     $routes->get('download/(:num)', 'FileController::download/$1');
+});
+
+// Profile routes (P5-11-UX)
+$routes->get('profile', 'Profile::index', ['filter' => ['auth', 'tenant']]);
+$routes->group('profile', ['filter' => ['auth', 'tenant']], function ($routes) {
+    $routes->get('/', 'Profile::index');
+    $routes->post('update', 'Profile::update');
+    $routes->post('change-password', 'Profile::changePassword');
 });
 
 // Settings routes (Tenant Plane)

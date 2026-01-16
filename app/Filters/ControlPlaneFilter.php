@@ -25,9 +25,8 @@ class ControlPlaneFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = service('session');
-        $auth = service('authentication'); // or however auth is accessed, commonly 'ionAuth' in this project
         // In this project, IonAuth is often used via wrapper or direct library.
-        // Let's use the standard IonAuth library as seen in AdminFilter
+        // Use the standard IonAuth library as seen in other filters/controllers.
         $ionAuth = new \App\Libraries\IonAuth();
 
         // 1. Authenticated User
@@ -47,7 +46,10 @@ class ControlPlaneFilter implements FilterInterface
         // 3. Super Admin Check
         $userId = $ionAuth->getUserId();
         $permissionService = service('permission');
-        
+        if (!$permissionService) {
+            $permissionService = new \App\Services\PermissionService();
+        }
+
         if (!$permissionService->isSuperAdmin($userId)) {
              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
