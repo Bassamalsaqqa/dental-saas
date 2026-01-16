@@ -120,3 +120,39 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### Tenant Model Base Clarification
 - **Current base model:** `TenantAwareModel` (codebase implementation).
 - **Note:** Any `TenantBaseModel` references in earlier sections are legacy naming. The accepted base is `TenantAwareModel` unless explicitly renamed in a future task.
+
+### [2026-01-16] Pivot to Manual SaaS Model
+*   **Decision:** We are deferring automated billing (Stripe) and subdomain routing.
+*   **New Direction:** The system will operate as a "Single App" (Path-based context).
+*   **Billing:** Handled via external invoicing; Plans managed manually by Super Admin.
+*   **Impact:** "Phase 4" requirements for automated subscription handling are superseded by the "Manual Onboarding SOP".
+
+### S0-05, S0-06, S0-07 Notification & Preferences (Completed)
+- **Status:** PASS (see `docs/SaaS/verification/S0-*.md`)
+- **Summary:** Notification crash fixed, per-clinic user preferences enabled (Schema/Persistence), and SMTP configuration UX hardened.
+- **Decisions:**
+  - `clinic_users.preferences` JSON column is the source of truth for per-clinic user settings.
+  - SMTP configuration uses encrypted JSON storage but is presented via a structured form.
+
+### S0-08, S0-09 Persistence & Compliance Fixes (Completed)
+- **Status:** PASS
+- **Summary:** Fixed checkbox normalization (0/1), removed fatal IonAuth service call, and enforced ASCII limits in UI.
+- **Decisions:** Unchecked preferences are explicitly stored as `0`.
+
+### S0-10 Verification Alignment (Completed)
+- **Status:** PASS
+- **Summary:** Aligned verification documents with Docker environment commands and confirmed routing paths.
+- **Decisions:** No routing changes were required; existing paths were correct.
+
+### S0-11 Route Correction (Completed)
+- **Status:** PASS
+- **Summary:** Adjusted form action and redirect paths to remove `settings/` prefix as per strict instruction.
+- **Decisions:** Route paths updated to `notifications/update` and `/notification-settings`.
+
+### S0-12 Documentation Route Corrections (Completed)
+- **Status:** PASS
+- **Summary:** Corrected verification doc path and clarified log entries for S0-10/S0-11 route statements. No code changes introduced.
+
+### S0-13 Log Wording Correction (Completed)
+- **Status:** PASS
+- **Summary:** Corrected log wording to avoid unverified Routes.php assertions; no code changes.

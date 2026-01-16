@@ -102,9 +102,7 @@
             <h3 class="text-xl font-bold text-gray-900">Configure <span id="modalChannelType" class="capitalize"></span></h3>
         </div>
         <div class="p-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Configuration JSON</label>
-            <textarea id="configJson" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder='{"api_key": "...", "sender": "..."}'></textarea>
-            <p class="text-xs text-gray-500 mt-2">Enter provider credentials as JSON. Stored encrypted.</p>
+            <?= view('components/smtp_form') ?>
         </div>
         <div class="p-6 bg-gray-50 flex justify-end space-x-3">
             <button onclick="closeConfigModal()" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Cancel</button>
@@ -139,7 +137,20 @@ let currentChannel = null;
 function openConfigModal(type) {
     currentChannel = type;
     document.getElementById('modalChannelType').textContent = type;
-    document.getElementById('configJson').value = ''; // Reset or fetch existing? For security, maybe don't show existing? "Enter new config"
+    
+    // Switch UI based on type
+    toggleFormMode(type); // Defined in smtp_form component
+    
+    // Clear inputs
+    if(type === 'email') {
+        document.getElementById('smtp_host').value = '';
+        document.getElementById('smtp_user').value = '';
+        document.getElementById('smtp_pass').value = '';
+        // leave defaults for port/crypto/from
+    } else {
+        document.getElementById('configJson').value = '';
+    }
+
     document.getElementById('configModal').classList.remove('hidden');
     document.getElementById('configModal').classList.add('flex');
 }
@@ -150,12 +161,18 @@ function closeConfigModal() {
 }
 
 function saveConfig() {
-    const json = document.getElementById('configJson').value;
-    try {
-        JSON.parse(json);
-    } catch(e) {
-        alert('Invalid JSON format');
-        return;
+    let json = '';
+    
+    if (currentChannel === 'email') {
+        json = serializeSmtpForm(); // Defined in smtp_form component
+    } else {
+        json = document.getElementById('configJson').value;
+        try {
+            JSON.parse(json);
+        } catch(e) {
+            alert('Invalid JSON format');
+            return;
+        }
     }
 
     fetch('<?= base_url('settings/updateChannelConfig') ?>', {

@@ -38,7 +38,7 @@ Links a clinic to a plan and tracks validity.
 *   `start_date` (DATETIME)
 *   `end_date` (DATETIME) - The critical access check field
 *   `trial_ends_at` (DATETIME, Nullable)
-*   `payment_method_token` (VARCHAR) - Stripe/Provider reference
+*   `payment_method_token` (VARCHAR) - Stripe/Provider reference *(Status: Deferred/Manual)*
 *   `created_at`, `updated_at`
 
 ### D. `invoices` (Audit Trail)
@@ -104,3 +104,10 @@ These routes are strictly for the Global Super Admin to manage the platform.
 | POST | `/saas/clinics/(:num)/impersonate` | `Saas\Clinics::impersonate` | Sets session context to this clinic + redirects to their dashboard. |
 | GET | `/saas/plans` | `Saas\Plans::index` | Manage subscription tiers. |
 | GET | `/saas/subscriptions` | `Saas\Subscriptions::index` | Global view of all active/churned subscriptions. |
+
+## 5. Manual Onboarding SOP (Standard Operating Procedure)
+**Objective:** Provision a new clinic without self-service signup.
+1.  **Create Clinic:** Super Admin uses Control Plane -> Operations -> Create Clinic.
+2.  **Create Admin:** Assign initial user with `clinic_admin` role.
+3.  **Assign Plan:** Manually set Start/End dates for the subscription.
+4.  **Configure Channel:** Log in as Clinic Admin -> Settings -> Channels -> Configure SMTP (JSON/Form).

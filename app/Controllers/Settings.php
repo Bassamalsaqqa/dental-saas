@@ -362,35 +362,27 @@ class Settings extends BaseController
 
     public function updateNotifications()
     {
-        $rules = [
-            'email_notifications' => 'required|in_list[0,1]',
-            'sms_notifications' => 'required|in_list[0,1]',
-            'appointment_reminders' => 'required|in_list[0,1]',
-            'reminder_days_before' => 'required|integer|greater_than_equal_to[1]|less_than_equal_to[30]',
-            'payment_reminders' => 'required|in_list[0,1]',
-            'low_stock_alerts' => 'required|in_list[0,1]',
-            'system_updates' => 'required|in_list[0,1]',
+        // Define all possible keys
+        $allKeys = [
+            'email_notifications', 
+            'sms_notifications', 
+            'appointment_created', 
+            'low_stock_alerts'
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        $preferences = [];
+        $postData = $this->request->getPost('preferences') ?? [];
+
+        foreach ($allKeys as $key) {
+            // Checkbox logic: if present in POST, it's '1', else '0'
+            // But if 'preferences' array is used in form like name="preferences[key]", then unchecked keys are missing from the array entirely.
+            $preferences[$key] = isset($postData[$key]) ? 1 : 0;
         }
 
-        $notificationData = [
-            'email_notifications' => $this->request->getPost('email_notifications'),
-            'sms_notifications' => $this->request->getPost('sms_notifications'),
-            'appointment_reminders' => $this->request->getPost('appointment_reminders'),
-            'reminder_days_before' => $this->request->getPost('reminder_days_before'),
-            'payment_reminders' => $this->request->getPost('payment_reminders'),
-            'low_stock_alerts' => $this->request->getPost('low_stock_alerts'),
-            'system_updates' => $this->request->getPost('system_updates'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if ($this->saveNotificationSettings($notificationData)) {
-            return redirect()->to('/settings/notifications')->with('success', 'Notification settings updated successfully!');
+        if ($this->saveNotificationSettings($preferences)) {
+            return redirect()->to('/notification-settings')->with('success', 'Notification settings updated successfully!');
         } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update notification settings. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to update notification settings.');
         }
     }
 
@@ -664,14 +656,40 @@ class Settings extends BaseController
 
     private function getNotificationSettings()
     {
+        $userId = session()->get('user_id');
+        if (!$userId) {
+             $ionAuth = new \App\Libraries\IonAuth();
+             if ($ionAuth->loggedIn()) {
+                 $userId = $ionAuth->user()->row()->id;
+             }
+        }
+        
+        $clinicId = session()->get('active_clinic_id');
+        
+        if ($userId && $clinicId) {
+            $clinicUserModel = new \App\Models\ClinicUserModel();
+            $membership = $clinicUserModel->where('user_id', $userId)
+                                          ->where('clinic_id', $clinicId)
+                                          ->first();
+            if ($membership && !empty($membership['preferences'])) {
+                $prefs = json_decode($membership['preferences'], true);
+                // Ensure defaults for missing keys
+                $defaults = [
+                    'email_notifications' => 1,
+                    'sms_notifications' => 0,
+                    'appointment_created' => 1,
+                    'low_stock_alerts' => 1,
+                ];
+                return array_merge($defaults, $prefs);
+            }
+        }
+
+        // Default preferences
         return [
             'email_notifications' => 1,
             'sms_notifications' => 0,
-            'appointment_reminders' => 1,
-            'reminder_days_before' => 1,
-            'payment_reminders' => 1,
+            'appointment_created' => 1,
             'low_stock_alerts' => 1,
-            'system_updates' => 1,
         ];
     }
 
@@ -749,8 +767,43 @@ class Settings extends BaseController
 
     private function saveNotificationSettings($data)
     {
-        // In a real application, you would save to database
-        return true;
+        $userId = session()->get('user_id'); 
+        if (!$userId) {
+             // Use the correct IonAuth instance
+             $ionAuth = new \App\Libraries\IonAuth();
+             if ($ionAuth->loggedIn()) {
+                 $userId = $ionAuth->user()->row()->id;
+             }
+        }
+        $clinicId = session()->get('active_clinic_id');
+
+        if (!$userId || !$clinicId) {
+            log_message('error', 'Cannot save preferences: Missing Context (User: ' . $userId . ', Clinic: ' . $clinicId . ')');
+            return false;
+        }
+
+        $clinicUserModel = new \App\Models\ClinicUserModel();
+        
+        // Find membership row
+        $membership = $clinicUserModel->where('user_id', $userId)
+                                      ->where('clinic_id', $clinicId)
+                                      ->first();
+
+        if (!$membership) {
+            log_message('error', 'Cannot save preferences: Membership not found');
+            return false;
+        }
+
+        // Update preferences column
+        try {
+            $clinicUserModel->update($membership['id'], [
+                'preferences' => json_encode($data)
+            ]);
+            return true;
+        } catch (\Exception $e) {
+            log_message('error', 'DB Error saving preferences: ' . $e->getMessage());
+            return false;
+        }
     }
 
     private function performBackup($filename)

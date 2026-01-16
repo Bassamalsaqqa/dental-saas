@@ -9,22 +9,28 @@ use CodeIgniter\Router\RouteCollection;
 // --------------------------------------------------------------------
 // Control Plane Entry/Exit (SaaS)
 // --------------------------------------------------------------------
+
+// 1. Entry & Gateways (No Global Mode required, strict SuperAdmin check in controller)
 $routes->group('controlplane', function ($routes) {
     $routes->get('/', 'ControlPlane\Entry::index'); // P5-18c
-    $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
-    $routes->get('console', 'ControlPlane\Console::index', ['filter' => 'controlplane']); // P5-16
-    $routes->get('operations', 'ControlPlane\Operations::index', ['filter' => 'controlplane']); // P5-19
-    $routes->get('settings', 'ControlPlane\Settings::index', ['filter' => 'controlplane']); // P5-19
     $routes->post('enter', 'ControlPlane::enter');
+});
+
+// 2. Protected Surfaces (Requires Global Mode via Filter)
+$routes->group('controlplane', ['filter' => 'controlplane'], function ($routes) {
+    $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
+    $routes->get('console', 'ControlPlane\Console::index'); // P5-16
+    $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
+    $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
     
     // Danger Zone (P5-17)
-    $routes->group('danger', ['filter' => 'controlplane'], function($routes) {
+    $routes->group('danger', function($routes) {
         $routes->get('/', 'ControlPlane\Danger::index');
         $routes->post('exit', 'ControlPlane\Danger::exitGlobalMode');
     });
     
     // Onboarding (P5-11)
-    $routes->group('onboarding', ['filter' => 'controlplane'], function($routes) {
+    $routes->group('onboarding', function($routes) {
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic');
         $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic');
     });

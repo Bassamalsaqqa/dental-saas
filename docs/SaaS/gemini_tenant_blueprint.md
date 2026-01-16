@@ -60,6 +60,12 @@
     *   Override `findAll()`, `find()`, `first()`.
     *   Inject `$builder->where('clinic_id', session('active_clinic_id'))` automatically.
     *   Allow bypass for Super Admin via `withoutTenantScope()`.
+*   **Tenant Resolution Strategy:** Session-Based Context (`active_clinic_id`). The application relies on the active session to resolve the tenant, not subdomains.
+
+### [Added 2026-01-16] M:N User Architecture
+*   **Model:** Users are global entities stored in `users`.
+*   **Membership:** Clinic membership is defined in `clinic_users` pivot table.
+*   **Preferences:** Per-clinic settings (e.g., Notification preferences) are stored in `clinic_users.preferences` (JSON).
 
 **C. Top 50 High-Risk Fix List (Raw Queries & Global Access):**
 *   `app/Controllers/Settings.php:663` - `SELECT * FROM {$table}` -> **Restrict to Super Admin Only**

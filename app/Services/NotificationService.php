@@ -234,12 +234,20 @@ class NotificationService
         $channel = $this->channelModel->where('clinic_id', $clinicId)
                                       ->where('channel_type', 'email')
                                       ->first();
+        
+        $pending = []; // Initialize pending to avoid scope issues in catch block
 
         // Re-check Plan Feature (in case it was disabled since enqueue)
         try {
             $this->planGuard->assertFeature($clinicId, 'notifications.email.enabled');
         } catch (\Exception $e) {
             // If feature disabled now, fail all pending
+             // We need to fetch pending first to fail them
+            $pending = $this->notificationModel->where('clinic_id', $clinicId)
+                                               ->where('channel_type', 'email')
+                                               ->where('status', 'pending')
+                                               ->findAll();
+
              foreach ($pending as $note) {
                 $this->notificationModel->update($note['id'], [
                     'status' => 'blocked',
