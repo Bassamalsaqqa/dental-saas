@@ -195,6 +195,34 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Summary:** Enforced valid `role_id` in `UserManagementController::store` to prevent invalid clinic memberships. Annotated P5-06 verification with deferred evidence note.
 - **Decisions:** Users created in tenant context MUST have at least one role assigned.
 
+### P5-06/07 Fail-Closed Update (Completed)
+- **Status:** PASS
+- **Summary:** Reinforced `TenantAwareModel` with strict exception-throwing if context is missing. Control Plane console explicitly exempted.
+- **Decisions:** Unscoped queries in tenant context are now runtime errors.
+
+### P5-07a Tenant Context 404 Mapping (Completed)
+- **Status:** PASS
+- **Summary:** Updated `TenantAwareModel` to throw `PageNotFoundException` instead of `RuntimeException` when tenant context is missing, ensuring correct HTTP 404 response. Added logging for audit trail.
+- **Decisions:** Fail-closed events must appear as 404 to the user but logged as errors.
+
+### P5-07b Evidence Remediation (Completed)
+- **Status:** PASS
+- **Summary:** Updated verification documents to include concrete CLI outputs and code evidence matching the P5-07a changes.
+
+### P5-07c Evidence Repair (Completed)
+- **Status:** PASS
+- **Summary:** Replaced simulated verification evidence with verbatim captured artifacts for CLI, Log, and HTTP 404 behavior.
+- **Decisions:** Audit trails must contain real output, not asserted results.
+
+### P5-07c Evidence Completeness Correction (Completed)
+- **Status:** PASS
+- **Summary:** Updated P5-07 wording to explicitly reference `PageNotFoundException::forPageNotFound()` and removed simulated negative-path output from P5-06 (deferred).
+- **Decisions:** Verification docs must contain only verbatim evidence blocks or explicit deferrals.
+
+### P5-07c Evidence Correction (Completed)
+- **Status:** PASS
+- **Summary:** Removed simulated negative-path evidence from P5-06 and added missing 302 redirect evidence to P5-07. Clarified exception wording.
+
 ### P5-08b Fail-Closed Role Enforcement (Completed)
 - **Status:** PASS
 - **Summary:** Added a hard fail-closed guard to block user creation when roles are missing/invalid, preventing orphaned users without clinic membership.
