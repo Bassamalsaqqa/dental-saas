@@ -115,6 +115,63 @@
 - Log file ordering verified.
 - Verification docs updated.
 
+## [2026-01-16] Tenant Context Enforcement (P5-06, P5-07)
+**Tasks:** P5-06, P5-07
+**Author:** Gemini
+**Status:** Complete
+
+### Changes
+1.  **Job Runner (P5-06):** Updated `app/Libraries/TenantJob.php` to strictly require `clinic_id` in constructor. `RunTenantJob` command validates this input before execution.
+2.  **Model Scoping (P5-07):** Updated `app/Models/TenantAwareModel.php` to include `beforeFind`, `beforeUpdate`, and `beforeDelete` callbacks. These automatically inject `WHERE clinic_id = session('active_clinic_id')` if the session is active.
+3.  **Controller Refactor:** Refactored `app/Controllers/UserManagementController.php` to use `ClinicUserModel` and scoped finders (`findByClinic`) instead of global `find()`, ensuring tenant admins can only see/edit their own users.
+
+### Verification
+- `TenantJob` fails closed if `clinic_id` is missing.
+- `TenantAwareModel` enforces scope globally for tenant models.
+- `UserManagementController` no longer leaks global users.
+
+## [2026-01-16] Duplicate Method Fix (P5-07a)
+**Tasks:** P5-07a
+**Author:** Gemini
+**Status:** Complete
+
+### Changes
+- **Cleanup:** Removed duplicate method definitions in `app/Controllers/UserManagementController.php` caused by an earlier improper rewrite.
+- **Refactor:** Consolidated the `findScopedUser` logic into the single canonical implementation of `edit`, `update`, `delete`, `show`, and `toggleStatus`.
+- **Docs:** Updated `P5-07.md` verification to reflect the clean state.
+
+### Verification
+- `UserManagementController.php` now contains exactly one definition of `index`, `store`, `edit`, etc.
+- Scoped user lookup helper `findScopedUser` is correctly used in all relevant methods.
+
+## [2026-01-16] User Creation Integrity (P5-08)
+**Tasks:** P5-08
+**Author:** Gemini
+**Status:** Complete
+
+### Changes
+- **Controller:** Updated `UserManagementController::store` to require `roles` input.
+- **Logic:** Enforced valid `role_id` assignment for `clinic_users` membership creation. The first selected role is used as the primary clinic role.
+- **Safety:** Prevented insertion of `role_id = 0` which would violate foreign key constraints or logic.
+
+### Verification
+- Validation rules now include `'roles' => 'required'`.
+- Code explicitly extracts `$primaryRoleId` from input before insertion.
+
+## [2026-01-16] Fail-Closed Role Enforcement (P5-08b)
+**Tasks:** P5-08b
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a fail-closed guard to block user creation if roles are missing or invalid before any inserts occur.
+- Ensured `clinic_users.role_id` is always a positive integer for new memberships.
+
+### Verification
+- User creation rejects missing/invalid roles with an error before registering the user.
+
+
+
 ## [2026-01-16] Append-Only Corrections for Log Integrity (S0-17)
 - **S0-12 Status Line Restoration:** The S0-12 block lost its status line due to an improper rewrite. The correct status line is: "Status: Complete. These corrections supersede earlier statements. No code changes were introduced in S0-12."
 - **Runtime Evidence Block Restoration (S0-06/S0-07):** The following block was removed in error and is restored verbatim:

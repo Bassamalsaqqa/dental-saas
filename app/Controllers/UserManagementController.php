@@ -17,6 +17,7 @@ class UserManagementController extends BaseController
     protected $permissionModel;
     protected $permissionService;
     protected $ionAuth;
+    protected $clinicUserModel;
 
     public function __construct()
     {
@@ -26,6 +27,21 @@ class UserManagementController extends BaseController
         $this->permissionModel = new PermissionModel();
         $this->permissionService = new PermissionService();
         $this->ionAuth = new IonAuth(); 
+        $this->clinicUserModel = new \App\Models\ClinicUserModel();
+    }
+
+    /**
+     * Helper to find user scoped to current clinic if set
+     */
+    protected function findScopedUser($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if ($clinicId) {
+            // Use UserModel's findByClinic helper
+            return $this->userModel->findByClinic($clinicId, $id);
+        }
+        // If no clinic context, allow global find (Control Plane)
+        return $this->userModel->find($id);
     }
 
     /**
@@ -34,41 +50,24 @@ class UserManagementController extends BaseController
     private function canManageUsers()
     {
         try {
-            // Check if user is logged in first
             if (!$this->isLoggedIn()) {
-                log_message('debug', 'UserManagement: User not logged in');
                 return false;
             }
             
             $user = $this->getCurrentUser();
             if (!$user) {
-                log_message('debug', 'UserManagement: No user data found');
                 return false;
             }
             
-            log_message('debug', 'UserManagement: Checking permissions for user ID: ' . $user->id);
-            
-            // Check if RBAC system is ready (has permissions in database)
             $permissionCount = $this->permissionModel->countAll();
-            log_message('debug', 'UserManagement: Permission count in database: ' . $permissionCount);
             
             if ($permissionCount == 0) {
-                // RBAC not set up yet, use IonAuth
-                $isAdmin = $this->ionAuth->isAdmin();
-                log_message('debug', 'UserManagement: RBAC not ready, using IonAuth. Is admin: ' . ($isAdmin ? 'Yes' : 'No'));
-                return $isAdmin;
+                return $this->ionAuth->isAdmin();
             }
             
-            // Try RBAC first
-            $canManage = $this->permissionService->canManageUsers($user->id);
-            log_message('debug', 'UserManagement: RBAC permission check result: ' . ($canManage ? 'Yes' : 'No'));
-            return $canManage;
+            return $this->permissionService->canManageUsers($user->id);
         } catch (\Exception $e) {
-            // Fallback to IonAuth during setup
-            log_message('error', 'UserManagement: Exception in permission check: ' . $e->getMessage());
-            $isAdmin = $this->ionAuth->isAdmin();
-            log_message('debug', 'UserManagement: Exception fallback to IonAuth. Is admin: ' . ($isAdmin ? 'Yes' : 'No'));
-            return $isAdmin;
+            return $this->ionAuth->isAdmin();
         }
     }
 
@@ -77,7 +76,6 @@ class UserManagementController extends BaseController
      */
     public function index()
     {
-        // Check if user can manage users (fallback to IonAuth during setup)
         if (!$this->canManageUsers()) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage users.');
         }
@@ -97,7 +95,6 @@ class UserManagementController extends BaseController
      */
     public function create()
     {
-        // Check if user can create users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'create')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to create users.');
         }
@@ -117,7 +114,6 @@ class UserManagementController extends BaseController
      */
     public function store()
     {
-        // Check if user can create users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'create')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to create users.');
         }
@@ -129,14 +125,18 @@ class UserManagementController extends BaseController
             'phone' => 'permit_empty|max_length[20]',
             'password' => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
-            'roles' => 'permit_empty',
+            'roles' => 'required', // Enforce role selection for clinic membership validity
             'permissions' => 'permit_empty'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $roles = $this->request->getPost('roles') ?? [];
+        $primaryRoleId = isset($roles[0]) ? (int) $roles[0] : 0;
+        if (empty($roles) || $primaryRoleId <= 0) {
+            return redirect()->back()->withInput()->with('error', 'At least one valid role is required.');
         }
 
         $userData = [
@@ -151,24 +151,30 @@ class UserManagementController extends BaseController
         $userId = $this->ionAuth->register($userData['email'], $userData['password'], $userData['first_name'], $userData['last_name'], $userData['phone']);
 
         if ($userId) {
-            // Assign roles
-            $roles = $this->request->getPost('roles') ?? [];
+            // Assign roles to system
             if (!empty($roles)) {
                 $this->userRoleModel->assignRoles($userId, $roles, $this->getCurrentUser()->id);
             }
 
-            // Assign individual permissions
+            // Assign to clinic with primary role
+            $clinicId = session()->get('active_clinic_id');
+            if ($clinicId) {
+                $this->clinicUserModel->insert([
+                    'clinic_id' => $clinicId,
+                    'user_id' => $userId,
+                    'role_id' => $primaryRoleId,
+                    'status' => 'active'
+                ]);
+            }
+
             $permissions = $this->request->getPost('permissions') ?? [];
             foreach ($permissions as $permissionId) {
                 $this->permissionService->grantUserPermission($userId, $permissionId, $this->getCurrentUser()->id);
             }
 
-            return redirect()->to('/user-management')
-                           ->with('success', 'User created successfully.');
+            return redirect()->to('/user-management')->with('success', 'User created successfully.');
         } else {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to create user. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to create user. Please try again.');
         }
     }
 
@@ -177,15 +183,14 @@ class UserManagementController extends BaseController
      */
     public function edit($id)
     {
-        // Check if user can edit users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'edit')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to edit users.');
         }
 
-        $user = $this->userModel->find($id);
+        $user = $this->findScopedUser($id);
         
         if (!$user) {
-            return redirect()->to('/user-management')->with('error', 'User not found.');
+            return redirect()->to('/user-management')->with('error', 'User not found or access denied.');
         }
 
         $data = [
@@ -206,15 +211,14 @@ class UserManagementController extends BaseController
      */
     public function update($id)
     {
-        // Check if user can edit users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'edit')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to edit users.');
         }
 
-        $user = $this->userModel->find($id);
+        $user = $this->findScopedUser($id);
         
         if (!$user) {
-            return redirect()->to('/user-management')->with('error', 'User not found.');
+            return redirect()->to('/user-management')->with('error', 'User not found or access denied.');
         }
 
         $rules = [
@@ -230,9 +234,7 @@ class UserManagementController extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
         $userData = [
@@ -243,7 +245,6 @@ class UserManagementController extends BaseController
             'active' => $this->request->getPost('active') ?? 1
         ];
 
-        // Update password if provided
         if ($this->request->getPost('password')) {
             $userData['password'] = $this->request->getPost('password');
         }
@@ -251,20 +252,15 @@ class UserManagementController extends BaseController
         $success = $this->userModel->update($id, $userData);
 
         if ($success) {
-            // Update roles
             $roles = $this->request->getPost('roles') ?? [];
             $this->userRoleModel->assignRoles($id, $roles, $this->getCurrentUser()->id);
 
-            // Update individual permissions
             $permissions = $this->request->getPost('permissions') ?? [];
             $this->updateUserPermissions($id, $permissions);
 
-            return redirect()->to('/user-management')
-                           ->with('success', 'User updated successfully.');
+            return redirect()->to('/user-management')->with('success', 'User updated successfully.');
         } else {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to update user. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to update user. Please try again.');
         }
     }
 
@@ -273,31 +269,26 @@ class UserManagementController extends BaseController
      */
     public function delete($id)
     {
-        // Check if user can delete users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'delete')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to delete users.');
         }
 
-        $user = $this->userModel->find($id);
+        $user = $this->findScopedUser($id);
         
         if (!$user) {
-            return redirect()->to('/user-management')->with('error', 'User not found.');
+            return redirect()->to('/user-management')->with('error', 'User not found or access denied.');
         }
 
-        // Cannot delete super admin
         if ($this->permissionService->isAdmin($id)) {
-            return redirect()->to('/user-management')
-                           ->with('error', 'Cannot delete super admin user.');
+            return redirect()->to('/user-management')->with('error', 'Cannot delete super admin user.');
         }
 
         $success = $this->userModel->delete($id);
 
         if ($success) {
-            return redirect()->to('/user-management')
-                           ->with('success', 'User deleted successfully.');
+            return redirect()->to('/user-management')->with('success', 'User deleted successfully.');
         } else {
-            return redirect()->to('/user-management')
-                           ->with('error', 'Failed to delete user.');
+            return redirect()->to('/user-management')->with('error', 'Failed to delete user.');
         }
     }
 
@@ -306,15 +297,14 @@ class UserManagementController extends BaseController
      */
     public function show($id)
     {
-        // Check if user can view users
         if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'view')) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to view users.');
         }
 
-        $user = $this->userModel->find($id);
+        $user = $this->findScopedUser($id);
         
         if (!$user) {
-            return redirect()->to('/user-management')->with('error', 'User not found.');
+            return redirect()->to('/user-management')->with('error', 'User not found or access denied.');
         }
 
         $data = [
@@ -330,94 +320,33 @@ class UserManagementController extends BaseController
     }
 
     /**
-     * Assign role to user (AJAX)
+     * Toggle user status
      */
-    public function assignRole()
+    public function toggleStatus($id)
     {
-        // Check if user can manage users
-        if (!$this->canManageUsers()) { 
-            return $this->response->setJSON(['error' => 'Permission denied']);
+        if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'edit')) {
+            return redirect()->to('/dashboard')->with('error', 'You do not have permission to edit users.');
         }
 
-        $userId = $this->request->getPost('user_id');
-        $roleId = $this->request->getPost('role_id');
-        $expiresAt = $this->request->getPost('expires_at');
+        $user = $this->findScopedUser($id);
+        
+        if (!$user) {
+            return redirect()->to('/user-management')->with('error', 'User not found or access denied.');
+        }
 
-        $success = $this->userRoleModel->assignRole($userId, $roleId, $this->getCurrentUser()->id, $expiresAt);
+        if ($this->permissionService->isAdmin($id)) {
+            return redirect()->to('/user-management')->with('error', 'Cannot deactivate super admin user.');
+        }
+
+        $newStatus = $user['active'] ? 0 : 1;
+        
+        $success = $this->userModel->update($id, ['active' => $newStatus]);
 
         if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Role assigned successfully']);
+            $status = $newStatus ? 'activated' : 'deactivated';
+            return redirect()->to('/user-management')->with('success', "User {$status} successfully.");
         } else {
-            return $this->response->setJSON(['error' => 'Failed to assign role']);
-        }
-    }
-
-    /**
-     * Remove role from user (AJAX)
-     */
-    public function removeRole()
-    {
-        // Check if user can manage users
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['error' => 'Permission denied']);
-        }
-
-        $userId = $this->request->getPost('user_id');
-        $roleId = $this->request->getPost('role_id');
-
-        $success = $this->userRoleModel->removeRole($userId, $roleId);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Role removed successfully']);
-        } else {
-            return $this->response->setJSON(['error' => 'Failed to remove role']);
-        }
-    }
-
-    /**
-     * Grant permission to user (AJAX)
-     */
-    public function grantPermission()
-    {
-        // Check if user can manage users
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['error' => 'Permission denied']);
-        }
-
-        $userId = $this->request->getPost('user_id');
-        $permissionId = $this->request->getPost('permission_id');
-        $expiresAt = $this->request->getPost('expires_at');
-        $reason = $this->request->getPost('reason');
-
-        $success = $this->permissionService->grantUserPermission($userId, $permissionId, $this->getCurrentUser()->id, $expiresAt, $reason);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Permission granted successfully']);
-        } else {
-            return $this->response->setJSON(['error' => 'Failed to grant permission']);
-        }
-    }
-
-    /**
-     * Revoke permission from user (AJAX)
-     */
-    public function revokePermission()
-    {
-        // Check if user can manage users
-        if (!$this->canManageUsers()) {
-            return $this->response->setJSON(['error' => 'Permission denied']);
-        }
-
-        $userId = $this->request->getPost('user_id');
-        $permissionId = $this->request->getPost('permission_id');
-        $reason = $this->request->getPost('reason');
-
-        $success = $this->permissionService->revokeUserPermission($userId, $permissionId, $this->getCurrentUser()->id, $reason);
-
-        if ($success) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Permission revoked successfully']);
-        } else {
-            return $this->response->setJSON(['error' => 'Failed to revoke permission']);
+            return redirect()->to('/user-management')->with('error', 'Failed to update user status.');
         }
     }
 
@@ -426,7 +355,13 @@ class UserManagementController extends BaseController
      */
     protected function getUsersWithRoles()
     {
-        $users = $this->userModel->findAll();
+        $clinicId = session()->get('active_clinic_id');
+        
+        if ($clinicId) {
+            $users = $this->userModel->getUsersByClinic($clinicId);
+        } else {
+            $users = $this->userModel->findAll();
+        }
         
         foreach ($users as &$user) {
             $user['roles'] = $this->userRoleModel->getUserRolesWithDetails($user['id']);
@@ -436,87 +371,83 @@ class UserManagementController extends BaseController
         return $users;
     }
 
-    /**
-     * Update user permissions
-     */
+    // AJAX Methods (No duplicates needed)
+
+    public function assignRole()
+    {
+        if (!$this->canManageUsers()) { 
+            return $this->response->setJSON(['error' => 'Permission denied']);
+        }
+        $userId = $this->request->getPost('user_id');
+        $roleId = $this->request->getPost('role_id');
+        $expiresAt = $this->request->getPost('expires_at');
+        $success = $this->userRoleModel->assignRole($userId, $roleId, $this->getCurrentUser()->id, $expiresAt);
+        return $this->response->setJSON($success ? ['success' => true, 'message' => 'Role assigned successfully'] : ['error' => 'Failed to assign role']);
+    }
+
+    public function removeRole()
+    {
+        if (!$this->canManageUsers()) {
+            return $this->response->setJSON(['error' => 'Permission denied']);
+        }
+        $userId = $this->request->getPost('user_id');
+        $roleId = $this->request->getPost('role_id');
+        $success = $this->userRoleModel->removeRole($userId, $roleId);
+        return $this->response->setJSON($success ? ['success' => true, 'message' => 'Role removed successfully'] : ['error' => 'Failed to remove role']);
+    }
+
+    public function grantPermission()
+    {
+        if (!$this->canManageUsers()) {
+            return $this->response->setJSON(['error' => 'Permission denied']);
+        }
+        $userId = $this->request->getPost('user_id');
+        $permissionId = $this->request->getPost('permission_id');
+        $expiresAt = $this->request->getPost('expires_at');
+        $reason = $this->request->getPost('reason');
+        $success = $this->permissionService->grantUserPermission($userId, $permissionId, $this->getCurrentUser()->id, $expiresAt, $reason);
+        return $this->response->setJSON($success ? ['success' => true, 'message' => 'Permission granted successfully'] : ['error' => 'Failed to grant permission']);
+    }
+
+    public function revokePermission()
+    {
+        if (!$this->canManageUsers()) {
+            return $this->response->setJSON(['error' => 'Permission denied']);
+        }
+        $userId = $this->request->getPost('user_id');
+        $permissionId = $this->request->getPost('permission_id');
+        $reason = $this->request->getPost('reason');
+        $success = $this->permissionService->revokeUserPermission($userId, $permissionId, $this->getCurrentUser()->id, $reason);
+        return $this->response->setJSON($success ? ['success' => true, 'message' => 'Permission revoked successfully'] : ['error' => 'Failed to revoke permission']);
+    }
+
+    public function getUserPermissions($userId = null)
+    {
+        if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'view')) {
+            return $this->response->setJSON(['error' => 'Permission denied']);
+        }
+        $permissions = $this->permissionService->getUserPermissions($userId);
+        return $this->response->setJSON(['success' => true, 'permissions' => $permissions]);
+    }
+
     protected function updateUserPermissions($userId, $permissions)
     {
-        // Get current user permissions
         $currentPermissions = $this->permissionService->getUserSpecificPermissions($userId);
         $currentPermissionIds = [];
-        
         foreach ($currentPermissions as $modulePermissions) {
             foreach ($modulePermissions as $permission) {
                 $currentPermissionIds[] = $permission['id'];
             }
         }
-
-        // Remove permissions not in the new list
         foreach ($currentPermissionIds as $permissionId) {
             if (!in_array($permissionId, $permissions)) {
                 $this->permissionService->revokeUserPermission($userId, $permissionId, $this->getCurrentUser()->id, 'Updated via user management');
             }
         }
-
-        // Add new permissions
         foreach ($permissions as $permissionId) {
             if (!in_array($permissionId, $currentPermissionIds)) {
                 $this->permissionService->grantUserPermission($userId, $permissionId, $this->getCurrentUser()->id, null, 'Updated via user management');
             }
-        }
-    }
-
-    /**
-     * Get user permissions (AJAX)
-     */
-    public function getUserPermissions($userId = null)
-    {
-        // Check if user can view users
-        if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'view')) {
-            return $this->response->setJSON(['error' => 'Permission denied']);
-        }
-
-        $permissions = $this->permissionService->getUserPermissions($userId);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'permissions' => $permissions
-        ]);
-    }
-
-    /**
-     * Toggle user status
-     */
-    public function toggleStatus($id)
-    {
-        // Check if user can edit users
-        if (!$this->permissionService->hasPermission($this->getCurrentUser()->id, 'users', 'edit')) {
-            return redirect()->to('/dashboard')->with('error', 'You do not have permission to edit users.');
-        }
-
-        $user = $this->userModel->find($id);
-        
-        if (!$user) {
-            return redirect()->to('/user-management')->with('error', 'User not found.');
-        }
-
-        // Cannot deactivate super admin
-        if ($this->permissionService->isAdmin($id)) {
-            return redirect()->to('/user-management')
-                           ->with('error', 'Cannot deactivate super admin user.');
-        }
-
-        $newStatus = $user['active'] ? 0 : 1;
-        
-        $success = $this->userModel->update($id, ['active' => $newStatus]);
-
-        if ($success) {
-            $status = $newStatus ? 'activated' : 'deactivated';
-            return redirect()->to('/user-management')
-                           ->with('success', "User {$status} successfully.");
-        } else {
-            return redirect()->to('/user-management')
-                           ->with('error', 'Failed to update user status.');
         }
     }
 }

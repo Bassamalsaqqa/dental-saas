@@ -175,6 +175,31 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Status:** PASS
 - **Summary:** Restored missing S0-12 status line and re-added the S0-06/S0-07 runtime evidence block via append-only correction; updated S0-15 verification header to match rg usage.
 
+### P5-06 Tenant-Aware Job Runner (Completed)
+- **Status:** PASS
+- **Summary:** Background jobs enforce `clinic_id` context via `RunTenantJob` command and `TenantJob` library.
+- **Decisions:** Jobs must be invoked with `--clinic-id`.
+
+### P5-07 Enforce TenantAwareModel & Scoped Queries (Completed)
+- **Status:** PASS
+- **Summary:** `TenantAwareModel` implements auto-scoping via model events. `UserManagementController` refactored to use scoped user lookups.
+- **Decisions:** Tenant controllers rely on `TenantAwareModel` auto-scoping where applicable, or explicit checks for global models.
+
+### P5-07a Duplicate Method Fix (Completed)
+- **Status:** PASS
+- **Summary:** Removed duplicate methods in `UserManagementController` and consolidated scoped logic.
+- **Decisions:** Codebase compiled state restored.
+
+### P5-08 Data Integrity & Evidence (Completed)
+- **Status:** PASS
+- **Summary:** Enforced valid `role_id` in `UserManagementController::store` to prevent invalid clinic memberships. Annotated P5-06 verification with deferred evidence note.
+- **Decisions:** Users created in tenant context MUST have at least one role assigned.
+
+### P5-08b Fail-Closed Role Enforcement (Completed)
+- **Status:** PASS
+- **Summary:** Added a hard fail-closed guard to block user creation when roles are missing/invalid, preventing orphaned users without clinic membership.
+- **Decisions:** User creation is aborted before registration if role selection is invalid.
+
 ### S0-19 Reader Advisory (Completed)
 - **Status:** PASS
 - **Summary:** Appended a reader advisory to the implementation log clarifying that later correction blocks supersede earlier route statements.
