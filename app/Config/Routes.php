@@ -10,8 +10,11 @@ use CodeIgniter\Router\RouteCollection;
 // Control Plane Entry/Exit (SaaS)
 // --------------------------------------------------------------------
 $routes->group('controlplane', function ($routes) {
+    $routes->get('/', 'ControlPlane\Entry::index'); // P5-18c
     $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
     $routes->get('console', 'ControlPlane\Console::index', ['filter' => 'controlplane']); // P5-16
+    $routes->get('operations', 'ControlPlane\Operations::index', ['filter' => 'controlplane']); // P5-19
+    $routes->get('settings', 'ControlPlane\Settings::index', ['filter' => 'controlplane']); // P5-19
     $routes->post('enter', 'ControlPlane::enter');
     
     // Danger Zone (P5-17)

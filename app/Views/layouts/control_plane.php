@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONTROL PLANE — <?= esc($title ?? 'CONSOLE') ?></title>
+    <meta name="<?= csrf_token() ?>" content="<?= csrf_hash() ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
     <body class="bg-slate-50 text-slate-900 font-sans antialiased">
     <div class="min-h-screen flex flex-col">
         <!-- Top Navigation -->
-        <?php $hideNav = isset($hide_nav) && $hide_nav; ?>
+        <?php $hideNav = (isset($hide_nav) && $hide_nav) || !session()->get('global_mode'); ?>
         <nav class="bg-slate-900 text-white border-b border-slate-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
