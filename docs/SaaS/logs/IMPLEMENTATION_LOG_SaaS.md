@@ -18,6 +18,24 @@
     - **Verification:** Updated `docs/SaaS/verification/P5-11.md` with real SQL evidence and route checks.
 - **Guardrails:** Green.
 
+## Correction Block (P5-11 Evidence) — 2026-01-16
+
+The earlier P5-11 log entry line stating:
+
+- **Verification:** `verify:onboarding` script confirmed end-to-end creation integrity.
+
+is inaccurate. No `verify:onboarding` script exists in this repository.
+
+**Authoritative verification was performed manually** and recorded in `docs/SaaS/verification/P5-11.md`, including:
+
+- CLI routes evidence:
+  - `php spark routes | findstr /I "control-plane controlplane onboarding"`
+- Tenant guardrails evidence:
+  - `bash scripts/ci/saas_guardrails.sh`
+- SQL evidence for created clinic/user/membership/subscription/audit rows.
+
+This correction is append-only and supersedes the incorrect verification claim above.
+
 ### Task: P5-11 Verification Evidence Correction
 - **Date:** 2026-01-16
 - **Status:** Completed
