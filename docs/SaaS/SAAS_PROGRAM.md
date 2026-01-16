@@ -104,3 +104,19 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - docs/SaaS/TENANT_CONTEXT_CONTRACT.md
 - docs/SaaS/SaaS_Tenant_Isolation_Execution_Plan.md
 - docs/SaaS/ScopeOverview.md
+
+## Append-Only Corrections & Decisions — 2026-01-16
+### Storage Path Correction (Supersedes Section 5)
+- **Authoritative storage path:** `writable/uploads/clinic_{clinic_id}/...`
+- **Note:** Section 5 wording (`writable/tenants/{clinic_uuid}`) is legacy and does not match the implemented storage service.
+
+### P5-11 Tenant Onboarding (Completed)
+- **Status:** PASS (see `docs/SaaS/verification/P5-11.md`)
+- **Summary:** Control-plane onboarding creates clinic + admin user + membership + subscription + plan audit in one transaction.
+- **Decisions:**
+  - Initial clinic admin is a **normal tenant user** (not superadmin).
+  - **Plan selection is mandatory**; no default plan is auto-assigned.
+
+### Tenant Model Base Clarification
+- **Current base model:** `TenantAwareModel` (codebase implementation).
+- **Note:** Any `TenantBaseModel` references in earlier sections are legacy naming. The accepted base is `TenantAwareModel` unless explicitly renamed in a future task.

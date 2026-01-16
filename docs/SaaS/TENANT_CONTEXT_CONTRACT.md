@@ -238,3 +238,32 @@ If any change violates this contract:
 - It **blocks release**  
 - It **must be fixed before merge**
 
+---
+
+## 13. Fail-Closed Semantics (Authoritative) — 2026-01-16
+
+When required context is missing or invalid, the system must **fail closed** with **no writes** and a deterministic response:
+
+- **Missing `active_clinic_id` on tenant-plane requests:**  
+  - HTML: redirect to `/clinic/select`  
+  - API: return `403` JSON `{ "error": "TENANT_CONTEXT_REQUIRED" }`
+
+- **Cross-tenant access (record not owned by active clinic):**  
+  - HTML: return `404`  
+  - API: return `403` JSON  
+  - Optional audit event: `tenant_violation_attempt` (rate-limited)
+
+- **Control-plane access without `global_mode`:**  
+  - return `404` (or `403` JSON for API)
+
+No silent no-ops. If blocking occurs, it must be observable (response + optional audit row).
+
+---
+
+## 14. Storage Path Correction (Supersedes Section 8)
+
+**Authoritative storage path:**  
+`writable/uploads/clinic_{clinic_id}/...`
+
+Section 8’s `writable/tenants/{clinic_uuid}` language is legacy and does not match the implemented StorageService.
+
