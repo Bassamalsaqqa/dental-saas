@@ -51,6 +51,15 @@
 - **Verification:** `docs/SaaS/verification/P5-18.md`.
 - **Guardrails:** Green (Raw count: 8).
 
+### Task: P5-18b Control Plane 404 Diagnosis
+- **Date:** 2026-01-16
+- **Status:** Completed
+- **Description:** Diagnosed control-plane 404s and confirmed the fail-closed reason.
+- **Actions:**
+    - **Filter:** Logged the specific deny reason for controlplane routes (missing/false global_mode).
+    - **Evidence:** Captured log excerpt and routes output in `docs/SaaS/verification/P5-18b.md`.
+- **Guardrails:** Green (Raw count: 8).
+
 ### Task: P5-17 Danger Zone (High-Friction Exit Global Mode)
 - **Date:** 2026-01-16
 - **Status:** Completed

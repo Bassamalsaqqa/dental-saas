@@ -35,8 +35,11 @@ class ControlPlaneFilter implements FilterInterface
             return redirect()->to('/auth/login');
         }
 
-        // 2. Session 'global_mode' === true
-        if ($session->get('global_mode') !== true) {
+        $userId = $ionAuth->getUserId();
+
+        // 2. Session 'global_mode' must be truthy
+        if (!$session->get('global_mode')) {
+            log_message('warning', 'ControlPlaneFilter deny: global_mode missing or false for user_id={userId}', ['userId' => $userId]);
             // Fail closed - do not reveal existence of route (404) or strictly deny (403)
             // Prompt says "Denies (403 or 404 per existing patterns)"
             // Using 404 is safer for hiding control plane
@@ -44,13 +47,13 @@ class ControlPlaneFilter implements FilterInterface
         }
 
         // 3. Super Admin Check
-        $userId = $ionAuth->getUserId();
         $permissionService = service('permission');
         if (!$permissionService) {
             $permissionService = new \App\Services\PermissionService();
         }
 
         if (!$permissionService->isSuperAdmin($userId)) {
+             log_message('warning', 'ControlPlaneFilter deny: not superadmin for user_id={userId}', ['userId' => $userId]);
              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
