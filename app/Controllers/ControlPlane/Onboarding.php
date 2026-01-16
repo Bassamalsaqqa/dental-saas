@@ -68,10 +68,32 @@ class Onboarding extends BaseController
             $actorId = session()->get('user_id');
             $clinicId = $this->onboardingService->createClinicWithAdmin($dto, $actorId);
 
-            return redirect()->to('/settings')->with('success', "Clinic created successfully (ID: $clinicId).");
+            // Store clinic info in session for success page
+            session()->setFlashdata('onboarding_success', [
+                'id' => $clinicId,
+                'name' => $dto['clinic_name']
+            ]);
+
+            return redirect()->to('/controlplane/onboarding/success');
 
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
+    }
+
+    public function success()
+    {
+        $this->ensureGlobalMode();
+        $data = session()->getFlashdata('onboarding_success');
+        
+        if (!$data) {
+            return redirect()->to('/controlplane/dashboard');
+        }
+
+        return view('control_plane/onboarding/success', [
+            'clinic_id' => $data['id'],
+            'clinic_name' => $data['name'],
+            'title' => 'Onboarding Success'
+        ]);
     }
 }

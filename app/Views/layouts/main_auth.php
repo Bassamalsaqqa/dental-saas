@@ -474,13 +474,10 @@
                                             <i class="fas fa-network-wired text-indigo-500 w-5"></i>
                                             <span class="font-medium">Control Plane</span>
                                         </a>
-                                        <form action="<?= base_url('controlplane/exit') ?>" method="post" class="block w-full">
-                                            <?= csrf_field() ?>
-                                            <button type="submit" class="flex w-full items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 text-left">
-                                                <i class="fas fa-sign-out-alt text-gray-500 w-5"></i>
-                                                <span class="font-medium">Exit Global Mode</span>
-                                            </button>
-                                        </form>
+                                        <a href="<?= base_url('controlplane/danger') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors duration-200">
+                                            <i class="fas fa-exclamation-triangle text-rose-500 w-5"></i>
+                                            <span class="font-medium">Danger Zone</span>
+                                        </a>
                                     <?php else: ?>
                                         <form action="<?= base_url('controlplane/enter') ?>" method="post" class="block w-full">
                                             <?= csrf_field() ?>

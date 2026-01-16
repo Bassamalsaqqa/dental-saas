@@ -11,18 +11,30 @@ use CodeIgniter\Router\RouteCollection;
 // --------------------------------------------------------------------
 $routes->group('controlplane', function ($routes) {
     $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
+    $routes->get('operations', 'ControlPlane\Operations::index', ['filter' => 'controlplane']); // P5-14a-FIX2
+    $routes->get('settings', 'ControlPlane\Settings::index', ['filter' => 'controlplane']); // P5-12b
     $routes->post('enter', 'ControlPlane::enter');
-    
-    // Danger Zone (P5-17)
-    $routes->group('danger', ['filter' => 'controlplane'], function($routes) {
-        $routes->get('/', 'ControlPlane\Danger::index');
-        $routes->post('exit', 'ControlPlane\Danger::exitGlobalMode');
-    });
     
     // Onboarding (P5-11)
     $routes->group('onboarding', ['filter' => 'controlplane'], function($routes) {
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic');
         $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic');
+        $routes->get('success', 'ControlPlane\Onboarding::success');
+    });
+
+    // Danger Zone (P5-17)
+    $routes->group('danger', ['filter' => 'controlplane'], function($routes) {
+        $routes->get('/', 'ControlPlane\Danger::index');
+        $routes->post('exit', 'ControlPlane\Danger::exitGlobalMode');
+    });
+
+    // Plan Management (P5-12)
+    $routes->group('plans', ['filter' => 'controlplane'], function($routes) {
+        $routes->get('/', 'ControlPlane\PlanManagement::index');
+        $routes->get('create', 'ControlPlane\PlanManagement::create');
+        $routes->post('store', 'ControlPlane\PlanManagement::store');
+        $routes->get('edit/(:num)', 'ControlPlane\PlanManagement::edit/$1');
+        $routes->post('toggle-status/(:num)', 'ControlPlane\PlanManagement::toggleStatus/$1');
     });
 });
 

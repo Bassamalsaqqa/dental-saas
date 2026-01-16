@@ -46,7 +46,12 @@ class OnboardingService
             throw new \RuntimeException("ACCESS_DENIED: Onboarding requires Control Plane Global Mode.");
         }
 
-        // 2. Validate Plan
+        // 2. Validate Plan availability
+        $activePlansCount = $this->planModel->where('status', 'active')->countAllResults();
+        if ($activePlansCount === 0) {
+            throw new \RuntimeException("NO_ACTIVE_PLAN: No plans are currently active in the system.");
+        }
+
         $plan = $this->planModel->find($dto['plan_id']);
         if (!$plan || $plan['status'] !== 'active') {
             throw new \RuntimeException("INVALID_PLAN: Selected plan is missing or inactive.");
@@ -165,6 +170,27 @@ class OnboardingService
 
         } catch (\Exception $e) {
             $db->transRollback();
+            
+            // Audit Failure
+            try {
+                $reason = 'UNKNOWN_ERROR';
+                if (strpos($e->getMessage(), 'NO_ACTIVE_PLAN') !== false) $reason = 'NO_ACTIVE_PLAN';
+                elseif (strpos($e->getMessage(), 'INVALID_PLAN') !== false) $reason = 'INVALID_PLAN';
+                elseif (strpos($e->getMessage(), 'USER_EXISTS') !== false) $reason = 'USER_EXISTS';
+                
+                // Clinic ID is 0 for onboarding failures before clinic creation succeeds
+                $this->auditModel->insert([
+                    'clinic_id' => 0,
+                    'actor_user_id' => $actorUserId,
+                    'action_key' => 'clinic_onboard_failed',
+                    'reason_code' => $reason,
+                    'meta_json' => json_encode(['error' => $e->getMessage()]),
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            } catch (\Exception $auditEx) {
+                log_message('error', 'Failed to log onboarding failure: ' . $auditEx->getMessage());
+            }
+
             log_message('error', "Onboarding Failed: " . $e->getMessage());
             throw $e;
         }

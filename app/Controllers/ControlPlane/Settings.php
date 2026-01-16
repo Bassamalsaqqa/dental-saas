@@ -4,7 +4,7 @@ namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
 
-class Dashboard extends BaseController
+class Settings extends BaseController
 {
     private function ensureGlobalMode()
     {
@@ -18,10 +18,10 @@ class Dashboard extends BaseController
         $this->ensureGlobalMode();
 
         $data = [
-            'title' => 'System Console Status',
+            'title' => 'Control Plane Settings',
             'global_mode' => true
         ];
 
-        return view('control_plane/dashboard', $data);
+        return view('control_plane/settings', $data);
     }
 }

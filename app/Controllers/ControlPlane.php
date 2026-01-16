@@ -62,6 +62,6 @@ class ControlPlane extends BaseController
         // Regenerate Session ID
         session()->regenerate();
 
-        return redirect()->to('/dashboard');
+        return redirect()->to('/clinic/select')->with('success', 'Global Mode exited. Select a clinic to continue.');
     }
 }
