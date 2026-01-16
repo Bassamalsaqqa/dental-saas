@@ -12,7 +12,12 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('controlplane', function ($routes) {
     $routes->get('dashboard', 'ControlPlane\Dashboard::index', ['filter' => 'controlplane']); // P5-11-UX
     $routes->post('enter', 'ControlPlane::enter');
-    $routes->post('exit', 'ControlPlane::exit');
+    
+    // Danger Zone (P5-17)
+    $routes->group('danger', ['filter' => 'controlplane'], function($routes) {
+        $routes->get('/', 'ControlPlane\Danger::index');
+        $routes->post('exit', 'ControlPlane\Danger::exitGlobalMode');
+    });
     
     // Onboarding (P5-11)
     $routes->group('onboarding', ['filter' => 'controlplane'], function($routes) {
