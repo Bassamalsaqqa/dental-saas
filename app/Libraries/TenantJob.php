@@ -18,13 +18,11 @@ abstract class TenantJob
     /**
      * Constructor
      * 
-     * @param int|null $clinicId
+     * @param int $clinicId
      */
-    public function __construct(int $clinicId = null)
+    public function __construct(int $clinicId)
     {
-        if ($clinicId) {
-            $this->setClinicContext($clinicId);
-        }
+        $this->setClinicContext($clinicId);
     }
 
     /**

@@ -13,6 +13,42 @@ use CodeIgniter\Model;
 abstract class TenantAwareModel extends Model
 {
     protected $tenantField = 'clinic_id';
+    protected $beforeFind = ['enforceTenantScope'];
+    protected $beforeUpdate = ['enforceTenantScope'];
+    protected $beforeDelete = ['enforceTenantScope'];
+    protected $checkTenantScope = true;
+
+    /**
+     * Disable tenant scoping for the current instance (e.g. for Super Admin or Jobs).
+     */
+    public function withoutTenantScope()
+    {
+        $this->checkTenantScope = false;
+        return $this;
+    }
+
+    protected function enforceTenantScope(array $data)
+    {
+        if (!$this->checkTenantScope) {
+            return $data;
+        }
+
+        $clinicId = session()->get('active_clinic_id');
+        
+        // If we are in a web request context (Tenant Plane), we MUST have a clinic ID.
+        // If not, it might be a global request (blocked by filters usually) or CLI.
+        // To fail closed: if session is missing but we expect tenant scope, what do we do?
+        // If we force it, CLI jobs (which have no session) might break if they rely on find().
+        // BUT jobs are supposed to use specific methods. 
+        // Let's apply it ONLY if session exists. 
+        // NOTE: Filters should block access to Tenant Controllers if session is missing.
+        
+        if ($clinicId) {
+            $this->where($this->table . '.' . $this->tenantField, $clinicId);
+        }
+        
+        return $data;
+    }
 
     /**
      * Scope the query to a specific clinic.
