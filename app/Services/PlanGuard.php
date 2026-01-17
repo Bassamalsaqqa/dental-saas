@@ -58,18 +58,12 @@ class PlanGuard
                 } else {
                     $reason = 'EXPIRED';
                 }
-            } elseif ($sub['status'] === 'trial') {
-                if (!empty($sub['trial_ends_at']) && $sub['trial_ends_at'] > $now) {
-                    $isValid = true;
-                } else {
-                    $reason = 'TRIAL_EXPIRED';
-                }
             }
         }
 
         if (!$isValid) {
             $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => ($sub['status'] ?? 'none'), 'reason' => $reason]);
-            log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null') . " trial_ends_at=" . ($sub['trial_ends_at'] ?? 'null'));
+            log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null'));
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
     }

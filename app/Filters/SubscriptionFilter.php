@@ -44,19 +44,13 @@ class SubscriptionFilter implements FilterInterface
                 } else {
                     $reason = 'EXPIRED';
                 }
-            } elseif ($sub['status'] === 'trial') {
-                if (!empty($sub['trial_ends_at']) && $sub['trial_ends_at'] > $now) {
-                    $isValid = true;
-                } else {
-                    $reason = 'TRIAL_EXPIRED';
-                }
             } else {
                 $reason = strtoupper($sub['status']);
             }
         }
 
         if (!$isValid) {
-            log_message('error', "SUBSCRIPTION_STATE_BLOCK: clinic_id={$clinicId} user_id={$userId} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null') . " trial_ends_at=" . ($sub['trial_ends_at'] ?? 'null') . " reason={$reason}");
+            log_message('error', "SUBSCRIPTION_STATE_BLOCK: clinic_id={$clinicId} user_id={$userId} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null') . " reason={$reason}");
             throw PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
 

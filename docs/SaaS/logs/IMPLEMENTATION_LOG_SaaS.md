@@ -353,3 +353,8 @@
 ## [2026-01-17] P5-21 SQL Syntax Fix
 - **Summary:** Fixed SQL syntax error in getCurrentSubscription by disabling escaping in the complex CASE orderBy clause.
 - **Note:** CodeIgniter was incorrectly parsing the CASE statement. Applied the third parameter 'false' to orderBy() to bypass escaping.
+
+## [2026-01-17] P5-21 Schema Alignment Fix
+- **Summary:** Aligned Subscription enforcement with actual database schema (removed trial_ends_at and trial status).
+- **Files:** ClinicSubscriptionModel.php, PlanGuard.php, SubscriptionFilter.php.
+- **Note:** Schema defined in 2026-01-15-213930_CreatePlansAndSubscriptionsTables.php does not include trial fields.

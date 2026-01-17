@@ -34,11 +34,8 @@ class ClinicSubscriptionModel extends TenantAwareModel
     public function getCurrentSubscription(int $clinicId)
     {
         return $this->where('clinic_id', $clinicId)
-                    ->whereIn('status', ['active', 'trial'])
-                    ->orderBy("CASE 
-                        WHEN status = 'active' THEN COALESCE(end_at, '9999-12-31') 
-                        ELSE COALESCE(trial_ends_at, '9999-12-31') 
-                    END", 'DESC', false)
+                    ->whereIn('status', ['active', 'paused'])
+                    ->orderBy("end_at", 'DESC')
                     ->orderBy('id', 'DESC')
                     ->first();
     }
