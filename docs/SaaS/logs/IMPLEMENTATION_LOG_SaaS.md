@@ -371,3 +371,7 @@
   - Removed paused from whereIn in ClinicSubscriptionModel.php.
   - Removed stale 	rial_ends_at references from comments.
   - Updated docs/SaaS/verification/P5-21.md to reflect active-only policy and include schema provenance.
+
+## [2026-01-17] P5-21h Verification Doc Provenance Fix
+- **Summary:** Cleaned up docs/SaaS/verification/P5-21.md by removing unverified schema output blocks and replacing them with correct provenance commands and placeholders.
+- **Status:** Verification remains PENDING until verbatim outputs are pasted.
