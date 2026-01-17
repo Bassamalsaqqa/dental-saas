@@ -289,3 +289,7 @@ o_valid_subscription reason for missing subscriptions.
 ### P5-21h Verification Provenance Fix (2026-01-17)
 - **Summary:** Schema evidence for clinic_subscriptions captured verbatim and inserted into docs/SaaS/verification/P5-21.md.
 - **Status:** P5-21 verification remains **PENDING** until gates A/B/C runtime evidence is captured.
+
+### P5-21k Closure Evidence Progress (2026-01-17)
+- **Summary:** Added verbatim subscription gate HTTP 404 header and PLAN_QUOTA_BLOCK log evidence to docs/SaaS/verification/P5-21.md. Remaining evidence (subscription gate log excerpt and quota gate HTTP response) still pending.
+- **Status:** P5-21 remains **PENDING** until all gate evidence is captured.

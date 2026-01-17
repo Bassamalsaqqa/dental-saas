@@ -390,3 +390,6 @@
   - pp/Controllers/Patient.php: Removed undefined ensureTenantContext() call.
   - pp/Views/errors/html/error_404.php: Genericized the error message to hide subscription/plan state regardless of environment.
 - **Note:** This unblocks quota verification by restoring functional patient creation and secure fail-closed behavior.
+
+## [2026-01-17] P5-21k Closure Evidence Progress
+- **Summary:** Added verbatim HTTP 404 header for subscription gate and verbatim PLAN_QUOTA_BLOCK log excerpt to docs/SaaS/verification/P5-21.md. Subscription gate log excerpt and quota HTTP response remain pending.
