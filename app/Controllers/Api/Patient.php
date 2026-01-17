@@ -42,4 +42,26 @@ class Patient extends ResourceController
 
         return $this->respond($data);
     }
+
+    public function create()
+    {
+        helper('api');
+        $clinicId = session()->get('active_clinic_id');
+        
+        $planGuard = new \App\Services\PlanGuard();
+        try {
+            $planGuard->assertQuota($clinicId, 'patients_active_max', 1);
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            return api_error(429, 'plan_quota_exceeded', 'Patient quota reached for this plan.');
+        }
+
+        $data = $this->request->getPost();
+        
+        if ($this->model->insert($data)) {
+            $id = $this->model->getInsertID();
+            return $this->respondCreated(['id' => $id, 'message' => 'Patient created successfully']);
+        }
+
+        return $this->fail($this->model->errors());
+    }
 }

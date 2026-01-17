@@ -419,3 +419,12 @@
     - HTTP (global_mode=true): `curl -k -I -b "ci_session_saas=REAL_TOKEN_WITH_GLOBAL_MODE_TRUE" https://localhost/dental-saas/patients` -> 404 Not Found
     - HTTP (global_mode=false, missing clinic): `curl -k -I -b "ci_session_saas=REAL_TOKEN_GLOBAL_MODE_FALSE" https://localhost/dental-saas/patients` -> 302 to /clinic/select
 - **Note:** API/AJAX behavior remains unchanged (403 JSON). API-B redesign covers API semantics later.
+## [2026-01-17] B1-Fix Remediation (API Leak + Redirects)
+- **Summary:** Fixed security gap where /api/search/* was unprotected and PermissionFilter was leaking internal state via redirects.
+- **Fixes:**
+  - pp/Config/Routes.php: Applied piv1 filter to the pi/search group.
+  - pp/Filters/PermissionFilter.php: Refactored to return contract-compliant JSON 401/403 errors for API requests instead of 302 redirects.
+- **Verification:**
+  - php spark routes: Confirmed filter coverage for all /api/* routes.
+  - curl: Verified unauthenticated hits return 401 JSON.
+- **CSRF Note:** B1 still runs under global CSRF; B2 will remove CSRF for API paths explicitly.
