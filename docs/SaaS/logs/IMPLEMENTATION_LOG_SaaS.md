@@ -331,3 +331,8 @@
 - `rg` checks confirm `getCurrentSubscription` usage in `PlanGuard.php`.
 - Forensic log formats and standing invariants verified via static analysis.
 
+
+## [2026-01-17] P5-21d Forensics + Audit Clarification
+- **Clarification:** Earlier P5-21b blocks are duplicated and may be confusing. The effective P5-21 invariant behavior (web assumes SubscriptionFilter; PlanGuard re-checks standing only for CLI/jobs; missing clinicId in web logs PLAN_GUARD_CONTEXT_MISSING and 404s) is implemented in commit 4e34799.
+- **Status:** P5-21 verification remains PENDING until runtime evidence is captured.
+- **Note:** This clarification is append-only; no prior entries were modified.

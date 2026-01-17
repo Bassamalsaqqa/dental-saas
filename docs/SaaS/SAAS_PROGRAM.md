@@ -250,3 +250,8 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### P5-21 Finalization Clarification (Completed)
 - **Status:** PASS
 - **Summary:** Corrected duplication in logs and clarified that `app/Controllers/Patient.php` is part of the enforcement chain to maintain 404 concealment. Commit(s): [Pending].
+
+### P5-21d Forensics + Audit Clarification (2026-01-17)
+- **Clarification:** Earlier P5-21b blocks are duplicated and may be confusing. The effective P5-21 invariant behavior (web assumes SubscriptionFilter; PlanGuard re-checks standing only for CLI/jobs; missing clinicId in web logs PLAN_GUARD_CONTEXT_MISSING and 404s) is implemented in commit 4e34799.
+- **Status:** P5-21 verification remains PENDING until runtime evidence is captured.
+- **Note:** This clarification is append-only; no prior entries were modified.

@@ -81,7 +81,11 @@ class PlanGuard
     {
         // 1. Invariant: Require valid clinicId in web context
         if ($this->isWebRequest() && !$clinicId) {
-            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: assertFeature called without clinicId in web context.");
+            $req = service('request');
+            $method = $req ? $req->getMethod() : 'N/A';
+            $path = $req ? $req->getUri()->getPath() : 'N/A';
+            $userId = session()->get('user_id') ?: 'N/A';
+            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: clinic_id=null method={$method} route={$path} user_id={$userId}");
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
         }
 
@@ -107,7 +111,11 @@ class PlanGuard
     {
         // 1. Invariant: Require valid clinicId in web context
         if ($this->isWebRequest() && !$clinicId) {
-            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: assertQuota called without clinicId in web context.");
+            $req = service('request');
+            $method = $req ? $req->getMethod() : 'N/A';
+            $path = $req ? $req->getUri()->getPath() : 'N/A';
+            $userId = session()->get('user_id') ?: 'N/A';
+            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: clinic_id=null method={$method} route={$path} user_id={$userId}");
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
         }
 
