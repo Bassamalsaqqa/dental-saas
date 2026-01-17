@@ -375,3 +375,7 @@
 ## [2026-01-17] P5-21h Verification Doc Provenance Fix
 - **Summary:** Cleaned up docs/SaaS/verification/P5-21.md by removing unverified schema output blocks and replacing them with correct provenance commands and placeholders.
 - **Status:** Verification remains PENDING until verbatim outputs are pasted.
+
+### P5-21h Verification Provenance Fix (2026-01-17)
+- **Summary:** Replaced placeholder schema evidence in docs/SaaS/verification/P5-21.md with verbatim SHOW COLUMNS FROM clinic_subscriptions output captured from Docker MySQL.
+- **Status:** P5-21 verification remains **PENDING** (gates A/B/C evidence still required).

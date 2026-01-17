@@ -285,3 +285,7 @@ o_valid_subscription reason for missing subscriptions.
 ### P5-21g Standing Selection Fix (2026-01-17)
 - **Status:** PENDING
 - **Decision:** Restricted getCurrentSubscription to status='active' only. Removed legacy 	rial_ends_at references from code and documentation to align with the actual database schema.
+
+### P5-21h Verification Provenance Fix (2026-01-17)
+- **Summary:** Schema evidence for clinic_subscriptions captured verbatim and inserted into docs/SaaS/verification/P5-21.md.
+- **Status:** P5-21 verification remains **PENDING** until gates A/B/C runtime evidence is captured.
