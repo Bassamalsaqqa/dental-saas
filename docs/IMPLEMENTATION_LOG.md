@@ -367,3 +367,28 @@
     - HTTP (GET /controlplane): `curl -k -I -b "ci_session_saas=NON_SUPERADMIN" https://localhost/dental-saas/controlplane` -> 404 Not Found
     - HTTP (POST /controlplane/enter): 403 SecurityException due to missing CSRF token; invalid test for concealment.
     - Concealment is evaluated on properly formed requests (CSRF satisfied) and/or GET routes.
+## [2026-01-17] CP-02 Tenant RBAC Purge
+- **Summary:** Implemented ctive_clinic_role_id purge when entering Control Plane or accessing protected CP routes.
+- **Files Changed:**
+  - pp/Controllers/ControlPlane.php: Added session()->remove('active_clinic_role_id') in enter().
+  - pp/Filters/ControlPlaneFilter.php: Added $session->remove('active_clinic_role_id') in efore().
+- **Verification:**
+  - g proof: Confirmed purge in both controller and filter.
+  - php spark routes: Verified routes remain unchanged.
+- **Status:** CP-02 CLOSED.
+
+### Task: CP-02 Tenant RBAC Purge (Correction Append)
+- **Date:** 2026-01-17
+- **Status:** Completed (supersedes prior corrupted CP-02 log entry)
+- **Note:** The earlier CP-02 log entry contained control characters; this block is the authoritative record.
+- **Files Changed:**
+    - app/Controllers/ControlPlane.php: Added session()->remove('active_clinic_role_id') in enter().
+    - app/Filters/ControlPlaneFilter.php: Added $session->remove('active_clinic_role_id') in before().
+- **Verification (Verbatim):**
+    - rg proof: `rg -n "remove\('active_clinic_role_id'\)|active_clinic_role_id" app/Controllers/ControlPlane.php app/Filters/ControlPlaneFilter.php`
+      Output:
+      app/Controllers/ControlPlane.php
+      43:        session()->remove('active_clinic_role_id');
+      app/Filters/ControlPlaneFilter.php
+      62:        $session->remove('active_clinic_role_id');
+    - routes: `php spark routes | findstr /I "controlplane"` (command executed)

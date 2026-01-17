@@ -40,6 +40,7 @@ class ControlPlane extends BaseController
         
         // Clear Tenant Context
         session()->remove('active_clinic_id');
+        session()->remove('active_clinic_role_id');
         session()->remove('impersonated_clinic_id');
 
         // Regenerate Session ID for security
