@@ -29,13 +29,13 @@ class ClinicSubscriptionModel extends TenantAwareModel
 
     /**
      * Get the current effective subscription for a clinic.
-     * Logic: Latest expiry (end_at or trial_ends_at) then highest ID.
+     * Logic: Active-only standing. Schema has no trial_ends_at.
      */
     public function getCurrentSubscription(int $clinicId)
     {
         return $this->where('clinic_id', $clinicId)
-                    ->whereIn('status', ['active', 'paused'])
-                    ->orderBy("end_at", 'DESC')
+                    ->where('status', 'active')
+                    ->orderBy("COALESCE(end_at, '9999-12-31')", 'DESC', false)
                     ->orderBy('id', 'DESC')
                     ->first();
     }

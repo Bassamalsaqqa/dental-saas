@@ -364,3 +364,10 @@
 - **Files:** ClinicSubscriptionModel.php, PlanGuard.php, SubscriptionFilter.php.
 - **Verification:** db:show-schema command (temporary) confirmed columns and statuses. Filter chain verified via spark routes.
 - **Note:** TENANT_CONTEXT_MISSING in logs is likely due to BaseController loading settings before SubscriptionFilter runs.
+
+## [2026-01-17] P5-21g Standing Selection Fix (Active-Only)
+- **Summary:** Fixed getCurrentSubscription to use active-only standing selection to prevent false 404s from paused rows.
+- **Changes:**
+  - Removed paused from whereIn in ClinicSubscriptionModel.php.
+  - Removed stale 	rial_ends_at references from comments.
+  - Updated docs/SaaS/verification/P5-21.md to reflect active-only policy and include schema provenance.

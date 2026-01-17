@@ -281,3 +281,7 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Status:** PENDING (Evidence needed)
 - **Decision:** Removed trial_ends_at logic as it is not in the schema. Subscription selection is now deterministic: status='active', ordered by end_at DESC, id DESC. Logged 
 o_valid_subscription reason for missing subscriptions.
+
+### P5-21g Standing Selection Fix (2026-01-17)
+- **Status:** PENDING
+- **Decision:** Restricted getCurrentSubscription to status='active' only. Removed legacy 	rial_ends_at references from code and documentation to align with the actual database schema.
