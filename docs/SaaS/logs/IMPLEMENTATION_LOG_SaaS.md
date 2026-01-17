@@ -393,3 +393,7 @@
 
 ## [2026-01-17] P5-21k Closure Evidence Progress
 - **Summary:** Added verbatim HTTP 404 header for subscription gate and verbatim PLAN_QUOTA_BLOCK log excerpt to docs/SaaS/verification/P5-21.md. Subscription gate log excerpt and quota HTTP response remain pending.
+
+## [2026-01-17] P5-21k Evidence Capture
+- **Summary:** Captured verbatim log evidence for SUBSCRIPTION_STATE_BLOCK and PLAN_QUOTA_BLOCK.
+- **Status:** Overall P5-21 verification remains PENDING awaiting HTTP header evidence for the subscription and quota gates.
