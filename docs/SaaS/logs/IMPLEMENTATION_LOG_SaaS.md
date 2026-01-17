@@ -345,3 +345,11 @@
   - f6a8ab8 — P5-21d PlanGuard log enrichment + audit clarification
 - **Status:** Verification remains PENDING until runtime evidence is captured.
 - **Note:** This clarification is append-only; no prior entries were modified.
+
+## [2026-01-17] P5-21 Verification Evidence Update
+- **Summary:** P5-21 verification evidence updated with real runtime outputs (Missing Context gate curl captured; log evidence pending).
+- **Note:** Missing context curl returned HTTP 404, consistent with PageNotFoundException. Log search confirmed TENANT_CONTEXT_MISSING but SUBSCRIPTION_CONTEXT_MISSING was not yet captured verbatim.
+
+## [2026-01-17] P5-21 SQL Syntax Fix
+- **Summary:** Fixed SQL syntax error in getCurrentSubscription by disabling escaping in the complex CASE orderBy clause.
+- **Note:** CodeIgniter was incorrectly parsing the CASE statement. Applied the third parameter 'false' to orderBy() to bypass escaping.

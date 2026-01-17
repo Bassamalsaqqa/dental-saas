@@ -38,7 +38,7 @@ class ClinicSubscriptionModel extends TenantAwareModel
                     ->orderBy("CASE 
                         WHEN status = 'active' THEN COALESCE(end_at, '9999-12-31') 
                         ELSE COALESCE(trial_ends_at, '9999-12-31') 
-                    END", 'DESC')
+                    END", 'DESC', false)
                     ->orderBy('id', 'DESC')
                     ->first();
     }

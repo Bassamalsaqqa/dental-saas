@@ -264,3 +264,11 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
   - f6a8ab8 — P5-21d PlanGuard log enrichment + audit clarification
 - **Status:** Verification remains PENDING until runtime evidence is captured.
 - **Note:** This clarification is append-only; no prior entries were modified.
+
+### P5-21 Verification Status Update (2026-01-17)
+- **Status:** PENDING (Partial evidence captured)
+- **Note:** Missing context gate curl evidence captured verbatim. Log evidence (SUBSCRIPTION_CONTEXT_MISSING) remains pending; TENANT_CONTEXT_MISSING appeared instead during initial capture.
+
+### P5-21 SQL Syntax Fix (2026-01-17)
+- **Status:** PASS (Code fix verified via static analysis)
+- **Decision:** Disabled SQL escaping for complex CASE statements in ClinicSubscriptionModel to prevent query corruption.
