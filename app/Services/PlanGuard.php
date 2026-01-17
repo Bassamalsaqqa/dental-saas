@@ -31,21 +31,46 @@ class PlanGuard
     }
 
     /**
+     * Helper to determine if current execution is a web request.
+     */
+    private function isWebRequest(): bool
+    {
+        return is_cli() === false;
+    }
+
+    /**
      * Assert that the clinic has an active subscription.
      */
     public function assertSubscriptionActive(int $clinicId)
     {
-        $sub = $this->subscriptionModel->where('clinic_id', $clinicId)->first();
+        $subModel = new ClinicSubscriptionModel();
+        // Use getCurrentSubscription with CASE ordering logic
+        $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
 
-        if (!$sub) {
-            $this->audit($clinicId, 'subscription_check', self::PLAN_MISSING_SUBSCRIPTION);
-            throw new \RuntimeException(self::PLAN_MISSING_SUBSCRIPTION);
+        $isValid = false;
+        $reason = 'MISSING_OR_INACTIVE';
+
+        if ($sub) {
+            $now = date('Y-m-d H:i:s');
+            if ($sub['status'] === 'active') {
+                if (empty($sub['end_at']) || $sub['end_at'] > $now) {
+                    $isValid = true;
+                } else {
+                    $reason = 'EXPIRED';
+                }
+            } elseif ($sub['status'] === 'trial') {
+                if (!empty($sub['trial_ends_at']) && $sub['trial_ends_at'] > $now) {
+                    $isValid = true;
+                } else {
+                    $reason = 'TRIAL_EXPIRED';
+                }
+            }
         }
 
-        if ($sub['status'] !== 'active') {
-            // Check dates? Assuming status is source of truth for now.
-            $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => $sub['status']]);
-            throw new \RuntimeException(self::PLAN_SUBSCRIPTION_INACTIVE);
+        if (!$isValid) {
+            $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => ($sub['status'] ?? 'none'), 'reason' => $reason]);
+            log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null') . " trial_ends_at=" . ($sub['trial_ends_at'] ?? 'null'));
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
     }
 
@@ -54,16 +79,24 @@ class PlanGuard
      */
     public function assertFeature(int $clinicId, string $featureKey, array $meta = [])
     {
-        $this->assertSubscriptionActive($clinicId);
+        // 1. Invariant: Require valid clinicId in web context
+        if ($this->isWebRequest() && !$clinicId) {
+            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: assertFeature called without clinicId in web context.");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
+        }
+
+        // 2. Standing check ONLY for non-web entrypoints (CLI/Jobs)
+        if (!$this->isWebRequest()) {
+            $this->assertSubscriptionActive($clinicId);
+        }
         
         $plan = $this->getClinicPlan($clinicId);
         $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
 
-        // Check if feature enabled (default to false if missing)
-        // Supports nested keys e.g. 'notifications.email.enabled'
         if (!$this->checkNestedKey($features, $featureKey)) {
             $this->audit($clinicId, 'feature_check', self::PLAN_FEATURE_DISABLED, array_merge($meta, ['feature' => $featureKey]));
-            throw new \RuntimeException(self::PLAN_FEATURE_DISABLED . ": $featureKey");
+            log_message('error', "PLAN_FEATURE_BLOCK: clinic_id={$clinicId} feature={$featureKey}");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Feature not in plan.");
         }
     }
 
@@ -72,50 +105,56 @@ class PlanGuard
      */
     public function assertQuota(int $clinicId, string $metricKey, int $delta = 1, array $meta = [])
     {
-        $this->assertSubscriptionActive($clinicId);
+        // 1. Invariant: Require valid clinicId in web context
+        if ($this->isWebRequest() && !$clinicId) {
+            log_message('error', "PLAN_GUARD_CONTEXT_MISSING: assertQuota called without clinicId in web context.");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
+        }
+
+        // 2. Standing check ONLY for non-web entrypoints
+        if (!$this->isWebRequest()) {
+            $this->assertSubscriptionActive($clinicId);
+        }
         
         $plan = $this->getClinicPlan($clinicId);
         $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
         
-        $limit = $limits[$metricKey] ?? 0; // Default to 0 if not set? Or unlimited? Let's say 0 means none. -1 for unlimited.
+        // Canonical map
+        $canonicalKey = $metricKey;
+        if ($metricKey === 'patients') {
+            $canonicalKey = 'patients_active_max';
+        }
+
+        $limit = $limits[$canonicalKey] ?? $limits[$metricKey] ?? 0;
         
-        if ($limit === -1) {
+        if ($limit == -1) {
             return; // Unlimited
         }
 
-        // Special Case: Active Patients Quota (Snapshot, not Monthly)
-        if ($metricKey === 'patients') {
-             // Use 'patients_active_max' key from limit if mapped, or just 'patients'
-             // Requirement says: "Add a plan limit key: patients_active_max"
-             // But calls it 'patients' in assertQuota($clinicId,'patients',1).
-             // Let's assume metricKey 'patients' maps to 'patients_active_max' limit.
-             $limit = $limits['patients_active_max'] ?? $limits['patients'] ?? 0;
-             
-             if ($limit === -1) return;
-
+        // Live Count Quota (Snapshot)
+        if ($canonicalKey === 'patients_active_max') {
              $current = $this->patientModel->countActivePatientsByClinic($clinicId);
-             // We are about to add $delta (usually 1)
              if ($current + $delta > $limit) {
-                 $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => 'patients_active_max', 'limit' => $limit, 'current' => $current]));
-                 throw new \RuntimeException(self::PLAN_QUOTA_EXCEEDED);
+                 $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $canonicalKey, 'limit' => $limit, 'current' => $current]));
+                 log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit={$limit} usage={$current}");
+                 throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan limit reached.");
              }
-             return; // No usage increment for snapshot quotas
+             return;
         }
 
-        // Standard Monthly Quota
+        // Monthly Usage Quota
         $periodStart = date('Y-m-01');
-        
-        // Get or Create Usage Row
         $usage = $this->usageModel->where('clinic_id', $clinicId)
-                                  ->where('metric_key', $metricKey)
+                                  ->where('metric_key', $canonicalKey)
                                   ->where('period_start', $periodStart)
                                   ->first();
                                   
         $currentUsage = $usage ? (int)$usage['metric_value'] : 0;
 
         if ($currentUsage + $delta > $limit) {
-            $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $metricKey, 'limit' => $limit, 'current' => $currentUsage]));
-            throw new \RuntimeException(self::PLAN_QUOTA_EXCEEDED);
+            $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $canonicalKey, 'limit' => $limit, 'current' => $currentUsage]));
+            log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit={$limit} usage={$currentUsage}");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan usage limit reached.");
         }
 
         // Increment
@@ -124,7 +163,7 @@ class PlanGuard
         } else {
             $this->usageModel->insert([
                 'clinic_id' => $clinicId,
-                'metric_key' => $metricKey,
+                'metric_key' => $canonicalKey,
                 'metric_value' => $delta,
                 'period_start' => $periodStart,
                 'period_end' => date('Y-m-t')
@@ -134,9 +173,13 @@ class PlanGuard
 
     private function getClinicPlan(int $clinicId)
     {
-        $sub = $this->subscriptionModel->where('clinic_id', $clinicId)->first();
+        $subModel = new ClinicSubscriptionModel();
+        // Use getCurrentSubscription with CASE ordering logic
+        $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
+
         if (!$sub) {
-             throw new \RuntimeException(self::PLAN_MISSING_SUBSCRIPTION);
+             log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason=MISSING_OR_INACTIVE status=none");
+             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
         return $this->planModel->find($sub['plan_id']);
     }

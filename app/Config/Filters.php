@@ -37,6 +37,7 @@ class Filters extends BaseFilters
         'auth'          => \App\Filters\AuthFilter::class,
         'controlplane'  => \App\Filters\ControlPlaneFilter::class,
         'tenant'        => \App\Filters\TenantFilter::class,
+        'subscription'  => \App\Filters\SubscriptionFilter::class,
         'permission'    => \App\Filters\PermissionFilter::class,
         'csrfjson'      => \App\Filters\CsrfJson::class,
     ];

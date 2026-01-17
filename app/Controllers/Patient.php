@@ -247,10 +247,9 @@ class Patient extends BaseController
         
         $db->transStart();
         try {
-            // Check quota (snapshot based)
-            // assertQuota handles the check logic. For 'patients' key, it counts active patients.
-            // We pass delta=1 (the one we are about to add)
-            $planGuard->assertQuota($clinicId, 'patients', 1);
+            // P5-21: Plan Quota Enforcement (Patients)
+            // Use 'patients_active_max' explicitly
+            $planGuard->assertQuota($clinicId, 'patients_active_max', 1);
             
             // Set content type to JSON for AJAX requests
             if ($this->request->isAJAX()) {
@@ -335,7 +334,13 @@ class Patient extends BaseController
             }
         } catch (\Exception $e) {
             $db->transRollback();
-            // Log the error
+
+            // P5-21b: Rethrow PageNotFoundException to preserve 404 concealment
+            if ($e instanceof \CodeIgniter\Exceptions\PageNotFoundException) {
+                throw $e;
+            }
+
+            // Log other errors
             log_message('error', 'Patient creation error: ' . $e->getMessage());
             
             // Check if this is an AJAX request
