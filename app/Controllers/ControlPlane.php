@@ -32,8 +32,7 @@ class ControlPlane extends BaseController
 
         // Strict Super Admin Check
         if (!$this->permissionService->isSuperAdmin($userId)) {
-             // 403 Forbidden
-             return response()->setStatusCode(403)->setBody('Unauthorized: Super Admin privileges required.');
+             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         // Set Global Mode

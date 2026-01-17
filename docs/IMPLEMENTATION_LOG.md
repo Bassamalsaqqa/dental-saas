@@ -333,3 +333,37 @@
 - **Files Changed:**
     - docs/verification/P4-04.md: Added correction append with updated logoSrc evidence.
 
+
+### Task: CP-01 ControlPlane Entry Concealment Fix
+- **Date:** 2026-01-17
+- **Status:** Completed
+- **Description:** Implemented 404 concealment for ControlPlane entry denial. Replaced 403 response with PageNotFoundException in ControlPlane::enter to align with web concealment doctrine.
+- **Files Changed:**
+    - pp/Controllers/ControlPlane.php: Replaced 403 status code and explicit error message with PageNotFoundException::forPageNotFound().
+- **Verification:**
+    - g proof: Confirmed removal of setStatusCode(403) and explicit denial strings.
+    - php spark routes: Verified controlplane routes filters.
+
+## [2026-01-17] CP-01 Correction & Forensic Finalization
+- **Summary:** This block supersedes the prior CP-01 entry which contained encoding errors. Logic in `app/Controllers/ControlPlane.php` now uses 404 concealment for non-superadmin users.
+- **ASCII Verification:**
+  rg -n "setStatusCode(403)" app/Controllers/ControlPlane.php
+  (Returns 0 results)
+- **Verbatim HTTP Evidence (Concealment):**
+  GET /controlplane -> HTTP/1.1 404 Not Found
+  GET /controlplane/enter -> HTTP/1.1 404 Not Found
+- **Note on POST Testing:** An earlier POST /controlplane/enter returned 403 Forbidden; this was confirmed as a CSRF validation failure (missing token) and is not indicative of a concealment breach.
+- **Status:** CP-01 CLOSED.
+
+### Task: CP-01 ControlPlane Entry Concealment Fix (Correction Append)
+- **Date:** 2026-01-17
+- **Status:** Completed (supersedes prior corrupted CP-01 log entry)
+- **Note:** The earlier CP-01 log entry contained control characters; this block is the authoritative record.
+- **Files Changed:**
+    - app/Controllers/ControlPlane.php (403 denial replaced with PageNotFoundException::forPageNotFound())
+- **Verification:**
+    - rg proof: `rg -n "403|Unauthorized|setStatusCode\(" app/Controllers/ControlPlane.php`
+    - HTTP (GET /controlplane/enter): `curl -k -I -b "ci_session_saas=NON_SUPERADMIN" https://localhost/dental-saas/controlplane/enter` -> 404 Not Found
+    - HTTP (GET /controlplane): `curl -k -I -b "ci_session_saas=NON_SUPERADMIN" https://localhost/dental-saas/controlplane` -> 404 Not Found
+    - HTTP (POST /controlplane/enter): 403 SecurityException due to missing CSRF token; invalid test for concealment.
+    - Concealment is evaluated on properly formed requests (CSRF satisfied) and/or GET routes.
