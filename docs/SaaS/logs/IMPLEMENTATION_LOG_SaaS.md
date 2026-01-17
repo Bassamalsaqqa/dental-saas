@@ -405,3 +405,7 @@
 ## [2026-01-17] P5-21 Closure & SaaS Complete
 - **Summary:** P5-21 verification finalized with verbatim HTTP and Log evidence for all gates.
 - **Status:** PASS. All SaaS multi-tenancy milestones (S0, P1-P5) are now complete and verified.
+
+## [2026-01-17] P5-21 Closure Evidence (HTTP)
+- **Summary:** Added verbatim HTTP evidence for subscription gate (404 header) and quota gate (patient/store POST) to docs/SaaS/verification/P5-21.md.
+- **Status:** P5-21 verification complete; all gates have HTTP + log evidence.

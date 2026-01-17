@@ -301,3 +301,7 @@ o_valid_subscription reason for missing subscriptions.
 ### SaaS Program Completion (2026-01-17)
 - **Status:** COMPLETE
 - **Summary:** All Task IDs for the SaaS multi-tenant transition (Phases 0-6) are implemented, verified, and documented with audit-grade evidence. Logic is fail-closed, schema-aligned, and secure.
+
+### P5-21 Verification Closure (2026-01-17)
+- **Status:** PASS
+- **Summary:** All P5-21 gates now have verbatim HTTP and log evidence in docs/SaaS/verification/P5-21.md (subscription, quota, missing context).
