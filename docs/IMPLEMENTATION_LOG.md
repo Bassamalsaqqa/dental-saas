@@ -392,3 +392,30 @@
       app/Filters/ControlPlaneFilter.php
       62:        $session->remove('active_clinic_role_id');
     - routes: `php spark routes | findstr /I "controlplane"` (command executed)
+## [2026-01-17] CP-03 Airlock Routing Enforcement
+- **Summary:** Implemented fail-closed 404 behavior for tenant web routes when global_mode is true.
+- **Doctrine:** Prevents cross-plane leakage by ensuring that if a user is in the Control Plane (Global Mode), they cannot reach tenant web routes via redirects; they must instead hit a 404.
+- **Files Changed:**
+  - pp/Filters/TenantFilter.php: Added early guard to throw PageNotFoundException for non-API/AJAX web requests if global_mode === true.
+- **Verification:**
+  - g proof: Verified global_mode check and PageNotFoundException throw logic.
+- **Note:** API/AJAX behavior remains unchanged (returns 403 JSON); API-B track will address API semantics later.
+
+### Task: CP-03 Airlock Routing Enforcement (Correction Append)
+- **Date:** 2026-01-17
+- **Status:** Completed (supersedes prior corrupted CP-03 log entry)
+- **Note:** The earlier CP-03 log entry contained control characters; this block is the authoritative record.
+- **Files Changed:**
+    - app/Filters/TenantFilter.php: Added early guard to throw PageNotFoundException for non-API/AJAX web requests when global_mode === true.
+- **Verification (Verbatim):**
+    - rg proof: `rg -n "global_mode|clinic/select|PageNotFoundException" app/Filters/TenantFilter.php`
+      Output:
+      16: * - Redirects to /clinic/select if missing (HTML)
+      27:        // CP-03: Airlock routing - Web requests in global_mode fail-closed with 404
+      28:        if ($session->get('global_mode') === true) {
+      33:                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+      46:            return redirect()->to('/clinic/select');
+      77:            return redirect()->to('/clinic/select');
+    - HTTP (global_mode=true): `curl -k -I -b "ci_session_saas=REAL_TOKEN_WITH_GLOBAL_MODE_TRUE" https://localhost/dental-saas/patients` -> 404 Not Found
+    - HTTP (global_mode=false, missing clinic): `curl -k -I -b "ci_session_saas=REAL_TOKEN_GLOBAL_MODE_FALSE" https://localhost/dental-saas/patients` -> 302 to /clinic/select
+- **Note:** API/AJAX behavior remains unchanged (403 JSON). API-B redesign covers API semantics later.

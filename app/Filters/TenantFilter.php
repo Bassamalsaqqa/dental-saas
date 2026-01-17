@@ -23,6 +23,17 @@ class TenantFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = service('session');
+
+        // CP-03: Airlock routing - Web requests in global_mode fail-closed with 404
+        if ($session->get('global_mode') === true) {
+            $path = $request->getUri()->getPath();
+            $isApiOrAjax = $request->isAJAX() || strpos($path, 'api') !== false || strpos($path, '/api/') !== false;
+            
+            if (!$isApiOrAjax) {
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+            }
+        }
+
         $activeClinicId = $session->get('active_clinic_id');
 
         // 1. Missing Context
