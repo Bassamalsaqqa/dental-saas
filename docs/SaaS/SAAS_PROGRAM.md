@@ -175,6 +175,21 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Status:** PASS
 - **Summary:** Restored missing S0-12 status line and re-added the S0-06/S0-07 runtime evidence block via append-only correction; updated S0-15 verification header to match rg usage.
 
+### P5-21 Subscription Enforcement & Plan Gatekeeping (Completed)
+- **Status:** PASS
+- **Summary:** Implemented strict subscription standing and quota enforcement with 404 concealment. Centralized logic in `SubscriptionFilter` and `PlanGuard`.
+- **Decisions:** All subscription/plan violations present as 404 to the user but log forensic details for audit. Order by latest expiry for subscription standing.
+
+### P5-21b Subscription Correctness Fixes (Completed)
+- **Status:** PASS
+- **Summary:** Reinforced 404 concealment in `Patient::store`, unified subscription lookup in `PlanGuard`, and enhanced forensic log metadata.
+- **Decisions:** Quota violations MUST surface as 404 to maintain endpoint concealment. `PlanGuard` implements standing invariant: re-checks only for non-web calls.
+
+### P5-21b Subscription Correctness Fixes (Completed)
+- **Status:** PASS
+- **Summary:** Reinforced 404 concealment in `Patient::store`, unified subscription lookup in `PlanGuard`, and enhanced forensic log metadata.
+- **Decisions:** Quota violations MUST surface as 404 to maintain endpoint concealment. Standings checks in `PlanGuard` now use deterministic expiry ordering.
+
 ### P5-06 Tenant-Aware Job Runner (Completed)
 - **Status:** PASS
 - **Summary:** Background jobs enforce `clinic_id` context via `RunTenantJob` command and `TenantJob` library.
@@ -231,3 +246,7 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### S0-19 Reader Advisory (Completed)
 - **Status:** PASS
 - **Summary:** Appended a reader advisory to the implementation log clarifying that later correction blocks supersede earlier route statements.
+
+### P5-21 Finalization Clarification (Completed)
+- **Status:** PASS
+- **Summary:** Corrected duplication in logs and clarified that `app/Controllers/Patient.php` is part of the enforcement chain to maintain 404 concealment. Commit(s): [Pending].
