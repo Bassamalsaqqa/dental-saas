@@ -379,3 +379,7 @@
 ### P5-21h Verification Provenance Fix (2026-01-17)
 - **Summary:** Replaced placeholder schema evidence in docs/SaaS/verification/P5-21.md with verbatim SHOW COLUMNS FROM clinic_subscriptions output captured from Docker MySQL.
 - **Status:** P5-21 verification remains **PENDING** (gates A/B/C evidence still required).
+
+## [2026-01-17] P5-21i Verification Evidence Update
+- **Summary:** Missing-context runtime evidence was captured and pasted verbatim into docs/SaaS/verification/P5-21.md (curl + logs).
+- **Observation:** TENANT_CONTEXT_MISSING was logged instead of SUBSCRIPTION_CONTEXT_MISSING due to settings load in BaseController before filter execution, confirming 404 concealment.
