@@ -568,3 +568,117 @@ P4-02b: Secure Logo Upload Pipeline implemented. Validates image type/size, uses
 P4-03: Print Branding Consistency implemented. Synchronized taglines and website URLs in Appointment, Finance, and Prescription print views with system settings.
 
 P4-04: Logo input hardened (upload only) and print views updated to use uploaded logo consistently.
+
+## 11. Closure Track ? NEAR-LOCKED Airlock Invariants (Stop-Ship)
+
+**Purpose:** Resolve remaining concealment and airlock gaps before any new scope is implemented.
+
+### CP-01 ControlPlane Entry Concealment
+**Problem:** `app/Controllers/ControlPlane.php` returns 403 with an explicit message on denial.
+**Definition of Done:**
+- Denial returns 404 (PageNotFoundException) with no explicit message.
+**Verification:**
+- `rg -n "403|Unauthorized|setStatusCode\\(" app/Controllers/ControlPlane.php` -> empty
+- `curl -k -I -b "ci_session_saas=..." -X POST https://localhost/dental-saas/controlplane/enter` -> 404
+
+### CP-02 Session Purge Completeness
+**Problem:** `active_clinic_role_id` persists into global_mode.
+**Definition of Done:**
+- Purge `active_clinic_id`, `active_clinic_role_id`, `impersonated_clinic_id` in both ControlPlane::enter and ControlPlaneFilter.
+**Verification:**
+- `rg -n "active_clinic_role_id" app/Controllers/ControlPlane.php app/Filters/ControlPlaneFilter.php`
+
+### CP-03 Tenant Airlock Enforcement
+**Problem:** TenantFilter redirects to `/clinic/select` for HTML when context is missing.
+**Definition of Done:**
+- When `global_mode=true`, tenant routes fail-closed (404); no redirects into tenant UX.
+**Verification (precondition required):**
+- Set `global_mode=true` in session, then:
+  - `curl -k -I -b "ci_session_saas=..." https://localhost/dental-saas/patients` -> 404 (not 302)
+
+### Stop-Ship Conditions
+- Any 403 or explicit denial message on CP entry.
+- Any redirect into tenant UX while global_mode=true.
+- Any tenant session key surviving CP entry (active_clinic_id / active_clinic_role_id / impersonated_clinic_id).
+
+### P5-21 Status Handling (Verification)
+- Inspect `docs/SaaS/verification/P5-21.md` and record PASS/PENDING based on current evidence.
+
+---
+
+## 12. Phase API-B ? Stateless Integration API Redesign (Scope Expansion)
+
+**Purpose:** Convert /api/* from cookie-session + CSRF to stateless bearer-token auth with explicit tenant context and deterministic JSON errors (API-C0).
+
+**Invariant: API-B-I1**
+- `/api/*` must not authenticate via cookies after cutover.
+
+### B0 ? Governance & Contract
+**API-B0-01 Contract Definition**
+**Definition of Done:**
+- API contract published (auth, tenant context, error schema, status codes, machine error codes).
+**Verification:**
+- `rg -n "API-B|Bearer|tenant_context|error_code|API-C0" docs/ -g"*.md"`
+
+### B1 ? Bearer Auth
+**API-B1-01 Bearer Auth Filter**
+**Definition of Done:**
+- API endpoints accept `Authorization: Bearer <token>` and reject cookie-only auth.
+**Verification:**
+- `php spark routes | findstr /I "api/v1"`
+- `curl -k -i https://localhost/dental-saas/api/v1/patients` -> 401
+- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 200
+
+**API-B1-02 Token Issuance + Revocation**
+**Definition of Done:**
+- Documented token issuance, storage, and revocation path.
+**Verification:**
+- `rg -n "token|bearer|api token|revocation" docs/ app/ -g"*.md" -g"*.php"`
+
+### B2 ? CSRF Exemption (Only after API-B-I1)
+**API-B2-01 CSRF Disable for /api/**
+**Definition of Done:**
+- CSRF is not applied to /api/*; cookie-only auth is rejected.
+**Verification:**
+- `php spark routes | findstr /I "api/v1"` (confirm route filters post-change)
+- `rg -n "csrf|except|api" app/Config/Filters.php` (explicit API exemption)
+- `curl -k -i -H "Authorization: Bearer TOKEN" -X POST https://localhost/dental-saas/api/v1/patients` -> no CSRF failure
+
+### B3 ? Tenant Context Enforcement
+**API-B3-01 Tenant Header Required**
+**Definition of Done:**
+- Require explicit tenant context (e.g., `X-Clinic-Id`); validate membership; no redirects.
+**Verification:**
+- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 422
+- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients` -> 200
+- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 999" https://localhost/dental-saas/api/v1/patients` -> 403
+
+### B4 ? Quota/Subscription Parity (API-C0)
+**API-B4-01 PlanGuard API Semantics**
+**Definition of Done:**
+- Subscription inactive + quota exceeded return API-C0 JSON status/codes (no 404).
+**Verification:**
+- `Select-String -Path writable\\logs\\log-*.log -Pattern "PLAN_QUOTA_BLOCK|SUBSCRIPTION_STATE_BLOCK"`
+- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 1" -X POST https://localhost/dental-saas/api/v1/patients` -> 403/429 per contract
+
+### B5 ? Optional Hardening
+**API-B5-01 Rate Limiting**
+**Definition of Done:**
+- Rate limiting policy exists and is enforced.
+**Verification:**
+- `rg -n "rate limit|throttle" app/ docs/ -g"*.php" -g"*.md"`
+## [2026-01-17] ASCII Encoding Correction
+- **Clarification:** Previous headings in this document contained non-ASCII characters resulting in display errors (e.g., '?'). All headings are now restored to plain ASCII format.
+- **Restored Headings:**
+  - Phase 0 - Containment
+  - Phase 1 - Hardening
+  - Phase 2 - Operational Hardening
+  - Phase 3 - Global UI Hardening
+  - Phase 4 - Branding Centralization
+
+### CORRECTION APPEND - ASCII Heading Restatement
+- **Date:** 2026-01-17
+- **Note:** Prior headings displayed with non-ASCII characters due to encoding. This block restates them with ASCII hyphens.
+- **Restated Headings (ASCII):**
+  - Closure Track - NEAR-LOCKED Airlock Invariants (Stop-Ship)
+  - Phase API-B - Stateless Integration API Redesign (Scope Expansion)

@@ -167,3 +167,24 @@ This log records significant architectural and security decisions made during th
 - **Rationale:** Prevents breaking valid URLs while maintaining output safety.
 - **Impact:** Print views render correct logo URLs with consistent escaping.
 
+
+## 2026-01-17: NEAR-LOCKED Closure + API-B Redesign Scope Expansion
+- **Decisions (Locked):**
+  - **D1 Web concealment:** YES. Unauthorized/out-of-plane web access returns 404 (PageNotFoundException), no 403 or redirects.
+  - **D2 Airlock:** YES. When global_mode=true, tenant routes fail-closed (404) and do not redirect into tenant UX.
+  - **D3 API-B stateless (scope expansion):** YES. /api/* becomes bearer-token stateless; cookie auth is forbidden.
+  - **API-C0 (NO API concealment):** YES. API returns deterministic JSON error semantics; no 404 for auth/plan/quota failures.
+- **API-C0 Contract (post API-B):**
+  - 401 unauthenticated
+  - 403 forbidden (RBAC) + explicit subscription_inactive / plan_quota_exceeded codes
+  - 422 tenant_context_missing / tenant_context_invalid
+  - 429 rate_limited (or documented alternate if chosen)
+  - Never 404 for auth/plan/quota under API-C0
+- **Invariant (mandatory for CSRF removal):**
+  - **API-B-I1:** `/api/*` must not authenticate via cookies after cutover.
+- **Evidence Alignment Notes:**
+  - CSRF is global (`app/Config/Filters.php`), not API-group scoped.
+  - Permission is per-route (`app/Config/Routes.php`), not a group filter.
+  - ControlPlane entry gate is controller-managed (`app/Controllers/ControlPlane.php`) and defined outside the controlplane-filtered group in `app/Config/Routes.php`.
+- **P5-21 Status Handling:**
+  - Verified by inspecting `docs/SaaS/verification/P5-21.md`: PASS (verbatim HTTP + log evidence present).
