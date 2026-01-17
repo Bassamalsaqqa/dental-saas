@@ -237,8 +237,6 @@ class Patient extends BaseController
 
     public function store()
     {
-        $this->ensureTenantContext(); // Double check
-
         $clinicId = session()->get('active_clinic_id');
         
         // P5-10: Plan Quota Enforcement (Patients)

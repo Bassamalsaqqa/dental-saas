@@ -383,3 +383,10 @@
 ## [2026-01-17] P5-21i Verification Evidence Update
 - **Summary:** Missing-context runtime evidence was captured and pasted verbatim into docs/SaaS/verification/P5-21.md (curl + logs).
 - **Observation:** TENANT_CONTEXT_MISSING was logged instead of SUBSCRIPTION_CONTEXT_MISSING due to settings load in BaseController before filter execution, confirming 404 concealment.
+
+## [2026-01-17] P5-21k Patient Store Fix + 404 Concealment
+- **Summary:** Fixed a fatal error in Patient::store and enhanced 404 concealment to prevent internal state leakage.
+- **Changes:**
+  - pp/Controllers/Patient.php: Removed undefined ensureTenantContext() call.
+  - pp/Views/errors/html/error_404.php: Genericized the error message to hide subscription/plan state regardless of environment.
+- **Note:** This unblocks quota verification by restoring functional patient creation and secure fail-closed behavior.
