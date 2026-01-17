@@ -255,3 +255,12 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Clarification:** Earlier P5-21b blocks are duplicated and may be confusing. The effective P5-21 invariant behavior (web assumes SubscriptionFilter; PlanGuard re-checks standing only for CLI/jobs; missing clinicId in web logs PLAN_GUARD_CONTEXT_MISSING and 404s) is implemented in commit 4e34799.
 - **Status:** P5-21 verification remains PENDING until runtime evidence is captured.
 - **Note:** This clarification is append-only; no prior entries were modified.
+
+### P5-21e Audit Placeholder Correction (2026-01-17)
+- **Clarification:** The earlier 'Commit(s): [Pending]' placeholder is now outdated.
+- **Authoritative Commits for P5-21:**
+  - 4e34799 — P5-21 base implementation (subscription gate + quota enforcement)
+  - 6bc9272 — P5-21 docs/audit finalization
+  - f6a8ab8 — P5-21d PlanGuard log enrichment + audit clarification
+- **Status:** Verification remains PENDING until runtime evidence is captured.
+- **Note:** This clarification is append-only; no prior entries were modified.
