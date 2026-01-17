@@ -397,3 +397,7 @@
 ## [2026-01-17] P5-21k Evidence Capture
 - **Summary:** Captured verbatim log evidence for SUBSCRIPTION_STATE_BLOCK and PLAN_QUOTA_BLOCK.
 - **Status:** Overall P5-21 verification remains PENDING awaiting HTTP header evidence for the subscription and quota gates.
+
+## [2026-01-17] P5-21k Evidence Update (Logs)
+- **Summary:** Pasted verbatim SUBSCRIPTION_STATE_BLOCK and PLAN_QUOTA_BLOCK log excerpts into docs/SaaS/verification/P5-21.md.
+- **Status:** P5-21 remains **PENDING** until HTTP evidence for gates A and B is captured.
