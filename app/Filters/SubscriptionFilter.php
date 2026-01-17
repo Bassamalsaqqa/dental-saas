@@ -34,7 +34,7 @@ class SubscriptionFilter implements FilterInterface
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription((int)$clinicId);
 
         $isValid = false;
-        $reason = 'MISSING_OR_INACTIVE';
+        $reason = 'no_valid_subscription';
 
         if ($sub) {
             $now = date('Y-m-d H:i:s');

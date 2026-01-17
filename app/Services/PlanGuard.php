@@ -44,11 +44,10 @@ class PlanGuard
     public function assertSubscriptionActive(int $clinicId)
     {
         $subModel = new ClinicSubscriptionModel();
-        // Use getCurrentSubscription with CASE ordering logic
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
 
         $isValid = false;
-        $reason = 'MISSING_OR_INACTIVE';
+        $reason = 'no_valid_subscription';
 
         if ($sub) {
             $now = date('Y-m-d H:i:s');
@@ -176,11 +175,10 @@ class PlanGuard
     private function getClinicPlan(int $clinicId)
     {
         $subModel = new ClinicSubscriptionModel();
-        // Use getCurrentSubscription with CASE ordering logic
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
 
         if (!$sub) {
-             log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason=MISSING_OR_INACTIVE status=none");
+             log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason=no_valid_subscription status=none");
              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
         return $this->planModel->find($sub['plan_id']);

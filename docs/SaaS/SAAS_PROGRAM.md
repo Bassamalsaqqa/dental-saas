@@ -276,3 +276,8 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 ### P5-21 Schema Alignment (2026-01-17)
 - **Status:** PASS
 - **Decision:** Removed trial_ends_at and trial status logic as they are not present in the current database schema. Unified end_at as the primary expiry field.
+
+### P5-21f Schema Alignment & Deterministic Selection (2026-01-17)
+- **Status:** PENDING (Evidence needed)
+- **Decision:** Removed trial_ends_at logic as it is not in the schema. Subscription selection is now deterministic: status='active', ordered by end_at DESC, id DESC. Logged 
+o_valid_subscription reason for missing subscriptions.

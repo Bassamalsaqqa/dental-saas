@@ -358,3 +358,9 @@
 - **Summary:** Aligned Subscription enforcement with actual database schema (removed trial_ends_at and trial status).
 - **Files:** ClinicSubscriptionModel.php, PlanGuard.php, SubscriptionFilter.php.
 - **Note:** Schema defined in 2026-01-15-213930_CreatePlansAndSubscriptionsTables.php does not include trial fields.
+
+## [2026-01-17] P5-21f Schema Alignment & Deterministic Selection
+- **Summary:** Resolved SQL errors by removing 	rial_ends_at references (confirmed missing from schema). Consolidated subscription standing logic across SubscriptionFilter and PlanGuard.
+- **Files:** ClinicSubscriptionModel.php, PlanGuard.php, SubscriptionFilter.php.
+- **Verification:** db:show-schema command (temporary) confirmed columns and statuses. Filter chain verified via spark routes.
+- **Note:** TENANT_CONTEXT_MISSING in logs is likely due to BaseController loading settings before SubscriptionFilter runs.
