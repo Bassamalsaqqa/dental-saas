@@ -31,6 +31,21 @@ class ControlPlaneFilter implements FilterInterface
 
         // 1. Authenticated User
         if (!$ionAuth->loggedIn()) {
+            // Check if it's an API request
+            $path = $request->getUri()->getPath();
+            $isApi = strpos($path, '/api/') !== false
+                || str_starts_with($path, 'api/')
+                || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
+
+            if ($isApi) {
+                return service('response')->setStatusCode(401)->setJSON([
+                    'error' => [
+                        'code' => 'unauthenticated',
+                        'message' => 'Authentication required.'
+                    ]
+                ]);
+            }
+
             // Fail closed - strict deny or redirect to login
             return redirect()->to('/auth/login');
         }

@@ -498,7 +498,7 @@ $routes->group('api', ['filter' => ['auth', 'tenant', 'subscription']], function
     });
 
     // Search API endpoints for select dropdowns
-    $routes->group('search', function ($routes) {
+    $routes->group('search', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
         $routes->get('patients', 'Api\Search::patients', ['filter' => 'permission:patients:view']);
         $routes->get('users', 'Api\Search::users', ['filter' => 'permission:users:view']);
         $routes->get('examinations', 'Api\Search::examinations', ['filter' => 'permission:examinations:view']);

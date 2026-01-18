@@ -25,21 +25,33 @@ class PermissionFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
+        $path = $request->getUri()->getPath();
+        $isApi = strpos($path, '/api/') !== false
+            || str_starts_with($path, 'api/')
+            || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
+        
+        // Also check AJAX for backward compatibility if needed, or strictly follow prompt
+        // The prompt says: $isApi = str_starts_with($path, 'api/') || ...
+        // It does NOT strictly require isAJAX() in the prompt's snippet, but PermissionFilter had it.
+        // I will keep isAJAX() as part of the check to avoid regression for existing AJAX calls that expect JSON.
+        $isApi = $isApi || $request->isAJAX();
+
+        $jsonError = function (int $statusCode, string $code, string $message) {
+            $response = service('response');
+            return $response->setStatusCode($statusCode)->setJSON([
+                'error' => [
+                    'code' => $code,
+                    'message' => $message,
+                ],
+            ]);
+        };
+
         // Fail closed if no permission argument is provided
         if (empty($arguments)) {
             log_message('error', 'PermissionFilter: No permission specified in route filter arguments.');
-            
-            // Check for API request to return JSON
-            $isApi = $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json');
-            $uri = $request->getUri()->getPath();
-            if (str_starts_with($uri, 'api/') || str_starts_with($uri, '/api/')) {
-                $isApi = true;
-            }
 
             if ($isApi) {
-                $response = service('response');
-                return $response->setStatusCode(403)
-                                ->setJSON(['error' => 'forbidden']);
+                return $jsonError(403, 'forbidden', 'Forbidden.');
             }
 
             return redirect()->to('/')->with('error', 'Access denied (configuration error).');
@@ -55,6 +67,10 @@ class PermissionFilter implements FilterInterface
 
             if (!$user) {
                 log_message('debug', 'PermissionFilter: No user found, redirecting to login');
+                if ($isApi) {
+                    return $jsonError(401, 'unauthenticated', 'Authentication required.');
+                }
+
                 return redirect()->to('/auth/login');
             }
 
@@ -69,18 +85,9 @@ class PermissionFilter implements FilterInterface
             if (!$hasPermission) {
                 // Log the unauthorized access attempt
                 log_message('warning', "Unauthorized access attempt by user {$user->id} to {$requiredPermission}/{$action}");
-                
-                // Check if it's an API request
-                $isApi = $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json');
-                $uri = $request->getUri()->getPath();
-                if (str_starts_with($uri, 'api/') || str_starts_with($uri, '/api/')) {
-                    $isApi = true;
-                }
 
                 if ($isApi) {
-                    $response = service('response');
-                    return $response->setStatusCode(403)
-                                    ->setJSON(['error' => 'unauthorized']);
+                    return $jsonError(403, 'forbidden', 'Forbidden.');
                 }
 
                 // Return 403 Forbidden - redirect to a safe route without permission filters
@@ -90,18 +97,10 @@ class PermissionFilter implements FilterInterface
             // Log the error and redirect to login if there's an issue
             log_message('error', 'Permission filter error: ' . $e->getMessage());
             log_message('error', 'Permission filter stack trace: ' . $e->getTraceAsString());
-            
-            // Fail Closed
-            $isApi = $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json');
-            $uri = $request->getUri()->getPath();
-            if (str_starts_with($uri, 'api/') || str_starts_with($uri, '/api/')) {
-                $isApi = true;
-            }
 
+            // Fail closed with JSON for API requests
             if ($isApi) {
-                $response = service('response');
-                return $response->setStatusCode(403)
-                                ->setJSON(['error' => 'unauthorized']);
+                return $jsonError(403, 'forbidden', 'Forbidden.');
             }
 
             return redirect()->to('/')->with('error', 'System error during permission check.');

@@ -23,11 +23,14 @@ class TenantFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = service('session');
+        $path = $request->getUri()->getPath();
+        $isApi = strpos($path, '/api/') !== false 
+            || str_starts_with($path, 'api/') 
+            || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
         // CP-03: Airlock routing - Web requests in global_mode fail-closed with 404
         if ($session->get('global_mode') === true) {
-            $path = $request->getUri()->getPath();
-            $isApiOrAjax = $request->isAJAX() || strpos($path, 'api') !== false || strpos($path, '/api/') !== false;
+            $isApiOrAjax = $request->isAJAX() || $isApi;
             
             if (!$isApiOrAjax) {
                 throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
@@ -39,9 +42,14 @@ class TenantFilter implements FilterInterface
         // 1. Missing Context
         if (!$activeClinicId) {
             // Detect API/AJAX
-            if ($request->isAJAX() || strpos($request->getUri()->getPath(), 'api') !== false) {
+            if ($request->isAJAX() || $isApi) {
                  $response = service('response');
-                 return $response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+                 return $response->setStatusCode(422)->setJSON([
+                     'error' => [
+                         'code' => 'tenant_context_missing',
+                         'message' => 'Tenant context required.'
+                     ]
+                 ]);
             }
             return redirect()->to('/clinic/select');
         }
@@ -53,6 +61,15 @@ class TenantFilter implements FilterInterface
         $userId = $ionAuth->getUserId();
 
         if (!$userId) {
+            if ($request->isAJAX() || $isApi) {
+                $response = service('response');
+                return $response->setStatusCode(401)->setJSON([
+                    'error' => [
+                        'code' => 'unauthenticated',
+                        'message' => 'Authentication required.'
+                    ]
+                ]);
+            }
              return redirect()->to('/auth/login');
         }
 
@@ -67,9 +84,14 @@ class TenantFilter implements FilterInterface
         if (!$membership) {
             $session->remove(['active_clinic_id', 'active_clinic_role_id']);
             
-            if ($request->isAJAX() || strpos($request->getUri()->getPath(), 'api') !== false) {
+            if ($request->isAJAX() || $isApi) {
                  $response = service('response');
-                 return $response->setStatusCode(403)->setJSON(['error' => 'INVALID_TENANT_CONTEXT']);
+                 return $response->setStatusCode(403)->setJSON([
+                     'error' => [
+                         'code' => 'tenant_context_forbidden',
+                         'message' => 'Access denied to this clinic.'
+                     ]
+                 ]);
             }
             
             // HTML fallback

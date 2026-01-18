@@ -37,16 +37,20 @@ class AuthFilter implements FilterInterface
         // Check if user is logged in
         if (!$ionAuth->loggedIn()) {
             // Check if it's an API request
-            $isApi = $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json');
-            $uri = $request->getUri()->getPath();
-            if (str_starts_with($uri, 'api/') || str_starts_with($uri, '/api/')) {
-                $isApi = true;
-            }
+            $path = $request->getUri()->getPath();
+            $isApi = strpos($path, '/api/') !== false 
+                || str_starts_with($path, 'api/')
+                || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
             if ($isApi) {
                 $response = service('response');
                 return $response->setStatusCode(401)
-                                ->setJSON(['error' => 'unauthenticated']);
+                                ->setJSON([
+                                    'error' => [
+                                        'code' => 'unauthenticated',
+                                        'message' => 'Authentication required.'
+                                    ]
+                                ]);
             }
 
             // Store the current URL to redirect back after login
