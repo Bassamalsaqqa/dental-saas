@@ -40,7 +40,6 @@ class Filters extends BaseFilters
         'subscription'  => \App\Filters\SubscriptionFilter::class,
         'permission'    => \App\Filters\PermissionFilter::class,
         'csrfjson'      => \App\Filters\CsrfJson::class,
-        'apiv1'         => \App\Filters\ApiV1AuthFilter::class,
     ];
 
     /**
