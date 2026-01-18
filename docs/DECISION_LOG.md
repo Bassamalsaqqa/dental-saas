@@ -187,4 +187,7 @@ This log records significant architectural and security decisions made during th
   - Permission is per-route (`app/Config/Routes.php`), not a group filter.
   - ControlPlane entry gate is controller-managed (`app/Controllers/ControlPlane.php`) and defined outside the controlplane-filtered group in `app/Config/Routes.php`.
 - **P5-21 Status Handling:**
-  - Verified by inspecting `docs/SaaS/verification/P5-21.md`: PASS (verbatim HTTP + log evidence present).
+  - Verified by inspecting `docs/SaaS/verification/P5-21.md`: PASS (verbatim HTTP + log evidence present).## [2026-01-18] API-B B1 Token Policy Addendum
+- **Decision:** For B1, DB hash lookup for bearer tokens is acceptable; constant-time compare applies only when hashes are compared in PHP. Full constant-time enforcement is deferred to B1.1.
+- **Rationale:** B1 is minimal, stateless auth. DB hash lookup is sufficient for initial cutover; hardening belongs in B1.1.
+- **Scope:** /api/v1/* only.

@@ -25,10 +25,10 @@ Before writing code in a new session:
 2.  [ ] Read the last entry in `docs/IMPLEMENTATION_LOG.md` to see what was just finished.
 3.  [ ] Check `docs/DECISION_LOG.md` for architectural constraints.
 4.  [ ] **Run Verification Sweep:**
-    *   `ls public/` (Check for resurrected dangerous scripts)
-    *   `grep -r "csrf" app/Config/Filters.php` (Verify CSRF is enabled)
-    *   `grep -r "secureheaders" app/Config/Filters.php` (Verify headers are enabled)
-    *   `grep -r "group('api'" app/Config/Routes.php` (Verify API auth filter)
+    * `ls public/` (Check for resurrected dangerous scripts)
+    * `grep -r "csrf" app/Config/Filters.php` (Verify CSRF is enabled)
+    * `grep -r "secureheaders" app/Config/Filters.php` (Verify headers are enabled)
+    * `grep -r "group('api'" app/Config/Routes.php` (Verify API auth filter)
 
 ## D. Implementation Workflow
 For each assigned iteration:
@@ -36,17 +36,17 @@ For each assigned iteration:
 2.  **Implement:** specific code changes for those tasks.
 3.  **Update Docs:** modifying `docs/*.html` or creating new guides if the deployment process changes.
 4.  **Log:** Append to `docs/IMPLEMENTATION_LOG.md`:
-    *   Date & Task IDs
-    *   Files Changed
-    *   Verification Steps (curl commands, test results)
-    *   Regressions/Mitigations
+    * Date & Task IDs
+    * Files Changed
+    * Verification Steps (curl commands, test results)
+    * Regressions/Mitigations
 5.  **Handoff:** Provide a concise summary of work completed.
 
 ## E. Required Outputs Per Task
 1.  **Verification File:** `docs/verification/<TASK_ID>.md` containing:
-    *   Pre-requisites
-    *   `curl` commands to test the fix
-    *   Expected success/failure responses (HTTP 200 vs 403)
+    * Pre-requisites
+    * `curl` commands to test the fix
+    * Expected success/failure responses (HTTP 200 vs 403)
 2.  **Credential artifacts:** If credentials are created, document their storage location (e.g., `.env`) and rotation policy.
 
 ## F. Safety Rails (Concrete Artifacts)
@@ -55,19 +55,19 @@ For each assigned iteration:
 The following files and configurations are **CONFIRMED RISKS**. I must monitor them to ensure they are remediated and never regress.
 
 **1. Dangerous Public Scripts (To Be Removed/Protected):**
-*   `public/check_users_table.php`
-*   `public/init_database.php`
-*   `public/repair_db_final.php`
-*   `public/repair_db_standalone.php`
-*   `public/repair_db.php`
-*   `public/simple_login_test.php`
-*   `public/tailwind-test.html`
+* `public/check_users_table.php`
+* `public/init_database.php`
+* `public/repair_db_final.php`
+* `public/repair_db_standalone.php`
+* `public/repair_db.php`
+* `public/simple_login_test.php`
+* `public/tailwind-test.html`
 
 **2. Secrets & Config Risks:**
-*   `app/Config/Filters.php`: CSRF and SecureHeaders currently **DISABLED**.
-*   `app/Config/Routes.php`: API routes (`api/v1`, `api/search`) currently **UNAUTHENTICATED**.
-*   `.env` & `environment.env`: Check for hardcoded secrets.
-*   `democa_dental.sql`: Database dump in root (contains schema/data).
+* `app/Config/Filters.php`: CSRF and SecureHeaders currently **DISABLED**.
+* `app/Config/Routes.php`: API routes (`api/v1`, `api/search`) currently **UNAUTHENTICATED**.
+* `.env` & `environment.env`: Check for hardcoded secrets.
+* `democa_dental.sql`: Database dump in root (contains schema/data).
 
 ## G. Definition of "Done" for Phase 0
 Phase 0 is complete ONLY when:
@@ -77,6 +77,27 @@ Phase 0 is complete ONLY when:
 4.  **P0-04 (XSS Fix):** The patient index view correctly escapes data output in the DataTables JS.
 
 ## H. Tone & Behavior
-*   I am **precise**: I change exactly what is needed, nothing more.
-*   I am **conservative**: I prefer deleting dead code over fixing it.
-*   I am **transparent**: I log every significant action.
+* I am **precise**: I change exactly what is needed, nothing more.
+* I am **conservative**: I prefer deleting dead code over fixing it.
+* I am **transparent**: I log every significant action.
+
+---
+
+## I. Environment & Infrastructure
+**Local Path:** `C:\xampp\htdocs\dental-saas`
+
+### 1. Docker Container Info
+* **Container Name:** `mysql8-dental`
+* **Image:** `mysql:8.0`
+* **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
+* **Container ID:** `7eb3024aa7d5`
+
+### 2. Active `.env` Configuration
+* **Environment:** `development`
+* **Base URL:** `http://localhost/dental-saas/`
+* **Database Host:** `127.0.0.1`
+* **Database Port:** `3307`
+* **Database Name:** `democa_dental_saas`
+* **DB Credentials:** `root` / `root`
+* **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
+* **Session Cookie:** `ci_session_saas`

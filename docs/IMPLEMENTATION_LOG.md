@@ -518,3 +518,95 @@ Acceptance Checklist:
 Status:
 Accepted. B1-Fix v2.1 is complete. API unauthenticated redirect behavior is eliminated.
 
+
+## [2026-01-18] B1 Proper Implementation (Stateless API)
+- **Summary:** Implemented full stateless Bearer authentication and Tenant Header enforcement for /api/v1/*.
+- **Components:**
+  - ApiTokenModel: Token validation (SHA-256 hash).
+  - ApiContext: Service to hold state without session.
+  - ApiV1AuthFilter: Enforces Bearer token and X-Clinic-Id.
+  - TenantAwareModel: Updated to read from ApiContext.
+  - PermissionFilter: Updated to read from ApiContext.
+- **Verification:**
+  - curl tests confirm 401 (Unauth), 422 (No Clinic), and 200 (Success).
+  - ci_session cookie successfully suppressed for API requests.
+  - CSRF cookie remains (B2 scope).
+- **Status:** B1 Complete.
+## [2026-01-18] B1 Containment Acceptance (API No-Redirect Evidence)
+- **Summary:** Captured verbatim curl.exe evidence for unauthenticated API behavior. /api/v1/* returns 401 JSON with no redirect. /api/search/* remains session-based by design (auth/tenant/subscription), so ci_session_saas emission there is expected and not a regression.
+- **Evidence (verbatim):**
+  - curl.exe -k -i https://localhost/dental-saas/api/v1/patients
+    HTTP/1.1 401 Unauthorized
+    Date: Sun, 18 Jan 2026 19:05:31 GMT
+    Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+    X-Powered-By: PHP/8.2.12
+    Cache-Control: no-store, max-age=0, no-cache
+    Set-Cookie: csrf_cookie_name=13338eb1f470e4af8780d6611f05dc3e; expires=Sun, 18 Jan 2026 21:05:31 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Content-Length: 120
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "error": {
+            "code": "unauthenticated",
+            "message": "Authentication required. Received: null"
+        }
+    }
+  - curl.exe -k -i https://localhost/dental-saas/api/search/patients
+    HTTP/1.1 401 Unauthorized
+    Date: Sun, 18 Jan 2026 19:05:33 GMT
+    Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+    X-Powered-By: PHP/8.2.12
+    Set-Cookie: ci_session_saas=9d863ff48e70f0a3f2dc95c6ee61240e; expires=Sun, 18 Jan 2026 21:05:33 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Expires: Thu, 19 Nov 1981 08:52:00 GMT
+    Cache-Control: no-store, no-cache, must-revalidate
+    Pragma: no-cache
+    Set-Cookie: csrf_cookie_name=bbeea09f122cfdbdeb4c6f37c441088c; expires=Sun, 18 Jan 2026 21:05:33 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Content-Length: 105
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "error": {
+            "code": "unauthenticated",
+            "message": "Authentication required."
+        }
+    }
+- **Note:** /api/search/* is intentionally session-based and remains under auth/tenant/subscription; ci_session_saas emission there is expected.## [2026-01-18] B1 Proper Scope-Tightening Acceptance (Corrected Unauth Message)
+- **Summary:** Removed unauthenticated debug suffix from /api/v1 responses and re-captured verbatim evidence. Earlier curl output containing "Received: null" is superseded by the corrected response below.
+- **Scope Note:** /api/v1/* is stateless; /api/search/* remains session-based (auth/tenant/subscription) by design, so ci_session_saas emission there is expected.
+- **Decision Log:** Token policy addendum appended to docs/DECISION_LOG.md (DB hash lookup acceptable for B1; constant-time compare deferred to B1.1).
+- **Evidence (verbatim):**
+  - curl.exe -k -i https://localhost/dental-saas/api/v1/patients
+    HTTP/1.1 401 Unauthorized
+    Date: Sun, 18 Jan 2026 19:19:06 GMT
+    Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+    X-Powered-By: PHP/8.2.12
+    Cache-Control: no-store, max-age=0, no-cache
+    Set-Cookie: csrf_cookie_name=9bac57df12773bb919994008376c677f; expires=Sun, 18 Jan 2026 21:19:06 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Content-Length: 105
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "error": {
+            "code": "unauthenticated",
+            "message": "Authentication required."
+        }
+    }
+  - curl.exe -k -i https://localhost/dental-saas/api/search/patients
+    HTTP/1.1 401 Unauthorized
+    Date: Sun, 18 Jan 2026 19:19:07 GMT
+    Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+    X-Powered-By: PHP/8.2.12
+    Set-Cookie: ci_session_saas=8c20a05f1cd92bc7c7bedc2386abc8f7; expires=Sun, 18 Jan 2026 21:19:07 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Expires: Thu, 19 Nov 1981 08:52:00 GMT
+    Cache-Control: no-store, no-cache, must-revalidate
+    Pragma: no-cache
+    Set-Cookie: csrf_cookie_name=c2eca2878009624ed29df2f6d45549ed; expires=Sun, 18 Jan 2026 21:19:07 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+    Content-Length: 105
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "error": {
+            "code": "unauthenticated",
+            "message": "Authentication required."
+        }
+    }

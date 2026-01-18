@@ -106,3 +106,22 @@ Current risks (paths only):
 
 Completed mitigations (paths only):
 - (none yet)
+
+## Environment & Infrastructure
+**Local Path:** `C:\xampp\htdocs\dental-saas`
+
+### 1. Docker Container Info
+* **Container Name:** `mysql8-dental`
+* **Image:** `mysql:8.0`
+* **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
+* **Container ID:** `7eb3024aa7d5`
+
+### 2. Active `.env` Configuration
+* **Environment:** `development`
+* **Base URL:** `http://localhost/dental-saas/`
+* **Database Host:** `127.0.0.1`
+* **Database Port:** `3307`
+* **Database Name:** `democa_dental_saas`
+* **DB Credentials:** `root` / `root`
+* **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
+* **Session Cookie:** `ci_session_saas`
