@@ -34,7 +34,7 @@ class Search extends BaseController
      */
     public function patients()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
@@ -70,7 +70,7 @@ class Search extends BaseController
      */
     public function users()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
@@ -123,7 +123,7 @@ class Search extends BaseController
      */
     public function examinations()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
@@ -154,7 +154,7 @@ class Search extends BaseController
      */
     public function treatments()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
@@ -185,7 +185,7 @@ class Search extends BaseController
      */
     public function inventory()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }

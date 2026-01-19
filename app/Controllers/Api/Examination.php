@@ -12,7 +12,7 @@ class Examination extends ResourceController
 
     public function index()
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
@@ -26,7 +26,7 @@ class Examination extends ResourceController
 
     public function show($id = null)
     {
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
         if (!$clinicId) {
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
