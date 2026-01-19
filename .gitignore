@@ -47,3 +47,5 @@ pnpm-debug.log
 democa_dental.sql
 
 public/uploads/
+.gemini/
+gha-creds-*.json

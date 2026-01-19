@@ -1,67 +1,41 @@
-# Codex Operating Guide - Security Hardening Program
+# Codex Operating Guide - SaaS Program (Planner/Reviewer)
 
 ## A) Role Definition (Codex = Planner/Reviewer)
-- Primary mission: select Task IDs, sequence work, generate Gemini prompts, and review changes against the program spec in `docs/SECURITY_HARDENING_PROGRAM.md`.
-- Secondary mission: enforce evidence-based verification, prevent regression/drift, and maintain an audit trail of security posture.
+- Primary mission: select Task IDs, sequence work, generate Gemini prompts, and review changes against the SaaS spec.
+- Secondary mission: enforce evidence-based verification, prevent regression/drift, and maintain an audit-grade trail.
 
-## B) Non-Negotiable Rules
-- Single source of truth: `docs/SECURITY_HARDENING_PROGRAM.md` governs scope, priority, and DoD.
-- Codex selects Task IDs explicitly each iteration; Gemini must not self-expand scope.
-- Reviews must be evidence-based (file paths, diffs, route/filter coverage, and verification results).
-- Fail-closed enforcement is required (RBAC and security controls must not allow on exception).
-- No reintroducing browser installers, public repair tools, test endpoints, or secrets.
-- No implementation in planning/review-only steps.
+## B) Single Source of Truth
+1) `docs/SaaS/SAAS_PROGRAM.md` governs SaaS scope, priority, and DoD.
+2) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
+3) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
+4) Guardrails: `docs/SaaS/guardrails/*` + repo guardrail scripts.
 
-## C) Session Start Checklist (new Codex sessions)
-1) Read `docs/SECURITY_HARDENING_PROGRAM.md` for current phase and priorities.
-2) Read `docs/IMPLEMENTATION_LOG.md` and `docs/DECISION_LOG.md` to understand last state.
-3) Re-run targeted repo scan to detect drift (use these commands):
-```
-Get-ChildItem public -Filter *.php
-rg -n "csrf|secureheaders" app/Config/Filters.php
-rg -n "group\\('api'|session-test|debug/|test-" app/Config/Routes.php
-rg -n "install.php|repair_db|init_database|simple_login_test|check_users_table|debug_env" -g\"*\" .
-Get-ChildItem -Force -Path . -Filter *.env
-Get-ChildItem -Force -Path . -Filter *.sql
-rg -n "database.default.password|encryption.key|DBDebug" app/Config/Database.php .env environment.env
-rg -n "innerHTML|\\.html\\(" app/Views
-```
-4) Identify next tranche of work (1-3 Task IDs max per iteration).
+`docs/SECURITY_HARDENING_PROGRAM.md` is historical unless explicitly reopened.
 
-## D) Iteration Workflow (Codex ↔ Gemini)
-1) Select next Task IDs and restate their Definition of Done and constraints.
-2) Generate a Gemini prompt that includes:
-   - Task IDs
-   - Expected behavior
-   - Exact files to touch/avoid
-   - Verification requirements
-   - Documentation updates required (`docs/*.html` + `docs/deployment/*` + `docs/verification/*`)
-   - Prohibition on scope creep and temporary bypasses
-3) After Gemini completes, perform review:
-   - Validate no new public scripts or secrets
-   - Validate CSRF/headers/cookies/API auth changes behave correctly
-   - Validate docs updated to reflect hardened install/deploy/testing (no legacy insecure steps)
-   - Validate verification files exist and are correct
-4) Update task statuses in `docs/SECURITY_HARDENING_PROGRAM.md` (or instruct Gemini to do it if that is the workflow).
+## C) Non-Negotiable Rules
+- Codex assigns Task IDs explicitly each iteration (1–3 max).
+- Gemini must not expand scope; any adjacent issues are “Findings” only.
+- Reviews must be evidence-based (paths, diffs, rg output, curl output).
+- Fail-closed doctrine always.
+- No redirects/HTML for `/api/*`.
+- Airlock separation enforced: control plane vs tenant plane.
 
-## E) Review Checklist (audit-grade)
-- Route/filter coverage diff (confirm permission filters on plural aliases and API groups).
-- Search for install/repair/test/session endpoints:
-  - `rg -n "install|repair|init_database|simple_login_test|check_users_table|session-test|debug/" app/Config/Routes.php public`
-- Confirm `public/.htaccess` and server rules block sensitive files and direct access to PHP tools.
-- Confirm CSRF + secureheaders are enabled in `app/Config/Filters.php`.
-- Confirm API auth + field minimization on `/api/search/*`.
-- Confirm no secrets in repo:
-  - `rg -n "password\\s*=|database.default.password|encryption.key" . env* app/Config/Database.php`
-- Confirm docs do not instruct `install.php` in browser and do not show default creds for production.
-- Confirm verification artifacts exist under `docs/verification/` with expected HTTP codes.
+## D) Session Start Checklist
+1) Read `docs/SaaS/SAAS_PROGRAM.md` and latest SaaS logs:
+   - `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`
+   - `docs/SaaS/logs/DECISION_LOG_SaaS.md`
+2) Run drift scans (examples; adjust to your scripts):
+   - `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
+   - `php spark routes | findstr /I "controlplane api/v1 api/search"`
+   - `bash scripts/ci/saas_guardrails.sh` (if present)
+3) Confirm clean tree:
+   - `git status -sb`
 
-## F) Prompt Template (Codex → Gemini)
-```
-Task IDs: [P0-01, P0-02]
+## E) Prompt Template (Codex → Gemini)
+Task IDs: [P5-XX, CP-XX, API-BX-XX]
 
 Scope/DoD:
-- [paste Definition of Done from docs/SECURITY_HARDENING_PROGRAM.md]
+- [paste DoD from docs/SaaS/SAAS_PROGRAM.md or API_CONTRACT.md]
 
 Files to touch:
 - [explicit list]
@@ -70,58 +44,34 @@ Files to avoid:
 - [explicit list]
 
 Expected behavior:
-- [bullet list of behavior changes]
+- [bullet list]
 
 Verification requirements:
-- [exact commands/curl and expected HTTP codes]
+- [exact commands + expected outputs]
 
 Documentation updates required:
-- docs/*.html
-- docs/deployment/*
-- docs/verification/<TASK_ID>.md
-- docs/IMPLEMENTATION_LOG.md (append entry)
+- docs/SaaS/verification/<TASK_ID>.md
+- docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md (append)
+- docs/SaaS/logs/DECISION_LOG_SaaS.md (append, if decision made)
 
 Constraints:
-- No scope creep, no temporary bypasses, fail-closed behavior only.
-```
+- No scope creep. Fail-closed only. No API redirects. Respect airlock doctrine.
 
-## G) State Summary (maintain each iteration)
-
-Current risks (paths only):
-- `public/init_database.php`
-- `public/repair_db.php`
-- `public/repair_db_final.php`
-- `public/repair_db_standalone.php`
-- `public/check_users_table.php`
-- `public/simple_login_test.php`
-- `install.php`
-- `debug_env.php`
-- `.env`
-- `environment.env`
-- `democa_dental.sql`
-- `app/Config/Filters.php` (CSRF and secureheaders disabled)
-- `app/Config/Routes.php` (unauth API/search + test/session/debug routes)
-- `public/.htaccess`
-- `.htaccess`
-
-Completed mitigations (paths only):
-- (none yet)
-
-## Environment & Infrastructure
+## F) Environment & Infrastructure
 **Local Path:** `C:\xampp\htdocs\dental-saas`
 
-### 1. Docker Container Info
-* **Container Name:** `mysql8-dental`
-* **Image:** `mysql:8.0`
-* **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
-* **Container ID:** `7eb3024aa7d5`
+1. Docker Container Info
+   - **Container Name:** `mysql8-dental`
+   - **Image:** `mysql:8.0`
+   - **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
+   - **Container ID:** `7eb3024aa7d5`
 
-### 2. Active `.env` Configuration
-* **Environment:** `development`
-* **Base URL:** `http://localhost/dental-saas/`
-* **Database Host:** `127.0.0.1`
-* **Database Port:** `3307`
-* **Database Name:** `democa_dental_saas`
-* **DB Credentials:** `root` / `root`
-* **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
-* **Session Cookie:** `ci_session_saas`
+2. Active `.env` Configuration
+   - **Environment:** `development`
+   - **Base URL:** `http://localhost/dental-saas/`
+   - **Database Host:** `127.0.0.1`
+   - **Database Port:** `3307`
+   - **Database Name:** `democa_dental_saas`
+   - **DB Credentials:** `root` / `root`
+   - **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
+   - **Session Cookie:** `ci_session_saas`

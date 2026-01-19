@@ -1,47 +1,50 @@
 # API-B Contract: Stateless Integration API (v1)
 
-**Status:** B0 (Authoritative Contract)
-**Scope:** /api/v1/* only
-**Owner:** Security hardening program
-**Purpose:** Define authoritative API-B behavior prior to implementation.
+Status: B4 (Implemented + Verified)
+Scope: /api/v1/*
+Owner: Security hardening program
+
+This document reflects CURRENT ENFORCED behavior. It does not define new behavior.
 
 ---
 
 ## 1) Scope
-
-- **In scope:** All endpoints under `/api/v1/*`.
-- **Out of scope:** Any other `/api/*` paths (if present) are not governed by this contract unless explicitly listed in future updates.
-
----
-
-## 2) Authentication (API-B-I1) ? Operational Rules
-
-- **Required header:** `Authorization: Bearer <token>`
-- **Cookies forbidden for auth (API-B-I1):** `/api/v1/*` must not authenticate via cookies after cutover.
-
-Operational handling (post-cutover):
-1. **Cookie present, no Bearer:** return **401 unauthenticated**. Session auth is not used.
-2. **Cookie + Bearer present:** evaluate **Bearer** only; **ignore cookie** (log event optional).
-3. **CSRF tokens:** irrelevant for `/api/v1/*` after B2. CSRF remains for web routes.
-
-Legacy note (pre-B1):
-- Current API behavior is cookie-session + CSRF and uses session tenant context. This is legacy only.
+- In scope: all endpoints under `/api/v1/*`.
+- Out of scope: `/api/search/*` (session-based) and any other `/api/*` paths unless explicitly documented.
 
 ---
 
-## 3) Tenant Context ? Header Contract + Evaluation Order
+## 2) Authentication (API-B-I1)
+Required header:
+- `Authorization: Bearer <token>`
 
-- **Required header:** `X-Clinic-Id: <integer clinic_id>`
-- **Enforcement timing:** Mandatory starting B1.
+Cookie auth rule:
+- `/api/v1/*` MUST NOT authenticate via cookies.
+- If cookies are present, they are ignored for auth decisions.
+
+Operational handling:
+1) Cookie present, no Bearer -> 401 `unauthenticated` (JSON).
+2) Cookie + Bearer present -> evaluate Bearer only; ignore cookie.
+3) CSRF tokens are not required for `/api/v1/*` requests (CSRF remains for web routes and session-based API routes).
+
+Notes:
+- The server may still set a CSRF cookie globally; that cookie must not gate `/api/v1/*`.
+- `/api/search/*` is intentionally session-based and may emit `ci_session_saas`.
+
+---
+
+## 3) Tenant Context
+Required header:
+- `X-Clinic-Id: <integer clinic_id>`
 
 Validation rules:
-- Missing header -> **422** `tenant_context_missing`
-- Non-integer or malformed -> **422** `tenant_context_invalid`
-- Clinic not found (numeric, no record) -> **422** `tenant_context_invalid`
-- Authenticated user not a member of clinic -> **403** `tenant_context_forbidden`
-- Clinic disabled/suspended (if applicable) -> **403** `tenant_context_forbidden`
+- Missing header -> 422 `tenant_context_missing`
+- Non-integer / malformed -> 422 `tenant_context_invalid`
+- Clinic id numeric but not found -> 422 `tenant_context_invalid`
+- Authenticated user not a member -> 403 `tenant_context_forbidden`
+- Clinic disabled/suspended (if applicable) -> 403 `tenant_context_forbidden`
 
-**Evaluation order (locked):**
+Evaluation order (locked):
 1) Bearer auth
 2) Tenant header presence/format
 3) Tenant membership authorization
@@ -51,31 +54,31 @@ Validation rules:
 
 ---
 
-## 4) Error Model (API-C0) ? Status Codes + Machine Codes
+## 4) Error Model (API-C0)
+API must not return 404 for auth/tenant/plan/quota failures.
 
-**API never returns 404 for auth, subscription, quota, or tenant failures.**
-
-Status code mapping (locked):
-- **401** unauthenticated (missing/invalid Bearer)
-- **403** forbidden (RBAC OR subscription_inactive OR tenant_context_forbidden)
-- **422** tenant context missing/invalid
-- **429** quota exceeded (plan limits) and rate limiting (reserved)
+Status mapping (locked):
+- 401 unauthenticated (missing/invalid Bearer)
+- 403 forbidden (RBAC OR subscription_inactive OR tenant_context_forbidden)
+- 422 tenant context missing/invalid
+- 429 plan quota exceeded and rate limiting (rate limiting may be implemented later)
 
 Machine codes (locked):
-- `unauthenticated` -> 401
-- `tenant_context_missing` -> 422
-- `tenant_context_invalid` -> 422
-- `tenant_context_forbidden` -> 403
-- `subscription_inactive` -> 403
-- `forbidden` (RBAC) -> 403
-- `plan_quota_exceeded` -> 429
-- `rate_limited` -> 429 (reserved for B5)
+- unauthenticated -> 401
+- tenant_context_missing -> 422
+- tenant_context_invalid -> 422
+- tenant_context_forbidden -> 403
+- subscription_inactive -> 403
+- forbidden (RBAC) -> 403
+- plan_quota_exceeded -> 429
+- rate_limited -> 429 (reserved for B5)
 
-Error response shape (contract):
-- **Content-Type:** application/json
-- **Required keys:** `error.code`, `error.message`
-- **Optional:** `error.details`
-- **Client rule:** Clients MUST NOT parse `error.message`; they MUST use `error.code`.
+Error response shape:
+- Content-Type: application/json
+- Required keys: `error.code`, `error.message`
+- Optional: `error.details`
+Client rule:
+- Clients MUST use `error.code` and MUST NOT parse `error.message`.
 
 Example:
 ```json
@@ -90,63 +93,96 @@ Example:
     }
   }
 }
-```
 
 ---
 
-## 5) Non-Goals (Explicit)
+## 5) Non-Goals
+  No /api/v2.
+  No payload reshaping of successful responses in this contract.
+  No RBAC redesign.
+  No rate limit implementation required (reserved only).
+  No importing web concealment behaviors into API.
 
-- No version bump (/api/v2 is not created).
-- No payload reshaping of successful responses in B0/B1.
-- No RBAC redesign.
-- No rate-limit implementation yet (rate_limited is reserved only).
-- No new resource endpoints required by this contract.
-- No web concealment behaviors imported into API.
+## 6) Verification Checklist (Operational)
+  Bearer required:
+  cookie-only -> 401 JSON
+  Bearer valid + tenant header valid -> 200 (subject to RBAC/plan/quota)
+  Tenant header enforcement:
+  missing -> 422 tenant_context_missing
+  invalid -> 422 tenant_context_invalid
+  not a member -> 403 tenant_context_forbidden
+  Subscription inactive -> 403 subscription_inactive (JSON)
+  Quota exceeded -> 429 plan_quota_exceeded (JSON)
+  /api/search/* remains session-based and may emit ci_session_saas
+
+## 7) Acceptance Statement
+  This contract is the source of truth for API-B semantics and must stay aligned with the runtime behavior of /api/v1/*.
+  
+---
+
+## docs/DECISION_LOG.md
+
+```md
+# Architectural Decision Log - DentaCare Pro Security Hardening
+
+This log records security and architecture decisions that materially affect production posture.
 
 ---
 
-## 6) Transition Notes (Pre-B1 -> B1 -> B2 -> B3)
+## 2026-01-09: Secrets & Dump Management (P0-06)
+- Decision: Untrack `.env` and all `.sql` dumps from the repository. Provide `.env.example` and a local setup guide.
+- Rationale: Prevent accidental exposure of credentials and sensitive data in VCS history.
+- Constraint: Developers create `.env` locally and obtain data dumps out-of-band.
 
-**Pre-B1 (current legacy):**
-- Cookie-session auth + CSRF.
-- Session tenant context (`active_clinic_id`) is used.
+## 2026-01-09: Database Debug Policy (P1-04)
+- Decision: `DBDebug` in `app/Config/Database.php` is environment-controlled and defaults to FALSE outside development.
+- Rationale: Prevent schema/query leakage in production-like environments.
 
-**B1:**
-- Bearer auth introduced for `/api/v1/*`.
-- Cookie-only requests return 401; cookies are ignored when Bearer is present.
-- `X-Clinic-Id` is mandatory starting B1.
+## 2026-01-09: Script Access Control (P1-04)
+- Decision: `/scripts` is CLI-only and blocked at webserver level and application level.
+- Rationale: Browser-accessible repair/install scripts are a critical exploit path.
 
-**B2:**
-- CSRF removed for `/api/v1/*` only; web remains unchanged.
+## 2026-01-09: XSS Prevention Policy (P2-01)
+- Decision: DOM-string rendering sinks are prohibited for dynamic content:
+  - `innerHTML`, `outerHTML`, `insertAdjacentHTML`, and jQuery `.html()`.
+- Enforcement: Use `createElement`, `textContent`, `setAttribute`, and safe DOM construction.
+- Rationale: Prevent DOM-XSS and persistent XSS.
 
-**B3:**
-- Tenant header enforcement audited and validated against the contract.
+## 2026-01-10: Global DOM-Sink Remediation Standard (P3-11)
+- Decision: All allowlisted high/medium priority views must avoid DOM-string sinks for dynamic content.
+- Rationale: Standardization reduces regression risk and makes review mechanical.
 
----
+## 2026-01-10: Branding Centralization (P4-01)
+- Decision: Clinic branding is settings-driven and injected consistently so views do not contain hard-coded tenant branding.
+- Rationale: White-labeling must not require code edits.
 
-## 7) Verification Checklist (B0 Baseline)
+## 2026-01-10: Secure Logo Upload Policy (P4-02b)
+- Decision: Logo upload uses deterministic naming and excludes SVG.
+- Decision: Stored logo path is system-managed; never accepted directly from POST.
+- Rationale: Prevent path injection and SVG-based script execution.
 
-Future reviewers must confirm:
-- **No 404 for API auth/plan/quota:** `/api/v1/*` returns 401/403/422/429 only.
-- **Bearer required:**
-  - Cookie-only -> 401
-  - Bearer -> 200 (with valid permissions)
-- **Tenant header enforcement:**
-  - Missing header -> 422 tenant_context_missing
-  - Invalid header -> 422 tenant_context_invalid
-  - Not a member -> 403 tenant_context_forbidden
-- **Subscription inactive:** 403 subscription_inactive
-- **Quota exceeded:** 429 plan_quota_exceeded
+## 2026-01-11: Print Logo Output Escaping (P4-04)
+- Decision: Escape logo URL at output in print views (defense-in-depth).
+- Decision: Avoid double-escaping by deriving `logoSrc` from raw stored path and escaping only at output.
+- Rationale: Keep valid URLs functional while preserving output safety.
 
-Suggested checks (examples):
-- `curl -k -i https://localhost/dental-saas/api/v1/patients` -> 401
-- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 200
-- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 422 (missing X-Clinic-Id once B1 is active)
-- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 999" https://localhost/dental-saas/api/v1/patients` -> 422/403 per contract
-- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 1" -X POST https://localhost/dental-saas/api/v1/patients` -> 429 when quota exceeded
+## 2026-01-17: Web Concealment and Airlock (Closure Track)
+- Decision (Web concealment): Unauthorized/out-of-plane web access returns 404 (PageNotFoundException), not 403 and not explicit denial messages.
+- Decision (Airlock): When `global_mode=true`, tenant web routes fail-closed with 404 and do not redirect into tenant UX.
+- Rationale: Prevent cross-plane leakage and privilege boundary probing.
 
----
+## 2026-01-18 to 2026-01-19: API-B Stateless Redesign (API-C0)
+- Decision: `/api/v1/*` is stateless Bearer-token auth; cookie auth is forbidden (API-B-I1).
+- Decision: `/api/v1/*` is CSRF-exempt ONLY via path-scoped exemption (`api/v1/*`), leaving web unchanged.
+- Decision: API uses deterministic JSON error semantics (API-C0):
+  - 401 unauthenticated
+  - 403 forbidden (RBAC, tenant_context_forbidden, subscription_inactive)
+  - 422 tenant_context_missing/invalid
+  - 429 quota/rate-limit
+  - No API concealment via 404 for auth/plan/quota/tenant failures
+- Decision: Plan/Subscription enforcement returns JSON errors in API context and preserves airlock concealment in web context.
+- Rationale: APIs must be machine-stable and fail-closed without redirects or HTML.
 
-## 8) Acceptance Statement
-
-This contract is the source of truth for API-B. Implementation must conform to these rules and will be verified against the checklist in B1-B4.
+## 2026-01-18: Token Policy Addendum (API-B1)
+- Decision: Token lookup by stored hash is acceptable for the initial cutover; constant-time comparisons apply where PHP compares secrets.
+- Rationale: Minimal stateless auth is required for cutover; deeper cryptographic hardening can follow in B1.1.

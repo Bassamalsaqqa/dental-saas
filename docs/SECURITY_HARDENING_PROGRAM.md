@@ -1,685 +1,215 @@
 # SECURITY HARDENING & DEPLOYMENT PROGRAM — DentaCare Pro
 
-**Owner:** Bassam Alsaqqa  
-**Phase:** 0 — Containment  
-**Start Date:** 2026-01-05  
-**Last Updated:** 2026-01-09  
-**Status:** ACTIVE — NO-SHIP UNTIL COMPLETED
+Owner: Bassam Alsaqqa
+Start Date: 2026-01-05
+Last Updated: 2026-01-19
+
+This program governs security, deployment, and documentation changes required to reach a defensible production posture.
+This is not a feature roadmap. This is a stop-ship recovery program.
+
+If this document and the code diverge, the code is wrong.
 
 ---
 
-## 0. Purpose (Read First)
+## 1) Absolute Constraints (Non-Negotiable)
+1) No browser-accessible installer, repair, debug, or test scripts exist in production.
+2) No secrets (DB creds, encryption keys, admin passwords) are committed or requested interactively.
+3) Credentials are generated, documented, and rotated on first use.
+4) CSRF protection is globally enforced for web state-changing routes.
+5) Secure headers and secure cookies are enforced in production posture.
+6) APIs exposing patient/user data are authenticated and authorized.
+7) RBAC is consistent, fail-closed, and non-bypassable.
+8) Documentation reflects hardened reality, not legacy behavior.
 
-This program governs **all security, deployment, and documentation changes** required to bring DentaCare Pro to a **defensible production state**.
-
-This is not a feature roadmap.
-This is not optional hardening.
-This is a **stop-ship recovery program**.
-
-**If this document and the code diverge, the code is wrong.**
-
----
-
-## 1. Absolute Constraints (Non-Negotiable)
-
-1. No browser-accessible installer, repair, debug, or test scripts exist in production.
-2. No secrets (DB creds, encryption keys, admin passwords) are committed or requested interactively.
-3. All credentials are **generated**, documented, and rotated on first use.
-4. CSRF protection is globally enforced.
-5. Secure headers and secure cookies are enforced in production.
-6. APIs exposing patient/user data are authenticated and authorized.
-7. RBAC is consistent, fail-closed, and non-bypassable.
-8. Documentation **must reflect the hardened reality**, not legacy behavior.
-
-Violation of any item = **NO-SHIP**.
+Violation of any item = NO-SHIP.
 
 ---
 
-## 2. Single Source of Truth Rule
+## 2) Single Source of Truth
+This file is authoritative for:
+- what is allowed/forbidden
+- deployment posture
+- admin bootstrap
+- testing expectations
+- task IDs and phase gates
 
-This file (`docs/SECURITY_HARDENING_PROGRAM.md`) is the **only authoritative reference** for:
-
-- What is allowed
-- What is forbidden
-- How deployment works
-- How admin access is established
-- How testing is performed
-
-All implementation work, reviews, and documentation updates **must reference task IDs defined here**.
+All implementation work must reference task IDs defined here.
 
 ---
 
-## 3. Documentation Is Part of the Product
-
-### 3.1 Controlled Documentation Set
-
-The following files are considered **production-critical** and must be updated alongside code changes:
-
+## 3) Documentation Is Part of the Product
+Production-critical docs that must match the hardened posture:
 - `docs/index.html`
 - `docs/installation.html`
 - `docs/user-guide.html`
 - `docs/customization.html`
 - `docs/troubleshooting.html`
 
-Any instruction in these files that contradicts security posture is a **bug**.
-
 ---
 
-## 4. Deployment Model (Authoritative)
-
+## 4) Deployment Model (Authoritative)
 ### 4.1 Installation Method
-- **Browser-based installation is forbidden in production**
-- Installation is performed via:
-  - CLI command **OR**
-  - one-time local bootstrap script removed after use
+- Browser-based installation is forbidden in production.
+- Installation is performed via CLI or one-time local bootstrap (removed after use).
 
 ### 4.2 Credentials Policy
-- No user is prompted to choose credentials during installation.
-- The system **generates**:
-  - Admin email
-  - Admin password
-  - Application encryption key
-- Generated credentials are:
-  - Stored securely
-  - Output once during installation
-  - Documented in deployment docs
-  - Forced to rotate on first login
+- No interactive choice of credentials during installation.
+- System generates:
+  - admin email
+  - admin password
+  - application encryption key
+- Credentials are output once, stored securely, and rotated on first login.
 
 ### 4.3 Admin Bootstrap (Canonical)
-- One admin account is created automatically.
-- Default role: `Super Admin`
-- Password reset is enforced at first login.
-- Documentation must describe:
-  - Where credentials are found
-  - How to rotate them
-  - How to create additional admins
+- One admin account exists by default.
+- Role: Super Admin
+- Forced password rotation on first login.
 
 ---
 
-## 5. Phase 0 — Containment Tasks (ACTIVE)
+## 5) Phase 0 — Containment (DONE)
+### P0-01 Remove Web-Accessible Dangerous Scripts — DONE
+- DoD: HTTP access blocked; any retained scripts are CLI-only.
+- Verification: `docs/verification/P0-01.md` (or equivalent evidence)
 
-### P0-01 Remove Web-Accessible Dangerous Scripts
-**Status:** DONE  
-**Scope:**
-- Remove or relocate any installer, repair, debug, or test scripts
-- Scripts must be CLI-only if retained
+### P0-02 Block Sensitive Files at Web Server Level — DONE
+- DoD: `.env`, `*.sql`, backups, install artifacts blocked via server config.
+- Verification: `docs/verification/P0-02.md`
 
-**Definition of Done:**
-- Direct HTTP access returns 404/403
-- Verified via browser and curl
-- Documentation no longer references browser installer
+### P0-03 Secrets Removal & Rotation — DONE
+- DoD: no secrets in tracked files; rotation documented.
+- Verification: `docs/verification/P0-03.md`
 
----
+### P0-04 Documentation Rewrite (Phase 0 scope) — DONE
+- DoD: docs remove browser installer flow; reflect CLI/bootstrap; remove demo creds; add security verification checks.
+- Verification: `docs/verification/P0-04.md`
 
+### P0-05 Non-Operational Audit/Review Docs Sanitization — DONE
+- DoD: review docs are narrative-only; no operational playbooks or code fences.
+- Verification: `docs/verification/P0-05.md`
 
-### P0-02 Block Sensitive Files at Web Server Level
-**Status:** DONE  
-
-**Definition of Done:**
-- `.env`, `*.sql`, `*.bak`, `install.php`, debug scripts blocked
-- Apache/Nginx rules documented in `docs/deployment/`
-
----
-
-
-### P0-03 Secrets Removal & Rotation
-**Status:** DONE  
-
-**Definition of Done:**
-- No secrets in tracked files
-- `.env.example` used for documentation
-- Rotation steps documented
+### P0-06 Repo Secret + Dump Hygiene — DONE
+- DoD: `.env` and `democa_dental.sql` untracked and ignored; `.env.example` + secure setup docs exist.
+- Verification: `docs/verification/P0-06.md`
 
 ---
 
+## 6) Phase 1 — Hardening (DONE)
+### P1-01 Global CSRF, Secure Headers, Secure Cookies — DONE
+- Verification: `docs/verification/P1-01.md`
 
-### P0-04 Documentation Rewrite (Phase 0 Scope)
-**Status:** DONE  
+### P1-02 API Authentication & Data Minimization — DONE
+- Verification: `docs/verification/P1-02.md`
 
-**Required Changes:**
-- `installation.html`:
-  - Remove browser installer flow
-  - Add CLI/bootstrap flow
-  - Document generated credentials
-- `index.html`:
-  - Remove demo credentials from production path
-- `troubleshooting.html`:
-  - Add security verification checks
-- `user-guide.html`:
-  - Add first-login password rotation steps
+### P1-02a API Fail-Closed AuthN/AuthZ Filter Behavior — DONE
+- Verification: `docs/verification/P1-02a.md`
 
-Documentation must **not** instruct insecure actions.
+### P1-02a-V Runtime Verification — DONE
+- Verification: `docs/verification/P1-02a-V.md`
 
----
+### P1-03 RBAC Fail-Closed & Route Coverage — DONE
+- Verification: `docs/verification/P1-03.md`
 
-
-### P0-05 Non-Operational Audit/Review Documentation Sanitization
-**Status:** DONE
-
-**Scope (Files):**
-- `docs/CODEX_FORENSIC_CODE_AUDIT.md`
-- `docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md`
-- `docs/CODEBASE_REVIEW_FULL_CODEX.md`
-- `docs/CODEBASE_REVIEW_FULL.md`
-- `docs/codebase-review.md`
-
-**Definition of Done:**
-- Narrative-only, risk-focused content; no playbook-like remediation steps.
-- No imperative phrasing (e.g., "Run", "Enable", "Remove", "Fix", "Ensure").
-- No code fences or code-like snippets.
-- No operational markers (URLs, commands, routes, `/api/`, "Reproduction steps", "Test:").
-- Placeholders like `[REDACTED_ENDPOINT]`, `[REDACTED_PATH]`, `[REDACTED_COMPONENT]` allowed.
-
-**Verification:**
-- `rg -n "^(\s*[-*]\s*)?(Run|Enable|Disable|Remove|Fix|Ensure|Verify|Set|Apply|Configure|Execute)\b" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
-- `rg -n "http://|https://|curl|mysql\b|\brm\b|GET /|POST /|/api/|Reproduction steps|Test:" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
-- `rg -n "```" docs/CODEX_FORENSIC_CODE_AUDIT.md docs/GEMINI_DEEP_SECURITY_ARCH_REVIEW.md docs/CODEBASE_REVIEW_FULL_CODEX.md docs/CODEBASE_REVIEW_FULL.md docs/codebase-review.md`
-- Manual review for playbook-like remediation steps.
+### P1-04 Debug Exposure + /scripts HTTP Block — DONE
+- Verification: `docs/verification/P1-04.md`
 
 ---
 
-
-### P0-06 Repo Secret + Dump Hygiene
-**Status:** DONE
-
-**Definition of Done:**
-- `.env` and `democa_dental.sql` are untracked and in `.gitignore`.
-- `.env.example` updated with comprehensive keys and no real secrets.
-- `docs/development/LOCAL_SETUP.md` created with secure setup instructions.
-
-**Verification Artifacts:**
-- `docs/verification/P0-06.md`
+## 7) Phase 2 — Operational UI Hardening (DONE)
+- P2-01 XSS Audit Pass 1 — DONE
+- P2-02 Toast Component Remediation — DONE
+- P2-03 Odontogram UI Remediation — DONE
+- P2-04 Inventory UI Remediation — DONE
+Verification: `docs/verification/P2-01.md` through `docs/verification/P2-04.md`
 
 ---
 
-## 6. Phase 1 - Hardening Tasks (PLANNED)
-
-**Phase Gate:** NO-SHIP until all Phase 1 tasks are DONE. Fail-closed behavior required.
-
-### P1-01 Global CSRF, Secure Headers, Secure Cookies Enforcement
-**Status:** DONE  
-
-**Definition of Done:**
-- CSRF protection enforced globally for all state-changing requests.
-- Secure headers enabled globally.
-- Session cookies configured as secure, httpOnly, and strict/appropriate same-site in production.
-- Exceptions are explicit and minimized; no silent bypasses.
-
-**Verification Artifacts:**
-- `docs/verification/P1-01.md` with header/cookie inspection results and CSRF failure tests (expected 403/redirect).
+## 8) Phase 3 — Global UI Hardening (DONE)
+- P3-01 through P3-11 — DONE
+Verification: `docs/verification/P3-01.md` through `docs/verification/P3-11.md`
 
 ---
 
-
-### P1-02 API Authentication & Data Minimization
-**Status:** DONE
-
-**Definition of Done:**
-- All API routes that expose patient/user data require authentication and authorization.
-- API search endpoints return minimal required fields only.
-- Unauthenticated requests fail closed (401/403) without leakage.
-
-**Verification Artifacts:**
-- `docs/verification/P1-02.md` with authenticated/unauthenticated API checks and field-minimization evidence.
+## 9) Phase 4 — Branding Centralization (DONE)
+- P4-01 Branding centralization — DONE
+- P4-02a Settings-driven branding — DONE
+- P4-02b Secure logo upload pipeline — DONE
+- P4-03 Print branding consistency — DONE
+- P4-04 Logo removal + print logo escaping — DONE
+Verification: `docs/verification/P4-01.md` through `docs/verification/P4-04.md`
 
 ---
 
+## 10) Closure Track — Airlock Invariants (DONE)
+Purpose: ensure cross-plane boundaries are not probeable and fail closed.
 
-### P1-02a API Fail-Closed AuthN/AuthZ Filter Behavior
-**Status:** DONE  
+### CP-01 ControlPlane Entry Concealment — DONE
+- DoD: denial is 404 PageNotFoundException; no explicit denial messages.
 
-**Definition of Done:**
-- API requests return JSON 401 (unauthenticated) or 403 (unauthorized).
-- No redirects or HTML responses for API requests.
-- Permission exceptions fail closed (403) with no stack trace leakage.
-- Non-API request behavior remains unchanged.
-- Runtime HTTP evidence is deferred to P1-02a-V; P1-02a may pass on code-level evidence.
+### CP-02 Session Purge Completeness — DONE
+- DoD: purge tenant session keys when entering control plane.
 
-**Verification Artifacts:**
-- `docs/verification/P1-02a.md` with line-level code excerpts and reasoning that map request type to JSON 401/403 and fail-closed exception behavior.
+### CP-03 Tenant Airlock Enforcement — DONE
+- DoD: when `global_mode=true`, tenant web routes fail-closed with 404 and do not redirect.
 
----
+Evidence: `docs/verification/CP-01.md`, `docs/verification/CP-02.md`, `docs/verification/CP-03.md` (or equivalent captured proof)
 
+### P5-21 Status Handling (Verification) — DONE
+Evidence: `docs/SaaS/verification/P5-21.md`
 
-### P1-02a-V Runtime Verification (API AuthN/AuthZ Response Evidence)
-**Status:** DONE  
-
-**Definition of Done:**
-- Runtime HTTP evidence captured for:
-  - Unauthenticated API request returns JSON 401 (no redirect).
-  - Authenticated but unauthorized API request returns JSON 403 (no redirect).
-  - Non-API request preserves redirect behavior.
-
-**Verification Artifacts:**
-- `docs/verification/P1-02a-V.md` containing raw HTTP status lines, Content-Type headers, and JSON body excerpts.
+Stop-Ship Conditions (must remain false):
+- Any 403 or explicit denial message on CP entry.
+- Any redirect into tenant UX while `global_mode=true`.
+- Any tenant session key surviving CP entry.
 
 ---
 
+## 11) Phase API-B — Stateless Integration API (DONE: B0-B4)
+Purpose: convert `/api/v1/*` from legacy cookie-session patterns to stateless Bearer auth with explicit tenant context and deterministic JSON errors.
 
-### P1-03 RBAC Fail-Closed & Route Coverage
-**Status:** DONE  
+Invariant (API-B-I1):
+- `/api/v1/*` must not authenticate via cookies.
 
-**Definition of Done:**
-- RBAC enforcement is consistent across singular/plural routes.
-- Permission checks fail closed on exceptions.
-- Test/debug routes are removed or restricted to admin-only/CLI.
+### API-B0-01 Contract Definition — DONE
+- Verification: `docs/verification/API-B0-01.md` and `docs/API_CONTRACT.md`
 
-**Verification Artifacts:**
-- `docs/verification/P1-03.md` with route/filter coverage evidence and unauthorized access checks.
+### API-B1-01 Bearer Auth Filter — DONE
+- DoD: Bearer required; cookie-only auth rejected.
 
----
+### API-B1-02 Token Issuance + Revocation Docs — DONE (or explicitly Not Implemented where applicable)
+- DoD: docs reflect code reality only.
 
+### API-B2-01 CSRF Exemption for `/api/v1/*` — DONE
+- DoD: CSRF exemption must be path-scoped to `api/v1/*` only; does not affect web or `/api/search/*`.
+- Verification: `docs/verification/API-B2-01.md`
 
-### P1-04 Debug Exposure + /scripts HTTP Block
-**Status:** DONE
+### API-B3-01 Tenant Header Required — DONE
+- DoD: `X-Clinic-Id` enforced; membership validated; JSON 422/403 as required.
 
-**Definition of Done:**
-- `DBDebug` is environment-controlled and defaults to FALSE.
-- `/scripts` directory blocked over HTTP via `.htaccess`.
-- `scripts/init_database.php` and `scripts/simple_login_test.php` have 403 CLI-only guards.
+### API-B4-01 PlanGuard API Semantics (API-C0) — DONE
+- DoD: subscription/quota failures return JSON semantics for API; web retains airlock concealment behavior.
+- Verification: `docs/verification/API-B4-01.md`
 
-**Verification Artifacts:**
-- `docs/verification/P1-04.md`
-
----
-
-## 7. Phase 2 — Operational Hardening (PLANNED)
-
-### P2-01 XSS Audit Pass 1 (innerHTML Remediation)
-**Status:** DONE
-
-...
+### API-B5-01 Rate Limiting — OPTIONAL (NOT STARTED)
+- DoD: explicit policy + enforcement + verification.
 
 ---
 
-### P2-02 Toast Component Remediation
-**Status:** DONE
-
-...
-
----
-
-### P2-03 Odontogram UI Remediation
-**Status:** DONE
-
-...
-
----
-
-### P2-04 Inventory UI Remediation
-**Status:** DONE
-
-...
-
----
-
-## 8. Phase 3 — Global UI Hardening
-
-### P3-01 Notifications UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove DOM-string sinks from the global notifications UI.
-
-**Definition of Done:**
-- `app/Views/layouts/main_auth.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains in notification rendering.
-- Unread count, polling cadence, and navigation preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P3-01.md`
-
----
-
-
-### P3-02 RBAC Setup UI Remediation
-**Status:** DONE
-
-...
-
----
-
-### P3-03 Inventory Usage History Remediation
-**Status:** DONE
-
-...
-
----
-
-### P3-04 User Management Permissions UI Remediation
-**Status:** DONE
-
-...
-
----
-
-### P3-05 Appointment Create Time-Slot UI Remediation
-**Status:** DONE
-
-...
-
----
-
-### P3-06 Appointment Edit Time-Slot UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove all dynamic `innerHTML` sinks from the Appointment Edit view.
-
-**Definition of Done:**
-- `app/Views/appointment/edit.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains for dynamic data.
-- Time slot loading, error states, and options population preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P3-06.md`
-
----
-
-### P3-07 Odontogram UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove DOM-string sinks from the Odontogram index view (button states, notifications).
-
-**Definition of Done:**
-- `app/Views/odontogram/index.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains.
-- Button icons preserved via child node caching.
-- Notification rendering preserved via DOM construction.
-
-**Verification Artifacts:**
-- `docs/verification/P3-07.md`
-
----
-
-### P3-08 Patient Index Modal UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove DOM-string sinks from the Patient Index view (`index_new.php`).
-
-**Definition of Done:**
-- `app/Views/patient/index_new.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains.
-- Modal content and behavior preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P3-08.md`
-
----
-
-### P3-09 Settings Modal UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove DOM-string sinks from the Settings Index view (`index.php`).
-
-**Definition of Done:**
-- `app/Views/settings/index.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains.
-- Modal layout and behavior preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P3-09.md`
-
----
-
-### P3-10 Appointment Index UI Remediation
-**Status:** DONE
-
-**Objective:**
-Remove DOM-string sinks from the Appointment Index view (`index.php`).
-
-**Definition of Done:**
-- `app/Views/appointment/index.php` refactored to use safe DOM methods.
-- No `innerHTML` or `.html()` remains.
-- Notification and appointment card rendering behavior preserved.
-
-**Verification Artifacts:**
-- `docs/verification/P3-10.md`
-
----
-
-### P3-11 Remove Remaining DOM String Sinks
-**Status:** DONE
-
-**Objective:**
-Remove all remaining DOM-string sinks from allowlisted high and medium priority views.
-
-**Definition of Done:**
-- All `innerHTML`, `outerHTML`, `insertAdjacentHTML`, and jQuery `.html()` sinks removed from the targeted files.
-- Safe DOM construction using `createElement`, `textContent`, `appendChild`, and `replaceChildren` implemented.
-- UI behavior, event wiring, and dynamic updates preserved exactly.
-
-**Verification Artifacts:**
-- `docs/verification/P3-11.md`
-
----
-
-## 9. Verification & Testing (Mandatory)
-
-For each completed task:
-- A verification checklist is added under `docs/verification/`
-- Includes:
-  - curl examples
-  - expected HTTP status codes
-  - screenshots/log paths if applicable
-
----
-
-
-## 8. Implementation Protocol (LLM Governance)
-
+## 12) Governance (Roles)
 ### Codex (Planner & Reviewer)
-- Reads this file first
-- Selects next task(s)
-- Generates Gemini implementation prompt
-- Reviews changes against **Definition of Done**
-- Updates task status
+- reads this file first
+- selects next tasks
+- generates implementation prompts
+- reviews changes strictly against DoD and invariants
+- blocks merges on scope drift or invented behavior
 
 ### Gemini (Implementer)
-- Implements only referenced task IDs
-- Updates code **and documentation**
-- Appends to `docs/IMPLEMENTATION_LOG.md`
-- Does not introduce temporary bypasses
+- implements only referenced task IDs
+- updates code + docs
+- produces verification artifacts
+- does not introduce temporary bypasses
 
----
-
-
-## 9. Logs (Append Only)
-
-### Decision Log
-`docs/DECISION_LOG.md`
-
-### Implementation Log
-`docs/IMPLEMENTATION_LOG.md`
-
-Each session must leave a trace.
-
----
-
-
-## 10. Current Priority Order
-1. P0-01 Remove dangerous scripts
-2. P0-02 Block sensitive files
-3. P0-03 Secrets rotation
-4. P0-04 Documentation rewrite
-5. P0-05 Non-operational audit/review docs
-6. P0-06 Repo secret + dump hygiene (DONE)
-7. P1-01 Global CSRF, secure headers, secure cookies
-8. P1-02a API fail-closed authn/authz filters
-9. P1-02a-V runtime API authn/authz verification
-10. P1-02 API authentication & data minimization
-11. P1-03 RBAC fail-closed & route coverage
-12. P1-04 Debug exposure + /scripts HTTP block (DONE)
-13. P2-01 XSS audit pass 1 (remove unsafe innerHTML sinks) (DONE)
-14. P2-02 Toast component remediation (remove innerHTML) (DONE)
-15. P2-03 Odontogram UI remediation (remove innerHTML) (DONE)
-16. P2-04 Inventory UI remediation (remove innerHTML) (DONE)
-17. P3-01 Notifications UI remediation (remove innerHTML) (DONE)
-18. P3-02 RBAC setup UI remediation (remove innerHTML) (DONE)
-19. P3-03 Inventory usage history UI remediation (remove innerHTML) (DONE)
-20. P3-04 User management permissions UI remediation (remove innerHTML) (DONE)
-21. P3-05 Appointment create time-slot UI remediation (remove innerHTML) (DONE)
-22. P3-06 Appointment edit time-slot UI remediation (remove innerHTML) (DONE)
-23. P3-07 Odontogram UI remediation (remove innerHTML) (DONE)
-24. P3-08 Patient index modal UI remediation (remove innerHTML) (DONE)
-25. P3-09 Settings modal UI remediation (remove innerHTML) (DONE)
-26. P3-10 Appointment index UI remediation (remove innerHTML) (DONE)
-27. P3-11 Remove remaining DOM string sinks (DONE)
-
-### CORRECTION APPEND - P3-11 Documentation Placement
-
-1) The earlier P3-11 content was inserted mid-file in error, violating the append-only guardrail.
-2) The canonical P3-11 record is this correction append block.
-
-- Objective: Remove all remaining DOM-string sinks from allowlisted high and medium priority views.
-- Definition of Done:
-  * All innerHTML, outerHTML, insertAdjacentHTML, and jQuery .html() sinks removed from the targeted files.
-  * Safe DOM construction using createElement, textContent, appendChild, and replaceChildren implemented.
-  * UI behavior, event wiring, and dynamic updates preserved exactly.
-- Verification Artifacts: docs/verification/P3-11.md
-
-All future additions to this file must be appended at EOF only.
-
-### CORRECTION APPEND - P3-11 Documentation Placement
-
-1) The earlier P3-11 content was inserted mid-file in error, violating the append-only guardrail.
-2) The canonical P3-11 record is this correction append block.
-
-- Objective: Remove all remaining DOM-string sinks from allowlisted high and medium priority views.
-- Definition of Done:
-  * All innerHTML, outerHTML, insertAdjacentHTML, and jQuery .html() sinks removed from the targeted files.
-  * Safe DOM construction using createElement, textContent, appendChild, and replaceChildren implemented.
-  * UI behavior, event wiring, and dynamic updates preserved exactly.
-- Verification Artifacts: docs/verification/P3-11.md
-
-All future additions to this file must be appended at EOF only.
-
-
-28. P4-01 Branding Centralization (DONE)
-
-
-P4-02a: Settings-driven branding (Tagline + Logo Path) implemented. Centralized logo rendering and tagline display in main layouts.
-
-P4-02b: Secure Logo Upload Pipeline implemented. Validates image type/size, uses deterministic naming, and enforces secure storage in public/uploads/clinic.
-
-P4-03: Print Branding Consistency implemented. Synchronized taglines and website URLs in Appointment, Finance, and Prescription print views with system settings.
-
-P4-04: Logo input hardened (upload only) and print views updated to use uploaded logo consistently.
-
-## 11. Closure Track ? NEAR-LOCKED Airlock Invariants (Stop-Ship)
-
-**Purpose:** Resolve remaining concealment and airlock gaps before any new scope is implemented.
-
-### CP-01 ControlPlane Entry Concealment
-**Problem:** `app/Controllers/ControlPlane.php` returns 403 with an explicit message on denial.
-**Definition of Done:**
-- Denial returns 404 (PageNotFoundException) with no explicit message.
-**Verification:**
-- `rg -n "403|Unauthorized|setStatusCode\\(" app/Controllers/ControlPlane.php` -> empty
-- `curl -k -I -b "ci_session_saas=..." -X POST https://localhost/dental-saas/controlplane/enter` -> 404
-
-### CP-02 Session Purge Completeness
-**Problem:** `active_clinic_role_id` persists into global_mode.
-**Definition of Done:**
-- Purge `active_clinic_id`, `active_clinic_role_id`, `impersonated_clinic_id` in both ControlPlane::enter and ControlPlaneFilter.
-**Verification:**
-- `rg -n "active_clinic_role_id" app/Controllers/ControlPlane.php app/Filters/ControlPlaneFilter.php`
-
-### CP-03 Tenant Airlock Enforcement
-**Problem:** TenantFilter redirects to `/clinic/select` for HTML when context is missing.
-**Definition of Done:**
-- When `global_mode=true`, tenant routes fail-closed (404); no redirects into tenant UX.
-**Verification (precondition required):**
-- Set `global_mode=true` in session, then:
-  - `curl -k -I -b "ci_session_saas=..." https://localhost/dental-saas/patients` -> 404 (not 302)
-
-### Stop-Ship Conditions
-- Any 403 or explicit denial message on CP entry.
-- Any redirect into tenant UX while global_mode=true.
-- Any tenant session key surviving CP entry (active_clinic_id / active_clinic_role_id / impersonated_clinic_id).
-
-### P5-21 Status Handling (Verification)
-- Inspect `docs/SaaS/verification/P5-21.md` and record PASS/PENDING based on current evidence.
-
----
-
-## 12. Phase API-B ? Stateless Integration API Redesign (Scope Expansion)
-
-**Purpose:** Convert /api/* from cookie-session + CSRF to stateless bearer-token auth with explicit tenant context and deterministic JSON errors (API-C0).
-
-**Invariant: API-B-I1**
-- `/api/*` must not authenticate via cookies after cutover.
-
-### B0 ? Governance & Contract
-**API-B0-01 Contract Definition**
-**Definition of Done:**
-- API contract published (auth, tenant context, error schema, status codes, machine error codes).
-**Verification:**
-- `rg -n "API-B|Bearer|tenant_context|error_code|API-C0" docs/ -g"*.md"`
-
-### B1 ? Bearer Auth
-**API-B1-01 Bearer Auth Filter**
-**Definition of Done:**
-- API endpoints accept `Authorization: Bearer <token>` and reject cookie-only auth.
-**Verification:**
-- `php spark routes | findstr /I "api/v1"`
-- `curl -k -i https://localhost/dental-saas/api/v1/patients` -> 401
-- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 200
-
-**API-B1-02 Token Issuance + Revocation**
-**Definition of Done:**
-- Documented token issuance, storage, and revocation path.
-**Verification:**
-- `rg -n "token|bearer|api token|revocation" docs/ app/ -g"*.md" -g"*.php"`
-
-### B2 ? CSRF Exemption (Only after API-B-I1)
-**API-B2-01 CSRF Disable for /api/**
-**Definition of Done:**
-- CSRF is not applied to /api/*; cookie-only auth is rejected.
-**Verification:**
-- `php spark routes | findstr /I "api/v1"` (confirm route filters post-change)
-- `rg -n "csrf|except|api" app/Config/Filters.php` (explicit API exemption)
-- `curl -k -i -H "Authorization: Bearer TOKEN" -X POST https://localhost/dental-saas/api/v1/patients` -> no CSRF failure
-
-### B3 ? Tenant Context Enforcement
-**API-B3-01 Tenant Header Required**
-**Definition of Done:**
-- Require explicit tenant context (e.g., `X-Clinic-Id`); validate membership; no redirects.
-**Verification:**
-- `curl -k -i -H "Authorization: Bearer TOKEN" https://localhost/dental-saas/api/v1/patients` -> 422
-- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients` -> 200
-- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 999" https://localhost/dental-saas/api/v1/patients` -> 403
-
-### B4 ? Quota/Subscription Parity (API-C0)
-**API-B4-01 PlanGuard API Semantics**
-**Definition of Done:**
-- Subscription inactive + quota exceeded return API-C0 JSON status/codes (no 404).
-**Verification:**
-- `Select-String -Path writable\\logs\\log-*.log -Pattern "PLAN_QUOTA_BLOCK|SUBSCRIPTION_STATE_BLOCK"`
-- `curl -k -i -H "Authorization: Bearer TOKEN" -H "X-Clinic-Id: 1" -X POST https://localhost/dental-saas/api/v1/patients` -> 403/429 per contract
-
-### B5 ? Optional Hardening
-**API-B5-01 Rate Limiting**
-**Definition of Done:**
-- Rate limiting policy exists and is enforced.
-**Verification:**
-- `rg -n "rate limit|throttle" app/ docs/ -g"*.php" -g"*.md"`
-## [2026-01-17] ASCII Encoding Correction
-- **Clarification:** Previous headings in this document contained non-ASCII characters resulting in display errors (e.g., '?'). All headings are now restored to plain ASCII format.
-- **Restored Headings:**
-  - Phase 0 - Containment
-  - Phase 1 - Hardening
-  - Phase 2 - Operational Hardening
-  - Phase 3 - Global UI Hardening
-  - Phase 4 - Branding Centralization
-
-### CORRECTION APPEND - ASCII Heading Restatement
-- **Date:** 2026-01-17
-- **Note:** Prior headings displayed with non-ASCII characters due to encoding. This block restates them with ASCII hyphens.
-- **Restated Headings (ASCII):**
-  - Closure Track - NEAR-LOCKED Airlock Invariants (Stop-Ship)
-  - Phase API-B - Stateless Integration API Redesign (Scope Expansion)
-- **[2026-01-18]** Phase B1 (Stateless API) Completed.
+### Owner (You)
+- runs final smoke tests and sanity checks
+- decides merge/revert
+- ensures docs remain aligned with runtime behavior
