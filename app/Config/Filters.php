@@ -64,7 +64,7 @@ class Filters extends BaseFilters
         'after' => [
             'pagecache',   // Web Page Caching
             'performance', // Performance Metrics
-            'toolbar',     // Debug Toolbar
+            // 'toolbar', // do not run toolbar as a required filter
         ],
     ];
 
@@ -82,9 +82,9 @@ class Filters extends BaseFilters
             'csrf',
         ],
         'after' => [
-            'toolbar',
+            'toolbar' => ['except' => ['api/v1/*']],
             'secureheaders',
-            'csrfjson',
+            'csrfjson' => ['except' => ['api/v1/*']],
             // 'honeypot',
         ],
     ];

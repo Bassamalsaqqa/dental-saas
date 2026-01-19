@@ -25,16 +25,10 @@ class PermissionFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        $path = $request->getUri()->getPath();
-        $isApi = strpos($path, '/api/') !== false
-            || str_starts_with($path, 'api/')
-            || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
-        
-        // Also check AJAX for backward compatibility if needed, or strictly follow prompt
-        // The prompt says: $isApi = str_starts_with($path, 'api/') || ...
-        // It does NOT strictly require isAJAX() in the prompt's snippet, but PermissionFilter had it.
-        // I will keep isAJAX() as part of the check to avoid regression for existing AJAX calls that expect JSON.
-        $isApi = $isApi || $request->isAJAX();
+        $path = trim($request->getUri()->getPath(), '/');
+        // strict API segment match: works whether app is hosted at / or /dental-saas/
+        $isApi = ($path === 'api/v1' || str_starts_with($path, 'api/v1/'))
+            || str_contains($path, '/api/v1/');
 
         $jsonError = function (int $statusCode, string $code, string $message) {
             $response = service('response');
@@ -62,10 +56,22 @@ class PermissionFilter implements FilterInterface
 
         // Get the current user
         try {
-            $ionAuth = new \App\Libraries\IonAuth();
-            $user = $ionAuth->user()->row();
+            $userId = null;
+            
+            // 1. Try ApiRuntimeContext (Stateless API)
+            if ($isApi) {
+                $userId = \App\Libraries\ApiRuntimeContext::getUserId();
+            }
 
-            if (!$user) {
+            // 2. Try IonAuth (Stateful Web)
+            if (!$userId && !$isApi) {
+                $ionAuth = new \App\Libraries\IonAuth();
+                if ($ionAuth->loggedIn()) {
+                    $userId = $ionAuth->getUserId();
+                }
+            }
+
+            if (!$userId) {
                 log_message('debug', 'PermissionFilter: No user found, redirecting to login');
                 if ($isApi) {
                     return $jsonError(401, 'unauthenticated', 'Authentication required.');
@@ -74,17 +80,17 @@ class PermissionFilter implements FilterInterface
                 return redirect()->to('/auth/login');
             }
 
-            log_message('debug', "PermissionFilter: Checking permission {$requiredPermission}/{$action} for user {$user->id}");
+            log_message('debug', "PermissionFilter: Checking permission {$requiredPermission}/{$action} for user {$userId}");
 
             // Check if user has the required permission
             $permissionService = new \App\Services\PermissionService();
-            $hasPermission = $permissionService->hasPermission($user->id, $requiredPermission, $action);
+            $hasPermission = $permissionService->hasPermission($userId, $requiredPermission, $action);
 
             log_message('debug', "PermissionFilter: Permission check result: " . ($hasPermission ? 'true' : 'false'));
 
             if (!$hasPermission) {
                 // Log the unauthorized access attempt
-                log_message('warning', "Unauthorized access attempt by user {$user->id} to {$requiredPermission}/{$action}");
+                log_message('warning', "Unauthorized access attempt by user {$userId} to {$requiredPermission}/{$action}");
 
                 if ($isApi) {
                     return $jsonError(403, 'forbidden', 'Forbidden.');

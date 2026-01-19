@@ -112,7 +112,7 @@
 - **Status:** Completed
 - **Description:** Removed DOM-string sinks from the Appointment Index view (\index.php\) related to notifications and dynamic appointment card construction.
 - **Files Changed:**
-    - \pp/Views/appointment/index.php\: Refactored \showNotification\ and \createAppointmentElement\ functions to use safe DOM construction methods.
+    - \pp/Views/appointment/index.php\: Refactored \showNotification\ and \createAppointmentElement\ functions to use safe DOM construction methods.
 - **Verification:**
     - Created \docs/verification/P3-10.md\.
     - Confirmed zero \innerHTML\ sinks in the view.
@@ -179,17 +179,17 @@
 - **Status:** Completed
 - **Description:** Fixed JavaScript syntax errors in prescription creation and edit views introduced during DOM sink remediation.
 - **Files Changed:**
-    - \pp/Views/prescription/create.php\: Removed duplicated code block and fixed closing braces in \ddMedicine\.
-    - \pp/Views/prescription/edit.php\: Removed duplicated code block and fixed closing braces in \ddMedicineWithData\.
+    - \pp/Views/prescription/create.php\: Removed duplicated code block and fixed closing braces in \ddMedicine\.
+    - \pp/Views/prescription/edit.php\: Removed duplicated code block and fixed closing braces in \ddMedicineWithData\.
 
 ### Task: P4-01 Branding Centralization
 - **Date:** 2026-01-10
 - **Status:** Completed
 - **Description:** Centralized branding strings by injecting clinic info globally from settings.
 - **Files Changed:**
-    - \pp/Controllers/BaseController.php\: Overrode view() to merge clinic info.
-    - \pp/Views/layouts/main_auth.php\, \main.php\: Updated titles, headers, footers.
-    - \pp/Views/auth/login.php\, \ppointment/print.php\, \prescription/print.php\, \odontogram/export.php\, \odontogram/pdf.php\: Replaced hard-coded strings.
+    - \pp/Controllers/BaseController.php\: Overrode view() to merge clinic info.
+    - \pp/Views/layouts/main_auth.php\, \main.php\: Updated titles, headers, footers.
+    - \pp/Views/auth/login.php\, \ppointment/print.php\, \prescription/print.php\, \odontogram/export.php\, \odontogram/pdf.php\: Replaced hard-coded strings.
 - **Verification:** docs/verification/P4-01.md
 
 ### CORRECTION APPEND � P4-01
@@ -312,21 +312,21 @@
     - app/Views/*/print.php, app/Views/finance/invoice.php, app/Views/odontogram/*, app/Views/inventory/usage_print.php: Added dynamic logo rendering logic.
 - **Verification:** docs/verification/P4-04.md
 
- # # #   T a s k :   P 4 - 0 4   L o g o   S R C   E s c a p i n g   ( C o r r e c t i o n ) 
- -   * * D a t e : * *   2 0 2 6 - 0 1 - 1 1 
- -   * * S t a t u s : * *   C o m p l e t e d 
- -   * * D e s c r i p t i o n : * *   E s c a p e d   t h e   l o g o   U R L   o u t p u t   i n   a l l   p r i n t   v i e w s   t o   p r e v e n t   p o t e n t i a l   X S S   f r o m   d a t a b a s e   v a l u e s . 
- -   * * F i l e s   C h a n g e d : * * 
-         -   a p p / V i e w s / a p p o i n t m e n t / p r i n t . p h p 
-         -   a p p / V i e w s / e x a m i n a t i o n / p r i n t . p h p 
-         -   a p p / V i e w s / p r e s c r i p t i o n / p r i n t . p h p 
-         -   a p p / V i e w s / o d o n t o g r a m / p r i n t . p h p 
-         -   a p p / V i e w s / o d o n t o g r a m / e x p o r t . p h p 
-         -   a p p / V i e w s / o d o n t o g r a m / p d f . p h p 
-         -   a p p / V i e w s / i n v e n t o r y / u s a g e _ p r i n t . p h p 
-         -   a p p / V i e w s / f i n a n c e / i n v o i c e . p h p 
- 
- 
+### Task: P4-04 Logo SRC Escaping (Correction)
+- **Date:** 2026-01-11
+- **Status:** Completed
+- **Description:** Escaped the logo URL output in all print views to prevent potential XSS from database values.
+- **Files Changed:**
+    - app/Views/appointment/print.php
+    - app/Views/examination/print.php
+    - app/Views/prescription/print.php
+    - app/Views/odontogram/print.php
+    - app/Views/odontogram/export.php
+    - app/Views/odontogram/pdf.php
+    - app/Views/inventory/usage_print.php
+    - app/Views/finance/invoice.php
+
+
 ### Task: P4-04 Documentation Fix (logoSrc double-escape)
 - **Date:** 2026-01-11
 - **Status:** Completed
@@ -340,7 +340,7 @@
 - **Status:** Completed
 - **Description:** Implemented 404 concealment for ControlPlane entry denial. Replaced 403 response with PageNotFoundException in ControlPlane::enter to align with web concealment doctrine.
 - **Files Changed:**
-    - pp/Controllers/ControlPlane.php: Replaced 403 status code and explicit error message with PageNotFoundException::forPageNotFound().
+    - pp/Controllers/ControlPlane.php: Replaced 403 status code and explicit error message with PageNotFoundException::forPageNotFound().
 - **Verification:**
     - 
 g proof: Confirmed removal of setStatusCode(403) and explicit denial strings.
@@ -370,10 +370,10 @@ g proof: Confirmed removal of setStatusCode(403) and explicit denial strings.
     - HTTP (POST /controlplane/enter): 403 SecurityException due to missing CSRF token; invalid test for concealment.
     - Concealment is evaluated on properly formed requests (CSRF satisfied) and/or GET routes.
 ## [2026-01-17] CP-02 Tenant RBAC Purge
-- **Summary:** Implemented ctive_clinic_role_id purge when entering Control Plane or accessing protected CP routes.
+- **Summary:** Implemented ctive_clinic_role_id purge when entering Control Plane or accessing protected CP routes.
 - **Files Changed:**
-  - pp/Controllers/ControlPlane.php: Added session()->remove('active_clinic_role_id') in enter().
-  - pp/Filters/ControlPlaneFilter.php: Added $session->remove('active_clinic_role_id') in efore().
+  - pp/Controllers/ControlPlane.php: Added session()->remove('active_clinic_role_id') in enter().
+  - pp/Filters/ControlPlaneFilter.php: Added $session->remove('active_clinic_role_id') in efore().
 - **Verification:**
   - 
 g proof: Confirmed purge in both controller and filter.
@@ -399,7 +399,7 @@ g proof: Confirmed purge in both controller and filter.
 - **Summary:** Implemented fail-closed 404 behavior for tenant web routes when global_mode is true.
 - **Doctrine:** Prevents cross-plane leakage by ensuring that if a user is in the Control Plane (Global Mode), they cannot reach tenant web routes via redirects; they must instead hit a 404.
 - **Files Changed:**
-  - pp/Filters/TenantFilter.php: Added early guard to throw PageNotFoundException for non-API/AJAX web requests if global_mode === true.
+  - pp/Filters/TenantFilter.php: Added early guard to throw PageNotFoundException for non-API/AJAX web requests if global_mode === true.
 - **Verification:**
   - 
 g proof: Verified global_mode check and PageNotFoundException throw logic.
@@ -428,7 +428,7 @@ g proof: Verified global_mode check and PageNotFoundException throw logic.
   - app/Config/Routes.php: Explicitly applied auth/tenant/subscription filters to the /api/search group.
   - app/Filters/PermissionFilter.php: API requests now return JSON 401/403 errors instead of redirects.
 - **Verification:**
-  - rg -n "group\('search'|auth', 'tenant', 'subscription'" app/Config/Routes.php
+  - rg -n "group\('search'|auth', 'tenant', 'subscription'" app/Config/Routes.php)
   - rg -n "unauthenticated|forbidden|redirect\(\)->to\('/auth/login'\)" app/Filters/PermissionFilter.php
   - php spark routes | findstr /I "api/search"
 - **CSRF Note:** B1 still runs under global CSRF; B2 will remove CSRF for /api/v1 only.
@@ -610,3 +610,144 @@ Accepted. B1-Fix v2.1 is complete. API unauthenticated redirect behavior is elim
             "message": "Authentication required."
         }
     }
+
+    ## [2026-01-18] B1 — Verbatim Runtime Evidence (Authoritative)
+- **Note:** Any earlier B1 entries containing placeholders (e.g., `dev_token_...`, `<TOKEN>`, `VALID_TOKEN`) or narrative-only verification are superseded by this block.
+- **Evidence (verbatim):**
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i https://localhost/dental-saas/api/v1/patients
+HTTP/1.1 401 Unauthorized
+Date: Mon, 19 Jan 2026 11:38:17 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Powered-By: PHP/8.2.12
+Cache-Control: no-store, max-age=0, no-cache
+Set-Cookie: csrf_cookie_name=5d5b65a90e6a7e83b6169437f1e7dc4c; expires=Mon, 19 Jan 2026 13:38:17 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+Content-Length: 105
+Content-Type: application/json; charset=UTF-8
+
+{
+    "error": {
+        "code": "unauthenticated",
+        "message": "Authentication required."
+    }
+}
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i -H "Authorization: Bearer dev_token_20260118_01" https://localhost/dental-saas/api/v1/patients
+HTTP/1.1 422 Unprocessable Content
+Date: Mon, 19 Jan 2026 11:38:58 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Powered-By: PHP/8.2.12
+Cache-Control: no-store, max-age=0, no-cache
+Set-Cookie: csrf_cookie_name=cc37879a41ea3c0f5b304f8cb1c6be49; expires=Mon, 19 Jan 2026 13:38:58 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+Content-Length: 119
+Content-Type: application/json; charset=UTF-8
+
+{
+    "error": {
+        "code": "tenant_context_missing",
+        "message": "X-Clinic-Id header is required."
+    }
+}
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i -H "Authorization: Bearer dev_token_20260118_01" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients
+HTTP/1.1 200 OK
+Date: Mon, 19 Jan 2026 11:39:21 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Powered-By: PHP/8.2.12
+Cache-Control: no-store, max-age=0, no-cache
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Referrer-Policy: same-origin
+Set-Cookie: csrf_cookie_name=8da9c1a5446465afc1d938431edb367a; expires=Mon, 19 Jan 2026 13:39:21 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+Content-Length: 1148
+Content-Type: application/json; charset=UTF-8
+
+[
+    {
+        "id": "26",
+        "patient_id": "PAT20266558",
+        "first_name": "clinicA quotaaab",
+        "last_name": "exceeded",
+        "status": "active"
+    },
+    {
+        "id": "25",
+        "patient_id": "PAT20265728",
+        "first_name": "clinicA quotaaa",
+        "last_name": "exceeded",
+        "status": "active"
+    },
+    {
+        "id": "24",
+        "patient_id": "PAT20264920",
+        "first_name": "clinicA quota",
+        "last_name": "exceed",
+        "status": "active"
+    },
+    {
+        "id": "20",
+        "patient_id": "PAT20265297",
+        "first_name": "Alice",
+        "last_name": "Baker",
+        "status": "active"
+    },
+    {
+        "id": "21",
+        "patient_id": "PAT20263155",
+        "first_name": "Charlie",
+        "last_name": "Delta",
+        "status": "inactive"
+    },
+    {
+        "id": "22",
+        "patient_id": "PAT20262630",
+        "first_name": "Echo",
+        "last_name": "Foxtrot",
+        "status": "active"
+    },
+    {
+        "id": "23",
+        "patient_id": "PAT20264727",
+        "first_name": "Golf",
+        "last_name": "Hotel",
+        "status": "active"
+    }
+]
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i https://localhost/dental-saas/api/search/patients
+HTTP/1.1 401 Unauthorized
+Date: Mon, 19 Jan 2026 11:39:44 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Powered-By: PHP/8.2.12
+Set-Cookie: ci_session_saas=8d64411b9e6b5949331c0dd0f8af155b; expires=Mon, 19 Jan 2026 13:39:44 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: csrf_cookie_name=d95117fd20a000a0e8a6e5ed9afb1170; expires=Mon, 19 Jan 2026 13:39:44 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+Content-Length: 105
+Content-Type: application/json; charset=UTF-8
+
+{
+    "error": {
+        "code": "unauthenticated",
+        "message": "Authentication required."
+    }
+}
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i -H "Authorization: Bearer dev_token_20260118_01" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients | findstr /I "Set-Cookie"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1148  100  1148    0     0   6366      0 --:--:-- --:--:-- --:--:--  6342
+Set-Cookie: csrf_cookie_name=55adf2c2cc7dacb2e49fd15799ff62c0; expires=Mon, 19 Jan 2026 13:40:02 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i -H "Authorization: Bearer dev_token_20260118_01" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients | findstr /I "ci_session"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1148  100  1148    0     0   9181      0 --:--:-- --:--:-- --:--:--  9258
+
+C:\xampp\htdocs\dental-saas>curl.exe -k -i -H "Authorization: Bearer dev_token_20260118_01" -H "X-Clinic-Id: 1" https://localhost/dental-saas/api/v1/patients | findstr /I "Debugbar"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1148  100  1148    0     0   6192      0 --:--:-- --:--:-- --:--:--  6205

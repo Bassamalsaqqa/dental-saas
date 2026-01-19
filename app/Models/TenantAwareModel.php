@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Libraries\ApiRuntimeContext;
 
 /**
  * TenantAwareModel
@@ -46,7 +47,10 @@ abstract class TenantAwareModel extends Model
             return $data;
         }
 
-        $clinicId = session()->get('active_clinic_id');
+        $clinicId = ApiRuntimeContext::getClinicId();
+        if (!$clinicId) {
+            $clinicId = session()->get('active_clinic_id');
+        }
         
         if (!$clinicId) {
             log_message('error', "TENANT_CONTEXT_MISSING: Active clinic is required for tenant-scoped queries on {$this->table}.");
@@ -108,7 +112,10 @@ abstract class TenantAwareModel extends Model
     public function setClinicId(array $data)
     {
         if (isset($data['data']) && !isset($data['data'][$this->tenantField])) {
-            $clinicId = session()->get('active_clinic_id');
+            $clinicId = ApiRuntimeContext::getClinicId();
+            if (!$clinicId) {
+                $clinicId = session()->get('active_clinic_id');
+            }
             if ($clinicId) {
                 $data['data'][$this->tenantField] = $clinicId;
             } else {

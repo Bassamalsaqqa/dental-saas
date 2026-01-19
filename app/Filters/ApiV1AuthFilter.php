@@ -14,6 +14,7 @@ class ApiV1AuthFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
+        \App\Libraries\ApiRuntimeContext::clear();
         helper('api');
 
         // 1. Bearer Authentication
@@ -37,7 +38,7 @@ class ApiV1AuthFilter implements FilterInterface
         $userId = $tokenModel->validateToken($rawToken);
 
         if (!$userId) {
-            return api_error(401, 'unauthenticated', 'Invalid or expired token.');
+            return api_error(401, 'unauthenticated', 'Authentication required.');
         }
 
         // 2. Tenant Header Mandatory (X-Clinic-Id)
@@ -84,16 +85,15 @@ class ApiV1AuthFilter implements FilterInterface
             return api_error(403, 'subscription_inactive', 'Subscription required or expired.');
         }
 
-        // 6. Set Context (Stateless)
-        // Do NOT set session variables. Use API-only context.
-        $apiContext = new \App\Libraries\ApiContext();
-        $apiContext->setContext($userId, $clinicId, $membership['role_id']);
+        // 6. Set Context (Stateless - Runtime Static)
+        \App\Libraries\ApiRuntimeContext::setUserId($userId);
+        \App\Libraries\ApiRuntimeContext::setClinicId($clinicId);
 
         return null;
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Do nothing
+        \App\Libraries\ApiRuntimeContext::clear();
     }
 }
