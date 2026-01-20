@@ -455,6 +455,20 @@
     - `curl` confirms secure headers are present even on 401/422 errors.
     - `curl` confirms 401/422/200 flows remain correct.
 
+## [2026-01-20] Page Cache Removal (CP-03)
+**Tasks:** CP-03
+**Author:** Gemini
+**Status:** Complete
+
+### Changes
+- **Config:** Removed `pagecache` from `globals` before and after arrays in `app/Config/Filters.php`.
+- **Policy:** Switched to a "secure-by-default" posture where caching is disabled for all routes unless explicitly enabled via route-specific filters (none currently added).
+- **Impact:** Privileged routes (control plane, tenant UI, API) are no longer subject to page caching, preventing accidental leakage of sensitive or stale data.
+
+### Verification
+- `docs/SaaS/verification/CP-03.md` created with verbatim `spark filter:check` evidence.
+- Verified removal from `controlplane/*`, `tenant UI`, and all `/api/*` routes.
+
 ## [2026-01-20] CP-02.2 Verification Compliance Fix (Codex)
 **Tasks:** CP-02.2
 **Author:** Codex

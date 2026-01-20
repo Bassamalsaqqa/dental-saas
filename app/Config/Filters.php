@@ -58,11 +58,11 @@ class Filters extends BaseFilters
      */
     public array $required = [
         'before' => [
-            'forcehttps', // Force Global Secure Requests
-            'pagecache',  // Web Page Caching
+            // 'forcehttps', // Moved to globals to allow exemptions
+            // 'pagecache',  // Moved to globals to allow exemptions
         ],
         'after' => [
-            'pagecache',   // Web Page Caching
+            // 'pagecache',   // Moved to globals to allow exemptions
             'performance', // Performance Metrics
             // 'toolbar', // do not run toolbar as a required filter
         ],
@@ -79,7 +79,8 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'csrf',
+            'csrf' => ['except' => ['api/*', 'api/v1/*']],
+            'forcehttps' => ['except' => ['api/*', 'api/v1/*']],
         ],
         'after' => [
             'toolbar' => ['except' => ['api/v1/*']],
