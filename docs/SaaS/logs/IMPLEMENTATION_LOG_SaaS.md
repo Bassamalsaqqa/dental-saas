@@ -570,3 +570,15 @@
 
 ### Verification
 - `docs/SaaS/verification/APACHE-SSL-01.md`
+
+## [2026-01-20] HTTPS vhost routing fix guidance (APACHE-SSL-02)
+**Tasks:** APACHE-SSL-02
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Docs:** Added APACHE-SSL-02 verification guide with pre-fix evidence and post-fix steps for `saas.dental.local` SSL vhost routing.
+- **Snippet:** Reaffirmed SNI-correct vhost block in `docs/SaaS/apache/vhost-saas.dental.local-ssl.conf`.
+
+### Verification
+- `docs/SaaS/verification/APACHE-SSL-02.md`
