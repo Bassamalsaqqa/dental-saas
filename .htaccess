@@ -53,7 +53,7 @@ Options -Indexes
 # ----------------------------------------------------------------------
 DirectoryIndex index.php
 RewriteEngine On
-
+RewriteBase /dental-saas/
 # Block access to sensitive directories (Repo-Root Docroot Scenario)
 # This MUST be before other rewrite rules.
 RewriteRule ^(app|system|tests|writable|scripts|docs|lib|src|vendor|node_modules)/ - [F,L]
@@ -68,7 +68,12 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
 
-# Handle all other requests through the root index.php
+# Avoid rewrite loops for public/ and front controller
+RewriteRule ^public/ - [L]
+RewriteRule ^index\.php$ - [L]
+
+# Handle all other requests through the public front controller
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^(.*)$ public/index.php [QSA,L]
+
