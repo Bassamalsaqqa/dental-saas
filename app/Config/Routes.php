@@ -495,6 +495,19 @@ $routes->group('api', function ($routes) {
         $routes->post('finances', 'Api\Finance::create', ['filter' => 'permission:finance:create']);
         $routes->put('finances/(:segment)', 'Api\Finance::update/$1', ['filter' => 'permission:finance:edit']);
         $routes->delete('finances/(:segment)', 'Api\Finance::delete/$1', ['filter' => 'permission:finance:delete']);
+
+        // Search endpoints (stateless v1)
+        $routes->group('search', function ($routes) {
+            $routes->get('patients', 'Api\V1\Search::patients', ['filter' => 'permission:patients:view']);
+            $routes->get('users', 'Api\V1\Search::users', ['filter' => 'permission:users:view']);
+            $routes->get('examinations', 'Api\V1\Search::examinations', ['filter' => 'permission:examinations:view']);
+            $routes->get('treatments', 'Api\V1\Search::treatments', ['filter' => 'permission:treatments:view']);
+            $routes->get('inventory', 'Api\V1\Search::inventory', ['filter' => 'permission:inventory:view']);
+            $routes->get('medications', 'Api\V1\Search::medications', ['filter' => 'permission:prescriptions:view']);
+            $routes->get('treatment-types', 'Api\V1\Search::treatmentTypes', ['filter' => 'permission:treatments:view']);
+            $routes->get('departments', 'Api\V1\Search::departments', ['filter' => 'permission:users:view']);
+            $routes->get('roles', 'Api\V1\Search::roles', ['filter' => 'permission:users:view']);
+        });
     });
 
     // Search API endpoints for select dropdowns

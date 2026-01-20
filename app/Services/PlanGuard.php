@@ -39,6 +39,29 @@ class PlanGuard
     }
 
     /**
+     * Helper to determine if we are in API v1 scope (via RuntimeContext).
+     */
+    private function isApiScope(): bool
+    {
+        return !is_null(\App\Libraries\ApiRuntimeContext::getUserId());
+    }
+
+    private function resolveActorUserId(): int
+    {
+        $apiUserId = \App\Libraries\ApiRuntimeContext::getUserId();
+        if ($apiUserId) {
+            return $apiUserId;
+        }
+
+        if ($this->isWebRequest()) {
+            $session = session();
+            return (int)($session->get('user_id') ?: 0);
+        }
+
+        return 0;
+    }
+
+    /**
      * Assert that the clinic has an active subscription.
      */
     public function assertSubscriptionActive(int $clinicId)
@@ -63,8 +86,15 @@ class PlanGuard
         if (!$isValid) {
             $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => ($sub['status'] ?? 'none'), 'reason' => $reason]);
             log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null'));
+            
+            if ($this->isApiScope()) {
+                return ['allowed' => false, 'code' => 'subscription_inactive', 'message' => 'Subscription required or expired.'];
+            }
+            
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
+        
+        return ['allowed' => true];
     }
 
     /**
@@ -73,28 +103,41 @@ class PlanGuard
     public function assertFeature(int $clinicId, string $featureKey, array $meta = [])
     {
         // 1. Invariant: Require valid clinicId in web context
-        if ($this->isWebRequest() && !$clinicId) {
+        if ($this->isWebRequest() && !$this->isApiScope() && !$clinicId) {
             $req = service('request');
             $method = $req ? $req->getMethod() : 'N/A';
             $path = $req ? $req->getUri()->getPath() : 'N/A';
-            $userId = session()->get('user_id') ?: 'N/A';
+            $userId = $this->resolveActorUserId() ?: 'N/A';
             log_message('error', "PLAN_GUARD_CONTEXT_MISSING: clinic_id=null method={$method} route={$path} user_id={$userId}");
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
         }
 
         // 2. Standing check ONLY for non-web entrypoints (CLI/Jobs)
-        if (!$this->isWebRequest()) {
+        // For API, the AuthFilter handles the standing check, but we can re-assert if cheap?
+        // Actually, API calls assertSubscriptionActive in the filter.
+        if (!$this->isWebRequest() && !$this->isApiScope()) {
             $this->assertSubscriptionActive($clinicId);
         }
         
         $plan = $this->getClinicPlan($clinicId);
+        if (!$plan && $this->isApiScope()) {
+             return ['allowed' => false, 'code' => 'subscription_inactive', 'message' => 'Subscription required or expired.'];
+        }
+
         $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
 
         if (!$this->checkNestedKey($features, $featureKey)) {
             $this->audit($clinicId, 'feature_check', self::PLAN_FEATURE_DISABLED, array_merge($meta, ['feature' => $featureKey]));
             log_message('error', "PLAN_FEATURE_BLOCK: clinic_id={$clinicId} feature={$featureKey}");
+            
+            if ($this->isApiScope()) {
+                return ['allowed' => false, 'code' => 'feature_disabled', 'message' => 'Feature not available in current plan.', 'details' => ['feature' => $featureKey]];
+            }
+
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Feature not in plan.");
         }
+        
+        return ['allowed' => true];
     }
 
     /**
@@ -103,21 +146,25 @@ class PlanGuard
     public function assertQuota(int $clinicId, string $metricKey, int $delta = 1, array $meta = [])
     {
         // 1. Invariant: Require valid clinicId in web context
-        if ($this->isWebRequest() && !$clinicId) {
+        if ($this->isWebRequest() && !$this->isApiScope() && !$clinicId) {
             $req = service('request');
             $method = $req ? $req->getMethod() : 'N/A';
             $path = $req ? $req->getUri()->getPath() : 'N/A';
-            $userId = session()->get('user_id') ?: 'N/A';
+            $userId = $this->resolveActorUserId() ?: 'N/A';
             log_message('error', "PLAN_GUARD_CONTEXT_MISSING: clinic_id=null method={$method} route={$path} user_id={$userId}");
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Context missing.");
         }
 
         // 2. Standing check ONLY for non-web entrypoints
-        if (!$this->isWebRequest()) {
+        if (!$this->isWebRequest() && !$this->isApiScope()) {
             $this->assertSubscriptionActive($clinicId);
         }
         
         $plan = $this->getClinicPlan($clinicId);
+        if (!$plan && $this->isApiScope()) {
+             return ['allowed' => false, 'code' => 'subscription_inactive', 'message' => 'Subscription required or expired.'];
+        }
+
         $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
         
         // Canonical map
@@ -138,6 +185,13 @@ class PlanGuard
              if ($current + $delta > $limit) {
                  $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $canonicalKey, 'limit' => $limit, 'current' => $current]));
                  log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit={$limit} usage={$current}");
+                 
+                 if ($this->isApiScope()) {
+                     helper('api');
+                     // Note: Contract says 429 for quotas
+                     return ['allowed' => false, 'code' => 'plan_quota_exceeded', 'message' => 'Plan limit reached.', 'status_code' => 429, 'details' => ['metric' => $canonicalKey, 'limit' => $limit, 'usage' => $current]];
+                 }
+
                  throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan limit reached.");
              }
              return;
@@ -155,6 +209,11 @@ class PlanGuard
         if ($currentUsage + $delta > $limit) {
             $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $canonicalKey, 'limit' => $limit, 'current' => $currentUsage]));
             log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit={$limit} usage={$currentUsage}");
+            
+            if ($this->isApiScope()) {
+                 return ['allowed' => false, 'code' => 'plan_quota_exceeded', 'message' => 'Plan usage limit reached.', 'status_code' => 429, 'details' => ['metric' => $canonicalKey, 'limit' => $limit, 'usage' => $currentUsage]];
+            }
+
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan usage limit reached.");
         }
 
@@ -170,6 +229,8 @@ class PlanGuard
                 'period_end' => date('Y-m-t')
             ]);
         }
+        
+        return ['allowed' => true];
     }
 
     private function getClinicPlan(int $clinicId)
@@ -179,6 +240,11 @@ class PlanGuard
 
         if (!$sub) {
              log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason=no_valid_subscription status=none");
+             
+             if ($this->isApiScope()) {
+                 return null;
+             }
+
              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
         return $this->planModel->find($sub['plan_id']);
@@ -199,7 +265,7 @@ class PlanGuard
 
     private function audit($clinicId, $action, $reason, $meta = [])
     {
-        $userId = session()->get('user_id') ?: 0; // 0 if job
+        $userId = $this->resolveActorUserId();
         $this->auditModel->insert([
             'clinic_id' => $clinicId,
             'actor_user_id' => $userId,

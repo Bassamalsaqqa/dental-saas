@@ -75,19 +75,23 @@ class ApiV1AuthFilter implements FilterInterface
             return api_error(403, 'tenant_context_forbidden', 'Clinic is suspended or inactive.');
         }
 
-        // 5. Subscription Standing
-        $planGuard = new PlanGuard();
-        try {
-            // Note: assertSubscriptionActive currently throws PageNotFoundException (404)
-            // We must catch and map to 403 per API contract.
-            $planGuard->assertSubscriptionActive($clinicId);
-        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
-            return api_error(403, 'subscription_inactive', 'Subscription required or expired.');
-        }
-
-        // 6. Set Context (Stateless - Runtime Static)
+        // 5. Set Context (Stateless - Runtime Static)
         \App\Libraries\ApiRuntimeContext::setUserId($userId);
         \App\Libraries\ApiRuntimeContext::setClinicId($clinicId);
+
+        // 6. Subscription Standing
+        $planGuard = new PlanGuard();
+        // PlanGuard returns decision array in API scope
+        $decision = $planGuard->assertSubscriptionActive($clinicId);
+        
+        if (is_array($decision) && array_key_exists('allowed', $decision) && $decision['allowed'] === false) {
+             return api_error(
+                 $decision['status_code'] ?? 403,
+                 $decision['code'] ?? 'forbidden',
+                 $decision['message'] ?? 'Access denied.',
+                 $decision['details'] ?? []
+             );
+        }
 
         return null;
     }
