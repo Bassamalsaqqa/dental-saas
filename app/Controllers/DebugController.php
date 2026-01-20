@@ -201,8 +201,7 @@ class DebugController extends BaseController
             $info['total_user_roles'] = count($allUserRoles);
 
             // Get role-permission assignments
-            $db = \Config\Database::connect();
-            $rolePermissions = $db->table('role_permissions')->get()->getResultArray();
+            $rolePermissions = $this->roleModel->getAllRolePermissions();
             $info['role_permissions'] = $rolePermissions;
             $info['total_role_permissions'] = count($rolePermissions);
 

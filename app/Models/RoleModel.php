@@ -352,4 +352,13 @@ class RoleModel extends Model
 
         return $this->db->transStatus();
     }
+
+    /**
+     * Return all role-permission assignments for debug/inspection.
+     */
+    public function getAllRolePermissions(): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('role_permissions')->get()->getResultArray();
+    }
 }

@@ -494,3 +494,16 @@
 
 ### Verification
 - `docs/SaaS/verification/API-MIG-01.md`
+
+## [2026-01-20] Raw Tenant Query Cleanup (GR-RAW-01)
+**Tasks:** GR-RAW-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **DebugController:** Moved `role_permissions` query into `RoleModel::getAllRolePermissions()` to remove raw controller query.
+- **RepairController:** Removed file entirely; repair DDL should not live in web controllers.
+- **Allowlist:** Cleared `docs/SaaS/guardrails/raw-tenant-queries.allowlist` entries.
+
+### Verification
+- `docs/SaaS/verification/GR-RAW-01.md`
