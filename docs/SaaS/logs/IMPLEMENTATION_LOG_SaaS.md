@@ -520,3 +520,15 @@
 
 ### Verification
 - `docs/SaaS/verification/API-MIG-01B.md`
+
+## [2026-01-20] API v1 Token Validation Fix (API-AUTH-01)
+**Tasks:** API-AUTH-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Model:** Hardened `ApiTokenModel::validateToken()` to use DB time via `UTC_TIMESTAMP()` and support hex/binary token_hash lookup.
+- **Docs:** Captured DB schema, token hash length evidence, and runtime curl verification.
+
+### Verification
+- `docs/SaaS/verification/API-AUTH-01.md`
