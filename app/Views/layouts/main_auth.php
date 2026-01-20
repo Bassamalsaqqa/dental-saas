@@ -31,6 +31,8 @@
     <meta name="theme-color" content="#0284c7">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
+    <meta name="active-clinic-id" content="<?= (int)session('active_clinic_id') ?>">
+    <meta name="api-session-token-url" content="<?= base_url('api/session-token') ?>">
 
 </head>
 <body class="bg-gray-50 min-h-screen">

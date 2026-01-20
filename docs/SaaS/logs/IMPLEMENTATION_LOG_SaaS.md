@@ -544,3 +544,17 @@
 
 ### Verification
 - `docs/SaaS/verification/API-BRIDGE-01.md`
+
+## [2026-01-20] UI Token Bridge for v1 Search (UI-AUTH-01)
+**Tasks:** UI-AUTH-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Controller:** Added `Api\Auth::sessionToken` endpoint for session-authenticated users to receive a short-lived API token (30 minutes).
+- **Routes:** Added `GET /api/session-token` under `auth tenant subscription` filters.
+- **UI:** Exposed `active_clinic_id` and token endpoint URL via meta tags in `main_auth` layout.
+- **JS:** Select2 initialization now fetches a session token once per page load and sends `Authorization: Bearer` + `X-Clinic-Id` headers to `/api/v1/search/*`.
+
+### Verification
+- `docs/SaaS/verification/UI-AUTH-01.md`

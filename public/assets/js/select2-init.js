@@ -3,12 +3,86 @@
  * Replaces custom searchable select with Select2 for better UX and functionality
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+function getMetaContent(name) {
+    const el = document.querySelector(`meta[name="${name}"]`);
+    return el ? el.getAttribute('content') : '';
+}
+
+const uiSearchAuth = {
+    tokenUrl: getMetaContent('api-session-token-url'),
+    clinicId: getMetaContent('active-clinic-id'),
+    token: null,
+    expiresAt: null,
+    tokenPromise: null
+};
+
+function isTokenValid() {
+    if (!uiSearchAuth.token || !uiSearchAuth.expiresAt) {
+        return false;
+    }
+    const exp = Date.parse(uiSearchAuth.expiresAt);
+    if (isNaN(exp)) {
+        return true;
+    }
+    return (Date.now() + 30000) < exp;
+}
+
+function fetchUiSearchToken() {
+    if (!uiSearchAuth.tokenUrl) {
+        return Promise.resolve(null);
+    }
+    if (isTokenValid()) {
+        return Promise.resolve(uiSearchAuth.token);
+    }
+    if (uiSearchAuth.tokenPromise) {
+        return uiSearchAuth.tokenPromise;
+    }
+
+    uiSearchAuth.tokenPromise = fetch(uiSearchAuth.tokenUrl, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => response.ok ? response.json() : null)
+        .then(data => {
+            if (data && data.token) {
+                uiSearchAuth.token = data.token;
+                uiSearchAuth.expiresAt = data.expires_at || null;
+                return uiSearchAuth.token;
+            }
+            return null;
+        })
+        .catch(() => null)
+        .finally(() => {
+            uiSearchAuth.tokenPromise = null;
+        });
+
+    return uiSearchAuth.tokenPromise;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
     
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = document.querySelectorAll('[data-searchable-select]');
     console.log('Select2: Found', searchableSelects.length, 'searchable select elements');
+
+    let needsBearer = false;
+    searchableSelects.forEach(select => {
+        const searchUrl = select.dataset.searchUrl || '';
+        if (searchUrl.indexOf('/api/v1/search/') !== -1) {
+            needsBearer = true;
+        }
+    });
+
+    if (needsBearer) {
+        const token = await fetchUiSearchToken();
+        if (!token) {
+            console.warn('Select2: UI search token unavailable; v1 search may 401.');
+        }
+    }
     
     searchableSelects.forEach((select, index) => {
         try {
@@ -83,6 +157,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                 more: (params.page * 10) < (data.total || results.length)
                             }
                         };
+                    },
+                    beforeSend: function (xhr) {
+                        if (searchUrl.indexOf('/api/v1/search/') !== -1) {
+                            if (uiSearchAuth.token) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + uiSearchAuth.token);
+                            }
+                            if (uiSearchAuth.clinicId) {
+                                xhr.setRequestHeader('X-Clinic-Id', uiSearchAuth.clinicId);
+                            }
+                        }
                     },
                     cache: true
                 };

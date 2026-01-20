@@ -467,6 +467,8 @@ $routes->group('rbac', ['filter' => 'controlplane'], function ($routes) {
 
 // API routes (Tenant Plane)
 $routes->group('api', function ($routes) {
+    $routes->get('session-token', 'Api\\Auth::sessionToken', ['filter' => ['auth', 'tenant', 'subscription']]);
+
     $routes->group('v1', ['filter' => 'apiv1'], function ($routes) {
         // Patients
         $routes->get('patients', 'Api\Patient::index', ['filter' => 'permission:patients:view']);
