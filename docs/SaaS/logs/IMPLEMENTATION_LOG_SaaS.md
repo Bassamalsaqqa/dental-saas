@@ -558,3 +558,15 @@
 
 ### Verification
 - `docs/SaaS/verification/UI-AUTH-01.md`
+
+## [2026-01-20] Apache SSL vhost snippet for saas.dental.local (APACHE-SSL-01)
+**Tasks:** APACHE-SSL-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Docs:** Added an SSL vhost snippet for `saas.dental.local` that points DocumentRoot to `public/`, enables AllowOverride, and forwards Authorization.
+- **Verification:** Captured pre-fix diagnostics and provided owner-run post-fix steps in `docs/SaaS/verification/APACHE-SSL-01.md`.
+
+### Verification
+- `docs/SaaS/verification/APACHE-SSL-01.md`
