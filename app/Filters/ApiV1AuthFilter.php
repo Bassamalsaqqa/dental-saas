@@ -12,109 +12,6 @@ use App\Services\PlanGuard;
 
 class ApiV1AuthFilter implements FilterInterface
 {
-    private const SESSION_BRIDGE_MARKER = 'SESSION_BRIDGE';
-
-    private function isSearchEndpoint(RequestInterface $request): bool
-    {
-        $path = ltrim($request->getUri()->getPath(), '/');
-        return str_contains($path, 'api/v1/search');
-    }
-
-    private function isSearchBridgeAllowed(RequestInterface $request): bool
-    {
-        if (strtolower($request->getMethod()) !== 'get') {
-            return false;
-        }
-
-        $path = ltrim($request->getUri()->getPath(), '/');
-        return str_starts_with($path, 'api/v1/search/');
-    }
-
-    private function resolveSessionBridgeContext(RequestInterface $request): array
-    {
-        // SESSION_BRIDGE: search-only, file-backed session decode.
-        $feature = config('Feature');
-        $bridgeEnabled = env('API_V1_SESSION_BRIDGE_SEARCH', $feature->apiV1SessionBridgeSearch);
-        if (!$bridgeEnabled) {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $sessionConfig = config('Session');
-        $cookieName = $sessionConfig->cookieName ?? 'ci_session';
-        $sessionId = $request->getCookie($cookieName);
-        if (empty($sessionId)) {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $savePath = rtrim($sessionConfig->savePath ?? '', DIRECTORY_SEPARATOR);
-        if ($savePath === '') {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $sessionFile = $savePath . DIRECTORY_SEPARATOR . $cookieName . $sessionId;
-        if (!is_file($sessionFile)) {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $raw = file_get_contents($sessionFile);
-        if ($raw === false) {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $data = $this->decodeSessionData($raw);
-        $userId = (int)($data['user_id'] ?? 0);
-        if ($userId <= 0) {
-            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
-        }
-
-        $sessionClinicId = (int)($data['active_clinic_id'] ?? 0);
-        $clinicIdHeader = $request->getHeaderLine('X-Clinic-Id');
-
-        if (empty($clinicIdHeader)) {
-            if ($sessionClinicId <= 0) {
-                return ['error' => api_error(422, 'tenant_context_missing', 'X-Clinic-Id header is required.')];
-            }
-            return ['user_id' => $userId, 'clinic_id' => $sessionClinicId];
-        }
-
-        if (!is_numeric($clinicIdHeader)) {
-            return ['error' => api_error(422, 'tenant_context_invalid', 'X-Clinic-Id must be an integer.')];
-        }
-
-        $clinicId = (int)$clinicIdHeader;
-        if ($sessionClinicId > 0 && $clinicId !== $sessionClinicId) {
-            return ['error' => api_error(403, 'tenant_context_forbidden', 'Access denied to this clinic.')];
-        }
-
-        return ['user_id' => $userId, 'clinic_id' => $clinicId];
-    }
-
-    private function decodeSessionData(string $data): array
-    {
-        $result = [];
-        $offset = 0;
-        $length = strlen($data);
-
-        while ($offset < $length) {
-            $pos = strpos($data, '|', $offset);
-            if ($pos === false) {
-                break;
-            }
-            $key = substr($data, $offset, $pos - $offset);
-            $offset = $pos + 1;
-
-            $serialized = substr($data, $offset);
-            $value = @unserialize($serialized);
-            if ($value === false && !str_starts_with($serialized, 'b:0;')) {
-                break;
-            }
-            $result[$key] = $value;
-            $offset += strlen(serialize($value));
-        }
-
-        return $result;
-    }
-
     public function before(RequestInterface $request, $arguments = null)
     {
         \App\Libraries\ApiRuntimeContext::clear();
@@ -132,10 +29,12 @@ class ApiV1AuthFilter implements FilterInterface
             }
         }
 
-        $isSearchEndpoint = $this->isSearchEndpoint($request);
+        if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+            return api_error(401, 'unauthenticated', 'Authentication required.');
+        }
+
         $userId = null;
         $clinicId = null;
-
         if (!empty($authHeader) && str_starts_with($authHeader, 'Bearer ')) {
             $rawToken = substr($authHeader, 7);
             $tokenModel = new ApiTokenModel();
@@ -156,15 +55,6 @@ class ApiV1AuthFilter implements FilterInterface
             }
 
             $clinicId = (int)$clinicIdHeader;
-        } elseif ($isSearchEndpoint && $this->isSearchBridgeAllowed($request)) {
-            $bridge = $this->resolveSessionBridgeContext($request);
-            if (isset($bridge['error'])) {
-                return $bridge['error'];
-            }
-            $userId = $bridge['user_id'];
-            $clinicId = $bridge['clinic_id'];
-        } else {
-            return api_error(401, 'unauthenticated', 'Authentication required.');
         }
 
         // 3. Validate Clinic Existence

@@ -532,3 +532,15 @@
 
 ### Verification
 - `docs/SaaS/verification/API-AUTH-01.md`
+
+## [2026-01-20] Remove v1 Session Bridge (API-BRIDGE-01)
+**Tasks:** API-BRIDGE-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Filter:** Removed session bridge logic from `ApiV1AuthFilter`; v1 is Bearer-only for all endpoints.
+- **Contract:** Removed transitional session bridge language from `docs/API/CONTRACT_V1.md`.
+
+### Verification
+- `docs/SaaS/verification/API-BRIDGE-01.md`
