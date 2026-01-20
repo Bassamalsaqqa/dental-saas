@@ -34,4 +34,10 @@ class Feature extends BaseConfig
      * Enabling strict comparison will also consider the region code (ISO 3166-1 alpha-2).
      */
     public bool $strictLocaleNegotiation = false;
+
+    /**
+     * Transitional session bridge for /api/v1/search/* (tenant UI only).
+     * Default false; enable via API_V1_SESSION_BRIDGE_SEARCH=true.
+     */
+    public bool $apiV1SessionBridgeSearch = false;
 }

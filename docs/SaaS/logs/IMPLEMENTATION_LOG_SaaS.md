@@ -507,3 +507,16 @@
 
 ### Verification
 - `docs/SaaS/verification/GR-RAW-01.md`
+
+## [2026-01-20] Session Bridge Lockdown (API-MIG-01B)
+**Tasks:** API-MIG-01B
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Filter:** Added search-only allowlist (GET `/api/v1/search/*`) and a kill switch for the session bridge in `ApiV1AuthFilter`.
+- **Config:** Added `API_V1_SESSION_BRIDGE_SEARCH` toggle (default false) via `Config\Feature`.
+- **Contract:** Documented bridge scope, kill switch, and removal milestone in `docs/API/CONTRACT_V1.md`.
+
+### Verification
+- `docs/SaaS/verification/API-MIG-01B.md`

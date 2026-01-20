@@ -12,14 +12,33 @@ use App\Services\PlanGuard;
 
 class ApiV1AuthFilter implements FilterInterface
 {
+    private const SESSION_BRIDGE_MARKER = 'SESSION_BRIDGE';
+
     private function isSearchEndpoint(RequestInterface $request): bool
     {
         $path = ltrim($request->getUri()->getPath(), '/');
         return str_contains($path, 'api/v1/search');
     }
 
+    private function isSearchBridgeAllowed(RequestInterface $request): bool
+    {
+        if (strtolower($request->getMethod()) !== 'get') {
+            return false;
+        }
+
+        $path = ltrim($request->getUri()->getPath(), '/');
+        return str_starts_with($path, 'api/v1/search/');
+    }
+
     private function resolveSessionBridgeContext(RequestInterface $request): array
     {
+        // SESSION_BRIDGE: search-only, file-backed session decode.
+        $feature = config('Feature');
+        $bridgeEnabled = env('API_V1_SESSION_BRIDGE_SEARCH', $feature->apiV1SessionBridgeSearch);
+        if (!$bridgeEnabled) {
+            return ['error' => api_error(401, 'unauthenticated', 'Authentication required.')];
+        }
+
         $sessionConfig = config('Session');
         $cookieName = $sessionConfig->cookieName ?? 'ci_session';
         $sessionId = $request->getCookie($cookieName);
@@ -137,7 +156,7 @@ class ApiV1AuthFilter implements FilterInterface
             }
 
             $clinicId = (int)$clinicIdHeader;
-        } elseif ($isSearchEndpoint) {
+        } elseif ($isSearchEndpoint && $this->isSearchBridgeAllowed($request)) {
             $bridge = $this->resolveSessionBridgeContext($request);
             if (isset($bridge['error'])) {
                 return $bridge['error'];
