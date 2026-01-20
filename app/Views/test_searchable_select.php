@@ -17,7 +17,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search Patients</label>
                     <select id="patientSearch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/patients') ?>"
+                            data-search-url="<?= base_url('api/v1/search/patients') ?>"
                             data-placeholder="Search patients by name, phone, or ID...">
                         <option value="">Select a patient</option>
                     </select>
@@ -37,7 +37,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search Medications</label>
                     <select id="medicationSearch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/medications') ?>"
+                            data-search-url="<?= base_url('api/v1/search/medications') ?>"
                             data-placeholder="Search medications...">
                         <option value="">Select a medication</option>
                     </select>
@@ -57,7 +57,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search Treatment Types</label>
                     <select id="treatmentTypeSearch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/treatment-types') ?>"
+                            data-search-url="<?= base_url('api/v1/search/treatment-types') ?>"
                             data-placeholder="Search treatment types...">
                         <option value="">Select a treatment type</option>
                     </select>
@@ -77,7 +77,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search Departments</label>
                     <select id="departmentSearch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/departments') ?>"
+                            data-search-url="<?= base_url('api/v1/search/departments') ?>"
                             data-placeholder="Search departments...">
                         <option value="">Select a department</option>
                     </select>
@@ -97,7 +97,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search Roles</label>
                     <select id="roleSearch" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/roles') ?>"
+                            data-search-url="<?= base_url('api/v1/search/roles') ?>"
                             data-placeholder="Search roles...">
                         <option value="">Select a role</option>
                     </select>
@@ -198,3 +198,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+

@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Select2 for patient search
     $('#patientSelect').select2({
         ajax: {
-            url: '<?= base_url('api/search/patients') ?>',
+            url: '<?= base_url('api/v1/search/patients') ?>',
             dataType: 'json',
             delay: 300,
             data: function (params) {
@@ -446,3 +446,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?= $this->endSection() ?>
+

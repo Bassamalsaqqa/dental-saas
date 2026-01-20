@@ -16,6 +16,12 @@ Rules:
 - Cookies are ignored for auth decisions on `/api/v1/*`.
 - Missing or invalid Bearer -> 401 JSON (pre-controller).
 
+Transitional session bridge (search only):
+- `/api/v1/search/*` MAY accept an authenticated tenant session when no Bearer is provided.
+- Session bridge derives `user_id` and `active_clinic_id` from session, and still enforces tenant membership checks.
+- If `X-Clinic-Id` is provided in session bridge mode, it must be a valid integer and must match the session clinic.
+- This bridge is temporary for web UI migration and must not be used for non-search endpoints.
+
 ---
 
 ## 2) Tenant Context (Header)

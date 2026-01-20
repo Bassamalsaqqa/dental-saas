@@ -275,7 +275,7 @@
                                                 <select id="role" name="role" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('role')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                         data-searchable-select 
-                                                        data-search-url="<?= base_url('api/search/roles') ?>"
+                                                        data-search-url="<?= base_url('api/v1/search/roles') ?>"
                                                         data-placeholder="Search roles..."
                                                         required>
                                                     <option value="">Select role</option>
@@ -306,7 +306,7 @@
                                                 <select id="department" name="department" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                                         data-searchable-select 
-                                                        data-search-url="<?= base_url('api/search/departments') ?>"
+                                                        data-search-url="<?= base_url('api/v1/search/departments') ?>"
                                                         data-placeholder="Search departments...">
                                                     <option value="">Select department</option>
                                                     <?php foreach ($departments as $key => $department): ?>
@@ -403,3 +403,4 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+

@@ -22,7 +22,7 @@
                     <select id="patient_select" name="patient_id" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/patients') ?>" 
+                            data-search-url="<?= base_url('api/v1/search/patients') ?>" 
                             data-placeholder="Search patients by name, phone, or ID..."
                             data-allow-clear="true">
                         <option value="">Select a patient...</option>
@@ -77,7 +77,7 @@
                     <select id="treatment_types" name="treatment_type" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/treatment-types') ?>"
+                            data-search-url="<?= base_url('api/v1/search/treatment-types') ?>"
                             data-placeholder="Search treatment types..."
                             data-minimum-input-length="2"
                             data-delay="500">
@@ -93,7 +93,7 @@
                     <select id="medication_search" name="medication" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                             data-searchable-select 
-                            data-search-url="<?= base_url('api/search/medications') ?>"
+                            data-search-url="<?= base_url('api/v1/search/medications') ?>"
                             data-placeholder="Search medications..."
                             data-minimum-input-length="1"
                             data-delay="300">
@@ -194,3 +194,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+

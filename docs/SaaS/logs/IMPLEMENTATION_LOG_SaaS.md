@@ -481,3 +481,16 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-02.md` updated with required evidence blocks.
+
+## [2026-01-20] API v1 Search Migration (API-MIG-01)
+**Tasks:** API-MIG-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **UI:** Repointed tenant UI search calls from `/api/search/*` to `/api/v1/search/*`.
+- **Bridge:** Added a controlled session bridge for `/api/v1/search/*` to support web UI during migration without Bearer tokens.
+- **Contract:** Documented the transitional session bridge in `docs/API/CONTRACT_V1.md`.
+
+### Verification
+- `docs/SaaS/verification/API-MIG-01.md`
