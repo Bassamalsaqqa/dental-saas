@@ -33,6 +33,10 @@ class TenantFilter implements FilterInterface
             $isApiOrAjax = $request->isAJAX() || $isApi;
             
             if (!$isApiOrAjax) {
+                $pathOnly = trim($path, '/');
+                if ($pathOnly === '') {
+                    return redirect()->to('/controlplane/dashboard');
+                }
                 throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
             }
         }

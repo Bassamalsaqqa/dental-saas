@@ -161,7 +161,16 @@ class SettingsService
     private function loadSettings()
     {
         try {
-            $this->settings = $this->settingsModel->getAllSettings();
+            $session = service('session');
+            $activeClinicId = $session ? $session->get('active_clinic_id') : null;
+
+            if ($activeClinicId) {
+                $this->settings = $this->settingsModel->getAllSettings();
+                return;
+            }
+
+            // No tenant context yet (e.g., auth/clinic selection). Use global settings without tenant scoping.
+            $this->settings = $this->settingsModel->withoutTenantScope()->getGlobalSettings();
         } catch (\Exception $e) {
             log_message('error', 'Error loading settings: ' . $e->getMessage());
             $this->settings = [];

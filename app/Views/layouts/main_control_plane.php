@@ -82,7 +82,7 @@
                         <p class="text-xs font-bold text-white">Super Admin</p>
                         <p class="text-[10px] text-slate-400">Global Mode Active</p>
                     </div>
-                    <a href="<?= base_url('controlplane/danger/exit') ?>" class="text-slate-400 hover:text-white" title="Exit Global Mode">
+                    <a href="<?= base_url('controlplane/danger') ?>" class="text-slate-400 hover:text-white" title="Exit Global Mode">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
