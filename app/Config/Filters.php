@@ -41,8 +41,6 @@ class Filters extends BaseFilters
         'permission'    => \App\Filters\PermissionFilter::class,
         'csrfjson'      => \App\Filters\CsrfJson::class,
         'apiv1'         => \App\Filters\ApiV1AuthFilter::class,
-        'legacyobserve' => \App\Filters\LegacyApiObserveFilter::class,
-        'legacygate'    => \App\Filters\LegacyApiGateFilter::class,
     ];
 
     /**

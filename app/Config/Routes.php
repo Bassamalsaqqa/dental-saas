@@ -512,16 +512,4 @@ $routes->group('api', function ($routes) {
         });
     });
 
-    // Search API endpoints for select dropdowns
-    $routes->group('search', ['filter' => ['legacygate', 'legacyobserve', 'auth', 'tenant', 'subscription']], function ($routes) {
-        $routes->get('patients', 'Api\Search::patients', ['filter' => 'permission:patients:view']);
-        $routes->get('users', 'Api\Search::users', ['filter' => 'permission:users:view']);
-        $routes->get('examinations', 'Api\Search::examinations', ['filter' => 'permission:examinations:view']);
-        $routes->get('treatments', 'Api\Search::treatments', ['filter' => 'permission:treatments:view']);
-        $routes->get('inventory', 'Api\Search::inventory', ['filter' => 'permission:inventory:view']);
-        $routes->get('medications', 'Api\Search::medications', ['filter' => 'permission:prescriptions:view']);
-        $routes->get('treatment-types', 'Api\Search::treatmentTypes', ['filter' => 'permission:treatments:view']);
-        $routes->get('departments', 'Api\Search::departments', ['filter' => 'permission:users:view']);
-        $routes->get('roles', 'Api\Search::roles', ['filter' => 'permission:users:view']);
-    });
 });
