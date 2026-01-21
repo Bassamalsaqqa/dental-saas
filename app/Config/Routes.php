@@ -513,7 +513,7 @@ $routes->group('api', function ($routes) {
     });
 
     // Search API endpoints for select dropdowns
-    $routes->group('search', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->group('search', ['filter' => ['legacyobserve', 'auth', 'tenant', 'subscription']], function ($routes) {
         $routes->get('patients', 'Api\Search::patients', ['filter' => 'permission:patients:view']);
         $routes->get('users', 'Api\Search::users', ['filter' => 'permission:users:view']);
         $routes->get('examinations', 'Api\Search::examinations', ['filter' => 'permission:examinations:view']);
