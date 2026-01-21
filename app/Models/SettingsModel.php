@@ -69,7 +69,8 @@ class SettingsModel extends TenantAwareModel
      */
     public function getGlobalSetting($key, $default = null)
     {
-        $setting = $this->where('setting_key', $key)
+        $setting = $this->withoutTenantScope()
+                        ->where('setting_key', $key)
                         ->where('clinic_id', 0)
                         ->first();
         return $setting ? $this->parseValue($setting['setting_value'], $setting['setting_type']) : $default;
@@ -157,7 +158,9 @@ class SettingsModel extends TenantAwareModel
      */
     public function getGlobalSettings()
     {
-        $settings = $this->where('clinic_id', 0)->findAll();
+        $settings = $this->withoutTenantScope()
+                         ->where('clinic_id', 0)
+                         ->findAll();
         $result = [];
         
         foreach ($settings as $setting) {
