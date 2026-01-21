@@ -101,6 +101,15 @@ class ActivityLog extends BaseController
                 return [];
             }
 
+            $limit = (int) $limit;
+            $offset = (int) $offset;
+            if ($limit <= 0) {
+                $limit = 50;
+            }
+            if ($offset < 0) {
+                $offset = 0;
+            }
+
             $builder = $this->activityLogModel->forClinic($clinicId)
                 ->select('activity_logs.*, users.first_name, users.last_name, users.email')
                 ->join('users', 'users.id = activity_logs.user_id', 'left')

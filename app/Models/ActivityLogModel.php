@@ -76,6 +76,15 @@ class ActivityLogModel extends TenantAwareModel
      */
     public function getActivitiesByClinic($clinicId, $limit = 50, $offset = 0, $entityType = null, $action = null, $userId = null)
     {
+        $limit = (int) $limit;
+        $offset = (int) $offset;
+        if ($limit <= 0) {
+            $limit = 50;
+        }
+        if ($offset < 0) {
+            $offset = 0;
+        }
+
         $builder = $this->db->table('activity_logs al')
             ->select('al.*, u.first_name, u.last_name, u.email')
             ->join('users u', 'u.id = al.user_id', 'left')
