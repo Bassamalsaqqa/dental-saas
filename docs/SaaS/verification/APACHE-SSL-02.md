@@ -47,14 +47,17 @@ Note: `httpd.exe -k restart` fails because XAMPP is not installed as a service.
 C:\xampp\apache\bin\httpd.exe -S
 ```
 ```
-<paste output showing *:443 saas.dental.local ...>
+*:443                  is a NameVirtualHost
+         default server www.example.com (C:/xampp/apache/conf/extra/httpd-ssl.conf:121)
+         port 443 namevhost www.example.com (C:/xampp/apache/conf/extra/httpd-ssl.conf:121)
+         port 443 namevhost saas.dental.local (C:/xampp/apache/conf/extra/httpd-ssl.conf:291)
 ```
 
 ```bat
 curl.exe -k -i https://saas.dental.local/auth/login | findstr /I "HTTP/ Location:"
 ```
 ```
-<paste output>
+HTTP/1.1 200 OK
 ```
 
 Optional sanity:
@@ -62,5 +65,6 @@ Optional sanity:
 curl.exe -k -i https://saas.dental.local/ | findstr /I "HTTP/ Location:"
 ```
 ```
-<paste output>
+HTTP/1.1 302 Found
+Location: https://saas.dental.local/auth/login
 ```

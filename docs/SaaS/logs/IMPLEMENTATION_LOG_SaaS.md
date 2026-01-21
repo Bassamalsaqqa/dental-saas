@@ -582,3 +582,26 @@
 
 ### Verification
 - `docs/SaaS/verification/APACHE-SSL-02.md`
+
+## [2026-01-20] SSL closeout evidence (APACHE-SSL-03)
+**Tasks:** APACHE-SSL-03
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- **Docs:** Filled APACHE-SSL-02 post-fix placeholders with owner-provided HTTPS routing evidence.
+
+### Verification
+- `docs/SaaS/verification/APACHE-SSL-02.md`
+
+## [2026-01-21] Centralized AJAX CSRF handling (WEB-CSRF-01)
+**Tasks:** WEB-CSRF-01
+**Author:** Codex
+**Status:** In Progress
+
+### Changes
+- **Layout:** Added a global CSRF transport hook for non-GET jQuery AJAX requests (header + body injection) and centralized token refresh.
+- **Security:** Set `Security::$regenerate = false` to prevent token invalidation across concurrent AJAX requests after verified 403s with valid tokens.
+
+### Verification
+- `docs/SaaS/verification/WEB-CSRF-01.md`
