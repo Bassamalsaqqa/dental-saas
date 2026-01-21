@@ -33,6 +33,7 @@ class AuthFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $ionAuth = new IonAuth();
+        $session = session();
         
         // Check if user is logged in
         if (!$ionAuth->loggedIn()) {
@@ -58,6 +59,22 @@ class AuthFilter implements FilterInterface
             
             // Redirect to login page
             return redirect()->to('/auth/login');
+        }
+
+        $path = trim($request->getUri()->getPath(), '/');
+        $isApi = strpos($path, 'api/') === 0
+            || ($request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
+
+        if (!$session->get('global_mode') && !$session->get('active_clinic_id')) {
+            $isAllowed = $path === ''
+                || $path === 'logout'
+                || str_starts_with($path, 'auth')
+                || str_starts_with($path, 'clinic')
+                || str_starts_with($path, 'controlplane');
+
+            if (!$isAllowed && !$isApi && !$request->isAJAX()) {
+                return redirect()->to('/clinic/select');
+            }
         }
     }
 
