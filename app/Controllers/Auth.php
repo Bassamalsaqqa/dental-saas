@@ -118,8 +118,14 @@ class Auth extends BaseController
 		// Log debug info
 		log_message('debug', 'Login check - Identity: ' . ($identity ?: 'null') . ', User ID: ' . ($userId ?: 'null') . ', Logged In: ' . ($loggedIn ? 'true' : 'false'));
 		
-		// If user is already logged in, redirect to dashboard
+		// If user is already logged in, redirect based on current context
 		if ($loggedIn) {
+			if ($session->get('global_mode')) {
+				return redirect()->to('/controlplane/dashboard');
+			}
+			if (!$session->get('active_clinic_id')) {
+				return redirect()->to('/clinic/select');
+			}
 			return redirect()->to('/dashboard');
 		}
 
