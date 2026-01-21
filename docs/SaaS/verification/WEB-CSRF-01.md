@@ -121,6 +121,25 @@ curl "https://saas.dental.local/patient/get-data" ^
 }
 ```
 
+### Additional JSON refresh evidence (non-DataTables)
+```bat
+curl "https://saas.dental.local/patient/get-statistics" ^
+  -H "Accept: application/json, text/javascript, */*; q=0.01" ^
+  -b "ci_session_saas=<REDACTED>; csrf_cookie_name=<REDACTED>" ^
+  -H "Referer: https://saas.dental.local/patients" ^
+  -H "X-Requested-With: XMLHttpRequest" ^
+  --insecure
+```
+```
+{
+    "total_patients": 7,
+    "active_patients": 6,
+    "new_patients": 6,
+    "monthly_patients": 6,
+    "csrf_token": "37f2a700046ecbddde0c37772f929933f2057d667b9c7a0f7486d2c35d11d91a"
+}
+```
+
 ### Positive test: second DataTables endpoint
 Pick another DataTables screen (Appointments/Finance/Inventory/etc):
 1) Capture the POST request returning 200 with CSRF header and payload token.
