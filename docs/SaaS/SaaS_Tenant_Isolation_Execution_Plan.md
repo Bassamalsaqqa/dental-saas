@@ -1,5 +1,7 @@
 # SaaS Implementation Task Breakdown (Engineering-Ready)
 
+Note: Historical planning document. Current authoritative rules live in `docs/SaaS/SAAS_PROGRAM.md`.
+
 ## Purpose
 
 This document provides a **phase-by-phase delivery plan** for implementing the DentaCare SaaS platform with **provable tenant isolation, RBAC enforcement, and security guardrails**.
@@ -86,13 +88,13 @@ Each phase can be tracked independently in **Jira, Linear, or GitHub Projects** 
 
 ---
 
-## PHASE 4 — TenantBaseModel & Query Refactor
+## PHASE 4 — TenantAwareModel & Query Refactor
 
 **Goal:** Make data isolation the default, not an option.
 
 ### Tasks
 
-- Implement `TenantBaseModel`  
+- Implement `TenantAwareModel`  
 - Refactor tenant models to extend it  
 - Replace raw queries and datatables  
 - Add scoped `find` helpers  

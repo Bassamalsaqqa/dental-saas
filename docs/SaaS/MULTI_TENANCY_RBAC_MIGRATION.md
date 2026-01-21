@@ -303,7 +303,7 @@ Nullable only for `super_admin`.
 
 # 4. Query Scoping Strategy
 
-## TenantBaseModel
+## TenantAwareModel
 
 Apply to:
 PatientModel

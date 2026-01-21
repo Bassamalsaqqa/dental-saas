@@ -31,14 +31,14 @@ Validation (pre-controller, ApiV1AuthFilter):
 
 ---
 
-## 3) Subscription Standing (Trial + Grace Locked)
+## 3) Subscription Standing (Date Window)
 Enforcement point: ApiV1AuthFilter pre-controller via PlanGuard standing checks.
 
 Locked model:
 - status values: active | paused | canceled | expired
 - Trial is date-based via start_at/end_at (no trialing status).
 - end_at is exclusive.
-- grace_days default 0 (implementation detail; contract defines behavior).
+- No grace window is implemented.
 
 Standing decision:
 - Valid only if status==active AND within (start_at/end_at) window OR within grace window (if configured).

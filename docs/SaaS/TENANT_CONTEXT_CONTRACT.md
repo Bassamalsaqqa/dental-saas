@@ -117,7 +117,7 @@ No:
 
 ### Layer 2 — Data Access
 
-All tenant models extend `TenantBaseModel`.
+All tenant models extend `TenantAwareModel`.
 
 Automatic `WHERE clinic_id = active_clinic_id` on:
 
@@ -246,7 +246,8 @@ When required context is missing or invalid, the system must **fail closed** wit
 
 - **Missing `active_clinic_id` on tenant-plane requests:**  
   - HTML: redirect to `/clinic/select`  
-  - API: return `403` JSON `{ "error": "TENANT_CONTEXT_REQUIRED" }`
+  - Legacy session API (`/api/search/*`): return `403` JSON `{ "error": "TENANT_CONTEXT_REQUIRED" }`  
+  - API v1 (`/api/v1/*`): return `422 tenant_context_missing` per `docs/API/CONTRACT_V1.md`
 
 - **Cross-tenant access (record not owned by active clinic):**  
   - HTML: return `404`  

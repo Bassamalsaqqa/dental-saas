@@ -1,5 +1,7 @@
 # Multi-Tenant SaaS Scope Overview
 
+Note: Historical planning document. Current authoritative rules live in `docs/SaaS/SAAS_PROGRAM.md`.
+
 ## Vision
 We are splitting the existing single-clinic dental app into two parallel products:
 - **Legacy Single-Clinic** – frozen in the current codebase; no new feature work after the split.  
@@ -11,7 +13,7 @@ We are splitting the existing single-clinic dental app into two parallel product
 - Capture the SaaS conversion requirements so the new repo doesn’t need re-explaining (tenant context, clinic_id schema, RBAC, patient onboarding rules, exports/audit expectations).
 
 ## Long‑Run Scope (new SaaS workstream)
-- Row-level tenancy with `clinic_id` on every tenant table and tenant-aware query layer (`TenantBaseModel` or equivalent).
+- Row-level tenancy with `clinic_id` on every tenant table and tenant-aware query layer (`TenantAwareModel` or equivalent).
 - RBAC-only authorization with `super_admin` control-plane mode, tenant-specific permissions, and filtered filters (`TenantFilter`, `ControlPlaneFilter`, `PermissionFilter`).
 - Tenant-safe patient workflow (per-clinic email uniqueness, receptionist synthetic emails, enforced WhatsApp, patient-user 1:1 mapping).
 - Audit/export controls: audit logs include `clinic_id`, exports/backups gated by RBAC, and synthetic emails used only when admin-created.

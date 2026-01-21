@@ -1,4 +1,4 @@
-ï»¿**1) Role System Consolidation Audit**
+**1) Role System Consolidation Audit**
 - IonAuth groups are used for admin decisions (`isAdmin`, `inGroup`) in filters and controllers. Evidence: `app/Filters/AdminFilter.php:42`, `app/Controllers/Auth.php:83`, `app/Controllers/Users.php:367`, `app/Helpers/auth_helper.php:25`, `app/Helpers/auth_helper.php:66`, `app/Config/IonAuth.php:149`, `democa_dental.sql:170-178`.
 - PermissionFilter enforces RBAC via PermissionService on most routes, while admin-only routes use AdminFilter (IonAuth), creating dual authorization paths. Evidence: `app/Filters/PermissionFilter.php:48`, `app/Filters/PermissionFilter.php:65`, `app/Config/Routes.php:44`, `app/Config/Routes.php:322`.
 - Custom RBAC is implemented via roles/permissions tables and `PermissionService` (`super_admin` role slug). Evidence: `app/Services/PermissionService.php:26`, `app/Services/PermissionService.php:167`, `app/Services/PermissionService.php:189`, `democa_dental.sql:418`, `democa_dental.sql:430-438`.
@@ -17,58 +17,58 @@
 - Models that must be tenant-scoped (business data): `activity_logs`, `appointments`, `examinations`, `finances`, `inventory`, `inventory_usage`, `odontograms`, `patients`, `prescriptions`, `treatments`, `settings`. Evidence: `app/Models/ActivityLogModel.php:9`, `app/Models/AppointmentModel.php:9`, `app/Models/ExaminationModel.php:9`, `app/Models/FinanceModel.php:9`, `app/Models/InventoryModel.php:9`, `app/Models/InventoryUsageModel.php:9`, `app/Models/OdontogramModel.php:9`, `app/Models/PatientModel.php:9`, `app/Models/PrescriptionModel.php:9`, `app/Models/TreatmentModel.php:9`, `app/Models/SettingsModel.php:9`.
 - No shared base model exists; every model extends `CodeIgniter\Model` directly, so there is no central scoping hook today. Evidence: `app/Models/ActivityLogModel.php:7`, `app/Models/PatientModel.php:7`, `app/Models/FinanceModel.php:7`.
 - High-risk query sites outside models (raw builder in controllers/services): ActivityLog, Doctor, Examination, Finance, Inventory, Prescription, Treatment, Settings backup. Evidence: `app/Controllers/ActivityLog.php:75`, `app/Controllers/Doctor.php:270`, `app/Controllers/Examination.php:354`, `app/Controllers/Finance.php:482`, `app/Controllers/Inventory.php:696`, `app/Controllers/Prescription.php:157`, `app/Controllers/Treatment.php:157`, `app/Controllers/Settings.php:655`.
-- Top 50 fix list (file:line â€” scoping approach):
+- Top 50 fix list (file:line — scoping approach):
 ```
-1) app/Controllers/ActivityLog.php:75 â€” local (add clinic_id filter on activity_logs)
-2) app/Controllers/ActivityLog.php:105 â€” local
-3) app/Controllers/ActivityLog.php:222 â€” local
-4) app/Controllers/ActivityLog.php:228 â€” local
-5) app/Controllers/Doctor.php:270 â€” local (scope users by active clinic membership)
-6) app/Controllers/Doctor.php:289 â€” local
-7) app/Controllers/Examination.php:341 â€” local
-8) app/Controllers/Examination.php:354 â€” local
-9) app/Controllers/Examination.php:446 â€” local
-10) app/Controllers/Examination.php:452 â€” local
-11) app/Controllers/Examination.php:458 â€” local
-12) app/Controllers/Examination.php:491 â€” local
-13) app/Controllers/Examination.php:500 â€” local
-14) app/Controllers/Examination.php:518 â€” local
-15) app/Controllers/Finance.php:380 â€” local
-16) app/Controllers/Finance.php:383 â€” local
-17) app/Controllers/Finance.php:469 â€” local
-18) app/Controllers/Finance.php:482 â€” local
-19) app/Controllers/Inventory.php:680 â€” local
-20) app/Controllers/Inventory.php:696 â€” local
-21) app/Controllers/Inventory.php:792 â€” local
-22) app/Controllers/Inventory.php:1027 â€” local
-23) app/Controllers/Inventory.php:1040 â€” local
-24) app/Controllers/Prescription.php:64 â€” local
-25) app/Controllers/Prescription.php:67 â€” local
-26) app/Controllers/Prescription.php:144 â€” local
-27) app/Controllers/Prescription.php:157 â€” local
-28) app/Controllers/Treatment.php:144 â€” local
-29) app/Controllers/Treatment.php:157 â€” local
-30) app/Controllers/Settings.php:663 â€” local (backup must be clinic-scoped or admin-only global)
-31) app/Controllers/Settings.php:655 â€” local
-32) app/Models/PatientModel.php:112 â€” central (BaseTenantModel / global scope)
-33) app/Models/PatientModel.php:124 â€” central
-34) app/Models/PatientModel.php:106 â€” central
-35) app/Models/AppointmentModel.php:98 â€” central
-36) app/Models/AppointmentModel.php:126 â€” central
-37) app/Models/AppointmentModel.php:160 â€” central
-38) app/Models/AppointmentModel.php:87 â€” central
-39) app/Models/ExaminationModel.php:86 â€” central
-40) app/Models/ExaminationModel.php:95 â€” central
-41) app/Models/ExaminationModel.php:105 â€” central
-42) app/Models/FinanceModel.php:124 â€” central
-43) app/Models/FinanceModel.php:127 â€” central
-44) app/Models/FinanceModel.php:134 â€” central
-45) app/Models/TreatmentModel.php:106 â€” central
-46) app/Models/TreatmentModel.php:108 â€” central
-47) app/Models/PrescriptionModel.php:101 â€” central
-48) app/Models/PrescriptionModel.php:103 â€” central
-49) app/Models/InventoryModel.php:111 â€” central
-50) app/Models/InventoryUsageModel.php:89 â€” central
+1) app/Controllers/ActivityLog.php:75 — local (add clinic_id filter on activity_logs)
+2) app/Controllers/ActivityLog.php:105 — local
+3) app/Controllers/ActivityLog.php:222 — local
+4) app/Controllers/ActivityLog.php:228 — local
+5) app/Controllers/Doctor.php:270 — local (scope users by active clinic membership)
+6) app/Controllers/Doctor.php:289 — local
+7) app/Controllers/Examination.php:341 — local
+8) app/Controllers/Examination.php:354 — local
+9) app/Controllers/Examination.php:446 — local
+10) app/Controllers/Examination.php:452 — local
+11) app/Controllers/Examination.php:458 — local
+12) app/Controllers/Examination.php:491 — local
+13) app/Controllers/Examination.php:500 — local
+14) app/Controllers/Examination.php:518 — local
+15) app/Controllers/Finance.php:380 — local
+16) app/Controllers/Finance.php:383 — local
+17) app/Controllers/Finance.php:469 — local
+18) app/Controllers/Finance.php:482 — local
+19) app/Controllers/Inventory.php:680 — local
+20) app/Controllers/Inventory.php:696 — local
+21) app/Controllers/Inventory.php:792 — local
+22) app/Controllers/Inventory.php:1027 — local
+23) app/Controllers/Inventory.php:1040 — local
+24) app/Controllers/Prescription.php:64 — local
+25) app/Controllers/Prescription.php:67 — local
+26) app/Controllers/Prescription.php:144 — local
+27) app/Controllers/Prescription.php:157 — local
+28) app/Controllers/Treatment.php:144 — local
+29) app/Controllers/Treatment.php:157 — local
+30) app/Controllers/Settings.php:663 — local (backup must be clinic-scoped or admin-only global)
+31) app/Controllers/Settings.php:655 — local
+32) app/Models/PatientModel.php:112 — central (BaseTenantModel / global scope)
+33) app/Models/PatientModel.php:124 — central
+34) app/Models/PatientModel.php:106 — central
+35) app/Models/AppointmentModel.php:98 — central
+36) app/Models/AppointmentModel.php:126 — central
+37) app/Models/AppointmentModel.php:160 — central
+38) app/Models/AppointmentModel.php:87 — central
+39) app/Models/ExaminationModel.php:86 — central
+40) app/Models/ExaminationModel.php:95 — central
+41) app/Models/ExaminationModel.php:105 — central
+42) app/Models/FinanceModel.php:124 — central
+43) app/Models/FinanceModel.php:127 — central
+44) app/Models/FinanceModel.php:134 — central
+45) app/Models/TreatmentModel.php:106 — central
+46) app/Models/TreatmentModel.php:108 — central
+47) app/Models/PrescriptionModel.php:101 — central
+48) app/Models/PrescriptionModel.php:103 — central
+49) app/Models/InventoryModel.php:111 — central
+50) app/Models/InventoryUsageModel.php:89 — central
 ```
 
 **4) High-Risk Admin Tools Review**
@@ -83,7 +83,7 @@
 - Summary tables exist but have no code references; population mechanism is UNKNOWN. Verify by searching for table names in PHP code. Evidence: `democa_dental.sql:81`, `democa_dental.sql:156`, `democa_dental.sql:310` (no matches in current repo scan).
 
 **6) Minimal Clinic Picker UI Touchpoints**
-- Authenticated layout and sidebar are built in `main_auth.php` and already consume `$clinic` for branding; this is the most direct place to add a â€œSwitch clinicâ€ UI and show active clinic. Evidence: `app/Views/layouts/main_auth.php:6`, `app/Views/layouts/main_auth.php:62`, `app/Views/layouts/main_auth.php:65`.
+- Authenticated layout and sidebar are built in `main_auth.php` and already consume `$clinic` for branding; this is the most direct place to add a “Switch clinic” UI and show active clinic. Evidence: `app/Views/layouts/main_auth.php:6`, `app/Views/layouts/main_auth.php:62`, `app/Views/layouts/main_auth.php:65`.
 - BaseController injects `clinic` into all views via `settings()->getClinicInfo()`, which is currently global (single clinic). This is the hook that would need to read `active_clinic_id` instead of global settings. Evidence: `app/Controllers/BaseController.php:69-72`, `app/Controllers/BaseController.php:151-153`, `app/Services/SettingsService.php:356-366`.
 - Redirect when `active_clinic_id` is missing should occur before controller logic; AuthFilter is the current per-request gate for logged-in routes, and routes are already grouped under `auth`. Evidence: `app/Filters/AuthFilter.php:34`, `app/Config/Routes.php:36`, `app/Config/Routes.php:41`.
 - Unauthenticated layout `main.php` also renders `$clinic` branding; if a clinic picker is required pre-login, that layout is the minimal touchpoint. Evidence: `app/Views/layouts/main.php:6`, `app/Views/layouts/main.php:38`, `app/Views/layouts/main.php:41`.

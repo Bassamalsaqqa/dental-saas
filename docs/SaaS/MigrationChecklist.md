@@ -21,7 +21,7 @@
 - Update routes to group as Tenant vs control plane (e.g., `settings/*` under control plane filter). Evidence: `app\Config\Routes.php`.
 
 ## 4. Query scoping
-- Introduce `TenantBaseModel` that auto-adds `WHERE clinic_id = session('active_clinic_id')` for tenant tables.
+- Introduce `TenantAwareModel` that auto-adds `WHERE clinic_id = session('active_clinic_id')` for tenant tables.
 - Refactor controller queries (Finance datatable, Examination datatable, Inventory, Prescription, Treatment, Doctor list, ActivityLog notifications) to use tenant models or explicit clinic guard.
 
 ## 5. Settings & Export safeguards

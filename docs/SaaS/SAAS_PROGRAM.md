@@ -35,7 +35,7 @@
 - Every tenant-owned table has `clinic_id` NOT NULL and composite uniques as needed (e.g., `clinic_id + email`).
 - Reads use scoped find `(id + clinic_id)`; no plain `find(id)` on tenant models.
 - Writes set `clinic_id` server-side; do not trust client payload.
-- Default scoping via `TenantBaseModel`; `withoutTenantScope` allowed only for control plane and logged.
+- Default scoping via `TenantAwareModel`; `withoutTenantScope` allowed only for control plane and logged.
 
 ## 5. File Isolation Rules
 - Storage path: `writable/tenants/{clinic_uuid}/...`
@@ -66,8 +66,8 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 - **Phase 3 — Schema Tenancy**
   - DoD: `clinic_id` added/backfilled/NOT NULL with composite uniques; `patients.user_id` added/enforced; `clinic_id` on RBAC assignments (except `super_admin` global).
   - Verification: `COUNT(*) WHERE clinic_id IS NULL == 0`; indexes present.
-- **Phase 4 — TenantBaseModel & Query Refactor**
-  - DoD: tenant models extend `TenantBaseModel`; raw queries replaced/scoped; scoped find helpers in use; CI guard catching unscoped queries.
+- **Phase 4 — TenantAwareModel & Query Refactor**
+  - DoD: tenant models extend `TenantAwareModel`; raw queries replaced/scoped; scoped find helpers in use; CI guard catching unscoped queries.
   - Verification: isolation tests for datatables/search/calendar/export; CI grep passes.
 - **Phase 5 — Private File Storage**
   - DoD: tenant storage service; uploads moved to private; file registry; streaming controller with tenant checks; no public links.
@@ -119,7 +119,7 @@ _Phase numbering aligns with `SaaS_Tenant_Isolation_Execution_Plan.md`; instanti
 
 ### Tenant Model Base Clarification
 - **Current base model:** `TenantAwareModel` (codebase implementation).
-- **Note:** Any `TenantBaseModel` references in earlier sections are legacy naming. The accepted base is `TenantAwareModel` unless explicitly renamed in a future task.
+- **Note:** Any `TenantAwareModel` references in earlier sections are legacy naming. The accepted base is `TenantAwareModel`.
 
 ### [2026-01-16] Pivot to Manual SaaS Model
 *   **Decision:** We are deferring automated billing (Stripe) and subdomain routing.

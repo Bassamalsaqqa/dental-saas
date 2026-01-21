@@ -55,7 +55,7 @@
 *   `ActivityLogModel`
 
 **B. Base Model Strategy:**
-*   **Pattern:** Create `app/Models/TenantBaseModel.php` extending `CodeIgniter\Model`.
+*   **Pattern:** Create `app/Models/TenantAwareModel.php` extending `CodeIgniter\Model`.
 *   **Logic:**
     *   Override `findAll()`, `find()`, `first()`.
     *   Inject `$builder->where('clinic_id', session('active_clinic_id'))` automatically.
@@ -71,11 +71,11 @@
 *   `app/Controllers/Settings.php:663` - `SELECT * FROM {$table}` -> **Restrict to Super Admin Only**
 *   `app/Controllers/Settings.php:655` - `SHOW CREATE TABLE` -> **Restrict to Super Admin Only**
 *   `app/Controllers/RepairController.php:20` - `ALTER TABLE` -> **Disable in Production / Super Admin CLI Only**
-*   `app/Controllers/Patient.php:66` - `$this->patientModel->findAll()` -> **Refactor to use TenantBaseModel**
-*   `app/Controllers/Finance.php:581` - `$query->findAll()` -> **Refactor to use TenantBaseModel**
-*   `app/Controllers/Appointment.php:153` - `where('status', 'active')->findAll()` -> **Refactor to use TenantBaseModel**
+*   `app/Controllers/Patient.php:66` - `$this->patientModel->findAll()` -> **Refactor to use TenantAwareModel**
+*   `app/Controllers/Finance.php:581` - `$query->findAll()` -> **Refactor to use TenantAwareModel**
+*   `app/Controllers/Appointment.php:153` - `where('status', 'active')->findAll()` -> **Refactor to use TenantAwareModel**
 *   `app/Models/PatientModel.php:112` - Global Search -> **Add where('clinic_id', ...)**
-*   `app/Models/InventoryModel.php:111` - `findAll()` -> **Refactor to use TenantBaseModel**
+*   `app/Models/InventoryModel.php:111` - `findAll()` -> **Refactor to use TenantAwareModel**
 *   `app/Controllers/Api/Patient.php:18` - API Dump -> **Add TenantFilter to API Group**
 *   `app/Services/PermissionSyncService.php` - Permissions Sync -> **Scope to Tenant Roles if applicable**
 

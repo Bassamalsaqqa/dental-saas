@@ -11,10 +11,10 @@ This document is execution-grade: tasks include DoD, verification commands, and 
 
 Surfaces
 - Tenant Web UI (session)
-  - Filters: csrf forcehttps pagecache auth tenant subscription permission:*
+  - Filters: csrf forcehttps auth tenant subscription permission:*
   - Evidence: `php spark routes` + `php spark filter:check GET dashboard`
 - Control Plane (session + global_mode)
-  - Filters: csrf forcehttps pagecache controlplane
+  - Filters: csrf forcehttps controlplane
   - Evidence: `php spark routes` + `php spark filter:check GET controlplane/dashboard`
 - API v1 (stateless)
   - Filters: apiv1 + permission:* only
@@ -26,7 +26,6 @@ Surfaces
 Contracts
 - v1: `docs/API/CONTRACT_V1.md`
 - legacy: `docs/API/CONTRACT_LEGACY.md`
-- pointer: `docs/API_CONTRACT.md` (superseded pointer only)
 - control plane + entitlements: `docs/SaaS/CP-01_CONTROL_PLANE_ENTITLEMENTS_CONTRACT.md`
 
 ---
@@ -93,11 +92,10 @@ Invariants (locked):
 Task: DOC-API-00
 DoD
 - `docs/API/README.md`, `docs/API/CONTRACT_V1.md`, `docs/API/CONTRACT_LEGACY.md` updated to reflect locked policy above.
-- `docs/API_CONTRACT.md` reduced to a short pointer only (no embedded logs).
+- `docs/API/CONTRACT_V1.md` and `docs/API/CONTRACT_LEGACY.md` aligned to locked policy.
 
 Verify (verbatim)
 - `rg -n "Trial and Grace|ActorContext|Control Plane Lifecycle" docs/API`
-- `rg -n "superseded" docs/API_CONTRACT.md`
 
 Rollback
 - Revert docs-only commit.
