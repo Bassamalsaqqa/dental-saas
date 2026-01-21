@@ -35,6 +35,11 @@ class Reports extends BaseController
                 return redirect()->to('/auth/login');
             }
 
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view reports.');
+            }
+
             $data = [
                 'title' => 'Reports & Analytics',
                 'date_range' => $this->request->getGet('date_range') ?? '30',
@@ -94,6 +99,11 @@ class Reports extends BaseController
     public function getChartData()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
             $reportType = $this->request->getGet('report_type') ?? 'overview';
             $dateRange = $this->request->getGet('date_range') ?? '30';
             
@@ -201,6 +211,11 @@ class Reports extends BaseController
 
     private function getOverviewReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->getBasicReports();
+        }
+
         // Debug: Log the date range being used
         log_message('info', "Reports: Generating overview reports for date range: {$startDate} to {$endDate}");
         
@@ -215,14 +230,14 @@ class Reports extends BaseController
         
         return [
             'summary' => [
-                'total_patients' => $this->patientModel->countAll(),
-                'new_patients' => $this->patientModel->where('created_at >=', $startDate)->countAll(),
-                'total_examinations' => $this->examinationModel->countAll(),
-                'examinations_this_period' => $this->examinationModel->where('examination_date >=', $startDate)->countAll(),
-                'total_appointments' => $this->appointmentModel->countAll(),
-                'appointments_this_period' => $this->appointmentModel->where('appointment_date >=', $startDate)->countAll(),
-                'total_revenue' => $this->financeModel->selectSum('total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0,
-                'revenue_this_period' => $this->financeModel->selectSum('total_amount')->where('transaction_type', 'payment')->where('created_at >=', $startDate)->get()->getRow()->total_amount ?? 0,
+                'total_patients' => $this->patientModel->where('clinic_id', $clinicId)->countAllResults(),
+                'new_patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->countAllResults(),
+                'total_examinations' => $this->examinationModel->where('clinic_id', $clinicId)->countAllResults(),
+                'examinations_this_period' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->countAllResults(),
+                'total_appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->countAllResults(),
+                'appointments_this_period' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->countAllResults(),
+                'total_revenue' => $this->financeModel->selectSum('total_amount')->where('clinic_id', $clinicId)->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0,
+                'revenue_this_period' => $this->financeModel->selectSum('total_amount')->where('clinic_id', $clinicId)->where('transaction_type', 'payment')->where('created_at >=', $startDate)->get()->getRow()->total_amount ?? 0,
             ],
             'charts' => [
                 'monthly_patients' => $this->getMonthlyPatientsData(),
@@ -235,8 +250,18 @@ class Reports extends BaseController
 
     private function getPatientReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [
+                'patients' => [],
+                'age_groups' => [],
+                'gender_distribution' => [],
+                'new_vs_returning' => ['new' => 0, 'returning' => 0],
+            ];
+        }
+
         return [
-            'patients' => $this->patientModel->where('created_at >=', $startDate)->findAll(),
+            'patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->findAll(),
             'age_groups' => $this->getAgeGroupData(),
             'gender_distribution' => $this->getGenderDistributionData(),
             'new_vs_returning' => $this->getNewVsReturningData($startDate, $endDate),
@@ -245,8 +270,18 @@ class Reports extends BaseController
 
     private function getExaminationReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [
+                'examinations' => [],
+                'examination_types' => [],
+                'monthly_examinations' => [],
+                'tooth_conditions' => [],
+            ];
+        }
+
         return [
-            'examinations' => $this->examinationModel->where('examination_date >=', $startDate)->findAll(),
+            'examinations' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->findAll(),
             'examination_types' => $this->getExaminationTypesData(),
             'monthly_examinations' => $this->getMonthlyExaminationsData(),
             'tooth_conditions' => $this->getToothConditionsData(),
@@ -255,8 +290,18 @@ class Reports extends BaseController
 
     private function getAppointmentReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [
+                'appointments' => [],
+                'appointment_types' => [],
+                'monthly_appointments' => [],
+                'status_distribution' => [],
+            ];
+        }
+
         return [
-            'appointments' => $this->appointmentModel->where('appointment_date >=', $startDate)->findAll(),
+            'appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->findAll(),
             'appointment_types' => $this->getAppointmentTypesData(),
             'monthly_appointments' => $this->getMonthlyAppointmentsData(),
             'status_distribution' => $this->getAppointmentStatusData(),
@@ -265,8 +310,18 @@ class Reports extends BaseController
 
     private function getFinanceReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [
+                'transactions' => [],
+                'monthly_revenue' => [],
+                'payment_methods' => [],
+                'outstanding_payments' => [],
+            ];
+        }
+
         return [
-            'transactions' => $this->financeModel->where('created_at >=', $startDate)->findAll(),
+            'transactions' => $this->financeModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->findAll(),
             'monthly_revenue' => $this->getMonthlyRevenueData(),
             'payment_methods' => $this->getPaymentMethodsData(),
             'outstanding_payments' => $this->getOutstandingPaymentsData(),
@@ -275,8 +330,18 @@ class Reports extends BaseController
 
     private function getTreatmentReports($startDate, $endDate)
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [
+                'treatments' => [],
+                'treatment_types' => [],
+                'monthly_treatments' => [],
+                'status_distribution' => [],
+            ];
+        }
+
         return [
-            'treatments' => $this->treatmentModel->where('start_date >=', $startDate)->findAll(),
+            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('start_date >=', $startDate)->findAll(),
             'treatment_types' => $this->getTreatmentTypesData(),
             'monthly_treatments' => $this->getMonthlyTreatmentsData(),
             'status_distribution' => $this->getTreatmentStatusData(),
@@ -286,12 +351,18 @@ class Reports extends BaseController
     // Helper methods for data generation
     private function getMonthlyPatientsData()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
-            $count = $this->patientModel->where('MONTH(created_at)', date('n', strtotime($date)))
+            $count = $this->patientModel->where('clinic_id', $clinicId)
+                                      ->where('MONTH(created_at)', date('n', strtotime($date)))
                                       ->where('YEAR(created_at)', date('Y', strtotime($date)))
-                                      ->countAll();
+                                      ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -302,10 +373,16 @@ class Reports extends BaseController
 
     private function getMonthlyRevenueData()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
             $revenue = $this->financeModel->selectSum('total_amount')
+                                        ->where('clinic_id', $clinicId)
                                         ->where('transaction_type', 'payment')
                                         ->where('MONTH(created_at)', date('n', strtotime($date)))
                                         ->where('YEAR(created_at)', date('Y', strtotime($date)))
@@ -321,6 +398,7 @@ class Reports extends BaseController
     private function getExaminationTypesData()
     {
         $types = $this->examinationModel->select('examination_type, COUNT(*) as count')
+                                       ->where('clinic_id', session()->get('active_clinic_id'))
                                        ->groupBy('examination_type')
                                        ->findAll();
         return $types;
@@ -329,6 +407,7 @@ class Reports extends BaseController
     private function getAppointmentStatusData()
     {
         $statuses = $this->appointmentModel->select('status, COUNT(*) as count')
+                                          ->where('clinic_id', session()->get('active_clinic_id'))
                                           ->groupBy('status')
                                           ->findAll();
         return $statuses;
@@ -337,7 +416,12 @@ class Reports extends BaseController
     private function getAgeGroupData()
     {
         try {
-            $patients = $this->patientModel->select('date_of_birth')->findAll();
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return [];
+            }
+
+            $patients = $this->patientModel->select('date_of_birth')->where('clinic_id', $clinicId)->findAll();
             $ageGroups = [
                 '0-18' => 0,
                 '19-35' => 0,
@@ -380,14 +464,20 @@ class Reports extends BaseController
     private function getGenderDistributionData()
     {
         return $this->patientModel->select('gender, COUNT(*) as count')
+                                 ->where('clinic_id', session()->get('active_clinic_id'))
                                  ->groupBy('gender')
                                  ->findAll();
     }
 
     private function getNewVsReturningData($startDate, $endDate)
     {
-        $new = $this->patientModel->where('created_at >=', $startDate)->countAll();
-        $returning = $this->patientModel->where('created_at <', $startDate)->countAll();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return ['new' => 0, 'returning' => 0];
+        }
+
+        $new = $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->countAllResults();
+        $returning = $this->patientModel->where('clinic_id', $clinicId)->where('created_at <', $startDate)->countAllResults();
         
         return [
             'new' => $new,
@@ -397,12 +487,18 @@ class Reports extends BaseController
 
     private function getMonthlyExaminationsData()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
-            $count = $this->examinationModel->where('MONTH(examination_date)', date('n', strtotime($date)))
+            $count = $this->examinationModel->where('clinic_id', $clinicId)
+                                           ->where('MONTH(examination_date)', date('n', strtotime($date)))
                                            ->where('YEAR(examination_date)', date('Y', strtotime($date)))
-                                           ->countAll();
+                                           ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -420,18 +516,25 @@ class Reports extends BaseController
     private function getAppointmentTypesData()
     {
         return $this->appointmentModel->select('appointment_type, COUNT(*) as count')
+                                     ->where('clinic_id', session()->get('active_clinic_id'))
                                      ->groupBy('appointment_type')
                                      ->findAll();
     }
 
     private function getMonthlyAppointmentsData()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
-            $count = $this->appointmentModel->where('MONTH(appointment_date)', date('n', strtotime($date)))
+            $count = $this->appointmentModel->where('clinic_id', $clinicId)
+                                           ->where('MONTH(appointment_date)', date('n', strtotime($date)))
                                            ->where('YEAR(appointment_date)', date('Y', strtotime($date)))
-                                           ->countAll();
+                                           ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -443,30 +546,43 @@ class Reports extends BaseController
     private function getPaymentMethodsData()
     {
         return $this->financeModel->select('payment_method, COUNT(*) as count')
+                                 ->where('clinic_id', session()->get('active_clinic_id'))
                                  ->groupBy('payment_method')
                                  ->findAll();
     }
 
     private function getOutstandingPaymentsData()
     {
-        return $this->financeModel->where('payment_status', 'pending')->findAll();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
+        return $this->financeModel->where('clinic_id', $clinicId)->where('payment_status', 'pending')->findAll();
     }
 
     private function getTreatmentTypesData()
     {
         return $this->treatmentModel->select('treatment_type, COUNT(*) as count')
+                                   ->where('clinic_id', session()->get('active_clinic_id'))
                                    ->groupBy('treatment_type')
                                    ->findAll();
     }
 
     private function getMonthlyTreatmentsData()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
-            $count = $this->treatmentModel->where('MONTH(start_date)', date('n', strtotime($date)))
+            $count = $this->treatmentModel->where('clinic_id', $clinicId)
+                                         ->where('MONTH(start_date)', date('n', strtotime($date)))
                                          ->where('YEAR(start_date)', date('Y', strtotime($date)))
-                                         ->countAll();
+                                         ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -478,6 +594,7 @@ class Reports extends BaseController
     private function getTreatmentStatusData()
     {
         return $this->treatmentModel->select('status, COUNT(*) as count')
+                                   ->where('clinic_id', session()->get('active_clinic_id'))
                                    ->groupBy('status')
                                    ->findAll();
     }
@@ -794,9 +911,31 @@ class Reports extends BaseController
     private function getBasicReports()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return [
+                    'summary' => [
+                        'total_patients' => 0,
+                        'new_patients' => 0,
+                        'total_examinations' => 0,
+                        'examinations_this_period' => 0,
+                        'total_appointments' => 0,
+                        'appointments_this_period' => 0,
+                        'total_revenue' => 0,
+                        'revenue_this_period' => 0,
+                    ],
+                    'charts' => [
+                        'monthly_patients' => [],
+                        'monthly_revenue' => [],
+                        'examination_types' => [],
+                        'appointment_status' => [],
+                    ]
+                ];
+            }
+
             return [
                 'summary' => [
-                    'total_patients' => $this->patientModel->countAllResults(),
+                    'total_patients' => $this->patientModel->where('clinic_id', $clinicId)->countAllResults(),
                     'new_patients' => 0,
                     'total_examinations' => 0,
                     'examinations_this_period' => 0,
