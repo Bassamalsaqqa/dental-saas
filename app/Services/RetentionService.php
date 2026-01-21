@@ -31,16 +31,16 @@ class RetentionService
      */
     public function enforcePolicy(int $clinicId, string $entityType, $entityId, string $purpose)
     {
-        $mode = $this->settingsModel->getGlobalSetting('retention_mode', 'latest');
+        $mode = $this->settingsModel->withoutTenantScope()->getGlobalSetting('retention_mode', 'latest');
         
         switch ($mode) {
             case 'keep_last_n':
-                $n = (int)$this->settingsModel->getGlobalSetting('retention_last_n', 5);
+                $n = (int)$this->settingsModel->withoutTenantScope()->getGlobalSetting('retention_last_n', 5);
                 $this->pruneToLastN($clinicId, $entityType, $entityId, $purpose, $n);
                 break;
                 
             case 'keep_x_days':
-                $days = (int)$this->settingsModel->getGlobalSetting('retention_days', 30);
+                $days = (int)$this->settingsModel->withoutTenantScope()->getGlobalSetting('retention_days', 30);
                 $this->pruneOlderThan($clinicId, $entityType, $entityId, $purpose, $days);
                 break;
                 
