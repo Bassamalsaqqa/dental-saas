@@ -16,6 +16,10 @@ const uiSearchAuth = {
     tokenPromise: null
 };
 
+function isV1SearchUrl(url) {
+    return typeof url === 'string' && url.indexOf('/api/v1/search/') !== -1;
+}
+
 function isTokenValid() {
     if (!uiSearchAuth.token || !uiSearchAuth.expiresAt) {
         return false;
@@ -42,7 +46,9 @@ function fetchUiSearchToken() {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Cache-Control': 'no-store',
+            'Pragma': 'no-cache'
         }
     })
         .then(response => response.ok ? response.json() : null)
@@ -61,6 +67,44 @@ function fetchUiSearchToken() {
 
     return uiSearchAuth.tokenPromise;
 }
+
+function invalidateUiSearchToken() {
+    uiSearchAuth.token = null;
+    uiSearchAuth.expiresAt = null;
+}
+
+function applyV1SearchHeaders(headers) {
+    const finalHeaders = headers || {};
+    if (uiSearchAuth.token) {
+        finalHeaders['Authorization'] = 'Bearer ' + uiSearchAuth.token;
+    }
+    if (uiSearchAuth.clinicId) {
+        finalHeaders['X-Clinic-Id'] = uiSearchAuth.clinicId;
+    }
+    finalHeaders['Cache-Control'] = 'no-store';
+    finalHeaders['Pragma'] = 'no-cache';
+    return finalHeaders;
+}
+
+$(document).ajaxError(function(_event, jqXHR, settings) {
+    if (!settings || !isV1SearchUrl(settings.url)) {
+        return;
+    }
+    if (jqXHR.status !== 401 || settings._uiSearchRetried) {
+        return;
+    }
+
+    invalidateUiSearchToken();
+    fetchUiSearchToken().then(token => {
+        if (!token) {
+            return;
+        }
+        const retrySettings = $.extend(true, {}, settings);
+        retrySettings._uiSearchRetried = true;
+        retrySettings.headers = applyV1SearchHeaders(retrySettings.headers || {});
+        $.ajax(retrySettings);
+    });
+});
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
@@ -159,16 +203,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                         };
                     },
                     beforeSend: function (xhr) {
-                        if (searchUrl.indexOf('/api/v1/search/') !== -1) {
-                            if (uiSearchAuth.token) {
-                                xhr.setRequestHeader('Authorization', 'Bearer ' + uiSearchAuth.token);
-                            }
-                            if (uiSearchAuth.clinicId) {
-                                xhr.setRequestHeader('X-Clinic-Id', uiSearchAuth.clinicId);
-                            }
+                        if (isV1SearchUrl(searchUrl)) {
+                            const headers = applyV1SearchHeaders();
+                            Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
                         }
                     },
-                    cache: true
+                    cache: !isV1SearchUrl(searchUrl)
                 };
             }
             
