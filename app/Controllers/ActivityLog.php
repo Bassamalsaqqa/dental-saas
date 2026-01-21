@@ -71,8 +71,16 @@ class ActivityLog extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $limit = $this->request->getGet('limit') ?? 50;
-        $offset = $this->request->getGet('offset') ?? 0;
+        $limitRaw = $this->request->getGet('limit');
+        $offsetRaw = $this->request->getGet('offset');
+        $limit = (is_numeric($limitRaw) ? (int) $limitRaw : 50);
+        $offset = (is_numeric($offsetRaw) ? (int) $offsetRaw : 0);
+        if ($limit <= 0) {
+            $limit = 50;
+        }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         $entityType = $this->request->getGet('entity_type');
         $action = $this->request->getGet('action');
         $userId = $this->request->getGet('user_id');

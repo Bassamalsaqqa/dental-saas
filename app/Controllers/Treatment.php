@@ -104,23 +104,23 @@ class Treatment extends BaseController
             $request = $this->request;
             
             // DataTables parameters with defaults
-            $draw = intval($request->getPost('draw') ?? 1);
-            $start = intval($request->getPost('start') ?? 0);
-            $length = intval($request->getPost('length') ?? 10);
+            $draw = intval($request->getVar('draw') ?? 1);
+            $start = intval($request->getVar('start') ?? 0);
+            $length = intval($request->getVar('length') ?? 10);
             
             // Handle search parameter
-            $searchParam = $request->getPost('search');
+            $searchParam = $request->getVar('search');
             $searchValue = '';
             if (is_array($searchParam) && isset($searchParam['value'])) {
                 $searchValue = trim($searchParam['value']);
             }
             
             // Handle custom filters
-            $statusFilter = $request->getPost('status_filter') ?? $request->getGet('status_filter') ?? '';
-            $typeFilter = $request->getPost('type_filter') ?? $request->getGet('type_filter') ?? '';
+            $statusFilter = $request->getVar('status_filter') ?? $request->getVar('status') ?? '';
+            $typeFilter = $request->getVar('type_filter') ?? $request->getVar('type') ?? '';
             
             // Handle order parameter
-            $orderParam = $request->getPost('order');
+            $orderParam = $request->getVar('order');
             $orderColumn = 0;
             $orderDir = 'desc';
             if (is_array($orderParam) && isset($orderParam[0])) {

@@ -108,7 +108,7 @@ class PrescriptionModel extends TenantAwareModel
                 ->orLike('patients.last_name', $searchValue)
                 ->orLike('patients.phone', $searchValue)
                 ->orLike('prescriptions.medication_name', $searchValue)
-                ->orLike('prescriptions.notes', $searchValue)
+                ->orLike('prescriptions.instructions', $searchValue)
                 ->groupEnd();
         }
 
@@ -128,7 +128,7 @@ class PrescriptionModel extends TenantAwareModel
                 ->orLike('patients.last_name', $searchValue)
                 ->orLike('patients.phone', $searchValue)
                 ->orLike('prescriptions.medication_name', $searchValue)
-                ->orLike('prescriptions.notes', $searchValue)
+                ->orLike('prescriptions.instructions', $searchValue)
                 ->groupEnd();
         }
 
