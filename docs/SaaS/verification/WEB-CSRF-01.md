@@ -146,7 +146,39 @@ Pick another DataTables screen (Appointments/Finance/Inventory/etc):
 
 Paste evidence:
 ```
-<paste network details or headers/payload excerpt>
+curl "https://saas.dental.local/finance/getFinancesData" ^
+  -H "Accept: application/json, text/javascript, */*; q=0.01" ^
+  -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
+  -b "csrf_cookie_name=<REDACTED>; ci_session_saas=<REDACTED>" ^
+  -H "Origin: https://saas.dental.local" ^
+  -H "Referer: https://saas.dental.local/finance" ^
+  -H "X-CSRF-TOKEN: <REDACTED>" ^
+  -H "X-Requested-With: XMLHttpRequest" ^
+  --data-raw "draw=1&...&csrf_test_name=<REDACTED>" ^
+  --insecure
+
+{
+    "draw": 1,
+    "recordsTotal": 1,
+    "recordsFiltered": 1,
+    "data": [
+        {
+            "id": 3,
+            "transaction_id": "TXN-000003",
+            "patient_name": "",
+            "phone": "",
+            "transaction_type": "payment",
+            "amount": 100,
+            "amount_formatted": "100.00 ₪",
+            "payment_status": "paid",
+            "description": "",
+            "created_at": "2026-01-14 17:36:12",
+            "created_at_formatted": "14/01/2026 5:36 PM",
+            "patient_id": 4
+        }
+    ],
+    "csrf_token": "<REDACTED>"
+}
 ```
 
 ### Negative test (hard evidence)
@@ -167,5 +199,23 @@ Paste evidence:
 <paste curl without token>
 ```
 ```
-<paste output showing 403 with "The action you requested is not allowed.">
+curl "https://saas.dental.local/finance/getFinancesData" ^
+  -H "Accept: application/json, text/javascript, */*; q=0.01" ^
+  -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
+  -b "csrf_cookie_name=<REDACTED>; ci_session_saas=<REDACTED>" ^
+  -H "Origin: https://saas.dental.local" ^
+  -H "Referer: https://saas.dental.local/finance" ^
+  -H "X-Requested-With: XMLHttpRequest" ^
+  --data-raw "draw=1&columns%5B0%5D%5Bdata%5D=transaction_id&columns%5B0%5D%5Bname%5D=transaction_id&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=true&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=patient_name&columns%5B1%5D%5Bname%5D=patient_name&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=transaction_type&columns%5B2%5D%5Bname%5D=transaction_type&columns%5B2%5D%5Bsearchable%5D=true&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B3%5D%5Bdata%5D=amount&columns%5B3%5D%5Bname%5D=amount&columns%5B3%5D%5Bsearchable%5D=true&columns%5B3%5D%5Borderable%5D=true&columns%5B3%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B3%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B4%5D%5Bdata%5D=payment_status&columns%5B4%5D%5Bname%5D=payment_status&columns%5B4%5D%5Bsearchable%5D=true&columns%5B4%5D%5Borderable%5D=true&columns%5B4%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B4%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B5%5D%5Bdata%5D=created_at&columns%5B5%5D%5Bname%5D=created_at&columns%5B5%5D%5Bsearchable%5D=true&columns%5B5%5D%5Borderable%5D=true&columns%5B5%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B5%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B6%5D%5Bdata%5D=id&columns%5B6%5D%5Bname%5D=actions&columns%5B6%5D%5Bsearchable%5D=false&columns%5B6%5D%5Borderable%5D=false&columns%5B6%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B6%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=desc&start=0&length=10&search%5Bvalue%5D=&search%5Bregex%5D=false" ^
+  --insecure
+```
+```
+{
+    "title": "CodeIgniter\\Security\\Exceptions\\SecurityException",
+    "type": "CodeIgniter\\Security\\Exceptions\\SecurityException",
+    "code": 403,
+    "message": "The action you requested is not allowed.",
+    "file": "C:\\xampp\\htdocs\\dental-saas\\system\\Security\\Security.php",
+    "line": 262
+}
 ```

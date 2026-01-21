@@ -597,7 +597,7 @@
 ## [2026-01-21] Centralized AJAX CSRF handling (WEB-CSRF-01)
 **Tasks:** WEB-CSRF-01
 **Author:** Codex
-**Status:** In Progress
+**Status:** Complete
 
 ### Changes
 - **Layout:** Added a global CSRF transport hook for non-GET jQuery AJAX requests (header + body injection) and centralized token refresh.
