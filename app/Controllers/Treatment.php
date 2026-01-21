@@ -476,12 +476,17 @@ class Treatment extends BaseController
 
     public function getTreatmentStats()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $stats = [
-            'total' => $this->treatmentModel->countAllResults(),
-            'active' => $this->treatmentModel->where('status', 'active')->countAllResults(),
-            'completed' => $this->treatmentModel->where('status', 'completed')->countAllResults(),
-            'cancelled' => $this->treatmentModel->where('status', 'cancelled')->countAllResults(),
-            'on_hold' => $this->treatmentModel->where('status', 'on_hold')->countAllResults(),
+            'total' => $this->treatmentModel->where('clinic_id', $clinicId)->countAllResults(),
+            'active' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
+            'completed' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
+            'cancelled' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'cancelled')->countAllResults(),
+            'on_hold' => $this->treatmentModel->where('clinic_id', $clinicId)->where('status', 'on_hold')->countAllResults(),
         ];
 
         return $this->response->setJSON($stats);
