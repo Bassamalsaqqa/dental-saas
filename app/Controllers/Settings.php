@@ -17,6 +17,11 @@ class Settings extends BaseController
     }
     public function index()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view settings.');
+        }
+
         $backups = $this->getBackups();
         
         // Debug: Log the backups data
@@ -595,6 +600,11 @@ class Settings extends BaseController
     private function getSettings()
     {
         try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->getDefaultSettings();
+            }
+
             $settings = $this->settingsModel->getAllSettings();
             
             // Set defaults if settings don't exist
@@ -620,25 +630,30 @@ class Settings extends BaseController
             return array_merge($defaults, $settings);
         } catch (\Exception $e) {
             log_message('error', 'Error getting settings: ' . $e->getMessage());
-            return [
-                'clinic_name' => 'DentalCare Clinic',
-                'clinic_address' => '123 Dental Street, Medical District, City 12345',
-                'clinic_phone' => '+1 (555) 123-4567',
-                'clinic_email' => 'info@dentalclinic.com',
-                'clinic_website' => 'https://dentalclinic.com',
-                'clinic_logo_path' => '',
-                'clinic_tagline' => 'Professional Suite',
-                'timezone' => 'America/New_York',
-                'date_format' => 'Y-m-d',
-                'time_format' => '12',
-                'currency' => 'USD',
-                'currency_position' => 'before',
-                'appointment_duration' => 30,
-                'working_hours_start' => '09:00',
-                'working_hours_end' => '17:00',
-                'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-            ];
+            return $this->getDefaultSettings();
         }
+    }
+
+    private function getDefaultSettings()
+    {
+        return [
+            'clinic_name' => 'DentalCare Clinic',
+            'clinic_address' => '123 Dental Street, Medical District, City 12345',
+            'clinic_phone' => '+1 (555) 123-4567',
+            'clinic_email' => 'info@dentalclinic.com',
+            'clinic_website' => 'https://dentalclinic.com',
+            'clinic_logo_path' => '',
+            'clinic_tagline' => 'Professional Suite',
+            'timezone' => 'America/New_York',
+            'date_format' => 'Y-m-d',
+            'time_format' => '12',
+            'currency' => 'USD',
+            'currency_position' => 'before',
+            'appointment_duration' => 30,
+            'working_hours_start' => '09:00',
+            'working_hours_end' => '17:00',
+            'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        ];
     }
 
     private function getSecuritySettings()
