@@ -21,6 +21,10 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
         $routes->get('console', 'ControlPlane\Console::index'); // P5-16
         $routes->get('admin-tools', 'ControlPlane\AdminTools::index'); // CP-UX-14
+        $routes->get('clinics', 'ControlPlane\Clinics::index'); // CP-UX-20
+        $routes->get('plans', 'ControlPlane\Plans::index'); // CP-UX-22
+        $routes->get('plan-requests', 'ControlPlane\PlanRequests::index'); // CP-UX-24
+        $routes->get('email-templates', 'ControlPlane\EmailTemplates::index'); // CP-UX-25
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
     
