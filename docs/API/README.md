@@ -5,6 +5,13 @@ Make `/api/v1/*` the authoritative product surface (stateless) while freezing, o
 
 This document is execution-grade: tasks include DoD, verification commands, and rollback notes.
 
+
+Current status (2026-01-21)
+- Legacy UI calls migrated to `/api/v1/search/*` (no `/api/search/*` usage in app).
+- Legacy routes removed (`/api/search/*` returns 404; no routes registered).
+- Legacy observe logging was implemented before removal; gate phase is now skipped as obsolete.
+
+
 ---
 
 ## 0) Current-State Truth (Evidence Anchors)
@@ -162,6 +169,9 @@ DoD
 - `/api/search/*` emits structured access logs/events.
 - Observe-only mode exists; deny mode exists (next phase).
 
+Status (2026-01-21)
+- COMPLETE. Observe logging implemented before legacy removal.
+
 Verify (verbatim)
 - `php spark filter:check GET api/search/patients`
 - `curl.exe -i http://saas.dental.local/api/search/patients`
@@ -177,6 +187,9 @@ DoD
 - Config flag controls observe vs deny.
 - Default deny in dev/test; observe in prod.
 
+Status (2026-01-21)
+- SKIPPED. Legacy routes were removed after UI migration; gate phase is no longer applicable.
+
 Verify (verbatim)
 - `curl.exe -i http://saas.dental.local/api/search/patients`
 - `php spark filter:check GET api/search/patients`
@@ -190,6 +203,9 @@ Rollback
 DoD
 - UI no longer calls `/api/search/*`.
 
+Status (2026-01-21)
+- COMPLETE. No `/api/search/*` usage remains in app or assets.
+
 Verify (verbatim)
 - `rg -n "api/search" app`
 
@@ -201,6 +217,9 @@ Rollback
 ### Phase 7: API-LEGACY-REMOVE-01 Remove legacy routes
 DoD
 - `/api/search/*` removed only after telemetry shows no reliance.
+
+Status (2026-01-21)
+- COMPLETE. Routes removed; `/api/search/*` returns 404; `php spark routes` shows no legacy endpoints.
 
 Verify (verbatim)
 - `php spark routes | findstr /I "api/search"`
