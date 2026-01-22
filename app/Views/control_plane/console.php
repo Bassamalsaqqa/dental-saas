@@ -69,23 +69,32 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- 2. Recent Governance Events -->
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                 <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Recent Governance Events</h3>
+                <span class="text-[10px] uppercase tracking-widest text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded-full">
+                    <?= count($recentAudits ?? []) ?> records
+                </span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100">
-                        <tr>
-                            <th class="px-6 py-3">Timestamp</th>
-                            <th class="px-6 py-3">Action</th>
-                            <th class="px-6 py-3">Reason</th>
-                            <th class="px-6 py-3">Clinic ID</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <?php if (empty($recentAudits)): ?>
-                            <tr><td colspan="4" class="px-6 py-4 text-slate-400 italic">No audit records found.</td></tr>
-                        <?php else: ?>
+            <?php if (empty($recentAudits)): ?>
+                <div class="p-8 text-center text-slate-500">
+                    <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-clipboard-list text-slate-400"></i>
+                    </div>
+                    <p class="text-sm font-medium">No audit records found.</p>
+                    <p class="text-xs text-slate-400 mt-1">Governance events will appear here.</p>
+                </div>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-6 py-3">Timestamp</th>
+                                <th class="px-6 py-3">Action</th>
+                                <th class="px-6 py-3">Reason</th>
+                                <th class="px-6 py-3">Clinic ID</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
                             <?php foreach ($recentAudits as $audit): ?>
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($audit['created_at']) ?></td>
@@ -94,31 +103,40 @@
                                     <td class="px-6 py-3 text-slate-400 font-mono"><?= esc($audit['clinic_id']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- 3. Notifications Observability -->
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                 <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Notifications Ledger</h3>
+                <span class="text-[10px] uppercase tracking-widest text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded-full">
+                    <?= count($recentNotifications ?? []) ?> records
+                </span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100">
-                        <tr>
-                            <th class="px-6 py-3">Created</th>
-                            <th class="px-6 py-3">Channel</th>
-                            <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3">Clinic</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <?php if (empty($recentNotifications)): ?>
-                            <tr><td colspan="4" class="px-6 py-4 text-slate-400 italic">No notifications found.</td></tr>
-                        <?php else: ?>
+            <?php if (empty($recentNotifications)): ?>
+                <div class="p-8 text-center text-slate-500">
+                    <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-bell text-slate-400"></i>
+                    </div>
+                    <p class="text-sm font-medium">No notifications found.</p>
+                    <p class="text-xs text-slate-400 mt-1">Delivery events will appear here.</p>
+                </div>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-6 py-3">Created</th>
+                                <th class="px-6 py-3">Channel</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Clinic</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
                             <?php foreach ($recentNotifications as $notif): ?>
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($notif['created_at']) ?></td>
@@ -135,10 +153,10 @@
                                     <td class="px-6 py-3 text-slate-400 font-mono"><?= esc($notif['clinic_id']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
