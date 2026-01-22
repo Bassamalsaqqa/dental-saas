@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Clinics</p>
@@ -20,15 +20,15 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="cp-soft-card rounded-2xl p-4">
+        <div class="glass-card rounded-2xl p-4">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Total Clinics</p>
             <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($stats['total'] ?? 0) ?></p>
         </div>
-        <div class="cp-soft-card rounded-2xl p-4">
+        <div class="glass-card rounded-2xl p-4">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Active Clinics</p>
             <p class="text-2xl font-semibold text-emerald-600 mt-1"><?= number_format($stats['active'] ?? 0) ?></p>
         </div>
-        <div class="cp-soft-card rounded-2xl p-4">
+        <div class="glass-card rounded-2xl p-4">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan Coverage</p>
             <p class="text-sm text-slate-600 mt-2">Ensure every clinic has an active plan.</p>
         </div>
@@ -45,7 +45,7 @@
                 ? 'bg-emerald-100 text-emerald-700'
                 : ($status === 'suspended' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600');
             ?>
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <div class="flex items-start justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-slate-900"><?= esc($clinic['name']) ?></h3>

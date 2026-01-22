@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Clinic Profile</p>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
-        <div class="cp-soft-card rounded-3xl p-6">
+        <div class="glass-card rounded-3xl p-6">
             <h2 class="text-sm font-semibold text-slate-800 mb-4">Clinic details</h2>
             <div class="space-y-3 text-sm text-slate-600">
                 <div class="flex items-center justify-between">
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="cp-soft-card rounded-3xl p-6">
+        <div class="glass-card rounded-3xl p-6">
             <h2 class="text-sm font-semibold text-slate-800 mb-4">Subscription</h2>
             <div class="space-y-3 text-sm text-slate-600">
                 <div class="flex items-center justify-between">
@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <div class="cp-soft-card rounded-3xl p-6 space-y-6">
+    <div class="glass-card rounded-3xl p-6 space-y-6">
         <h2 class="text-sm font-semibold text-slate-800">Lifecycle actions</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-600">

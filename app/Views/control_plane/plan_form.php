@@ -11,7 +11,7 @@
         : base_url('controlplane/plans');
 ?>
 <div class="space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Plan Configurator</p>
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <form action="<?= $actionUrl ?>" method="post" class="cp-soft-card rounded-3xl p-6 space-y-8">
+    <form action="<?= $actionUrl ?>" method="post" class="glass-card rounded-3xl p-6 space-y-8">
         <?= csrf_field() ?>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

@@ -24,8 +24,6 @@ class AdminTools extends BaseController
             'route' => '/controlplane/admin-tools',
         ]);
 
-        return view('control_plane/admin_tools', [
-            'title' => 'Admin Tools',
-        ]);
+        return redirect()->to(base_url('controlplane/operations'));
     }
 }

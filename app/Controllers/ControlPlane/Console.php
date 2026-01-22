@@ -32,33 +32,6 @@ class Console extends BaseController
             'route' => '/controlplane/console'
         ]);
 
-        $planModel = new PlanModel();
-        $clinicModel = new ClinicModel();
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
-        $notificationModel = (new NotificationModel())->withoutTenantScope();
-
-        // 1. Governance KPIs
-        $plansActive = $planModel->where('status', 'active')->countAllResults();
-        $plansInactive = $planModel->where('status !=', 'active')->countAllResults();
-        
-        $clinicsTotal = $clinicModel->countAllResults();
-        
-        $subscriptionsActive = $subscriptionModel->where('status', 'active')->countAllResults();
-
-        // 2. Recent Governance Events (Last 10 audits)
-        $recentAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
-
-        // 3. Notifications Observability (Last 10 ledger entries)
-        $recentNotifications = $notificationModel->orderBy('id', 'DESC')->findAll(10);
-
-        return view('control_plane/console', [
-            'plansActive' => $plansActive,
-            'plansInactive' => $plansInactive,
-            'clinicsTotal' => $clinicsTotal,
-            'subscriptionsActive' => $subscriptionsActive,
-            'recentAudits' => $recentAudits,
-            'recentNotifications' => $recentNotifications,
-        ]);
+        return redirect()->to(base_url('controlplane/operations'));
     }
 }

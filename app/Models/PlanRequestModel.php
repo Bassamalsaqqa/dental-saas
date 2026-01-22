@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class PlanRequestModel extends Model
+class PlanRequestModel extends TenantAwareModel
 {
     protected $table = 'plan_requests';
     protected $primaryKey = 'id';

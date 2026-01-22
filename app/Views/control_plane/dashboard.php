@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Dashboard</p>
@@ -19,7 +19,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div class="cp-soft-card rounded-3xl p-5 cp-hero-card">
+        <div class="glass-card rounded-3xl p-5 bg-gradient-to-br from-blue-50 via-white to-emerald-50">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Total Clinics</p>
@@ -31,7 +31,7 @@
                 </span>
             </div>
         </div>
-        <div class="cp-soft-card rounded-3xl p-5">
+        <div class="glass-card rounded-3xl p-5">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Active Subscriptions</p>
@@ -44,7 +44,7 @@
                 </span>
             </div>
         </div>
-        <div class="cp-soft-card rounded-3xl p-5">
+        <div class="glass-card rounded-3xl p-5">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Active Plans</p>
@@ -56,7 +56,7 @@
                 </span>
             </div>
         </div>
-        <div class="cp-soft-card rounded-3xl p-5">
+        <div class="glass-card rounded-3xl p-5">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Estimated MRR</p>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-[2fr,1fr] gap-6">
-        <div class="cp-soft-card rounded-3xl p-6">
+        <div class="glass-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-900">Activity trend</h3>
@@ -97,7 +97,7 @@
             </div>
         </div>
         <div class="space-y-6">
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <h3 class="text-sm font-semibold text-slate-800">Quick actions</h3>
                 <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
@@ -110,7 +110,7 @@
                     </a>
                 </div>
             </div>
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <h3 class="text-sm font-semibold text-slate-800">System posture</h3>
                 <div class="mt-4 space-y-3 text-sm text-slate-600">
                     <div class="flex items-center justify-between">
@@ -131,7 +131,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="cp-soft-card rounded-3xl p-6">
+        <div class="glass-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-slate-800">Recent clinics</h3>
                 <span class="text-xs text-slate-400">Last 3</span>
@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <div class="cp-soft-card rounded-3xl p-6">
+        <div class="glass-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-slate-800">Plan requests</h3>
                 <span class="text-xs text-slate-400">Queue</span>

@@ -31,27 +31,33 @@ class PlanRequests extends BaseController
         $clinicModel = new ClinicModel();
         $planModel = new PlanModel();
 
-        $requests = $planRequestModel->orderBy('created_at', 'DESC')->findAll();
-        $rows = [];
+        $requests = $planRequestModel
+            ->select('plan_requests.*, clinics.name as clinic_name, requested_plan.name as requested_plan_name, current_plan.name as current_plan_name')
+            ->join('clinics', 'clinics.id = plan_requests.clinic_id', 'left')
+            ->join('plans as requested_plan', 'requested_plan.id = plan_requests.requested_plan_id', 'left')
+            ->join('plans as current_plan', 'current_plan.id = plan_requests.current_plan_id', 'left')
+            ->orderBy('plan_requests.created_at', 'DESC')
+            ->findAll();
 
-        foreach ($requests as $request) {
-            $clinic = $clinicModel->find($request['clinic_id']);
-            $plan = $planModel->find($request['requested_plan_id']);
-            $rows[] = [
-                'request' => $request,
-                'clinic_name' => $clinic['name'] ?? 'Clinic',
-                'plan_name' => $plan['name'] ?? 'Plan',
+        $plans = $planModel->orderBy('id', 'DESC')->findAll();
+        $cards = [];
+        foreach ($plans as $plan) {
+            $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
+            $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
+
+            $cards[] = [
+                'plan' => $plan,
+                'limits' => $limits,
+                'features' => $features,
             ];
         }
 
-        $clinics = $clinicModel->orderBy('name', 'ASC')->findAll();
-        $plans = $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll();
-
-        return view('control_plane/plan_requests', [
-            'title' => 'Plan Requests',
-            'rows' => $rows,
-            'clinics' => $clinics,
-            'plans' => $plans,
+        return view('control_plane/plans', [
+            'title' => 'Plans & Requests',
+            'plans' => $cards,
+            'planRequests' => $requests,
+            'requestClinics' => $clinicModel->orderBy('name', 'ASC')->findAll(),
+            'requestPlans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -86,7 +92,7 @@ class PlanRequests extends BaseController
             'metadata' => ['clinic_id' => $clinicId, 'requested_plan_id' => $requestedPlanId],
         ]);
 
-        return redirect()->to(base_url('controlplane/plan-requests'))->with('success', 'Plan request created.');
+        return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan request created.');
     }
 
     /**
@@ -97,7 +103,7 @@ class PlanRequests extends BaseController
         $planRequestModel = new PlanRequestModel();
         $request = $planRequestModel->find($id);
         if (!$request || ($request['status'] ?? '') !== 'pending') {
-            return redirect()->to(base_url('controlplane/plan-requests'))->with('error', 'Request not found or already handled.');
+            return redirect()->to(base_url('controlplane/plans'))->with('error', 'Request not found or already handled.');
         }
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
@@ -134,7 +140,7 @@ class PlanRequests extends BaseController
             'metadata' => ['request_id' => $id, 'clinic_id' => $request['clinic_id']],
         ]);
 
-        return redirect()->to(base_url('controlplane/plan-requests'))->with('success', 'Plan request approved.');
+        return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan request approved.');
     }
 
     /**
@@ -145,7 +151,7 @@ class PlanRequests extends BaseController
         $planRequestModel = new PlanRequestModel();
         $request = $planRequestModel->find($id);
         if (!$request || ($request['status'] ?? '') !== 'pending') {
-            return redirect()->to(base_url('controlplane/plan-requests'))->with('error', 'Request not found or already handled.');
+            return redirect()->to(base_url('controlplane/plans'))->with('error', 'Request not found or already handled.');
         }
 
         $reason = trim((string) $this->request->getPost('decision_reason'));
@@ -163,7 +169,7 @@ class PlanRequests extends BaseController
             'metadata' => ['request_id' => $id, 'clinic_id' => $request['clinic_id']],
         ]);
 
-        return redirect()->to(base_url('controlplane/plan-requests'))->with('success', 'Plan request rejected.');
+        return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan request rejected.');
     }
 
     private function resolveEndAt(string $duration, string $startAt): ?string

@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Plans</p>
@@ -49,7 +49,7 @@
                     'Email notifications' => !empty($features['notifications']['email']['enabled']),
                 ];
             ?>
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <div class="flex items-start justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-slate-900"><?= esc($plan['name'] ?? 'Plan') ?></h3>
@@ -96,10 +96,114 @@
             </div>
         <?php endforeach; ?>
         <?php if (empty($plans)): ?>
-            <div class="cp-soft-card rounded-3xl p-6 text-center text-slate-400">
+            <div class="glass-card rounded-3xl p-6 text-center text-slate-400">
                 No plans yet.
             </div>
         <?php endif; ?>
+    </div>
+
+    <div class="glass-card rounded-3xl p-6 md:p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-blue-700 font-semibold">Plan Requests</p>
+                <h2 class="text-2xl font-semibold text-slate-900 mt-2">Clinic change queue</h2>
+                <p class="mt-2 text-sm text-slate-600">Approve or reject subscription change requests from clinics.</p>
+            </div>
+        </div>
+
+        <form action="<?= base_url('controlplane/plan-requests') ?>" method="post" class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
+            <?= csrf_field() ?>
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Clinic</label>
+                <select name="clinic_id" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required>
+                    <option value="">Select clinic</option>
+                    <?php foreach (($requestClinics ?? []) as $clinic): ?>
+                        <option value="<?= esc($clinic['id']) ?>"><?= esc($clinic['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan</label>
+                <select name="requested_plan_id" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required>
+                    <option value="">Select plan</option>
+                    <?php foreach (($requestPlans ?? []) as $plan): ?>
+                        <option value="<?= esc($plan['id']) ?>"><?= esc($plan['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Duration</label>
+                <select name="requested_duration" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="lifetime">Lifetime</option>
+                </select>
+            </div>
+            <button class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold">Queue Request</button>
+        </form>
+
+        <div class="mt-6 glass-muted rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/40">
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-slate-500">Show</span>
+                    <select class="rounded-lg border border-slate-200 text-xs px-2 py-1" disabled>
+                        <option>10</option>
+                    </select>
+                    <span class="text-xs text-slate-500">entries</span>
+                </div>
+                <input type="text" class="rounded-lg border border-slate-200 text-xs px-3 py-2 w-56" placeholder="Search" disabled>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-white/70 text-xs uppercase tracking-widest text-slate-500">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Clinic</th>
+                            <th class="px-6 py-3 text-left">Current Plan</th>
+                            <th class="px-6 py-3 text-left">Requested Plan</th>
+                            <th class="px-6 py-3 text-left">Duration</th>
+                            <th class="px-6 py-3 text-left">Requested</th>
+                            <th class="px-6 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/50">
+                        <?php if (!empty($planRequests)): ?>
+                            <?php foreach ($planRequests as $request): ?>
+                                <tr>
+                                    <td class="px-6 py-4 text-slate-700 font-semibold"><?= esc($request['clinic_name'] ?? 'Clinic') ?></td>
+                                    <td class="px-6 py-4 text-slate-600"><?= esc($request['current_plan_name'] ?? '—') ?></td>
+                                    <td class="px-6 py-4 text-slate-600"><?= esc($request['requested_plan_name'] ?? '—') ?></td>
+                                    <td class="px-6 py-4 text-slate-600"><?= esc(ucfirst($request['requested_duration'] ?? 'monthly')) ?></td>
+                                    <td class="px-6 py-4 text-slate-500"><?= esc($request['created_at'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-right">
+                                        <?php if (($request['status'] ?? '') === 'pending'): ?>
+                                            <div class="flex justify-end gap-2">
+                                                <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/approve') ?>" method="post">
+                                                    <?= csrf_field() ?>
+                                                    <button class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold">Approve</button>
+                                                </form>
+                                                <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/reject') ?>" method="post">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="decision_reason" value="">
+                                                    <button class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold">Reject</button>
+                                                </form>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="text-xs font-semibold <?= ($request['status'] ?? '') === 'approved' ? 'text-emerald-700' : 'text-rose-700' ?>">
+                                                <?= esc(ucfirst($request['status'] ?? '')) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td class="px-6 py-6 text-center text-slate-400" colspan="6">No plan requests yet.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 <?= $this->endSection() ?>

@@ -3,6 +3,11 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Models\PlanModel;
+use App\Models\ClinicModel;
+use App\Models\ClinicSubscriptionModel;
+use App\Models\PlanAuditModel;
+use App\Models\NotificationModel;
 use App\Services\ControlPlaneAuditService;
 
 class Operations extends BaseController
@@ -22,8 +27,28 @@ class Operations extends BaseController
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/operations'
         ]);
+        $planModel = new PlanModel();
+        $clinicModel = new ClinicModel();
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
+        $notificationModel = (new NotificationModel())->withoutTenantScope();
+
+        $plansActive = $planModel->where('status', 'active')->countAllResults();
+        $plansInactive = $planModel->where('status !=', 'active')->countAllResults();
+        $clinicsTotal = $clinicModel->countAllResults();
+        $subscriptionsActive = $subscriptionModel->where('status', 'active')->countAllResults();
+
+        $recentAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
+        $recentNotifications = $notificationModel->orderBy('id', 'DESC')->findAll(10);
+
         return view('control_plane/operations', [
-            'title' => 'Operations'
+            'title' => 'Operations',
+            'plansActive' => $plansActive,
+            'plansInactive' => $plansInactive,
+            'clinicsTotal' => $clinicsTotal,
+            'subscriptionsActive' => $subscriptionsActive,
+            'recentAudits' => $recentAudits,
+            'recentNotifications' => $recentNotifications,
         ]);
     }
 }

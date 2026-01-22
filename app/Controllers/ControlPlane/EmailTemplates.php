@@ -23,8 +23,6 @@ class EmailTemplates extends BaseController
             'route' => '/controlplane/email-templates',
         ]);
 
-        return view('control_plane/email_templates', [
-            'title' => 'Email Templates',
-        ]);
+        return redirect()->to(base_url('controlplane/settings'));
     }
 }

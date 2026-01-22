@@ -8,7 +8,7 @@
         <p class="text-sm text-slate-500">Approve or reject clinic subscription changes.</p>
     </div>
 
-    <div class="cp-soft-card rounded-3xl p-6 mb-6">
+    <div class="glass-card rounded-3xl p-6 mb-6">
         <h2 class="text-sm font-semibold text-slate-800">Create plan request</h2>
         <form action="<?= base_url('controlplane/plan-requests') ?>" method="post" class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <?= csrf_field() ?>

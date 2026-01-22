@@ -34,10 +34,7 @@ class Danger extends BaseController
             'route' => '/controlplane/danger'
         ]);
 
-        return view('control_plane/danger', [
-            'title' => 'Danger Zone',
-            'global_mode' => true
-        ]);
+        return redirect()->to(base_url('controlplane/operations'));
     }
 
     /**

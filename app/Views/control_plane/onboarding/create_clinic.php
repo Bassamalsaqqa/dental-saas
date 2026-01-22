@@ -3,7 +3,7 @@
 
 <?= $this->section('content') ?>
 <div class="max-w-6xl space-y-8">
-    <div class="cp-soft-card rounded-3xl p-6 md:p-8 cp-hero-card">
+    <div class="glass-card rounded-3xl p-6 md:p-8 bg-gradient-to-br from-blue-50 via-white to-emerald-50">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Onboarding Studio</p>
@@ -27,7 +27,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1.3fr,0.7fr] gap-6">
-        <div class="cp-soft-card rounded-3xl overflow-hidden">
+        <div class="glass-card rounded-3xl overflow-hidden">
             <div class="p-6 border-b border-slate-100 bg-white/70">
                 <div class="flex items-center justify-between">
                     <div>
@@ -119,7 +119,7 @@
         </div>
 
         <div class="space-y-6">
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <h3 class="text-sm font-semibold text-slate-800">Onboarding checklist</h3>
                 <ul class="mt-4 space-y-3 text-sm text-slate-600">
                     <li class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> Clinic profile created</li>
@@ -129,7 +129,7 @@
                 </ul>
             </div>
 
-            <div class="cp-soft-card rounded-3xl p-6">
+            <div class="glass-card rounded-3xl p-6">
                 <h3 class="text-sm font-semibold text-slate-800">Default policy</h3>
                 <p class="text-sm text-slate-600 mt-3">
                     The new clinic inherits global security defaults, billing cadence, and audit retention.

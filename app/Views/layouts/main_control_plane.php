@@ -6,112 +6,160 @@
     <title><?= esc($title ?? 'Control Plane') ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0284c7">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
     <style>
-        :root {
-            --cp-ink: #0f172a;
-            --cp-muted: #64748b;
-            --cp-accent: #10b981;
-            --cp-sand: #f4f5f7;
-        }
-
         body {
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-            color: var(--cp-ink);
         }
-
-        .cp-surface {
-            background: radial-gradient(circle at top right, #ecfeff 0%, #f8fafc 45%, #eef2ff 100%);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 30px 80px -50px rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(24px);
         }
-
-        .cp-soft-card {
-            background: #ffffff;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            box-shadow: 0 14px 40px -30px rgba(15, 23, 42, 0.6);
-        }
-
-        .cp-hero-card {
-            background: linear-gradient(135deg, #d1fae5 0%, #ecfeff 100%);
+        .glass-muted {
+            background: rgba(255, 255, 255, 0.68);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 50px -40px rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
         }
     </style>
 </head>
-<body class="min-h-screen cp-surface">
+<body class="bg-gray-50 min-h-screen">
     <?= view('components/toast') ?>
 
-    <div class="min-h-screen flex">
+    <div class="flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 bg-white border-r border-slate-200 shadow-sm flex flex-col">
-                <div class="px-4 py-5 border-b border-slate-200">
-                    <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Control Plane</p>
-                            <p class="text-sm font-bold text-slate-900">Global Admin</p>
-                        </div>
-                    </a>
-                </div>
-                <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
-                    <?php
-                    $nav = [
-                        ['label' => 'Dashboard', 'url' => 'controlplane/dashboard', 'icon' => 'fas fa-chart-line'],
-                        ['label' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user'],
-                        ['label' => 'Plans', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group'],
-                        ['label' => 'Plan Requests', 'url' => 'controlplane/plan-requests', 'icon' => 'fas fa-clipboard-check'],
-                        ['label' => 'Email Templates', 'url' => 'controlplane/email-templates', 'icon' => 'fas fa-envelope'],
-                        ['label' => 'Settings', 'url' => 'controlplane/settings', 'icon' => 'fas fa-sliders-h'],
-                        ['label' => 'Console', 'url' => 'controlplane/console', 'icon' => 'fas fa-terminal'],
-                        ['label' => 'Operations', 'url' => 'controlplane/operations', 'icon' => 'fas fa-cogs'],
-                        ['label' => 'Admin Tools', 'url' => 'controlplane/admin-tools', 'icon' => 'fas fa-toolbox'],
-                        ['label' => 'Danger Zone', 'url' => 'controlplane/danger', 'icon' => 'fas fa-exclamation-triangle'],
-                    ];
-                    ?>
-                    <?php foreach ($nav as $item): ?>
-                        <?php $isActive = (strpos(uri_string(), $item['url']) === 0); ?>
-                        <a href="<?= base_url($item['url']) ?>"
-                           class="flex items-center gap-3 px-4 py-2 rounded-xl transition <?= $isActive ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-100' ?>">
-                            <i class="<?= $item['icon'] ?> w-5 text-sm"></i>
-                            <span><?= esc($item['label']) ?></span>
+            <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col" id="sidebar">
+                <div class="px-2 pb-2 pt-3 border-b border-white/30">
+                    <div class="flex items-center justify-between">
+                        <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
+                            <div class="relative group">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-shield-alt text-white text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-shrink-0">
+                                <h1 class="text-lg font-black text-gray-900 whitespace-nowrap">Control Plane</h1>
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                    <p class="text-xs text-gray-500 font-medium whitespace-nowrap">Global Admin</p>
+                                </div>
+                            </div>
                         </a>
-                    <?php endforeach; ?>
+                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 lg:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <i class="fas fa-bars relative z-10"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="flex-1" id="sidebar-nav">
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Core</h3>
+                        </div>
+                        <?php
+                        $menuGroups = [
+                            [
+                                'items' => [
+                                    ['title' => 'Dashboard', 'url' => 'controlplane/dashboard', 'icon' => 'fas fa-tachometer-alt', 'color' => 'blue'],
+                                    ['title' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user', 'color' => 'emerald'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Billing & Plans',
+                                'items' => [
+                                    ['title' => 'Plans & Requests', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group', 'color' => 'indigo'],
+                                    ['title' => 'Settings', 'url' => 'controlplane/settings', 'icon' => 'fas fa-sliders-h', 'color' => 'teal'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Operations',
+                                'items' => [
+                                    ['title' => 'Operations', 'url' => 'controlplane/operations', 'icon' => 'fas fa-cogs', 'color' => 'amber'],
+                                ],
+                            ],
+                        ];
+
+                        $colorClasses = [
+                            'blue' => ['from-blue-500 to-blue-600', 'shadow-blue-500/25', 'from-blue-50 to-cyan-50', 'text-blue-800', 'shadow-blue-500/10', 'text-blue-600', 'text-blue-700'],
+                            'emerald' => ['from-emerald-500 to-emerald-600', 'shadow-emerald-500/25', 'from-emerald-50 to-green-50', 'text-emerald-800', 'shadow-emerald-500/10', 'text-emerald-600', 'text-emerald-700'],
+                            'indigo' => ['from-indigo-500 to-indigo-600', 'shadow-indigo-500/25', 'from-indigo-50 to-blue-50', 'text-indigo-800', 'shadow-indigo-500/10', 'text-indigo-600', 'text-indigo-700'],
+                            'teal' => ['from-teal-500 to-teal-600', 'shadow-teal-500/25', 'from-teal-50 to-cyan-50', 'text-teal-800', 'shadow-teal-500/10', 'text-teal-600', 'text-teal-700'],
+                            'amber' => ['from-amber-500 to-amber-600', 'shadow-amber-500/25', 'from-amber-50 to-yellow-50', 'text-amber-800', 'shadow-amber-500/10', 'text-amber-600', 'text-amber-700'],
+                        ];
+                        ?>
+                        <?php foreach ($menuGroups as $group): ?>
+                            <?php if (!empty($group['label'])): ?>
+                                <div class="flex items-center space-x-2 mt-6 mb-4">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+                                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= esc($group['label']) ?></h3>
+                                </div>
+                            <?php endif; ?>
+                            <ul class="space-y-2">
+                                <?php foreach ($group['items'] as $item): ?>
+                                    <?php
+                                    $isActive = (strpos(uri_string(), $item['url']) === 0);
+                                    $colors = $colorClasses[$item['color']];
+                                    ?>
+                                    <li>
+                                        <a href="<?= base_url($item['url']) ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= $isActive ? 'bg-gradient-to-r ' . $colors[0] . ' text-white shadow-lg ' . $colors[1] . ' mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:' . $colors[2] . ' hover:' . $colors[3] . ' hover:shadow-md hover:' . $colors[4] . ' mx-1' ?>">
+                                            <div class="absolute inset-0 bg-gradient-to-r <?= $colors[5] . ' ' . $colors[6] ?> rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                            <i class="<?= $item['icon'] ?> w-5 h-5 mr-3 relative z-10 <?= $isActive ? 'text-white' : $colors[5] . ' group-hover:' . $colors[6] ?>"></i>
+                                            <span class="relative z-10"><?= esc($item['title']) ?></span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endforeach; ?>
+                    </div>
                 </nav>
-                <div class="px-4 py-4 border-t border-slate-200 text-xs text-slate-500">
+
+                <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/80 text-xs text-gray-500">
                     Control Plane v2 (replacement)
                 </div>
             </aside>
         <?php endif; ?>
 
         <div class="flex-1 flex flex-col min-h-screen">
-            <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+            <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 border-b border-white/30 px-6 py-4 flex items-center justify-between">
                 <div>
-                    <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Control Plane</p>
-                    <h1 class="text-xl font-bold text-slate-900"><?= esc($title ?? 'Dashboard') ?></h1>
+                    <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
+                    <h1 class="text-xl font-bold text-gray-900"><?= esc($title ?? 'Dashboard') ?></h1>
                 </div>
-                <div class="flex items-center gap-4">
+                <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
+                <div class="flex items-center gap-3">
                     <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Global Admin</span>
-                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-user-circle text-lg"></i>
-                        <span><?= esc($user->email ?? 'Super Admin') ?></span>
+                        <span><?= esc($userEmail) ?></span>
                     </div>
+                    <form action="<?= base_url('controlplane/exit') ?>" method="post">
+                        <?= csrf_field() ?>
+                        <button class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                            Exit Control Plane
+                        </button>
+                    </form>
                 </div>
             </header>
 
             <main class="flex-1 px-6 py-8">
                 <?php if (session()->getFlashdata('success')): ?>
-                    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800">
+                    <div class="mb-6 glass-card rounded-2xl px-4 py-3 text-emerald-800">
                         <?= session()->getFlashdata('success') ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('error')): ?>
-                    <div class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-800">
+                    <div class="mb-6 glass-card rounded-2xl px-4 py-3 text-rose-800">
                         <?= session()->getFlashdata('error') ?>
                     </div>
                 <?php endif; ?>
@@ -120,5 +168,20 @@
             </main>
         </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                toggleSidebar();
+            }
+        });
+    </script>
 </body>
 </html>

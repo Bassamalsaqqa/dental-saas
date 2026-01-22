@@ -3,7 +3,9 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Models\ClinicModel;
 use App\Models\PlanModel;
+use App\Models\PlanRequestModel;
 use App\Services\ControlPlaneAuditService;
 
 class Plans extends BaseController
@@ -25,6 +27,8 @@ class Plans extends BaseController
         ]);
 
         $planModel = new PlanModel();
+        $clinicModel = new ClinicModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $plans = $planModel->orderBy('id', 'DESC')->findAll();
         $cards = [];
 
@@ -39,9 +43,21 @@ class Plans extends BaseController
             ];
         }
 
+        $planRequests = $planRequestModel
+            ->select('plan_requests.*, clinics.name as clinic_name')
+            ->join('clinics', 'clinics.id = plan_requests.clinic_id', 'left')
+            ->orderBy('plan_requests.id', 'DESC')
+            ->findAll();
+
+        $requestClinics = $clinicModel->orderBy('name', 'ASC')->findAll();
+        $requestPlans = $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll();
+
         return view('control_plane/plans', [
-            'title' => 'Plans',
+            'title' => 'Plans & Requests',
             'plans' => $cards,
+            'planRequests' => $planRequests,
+            'requestClinics' => $requestClinics,
+            'requestPlans' => $requestPlans,
         ]);
     }
 
