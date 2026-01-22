@@ -252,13 +252,18 @@ class ExaminationModel extends TenantAwareModel
         }
     }
 
-    public function getExaminationsByDateRange($startDate, $endDate)
+    public function getExaminationsByDateRange($clinicId, $startDate, $endDate)
     {
-        return $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
-            ->join('patients', 'patients.id = examinations.patient_id')
-            ->where('examination_date >=', $startDate)
-            ->where('examination_date <=', $endDate)
-            ->orderBy('examination_date', 'DESC')
+        return $this->select(
+            "examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, " .
+            "CONCAT(patients.first_name, ' ', patients.last_name) AS patient_name"
+        )
+            ->join('patients', 'patients.id = examinations.patient_id', 'left')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('patients.clinic_id', $clinicId)
+            ->where('examinations.examination_date >=', $startDate)
+            ->where('examinations.examination_date <=', $endDate)
+            ->orderBy('examinations.examination_date', 'DESC')
             ->findAll();
     }
 

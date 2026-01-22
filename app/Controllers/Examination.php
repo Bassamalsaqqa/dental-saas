@@ -320,7 +320,7 @@ class Examination extends BaseController
         }
 
         // Scoped query
-        $examinations = $this->examinationModel->where('clinic_id', $clinicId)->getExaminationsByDateRange($date, $date);
+        $examinations = $this->examinationModel->getExaminationsByDateRange($clinicId, $date, $date);
         
         return $this->response->setJSON($examinations);
     }
@@ -686,17 +686,23 @@ class Examination extends BaseController
             log_message('debug', 'Examination calendar events request - Start: ' . $start . ', End: ' . $end);
 
             // Get examinations within the date range (scoped)
-            $examinations = $this->examinationModel->where('clinic_id', $clinicId)->getExaminationsByDateRange($start, $end);
+            $examinations = $this->examinationModel->getExaminationsByDateRange($clinicId, $start, $end);
             
             log_message('debug', 'Found ' . count($examinations) . ' examinations for calendar');
             
             $events = [];
             foreach ($examinations as $examination) {
+                $patientName = $examination['patient_name'] ?? trim(($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? ''));
+                if ($patientName === '') {
+                    $patientName = 'Unknown Patient';
+                }
+
                 $events[] = [
                     'id' => $examination['id'],
-                    'title' => $examination['patient_name'] . ' - Examination',
-                    'start' => $examination['examination_date'] . 'T' . $examination['examination_time'],
-                    'end' => $examination['examination_date'] . 'T' . date('H:i', strtotime($examination['examination_time'] . ' +30 minutes')),
+                    'title' => $patientName . ' - Examination',
+                    'start' => $examination['examination_date'],
+                    'end' => $examination['examination_date'],
+                    'allDay' => true,
                     'status' => $examination['status'] ?? 'scheduled',
                     'patient_id' => $examination['patient_id'],
                     'examination_type' => $examination['examination_type'] ?? 'General',
