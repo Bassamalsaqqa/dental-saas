@@ -6,13 +6,41 @@
     <title><?= esc($title ?? 'Control Plane') ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="theme-color" content="#0f172a">
     <meta name="csrf-name" content="<?= csrf_token() ?>">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
+    <style>
+        :root {
+            --cp-ink: #0f172a;
+            --cp-muted: #64748b;
+            --cp-accent: #10b981;
+            --cp-sand: #f4f5f7;
+        }
+
+        body {
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            color: var(--cp-ink);
+        }
+
+        .cp-surface {
+            background: radial-gradient(circle at top right, #ecfeff 0%, #f8fafc 45%, #eef2ff 100%);
+        }
+
+        .cp-soft-card {
+            background: #ffffff;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 14px 40px -30px rgba(15, 23, 42, 0.6);
+        }
+
+        .cp-hero-card {
+            background: linear-gradient(135deg, #d1fae5 0%, #ecfeff 100%);
+        }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="min-h-screen cp-surface">
     <?= view('components/toast') ?>
 
     <div class="min-h-screen flex">
