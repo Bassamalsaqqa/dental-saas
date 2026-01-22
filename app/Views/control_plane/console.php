@@ -82,6 +82,9 @@
                     </div>
                     <p class="text-sm font-medium">No audit records found.</p>
                     <p class="text-xs text-slate-400 mt-1">Governance events will appear here.</p>
+                    <a href="<?= base_url('controlplane/operations') ?>" class="inline-flex items-center mt-4 text-xs font-semibold uppercase tracking-widest text-indigo-600 hover:text-indigo-800">
+                        Review Operations
+                    </a>
                 </div>
             <?php else: ?>
                 <div class="overflow-x-auto">
@@ -124,6 +127,9 @@
                     </div>
                     <p class="text-sm font-medium">No notifications found.</p>
                     <p class="text-xs text-slate-400 mt-1">Delivery events will appear here.</p>
+                    <a href="<?= base_url('controlplane/settings') ?>" class="inline-flex items-center mt-4 text-xs font-semibold uppercase tracking-widest text-indigo-600 hover:text-indigo-800">
+                        Review Settings
+                    </a>
                 </div>
             <?php else: ?>
                 <div class="overflow-x-auto">
