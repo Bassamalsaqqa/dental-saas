@@ -56,44 +56,49 @@
                             Global mode is required to access control plane tools.
                         </div>
                     <?php else: ?>
-                    <ul class="space-y-2">
                         <?php
-                        $menu = [
-                            'dashboard' => [
-                                'title' => 'Dashboard',
-                                'url' => 'controlplane/dashboard',
-                                'icon' => 'fas fa-tachometer-alt',
-                                'color' => 'indigo',
+                        $sections = [
+                            'Platform' => [
+                                [
+                                    'title' => 'Dashboard',
+                                    'url' => 'controlplane/dashboard',
+                                    'icon' => 'fas fa-tachometer-alt',
+                                    'color' => 'indigo',
+                                ],
                             ],
-                            'console' => [
-                                'title' => 'Console',
-                                'url' => 'controlplane/console',
-                                'icon' => 'fas fa-terminal',
-                                'color' => 'slate',
+                            'Governance' => [
+                                [
+                                    'title' => 'Console',
+                                    'url' => 'controlplane/console',
+                                    'icon' => 'fas fa-terminal',
+                                    'color' => 'slate',
+                                ],
+                                [
+                                    'title' => 'Operations',
+                                    'url' => 'controlplane/operations',
+                                    'icon' => 'fas fa-cogs',
+                                    'color' => 'blue',
+                                ],
+                                [
+                                    'title' => 'Onboard Clinic',
+                                    'url' => 'controlplane/onboarding/clinic/create',
+                                    'icon' => 'fas fa-hospital-user',
+                                    'color' => 'emerald',
+                                ],
                             ],
-                            'operations' => [
-                                'title' => 'Operations',
-                                'url' => 'controlplane/operations',
-                                'icon' => 'fas fa-cogs',
-                                'color' => 'blue',
-                            ],
-                            'settings' => [
-                                'title' => 'Settings',
-                                'url' => 'controlplane/settings',
-                                'icon' => 'fas fa-sliders-h',
-                                'color' => 'gray',
-                            ],
-                            'onboarding' => [
-                                'title' => 'Onboard Clinic',
-                                'url' => 'controlplane/onboarding/clinic/create',
-                                'icon' => 'fas fa-hospital-user',
-                                'color' => 'emerald',
-                            ],
-                            'danger' => [
-                                'title' => 'Danger Zone',
-                                'url' => 'controlplane/danger',
-                                'icon' => 'fas fa-exclamation-triangle',
-                                'color' => 'red',
+                            'System' => [
+                                [
+                                    'title' => 'Settings',
+                                    'url' => 'controlplane/settings',
+                                    'icon' => 'fas fa-sliders-h',
+                                    'color' => 'gray',
+                                ],
+                                [
+                                    'title' => 'Danger Zone',
+                                    'url' => 'controlplane/danger',
+                                    'icon' => 'fas fa-exclamation-triangle',
+                                    'color' => 'red',
+                                ],
                             ],
                         ];
 
@@ -105,20 +110,28 @@
                             'emerald' => ['from-emerald-500 to-emerald-600', 'shadow-emerald-500/25', 'from-emerald-50 to-green-50', 'text-emerald-800', 'shadow-emerald-500/10', 'text-emerald-600', 'text-emerald-700'],
                             'red' => ['from-red-500 to-red-600', 'shadow-red-500/25', 'from-red-50 to-rose-50', 'text-red-800', 'shadow-red-500/10', 'text-red-600', 'text-red-700'],
                         ];
-
-                        foreach ($menu as $key => $item):
-                            $isActive = (strpos(uri_string(), $item['url']) === 0);
-                            $colors = $colorClasses[$item['color']];
                         ?>
-                        <li>
-                            <a href="<?= base_url($item['url']) ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= $isActive ? 'bg-gradient-to-r ' . $colors[0] . ' text-white shadow-lg ' . $colors[1] . ' mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:' . $colors[2] . ' hover:' . $colors[3] . ' hover:shadow-md hover:' . $colors[4] . ' mx-1' ?>">
-                                <div class="absolute inset-0 bg-gradient-to-r <?= $colors[5] . ' ' . $colors[6] ?> rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                <i class="<?= $item['icon'] ?> w-5 h-5 mr-3 relative z-10 <?= $isActive ? 'text-white' : $colors[5] . ' group-hover:' . $colors[6] ?>"></i>
-                                <span class="relative z-10"><?= $item['title'] ?></span>
-                            </a>
-                        </li>
+
+                        <?php foreach ($sections as $sectionTitle => $items): ?>
+                            <div class="mb-6">
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2"><?= esc($sectionTitle) ?></h4>
+                                <ul class="space-y-2">
+                                    <?php foreach ($items as $item): ?>
+                                        <?php
+                                        $isActive = (strpos(uri_string(), $item['url']) === 0);
+                                        $colors = $colorClasses[$item['color']];
+                                        ?>
+                                        <li>
+                                            <a href="<?= base_url($item['url']) ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= $isActive ? 'bg-gradient-to-r ' . $colors[0] . ' text-white shadow-lg ' . $colors[1] . ' mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:' . $colors[2] . ' hover:' . $colors[3] . ' hover:shadow-md hover:' . $colors[4] . ' mx-1' ?>">
+                                                <div class="absolute inset-0 bg-gradient-to-r <?= $colors[5] . ' ' . $colors[6] ?> rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                                <i class="<?= $item['icon'] ?> w-5 h-5 mr-3 relative z-10 <?= $isActive ? 'text-white' : $colors[5] . ' group-hover:' . $colors[6] ?>"></i>
+                                                <span class="relative z-10"><?= $item['title'] ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
                         <?php endforeach; ?>
-                    </ul>
                     <?php endif; ?>
                 </div>
             </nav>
