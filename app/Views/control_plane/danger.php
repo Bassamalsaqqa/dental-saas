@@ -7,22 +7,22 @@
     <section>
         <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold mb-2">Control Plane</p>
         <h3 class="text-xl font-bold text-rose-700 mb-6">Destructive Actions</h3>
-        <div class="bg-rose-50 border border-rose-200 p-8 rounded">
+        <div class="bg-rose-50 border border-rose-200 p-8 rounded-2xl">
             <h1 class="text-lg font-black text-rose-900 uppercase tracking-tighter mb-4">Danger Zone: Session Termination</h1>
             <p class="text-sm text-rose-800 leading-relaxed">
                 You are about to terminate the Global Authority session. This action has the following consequences:
             </p>
             <ul class="mt-4 space-y-2 text-xs text-rose-700 font-bold uppercase tracking-tight">
-                <li>&gt; Restoration of strict tenant context requirements</li>
-                <li>&gt; Immediate redirection to the clinic selection wall</li>
-                <li>&gt; All Control Plane routes will become inaccessible</li>
+                <li>• Restoration of strict tenant context requirements</li>
+                <li>• Immediate redirection to the clinic selection wall</li>
+                <li>• All Control Plane routes will become inaccessible</li>
             </ul>
         </div>
     </section>
 
     <!-- High-Friction Form -->
     <section>
-        <div class="bg-white border border-slate-200 p-8">
+        <div class="bg-white border border-gray-200 p-8 rounded-2xl">
             <form action="<?= base_url('controlplane/danger/exit') ?>" method="post" class="space-y-8">
                 <?= csrf_field() ?>
 
@@ -42,12 +42,12 @@
                         Type <span class="text-rose-600">EXIT GLOBAL MODE</span> to confirm
                     </label>
                     <input type="text" name="termination_phrase" required autocomplete="off"
-                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 font-mono text-sm uppercase tracking-widest focus:border-rose-500 focus:bg-white focus:outline-none transition-all"
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 font-mono text-sm uppercase tracking-widest focus:border-rose-500 focus:bg-white focus:outline-none transition-all rounded-lg"
                            placeholder="Type the phrase here">
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" class="text-[11px] font-black text-white bg-rose-600 px-8 py-4 rounded uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20">
+                    <button type="submit" class="text-[11px] font-black text-white bg-rose-600 px-8 py-4 rounded-lg uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20">
                         [ End Authority Session ]
                     </button>
                 </div>
@@ -56,7 +56,7 @@
     </section>
 
     <!-- Footer Note -->
-    <div class="p-6 border border-slate-100 text-slate-400">
+    <div class="p-6 border border-slate-100 text-slate-400 rounded-2xl bg-white">
         <p class="text-[10px] uppercase font-bold tracking-widest leading-relaxed">
             Note: Session termination is an integrity requirement. Operators should exit global mode immediately after completing administrative tasks to maintain least-privilege hygiene.
         </p>
