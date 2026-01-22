@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="max-w-2xl mx-auto text-center py-12">
+    <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">Control Plane</p>
     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <i class="fas fa-cogs text-slate-400 text-2xl"></i>
     </div>

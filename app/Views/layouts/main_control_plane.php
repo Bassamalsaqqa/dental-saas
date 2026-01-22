@@ -50,6 +50,12 @@
                         <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-pulse"></div>
                         <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Platform</h3>
                     </div>
+                    <?php $hideCpNav = $hide_cp_nav ?? false; ?>
+                    <?php if ($hideCpNav): ?>
+                        <div class="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-indigo-700">
+                            Global mode is required to access control plane tools.
+                        </div>
+                    <?php else: ?>
                     <ul class="space-y-2">
                         <?php
                         $menu = [
@@ -113,6 +119,7 @@
                         </li>
                         <?php endforeach; ?>
                     </ul>
+                    <?php endif; ?>
                 </div>
             </nav>
 

@@ -1,6 +1,11 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
+<div class="mb-8">
+    <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
+    <h1 class="text-2xl font-bold text-gray-900">Platform Overview</h1>
+    <p class="text-sm text-gray-600 mt-1">Health and governance signals across tenants.</p>
+</div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Active Clinics Widget -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center">

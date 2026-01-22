@@ -3,8 +3,9 @@
 <?= $this->section('content') ?>
 <div class="max-w-4xl mx-auto">
     <div class="mb-8">
+        <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
         <h1 class="text-2xl font-bold text-slate-900">Operations</h1>
-        <p class="text-sm text-slate-500">Administrative Tasks & Workflows</p>
+        <p class="text-sm text-slate-500">Administrative tasks and workflows.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

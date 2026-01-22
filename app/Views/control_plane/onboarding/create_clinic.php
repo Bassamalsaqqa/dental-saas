@@ -4,7 +4,8 @@
 <?= $this->section('content') ?>
 <div class="max-w-3xl space-y-6">
     <div>
-        <h1 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Control Plane — Onboarding</h1>
+        <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
+        <h1 class="text-2xl font-bold text-gray-900">Clinic Onboarding</h1>
         <p class="mt-3 text-sm text-slate-700">Create a clinic, admin user, and subscription in a single transaction.</p>
     </div>
     <div class="bg-white border border-slate-200">
@@ -81,3 +82,5 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+
+

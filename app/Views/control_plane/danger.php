@@ -5,7 +5,8 @@
 <div class="max-w-2xl space-y-12">
     <!-- Header -->
     <section>
-        <h3 class="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em] mb-6">Control Plane — Destructive Actions</h3>
+        <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold mb-2">Control Plane</p>
+        <h3 class="text-xl font-bold text-rose-700 mb-6">Destructive Actions</h3>
         <div class="bg-rose-50 border border-rose-200 p-8 rounded">
             <h1 class="text-lg font-black text-rose-900 uppercase tracking-tighter mb-4">Danger Zone: Session Termination</h1>
             <p class="text-sm text-rose-800 leading-relaxed">
@@ -62,3 +63,6 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+
+
+

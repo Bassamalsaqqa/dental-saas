@@ -1,3 +1,4 @@
+<?php $hide_cp_nav = true; ?>
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>

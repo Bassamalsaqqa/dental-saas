@@ -5,8 +5,9 @@
 <div class="max-w-7xl mx-auto space-y-10">
     <!-- Header -->
     <div class="space-y-3">
-        <h1 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Control Plane - Operator Console</h1>
-        <p class="text-sm text-slate-700">Read-only governance telemetry. No actions are executed here.</p>
+        <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
+        <h1 class="text-2xl font-bold text-gray-900">Operator Console</h1>
+        <p class="text-sm text-gray-600">Read-only governance telemetry. No actions are executed here.</p>
         <div class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
             <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
             Global Mode: ON
@@ -17,9 +18,6 @@
     <div class="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
         <a href="<?= base_url('controlplane/operations') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Operations
-        </a>
-        <a href="<?= base_url('controlplane/plans') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
-            Plans
         </a>
         <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50">
             Onboard Clinic
