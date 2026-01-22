@@ -63,9 +63,9 @@
                     </div>
                 </div>
                 <div class="mt-5 flex flex-wrap gap-2">
-                    <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 cursor-not-allowed" disabled>
+                    <a href="<?= base_url('controlplane/clinics/' . $clinic['id']) ?>" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">
                         View Details
-                    </button>
+                    </a>
                     <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 cursor-not-allowed" disabled>
                         Upgrade Plan
                     </button>

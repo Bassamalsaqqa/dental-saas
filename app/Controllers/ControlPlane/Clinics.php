@@ -65,4 +65,39 @@ class Clinics extends BaseController
             ],
         ]);
     }
+
+    /**
+     * GET /controlplane/clinics/{id}
+     */
+    public function show(int $id)
+    {
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/clinics/' . $id,
+        ]);
+
+        $clinicModel = new ClinicModel();
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $planModel = new PlanModel();
+
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $subscription = $subscriptionModel->getCurrentSubscription((int) $clinic['id']);
+        $planName = 'Unassigned';
+        if ($subscription && !empty($subscription['plan_id'])) {
+            $plan = $planModel->find($subscription['plan_id']);
+            if (!empty($plan['name'])) {
+                $planName = $plan['name'];
+            }
+        }
+
+        return view('control_plane/clinic_detail', [
+            'title' => 'Clinic Overview',
+            'clinic' => $clinic,
+            'subscription' => $subscription,
+            'plan_name' => $planName,
+        ]);
+    }
 }

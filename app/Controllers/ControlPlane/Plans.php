@@ -27,4 +27,18 @@ class Plans extends BaseController
             'title' => 'Plans',
         ]);
     }
+
+    /**
+     * GET /controlplane/plans/create
+     */
+    public function create()
+    {
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/plans/create',
+        ]);
+
+        return view('control_plane/plan_form', [
+            'title' => 'Create Plan',
+        ]);
+    }
 }
