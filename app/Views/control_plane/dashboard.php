@@ -50,7 +50,7 @@
 </div>
 
 <!-- Recent Activity / Quick Actions Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
             <h3 class="font-bold text-slate-700">Quick Actions</h3>
@@ -63,6 +63,11 @@
             <a href="<?= base_url('controlplane/console') ?>" class="flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 transition-colors group">
                 <i class="fas fa-terminal text-slate-500 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
                 <span class="text-sm font-semibold text-slate-700">System Console</span>
+            </a>
+        </div>
+        <div class="px-6 pb-6">
+            <a href="<?= base_url('controlplane/operations') ?>" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest">
+                View Operations
             </a>
         </div>
     </div>
@@ -85,6 +90,26 @@
                     <span class="text-slate-600">Storage Service</span>
                     <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Healthy</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <h3 class="font-bold text-slate-700">Risk Posture</h3>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Tenant Isolation</span>
+                <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">Enforced</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Legacy APIs</span>
+                <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">Monitor</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Global Mode</span>
+                <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">Active</span>
             </div>
         </div>
     </div>
