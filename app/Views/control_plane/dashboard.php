@@ -18,14 +18,13 @@
         </div>
     </div>
 
-    <!-- Placeholder Widgets -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-green-100 rounded-full mr-4">
-            <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+        <div class="p-3 bg-emerald-100 rounded-full mr-4">
+            <i class="fas fa-receipt text-emerald-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total MRR</p>
-            <h3 class="text-2xl font-bold text-slate-800">$0.00</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Subscriptions</p>
+            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_subscriptions'] ?? 0) ?></h3>
         </div>
     </div>
 
@@ -34,18 +33,18 @@
             <i class="fas fa-users text-blue-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total Users</p>
-            <h3 class="text-2xl font-bold text-slate-800">--</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Users</p>
+            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_users'] ?? 0) ?></h3>
         </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-red-100 rounded-full mr-4">
-            <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+        <div class="p-3 bg-indigo-100 rounded-full mr-4">
+            <i class="fas fa-layer-group text-indigo-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">System Alerts</p>
-            <h3 class="text-2xl font-bold text-slate-800">0</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Plans</p>
+            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_plans'] ?? 0) ?></h3>
         </div>
     </div>
 </div>
