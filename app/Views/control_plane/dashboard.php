@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
         <div class="cp-soft-card rounded-3xl p-5 cp-hero-card">
             <div class="flex items-center justify-between">
                 <div>
@@ -53,6 +53,18 @@
                 </div>
                 <span class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                     <i class="fas fa-layer-group text-lg"></i>
+                </span>
+            </div>
+        </div>
+        <div class="cp-soft-card rounded-3xl p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-slate-500">Estimated MRR</p>
+                    <h3 class="text-3xl font-semibold text-slate-900 mt-2">$<?= number_format((float) ($stats['mrr'] ?? 0), 2) ?></h3>
+                    <p class="text-xs text-slate-500 mt-2">Expiring in 30d: <?= number_format($stats['expiring_subscriptions'] ?? 0) ?></p>
+                </div>
+                <span class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <i class="fas fa-chart-line text-lg"></i>
                 </span>
             </div>
         </div>

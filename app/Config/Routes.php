@@ -23,6 +23,10 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('admin-tools', 'ControlPlane\AdminTools::index'); // CP-UX-14
         $routes->get('clinics', 'ControlPlane\Clinics::index'); // CP-UX-20
         $routes->get('clinics/(:num)', 'ControlPlane\Clinics::show/$1'); // CP-UX-20 detail
+        $routes->post('clinics/(:num)/subscription/start', 'ControlPlane\Clinics::startSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/extend', 'ControlPlane\Clinics::extendSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/cancel', 'ControlPlane\Clinics::cancelSubscription/$1');
+        $routes->post('clinics/(:num)/terminate', 'ControlPlane\Clinics::terminate/$1');
         $routes->get('plans', 'ControlPlane\Plans::index'); // CP-UX-22
         $routes->get('plans/create', 'ControlPlane\Plans::create'); // CP-UX-23
         $routes->post('plans', 'ControlPlane\Plans::store'); // CP-UX-23
@@ -447,6 +451,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings:edit']);
     $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings:edit']);
     $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings:edit']);
+    $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings:edit']);
     $routes->get('backup', 'Settings::backup', ['filter' => 'permission:settings:view']);
     $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);
     $routes->post('restore', 'Settings::restore', ['filter' => 'permission:settings:edit']);

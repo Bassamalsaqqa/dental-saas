@@ -88,6 +88,10 @@
                             <i class="fas fa-building w-5 h-5 mr-3"></i>
                             Clinic Information
                         </button>
+                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i>
+                            Subscription Plan
+                        </button>
                         <button onclick="showSettingsTab('system')" id="tab-system" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                             <i class="fas fa-cog w-5 h-5 mr-3"></i>
                             System Preference
@@ -123,9 +127,86 @@
                             <div>
                                     <h3 class="text-2xl font-bold text-white">Clinic Information</h3>
                                     <p class="text-blue-100">Manage your clinic details and contact information</p>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                <!-- Subscription Plan Tab -->
+                <div id="subscription-tab" class="settings-tab hidden">
+                    <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-layer-group text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Subscription Plan</h3>
+                                    <p class="text-emerald-100">Review current plan and request upgrades</p>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="p-8 space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                                    <h4 class="text-sm font-bold text-slate-800">Current Plan</h4>
+                                    <p class="text-2xl font-bold text-slate-900 mt-3">
+                                        <?= esc($subscription_plan['name'] ?? 'Unassigned') ?>
+                                    </p>
+                                    <p class="text-sm text-slate-500 mt-2">
+                                        Status: <?= esc($subscription['status'] ?? 'none') ?>
+                                    </p>
+                                    <p class="text-sm text-slate-500">Start: <?= esc($subscription['start_at'] ?? '--') ?></p>
+                                    <p class="text-sm text-slate-500">End: <?= esc($subscription['end_at'] ?? '--') ?></p>
+                                </div>
+                                <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                                    <h4 class="text-sm font-bold text-slate-800">Latest Request</h4>
+                                    <?php if (!empty($latest_plan_request)): ?>
+                                        <p class="text-sm text-slate-500 mt-2">Plan ID: <?= esc($latest_plan_request['requested_plan_id']) ?></p>
+                                        <p class="text-sm text-slate-500">Duration: <?= esc(ucfirst($latest_plan_request['requested_duration'] ?? 'monthly')) ?></p>
+                                        <p class="text-sm text-slate-500">Status: <?= esc(ucfirst($latest_plan_request['status'] ?? 'pending')) ?></p>
+                                        <p class="text-xs text-slate-400 mt-2">Requested: <?= esc($latest_plan_request['created_at'] ?? '--') ?></p>
+                                    <?php else: ?>
+                                        <p class="text-sm text-slate-500 mt-2">No plan requests yet.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <form action="<?= base_url('settings/plan-request') ?>" method="POST" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+                                <?= csrf_field() ?>
+                                <h4 class="text-sm font-bold text-slate-800">Request a new plan</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-700 mb-2">Plan</label>
+                                        <select name="plan_id" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-200" required>
+                                            <option value="">Select plan</option>
+                                            <?php foreach (($plans ?? []) as $plan): ?>
+                                                <option value="<?= esc($plan['id']) ?>"><?= esc($plan['name']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-700 mb-2">Duration</label>
+                                        <select name="duration" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-200">
+                                            <option value="monthly">Monthly</option>
+                                            <option value="yearly">Yearly</option>
+                                            <option value="lifetime">Lifetime</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-700 mb-2">Reason (optional)</label>
+                                        <input type="text" name="reason" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all duration-200" placeholder="Upgrade request reason">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg">
+                                        <i class="fas fa-paper-plane mr-2"></i>Submit Request
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+                </div>
                     
                     <div class="p-8">
                             <form action="<?= base_url('settings/updateClinic') ?>" method="POST" enctype="multipart/form-data">

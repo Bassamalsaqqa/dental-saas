@@ -41,10 +41,39 @@ class Dashboard extends BaseController
         $activeClinics = $clinicModel->where('status', 'active')->countAllResults();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $activeSubscriptions = $subscriptionModel->where('status', 'active')->countAllResults();
+        $activeSubscriptionRows = (new ClinicSubscriptionModel())
+            ->withoutTenantScope()
+            ->where('status', 'active')
+            ->findAll();
         $planModel = new PlanModel();
         $activePlans = $planModel->where('status', 'active')->countAllResults();
         $userModel = new UserModel();
         $activeUsers = $userModel->where('active', 1)->countAllResults();
+        $expiringCount = (new ClinicSubscriptionModel())
+            ->withoutTenantScope()
+            ->where('status', 'active')
+            ->where('end_at >=', date('Y-m-d H:i:s'))
+            ->where('end_at <=', date('Y-m-d H:i:s', strtotime('+30 days')))
+            ->countAllResults();
+
+        $mrr = 0.0;
+        foreach ($activeSubscriptionRows as $subRow) {
+            if (empty($subRow['plan_id'])) {
+                continue;
+            }
+            $plan = $planModel->find($subRow['plan_id']);
+            if (!$plan) {
+                continue;
+            }
+            $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
+            $price = (float) ($limits['price'] ?? 0);
+            $duration = $limits['duration'] ?? 'monthly';
+            if ($duration === 'yearly' && $price > 0) {
+                $mrr += ($price / 12);
+            } elseif ($duration === 'monthly') {
+                $mrr += $price;
+            }
+        }
 
         $recentClinics = $clinicModel
             ->select('id, name, status, created_at')
@@ -102,6 +131,8 @@ class Dashboard extends BaseController
                 'active_subscriptions' => $activeSubscriptions,
                 'active_plans' => $activePlans,
                 'active_users' => $activeUsers,
+                'expiring_subscriptions' => $expiringCount,
+                'mrr' => $mrr,
                 'pending_requests' => $pendingRequests,
             ],
             'recent_clinics' => $recentClinics,

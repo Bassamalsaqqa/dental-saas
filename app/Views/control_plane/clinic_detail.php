@@ -57,23 +57,62 @@
         </div>
     </div>
 
-    <div class="cp-soft-card rounded-3xl p-6">
-        <h2 class="text-sm font-semibold text-slate-800 mb-4">Lifecycle actions</h2>
-        <div class="flex flex-wrap gap-3">
-            <button class="px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 text-sm font-semibold cursor-not-allowed" disabled>
-                Start Subscription
-            </button>
-            <button class="px-4 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-semibold cursor-not-allowed" disabled>
-                Upgrade Plan
-            </button>
-            <button class="px-4 py-2 rounded-lg bg-amber-50 text-amber-700 text-sm font-semibold cursor-not-allowed" disabled>
-                Suspend Clinic
-            </button>
-            <button class="px-4 py-2 rounded-lg bg-rose-50 text-rose-700 text-sm font-semibold cursor-not-allowed" disabled>
-                Terminate Clinic
-            </button>
+    <div class="cp-soft-card rounded-3xl p-6 space-y-6">
+        <h2 class="text-sm font-semibold text-slate-800">Lifecycle actions</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-600">
+            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/start') ?>" method="post" class="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 space-y-3">
+                <?= csrf_field() ?>
+                <h3 class="text-xs uppercase tracking-widest text-emerald-700 font-semibold">Start subscription</h3>
+                <div>
+                    <label class="text-xs text-slate-500">Plan</label>
+                    <select name="plan_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required>
+                        <option value="">Select plan</option>
+                        <?php foreach (($plans ?? []) as $plan): ?>
+                            <option value="<?= esc($plan['id']) ?>"><?= esc($plan['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500">Duration</label>
+                    <select name="duration" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="lifetime">Lifetime</option>
+                    </select>
+                </div>
+                <button class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Start</button>
+            </form>
+
+            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/extend') ?>" method="post" class="rounded-2xl border border-blue-100 bg-blue-50/40 p-4 space-y-3">
+                <?= csrf_field() ?>
+                <h3 class="text-xs uppercase tracking-widest text-blue-700 font-semibold">Extend subscription</h3>
+                <div>
+                    <label class="text-xs text-slate-500">Duration</label>
+                    <select name="duration" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="lifetime">Lifetime</option>
+                    </select>
+                </div>
+                <button class="w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold">Extend</button>
+            </form>
+
+            <div class="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-3">
+                <h3 class="text-xs uppercase tracking-widest text-rose-700 font-semibold">Terminate clinic</h3>
+                <p class="text-xs text-slate-500">Disables clinic access and deactivates subscription.</p>
+                <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/cancel') ?>" method="post">
+                    <?= csrf_field() ?>
+                    <button class="w-full px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">Cancel Subscription</button>
+                </form>
+                <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/terminate') ?>" method="post" class="mt-2">
+                    <?= csrf_field() ?>
+                    <button class="w-full px-3 py-2 rounded-lg bg-rose-600 text-white text-xs font-semibold">Terminate Clinic</button>
+                </form>
+            </div>
         </div>
-        <p class="text-xs text-slate-500 mt-3">Lifecycle actions will be wired after Phase 1 backend readiness.</p>
+
+        <p class="text-xs text-slate-500">All actions are audited and applied immediately.</p>
     </div>
 </div>
 <?= $this->endSection() ?>

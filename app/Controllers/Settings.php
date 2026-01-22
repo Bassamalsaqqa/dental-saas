@@ -2,7 +2,12 @@
 
 namespace App\Controllers;
 
+use App\Models\ClinicSubscriptionModel;
+use App\Models\PlanAuditModel;
+use App\Models\PlanModel;
+use App\Models\PlanRequestModel;
 use App\Models\SettingsModel;
+use App\Services\ControlPlaneAuditService;
 use App\Services\SettingsService;
 
 class Settings extends BaseController
@@ -22,6 +27,21 @@ class Settings extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view settings.');
         }
 
+        $planModel = new PlanModel();
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $planRequestModel = new PlanRequestModel();
+
+        $subscription = $subscriptionModel->getCurrentSubscription((int) $clinicId);
+        $subscriptionPlan = null;
+        if ($subscription && !empty($subscription['plan_id'])) {
+            $subscriptionPlan = $planModel->find($subscription['plan_id']);
+        }
+
+        $latestRequest = $planRequestModel
+            ->where('clinic_id', $clinicId)
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
         $backups = $this->getBackups();
         
         // Debug: Log the backups data
@@ -35,9 +55,70 @@ class Settings extends BaseController
             'settings' => $this->getSettings(),
             'backups' => $backups,
             'demo' => $appConfig->demo,
+            'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
+            'subscription' => $subscription,
+            'subscription_plan' => $subscriptionPlan,
+            'latest_plan_request' => $latestRequest,
         ];
 
         return $this->view('settings/index', $data);
+    }
+
+    public function requestPlan()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context required');
+        }
+
+        $planId = (int) $this->request->getPost('plan_id');
+        $duration = $this->request->getPost('duration') ?? 'monthly';
+        $reason = trim((string) $this->request->getPost('reason'));
+
+        $planModel = new PlanModel();
+        if (!$planId || !$planModel->find($planId)) {
+            return redirect()->back()->with('error', 'Select a valid plan.');
+        }
+
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $current = $subscriptionModel->getCurrentSubscription((int) $clinicId);
+
+        $planRequestModel = new PlanRequestModel();
+        $planRequestModel->insert([
+            'clinic_id' => $clinicId,
+            'current_plan_id' => $current['plan_id'] ?? null,
+            'requested_plan_id' => $planId,
+            'requested_duration' => in_array($duration, ['monthly', 'yearly', 'lifetime'], true) ? $duration : 'monthly',
+            'status' => 'pending',
+            'requested_by' => session()->get('user_id') ?? null,
+            'decision_reason' => $reason !== '' ? $reason : null,
+        ]);
+
+        $auditModel = new PlanAuditModel();
+        $auditModel->insert([
+            'clinic_id' => $clinicId,
+            'actor_user_id' => session()->get('user_id') ?? null,
+            'action_key' => 'plan_request_submitted',
+            'reason_code' => 'tenant_requested',
+            'meta_json' => json_encode([
+                'requested_plan_id' => $planId,
+                'duration' => $duration,
+            ]),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $controlPlaneAudit = new ControlPlaneAuditService();
+        $controlPlaneAudit->logEvent('plan_request_submitted', [
+            'route' => '/settings/plan-request',
+            'method' => 'POST',
+            'metadata' => [
+                'clinic_id' => $clinicId,
+                'requested_plan_id' => $planId,
+                'duration' => $duration,
+            ],
+        ]);
+
+        return redirect()->to('/settings')->with('success', 'Plan request submitted.');
     }
 
     public function updateClinic()
