@@ -142,7 +142,11 @@ class SettingsModel extends TenantAwareModel
      */
     public function getAllSettings()
     {
-        $clinicId = session()->get('active_clinic_id') ?? 0;
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->getGlobalSettings();
+        }
+
         $settings = $this->where('clinic_id', $clinicId)->findAll();
         $result = [];
         

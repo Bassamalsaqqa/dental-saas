@@ -69,8 +69,8 @@ $routes->group('auth', function ($routes) {
 $routes->get('logout', 'Auth::logout');
 $routes->post('logout', 'Auth::logout');
 
-// Redirect root to dashboard (Tenant Plane)
-$routes->get('/', 'Dashboard::index', ['filter' => ['auth', 'tenant', 'subscription']]);
+// Root entrypoint (auth-aware redirect)
+$routes->get('/', 'Home::index');
 
 // --------------------------------------------------------------------
 // Clinic Selection Wall (Auth Only)
