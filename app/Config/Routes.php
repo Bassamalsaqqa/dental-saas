@@ -17,11 +17,12 @@ $routes->group('controlplane', function ($routes) {
 });
 
 // 2. Protected Surfaces (Requires Global Mode via Filter)
-$routes->group('controlplane', ['filter' => 'controlplane'], function ($routes) {
-    $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
-    $routes->get('console', 'ControlPlane\Console::index'); // P5-16
-    $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
-    $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
+    $routes->group('controlplane', ['filter' => 'controlplane'], function ($routes) {
+        $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
+        $routes->get('console', 'ControlPlane\Console::index'); // P5-16
+        $routes->get('admin-tools', 'ControlPlane\AdminTools::index'); // CP-UX-14
+        $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
+        $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
     
     // Danger Zone (P5-17)
     $routes->group('danger', function($routes) {

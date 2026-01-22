@@ -74,6 +74,12 @@
                                     'color' => 'slate',
                                 ],
                                 [
+                                    'title' => 'Admin Tools',
+                                    'url' => 'controlplane/admin-tools',
+                                    'icon' => 'fas fa-toolbox',
+                                    'color' => 'blue',
+                                ],
+                                [
                                     'title' => 'Operations',
                                     'url' => 'controlplane/operations',
                                     'icon' => 'fas fa-cogs',

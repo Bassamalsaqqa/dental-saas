@@ -6,45 +6,78 @@
     <h1 class="text-2xl font-bold text-gray-900">Platform Overview</h1>
     <p class="text-sm text-gray-600 mt-1">Health and governance signals across tenants.</p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Active Clinics Widget -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-indigo-100 rounded-full mr-4">
-            <i class="fas fa-hospital text-indigo-600 text-xl"></i>
-        </div>
+<div class="mb-8 space-y-6">
+    <div class="flex items-center justify-between">
         <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Clinics</p>
-            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_clinics'] ?? 0) ?></h3>
+            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Key Metrics</p>
+            <h2 class="text-lg font-bold text-slate-800">KPI Snapshot</h2>
+            <p class="text-xs text-slate-500 mt-1">Grouped signals for tenant health and billing posture.</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-emerald-100 rounded-full mr-4">
-            <i class="fas fa-receipt text-emerald-600 text-xl"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xs uppercase tracking-widest text-slate-400 font-bold">Tenant Health</h3>
+                    <p class="text-xs text-slate-500 mt-1">Adoption and active usage.</p>
+                </div>
+                <span class="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-heartbeat text-sm"></i>
+                </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-50 rounded-xl border border-slate-100 p-4 flex items-center">
+                    <div class="p-2 bg-indigo-100 rounded-lg mr-3">
+                        <i class="fas fa-hospital text-indigo-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Clinics</p>
+                        <h3 class="text-xl font-bold text-slate-800"><?= number_format($stats['active_clinics'] ?? 0) ?></h3>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl border border-slate-100 p-4 flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                        <i class="fas fa-users text-blue-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Users</p>
+                        <h3 class="text-xl font-bold text-slate-800"><?= number_format($stats['active_users'] ?? 0) ?></h3>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Subscriptions</p>
-            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_subscriptions'] ?? 0) ?></h3>
-        </div>
-    </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-blue-100 rounded-full mr-4">
-            <i class="fas fa-users text-blue-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Users</p>
-            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_users'] ?? 0) ?></h3>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-        <div class="p-3 bg-indigo-100 rounded-full mr-4">
-            <i class="fas fa-layer-group text-indigo-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Plans</p>
-            <h3 class="text-2xl font-bold text-slate-800"><?= number_format($stats['active_plans'] ?? 0) ?></h3>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xs uppercase tracking-widest text-slate-400 font-bold">Billing & Plans</h3>
+                    <p class="text-xs text-slate-500 mt-1">Subscription health and coverage.</p>
+                </div>
+                <span class="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <i class="fas fa-receipt text-sm"></i>
+                </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-50 rounded-xl border border-slate-100 p-4 flex items-center">
+                    <div class="p-2 bg-emerald-100 rounded-lg mr-3">
+                        <i class="fas fa-file-invoice-dollar text-emerald-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Subscriptions</p>
+                        <h3 class="text-xl font-bold text-slate-800"><?= number_format($stats['active_subscriptions'] ?? 0) ?></h3>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl border border-slate-100 p-4 flex items-center">
+                    <div class="p-2 bg-indigo-100 rounded-lg mr-3">
+                        <i class="fas fa-layer-group text-indigo-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Plans</p>
+                        <h3 class="text-xl font-bold text-slate-800"><?= number_format($stats['active_plans'] ?? 0) ?></h3>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -111,6 +144,36 @@
                 <span class="text-slate-600">Global Mode</span>
                 <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">Active</span>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="font-bold text-slate-700">Open Incidents</h3>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Last 7 days</span>
+        </div>
+        <div class="p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-700">No incidents reported</p>
+            <p class="text-xs text-slate-500 mt-1">All monitored services are stable.</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="font-bold text-slate-700">Review Queue</h3>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Governance</span>
+        </div>
+        <div class="p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-clipboard-check text-lg"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-700">Nothing pending</p>
+            <p class="text-xs text-slate-500 mt-1">No approvals or escalations waiting.</p>
         </div>
     </div>
 </div>

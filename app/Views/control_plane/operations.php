@@ -95,7 +95,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">System</h3>
-                    <p class="text-xs text-slate-500 mt-1">High‑risk actions only.</p>
+                    <p class="text-xs text-slate-500 mt-1">High-risk actions only.</p>
                 </div>
                 <span class="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
                     <i class="fas fa-exclamation-triangle text-sm"></i>
