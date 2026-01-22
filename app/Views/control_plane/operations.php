@@ -33,6 +33,33 @@
             </ul>
         </div>
 
+        <!-- Access Control -->
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Access Control</h3>
+            <ul class="space-y-3">
+                <li>
+                    <a href="<?= base_url('rbac/status') ?>" class="text-sm text-slate-600 hover:text-slate-800 font-medium flex items-center">
+                        <i class="fas fa-shield-alt w-5"></i> RBAC Status
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('rbac/sync') ?>" class="text-sm text-slate-600 hover:text-slate-800 font-medium flex items-center">
+                        <i class="fas fa-sync-alt w-5"></i> Sync Permissions
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('rbac/init') ?>" class="text-sm text-slate-600 hover:text-slate-800 font-medium flex items-center">
+                        <i class="fas fa-seedling w-5"></i> Initialize RBAC
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('rbac/setup') ?>" class="text-sm text-slate-600 hover:text-slate-800 font-medium flex items-center">
+                        <i class="fas fa-tools w-5"></i> RBAC Setup
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <!-- System -->
         <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">System</h3>
