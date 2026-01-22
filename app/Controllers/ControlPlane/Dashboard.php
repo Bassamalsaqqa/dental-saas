@@ -4,6 +4,7 @@ namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
 use App\Models\ClinicSubscriptionModel;
+use App\Models\ControlPlaneAuditModel;
 use App\Models\PlanModel;
 use App\Models\UserModel;
 use App\Services\ControlPlaneAuditService;
@@ -43,6 +44,35 @@ class Dashboard extends BaseController
         $userModel = new UserModel();
         $activeUsers = $userModel->where('active', 1)->countAllResults();
 
+        $recentClinics = $clinicModel
+            ->select('id, name, status, created_at')
+            ->orderBy('created_at', 'DESC')
+            ->limit(3)
+            ->find();
+
+        $auditModel = new ControlPlaneAuditModel();
+        $startDate = date('Y-m-d 00:00:00', strtotime('-13 days'));
+        $activityRows = $auditModel
+            ->select('DATE(created_at) as day, COUNT(*) as total')
+            ->where('created_at >=', $startDate)
+            ->groupBy('DATE(created_at)')
+            ->orderBy('DATE(created_at)', 'ASC')
+            ->findAll();
+
+        $activityTotals = [];
+        foreach ($activityRows as $row) {
+            $activityTotals[$row['day']] = (int) $row['total'];
+        }
+
+        $activitySeries = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = date('Y-m-d', strtotime('-' . $i . ' days'));
+            $activitySeries[] = [
+                'day' => $day,
+                'total' => $activityTotals[$day] ?? 0,
+            ];
+        }
+
         $data = [
             'title' => 'Control Plane Dashboard',
             'global_mode' => true,
@@ -51,7 +81,10 @@ class Dashboard extends BaseController
                 'active_subscriptions' => $activeSubscriptions,
                 'active_plans' => $activePlans,
                 'active_users' => $activeUsers
-            ]
+            ],
+            'recent_clinics' => $recentClinics,
+            'recent_plan_requests' => [],
+            'activity_series' => $activitySeries,
         ];
 
         return view('control_plane/dashboard', $data);

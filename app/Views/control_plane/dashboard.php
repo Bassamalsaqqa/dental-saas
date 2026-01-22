@@ -66,10 +66,21 @@
                 </div>
                 <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
             </div>
-            <div class="h-56 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-indigo-50 border border-slate-100 p-4 flex items-end gap-3">
-                <?php for ($i = 0; $i < 14; $i++): ?>
-                    <div class="flex-1 bg-emerald-200/70 rounded-t-2xl" style="height: <?= 20 + ($i % 7) * 12 ?>%"></div>
-                <?php endfor; ?>
+            <?php
+            $series = $activity_series ?? [];
+            $maxTotal = 0;
+            foreach ($series as $point) {
+                if (($point['total'] ?? 0) > $maxTotal) {
+                    $maxTotal = (int) $point['total'];
+                }
+            }
+            $maxTotal = max(1, $maxTotal);
+            ?>
+            <div class="h-56 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-indigo-50 border border-slate-100 p-4 flex items-end gap-2">
+                <?php foreach ($series as $point): ?>
+                    <?php $height = 18 + (int) (($point['total'] ?? 0) / $maxTotal * 70); ?>
+                    <div class="flex-1 bg-emerald-200/70 rounded-t-2xl" style="height: <?= $height ?>%"></div>
+                <?php endforeach; ?>
             </div>
         </div>
         <div class="space-y-6">
@@ -110,30 +121,27 @@
         <div class="cp-soft-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-slate-800">Recent clinics</h3>
-                <span class="text-xs text-slate-400">Last 10</span>
+                <span class="text-xs text-slate-400">Last 3</span>
             </div>
             <div class="space-y-3 text-sm">
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic A</p>
-                        <p class="text-xs text-slate-400">Onboarded 2 days ago</p>
+                <?php if (!empty($recent_clinics)): ?>
+                    <?php foreach ($recent_clinics as $clinic): ?>
+                        <?php $status = $clinic['status'] ?? 'inactive'; ?>
+                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
+                            <div>
+                                <p class="font-semibold text-slate-800"><?= esc($clinic['name']) ?></p>
+                                <p class="text-xs text-slate-400">Created <?= esc($clinic['created_at'] ?? 'unknown') ?></p>
+                            </div>
+                            <span class="text-xs font-semibold <?= $status === 'active' ? 'text-emerald-700' : 'text-slate-500' ?>">
+                                <?= esc(ucfirst($status)) ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="rounded-2xl border border-slate-100 bg-white px-4 py-6 text-center text-slate-400">
+                        No clinics yet.
                     </div>
-                    <span class="text-xs font-semibold text-emerald-700">Active</span>
-                </div>
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic B</p>
-                        <p class="text-xs text-slate-400">Trial ends in 5 days</p>
-                    </div>
-                    <span class="text-xs font-semibold text-amber-700">Trial</span>
-                </div>
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic C</p>
-                        <p class="text-xs text-slate-400">Renewal in 12 days</p>
-                    </div>
-                    <span class="text-xs font-semibold text-indigo-700">Renewal</span>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -143,27 +151,21 @@
                 <span class="text-xs text-slate-400">Queue</span>
             </div>
             <div class="space-y-3 text-sm">
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic B</p>
-                        <p class="text-xs text-slate-400">Upgrade to Platinum</p>
+                <?php if (!empty($recent_plan_requests)): ?>
+                    <?php foreach ($recent_plan_requests as $request): ?>
+                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
+                            <div>
+                                <p class="font-semibold text-slate-800"><?= esc($request['clinic_name'] ?? 'Clinic') ?></p>
+                                <p class="text-xs text-slate-400"><?= esc($request['summary'] ?? 'Plan change requested') ?></p>
+                            </div>
+                            <span class="text-xs font-semibold text-amber-700">Pending</span>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="rounded-2xl border border-slate-100 bg-white px-4 py-6 text-center text-slate-400">
+                        No plan requests.
                     </div>
-                    <span class="text-xs font-semibold text-emerald-700">Review</span>
-                </div>
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic D</p>
-                        <p class="text-xs text-slate-400">Plan trial extension</p>
-                    </div>
-                    <span class="text-xs font-semibold text-amber-700">Pending</span>
-                </div>
-                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                    <div>
-                        <p class="font-semibold text-slate-800">Clinic E</p>
-                        <p class="text-xs text-slate-400">New annual plan</p>
-                    </div>
-                    <span class="text-xs font-semibold text-indigo-700">Queued</span>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
