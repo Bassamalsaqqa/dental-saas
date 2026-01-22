@@ -25,7 +25,14 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('clinics/(:num)', 'ControlPlane\Clinics::show/$1'); // CP-UX-20 detail
         $routes->get('plans', 'ControlPlane\Plans::index'); // CP-UX-22
         $routes->get('plans/create', 'ControlPlane\Plans::create'); // CP-UX-23
+        $routes->post('plans', 'ControlPlane\Plans::store'); // CP-UX-23
+        $routes->get('plans/(:num)/edit', 'ControlPlane\Plans::edit/$1');
+        $routes->post('plans/(:num)', 'ControlPlane\Plans::update/$1');
+        $routes->post('plans/(:num)/toggle', 'ControlPlane\Plans::toggle/$1');
         $routes->get('plan-requests', 'ControlPlane\PlanRequests::index'); // CP-UX-24
+        $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
+        $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
+        $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
         $routes->get('email-templates', 'ControlPlane\EmailTemplates::index'); // CP-UX-25
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19

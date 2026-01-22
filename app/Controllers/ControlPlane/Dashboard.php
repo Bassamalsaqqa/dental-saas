@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\ControlPlaneAuditModel;
 use App\Models\PlanModel;
+use App\Models\PlanRequestModel;
 use App\Models\UserModel;
 use App\Services\ControlPlaneAuditService;
 
@@ -36,6 +37,7 @@ class Dashboard extends BaseController
         ]);
 
         $clinicModel = new \App\Models\ClinicModel();
+        $totalClinics = $clinicModel->countAllResults();
         $activeClinics = $clinicModel->where('status', 'active')->countAllResults();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $activeSubscriptions = $subscriptionModel->where('status', 'active')->countAllResults();
@@ -73,17 +75,37 @@ class Dashboard extends BaseController
             ];
         }
 
+        $planRequestModel = new PlanRequestModel();
+        $pendingRequests = $planRequestModel->where('status', 'pending')->countAllResults();
+        $recentRequestsRaw = $planRequestModel->orderBy('created_at', 'DESC')->limit(3)->findAll();
+        $recentRequests = [];
+
+        if (!empty($recentRequestsRaw)) {
+            $planModel = new PlanModel();
+            foreach ($recentRequestsRaw as $request) {
+                $clinic = $clinicModel->find($request['clinic_id']);
+                $plan = $planModel->find($request['requested_plan_id']);
+                $recentRequests[] = [
+                    'clinic_name' => $clinic['name'] ?? 'Clinic',
+                    'summary' => ($plan['name'] ?? 'Plan') . ' • ' . ucfirst($request['requested_duration'] ?? 'monthly'),
+                    'status' => $request['status'] ?? 'pending',
+                ];
+            }
+        }
+
         $data = [
             'title' => 'Control Plane Dashboard',
             'global_mode' => true,
             'stats' => [
+                'total_clinics' => $totalClinics,
                 'active_clinics' => $activeClinics,
                 'active_subscriptions' => $activeSubscriptions,
                 'active_plans' => $activePlans,
-                'active_users' => $activeUsers
+                'active_users' => $activeUsers,
+                'pending_requests' => $pendingRequests,
             ],
             'recent_clinics' => $recentClinics,
-            'recent_plan_requests' => [],
+            'recent_plan_requests' => $recentRequests,
             'activity_series' => $activitySeries,
         ];
 

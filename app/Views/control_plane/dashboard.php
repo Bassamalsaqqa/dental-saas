@@ -8,7 +8,7 @@
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Dashboard</p>
                 <h1 class="text-3xl font-semibold text-slate-900 mt-2">Control plane pulse</h1>
                 <p class="mt-3 text-sm text-slate-600 max-w-2xl">
-                    Snapshot of clinics, subscriptions, and platform health. Numbers are live once analytics is wired.
+                    Snapshot of clinics, subscriptions, and platform health.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">
@@ -23,8 +23,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Total Clinics</p>
-                    <h3 class="text-3xl font-semibold text-slate-900 mt-2"><?= number_format($stats['active_clinics'] ?? 0) ?></h3>
-                    <p class="text-xs text-slate-500 mt-2">Active clinics in good standing</p>
+                    <h3 class="text-3xl font-semibold text-slate-900 mt-2"><?= number_format($stats['total_clinics'] ?? 0) ?></h3>
+                    <p class="text-xs text-slate-500 mt-2">Active: <?= number_format($stats['active_clinics'] ?? 0) ?></p>
                 </div>
                 <span class="w-12 h-12 rounded-2xl bg-white/70 text-emerald-600 flex items-center justify-center">
                     <i class="fas fa-hospital-user text-lg"></i>
@@ -36,7 +36,8 @@
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Active Subscriptions</p>
                     <h3 class="text-3xl font-semibold text-slate-900 mt-2"><?= number_format($stats['active_subscriptions'] ?? 0) ?></h3>
-                    <p class="text-xs text-slate-500 mt-2">Renewals in progress</p>
+                    <p class="text-xs text-slate-500 mt-2">Active renewals</p>
+                    <p class="text-[11px] text-slate-400">Pending requests: <?= number_format($stats['pending_requests'] ?? 0) ?></p>
                 </div>
                 <span class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                     <i class="fas fa-receipt text-lg"></i>
@@ -48,7 +49,7 @@
                 <div>
                     <p class="text-xs uppercase tracking-widest text-slate-500">Active Plans</p>
                     <h3 class="text-3xl font-semibold text-slate-900 mt-2"><?= number_format($stats['active_plans'] ?? 0) ?></h3>
-                    <p class="text-xs text-slate-500 mt-2">Plans currently selling</p>
+                    <p class="text-xs text-slate-500 mt-2">Plans available</p>
                 </div>
                 <span class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                     <i class="fas fa-layer-group text-lg"></i>
@@ -62,7 +63,7 @@
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-900">Activity trend</h3>
-                    <p class="text-xs text-slate-500 mt-1">Placeholder chart until analytics integration.</p>
+                    <p class="text-xs text-slate-500 mt-1">Control plane activity volume.</p>
                 </div>
                 <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
             </div>
@@ -158,7 +159,9 @@
                                 <p class="font-semibold text-slate-800"><?= esc($request['clinic_name'] ?? 'Clinic') ?></p>
                                 <p class="text-xs text-slate-400"><?= esc($request['summary'] ?? 'Plan change requested') ?></p>
                             </div>
-                            <span class="text-xs font-semibold text-amber-700">Pending</span>
+                            <span class="text-xs font-semibold <?= ($request['status'] ?? 'pending') === 'approved' ? 'text-emerald-700' : 'text-amber-700' ?>">
+                                <?= esc(ucfirst($request['status'] ?? 'pending')) ?>
+                            </span>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
