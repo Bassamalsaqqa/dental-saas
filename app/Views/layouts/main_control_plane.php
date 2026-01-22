@@ -21,7 +21,7 @@
         }
 
         body {
-            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             color: var(--cp-ink);
         }
 
