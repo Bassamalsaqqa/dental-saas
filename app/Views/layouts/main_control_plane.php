@@ -3,114 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Plane — <?= $title ?? 'Dashboard' ?></title>
+    <title><?= esc($title ?? 'Control Plane') ?></title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="theme-color" content="#0f172a">
+    <meta name="csrf-name" content="<?= csrf_token() ?>">
+    <meta name="csrf-token" content="<?= csrf_hash() ?>">
+    <meta name="csrf-header" content="<?= csrf_header() ?>">
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <div class="flex h-screen">
-        <!-- Control Plane Sidebar (Dark Mode) -->
-        <aside class="w-64 bg-slate-900 border-r border-slate-800 shadow-2xl z-40 transition-all duration-300 transform flex-shrink-0 flex flex-col" id="sidebar">
+<body class="bg-gray-50 min-h-screen">
+    <?= view('components/toast') ?>
+
+    <div class="flex min-h-screen">
+        <!-- Control Plane Sidebar -->
+        <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col" id="cp-sidebar">
             <!-- Sidebar Header -->
-            <div class="p-4 border-b border-slate-800">
+            <div class="px-2 pb-2 pt-3 border-b border-white/30">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-network-wired text-white text-lg"></i>
+                    <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
+                        <div class="relative group">
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <div class="relative w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <i class="fas fa-network-wired text-white text-lg"></i>
+                            </div>
                         </div>
-                        <div>
-                            <h1 class="text-sm font-black text-white uppercase tracking-wider">Control Plane</h1>
-                            <p class="text-[10px] text-slate-400 font-medium">Global Admin</p>
+                        <div class="min-w-0 flex-shrink-0">
+                            <h1 class="text-lg font-black text-gray-900 whitespace-nowrap">Control Plane</h1>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></div>
+                                <p class="text-xs text-gray-500 font-medium whitespace-nowrap">Global Admin</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
+                    <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 lg:block hidden" onclick="document.getElementById('cp-sidebar').classList.toggle('-translate-x-full')" title="Toggle Sidebar">
+                        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <i class="fas fa-bars relative z-10"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- Sidebar Navigation -->
-            <nav class="flex-1 overflow-y-auto py-4">
-                <div class="px-4 mb-2">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Platform</h3>
-                    <ul class="space-y-1">
-                        <li>
-                            <a href="<?= base_url('controlplane/dashboard') ?>" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors <?= (strpos(uri_string(), 'dashboard') !== false) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?>">
-                                <i class="fas fa-tachometer-alt w-5 h-5 mr-2 <?= (strpos(uri_string(), 'dashboard') !== false) ? 'text-white' : 'text-slate-400 group-hover:text-white' ?>"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= base_url('controlplane/console') ?>" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors <?= (strpos(uri_string(), 'console') !== false) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?>">
-                                <i class="fas fa-terminal w-5 h-5 mr-2 <?= (strpos(uri_string(), 'console') !== false) ? 'text-white' : 'text-slate-400 group-hover:text-white' ?>"></i>
-                                Console
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= base_url('controlplane/operations') ?>" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors <?= (strpos(uri_string(), 'operations') !== false) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?>">
-                                <i class="fas fa-cogs w-5 h-5 mr-2 <?= (strpos(uri_string(), 'operations') !== false) ? 'text-white' : 'text-slate-400 group-hover:text-white' ?>"></i>
-                                Operations
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <nav class="flex-1">
+                <div class="p-4">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-pulse"></div>
+                        <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Platform</h3>
+                    </div>
+                    <ul class="space-y-2">
+                        <?php
+                        $menu = [
+                            'dashboard' => [
+                                'title' => 'Dashboard',
+                                'url' => 'controlplane/dashboard',
+                                'icon' => 'fas fa-tachometer-alt',
+                                'color' => 'indigo',
+                            ],
+                            'console' => [
+                                'title' => 'Console',
+                                'url' => 'controlplane/console',
+                                'icon' => 'fas fa-terminal',
+                                'color' => 'slate',
+                            ],
+                            'operations' => [
+                                'title' => 'Operations',
+                                'url' => 'controlplane/operations',
+                                'icon' => 'fas fa-cogs',
+                                'color' => 'blue',
+                            ],
+                            'settings' => [
+                                'title' => 'Settings',
+                                'url' => 'controlplane/settings',
+                                'icon' => 'fas fa-sliders-h',
+                                'color' => 'gray',
+                            ],
+                            'onboarding' => [
+                                'title' => 'Onboard Clinic',
+                                'url' => 'controlplane/onboarding/clinic/create',
+                                'icon' => 'fas fa-hospital-user',
+                                'color' => 'emerald',
+                            ],
+                            'danger' => [
+                                'title' => 'Danger Zone',
+                                'url' => 'controlplane/danger',
+                                'icon' => 'fas fa-exclamation-triangle',
+                                'color' => 'red',
+                            ],
+                        ];
 
-                <div class="px-4 mt-6">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">System</h3>
-                    <ul class="space-y-1">
+                        $colorClasses = [
+                            'indigo' => ['from-indigo-500 to-indigo-600', 'shadow-indigo-500/25', 'from-indigo-50 to-blue-50', 'text-indigo-800', 'shadow-indigo-500/10', 'text-indigo-600', 'text-indigo-700'],
+                            'slate' => ['from-slate-600 to-slate-700', 'shadow-slate-500/25', 'from-slate-50 to-slate-100', 'text-slate-700', 'shadow-slate-500/10', 'text-slate-600', 'text-slate-700'],
+                            'blue' => ['from-blue-500 to-blue-600', 'shadow-blue-500/25', 'from-blue-50 to-cyan-50', 'text-blue-800', 'shadow-blue-500/10', 'text-blue-600', 'text-blue-700'],
+                            'gray' => ['from-gray-500 to-gray-600', 'shadow-gray-500/25', 'from-gray-50 to-slate-50', 'text-gray-800', 'shadow-gray-500/10', 'text-gray-600', 'text-gray-700'],
+                            'emerald' => ['from-emerald-500 to-emerald-600', 'shadow-emerald-500/25', 'from-emerald-50 to-green-50', 'text-emerald-800', 'shadow-emerald-500/10', 'text-emerald-600', 'text-emerald-700'],
+                            'red' => ['from-red-500 to-red-600', 'shadow-red-500/25', 'from-red-50 to-rose-50', 'text-red-800', 'shadow-red-500/10', 'text-red-600', 'text-red-700'],
+                        ];
+
+                        foreach ($menu as $key => $item):
+                            $isActive = (strpos(uri_string(), $item['url']) === 0);
+                            $colors = $colorClasses[$item['color']];
+                        ?>
                         <li>
-                            <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors <?= (strpos(uri_string(), 'settings') !== false) ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?>">
-                                <i class="fas fa-sliders-h w-5 h-5 mr-2 <?= (strpos(uri_string(), 'settings') !== false) ? 'text-white' : 'text-slate-400 group-hover:text-white' ?>"></i>
-                                Settings
+                            <a href="<?= base_url($item['url']) ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= $isActive ? 'bg-gradient-to-r ' . $colors[0] . ' text-white shadow-lg ' . $colors[1] . ' mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:' . $colors[2] . ' hover:' . $colors[3] . ' hover:shadow-md hover:' . $colors[4] . ' mx-1' ?>">
+                                <div class="absolute inset-0 bg-gradient-to-r <?= $colors[5] . ' ' . $colors[6] ?> rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <i class="<?= $item['icon'] ?> w-5 h-5 mr-3 relative z-10 <?= $isActive ? 'text-white' : $colors[5] . ' group-hover:' . $colors[6] ?>"></i>
+                                <span class="relative z-10"><?= $item['title'] ?></span>
                             </a>
                         </li>
-                        <li>
-                            <a href="<?= base_url('controlplane/danger') ?>" class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors text-red-400 hover:bg-red-900/20 hover:text-red-300">
-                                <i class="fas fa-exclamation-triangle w-5 h-5 mr-2"></i>
-                                Danger Zone
-                            </a>
-                        </li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
             </nav>
 
             <!-- Sidebar Footer -->
-            <div class="p-4 border-t border-slate-800 bg-slate-900">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-shield text-white text-xs"></i>
+            <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/80">
+                <div class="group relative cursor-pointer hover:bg-white/50 rounded-xl p-3 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/10 block">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                    <div class="flex items-center space-x-3 relative z-10">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <div class="relative w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <i class="fas fa-user-shield text-white text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-gray-900 truncate">
+                                <?php
+                                $user = $user ?? null;
+                                $displayName = 'Super Admin';
+                                if ($user) {
+                                    if (property_exists($user, 'first_name') && property_exists($user, 'last_name') &&
+                                        !empty($user->first_name) && !empty($user->last_name)) {
+                                        $displayName = esc(trim($user->first_name . ' ' . $user->last_name));
+                                    } elseif (property_exists($user, 'username') && !empty($user->username)) {
+                                        $displayName = esc($user->username);
+                                    } elseif (property_exists($user, 'email') && !empty($user->email)) {
+                                        $displayName = esc($user->email);
+                                    }
+                                }
+                                echo $displayName;
+                                ?>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></div>
+                                <div class="text-xs text-gray-500 font-medium">
+                                    Global Mode Active
+                                </div>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('controlplane/danger') ?>" class="text-gray-400 hover:text-gray-900" title="Exit Global Mode">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-white">Super Admin</p>
-                        <p class="text-[10px] text-slate-400">Global Mode Active</p>
-                    </div>
-                    <a href="<?= base_url('controlplane/danger') ?>" class="text-slate-400 hover:text-white" title="Exit Global Mode">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 min-h-screen bg-slate-50 transition-all duration-200 flex flex-col overflow-hidden">
+        <div class="flex-1 min-h-screen bg-gray-50 transition-all duration-200 flex flex-col overflow-hidden">
             <!-- Top Navigation -->
-            <header class="bg-white border-b border-slate-200 shadow-sm z-30 px-6 py-3 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-slate-800"><?= $title ?? 'Dashboard' ?></h2>
+            <header class="bg-white border-b border-gray-200 shadow-sm z-30 px-6 py-3 flex justify-between items-center">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Control Plane</p>
+                    <h2 class="text-xl font-bold text-gray-900"><?= esc($title ?? 'Dashboard') ?></h2>
+                </div>
                 <div class="flex items-center space-x-4">
                     <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold uppercase tracking-wide">
-                        Control Plane Environment
+                        Global Admin
                     </span>
                 </div>
             </header>
 
             <!-- Content Body -->
             <main class="flex-1 px-6 py-8 overflow-y-auto">
-                <!-- Flash Messages -->
                 <?php if (session()->getFlashdata('success')): ?>
                     <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
                         <i class="fas fa-check-circle mr-3 text-lg text-green-600"></i>
                         <span class="text-green-800"><?= session()->getFlashdata('success') ?></span>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if (session()->getFlashdata('error')): ?>
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
                         <i class="fas fa-exclamation-circle mr-3 text-lg text-red-600"></i>

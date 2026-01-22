@@ -1,5 +1,5 @@
 <?php $title = 'ONBOARDING'; ?>
-<?= $this->extend('layouts/control_plane') ?>
+<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <div class="max-w-3xl space-y-6">

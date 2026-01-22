@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/control_plane') ?>
+<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <div class="flex min-h-[60vh] items-center justify-center">

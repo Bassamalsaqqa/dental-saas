@@ -1,11 +1,11 @@
 <?php $title = 'OPERATOR CONSOLE'; ?>
-<?= $this->extend('layouts/control_plane') ?>
+<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <div class="max-w-7xl mx-auto space-y-10">
     <!-- Header -->
     <div class="space-y-3">
-        <h1 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Control Plane — Operator Console</h1>
+        <h1 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Control Plane - Operator Console</h1>
         <p class="text-sm text-slate-700">Read-only governance telemetry. No actions are executed here.</p>
         <div class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
             <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
