@@ -3,8 +3,8 @@
 <?= $this->section('content') ?>
 <div class="max-w-2xl mx-auto text-center py-12">
     <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">Control Plane</p>
-    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <i class="fas fa-cogs text-slate-400 text-2xl"></i>
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-cogs text-gray-400 text-2xl"></i>
     </div>
     <h1 class="text-2xl font-bold text-slate-900 mb-4">Global Settings</h1>
     <p class="text-slate-500 mb-8">

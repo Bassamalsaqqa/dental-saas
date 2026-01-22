@@ -8,8 +8,8 @@
         <h1 class="text-2xl font-bold text-gray-900">Clinic Onboarding</h1>
         <p class="mt-3 text-sm text-slate-700">Create a clinic, admin user, and subscription in a single transaction.</p>
     </div>
-    <div class="bg-white border border-slate-200">
-        <div class="p-6 border-b border-slate-100 bg-slate-50">
+    <div class="bg-white border border-gray-200">
+        <div class="p-6 border-b border-gray-100 bg-gray-50">
             <h2 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">New Clinic</h2>
         </div>
         

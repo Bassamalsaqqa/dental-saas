@@ -8,7 +8,7 @@
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Active Clinics Widget -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
         <div class="p-3 bg-indigo-100 rounded-full mr-4">
             <i class="fas fa-hospital text-indigo-600 text-xl"></i>
         </div>
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Placeholder Widgets -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
         <div class="p-3 bg-green-100 rounded-full mr-4">
             <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
         </div>
@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
         <div class="p-3 bg-blue-100 rounded-full mr-4">
             <i class="fas fa-users text-blue-600 text-xl"></i>
         </div>
@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
         <div class="p-3 bg-red-100 rounded-full mr-4">
             <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
         </div>
@@ -52,8 +52,8 @@
 
 <!-- Recent Activity / Quick Actions Section -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
             <h3 class="font-bold text-slate-700">Quick Actions</h3>
         </div>
         <div class="p-6 grid grid-cols-2 gap-4">
@@ -68,8 +68,8 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
             <h3 class="font-bold text-slate-700">System Status</h3>
         </div>
         <div class="p-6">

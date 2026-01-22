@@ -10,7 +10,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Onboarding -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Clinic Onboarding</h3>
             <ul class="space-y-3">
                 <li>
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Monitoring -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Monitoring</h3>
             <ul class="space-y-3">
                 <li>
@@ -34,7 +34,7 @@
         </div>
 
         <!-- System -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">System</h3>
             <ul class="space-y-3">
                 <li>

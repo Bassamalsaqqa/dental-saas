@@ -32,7 +32,7 @@
         <h2 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Governance Overview</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Plans -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Plans</h3>
             <div class="flex items-baseline space-x-6">
                 <div>
@@ -47,7 +47,7 @@
         </div>
         
         <!-- Clinics -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Clinics</h3>
             <div>
                 <span class="text-2xl font-black text-slate-900"><?= esc($clinicsTotal) ?></span>
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Subscriptions -->
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Subscriptions</h3>
             <div>
                 <span class="text-2xl font-black text-emerald-600"><?= esc($subscriptionsActive) ?></span>
@@ -68,13 +68,13 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- 2. Recent Governance Events -->
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Recent Governance Events</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                    <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100">
                         <tr>
                             <th class="px-6 py-3">Timestamp</th>
                             <th class="px-6 py-3">Action</th>
@@ -82,12 +82,12 @@
                             <th class="px-6 py-3">Clinic ID</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-gray-100">
                         <?php if (empty($recentAudits)): ?>
                             <tr><td colspan="4" class="px-6 py-4 text-slate-400 italic">No audit records found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($recentAudits as $audit): ?>
-                                <tr class="hover:bg-slate-50/50">
+                                <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($audit['created_at']) ?></td>
                                     <td class="px-6 py-3 font-medium text-slate-700"><?= esc($audit['action_key']) ?></td>
                                     <td class="px-6 py-3 text-slate-500"><?= esc($audit['reason_code']) ?></td>
@@ -101,13 +101,13 @@
         </div>
 
         <!-- 3. Notifications Observability -->
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Notifications Ledger</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                    <thead class="bg-gray-50 text-slate-500 font-medium border-b border-gray-100">
                         <tr>
                             <th class="px-6 py-3">Created</th>
                             <th class="px-6 py-3">Channel</th>
@@ -115,12 +115,12 @@
                             <th class="px-6 py-3">Clinic</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-gray-100">
                         <?php if (empty($recentNotifications)): ?>
                             <tr><td colspan="4" class="px-6 py-4 text-slate-400 italic">No notifications found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($recentNotifications as $notif): ?>
-                                <tr class="hover:bg-slate-50/50">
+                                <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($notif['created_at']) ?></td>
                                     <td class="px-6 py-3 font-medium text-slate-700"><?= esc($notif['channel_type']) ?></td>
                                     <td class="px-6 py-3">
