@@ -30,9 +30,48 @@
         </div>
         <div class="glass-card rounded-2xl p-4">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan Coverage</p>
-            <p class="text-sm text-slate-600 mt-2">Ensure every clinic has an active plan.</p>
+            <p class="text-sm text-slate-600 mt-2">Showing <?= number_format($stats['filtered'] ?? 0) ?> clinics in view.</p>
         </div>
     </div>
+
+    <form method="get" class="glass-card rounded-2xl p-5 flex flex-col lg:flex-row lg:items-end gap-4">
+        <div class="flex-1">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Search</label>
+            <input type="text" name="q" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Clinic name or ID"
+                   class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </div>
+        <div class="w-full lg:w-56">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</label>
+            <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <?php $currentStatus = $filters['status'] ?? ''; ?>
+                <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
+                <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                <option value="inactive" <?= $currentStatus === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+            </select>
+        </div>
+        <div class="w-full lg:w-64">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan</label>
+            <select name="plan_id" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <?php $currentPlan = (int) ($filters['plan_id'] ?? 0); ?>
+                <option value="0" <?= $currentPlan === 0 ? 'selected' : '' ?>>All plans</option>
+                <?php foreach (($plans ?? []) as $plan): ?>
+                    <option value="<?= esc($plan['id']) ?>" <?= $currentPlan === (int) $plan['id'] ? 'selected' : '' ?>>
+                        <?= esc($plan['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">
+                Apply Filters
+            </button>
+            <a href="<?= base_url('controlplane/clinics') ?>"
+               class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">
+                Reset
+            </a>
+        </div>
+    </form>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <?php foreach ($cards as $card): ?>

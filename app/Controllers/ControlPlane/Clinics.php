@@ -26,27 +26,55 @@ class Clinics extends BaseController
             'route' => '/controlplane/clinics',
         ]);
 
+        $request = service('request');
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
+        $planFilter = (int) ($request ? $request->getGet('plan_id') : 0);
+        $search = trim((string) ($request ? $request->getGet('q') : ''));
+
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
 
-        $clinics = $clinicModel->orderBy('created_at', 'DESC')->findAll();
-        $activeClinics = 0;
+        $totalClinics = $clinicModel->countAllResults();
+        $activeClinics = (new ClinicModel())->where('status', 'active')->countAllResults();
+
+        $clinicQuery = $clinicModel->orderBy('created_at', 'DESC');
+        if (in_array($statusFilter, ['active', 'inactive', 'suspended'], true)) {
+            $clinicQuery = $clinicQuery->where('status', $statusFilter);
+        }
+        if ($search !== '') {
+            if (ctype_digit($search)) {
+                $clinicQuery = $clinicQuery->groupStart()
+                    ->where('id', (int) $search)
+                    ->orLike('name', $search)
+                    ->orLike('slug', $search)
+                    ->groupEnd();
+            } else {
+                $clinicQuery = $clinicQuery->groupStart()
+                    ->like('name', $search)
+                    ->orLike('slug', $search)
+                    ->groupEnd();
+            }
+        }
+
+        $clinics = $clinicQuery->findAll();
         $cards = [];
 
         foreach ($clinics as $clinic) {
             $status = $clinic['status'] ?? 'inactive';
-            if ($status === 'active') {
-                $activeClinics++;
-            }
 
             $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
             $planName = 'Unassigned';
+            $planId = $subscription['plan_id'] ?? null;
             if ($subscription && !empty($subscription['plan_id'])) {
                 $plan = $planModel->find($subscription['plan_id']);
                 if (!empty($plan['name'])) {
                     $planName = $plan['name'];
                 }
+            }
+
+            if ($planFilter > 0 && (int) $planId !== $planFilter) {
+                continue;
             }
 
             $cards[] = [
@@ -60,9 +88,16 @@ class Clinics extends BaseController
             'title' => 'Clinics',
             'cards' => $cards,
             'stats' => [
-                'total' => count($clinics),
+                'total' => $totalClinics,
                 'active' => $activeClinics,
+                'filtered' => count($cards),
             ],
+            'filters' => [
+                'status' => $statusFilter,
+                'plan_id' => $planFilter,
+                'q' => $search,
+            ],
+            'plans' => $planModel->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 

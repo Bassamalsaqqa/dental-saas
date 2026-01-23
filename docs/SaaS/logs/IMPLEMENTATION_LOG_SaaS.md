@@ -717,3 +717,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-SUB-01A.md
+
+## [2026-01-23] Clinics Management UX (CP-UX-20)
+**Tasks:** CP-UX-20
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added action panel filters (search, status, plan) and reset for the control plane clinics card view.
+- Controller now filters clinics by status/search and optionally by plan, while preserving global stats.
+
+### Verification
+- docs/SaaS/verification/CP-UX-20.md
