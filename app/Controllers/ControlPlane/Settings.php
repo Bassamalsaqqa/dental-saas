@@ -23,9 +23,28 @@ class Settings extends BaseController
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/settings'
         ]);
+        $request = service('request');
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
+        $search = trim((string) ($request ? $request->getGet('q') : ''));
+        $activeTemplateId = (int) ($request ? $request->getGet('template_id') : 0);
+
         $templateModel = new EmailTemplateModel();
-        $templates = $templateModel->orderBy('id', 'DESC')->findAll();
-        $activeTemplateId = (int) ($this->request->getGet('template_id') ?? 0);
+        $templateQuery = $templateModel->orderBy('id', 'DESC');
+        if (in_array($statusFilter, ['active', 'draft'], true)) {
+            $templateQuery = $templateQuery->where('status', $statusFilter);
+        }
+        if ($search !== '') {
+            $templateQuery = $templateQuery->groupStart()
+                ->like('name', $search)
+                ->orLike('slug', $search)
+                ->orLike('subject', $search)
+                ->groupEnd();
+        }
+
+        $templates = $templateQuery->findAll();
+        $totalTemplates = $templateModel->countAllResults();
+        $activeTemplates = (new EmailTemplateModel())->where('status', 'active')->countAllResults();
+        $draftTemplates = (new EmailTemplateModel())->where('status', 'draft')->countAllResults();
         $activeTemplate = null;
         if ($activeTemplateId) {
             $activeTemplate = $templateModel->find($activeTemplateId);
@@ -34,6 +53,16 @@ class Settings extends BaseController
             'title' => 'Settings',
             'templates' => $templates,
             'activeTemplate' => $activeTemplate,
+            'templateStats' => [
+                'total' => $totalTemplates,
+                'active' => $activeTemplates,
+                'draft' => $draftTemplates,
+                'filtered' => count($templates),
+            ],
+            'templateFilters' => [
+                'status' => $statusFilter,
+                'q' => $search,
+            ],
         ]);
     }
 

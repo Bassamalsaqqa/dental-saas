@@ -131,6 +131,46 @@
                 : base_url('controlplane/settings/email-templates');
         ?>
 
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4">
+                <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Total</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($templateStats['total'] ?? 0) ?></p>
+            </div>
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4">
+                <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Active</p>
+                <p class="text-2xl font-semibold text-emerald-600 mt-1"><?= number_format($templateStats['active'] ?? 0) ?></p>
+            </div>
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4">
+                <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Drafts</p>
+                <p class="text-2xl font-semibold text-amber-600 mt-1"><?= number_format($templateStats['draft'] ?? 0) ?></p>
+            </div>
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4">
+                <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">In View</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($templateStats['filtered'] ?? 0) ?></p>
+            </div>
+        </div>
+
+        <form method="get" class="grid grid-cols-1 lg:grid-cols-[2fr,1fr,auto] gap-4 items-end mb-6">
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Search</label>
+                <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" placeholder="Template name or slug"
+                       class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</label>
+                <?php $currentTemplateStatus = $templateFilters['status'] ?? ''; ?>
+                <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>>All statuses</option>
+                    <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">Filter</button>
+                <a href="<?= base_url('controlplane/settings') ?>" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">Reset</a>
+            </div>
+        </form>
+
         <div id="template-editor" class="glass-muted rounded-2xl p-6 mb-6">
             <form action="<?= $templateAction ?>" method="post" class="space-y-4">
                 <?= csrf_field() ?>

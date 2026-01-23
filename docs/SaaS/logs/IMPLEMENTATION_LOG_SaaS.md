@@ -778,3 +778,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-24.md
+
+## [2026-01-23] Email Templates UX (CP-UX-25)
+**Tasks:** CP-UX-25
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added email template stats cards and filters (status/search) to the settings panel.
+- Controller now supports filtered template lists with aggregate counts.
+
+### Verification
+- docs/SaaS/verification/CP-UX-25.md
