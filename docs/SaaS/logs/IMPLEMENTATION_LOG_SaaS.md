@@ -655,3 +655,15 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-AUDIT-01.md`
+
+## [2026-01-23] Control Plane Navigation Cleanup (CP-NAV-01)
+**Tasks:** CP-NAV-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Removed deprecated control plane pages and routes (console, admin tools, email templates, danger page).
+- Kept plan request POST endpoints and centralized exit to `/controlplane/exit`.
+
+### Verification
+- `docs/SaaS/verification/CP-NAV-01.md`

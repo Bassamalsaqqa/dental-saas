@@ -239,7 +239,7 @@
                 <p class="mt-2 text-sm text-slate-600">End global mode immediately after administrative tasks are complete.</p>
             </div>
         </div>
-        <form action="<?= base_url('controlplane/danger/exit') ?>" method="post" class="space-y-6">
+        <form action="<?= base_url('controlplane/exit') ?>" method="post" class="space-y-6">
             <?= csrf_field() ?>
             <div class="flex items-start space-x-4">
                 <div class="flex items-center h-5">

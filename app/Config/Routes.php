@@ -19,8 +19,6 @@ $routes->group('controlplane', function ($routes) {
 // 2. Protected Surfaces (Requires Global Mode via Filter)
     $routes->group('controlplane', ['filter' => 'controlplane'], function ($routes) {
         $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
-        $routes->get('console', 'ControlPlane\Console::index'); // P5-16
-        $routes->get('admin-tools', 'ControlPlane\AdminTools::index'); // CP-UX-14
         $routes->get('clinics', 'ControlPlane\Clinics::index'); // CP-UX-20
         $routes->get('clinics/(:num)', 'ControlPlane\Clinics::show/$1'); // CP-UX-20 detail
         $routes->post('clinics/(:num)/subscription/start', 'ControlPlane\Clinics::startSubscription/$1');
@@ -36,19 +34,12 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('plans/(:num)/edit', 'ControlPlane\Plans::edit/$1');
         $routes->post('plans/(:num)', 'ControlPlane\Plans::update/$1');
         $routes->post('plans/(:num)/toggle', 'ControlPlane\Plans::toggle/$1');
-        $routes->get('plan-requests', 'ControlPlane\PlanRequests::index'); // CP-UX-24
         $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
         $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
-        $routes->get('email-templates', 'ControlPlane\EmailTemplates::index'); // CP-UX-25
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
-    
-    // Danger Zone (P5-17)
-    $routes->group('danger', function($routes) {
-        $routes->get('/', 'ControlPlane\Danger::index');
-        $routes->post('exit', 'ControlPlane\Danger::exitGlobalMode');
-    });
+        $routes->post('exit', 'ControlPlane::exit');
     
     // Onboarding (P5-11)
     $routes->group('onboarding', function($routes) {
