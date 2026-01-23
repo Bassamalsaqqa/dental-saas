@@ -27,17 +27,37 @@ class PlanRequests extends BaseController
             'route' => '/controlplane/plan-requests',
         ]);
 
+        $request = service('request');
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
+        $search = trim((string) ($request ? $request->getGet('q') : ''));
+
         $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $clinicModel = new ClinicModel();
         $planModel = new PlanModel();
 
-        $requests = $planRequestModel
+        $requestQuery = $planRequestModel
             ->select('plan_requests.*, clinics.name as clinic_name, requested_plan.name as requested_plan_name, current_plan.name as current_plan_name')
             ->join('clinics', 'clinics.id = plan_requests.clinic_id', 'left')
             ->join('plans as requested_plan', 'requested_plan.id = plan_requests.requested_plan_id', 'left')
             ->join('plans as current_plan', 'current_plan.id = plan_requests.current_plan_id', 'left')
-            ->orderBy('plan_requests.created_at', 'DESC')
-            ->findAll();
+            ->orderBy('plan_requests.created_at', 'DESC');
+
+        if (in_array($statusFilter, ['pending', 'approved', 'rejected'], true)) {
+            $requestQuery = $requestQuery->where('plan_requests.status', $statusFilter);
+        }
+        if ($search !== '') {
+            $requestQuery = $requestQuery->groupStart()
+                ->like('clinics.name', $search)
+                ->orLike('requested_plan.name', $search)
+                ->orLike('current_plan.name', $search)
+                ->groupEnd();
+        }
+
+        $requests = $requestQuery->findAll();
+        $totalRequests = $planRequestModel->countAllResults();
+        $pendingRequests = (new PlanRequestModel())->withoutTenantScope()->where('status', 'pending')->countAllResults();
+        $approvedRequests = (new PlanRequestModel())->withoutTenantScope()->where('status', 'approved')->countAllResults();
+        $rejectedRequests = (new PlanRequestModel())->withoutTenantScope()->where('status', 'rejected')->countAllResults();
 
         $plans = $planModel->orderBy('id', 'DESC')->findAll();
         $cards = [];
@@ -58,6 +78,17 @@ class PlanRequests extends BaseController
             'planRequests' => $requests,
             'requestClinics' => $clinicModel->orderBy('name', 'ASC')->findAll(),
             'requestPlans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
+            'requestStats' => [
+                'total' => $totalRequests,
+                'pending' => $pendingRequests,
+                'approved' => $approvedRequests,
+                'rejected' => $rejectedRequests,
+                'filtered' => count($requests),
+            ],
+            'requestFilters' => [
+                'status' => $statusFilter,
+                'q' => $search,
+            ],
         ]);
     }
 

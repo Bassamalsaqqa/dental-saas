@@ -766,3 +766,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-23.md
+
+## [2026-01-23] Plan Requests UX (CP-UX-24)
+**Tasks:** CP-UX-24
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added plan request stats cards and filters (status/search) to the queue.
+- Controller now supports status + search filters and provides aggregate counts.
+
+### Verification
+- docs/SaaS/verification/CP-UX-24.md
