@@ -104,7 +104,7 @@ class Dashboard extends BaseController
             ];
         }
 
-        $planRequestModel = new PlanRequestModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $pendingRequests = $planRequestModel->where('status', 'pending')->countAllResults();
         $recentRequestsRaw = $planRequestModel->orderBy('created_at', 'DESC')->limit(3)->findAll();
         $recentRequests = [];

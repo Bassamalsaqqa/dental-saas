@@ -27,7 +27,7 @@ class PlanRequests extends BaseController
             'route' => '/controlplane/plan-requests',
         ]);
 
-        $planRequestModel = new PlanRequestModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $clinicModel = new ClinicModel();
         $planModel = new PlanModel();
 
@@ -69,7 +69,7 @@ class PlanRequests extends BaseController
         $request = service('request');
         $post = $request ? $request->getPost() : [];
 
-        $planRequestModel = new PlanRequestModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $clinicId = (int) ($post['clinic_id'] ?? 0);
         $requestedPlanId = (int) ($post['requested_plan_id'] ?? 0);
         $duration = $post['requested_duration'] ?? 'monthly';
@@ -100,7 +100,7 @@ class PlanRequests extends BaseController
      */
     public function approve(int $id)
     {
-        $planRequestModel = new PlanRequestModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $request = $planRequestModel->find($id);
         if (!$request || ($request['status'] ?? '') !== 'pending') {
             return redirect()->to(base_url('controlplane/plans'))->with('error', 'Request not found or already handled.');
@@ -148,7 +148,7 @@ class PlanRequests extends BaseController
      */
     public function reject(int $id)
     {
-        $planRequestModel = new PlanRequestModel();
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $request = $planRequestModel->find($id);
         if (!$request || ($request['status'] ?? '') !== 'pending') {
             return redirect()->to(base_url('controlplane/plans'))->with('error', 'Request not found or already handled.');

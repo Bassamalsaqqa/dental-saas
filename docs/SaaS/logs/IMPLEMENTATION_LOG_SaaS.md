@@ -680,3 +680,14 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-EMAIL-01.md`
+
+## [2026-01-23] Control Plane Plan Requests Scope Fix (CP-DASH-01)
+**Tasks:** CP-DASH-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Applied `withoutTenantScope()` to Control Plane PlanRequestModel queries to prevent tenant-context 404s in global mode (dashboard + plan request actions).
+
+### Verification
+- `docs/SaaS/verification/CP-DASH-01.md`
