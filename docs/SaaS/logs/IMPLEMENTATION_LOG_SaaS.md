@@ -790,3 +790,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-25.md
+
+## [2026-01-23] Settings UX Layout (CP-UX-26)
+**Tasks:** CP-UX-26
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Rebuilt settings area into a sectioned layout with overview navigation and grouped policy cards.
+- Consolidated the policy note into the settings panel for better visibility.
+
+### Verification
+- docs/SaaS/verification/CP-UX-26.md
