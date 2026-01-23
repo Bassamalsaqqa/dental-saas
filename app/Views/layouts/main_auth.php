@@ -311,6 +311,15 @@
                 
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center space-x-4" id="header-right">
+                    <?php if (session()->get('is_impersonating')): ?>
+                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
+                        <?= csrf_field() ?>
+                        <span class="text-xs font-semibold text-rose-600">Impersonating</span>
+                        <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
+                            Exit
+                        </button>
+                    </form>
+                    <?php endif; ?>
                     <!-- Clinic Switcher (Moved here) -->
                     <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
                     <div class="relative group" id="clinic-switcher">

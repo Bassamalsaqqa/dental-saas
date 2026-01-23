@@ -125,4 +125,37 @@ class ControlPlane extends BaseController
 
         return redirect()->to('/dashboard')->with('success', 'Impersonation active for ' . ($clinic['name'] ?? 'clinic') . '.');
     }
+
+    /**
+     * Exit impersonation and return to Control Plane
+     * POST /controlplane/impersonation/exit
+     */
+    public function exitImpersonation()
+    {
+        if (!$this->ionAuth->loggedIn()) {
+            return redirect()->to('/auth/login');
+        }
+
+        $userId = $this->ionAuth->getUserId();
+        $isSuperAdmin = $this->permissionService && $this->permissionService->isSuperAdmin($userId);
+        if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
+            $isSuperAdmin = true;
+        }
+        if (!$isSuperAdmin) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        session()->set('global_mode', true);
+        session()->remove('active_clinic_id');
+        session()->remove('active_clinic_role_id');
+        session()->remove('impersonated_clinic_id');
+        session()->remove('is_impersonating');
+        session()->regenerate();
+
+        $this->auditService->logEvent('impersonation_end', [
+            'route' => '/controlplane/impersonation/exit'
+        ]);
+
+        return redirect()->to('/controlplane/dashboard')->with('success', 'Exited impersonation.');
+    }
 }

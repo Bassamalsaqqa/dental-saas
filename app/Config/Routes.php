@@ -14,6 +14,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('controlplane', function ($routes) {
     $routes->get('/', 'ControlPlane\Entry::index'); // P5-18c
     $routes->post('enter', 'ControlPlane::enter');
+    $routes->post('impersonation/exit', 'ControlPlane::exitImpersonation'); // CP-GLASS-08
 });
 
 // 2. Protected Surfaces (Requires Global Mode via Filter)

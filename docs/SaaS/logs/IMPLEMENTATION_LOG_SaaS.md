@@ -1012,3 +1012,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-09.md
+
+## [2026-01-23] Exit Impersonation Control (CP-GLASS-08)
+**Tasks:** CP-GLASS-08
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a tenant-plane Exit Impersonation control and route to return to the Control Plane.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-08.md
