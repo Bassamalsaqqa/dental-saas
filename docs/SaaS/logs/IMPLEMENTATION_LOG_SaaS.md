@@ -813,3 +813,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-00.md
+
+## [2026-01-23] Control Plane Layout Unification (CP-UX-01)
+**Tasks:** CP-UX-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Verified all control plane views extend the unified main_control_plane layout.
+
+### Verification
+- docs/SaaS/verification/CP-UX-01.md
