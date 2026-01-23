@@ -605,3 +605,16 @@
 
 ### Verification
 - `docs/SaaS/verification/WEB-CSRF-01.md`
+
+## [2026-01-23] Plan Limits Hardening (CP-PLAN-01)
+**Tasks:** CP-PLAN-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Enforced plan seat limits (`users_max`) in tenant user creation.
+- Enforced plan storage limits (`storage_gb`) for uploads and exports via StorageService.
+- Added model helpers for live clinic user counts and attachment storage totals.
+
+### Verification
+- `docs/SaaS/verification/CP-PLAN-01.md`

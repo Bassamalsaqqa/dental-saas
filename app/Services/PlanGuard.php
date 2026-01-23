@@ -7,6 +7,8 @@ use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanUsageModel;
 use App\Models\PlanAuditModel;
 use App\Models\PatientModel;
+use App\Models\ClinicUserModel;
+use App\Models\FileAttachmentModel;
 
 class PlanGuard
 {
@@ -15,6 +17,8 @@ class PlanGuard
     protected $usageModel;
     protected $auditModel;
     protected $patientModel;
+    protected $clinicUserModel;
+    protected $fileAttachmentModel;
 
     const PLAN_MISSING_SUBSCRIPTION = 'PLAN_MISSING_SUBSCRIPTION';
     const PLAN_SUBSCRIPTION_INACTIVE = 'PLAN_SUBSCRIPTION_INACTIVE';
@@ -28,6 +32,8 @@ class PlanGuard
         $this->usageModel = new PlanUsageModel();
         $this->auditModel = new PlanAuditModel();
         $this->patientModel = new PatientModel();
+        $this->clinicUserModel = new ClinicUserModel();
+        $this->fileAttachmentModel = new FileAttachmentModel();
     }
 
     /**
@@ -179,7 +185,7 @@ class PlanGuard
             return; // Unlimited
         }
 
-        // Live Count Quota (Snapshot)
+        // Live Count Quota (Snapshot) - Patients
         if ($canonicalKey === 'patients_active_max') {
              $current = $this->patientModel->countActivePatientsByClinic($clinicId);
              if ($current + $delta > $limit) {
@@ -195,6 +201,45 @@ class PlanGuard
                  throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan limit reached.");
              }
              return;
+        }
+
+        // Live Count Quota (Snapshot) - Users
+        if ($canonicalKey === 'users_max') {
+            $current = $this->clinicUserModel->countActiveByClinic($clinicId);
+            if ($current + $delta > $limit) {
+                $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, ['metric' => $canonicalKey, 'limit' => $limit, 'current' => $current]));
+                log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit={$limit} usage={$current}");
+
+                if ($this->isApiScope()) {
+                    return ['allowed' => false, 'code' => 'plan_quota_exceeded', 'message' => 'Plan user limit reached.', 'status_code' => 429, 'details' => ['metric' => $canonicalKey, 'limit' => $limit, 'usage' => $current]];
+                }
+
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan user limit reached.");
+            }
+            return;
+        }
+
+        // Storage Quota (Snapshot)
+        if ($canonicalKey === 'storage_gb') {
+            $currentBytes = $this->fileAttachmentModel->getTotalSizeByClinic($clinicId);
+            $limitBytes = $limit > 0 ? (int) ($limit * 1024 * 1024 * 1024) : 0;
+
+            if ($limitBytes > 0 && ($currentBytes + $delta) > $limitBytes) {
+                $details = [
+                    'metric' => $canonicalKey,
+                    'limit_gb' => $limit,
+                    'usage_gb' => round($currentBytes / (1024 * 1024 * 1024), 3),
+                ];
+                $this->audit($clinicId, 'quota_check', self::PLAN_QUOTA_EXCEEDED, array_merge($meta, $details));
+                log_message('error', "PLAN_QUOTA_BLOCK: clinic_id={$clinicId} metric={$canonicalKey} limit_gb={$limit} usage_bytes={$currentBytes}");
+
+                if ($this->isApiScope()) {
+                    return ['allowed' => false, 'code' => 'plan_quota_exceeded', 'message' => 'Plan storage limit reached.', 'status_code' => 429, 'details' => $details];
+                }
+
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Access Denied: Plan storage limit reached.");
+            }
+            return;
         }
 
         // Monthly Usage Quota

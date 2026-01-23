@@ -47,4 +47,14 @@ class ClinicUserModel extends Model
                     ->where('user_id', $userId)
                     ->countAllResults() > 0;
     }
+
+    /**
+     * Count active users for a clinic.
+     */
+    public function countActiveByClinic(int $clinicId): int
+    {
+        return (int) $this->where('clinic_id', $clinicId)
+                          ->where('status', 'active')
+                          ->countAllResults();
+    }
 }

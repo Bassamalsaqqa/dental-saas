@@ -28,6 +28,12 @@ class StorageService
             throw new \RuntimeException($file->getErrorString() . '(' . $file->getError() . ')');
         }
 
+        // Enforce storage quota before persistence
+        $this->planGuard->assertQuota($clinicId, 'storage_gb', (int) $file->getSize(), [
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+        ]);
+
         $tenantPath = 'clinic_' . $clinicId;
         $uploadPath = $this->basePath . DIRECTORY_SEPARATOR . $tenantPath;
 
@@ -63,6 +69,11 @@ class StorageService
         // Enforce Plan Limits (P5-10)
         $this->planGuard->assertFeature($clinicId, 'exports.enabled');
         $this->planGuard->assertQuota($clinicId, 'exports', 1);
+        $this->planGuard->assertQuota($clinicId, 'storage_gb', (int) strlen($content), [
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'purpose' => $purpose,
+        ]);
 
         $tenantPath = 'clinic_' . $clinicId;
         $uploadPath = $this->basePath . DIRECTORY_SEPARATOR . $tenantPath;

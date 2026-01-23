@@ -53,4 +53,17 @@ class FileAttachmentModel extends TenantAwareModel
     {
         return $this->db->table($this->table)->delete(['id' => $id]);
     }
+
+    /**
+     * Sum file size for a clinic (bytes).
+     */
+    public function getTotalSizeByClinic(int $clinicId): int
+    {
+        $row = $this->withoutTenantScope()
+            ->selectSum('file_size', 'total_size')
+            ->where('clinic_id', $clinicId)
+            ->first();
+
+        return (int) ($row['total_size'] ?? 0);
+    }
 }

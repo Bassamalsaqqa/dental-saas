@@ -7,6 +7,7 @@ use App\Models\RoleModel;
 use App\Models\UserRoleModel;
 use App\Models\PermissionModel;
 use App\Services\PermissionService;
+use App\Services\PlanGuard;
 use App\Libraries\IonAuth;
 
 class UserManagementController extends BaseController
@@ -131,6 +132,12 @@ class UserManagementController extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $clinicId = session()->get('active_clinic_id');
+        if ($clinicId) {
+            $planGuard = new PlanGuard();
+            $planGuard->assertQuota((int) $clinicId, 'users_max', 1, ['action' => 'user_create']);
         }
 
         $roles = $this->request->getPost('roles') ?? [];
