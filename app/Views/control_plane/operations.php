@@ -52,19 +52,33 @@
         <div class="glass-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-800">Clinic onboarding</h3>
-                    <p class="text-xs text-slate-500 mt-1">Provision tenants with audited workflows.</p>
+                    <h3 class="text-sm font-semibold text-slate-800">Operator workflows</h3>
+                    <p class="text-xs text-slate-500 mt-1">Daily tasks to keep tenants healthy and compliant.</p>
                 </div>
                 <span class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                    <i class="fas fa-hospital-user"></i>
+                    <i class="fas fa-clipboard-list"></i>
                 </span>
             </div>
-            <a href="<?= base_url('controlplane/clinic/create') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-indigo-100 bg-indigo-50 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors">
-                <span class="flex items-center gap-2">
-                    <i class="fas fa-plus"></i> Onboard New Clinic
-                </span>
-                <i class="fas fa-arrow-right text-xs"></i>
-            </a>
+            <div class="space-y-3">
+                <a href="<?= base_url('controlplane/clinic/create') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-indigo-100 bg-indigo-50 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Onboard New Clinic
+                    </span>
+                    <span class="text-xs text-indigo-400">Create tenant</span>
+                </a>
+                <a href="<?= base_url('controlplane/clinics') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-emerald-100 bg-emerald-50 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-hospital-user"></i> Review Clinics
+                    </span>
+                    <span class="text-xs text-emerald-400">Status checks</span>
+                </a>
+                <a href="<?= base_url('controlplane/plans#plan-requests') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-amber-100 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-inbox"></i> Process Plan Requests
+                    </span>
+                    <span class="text-xs text-amber-500">Queue review</span>
+                </a>
+            </div>
         </div>
 
         <div class="glass-card rounded-3xl p-6">

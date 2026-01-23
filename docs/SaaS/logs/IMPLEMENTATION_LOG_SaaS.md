@@ -849,3 +849,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-03.md
+
+## [2026-01-23] Operational Workflows UX (CP-UX-04)
+**Tasks:** CP-UX-04
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Reframed operations quick actions into operator workflows with focused tasks and clearer intent cues.
+
+### Verification
+- docs/SaaS/verification/CP-UX-04.md
