@@ -40,6 +40,8 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
         $routes->post('exit', 'ControlPlane::exit');
+        $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
+        $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');
     
     // Onboarding (P5-11)
     $routes->group('onboarding', function($routes) {

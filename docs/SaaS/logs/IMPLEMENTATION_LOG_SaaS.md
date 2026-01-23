@@ -667,3 +667,16 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-NAV-01.md`
+
+## [2026-01-23] Control Plane Email Templates (CP-EMAIL-01)
+**Tasks:** CP-EMAIL-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added email_templates schema migration and model.
+- Implemented create/update handlers in control plane settings.
+- Replaced placeholder settings email template section with list + form.
+
+### Verification
+- `docs/SaaS/verification/CP-EMAIL-01.md`
