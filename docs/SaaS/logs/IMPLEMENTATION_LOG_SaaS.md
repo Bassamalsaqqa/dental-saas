@@ -802,3 +802,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-26.md
+
+## [2026-01-23] Control Plane Inventory & Freeze (CP-UX-00)
+**Tasks:** CP-UX-00
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Captured control plane route inventory and verified all control plane views extend main_control_plane.
+
+### Verification
+- docs/SaaS/verification/CP-UX-00.md
