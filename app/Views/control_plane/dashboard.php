@@ -13,7 +13,7 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Global Mode</span>
-                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Read-only KPIs</span>
+                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Read-only</span>
             </div>
         </div>
     </div>

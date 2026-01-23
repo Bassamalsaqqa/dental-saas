@@ -860,3 +860,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-04.md
+
+## [2026-01-23] Control Plane Polish & Parity (CP-UX-05)
+**Tasks:** CP-UX-05
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Harmonized dashboard badge copy and simplified control plane footer label.
+
+### Verification
+- docs/SaaS/verification/CP-UX-05.md

@@ -145,7 +145,7 @@
                 </nav>
 
                 <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/80 text-xs text-gray-500">
-                    Control Plane v2 (replacement)
+                    Control Plane v2
                 </div>
             </aside>
         <?php endif; ?>
