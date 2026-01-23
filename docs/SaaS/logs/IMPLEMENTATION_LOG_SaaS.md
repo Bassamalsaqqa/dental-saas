@@ -1001,3 +1001,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-07.md
+
+## [2026-01-23] Clinics DataTables CSRF Header Fix (CP-GLASS-09)
+**Tasks:** CP-GLASS-09
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Aligned DataTables AJAX CSRF header usage with configured header metadata and enforced JSON parsing.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-09.md

@@ -283,6 +283,7 @@ let clinicsTable;
 const baseUrl = '<?= base_url() ?>';
 const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
 const csrfMetaToken = document.querySelector('meta[name="csrf-token"]');
+const csrfMetaHeader = document.querySelector('meta[name="csrf-header"]');
 const csrfCookieName = '<?= esc(config('Security')->cookieName) ?>';
 let terminateClinicName = '';
 
@@ -308,6 +309,10 @@ function getCsrfName() {
 
 function getCsrfToken() {
     return csrfMetaToken ? csrfMetaToken.getAttribute('content') : '';
+}
+
+function getCsrfHeaderName() {
+    return csrfMetaHeader ? csrfMetaHeader.getAttribute('content') : 'X-CSRF-TOKEN';
 }
 
 function refreshCsrfToken() {
@@ -399,10 +404,12 @@ $(document).ready(function() {
         ajax: {
             url: '<?= base_url('controlplane/clinics') ?>',
             type: 'POST',
+            dataType: 'json',
             beforeSend: function(xhr) {
                 const csrfToken = getCsrfToken();
+                const headerName = getCsrfHeaderName();
                 if (csrfToken) {
-                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                    xhr.setRequestHeader(headerName, csrfToken);
                 }
             },
             data: function(d) {
@@ -423,6 +430,7 @@ $(document).ready(function() {
             },
             error: function(xhr, error, thrown) {
                 console.error('Clinics DataTables error:', error, thrown);
+                console.error('Clinics DataTables response:', xhr.responseText);
                 if (xhr.responseJSON && xhr.responseJSON.csrf_token && csrfMetaToken) {
                     csrfMetaToken.setAttribute('content', xhr.responseJSON.csrf_token);
                 }
