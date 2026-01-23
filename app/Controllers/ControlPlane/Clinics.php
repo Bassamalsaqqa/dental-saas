@@ -27,7 +27,7 @@ class Clinics extends BaseController
         ]);
 
         $request = service('request');
-        $isPost = $this->request->getMethod() === 'post';
+        $isPost = strtoupper($this->request->getMethod()) === 'POST';
         $statusFilter = strtolower(trim((string) ($request ? ($isPost ? $request->getPost('status') : $request->getGet('status')) : '')));
         $planFilter = (int) ($request ? ($isPost ? $request->getPost('plan_id') : $request->getGet('plan_id')) : 0);
         $search = trim((string) ($request ? ($isPost ? $request->getPost('q') : $request->getGet('q')) : ''));

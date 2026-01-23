@@ -1023,3 +1023,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-08.md
+
+## [2026-01-23] Clinics DataTables POST Detection Fix (CP-GLASS-10)
+**Tasks:** CP-GLASS-10
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Fixed Clinics::index POST detection to ensure DataTables receives JSON, not HTML.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-10.md
