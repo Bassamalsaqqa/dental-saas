@@ -618,3 +618,16 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-PLAN-01.md`
+
+## [2026-01-23] Clinic Lifecycle Controls (CP-CLINIC-01)
+**Tasks:** CP-CLINIC-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added suspend/reactivate actions for clinics (status update + subscription pause/resume when applicable).
+- Wired lifecycle actions into control plane clinic list and clinic detail views.
+- Added routes for suspend/reactivate controls.
+
+### Verification
+- `docs/SaaS/verification/CP-CLINIC-01.md`

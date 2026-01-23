@@ -77,12 +77,27 @@
                     <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 cursor-not-allowed" disabled>
                         Upgrade Plan
                     </button>
-                    <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 cursor-not-allowed" disabled>
-                        Suspend
-                    </button>
-                    <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700 cursor-not-allowed" disabled>
-                        Terminate
-                    </button>
+                    <?php if ($status === 'active'): ?>
+                        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/suspend') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700">
+                                Suspend
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/reactivate') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700">
+                                Reactivate
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                    <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/terminate') ?>" method="post">
+                        <?= csrf_field() ?>
+                        <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700">
+                            Terminate
+                        </button>
+                    </form>
                 </div>
             </div>
         <?php endforeach; ?>

@@ -101,6 +101,17 @@
             <div class="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-3">
                 <h3 class="text-xs uppercase tracking-widest text-rose-700 font-semibold">Terminate clinic</h3>
                 <p class="text-xs text-slate-500">Disables clinic access and deactivates subscription.</p>
+                <?php if (($clinic['status'] ?? 'inactive') === 'active'): ?>
+                    <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/suspend') ?>" method="post">
+                        <?= csrf_field() ?>
+                        <button class="w-full px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">Suspend Clinic</button>
+                    </form>
+                <?php else: ?>
+                    <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/reactivate') ?>" method="post">
+                        <?= csrf_field() ?>
+                        <button class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Reactivate Clinic</button>
+                    </form>
+                <?php endif; ?>
                 <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/cancel') ?>" method="post">
                     <?= csrf_field() ?>
                     <button class="w-full px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">Cancel Subscription</button>

@@ -237,6 +237,66 @@ class Clinics extends BaseController
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic terminated.');
     }
 
+    /**
+     * POST /controlplane/clinics/{id}/suspend
+     */
+    public function suspend(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $subscription = $subscriptionModel->getCurrentSubscription($id);
+        if ($subscription && ($subscription['status'] ?? '') === 'active') {
+            $subscriptionModel->update($subscription['id'], [
+                'status' => 'paused',
+            ]);
+        }
+
+        $clinicModel->update($id, ['status' => 'suspended']);
+
+        $this->auditService->logEvent('clinic_suspend', [
+            'route' => '/controlplane/clinics/' . $id . '/suspend',
+            'method' => 'POST',
+            'metadata' => ['clinic_id' => $id],
+        ]);
+
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic suspended.');
+    }
+
+    /**
+     * POST /controlplane/clinics/{id}/reactivate
+     */
+    public function reactivate(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $subscription = $subscriptionModel->getCurrentSubscription($id);
+        if ($subscription && ($subscription['status'] ?? '') === 'paused') {
+            $subscriptionModel->update($subscription['id'], [
+                'status' => 'active',
+            ]);
+        }
+
+        $clinicModel->update($id, ['status' => 'active']);
+
+        $this->auditService->logEvent('clinic_reactivate', [
+            'route' => '/controlplane/clinics/' . $id . '/reactivate',
+            'method' => 'POST',
+            'metadata' => ['clinic_id' => $id],
+        ]);
+
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic reactivated.');
+    }
+
     private function resolveEndAt(string $duration, string $startAt): ?string
     {
         if ($duration === 'lifetime') {
