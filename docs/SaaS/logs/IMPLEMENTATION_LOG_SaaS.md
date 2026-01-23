@@ -988,3 +988,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-06.md
+
+## [2026-01-23] Clinic Lifecycle Actions + Impersonation (CP-GLASS-07)
+**Tasks:** CP-GLASS-07
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added control plane impersonation flow with audited session transition to tenant context.
+- Added terminate confirmation modal and Login As actions in clinic list and clinic detail.
+- Tenant filter now allows superadmin impersonation without membership.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-07.md

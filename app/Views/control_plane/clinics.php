@@ -246,12 +246,45 @@
     </div>
 </div>
 
+<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4">
+    <div class="w-full max-w-lg rounded-3xl border border-rose-100 bg-white/95 shadow-2xl backdrop-blur-xl">
+        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-rose-400 font-semibold">Danger Zone</p>
+                <h3 class="text-lg font-semibold text-slate-900">Terminate clinic</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" onclick="closeTerminateModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="px-6 py-4 space-y-4 text-sm text-slate-600">
+            <p>
+                This will immediately disable access and cancel subscriptions for
+                <span id="terminateClinicName" class="font-semibold text-slate-900">this clinic</span>.
+                Type the clinic name to confirm.
+            </p>
+            <input type="text" id="terminateConfirmInput" class="w-full rounded-xl border border-rose-200 px-3 py-2 text-sm"
+                   placeholder="Type clinic name to confirm" oninput="updateTerminateState()">
+        </div>
+        <form id="terminateForm" method="post" class="px-6 pb-6 flex items-center justify-between gap-3">
+            <?= csrf_field() ?>
+            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" onclick="closeTerminateModal()">
+                Cancel
+            </button>
+            <button id="terminateConfirmButton" type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold opacity-60 cursor-not-allowed" disabled>
+                Terminate Clinic
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
 let clinicsTable;
 const baseUrl = '<?= base_url() ?>';
 const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
 const csrfMetaToken = document.querySelector('meta[name="csrf-token"]');
 const csrfCookieName = '<?= esc(config('Security')->cookieName) ?>';
+let terminateClinicName = '';
 
 function getCookieValue(name) {
     if (!name) {
@@ -311,6 +344,50 @@ function formatCurrency(value) {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericValue);
     }
     return `$${numericValue.toFixed(2)}`;
+}
+
+function openTerminateModal(clinicId, clinicNameEncoded) {
+    const modal = document.getElementById('terminateModal');
+    const nameEl = document.getElementById('terminateClinicName');
+    const inputEl = document.getElementById('terminateConfirmInput');
+    const formEl = document.getElementById('terminateForm');
+    const decodedName = decodeURIComponent(clinicNameEncoded || 'Clinic');
+
+    terminateClinicName = decodedName;
+    if (nameEl) {
+        nameEl.textContent = decodedName;
+    }
+    if (formEl) {
+        formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/terminate`;
+    }
+    if (inputEl) {
+        inputEl.value = '';
+    }
+    updateTerminateState();
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeTerminateModal() {
+    const modal = document.getElementById('terminateModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function updateTerminateState() {
+    const inputEl = document.getElementById('terminateConfirmInput');
+    const buttonEl = document.getElementById('terminateConfirmButton');
+    if (!inputEl || !buttonEl) {
+        return;
+    }
+    const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
+    buttonEl.disabled = !matches;
+    buttonEl.classList.toggle('opacity-60', !matches);
+    buttonEl.classList.toggle('cursor-not-allowed', !matches);
 }
 
 $(document).ready(function() {
@@ -409,6 +486,7 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const id = escapeHtml(data || '');
                     const status = (row.status || 'inactive').toLowerCase();
+                    const encodedName = encodeURIComponent(row.name || 'Clinic');
                     let actions = '<div class="flex flex-wrap items-center gap-2">';
 
                     actions += `
@@ -430,10 +508,13 @@ $(document).ready(function() {
                     }
 
                     actions += `
-                        <form action="${baseUrl}controlplane/clinics/${id}/terminate" method="post">
+                        <form action="${baseUrl}controlplane/impersonate" method="post">
                             ${renderCsrfField()}
-                            <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700">Terminate</button>
-                        </form>`;
+                            <input type="hidden" name="clinic_id" value="${id}">
+                            <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700">Login As</button>
+                        </form>
+                        <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700"
+                                onclick="openTerminateModal('${id}', '${encodedName}')">Terminate</button>`;
 
                     actions += '</div>';
                     return actions;
@@ -497,6 +578,15 @@ $(document).ready(function() {
         $('#clinicPlan').val('0');
         clinicsTable.draw();
     });
+
+    const modal = document.getElementById('terminateModal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeTerminateModal();
+            }
+        });
+    }
 });
 </script>
 

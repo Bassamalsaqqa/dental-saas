@@ -88,6 +88,23 @@ class TenantFilter implements FilterInterface
             ->get()
             ->getRowArray();
 
+        $isImpersonating = $session->get('is_impersonating') === true;
+        $impersonatedClinicId = $session->get('impersonated_clinic_id');
+        if (!$membership && $isImpersonating && $impersonatedClinicId && (string) $impersonatedClinicId === (string) $activeClinicId) {
+            $permissionService = service('permission');
+            if (!$permissionService) {
+                $permissionService = new \App\Services\PermissionService();
+            }
+            if ($permissionService->isSuperAdmin($userId)) {
+                $session->remove('active_clinic_role_id');
+                log_message('info', 'Impersonation bypass for user_id={userId} clinic_id={clinicId}', [
+                    'userId' => $userId,
+                    'clinicId' => $activeClinicId,
+                ]);
+                return null;
+            }
+        }
+
         // 3. Invalid Context
         if (!$membership) {
             $session->remove(['active_clinic_id', 'active_clinic_role_id']);
