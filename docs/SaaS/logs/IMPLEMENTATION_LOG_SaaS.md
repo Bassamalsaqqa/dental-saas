@@ -965,3 +965,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-04.md
+
+## [2026-01-23] Control Plane Command Palette UX Refinements (CP-GLASS-05)
+**Tasks:** CP-GLASS-05
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added recent search memory, section icons, and keyboard hint footer to the command palette.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-05.md

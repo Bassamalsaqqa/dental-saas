@@ -240,6 +240,14 @@
                 <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500"></div>
                 <div id="cp-command-results" class="space-y-3"></div>
             </div>
+            <div class="flex flex-wrap items-center gap-2 border-t border-slate-200 bg-white/70 px-6 py-3 text-[11px] font-semibold text-slate-500">
+                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">↑ ↓</span>
+                <span>Navigate</span>
+                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">Enter</span>
+                <span>Open</span>
+                <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">Esc</span>
+                <span>Close</span>
+            </div>
         </div>
     </div>
 
@@ -291,6 +299,7 @@
             document.body.classList.add('overflow-hidden');
             setCommandStatus('Type at least 2 characters to search.');
             resetCommandItems();
+            renderRecentSearches();
             if (cpInput) {
                 cpInput.value = '';
                 cpInput.focus();
@@ -316,11 +325,18 @@
             });
         }
 
-        function createSection(title) {
+        function createSection(title, iconClass) {
             const section = document.createElement('div');
             const heading = document.createElement('div');
-            heading.className = 'px-3 text-xs font-semibold uppercase tracking-widest text-slate-400';
-            heading.textContent = title;
+            heading.className = 'px-3 text-xs font-semibold uppercase tracking-widest text-slate-400 flex items-center gap-2';
+            if (iconClass) {
+                const icon = document.createElement('i');
+                icon.className = `${iconClass} text-slate-400`;
+                heading.appendChild(icon);
+            }
+            const label = document.createElement('span');
+            label.textContent = title;
+            heading.appendChild(label);
             section.appendChild(heading);
             return { section, list: document.createElement('div') };
         }
@@ -354,7 +370,7 @@
             const links = payload.results.links || [];
 
             if (clinics.length > 0) {
-                const { section, list } = createSection('Clinics');
+                const { section, list } = createSection('Clinics', 'fas fa-hospital-user');
                 clinics.forEach((clinic) => {
                     const label = clinic.name || 'Clinic';
                     let detail = clinic.domain || '';
@@ -377,7 +393,7 @@
             }
 
             if (users.length > 0) {
-                const { section, list } = createSection('Users');
+                const { section, list } = createSection('Users', 'fas fa-user');
                 users.forEach((user) => {
                     const label = user.email || 'User';
                     const meta = user.name ? user.name : 'Control Plane user';
@@ -393,7 +409,7 @@
             }
 
             if (links.length > 0) {
-                const { section, list } = createSection('Navigation');
+                const { section, list } = createSection('Navigation', 'fas fa-compass');
                 links.forEach((link) => {
                     const label = link.title || 'Link';
                     const meta = link.url || '';
@@ -410,6 +426,7 @@
 
             if (sections.length === 0) {
                 setCommandStatus('No results found.');
+                renderRecentSearches();
                 return;
             }
 
@@ -419,10 +436,61 @@
             setCommandStatus(`${cpItems.length} results`);
         }
 
+        function getRecentSearches() {
+            const raw = localStorage.getItem('cp_command_recent');
+            if (!raw) {
+                return [];
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveRecentSearch(query) {
+            if (!query || query.length < 2) {
+                return;
+            }
+            const existing = getRecentSearches().filter((item) => item !== query);
+            const next = [query, ...existing].slice(0, 5);
+            localStorage.setItem('cp_command_recent', JSON.stringify(next));
+        }
+
+        function renderRecentSearches() {
+            const recent = getRecentSearches();
+            if (!cpResults) {
+                return;
+            }
+            if (recent.length === 0) {
+                return;
+            }
+            const { section, list } = createSection('Recent', 'fas fa-clock');
+            recent.forEach((term) => {
+                const button = createResultButton(term, 'Recent search', () => {
+                    if (cpInput) {
+                        cpInput.value = term;
+                        handleCommandInput();
+                    }
+                });
+                list.appendChild(button);
+                cpItems.push(button);
+            });
+            list.className = 'mt-2 space-y-2';
+            section.appendChild(list);
+            cpResults.appendChild(section);
+            if (cpItems.length > 0 && cpActiveIndex === -1) {
+                cpActiveIndex = 0;
+                updateActiveItem();
+            }
+        }
+
         function fetchCommandResults(query) {
             if (!query || query.length < 2) {
                 resetCommandItems();
                 setCommandStatus('Type at least 2 characters to search.');
+                renderRecentSearches();
                 return;
             }
 
@@ -430,6 +498,7 @@
             fetch(`<?= base_url('controlplane/search/global') ?>?q=${encodeURIComponent(query)}`)
                 .then((response) => response.json())
                 .then((data) => {
+                    saveRecentSearch(query);
                     renderResults(data);
                 })
                 .catch(() => {
