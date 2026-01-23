@@ -28,55 +28,92 @@
 
     <form action="<?= $actionUrl ?>" method="post" class="glass-card rounded-3xl p-6 space-y-8">
         <?= csrf_field() ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Plan Name</label>
-                <input type="text" name="name" value="<?= esc($plan['name'] ?? '') ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Enter plan name" required>
+        <div class="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Plan Name</label>
+                        <input type="text" name="name" value="<?= esc($plan['name'] ?? '') ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Enter plan name" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Price</label>
+                        <input type="number" name="price" value="<?= esc($limits['price'] ?? 0) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Enter price" min="0" step="0.01">
+                        <p class="mt-2 text-xs text-slate-500">Set to 0 for free tiers or trials.</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Duration</label>
+                        <select name="duration" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <?php $duration = $limits['duration'] ?? 'monthly'; ?>
+                            <option value="monthly" <?= $duration === 'monthly' ? 'selected' : '' ?>>Monthly</option>
+                            <option value="yearly" <?= $duration === 'yearly' ? 'selected' : '' ?>>Yearly</option>
+                            <option value="lifetime" <?= $duration === 'lifetime' ? 'selected' : '' ?>>Lifetime</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Trial Days</label>
+                        <input type="number" name="trial_days" value="<?= esc($limits['trial_days'] ?? 0) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="0" min="0">
+                        <p class="mt-2 text-xs text-slate-500">Set to 0 to disable trials.</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Patient License</label>
+                        <input type="number" name="patient_limit" value="<?= esc($limits['patients_active_max'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">User Seats</label>
+                        <input type="number" name="user_seats" value="<?= esc($limits['users_max'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Storage (GB)</label>
+                        <input type="number" name="storage_gb" value="<?= esc($limits['storage_gb'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Status</label>
+                        <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <?php $status = $plan['status'] ?? 'active'; ?>
+                            <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
+                            <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Export Quota (per month)</label>
+                        <input type="number" name="export_quota" value="<?= esc($limits['exports'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Email Notification Quota (per month)</label>
+                        <input type="number" name="email_quota" value="<?= esc($limits['notifications_email'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Description</label>
+                    <textarea name="description" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" rows="4" placeholder="Plan description"><?= esc($limits['description'] ?? '') ?></textarea>
+                </div>
             </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Price</label>
-                <input type="number" name="price" value="<?= esc($limits['price'] ?? 0) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Enter price" min="0" step="0.01">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Duration</label>
-                <select name="duration" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    <?php $duration = $limits['duration'] ?? 'monthly'; ?>
-                    <option value="monthly" <?= $duration === 'monthly' ? 'selected' : '' ?>>Monthly</option>
-                    <option value="yearly" <?= $duration === 'yearly' ? 'selected' : '' ?>>Yearly</option>
-                    <option value="lifetime" <?= $duration === 'lifetime' ? 'selected' : '' ?>>Lifetime</option>
-                </select>
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Trial Days</label>
-                <input type="number" name="trial_days" value="<?= esc($limits['trial_days'] ?? 0) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="0" min="0">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Patient License</label>
-                <input type="number" name="patient_limit" value="<?= esc($limits['patients_active_max'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">User Seats</label>
-                <input type="number" name="user_seats" value="<?= esc($limits['users_max'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Storage (GB)</label>
-                <input type="number" name="storage_gb" value="<?= esc($limits['storage_gb'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Status</label>
-                <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    <?php $status = $plan['status'] ?? 'active'; ?>
-                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                </select>
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Export Quota (per month)</label>
-                <input type="number" name="export_quota" value="<?= esc($limits['exports'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Email Notification Quota (per month)</label>
-                <input type="number" name="email_quota" value="<?= esc($limits['notifications_email'] ?? -1) ?>" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="-1 for unlimited">
+
+            <div class="glass-muted rounded-2xl p-5 text-sm text-slate-600">
+                <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Configurator Tips</p>
+                <ul class="mt-3 space-y-2">
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle text-emerald-500 text-xs mt-1"></i>Use -1 for unlimited quotas.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle text-emerald-500 text-xs mt-1"></i>Set duration to Lifetime to remove end dates.</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-info-circle text-emerald-500 text-xs mt-1"></i>Inactive plans stay available for reporting but cannot be selected.</li>
+                </ul>
+                <div class="mt-6 rounded-2xl border border-white/70 bg-white/70 p-4">
+                    <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Preview</p>
+                    <div class="mt-3 space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Price</span>
+                            <span class="font-semibold text-slate-700">$<?= number_format((float) ($limits['price'] ?? 0), 2) ?></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Duration</span>
+                            <span class="font-semibold text-slate-700"><?= esc(ucfirst($limits['duration'] ?? 'monthly')) ?></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Trial</span>
+                            <span class="font-semibold text-slate-700"><?= esc($limits['trial_days'] ?? 0) ?> days</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -128,11 +165,6 @@
                     SMS notifications
                 </label>
             </div>
-        </div>
-
-        <div>
-            <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Description</label>
-            <textarea name="description" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" rows="4" placeholder="Plan description"><?= esc($limits['description'] ?? '') ?></textarea>
         </div>
 
         <div class="flex justify-end gap-3">
