@@ -38,7 +38,19 @@ class Operations extends BaseController
         $plansActive = $planModel->where('status', 'active')->countAllResults();
         $plansInactive = $planModel->where('status !=', 'active')->countAllResults();
         $clinicsTotal = $clinicModel->countAllResults();
-        $subscriptionsActive = $subscriptionModel->where('status', 'active')->countAllResults();
+        $now = date('Y-m-d H:i:s');
+        $subscriptionsActive = (new ClinicSubscriptionModel())
+            ->withoutTenantScope()
+            ->where('status', 'active')
+            ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
+                ->where('end_at IS NULL', null, false)
+                ->orWhere('end_at >', $now)
+            ->groupEnd()
+            ->countAllResults();
 
         $controlPlaneAudits = $controlPlaneAuditModel->orderBy('id', 'DESC')->findAll(10);
         $planAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);

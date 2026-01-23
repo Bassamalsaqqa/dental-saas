@@ -75,7 +75,7 @@ class PlanRequests extends BaseController
         $duration = $post['requested_duration'] ?? 'monthly';
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $current = $subscriptionModel->getCurrentSubscription($clinicId);
+        $current = $subscriptionModel->getNormalizedSubscription($clinicId);
 
         $planRequestModel->insert([
             'clinic_id' => $clinicId,
@@ -107,10 +107,7 @@ class PlanRequests extends BaseController
         }
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $current = $subscriptionModel->getCurrentSubscription((int) $request['clinic_id']);
-        if ($current) {
-            $current = $subscriptionModel->markExpiredIfNeeded($current);
-        }
+        $current = $subscriptionModel->getNormalizedSubscription((int) $request['clinic_id']);
         if ($current && in_array(($current['status'] ?? ''), ['active', 'paused'], true)) {
             $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($current['id'], [

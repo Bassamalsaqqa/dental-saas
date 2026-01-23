@@ -40,7 +40,7 @@ class Clinics extends BaseController
                 $activeClinics++;
             }
 
-            $subscription = $subscriptionModel->getCurrentSubscription((int) $clinic['id']);
+            $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
             $planName = 'Unassigned';
             if ($subscription && !empty($subscription['plan_id'])) {
                 $plan = $planModel->find($subscription['plan_id']);
@@ -84,7 +84,7 @@ class Clinics extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
-        $subscription = $subscriptionModel->getCurrentSubscription((int) $clinic['id']);
+        $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
         $planName = 'Unassigned';
         if ($subscription && !empty($subscription['plan_id'])) {
             $plan = $planModel->find($subscription['plan_id']);
@@ -122,10 +122,7 @@ class Clinics extends BaseController
             return redirect()->back()->with('error', 'Select a valid plan.');
         }
 
-        $current = $subscriptionModel->getCurrentSubscription($id);
-        if ($current) {
-            $current = $subscriptionModel->markExpiredIfNeeded($current);
-        }
+        $current = $subscriptionModel->getNormalizedSubscription($id);
         if ($current && in_array($current['status'] ?? '', ['active', 'paused'], true)) {
             $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($current['id'], [
@@ -162,10 +159,7 @@ class Clinics extends BaseController
     public function extendSubscription(int $id)
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if (!$subscription || ($subscription['status'] ?? '') !== 'active') {
             return redirect()->back()->with('error', 'No active subscription to extend.');
         }
@@ -193,10 +187,7 @@ class Clinics extends BaseController
     public function cancelSubscription(int $id)
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
             return redirect()->back()->with('error', 'No active or paused subscription to cancel.');
         }
@@ -224,10 +215,7 @@ class Clinics extends BaseController
     public function updateSubscriptionDates(int $id)
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
             return redirect()->back()->with('error', 'No active or paused subscription to update.');
         }
@@ -276,10 +264,7 @@ class Clinics extends BaseController
         }
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if ($subscription && in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
             $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($subscription['id'], [
@@ -313,10 +298,7 @@ class Clinics extends BaseController
         }
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if ($subscription && ($subscription['status'] ?? '') === 'active') {
             $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($subscription['id'], [
@@ -349,10 +331,7 @@ class Clinics extends BaseController
         }
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if ($subscription) {
-            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
-        }
+        $subscription = $subscriptionModel->getNormalizedSubscription($id);
         if ($subscription && ($subscription['status'] ?? '') === 'paused') {
             $subscriptionModel->update($subscription['id'], [
                 'status' => 'active',

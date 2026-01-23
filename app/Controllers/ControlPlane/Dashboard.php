@@ -40,10 +40,30 @@ class Dashboard extends BaseController
         $totalClinics = $clinicModel->countAllResults();
         $activeClinics = $clinicModel->where('status', 'active')->countAllResults();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $activeSubscriptions = $subscriptionModel->where('status', 'active')->countAllResults();
+        $now = date('Y-m-d H:i:s');
+        $activeSubscriptions = (new ClinicSubscriptionModel())
+            ->withoutTenantScope()
+            ->where('status', 'active')
+            ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
+                ->where('end_at IS NULL', null, false)
+                ->orWhere('end_at >', $now)
+            ->groupEnd()
+            ->countAllResults();
         $activeSubscriptionRows = (new ClinicSubscriptionModel())
             ->withoutTenantScope()
             ->where('status', 'active')
+            ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
+                ->where('end_at IS NULL', null, false)
+                ->orWhere('end_at >', $now)
+            ->groupEnd()
             ->findAll();
         $planModel = new PlanModel();
         $activePlans = $planModel->where('status', 'active')->countAllResults();
@@ -52,7 +72,11 @@ class Dashboard extends BaseController
         $expiringCount = (new ClinicSubscriptionModel())
             ->withoutTenantScope()
             ->where('status', 'active')
-            ->where('end_at >=', date('Y-m-d H:i:s'))
+            ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+            ->groupEnd()
+            ->where('end_at >=', $now)
             ->where('end_at <=', date('Y-m-d H:i:s', strtotime('+30 days')))
             ->countAllResults();
 

@@ -43,6 +43,19 @@ class ClinicSubscriptionModel extends TenantAwareModel
     }
 
     /**
+     * Get the latest subscription and normalize expired status.
+     */
+    public function getNormalizedSubscription(int $clinicId): ?array
+    {
+        $sub = $this->getCurrentSubscription($clinicId);
+        if (!$sub) {
+            return null;
+        }
+
+        return $this->markExpiredIfNeeded($sub);
+    }
+
+    /**
      * Mark a subscription as expired if its end_at has passed.
      */
     public function markExpiredIfNeeded(array $subscription): array

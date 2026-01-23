@@ -704,3 +704,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-SUB-01.md
+
+## [2026-01-23] Subscription Standing Normalization (CP-SUB-01A)
+**Tasks:** CP-SUB-01A
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added getNormalizedSubscription() in ClinicSubscriptionModel to normalize expired status on read.
+- Control plane clinics list/detail, plan requests, and lifecycle actions now use normalized subscription reads.
+- Control plane dashboard and operations metrics now filter subscriptions by start_at/end_at standing.
+
+### Verification
+- docs/SaaS/verification/CP-SUB-01A.md
