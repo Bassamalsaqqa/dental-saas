@@ -170,6 +170,11 @@
                 </div>
                 <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
                 <div class="flex items-center gap-3">
+                    <button type="button" id="cp-command-trigger" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 border border-white/60 text-slate-600 text-xs font-semibold shadow-sm hover:bg-white transition">
+                        <i class="fas fa-magnifying-glass text-indigo-500"></i>
+                        Super Search
+                        <span class="ml-1 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500">Cmd+K</span>
+                    </button>
                     <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Global Mode</span>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-user-circle text-lg"></i>
@@ -209,6 +214,35 @@
         </div>
     </div>
 
+    <div id="cp-command-palette" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/40 px-4 py-10">
+        <div class="w-full max-w-2xl rounded-3xl border border-white/30 bg-white/90 shadow-2xl backdrop-blur-xl">
+            <div class="flex items-center gap-3 border-b border-slate-200 px-6 py-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-700 to-emerald-600 text-white shadow-lg">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400 font-semibold">Global Command Palette</p>
+                    <p class="text-sm font-semibold text-slate-800">Search clinics, users, and navigation</p>
+                </div>
+                <button type="button" id="cp-command-close" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4">
+                <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <i class="fas fa-search text-indigo-500"></i>
+                    <input id="cp-command-input" type="text" placeholder="Search clinics, users, or actions..."
+                           class="w-full bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none">
+                    <span class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-500">Esc</span>
+                </div>
+            </div>
+            <div class="px-4 pb-6">
+                <div id="cp-command-status" class="px-2 pb-2 text-xs text-slate-500"></div>
+                <div id="cp-command-results" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -220,6 +254,243 @@
             if (e.ctrlKey && e.key === 'b') {
                 e.preventDefault();
                 toggleSidebar();
+            }
+        });
+
+        const cpPalette = document.getElementById('cp-command-palette');
+        const cpTrigger = document.getElementById('cp-command-trigger');
+        const cpClose = document.getElementById('cp-command-close');
+        const cpInput = document.getElementById('cp-command-input');
+        const cpResults = document.getElementById('cp-command-results');
+        const cpStatus = document.getElementById('cp-command-status');
+        let cpActiveIndex = -1;
+        let cpItems = [];
+        let cpTimer = null;
+
+        function setCommandStatus(message) {
+            if (!cpStatus) {
+                return;
+            }
+            cpStatus.textContent = message || '';
+        }
+
+        function resetCommandItems() {
+            cpItems = [];
+            cpActiveIndex = -1;
+            if (cpResults) {
+                cpResults.textContent = '';
+            }
+        }
+
+        function openCommandPalette() {
+            if (!cpPalette) {
+                return;
+            }
+            cpPalette.classList.remove('hidden');
+            cpPalette.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setCommandStatus('Type at least 2 characters to search.');
+            resetCommandItems();
+            if (cpInput) {
+                cpInput.value = '';
+                cpInput.focus();
+            }
+        }
+
+        function closeCommandPalette() {
+            if (!cpPalette) {
+                return;
+            }
+            cpPalette.classList.add('hidden');
+            cpPalette.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function updateActiveItem() {
+            cpItems.forEach((item, index) => {
+                if (index === cpActiveIndex) {
+                    item.classList.add('bg-indigo-50');
+                } else {
+                    item.classList.remove('bg-indigo-50');
+                }
+            });
+        }
+
+        function createSection(title) {
+            const section = document.createElement('div');
+            const heading = document.createElement('div');
+            heading.className = 'px-3 text-xs font-semibold uppercase tracking-widest text-slate-400';
+            heading.textContent = title;
+            section.appendChild(heading);
+            return { section, list: document.createElement('div') };
+        }
+
+        function createResultButton(label, meta, onClick) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'w-full text-left rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm transition hover:border-indigo-100 hover:bg-indigo-50';
+            const title = document.createElement('div');
+            title.className = 'text-sm font-semibold text-slate-800';
+            title.textContent = label;
+            const subtitle = document.createElement('div');
+            subtitle.className = 'text-xs text-slate-500';
+            subtitle.textContent = meta;
+            button.appendChild(title);
+            button.appendChild(subtitle);
+            button.addEventListener('click', onClick);
+            return button;
+        }
+
+        function renderResults(payload) {
+            resetCommandItems();
+            if (!payload || !payload.results) {
+                setCommandStatus('No results found.');
+                return;
+            }
+
+            const sections = [];
+            const clinics = payload.results.clinics || [];
+            const users = payload.results.users || [];
+            const links = payload.results.links || [];
+
+            if (clinics.length > 0) {
+                const { section, list } = createSection('Clinics');
+                clinics.forEach((clinic) => {
+                    const label = clinic.name || 'Clinic';
+                    const meta = `ID ${clinic.id} · ${clinic.slug || 'no-slug'}`;
+                    const button = createResultButton(label, meta, () => {
+                        window.location.href = `<?= base_url('controlplane/clinics') ?>/${clinic.id}`;
+                    });
+                    list.appendChild(button);
+                    cpItems.push(button);
+                });
+                list.className = 'mt-2 space-y-2';
+                section.appendChild(list);
+                sections.push(section);
+            }
+
+            if (users.length > 0) {
+                const { section, list } = createSection('Users');
+                users.forEach((user) => {
+                    const label = user.email || 'User';
+                    const meta = user.name ? user.name : 'Control Plane user';
+                    const button = createResultButton(label, meta, () => {
+                        window.location.href = `<?= base_url('controlplane/settings') ?>?user=${user.id}`;
+                    });
+                    list.appendChild(button);
+                    cpItems.push(button);
+                });
+                list.className = 'mt-2 space-y-2';
+                section.appendChild(list);
+                sections.push(section);
+            }
+
+            if (links.length > 0) {
+                const { section, list } = createSection('Navigation');
+                links.forEach((link) => {
+                    const label = link.title || 'Link';
+                    const meta = link.url || '';
+                    const button = createResultButton(label, meta, () => {
+                        window.location.href = `<?= base_url() ?>${link.url}`;
+                    });
+                    list.appendChild(button);
+                    cpItems.push(button);
+                });
+                list.className = 'mt-2 space-y-2';
+                section.appendChild(list);
+                sections.push(section);
+            }
+
+            if (sections.length === 0) {
+                setCommandStatus('No results found.');
+                return;
+            }
+
+            sections.forEach((section) => cpResults.appendChild(section));
+            cpActiveIndex = 0;
+            updateActiveItem();
+            setCommandStatus(`${cpItems.length} results`);
+        }
+
+        function fetchCommandResults(query) {
+            if (!query || query.length < 2) {
+                resetCommandItems();
+                setCommandStatus('Type at least 2 characters to search.');
+                return;
+            }
+
+            setCommandStatus('Searching...');
+            fetch(`<?= base_url('controlplane/search/global') ?>?q=${encodeURIComponent(query)}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    renderResults(data);
+                })
+                .catch(() => {
+                    resetCommandItems();
+                    setCommandStatus('Search failed. Try again.');
+                });
+        }
+
+        function handleCommandInput() {
+            const query = cpInput ? cpInput.value.trim() : '';
+            clearTimeout(cpTimer);
+            cpTimer = setTimeout(() => fetchCommandResults(query), 200);
+        }
+
+        if (cpTrigger) {
+            cpTrigger.addEventListener('click', openCommandPalette);
+        }
+
+        if (cpClose) {
+            cpClose.addEventListener('click', closeCommandPalette);
+        }
+
+        if (cpPalette) {
+            cpPalette.addEventListener('click', (event) => {
+                if (event.target === cpPalette) {
+                    closeCommandPalette();
+                }
+            });
+        }
+
+        if (cpInput) {
+            cpInput.addEventListener('input', handleCommandInput);
+            cpInput.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    if (cpItems.length === 0) {
+                        return;
+                    }
+                    cpActiveIndex = (cpActiveIndex + 1) % cpItems.length;
+                    updateActiveItem();
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    if (cpItems.length === 0) {
+                        return;
+                    }
+                    cpActiveIndex = (cpActiveIndex - 1 + cpItems.length) % cpItems.length;
+                    updateActiveItem();
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (cpItems[cpActiveIndex]) {
+                        cpItems[cpActiveIndex].click();
+                    }
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeCommandPalette();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const isMac = navigator.platform.toUpperCase().includes('MAC');
+            const cmdKey = isMac ? event.metaKey : event.ctrlKey;
+            if (cmdKey && event.key.toLowerCase() === 'k') {
+                event.preventDefault();
+                openCommandPalette();
+            }
+            if (event.key === 'Escape' && cpPalette && !cpPalette.classList.contains('hidden')) {
+                closeCommandPalette();
             }
         });
     </script>

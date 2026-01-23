@@ -941,3 +941,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-02.md
+
+## [2026-01-23] Control Plane Command Palette (CP-GLASS-03)
+**Tasks:** CP-GLASS-03
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a Cmd/Ctrl+K command palette UI in the control plane header.
+- Implemented `/controlplane/search/global` to search clinics, users, and navigation targets.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-03.md
