@@ -917,3 +917,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-02b.md
+
+## [2026-01-23] Control Plane Glass Layout (CP-GLASS-01)
+**Tasks:** CP-GLASS-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Ported the Tenant Plane glassmorphism layout to `main_control_plane.php` with slate/indigo/emerald admin theme.
+- Restored floating glass sidebar and glass header with Global Mode badge and Exit button.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-01.md
