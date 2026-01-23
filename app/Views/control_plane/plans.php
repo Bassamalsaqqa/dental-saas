@@ -19,6 +19,58 @@
         </div>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Total Plans</p>
+            <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($stats['total'] ?? 0) ?></p>
+        </div>
+        <div class="glass-card rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Active Plans</p>
+            <p class="text-2xl font-semibold text-emerald-600 mt-1"><?= number_format($stats['active'] ?? 0) ?></p>
+        </div>
+        <div class="glass-card rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">In View</p>
+            <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($stats['filtered'] ?? 0) ?></p>
+            <p class="text-xs text-slate-500 mt-1">Inactive: <?= number_format($stats['inactive'] ?? 0) ?></p>
+        </div>
+    </div>
+
+    <form method="get" class="glass-card rounded-2xl p-5 flex flex-col lg:flex-row lg:items-end gap-4">
+        <div class="flex-1">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Search</label>
+            <input type="text" name="q" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Plan name"
+                   class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </div>
+        <div class="w-full lg:w-56">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</label>
+            <?php $currentStatus = $filters['status'] ?? ''; ?>
+            <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
+                <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                <option value="inactive" <?= $currentStatus === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+            </select>
+        </div>
+        <div class="w-full lg:w-56">
+            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Duration</label>
+            <?php $currentDuration = $filters['duration'] ?? ''; ?>
+            <select name="duration" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <option value="" <?= $currentDuration === '' ? 'selected' : '' ?>>All durations</option>
+                <option value="monthly" <?= $currentDuration === 'monthly' ? 'selected' : '' ?>>Monthly</option>
+                <option value="yearly" <?= $currentDuration === 'yearly' ? 'selected' : '' ?>>Yearly</option>
+                <option value="lifetime" <?= $currentDuration === 'lifetime' ? 'selected' : '' ?>>Lifetime</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">
+                Apply Filters
+            </button>
+            <a href="<?= base_url('controlplane/plans') ?>"
+               class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">
+                Reset
+            </a>
+        </div>
+    </form>
+
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <?php foreach (($plans ?? []) as $row): ?>
             <?php
@@ -81,6 +133,12 @@
                         <?php endforeach; ?>
                     </ul>
                 </div>
+
+                <?php if (!empty($limits['description'])): ?>
+                    <div class="mt-4 text-xs text-slate-500">
+                        <?= esc($limits['description']) ?>
+                    </div>
+                <?php endif; ?>
 
                 <div class="mt-5 flex gap-2">
                     <a href="<?= base_url('controlplane/plans/' . $plan['id'] . '/edit') ?>" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">

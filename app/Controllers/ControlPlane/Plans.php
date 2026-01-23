@@ -26,15 +26,37 @@ class Plans extends BaseController
             'route' => '/controlplane/plans',
         ]);
 
+        $request = service('request');
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
+        $durationFilter = strtolower(trim((string) ($request ? $request->getGet('duration') : '')));
+        $search = trim((string) ($request ? $request->getGet('q') : ''));
+
         $planModel = new PlanModel();
         $clinicModel = new ClinicModel();
         $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
-        $plans = $planModel->orderBy('id', 'DESC')->findAll();
+        $planQuery = $planModel->orderBy('id', 'DESC');
+        if (in_array($statusFilter, ['active', 'inactive'], true)) {
+            $planQuery = $planQuery->where('status', $statusFilter);
+        }
+        if ($search !== '') {
+            $planQuery = $planQuery->groupStart()
+                ->like('name', $search)
+                ->groupEnd();
+        }
+        $plans = $planQuery->findAll();
+        $totalPlans = $planModel->countAllResults();
+        $activePlans = (new PlanModel())->where('status', 'active')->countAllResults();
+        $inactivePlans = (new PlanModel())->where('status', 'inactive')->countAllResults();
         $cards = [];
 
         foreach ($plans as $plan) {
             $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
             $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
+            $duration = strtolower((string) ($limits['duration'] ?? ''));
+
+            if ($durationFilter !== '' && $duration !== $durationFilter) {
+                continue;
+            }
 
             $cards[] = [
                 'plan' => $plan,
@@ -58,6 +80,17 @@ class Plans extends BaseController
             'planRequests' => $planRequests,
             'requestClinics' => $requestClinics,
             'requestPlans' => $requestPlans,
+            'stats' => [
+                'total' => $totalPlans,
+                'active' => $activePlans,
+                'inactive' => $inactivePlans,
+                'filtered' => count($cards),
+            ],
+            'filters' => [
+                'status' => $statusFilter,
+                'duration' => $durationFilter,
+                'q' => $search,
+            ],
         ]);
     }
 

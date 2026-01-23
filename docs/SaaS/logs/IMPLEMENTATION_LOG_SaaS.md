@@ -742,3 +742,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-21.md
+
+## [2026-01-23] Plans Management UX (CP-UX-22)
+**Tasks:** CP-UX-22
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added plan catalog filters (search, status, duration) and stats cards for quick plan oversight.
+- Plans view now highlights filtered counts and includes plan description text when set.
+
+### Verification
+- docs/SaaS/verification/CP-UX-22.md
