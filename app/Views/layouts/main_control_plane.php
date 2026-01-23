@@ -69,22 +69,41 @@
                         <?php
                         $menuGroups = [
                             [
+                                'label' => 'Platform',
                                 'items' => [
                                     ['title' => 'Dashboard', 'url' => 'controlplane/dashboard', 'icon' => 'fas fa-tachometer-alt', 'color' => 'blue'],
-                                    ['title' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user', 'color' => 'emerald'],
                                 ],
                             ],
                             [
-                                'label' => 'Billing & Plans',
+                                'label' => 'Tenants',
                                 'items' => [
-                                    ['title' => 'Plans & Requests', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group', 'color' => 'indigo'],
-                                    ['title' => 'Settings', 'url' => 'controlplane/settings', 'icon' => 'fas fa-sliders-h', 'color' => 'teal'],
+                                    ['title' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user', 'color' => 'emerald'],
+                                    ['title' => 'Onboarding', 'url' => 'controlplane/clinic/create', 'icon' => 'fas fa-user-plus', 'color' => 'emerald'],
                                 ],
                             ],
                             [
-                                'label' => 'Operations',
+                                'label' => 'Plans & Billing',
+                                'items' => [
+                                    ['title' => 'Plans', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group', 'color' => 'indigo'],
+                                    ['title' => 'Plan Requests', 'url' => 'controlplane/plans#plan-requests', 'icon' => 'fas fa-inbox', 'color' => 'indigo'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Templates',
+                                'items' => [
+                                    ['title' => 'Email Templates', 'url' => 'controlplane/settings#template-editor', 'icon' => 'fas fa-envelope-open-text', 'color' => 'teal'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Governance',
                                 'items' => [
                                     ['title' => 'Operations', 'url' => 'controlplane/operations', 'icon' => 'fas fa-cogs', 'color' => 'amber'],
+                                ],
+                            ],
+                            [
+                                'label' => 'System',
+                                'items' => [
+                                    ['title' => 'Settings', 'url' => 'controlplane/settings', 'icon' => 'fas fa-sliders-h', 'color' => 'teal'],
                                 ],
                             ],
                         ];
@@ -107,7 +126,9 @@
                             <ul class="space-y-2">
                                 <?php foreach ($group['items'] as $item): ?>
                                     <?php
-                                    $isActive = (strpos(uri_string(), $item['url']) === 0);
+                                    $navUrl = $item['url'];
+                                    $navPath = explode('#', $navUrl)[0];
+                                    $isActive = (strpos(uri_string(), $navPath) === 0);
                                     $colors = $colorClasses[$item['color']];
                                     ?>
                                     <li>

@@ -38,7 +38,7 @@
                 </div>
             </div>
 
-            <form action="<?= base_url('controlplane/onboarding/clinic/create') ?>" method="POST" class="p-6 space-y-6">
+            <form action="<?= base_url('controlplane/clinic/create') ?>" method="POST" class="p-6 space-y-6">
                 <?= csrf_field() ?>
 
                 <?php if (session('error')): ?>

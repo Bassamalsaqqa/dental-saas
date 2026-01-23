@@ -824,3 +824,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-01.md
+
+## [2026-01-23] Control Plane Navigation & IA (CP-UX-02)
+**Tasks:** CP-UX-02
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Reorganized control plane navigation into IA-aligned groups (Platform, Tenants, Plans & Billing, Templates, Governance, System).
+- Corrected onboarding routes to /controlplane/clinic/create across entry points and forms.
+- Segregated plan request filters from plan filters using request_* query params and anchored the request section.
+
+### Verification
+- docs/SaaS/verification/CP-UX-02.md

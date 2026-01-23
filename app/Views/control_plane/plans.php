@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <div class="space-y-8">
-    <div class="glass-card rounded-3xl p-6 md:p-8">
+    <div class="glass-card rounded-3xl p-6 md:p-8" id="plan-requests">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Plans</p>
@@ -188,16 +188,16 @@
             </div>
         </div>
 
-        <form method="get" class="mt-6 grid grid-cols-1 lg:grid-cols-[2fr,1fr,auto] gap-4 items-end">
+        <form method="get" action="<?= base_url('controlplane/plans#plan-requests') ?>" class="mt-6 grid grid-cols-1 lg:grid-cols-[2fr,1fr,auto] gap-4 items-end">
             <div>
                 <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Search</label>
-                <input type="text" name="q" value="<?= esc($requestFilters['q'] ?? '') ?>" placeholder="Clinic or plan name"
+                <input type="text" name="request_q" value="<?= esc($requestFilters['q'] ?? '') ?>" placeholder="Clinic or plan name"
                        class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
             </div>
             <div>
                 <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</label>
                 <?php $currentReqStatus = $requestFilters['status'] ?? ''; ?>
-                <select name="status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <select name="request_status" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
                     <option value="" <?= $currentReqStatus === '' ? 'selected' : '' ?>>All</option>
                     <option value="pending" <?= $currentReqStatus === 'pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="approved" <?= $currentReqStatus === 'approved' ? 'selected' : '' ?>>Approved</option>
@@ -206,7 +206,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <button class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">Filter</button>
-                <a href="<?= base_url('controlplane/plan-requests') ?>" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">Reset</a>
+                <a href="<?= base_url('controlplane/plans#plan-requests') ?>" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">Reset</a>
             </div>
         </form>
 

@@ -28,8 +28,8 @@ class PlanRequests extends BaseController
         ]);
 
         $request = service('request');
-        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
-        $search = trim((string) ($request ? $request->getGet('q') : ''));
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('request_status') : '')));
+        $search = trim((string) ($request ? $request->getGet('request_q') : ''));
 
         $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $clinicModel = new ClinicModel();

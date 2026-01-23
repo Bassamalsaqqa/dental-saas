@@ -11,7 +11,7 @@
                     Provision new clinics, inspect status, and prepare lifecycle actions without leaving the control plane.
                 </p>
             </div>
-            <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>"
+            <a href="<?= base_url('controlplane/clinic/create') ?>"
                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow hover:bg-emerald-700">
                 <i class="fas fa-plus"></i>
                 Onboard Clinic

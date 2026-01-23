@@ -59,7 +59,7 @@
                     <i class="fas fa-hospital-user"></i>
                 </span>
             </div>
-            <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-indigo-100 bg-indigo-50 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors">
+            <a href="<?= base_url('controlplane/clinic/create') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-indigo-100 bg-indigo-50 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors">
                 <span class="flex items-center gap-2">
                     <i class="fas fa-plus"></i> Onboard New Clinic
                 </span>
