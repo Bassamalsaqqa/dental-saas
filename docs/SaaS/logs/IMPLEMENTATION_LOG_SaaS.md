@@ -729,3 +729,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-20.md
+
+## [2026-01-23] Onboarding UX (CP-UX-21)
+**Tasks:** CP-UX-21
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Refined onboarding form with inline error hints and password guidance.
+- Replaced plan select with card-style plan picker and plan limit preview to support faster onboarding decisions.
+- Clarified checklist to reflect manual welcome email handling.
+
+### Verification
+- docs/SaaS/verification/CP-UX-21.md

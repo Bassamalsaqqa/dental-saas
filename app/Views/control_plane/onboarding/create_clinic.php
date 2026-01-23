@@ -41,6 +41,17 @@
             <form action="<?= base_url('controlplane/onboarding/clinic/create') ?>" method="POST" class="p-6 space-y-6">
                 <?= csrf_field() ?>
 
+                <?php if (session('error')): ?>
+                    <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        <?= esc(session('error')) ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (session('errors')): ?>
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                        Please review the highlighted fields and try again.
+                    </div>
+                <?php endif; ?>
+
                 <div class="rounded-2xl border border-slate-200 p-5 bg-white">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Clinic Details</h3>
@@ -77,6 +88,7 @@
                             <input type="password" name="admin_password" required minlength="8"
                                    class="w-full rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm"
                                    placeholder="Minimum 8 characters">
+                            <p class="mt-2 text-xs text-slate-500">Use a unique password and share it securely with the clinic owner.</p>
                         </div>
                     </div>
                 </div>
@@ -86,22 +98,34 @@
                         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Subscription</h3>
                         <span class="text-xs text-slate-400">Step 3</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Select Plan</label>
-                            <select name="plan_id" required class="w-full rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm">
-                                <option value="">-- Choose a Plan --</option>
-                                <?php foreach ($plans as $plan): ?>
-                                    <option value="<?= esc($plan['id']) ?>" <?= old('plan_id') == $plan['id'] ? 'selected' : '' ?>>
-                                        <?= esc($plan['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Activation Date</label>
-                            <input type="date" name="start_date" value="<?= old('start_date') ?>"
-                                   class="w-full rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm">
+                    <div class="grid grid-cols-1 gap-4">
+                        <p class="text-sm text-slate-600">Pick the plan that will be active immediately after onboarding.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <?php $selectedPlan = (int) (old('plan_id') ?? 0); ?>
+                            <?php foreach ($plans as $plan): ?>
+                                <?php $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? []; ?>
+                                <?php $price = $limits['price'] ?? null; ?>
+                                <?php $duration = $limits['duration'] ?? null; ?>
+                                <label class="rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer transition shadow-sm hover:border-emerald-400">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-900"><?= esc($plan['name']) ?></p>
+                                            <p class="text-xs text-slate-500 mt-1">
+                                                <?= $price !== null ? '$' . esc($price) : 'Price not set' ?>
+                                                <?= $duration ? ' / ' . esc(ucfirst($duration)) : '' ?>
+                                            </p>
+                                        </div>
+                                        <input type="radio" name="plan_id" value="<?= esc($plan['id']) ?>" required
+                                               class="mt-1"
+                                               <?= $selectedPlan === (int) $plan['id'] ? 'checked' : '' ?>>
+                                    </div>
+                                    <div class="mt-3 text-xs text-slate-500 space-y-1">
+                                        <p>Patients limit: <?= esc($limits['patients_active_max'] ?? 'Not set') ?></p>
+                                        <p>Users limit: <?= esc($limits['users_max'] ?? 'Not set') ?></p>
+                                        <p>Storage: <?= esc($limits['storage_gb'] ?? 'Not set') ?> GB</p>
+                                    </div>
+                                </label>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -125,7 +149,7 @@
                     <li class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> Clinic profile created</li>
                     <li class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> Admin role assigned</li>
                     <li class="flex items-center gap-2"><i class="fas fa-check-circle text-emerald-500"></i> Subscription activated</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-slate-300"></i> Welcome email dispatched</li>
+                    <li class="flex items-center gap-2"><i class="fas fa-circle text-slate-300"></i> Welcome email (manual)</li>
                 </ul>
             </div>
 
