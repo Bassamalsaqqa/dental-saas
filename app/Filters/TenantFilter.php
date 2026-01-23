@@ -33,6 +33,10 @@ class TenantFilter implements FilterInterface
             $isApiOrAjax = $request->isAJAX() || $isApi;
             
             if (!$isApiOrAjax) {
+                // Allow Control Plane surfaces in global mode
+                if (str_starts_with(trim($path, '/'), 'controlplane')) {
+                    return null;
+                }
                 $pathOnly = trim($path, '/');
                 if ($pathOnly === '') {
                     return redirect()->to('/controlplane/dashboard');
