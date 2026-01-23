@@ -34,6 +34,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('plans/(:num)/edit', 'ControlPlane\Plans::edit/$1');
         $routes->post('plans/(:num)', 'ControlPlane\Plans::update/$1');
         $routes->post('plans/(:num)/toggle', 'ControlPlane\Plans::toggle/$1');
+        $routes->get('plan-requests', 'ControlPlane\PlanRequests::index'); // CP-UX-24c
         $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
         $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');

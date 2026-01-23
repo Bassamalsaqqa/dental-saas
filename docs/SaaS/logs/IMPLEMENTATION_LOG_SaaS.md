@@ -895,3 +895,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-24b.md
+
+## [2026-01-23] Plan Requests Route Restore (CP-UX-24c)
+**Tasks:** CP-UX-24c
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Re-added the GET route for `/controlplane/plan-requests` in `app/Config/Routes.php` to resolve 404s after page separation.
+
+### Verification
+- docs/SaaS/verification/CP-UX-24c.md
