@@ -8,7 +8,7 @@
                 <p class="text-xs uppercase tracking-[0.3em] text-blue-700 font-semibold">Operations</p>
                 <h1 class="text-3xl font-semibold text-slate-900 mt-2">Global governance workspace</h1>
                 <p class="mt-3 text-sm text-slate-600 max-w-2xl">
-                    Operational controls, audit telemetry, and high‑risk actions live here to keep governance centralized.
+                    Operational controls, audit telemetry, and high-risk actions live here to keep governance centralized.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">

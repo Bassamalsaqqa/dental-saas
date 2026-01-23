@@ -837,3 +837,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-02.md
+
+## [2026-01-23] Core CP Screen Polish (CP-UX-03)
+**Tasks:** CP-UX-03
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Standardized core screens with glass-card styling and improved entry copy.
+- Added status badge styling for clinic detail and corrected operations copy to ASCII.
+
+### Verification
+- docs/SaaS/verification/CP-UX-03.md

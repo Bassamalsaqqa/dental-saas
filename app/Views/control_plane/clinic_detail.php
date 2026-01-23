@@ -9,8 +9,15 @@
                 <h1 class="text-3xl font-semibold text-slate-900 mt-2"><?= esc($clinic['name']) ?></h1>
                 <p class="mt-3 text-sm text-slate-600">Clinic overview, subscription status, and lifecycle controls.</p>
             </div>
-            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600">
-                Status: <?= esc(ucfirst($clinic['status'] ?? 'inactive')) ?>
+            <?php
+                $clinicStatus = $clinic['status'] ?? 'inactive';
+                $clinicStatusLabel = ucfirst($clinicStatus);
+                $clinicStatusClass = $clinicStatus === 'active'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : ($clinicStatus === 'suspended' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600');
+            ?>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full <?= $clinicStatusClass ?>">
+                Status: <?= esc($clinicStatusLabel) ?>
             </span>
         </div>
     </div>
