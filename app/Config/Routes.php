@@ -21,6 +21,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
         $routes->get('clinics', 'ControlPlane\Clinics::index'); // CP-UX-20
         $routes->get('clinics/(:num)', 'ControlPlane\Clinics::show/$1'); // CP-UX-20 detail
+        $routes->post('clinics/get-data', 'ControlPlane\Clinics::getData'); // CP-GLASS-02
         $routes->post('clinics/(:num)/subscription/start', 'ControlPlane\Clinics::startSubscription/$1');
         $routes->post('clinics/(:num)/subscription/extend', 'ControlPlane\Clinics::extendSubscription/$1');
         $routes->post('clinics/(:num)/subscription/cancel', 'ControlPlane\Clinics::cancelSubscription/$1');

@@ -929,3 +929,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-01.md
+
+## [2026-01-23] Control Plane Clinics DataTables (CP-GLASS-02)
+**Tasks:** CP-GLASS-02
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a DataTables-backed clinic registry with server-side filtering and actions.
+- Wired `/controlplane/clinics/get-data` endpoint for Control Plane clinic list.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-02.md
