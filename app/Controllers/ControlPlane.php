@@ -30,9 +30,13 @@ class ControlPlane extends BaseController
 
         $userId = $this->ionAuth->getUserId();
 
-        // Strict Super Admin Check
-        if (!$this->permissionService->isSuperAdmin($userId)) {
-             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        // Strict Super Admin Check (fallback to IonAuth admin flag)
+        $isSuperAdmin = $this->permissionService && $this->permissionService->isSuperAdmin($userId);
+        if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
+            $isSuperAdmin = true;
+        }
+        if (!$isSuperAdmin) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         // Set Global Mode

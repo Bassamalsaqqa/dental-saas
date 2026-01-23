@@ -35,8 +35,12 @@ class Entry extends BaseController
              $permissionService = new \App\Services\PermissionService();
         }
 
-        if (!$permissionService->isSuperAdmin($userId)) {
-             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        $isSuperAdmin = $permissionService->isSuperAdmin($userId);
+        if (!$isSuperAdmin && $ionAuth->isAdmin()) {
+            $isSuperAdmin = true;
+        }
+        if (!$isSuperAdmin) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         // 3. Global Mode Redirect
