@@ -78,7 +78,7 @@
                                 'label' => 'Tenants',
                                 'items' => [
                                     ['title' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user', 'color' => 'emerald'],
-                                    ['title' => 'Onboarding', 'url' => 'controlplane/clinic/create', 'icon' => 'fas fa-user-plus', 'color' => 'emerald'],
+                                    ['title' => 'Onboarding', 'url' => 'controlplane/onboarding/clinic/create', 'icon' => 'fas fa-user-plus', 'color' => 'emerald'],
                                 ],
                             ],
                             [

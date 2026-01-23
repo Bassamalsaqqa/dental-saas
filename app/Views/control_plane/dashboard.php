@@ -100,7 +100,7 @@
             <div class="glass-card rounded-3xl p-6">
                 <h3 class="text-sm font-semibold text-slate-800">Quick actions</h3>
                 <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <a href="<?= base_url('controlplane/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
+                    <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
                         <i class="fas fa-plus"></i>
                         Onboard clinic
                     </a>

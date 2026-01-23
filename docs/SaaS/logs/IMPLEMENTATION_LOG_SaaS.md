@@ -871,3 +871,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-05.md
+
+## [2026-01-23] Onboarding Route Correction (CP-UX-02a)
+**Tasks:** CP-UX-02a
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Restored onboarding links and form actions to /controlplane/onboarding/clinic/create.
+- Kept onboarding navigation separate from clinics per IA.
+
+### Verification
+- docs/SaaS/verification/CP-UX-02a.md
