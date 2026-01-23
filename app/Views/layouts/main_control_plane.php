@@ -357,7 +357,14 @@
                 const { section, list } = createSection('Clinics');
                 clinics.forEach((clinic) => {
                     const label = clinic.name || 'Clinic';
-                    const meta = `ID ${clinic.id} · ${clinic.slug || 'no-slug'}`;
+                    let detail = clinic.domain || '';
+                    if (!detail && clinic.uuid) {
+                        detail = `UUID ${clinic.uuid}`;
+                    }
+                    if (!detail) {
+                        detail = clinic.slug || 'no-slug';
+                    }
+                    const meta = `ID ${clinic.id} · ${detail}`;
                     const button = createResultButton(label, meta, () => {
                         window.location.href = `<?= base_url('controlplane/clinics') ?>/${clinic.id}`;
                     });

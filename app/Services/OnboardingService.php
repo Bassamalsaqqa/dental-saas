@@ -72,7 +72,8 @@ class OnboardingService
             $clinicData = [
                 'name' => $dto['clinic_name'],
                 'status' => 'active', // Active by default? Or pending? Requirement says "active subscription", implies active clinic.
-                'slug' => url_title($dto['clinic_name'], '-', true) . '-' . time() // Ensure uniqueness
+                'slug' => url_title($dto['clinic_name'], '-', true) . '-' . time(), // Ensure uniqueness
+                'uuid' => $this->generateUuid(),
             ];
             
             // Using DB builder if model has specific validations I might trip over, 
@@ -168,5 +169,22 @@ class OnboardingService
             log_message('error', "Onboarding Failed: " . $e->getMessage());
             throw $e;
         }
+    }
+
+    private function generateUuid(): string
+    {
+        $data = random_bytes(16);
+        $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
+        $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
+        $hex = bin2hex($data);
+
+        return sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($hex, 0, 8),
+            substr($hex, 8, 4),
+            substr($hex, 12, 4),
+            substr($hex, 16, 4),
+            substr($hex, 20, 12)
+        );
     }
 }

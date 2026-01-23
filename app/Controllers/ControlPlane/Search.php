@@ -28,20 +28,24 @@ class Search extends BaseController
         }
 
         $clinicModel = new ClinicModel();
-        $clinicQuery = $clinicModel->select('id, name, slug, status')
+        $clinicQuery = $clinicModel->select('id, name, slug, uuid, domain, status')
             ->groupStart()
             ->like('name', $query)
             ->orLike('slug', $query)
+            ->orLike('uuid', $query)
+            ->orLike('domain', $query)
             ->groupEnd()
             ->orderBy('name', 'ASC')
             ->limit(6);
 
         if (ctype_digit($query)) {
-            $clinicQuery = $clinicModel->select('id, name, slug, status')
+            $clinicQuery = $clinicModel->select('id, name, slug, uuid, domain, status')
                 ->groupStart()
-                ->where('id', (int) $query)
-                ->orLike('name', $query)
-                ->orLike('slug', $query)
+                    ->where('id', (int) $query)
+                    ->orLike('name', $query)
+                    ->orLike('slug', $query)
+                    ->orLike('uuid', $query)
+                    ->orLike('domain', $query)
                 ->groupEnd()
                 ->orderBy('name', 'ASC')
                 ->limit(6);

@@ -953,3 +953,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-03.md
+
+## [2026-01-23] Clinic UUID/Domain Search Support (CP-GLASS-04)
+**Tasks:** CP-GLASS-04
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added clinic UUID/domain fields with migration and backfilled UUIDs.
+- Extended control plane global search and onboarding to use UUID identifiers.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-04.md
