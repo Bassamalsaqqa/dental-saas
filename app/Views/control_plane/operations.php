@@ -101,12 +101,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="glass-card rounded-3xl overflow-hidden">
             <div class="px-6 py-4 border-b border-white/40 bg-white/70 flex items-center justify-between">
-                <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Recent governance events</h3>
+                <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Control plane activity</h3>
                 <span class="text-[10px] uppercase tracking-widest text-slate-500 bg-white/70 border border-slate-200 px-2 py-1 rounded-full">
-                    <?= count($recentAudits ?? []) ?> records
+                    <?= count($controlPlaneAudits ?? []) ?> records
                 </span>
             </div>
-            <?php if (empty($recentAudits)): ?>
+            <?php if (empty($controlPlaneAudits)): ?>
                 <div class="p-8 text-center text-slate-500">
                     <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-clipboard-list text-slate-400"></i>
@@ -120,18 +120,18 @@
                         <thead class="bg-white/70 text-slate-500 font-medium border-b border-white/40 sticky top-0 z-10">
                             <tr>
                                 <th class="px-6 py-3">Timestamp</th>
-                                <th class="px-6 py-3">Action</th>
-                                <th class="px-6 py-3">Reason</th>
-                                <th class="px-6 py-3">Clinic ID</th>
+                                <th class="px-6 py-3">Event</th>
+                                <th class="px-6 py-3">Route</th>
+                                <th class="px-6 py-3">Actor</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/40">
-                            <?php foreach ($recentAudits as $audit): ?>
+                            <?php foreach ($controlPlaneAudits as $audit): ?>
                                 <tr class="hover:bg-white/60">
                                     <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($audit['created_at']) ?></td>
-                                    <td class="px-6 py-3 font-medium text-slate-700"><?= esc($audit['action_key']) ?></td>
-                                    <td class="px-6 py-3 text-slate-500"><?= esc($audit['reason_code']) ?></td>
-                                    <td class="px-6 py-3 text-slate-400 font-mono"><?= esc($audit['clinic_id']) ?></td>
+                                    <td class="px-6 py-3 font-medium text-slate-700"><?= esc($audit['event_type']) ?></td>
+                                    <td class="px-6 py-3 text-slate-500"><?= esc($audit['route']) ?></td>
+                                    <td class="px-6 py-3 text-slate-400 font-mono"><?= esc($audit['actor_user_id'] ?? 'n/a') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -188,6 +188,47 @@
                 </div>
             <?php endif; ?>
         </div>
+    </div>
+
+    <div class="glass-card rounded-3xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/40 bg-white/70 flex items-center justify-between">
+            <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Plan enforcement audits</h3>
+            <span class="text-[10px] uppercase tracking-widest text-slate-500 bg-white/70 border border-slate-200 px-2 py-1 rounded-full">
+                <?= count($planAudits ?? []) ?> records
+            </span>
+        </div>
+        <?php if (empty($planAudits)): ?>
+            <div class="p-8 text-center text-slate-500">
+                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-clipboard-check text-slate-400"></i>
+                </div>
+                <p class="text-sm font-medium">No plan audits found.</p>
+                <p class="text-xs text-slate-400 mt-1">Plan guard actions will appear here.</p>
+            </div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-white/70 text-slate-500 font-medium border-b border-white/40 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-6 py-3">Timestamp</th>
+                            <th class="px-6 py-3">Action</th>
+                            <th class="px-6 py-3">Reason</th>
+                            <th class="px-6 py-3">Clinic ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/40">
+                        <?php foreach ($planAudits as $audit): ?>
+                            <tr class="hover:bg-white/60">
+                                <td class="px-6 py-3 text-slate-500 font-mono"><?= esc($audit['created_at']) ?></td>
+                                <td class="px-6 py-3 font-medium text-slate-700"><?= esc($audit['action_key']) ?></td>
+                                <td class="px-6 py-3 text-slate-500"><?= esc($audit['reason_code']) ?></td>
+                                <td class="px-6 py-3 text-slate-400 font-mono"><?= esc($audit['clinic_id']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="glass-card rounded-3xl p-6 md:p-8 border border-rose-100">

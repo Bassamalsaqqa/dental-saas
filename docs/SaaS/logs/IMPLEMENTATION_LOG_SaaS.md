@@ -643,3 +643,15 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-BILL-01.md`
+
+## [2026-01-23] Control Plane Activity Feed (CP-AUDIT-01)
+**Tasks:** CP-AUDIT-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added control plane audit feed to Operations (ControlPlaneAuditModel).
+- Preserved plan enforcement audits as a separate table.
+
+### Verification
+- `docs/SaaS/verification/CP-AUDIT-01.md`

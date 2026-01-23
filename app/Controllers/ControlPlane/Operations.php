@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\PlanModel;
 use App\Models\ClinicModel;
 use App\Models\ClinicSubscriptionModel;
+use App\Models\ControlPlaneAuditModel;
 use App\Models\PlanAuditModel;
 use App\Models\NotificationModel;
 use App\Services\ControlPlaneAuditService;
@@ -30,6 +31,7 @@ class Operations extends BaseController
         $planModel = new PlanModel();
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $controlPlaneAuditModel = new ControlPlaneAuditModel();
         $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
         $notificationModel = (new NotificationModel())->withoutTenantScope();
 
@@ -38,7 +40,8 @@ class Operations extends BaseController
         $clinicsTotal = $clinicModel->countAllResults();
         $subscriptionsActive = $subscriptionModel->where('status', 'active')->countAllResults();
 
-        $recentAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
+        $controlPlaneAudits = $controlPlaneAuditModel->orderBy('id', 'DESC')->findAll(10);
+        $planAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
         $recentNotifications = $notificationModel->orderBy('id', 'DESC')->findAll(10);
 
         return view('control_plane/operations', [
@@ -47,7 +50,8 @@ class Operations extends BaseController
             'plansInactive' => $plansInactive,
             'clinicsTotal' => $clinicsTotal,
             'subscriptionsActive' => $subscriptionsActive,
-            'recentAudits' => $recentAudits,
+            'controlPlaneAudits' => $controlPlaneAudits,
+            'planAudits' => $planAudits,
             'recentNotifications' => $recentNotifications,
         ]);
     }
