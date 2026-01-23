@@ -59,22 +59,8 @@ class PlanRequests extends BaseController
         $approvedRequests = (new PlanRequestModel())->withoutTenantScope()->where('status', 'approved')->countAllResults();
         $rejectedRequests = (new PlanRequestModel())->withoutTenantScope()->where('status', 'rejected')->countAllResults();
 
-        $plans = $planModel->orderBy('id', 'DESC')->findAll();
-        $cards = [];
-        foreach ($plans as $plan) {
-            $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
-            $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
-
-            $cards[] = [
-                'plan' => $plan,
-                'limits' => $limits,
-                'features' => $features,
-            ];
-        }
-
-        return view('control_plane/plans', [
-            'title' => 'Plans & Requests',
-            'plans' => $cards,
+        return view('control_plane/plan_requests', [
+            'title' => 'Plan Requests',
             'planRequests' => $requests,
             'requestClinics' => $clinicModel->orderBy('name', 'ASC')->findAll(),
             'requestPlans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),

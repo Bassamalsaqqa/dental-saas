@@ -883,3 +883,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-02a.md
+
+## [2026-01-23] Plan Requests Page Separation (CP-UX-24b)
+**Tasks:** CP-UX-24b
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Moved plan requests UI into a dedicated /controlplane/plan-requests page.
+- Plans page now shows only plan catalog content; nav and operations link point to plan requests page.
+
+### Verification
+- docs/SaaS/verification/CP-UX-24b.md

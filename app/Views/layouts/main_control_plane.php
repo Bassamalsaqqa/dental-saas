@@ -85,7 +85,7 @@
                                 'label' => 'Plans & Billing',
                                 'items' => [
                                     ['title' => 'Plans', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group', 'color' => 'indigo'],
-                                    ['title' => 'Plan Requests', 'url' => 'controlplane/plans#plan-requests', 'icon' => 'fas fa-inbox', 'color' => 'indigo'],
+                                    ['title' => 'Plan Requests', 'url' => 'controlplane/plan-requests', 'icon' => 'fas fa-inbox', 'color' => 'indigo'],
                                 ],
                             ],
                             [

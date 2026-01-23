@@ -72,7 +72,7 @@
                     </span>
                     <span class="text-xs text-emerald-400">Status checks</span>
                 </a>
-                <a href="<?= base_url('controlplane/plans#plan-requests') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-amber-100 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
+                <a href="<?= base_url('controlplane/plan-requests') ?>" class="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-amber-100 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
                     <span class="flex items-center gap-2">
                         <i class="fas fa-inbox"></i> Process Plan Requests
                     </span>
