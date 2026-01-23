@@ -109,10 +109,15 @@ class PlanRequests extends BaseController
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $current = $subscriptionModel->getCurrentSubscription((int) $request['clinic_id']);
         if ($current) {
+            $current = $subscriptionModel->markExpiredIfNeeded($current);
+        }
+        if ($current && in_array(($current['status'] ?? ''), ['active', 'paused'], true)) {
+            $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($current['id'], [
                 'status' => 'canceled',
-                'canceled_at' => date('Y-m-d H:i:s'),
-                'end_at' => date('Y-m-d H:i:s'),
+                'canceled_at' => $now,
+                'end_at' => $now,
+                'canceled_reason' => 'plan_change',
             ]);
         }
 

@@ -74,24 +74,33 @@ class PlanGuard
     {
         $subModel = new ClinicSubscriptionModel();
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription($clinicId);
+        if ($sub) {
+            $sub = $subModel->markExpiredIfNeeded($sub);
+        }
 
         $isValid = false;
         $reason = 'no_valid_subscription';
 
         if ($sub) {
-            $now = date('Y-m-d H:i:s');
+            $now = time();
             if ($sub['status'] === 'active') {
-                if (empty($sub['end_at']) || $sub['end_at'] > $now) {
-                    $isValid = true;
-                } else {
+                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
+                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
+                if (!$startOk) {
+                    $reason = 'NOT_STARTED';
+                } elseif (!$endOk) {
                     $reason = 'EXPIRED';
+                } else {
+                    $isValid = true;
                 }
+            } else {
+                $reason = strtoupper($sub['status']);
             }
         }
 
         if (!$isValid) {
             $this->audit($clinicId, 'subscription_check', self::PLAN_SUBSCRIPTION_INACTIVE, ['status' => ($sub['status'] ?? 'none'), 'reason' => $reason]);
-            log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null'));
+            log_message('error', "PLAN_SUBSCRIPTION_INACTIVE: clinic_id={$clinicId} reason={$reason} status=" . ($sub['status'] ?? 'none') . " start_at=" . ($sub['start_at'] ?? 'null') . " end_at=" . ($sub['end_at'] ?? 'null'));
             
             if ($this->isApiScope()) {
                 return ['allowed' => false, 'code' => 'subscription_inactive', 'message' => 'Subscription required or expired.'];

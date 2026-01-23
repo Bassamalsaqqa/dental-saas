@@ -32,17 +32,24 @@ class SubscriptionFilter implements FilterInterface
         $subModel = new ClinicSubscriptionModel();
         // Use withoutTenantScope to ensure we can see the subscription even if scoping is acting up
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription((int)$clinicId);
+        if ($sub) {
+            $sub = $subModel->markExpiredIfNeeded($sub);
+        }
 
         $isValid = false;
         $reason = 'no_valid_subscription';
 
         if ($sub) {
-            $now = date('Y-m-d H:i:s');
+            $now = time();
             if ($sub['status'] === 'active') {
-                if (empty($sub['end_at']) || $sub['end_at'] > $now) {
-                    $isValid = true;
-                } else {
+                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
+                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
+                if (!$startOk) {
+                    $reason = 'NOT_STARTED';
+                } elseif (!$endOk) {
                     $reason = 'EXPIRED';
+                } else {
+                    $isValid = true;
                 }
             } else {
                 $reason = strtoupper($sub['status']);
@@ -50,7 +57,7 @@ class SubscriptionFilter implements FilterInterface
         }
 
         if (!$isValid) {
-            log_message('error', "SUBSCRIPTION_STATE_BLOCK: clinic_id={$clinicId} user_id={$userId} status=" . ($sub['status'] ?? 'none') . " end_at=" . ($sub['end_at'] ?? 'null') . " reason={$reason}");
+            log_message('error', "SUBSCRIPTION_STATE_BLOCK: clinic_id={$clinicId} user_id={$userId} status=" . ($sub['status'] ?? 'none') . " start_at=" . ($sub['start_at'] ?? 'null') . " end_at=" . ($sub['end_at'] ?? 'null') . " reason={$reason}");
             throw PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
         }
 

@@ -691,3 +691,16 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-DASH-01.md`
+
+## [2026-01-23] Subscription Lifecycle Enforcement (CP-SUB-01)
+**Tasks:** CP-SUB-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added subscription lifecycle reason columns (paused_reason, canceled_reason, paused_at) via migration 2026-01-23-070700_AddSubscriptionLifecycleReasons.php.
+- Normalized expiration handling with markExpiredIfNeeded and start_at/end_at standing checks in SubscriptionFilter, PlanGuard, and Home.
+- Control plane subscription actions now persist cancellation/suspension reasons and allow cancel/update on paused subscriptions; plan request approval cancels prior subscription with reason.
+
+### Verification
+- docs/SaaS/verification/CP-SUB-01.md

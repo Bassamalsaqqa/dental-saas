@@ -124,10 +124,15 @@ class Clinics extends BaseController
 
         $current = $subscriptionModel->getCurrentSubscription($id);
         if ($current) {
+            $current = $subscriptionModel->markExpiredIfNeeded($current);
+        }
+        if ($current && in_array($current['status'] ?? '', ['active', 'paused'], true)) {
+            $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($current['id'], [
                 'status' => 'canceled',
-                'canceled_at' => date('Y-m-d H:i:s'),
-                'end_at' => date('Y-m-d H:i:s'),
+                'canceled_at' => $now,
+                'end_at' => $now,
+                'canceled_reason' => 'superseded_by_new_subscription',
             ]);
         }
 
@@ -158,7 +163,10 @@ class Clinics extends BaseController
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if (!$subscription) {
+        if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
+        if (!$subscription || ($subscription['status'] ?? '') !== 'active') {
             return redirect()->back()->with('error', 'No active subscription to extend.');
         }
 
@@ -186,20 +194,25 @@ class Clinics extends BaseController
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if (!$subscription) {
-            return redirect()->back()->with('error', 'No active subscription to cancel.');
+        if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
+        if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
+            return redirect()->back()->with('error', 'No active or paused subscription to cancel.');
         }
 
+        $now = date('Y-m-d H:i:s');
         $subscriptionModel->update($subscription['id'], [
             'status' => 'canceled',
-            'canceled_at' => date('Y-m-d H:i:s'),
-            'end_at' => date('Y-m-d H:i:s'),
+            'canceled_at' => $now,
+            'end_at' => $now,
+            'canceled_reason' => 'manual_cancel',
         ]);
 
         $this->auditService->logEvent('subscription_cancel', [
             'route' => '/controlplane/clinics/' . $id . '/subscription/cancel',
             'method' => 'POST',
-            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id']],
+            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id'], 'reason' => 'manual_cancel'],
         ]);
 
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription canceled.');
@@ -212,8 +225,11 @@ class Clinics extends BaseController
     {
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
-        if (!$subscription) {
-            return redirect()->back()->with('error', 'No active subscription to update.');
+        if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
+        if (!$subscription || !in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
+            return redirect()->back()->with('error', 'No active or paused subscription to update.');
         }
 
         $startInput = trim((string) $this->request->getPost('start_at'));
@@ -262,10 +278,15 @@ class Clinics extends BaseController
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
         if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
+        if ($subscription && in_array(($subscription['status'] ?? ''), ['active', 'paused'], true)) {
+            $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($subscription['id'], [
                 'status' => 'canceled',
-                'canceled_at' => date('Y-m-d H:i:s'),
-                'end_at' => date('Y-m-d H:i:s'),
+                'canceled_at' => $now,
+                'end_at' => $now,
+                'canceled_reason' => 'clinic_terminated',
             ]);
         }
 
@@ -274,7 +295,7 @@ class Clinics extends BaseController
         $this->auditService->logEvent('clinic_terminate', [
             'route' => '/controlplane/clinics/' . $id . '/terminate',
             'method' => 'POST',
-            'metadata' => ['clinic_id' => $id],
+            'metadata' => ['clinic_id' => $id, 'reason' => 'clinic_terminated'],
         ]);
 
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic terminated.');
@@ -293,9 +314,15 @@ class Clinics extends BaseController
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
+        if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
         if ($subscription && ($subscription['status'] ?? '') === 'active') {
+            $now = date('Y-m-d H:i:s');
             $subscriptionModel->update($subscription['id'], [
                 'status' => 'paused',
+                'paused_at' => $now,
+                'paused_reason' => 'clinic_suspended',
             ]);
         }
 
@@ -304,7 +331,7 @@ class Clinics extends BaseController
         $this->auditService->logEvent('clinic_suspend', [
             'route' => '/controlplane/clinics/' . $id . '/suspend',
             'method' => 'POST',
-            'metadata' => ['clinic_id' => $id],
+            'metadata' => ['clinic_id' => $id, 'reason' => 'clinic_suspended'],
         ]);
 
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic suspended.');
@@ -323,9 +350,14 @@ class Clinics extends BaseController
 
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $subscription = $subscriptionModel->getCurrentSubscription($id);
+        if ($subscription) {
+            $subscription = $subscriptionModel->markExpiredIfNeeded($subscription);
+        }
         if ($subscription && ($subscription['status'] ?? '') === 'paused') {
             $subscriptionModel->update($subscription['id'], [
                 'status' => 'active',
+                'paused_at' => null,
+                'paused_reason' => null,
             ]);
         }
 

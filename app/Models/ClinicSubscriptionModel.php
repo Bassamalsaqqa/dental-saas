@@ -17,6 +17,9 @@ class ClinicSubscriptionModel extends TenantAwareModel
         'start_at',
         'end_at',
         'canceled_at',
+        'canceled_reason',
+        'paused_at',
+        'paused_reason',
         'created_at',
         'updated_at'
     ];
@@ -28,15 +31,42 @@ class ClinicSubscriptionModel extends TenantAwareModel
     protected $beforeInsert = ['setClinicId'];
 
     /**
-     * Get the current effective subscription for a clinic.
-     * Logic: Active-only standing. Schema has no trial_ends_at.
+     * Get the most recent subscription record for a clinic.
+     * Ordering prefers latest end_at (or open-ended), then newest id.
      */
     public function getCurrentSubscription(int $clinicId)
     {
         return $this->where('clinic_id', $clinicId)
-                    ->where('status', 'active')
                     ->orderBy("COALESCE(end_at, '9999-12-31')", 'DESC', false)
                     ->orderBy('id', 'DESC')
                     ->first();
+    }
+
+    /**
+     * Mark a subscription as expired if its end_at has passed.
+     */
+    public function markExpiredIfNeeded(array $subscription): array
+    {
+        if (empty($subscription['id']) || empty($subscription['status'])) {
+            return $subscription;
+        }
+
+        if ($subscription['status'] !== 'active') {
+            return $subscription;
+        }
+
+        if (empty($subscription['end_at'])) {
+            return $subscription;
+        }
+
+        $endTs = strtotime($subscription['end_at']);
+        if ($endTs !== false && $endTs <= time()) {
+            $this->update($subscription['id'], [
+                'status' => 'expired',
+            ]);
+            $subscription['status'] = 'expired';
+        }
+
+        return $subscription;
     }
 }

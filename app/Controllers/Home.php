@@ -27,12 +27,17 @@ class Home extends BaseController
         // Preserve concealment behavior if subscription is invalid.
         $subModel = new ClinicSubscriptionModel();
         $sub = $subModel->withoutTenantScope()->getCurrentSubscription((int)$clinicId);
+        if ($sub) {
+            $sub = $subModel->markExpiredIfNeeded($sub);
+        }
         $isValid = false;
 
         if ($sub) {
-            $now = date('Y-m-d H:i:s');
+            $now = time();
             if ($sub['status'] === 'active') {
-                if (empty($sub['end_at']) || $sub['end_at'] > $now) {
+                $startOk = empty($sub['start_at']) || strtotime($sub['start_at']) <= $now;
+                $endOk = empty($sub['end_at']) || strtotime($sub['end_at']) > $now;
+                if ($startOk && $endOk) {
                     $isValid = true;
                 }
             }
