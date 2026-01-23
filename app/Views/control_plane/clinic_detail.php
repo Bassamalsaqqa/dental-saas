@@ -60,7 +60,11 @@
     <div class="glass-card rounded-3xl p-6 space-y-6">
         <h2 class="text-sm font-semibold text-slate-800">Lifecycle actions</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-600">
+        <?php
+            $startValue = !empty($subscription['start_at']) ? date('Y-m-d\\TH:i', strtotime($subscription['start_at'])) : '';
+            $endValue = !empty($subscription['end_at']) ? date('Y-m-d\\TH:i', strtotime($subscription['end_at'])) : '';
+        ?>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-slate-600">
             <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/start') ?>" method="post" class="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 space-y-3">
                 <?= csrf_field() ?>
                 <h3 class="text-xs uppercase tracking-widest text-emerald-700 font-semibold">Start subscription</h3>
@@ -96,6 +100,20 @@
                     </select>
                 </div>
                 <button class="w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold">Extend</button>
+            </form>
+
+            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/update-dates') ?>" method="post" class="rounded-2xl border border-slate-100 bg-slate-50/40 p-4 space-y-3">
+                <?= csrf_field() ?>
+                <h3 class="text-xs uppercase tracking-widest text-slate-600 font-semibold">Adjust dates</h3>
+                <div>
+                    <label class="text-xs text-slate-500">Start</label>
+                    <input type="datetime-local" name="start_at" value="<?= esc($startValue) ?>" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500">End</label>
+                    <input type="datetime-local" name="end_at" value="<?= esc($endValue) ?>" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs">
+                </div>
+                <button class="w-full px-3 py-2 rounded-lg bg-slate-700 text-white text-xs font-semibold">Save Dates</button>
             </form>
 
             <div class="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-3">

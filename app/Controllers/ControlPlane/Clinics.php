@@ -206,6 +206,49 @@ class Clinics extends BaseController
     }
 
     /**
+     * POST /controlplane/clinics/{id}/subscription/update-dates
+     */
+    public function updateSubscriptionDates(int $id)
+    {
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $subscription = $subscriptionModel->getCurrentSubscription($id);
+        if (!$subscription) {
+            return redirect()->back()->with('error', 'No active subscription to update.');
+        }
+
+        $startInput = trim((string) $this->request->getPost('start_at'));
+        $endInput = trim((string) $this->request->getPost('end_at'));
+
+        $startAt = $startInput !== '' ? $this->normalizeDateTime($startInput) : ($subscription['start_at'] ?? null);
+        $endAt = $endInput !== '' ? $this->normalizeDateTime($endInput) : ($subscription['end_at'] ?? null);
+
+        if ($startInput !== '' && !$startAt) {
+            return redirect()->back()->with('error', 'Invalid start date.');
+        }
+
+        if ($endInput !== '' && !$endAt) {
+            return redirect()->back()->with('error', 'Invalid end date.');
+        }
+
+        if ($startAt && $endAt && strtotime($endAt) <= strtotime($startAt)) {
+            return redirect()->back()->with('error', 'End date must be after start date.');
+        }
+
+        $subscriptionModel->update($subscription['id'], [
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+        ]);
+
+        $this->auditService->logEvent('subscription_dates_update', [
+            'route' => '/controlplane/clinics/' . $id . '/subscription/update-dates',
+            'method' => 'POST',
+            'metadata' => ['clinic_id' => $id, 'subscription_id' => $subscription['id']],
+        ]);
+
+        return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Subscription dates updated.');
+    }
+
+    /**
      * POST /controlplane/clinics/{id}/terminate
      */
     public function terminate(int $id)
@@ -309,5 +352,25 @@ class Clinics extends BaseController
         }
 
         return date('Y-m-d H:i:s', strtotime('+1 month', $time));
+    }
+
+    private function normalizeDateTime(string $input): ?string
+    {
+        $input = trim($input);
+        if ($input === '') {
+            return null;
+        }
+
+        $dt = \DateTime::createFromFormat('Y-m-d\\TH:i', $input);
+        if ($dt instanceof \DateTime) {
+            return $dt->format('Y-m-d H:i:s');
+        }
+
+        $ts = strtotime($input);
+        if ($ts === false) {
+            return null;
+        }
+
+        return date('Y-m-d H:i:s', $ts);
     }
 }

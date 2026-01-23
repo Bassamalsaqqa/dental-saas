@@ -26,6 +26,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('clinics/(:num)/subscription/start', 'ControlPlane\Clinics::startSubscription/$1');
         $routes->post('clinics/(:num)/subscription/extend', 'ControlPlane\Clinics::extendSubscription/$1');
         $routes->post('clinics/(:num)/subscription/cancel', 'ControlPlane\Clinics::cancelSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/update-dates', 'ControlPlane\Clinics::updateSubscriptionDates/$1');
         $routes->post('clinics/(:num)/terminate', 'ControlPlane\Clinics::terminate/$1');
         $routes->post('clinics/(:num)/suspend', 'ControlPlane\Clinics::suspend/$1');
         $routes->post('clinics/(:num)/reactivate', 'ControlPlane\Clinics::reactivate/$1');

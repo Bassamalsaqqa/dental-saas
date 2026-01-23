@@ -631,3 +631,15 @@
 
 ### Verification
 - `docs/SaaS/verification/CP-CLINIC-01.md`
+
+## [2026-01-23] Subscription Operations (CP-BILL-01)
+**Tasks:** CP-BILL-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added manual start/end date update for clinic subscriptions.
+- Wired control plane clinic detail to update subscription dates.
+
+### Verification
+- `docs/SaaS/verification/CP-BILL-01.md`
