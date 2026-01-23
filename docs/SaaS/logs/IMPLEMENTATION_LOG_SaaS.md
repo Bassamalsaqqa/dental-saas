@@ -976,3 +976,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-05.md
+
+## [2026-01-23] Control Plane Clinics DataTables via index (CP-GLASS-06)
+**Tasks:** CP-GLASS-06
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Rewired clinic registry DataTables to POST /controlplane/clinics (Clinics::index JSON) with MRR column and glass table styling.
+- Removed the separate /controlplane/clinics/get-data endpoint in favor of the index handler.
+
+### Verification
+- docs/SaaS/verification/CP-GLASS-06.md

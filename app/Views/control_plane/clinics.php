@@ -134,6 +134,19 @@
     align-items: center !important;
     justify-content: space-between !important;
 }
+
+#clinicsTable {
+    background: transparent !important;
+}
+
+#clinicsTable tbody tr {
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(12px);
+}
+
+#clinicsTable tbody tr td {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
 </style>
 
 <div class="space-y-8">
@@ -165,7 +178,7 @@
         </div>
         <div class="glass-card rounded-2xl p-4">
             <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan Coverage</p>
-            <p class="text-sm text-slate-600 mt-2">Showing clinics that match your filters.</p>
+            <p class="text-sm text-slate-600 mt-2">Showing <?= number_format($stats['filtered'] ?? 0) ?> clinics in view.</p>
         </div>
     </div>
 
@@ -182,7 +195,6 @@
                 <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
                 <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
                 <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
-                <option value="inactive" <?= $currentStatus === 'inactive' ? 'selected' : '' ?>>Inactive</option>
             </select>
         </div>
         <div class="w-full lg:w-64">
@@ -221,11 +233,10 @@
             <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Clinic</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Name</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Plan</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Start Date</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">End Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">MRR</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -294,6 +305,14 @@ function renderCsrfField() {
     return `<input type="hidden" name="${name}" value="${token}">`;
 }
 
+function formatCurrency(value) {
+    const numericValue = Number(value) || 0;
+    if (window.Intl && Intl.NumberFormat) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericValue);
+    }
+    return `$${numericValue.toFixed(2)}`;
+}
+
 $(document).ready(function() {
     clinicsTable = $('#clinicsTable').DataTable({
         processing: true,
@@ -301,7 +320,7 @@ $(document).ready(function() {
         responsive: true,
         searching: false,
         ajax: {
-            url: '<?= base_url('controlplane/clinics/get-data') ?>',
+            url: '<?= base_url('controlplane/clinics') ?>',
             type: 'POST',
             beforeSend: function(xhr) {
                 const csrfToken = getCsrfToken();
@@ -372,21 +391,14 @@ $(document).ready(function() {
                 data: 'plan_name',
                 name: 'plan_name',
                 render: function(data) {
-                    return `<span class="text-sm text-slate-700 font-semibold">${escapeHtml(data || 'Unassigned')}</span>`;
+                    return `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">${escapeHtml(data || 'Unassigned')}</span>`;
                 }
             },
             {
-                data: 'start_at',
-                name: 'start_at',
+                data: 'mrr',
+                name: 'mrr',
                 render: function(data) {
-                    return `<span class="text-sm text-slate-600">${escapeHtml(data || '--')}</span>`;
-                }
-            },
-            {
-                data: 'end_at',
-                name: 'end_at',
-                render: function(data) {
-                    return `<span class="text-sm text-slate-600">${escapeHtml(data || '--')}</span>`;
+                    return `<span class="text-sm font-semibold text-slate-800">${formatCurrency(data)}</span>`;
                 }
             },
             {

@@ -27,22 +27,76 @@ class Clinics extends BaseController
         ]);
 
         $request = service('request');
-        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
-        $planFilter = (int) ($request ? $request->getGet('plan_id') : 0);
-        $search = trim((string) ($request ? $request->getGet('q') : ''));
+        $isPost = $this->request->getMethod() === 'post';
+        $statusFilter = strtolower(trim((string) ($request ? ($isPost ? $request->getPost('status') : $request->getGet('status')) : '')));
+        $planFilter = (int) ($request ? ($isPost ? $request->getPost('plan_id') : $request->getGet('plan_id')) : 0);
+        $search = trim((string) ($request ? ($isPost ? $request->getPost('q') : $request->getGet('q')) : ''));
+
+        if ($isPost) {
+            $this->auditService->logEvent('surface_get', [
+                'route' => '/controlplane/clinics',
+                'method' => 'POST',
+            ]);
+
+            $draw = (int) ($request ? $request->getPost('draw') : 0);
+            $start = max(0, (int) ($request ? $request->getPost('start') : 0));
+            $length = (int) ($request ? $request->getPost('length') : 10);
+
+            $orderPayload = $request ? $request->getPost('order') : null;
+            $columnsPayload = $request ? $request->getPost('columns') : null;
+            $orderIndex = (int) ($orderPayload[0]['column'] ?? 0);
+            $orderDir = strtolower((string) ($orderPayload[0]['dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+            $orderColumn = is_array($columnsPayload) && isset($columnsPayload[$orderIndex]['data'])
+                ? (string) $columnsPayload[$orderIndex]['data']
+                : 'name';
+
+            $clinicModel = new ClinicModel();
+            $recordsTotal = $clinicModel->countAllResults();
+            $rows = $this->buildClinicRows($statusFilter, $planFilter, $search);
+
+            if ($orderColumn !== '') {
+                usort($rows, function ($a, $b) use ($orderColumn, $orderDir) {
+                    $aVal = $a[$orderColumn] ?? '';
+                    $bVal = $b[$orderColumn] ?? '';
+
+                    if ($orderColumn === 'mrr') {
+                        $aVal = (float) $aVal;
+                        $bVal = (float) $bVal;
+                    }
+
+                    if ($aVal === $bVal) {
+                        return 0;
+                    }
+
+                    $result = $aVal < $bVal ? -1 : 1;
+                    return $orderDir === 'asc' ? $result : -$result;
+                });
+            }
+
+            $recordsFiltered = count($rows);
+            $pageRows = $length > 0 ? array_slice($rows, $start, $length) : $rows;
+
+            return $this->response->setJSON([
+                'draw' => $draw,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $pageRows,
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
 
         $clinicModel = new ClinicModel();
         $planModel = new PlanModel();
-
         $totalClinics = $clinicModel->countAllResults();
         $activeClinics = (new ClinicModel())->where('status', 'active')->countAllResults();
+        $filteredCount = count($this->buildClinicRows($statusFilter, $planFilter, $search));
 
         return view('control_plane/clinics', [
             'title' => 'Clinics',
             'stats' => [
                 'total' => $totalClinics,
                 'active' => $activeClinics,
-                'filtered' => $totalClinics,
+                'filtered' => $filteredCount,
             ],
             'filters' => [
                 'status' => $statusFilter,
@@ -53,42 +107,17 @@ class Clinics extends BaseController
         ]);
     }
 
-    /**
-     * POST /controlplane/clinics/get-data
-     */
-    public function getData()
+    private function buildClinicRows(string $statusFilter, int $planFilter, string $search): array
     {
-        $this->auditService->logEvent('surface_get', [
-            'route' => '/controlplane/clinics/get-data',
-            'method' => 'POST',
-        ]);
-
-        $request = service('request');
-        $draw = (int) ($request ? $request->getPost('draw') : 0);
-        $start = max(0, (int) ($request ? $request->getPost('start') : 0));
-        $length = (int) ($request ? $request->getPost('length') : 10);
-        $statusFilter = strtolower(trim((string) ($request ? $request->getPost('status') : '')));
-        $planFilter = (int) ($request ? $request->getPost('plan_id') : 0);
-        $search = trim((string) ($request ? $request->getPost('q') : ''));
-
-        $searchPayload = $request ? $request->getPost('search') : null;
-        if ($search === '' && is_array($searchPayload) && isset($searchPayload['value'])) {
-            $search = trim((string) $searchPayload['value']);
-        }
-
-        $orderPayload = $request ? $request->getPost('order') : null;
-        $columnsPayload = $request ? $request->getPost('columns') : null;
-        $orderIndex = (int) ($orderPayload[0]['column'] ?? 0);
-        $orderDir = strtolower((string) ($orderPayload[0]['dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
-        $orderColumn = is_array($columnsPayload) && isset($columnsPayload[$orderIndex]['data'])
-            ? (string) $columnsPayload[$orderIndex]['data']
-            : 'id';
-
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
 
-        $recordsTotal = $clinicModel->countAllResults();
+        $planRows = $planModel->findAll();
+        $planMap = [];
+        foreach ($planRows as $plan) {
+            $planMap[$plan['id']] = $plan;
+        }
 
         $clinicQuery = $clinicModel->orderBy('created_at', 'DESC');
         if (in_array($statusFilter, ['active', 'inactive', 'suspended'], true)) {
@@ -115,11 +144,19 @@ class Clinics extends BaseController
         foreach ($clinics as $clinic) {
             $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
             $planName = 'Unassigned';
+            $mrr = 0.0;
             $planId = $subscription['plan_id'] ?? null;
-            if ($subscription && !empty($subscription['plan_id'])) {
-                $plan = $planModel->find($subscription['plan_id']);
-                if (!empty($plan['name'])) {
-                    $planName = $plan['name'];
+
+            if ($planId && isset($planMap[$planId])) {
+                $plan = $planMap[$planId];
+                $planName = $plan['name'] ?? 'Unassigned';
+                $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
+                $price = (float) ($limits['price'] ?? 0);
+                $duration = $limits['duration'] ?? 'monthly';
+                if ($duration === 'yearly' && $price > 0) {
+                    $mrr = $price / 12;
+                } elseif ($duration === 'monthly') {
+                    $mrr = $price;
                 }
             }
 
@@ -133,40 +170,11 @@ class Clinics extends BaseController
                 'slug' => $clinic['slug'] ?? '',
                 'status' => $clinic['status'] ?? 'inactive',
                 'plan_name' => $planName,
-                'start_at' => $subscription['start_at'] ?? null,
-                'end_at' => $subscription['end_at'] ?? null,
+                'mrr' => $mrr,
             ];
         }
 
-        if ($orderColumn !== '') {
-            usort($rows, function ($a, $b) use ($orderColumn, $orderDir) {
-                $aVal = $a[$orderColumn] ?? '';
-                $bVal = $b[$orderColumn] ?? '';
-
-                if (in_array($orderColumn, ['start_at', 'end_at'], true)) {
-                    $aVal = $aVal ? strtotime((string) $aVal) : 0;
-                    $bVal = $bVal ? strtotime((string) $bVal) : 0;
-                }
-
-                if ($aVal === $bVal) {
-                    return 0;
-                }
-
-                $result = $aVal < $bVal ? -1 : 1;
-                return $orderDir === 'asc' ? $result : -$result;
-            });
-        }
-
-        $recordsFiltered = count($rows);
-        $pageRows = $length > 0 ? array_slice($rows, $start, $length) : $rows;
-
-        return $this->response->setJSON([
-            'draw' => $draw,
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
-            'data' => $pageRows,
-            'csrf_token' => csrf_hash(),
-        ]);
+        return $rows;
     }
 
     /**
