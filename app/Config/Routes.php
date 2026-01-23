@@ -43,6 +43,10 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('exit', 'ControlPlane::exit');
         $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
         $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');
+
+        // Legacy onboarding alias to avoid 404 on /controlplane/clinic/create
+        $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic'); // CP-UX-02b
+        $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic'); // CP-UX-02b
     
     // Onboarding (P5-11)
     $routes->group('onboarding', function($routes) {

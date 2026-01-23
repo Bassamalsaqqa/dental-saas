@@ -906,3 +906,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-24c.md
+
+## [2026-01-23] Onboarding Legacy Route Alias (CP-UX-02b)
+**Tasks:** CP-UX-02b
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added legacy alias routes for `/controlplane/clinic/create` to render onboarding create and process the form without 404s.
+
+### Verification
+- docs/SaaS/verification/CP-UX-02b.md
