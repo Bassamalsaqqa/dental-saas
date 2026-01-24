@@ -692,4 +692,97 @@ $(document).ready(function() {
 
 
 
+<script>
+let deleteClinicName = '';
+let terminateClinicName = '';
+
+// Terminate Modal Functions
+function openTerminateModal(clinicId, clinicNameEncoded) {
+    const modal = document.getElementById('terminateModal');
+    const nameEl = document.getElementById('terminateClinicName');
+    const inputEl = document.getElementById('terminateConfirmInput');
+    const formEl = document.getElementById('terminateForm');
+    const decodedName = decodeURIComponent(clinicNameEncoded || 'Clinic');
+
+    terminateClinicName = decodedName;
+    if (nameEl) nameEl.textContent = decodedName;
+    if (formEl) formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/terminate`;
+    if (inputEl) inputEl.value = '';
+    
+    updateTerminateState();
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeTerminateModal() {
+    const modal = document.getElementById('terminateModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function updateTerminateState() {
+    const inputEl = document.getElementById('terminateConfirmInput');
+    const buttonEl = document.getElementById('terminateConfirmButton');
+    if (!inputEl || !buttonEl) return;
+    
+    const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
+    buttonEl.disabled = !matches;
+    if (matches) {
+        buttonEl.classList.remove('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.add('hover:bg-rose-700');
+    } else {
+        buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.remove('hover:bg-rose-700');
+    }
+}
+
+// Delete Modal Functions
+function openDeleteModal(clinicId, clinicNameEncoded) {
+    const modal = document.getElementById('deleteModal');
+    const nameEl = document.getElementById('deleteClinicName');
+    const inputEl = document.getElementById('deleteConfirmInput');
+    const formEl = document.getElementById('deleteForm');
+    const decodedName = decodeURIComponent(clinicNameEncoded || 'Clinic');
+
+    deleteClinicName = decodedName;
+    if (nameEl) nameEl.textContent = decodedName;
+    if (formEl) formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/delete`;
+    if (inputEl) inputEl.value = '';
+    
+    updateDeleteState();
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function updateDeleteState() {
+    const inputEl = document.getElementById('deleteConfirmInput');
+    const buttonEl = document.getElementById('deleteConfirmButton');
+    if (!inputEl || !buttonEl) return;
+    
+    const matches = inputEl.value === 'DELETE';
+    buttonEl.disabled = !matches;
+    if (matches) {
+        buttonEl.classList.remove('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.add('hover:bg-rose-700');
+    } else {
+        buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.remove('hover:bg-rose-700');
+    }
+}
+</script>
+
 <?= $this->endSection() ?>
