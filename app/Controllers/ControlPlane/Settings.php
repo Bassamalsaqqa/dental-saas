@@ -19,10 +19,24 @@ class Settings extends BaseController
      */
     public function index()
     {
-        // Global mode check handled by 'controlplane' filter
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/settings'
         ]);
+
+        return view('control_plane/settings', [
+            'title' => 'Settings',
+        ]);
+    }
+
+    /**
+     * GET /controlplane/email-templates
+     */
+    public function emailTemplates()
+    {
+        $this->auditService->logEvent('surface_get', [
+            'route' => '/controlplane/email-templates'
+        ]);
+
         $request = service('request');
         $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
         $search = trim((string) ($request ? $request->getGet('q') : ''));
@@ -49,8 +63,9 @@ class Settings extends BaseController
         if ($activeTemplateId) {
             $activeTemplate = $templateModel->find($activeTemplateId);
         }
-        return view('control_plane/settings', [
-            'title' => 'Settings',
+
+        return view('control_plane/email_templates', [
+            'title' => 'Email Templates',
             'templates' => $templates,
             'activeTemplate' => $activeTemplate,
             'templateStats' => [
@@ -108,7 +123,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $templateId, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?template_id=' . $templateId . '#template-editor'))
+        return redirect()->to(base_url('controlplane/email-templates?template_id=' . $templateId . '#template-editor'))
             ->with('success', 'Email template created.');
     }
 
@@ -159,7 +174,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $id, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?template_id=' . $id . '#template-editor'))
+        return redirect()->to(base_url('controlplane/email-templates?template_id=' . $id . '#template-editor'))
             ->with('success', 'Email template updated.');
     }
 }
