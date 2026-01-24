@@ -1119,3 +1119,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-SEARCH-01.md
+
+## [2026-01-24] Dashboard Chart Data Label Fix (CP-OBS-01A)
+**Tasks:** CP-OBS-01A
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Normalized the revenue timeline labels to short month names (Jan, Feb, etc.) so the Chart.js line axis matches the spec.
+- Ensured the chart payload still carries the same mrr_series/activity_series/status_breakdown arrays.
+
+### Verification
+- `rg -n "label' => date\\('M'" app/Controllers/ControlPlane/Dashboard.php`

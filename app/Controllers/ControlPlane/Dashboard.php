@@ -177,7 +177,7 @@ class Dashboard extends BaseController
             }
 
             $mrrHistory[] = [
-                'label' => date('M Y', strtotime('-' . $i . ' months')),
+                'label' => date('M', strtotime('-' . $i . ' months')),
                 'value' => round($monthlyTotal, 2),
             ];
         }
