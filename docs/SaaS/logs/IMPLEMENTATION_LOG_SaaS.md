@@ -1095,3 +1095,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-OBS-01.md
+
+## [2026-01-24] Control Plane Impersonation (CP-IMP-01)
+**Tasks:** CP-IMP-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a Clinics-specific `/controlplane/impersonate` POST handler that validates global mode, sets the impersonation session keys, regenerates the session, and logs `clinic_impersonate`.
+- Redirects to `/dashboard` so the agent immediately lands in the tenant plane under the impersonated clinic.
+
+### Verification
+- docs/SaaS/verification/CP-IMP-01.md

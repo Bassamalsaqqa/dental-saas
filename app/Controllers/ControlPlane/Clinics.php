@@ -178,6 +178,40 @@ class Clinics extends BaseController
     }
 
     /**
+     * POST /controlplane/impersonate
+     */
+    public function impersonate()
+    {
+        if (!session()->get('global_mode')) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Control Plane access required.');
+        }
+
+        $clinicId = (int) $this->request->getPost('clinic_id');
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($clinicId);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found.');
+        }
+
+        session()->set([
+            'global_mode' => false,
+            'active_clinic_id' => $clinicId,
+            'impersonated_clinic_id' => $clinicId,
+            'is_impersonating' => true,
+        ]);
+        session()->remove('active_clinic_role_id');
+        session()->regenerate();
+
+        $this->auditService->logEvent('clinic_impersonate', [
+            'route' => '/controlplane/impersonate',
+            'method' => 'POST',
+            'metadata' => ['clinic_id' => $clinicId],
+        ]);
+
+        return redirect()->to('/dashboard')->with('success', 'Impersonation active for ' . ($clinic['name'] ?? 'clinic') . '.');
+    }
+
+    /**
      * GET /controlplane/clinics/{id}
      */
     public function show(int $id)

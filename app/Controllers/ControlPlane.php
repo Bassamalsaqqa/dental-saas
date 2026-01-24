@@ -84,49 +84,6 @@ class ControlPlane extends BaseController
     }
 
     /**
-     * Impersonate a clinic (leave global mode)
-     * POST /controlplane/impersonate
-     */
-    public function impersonate()
-    {
-        if (!$this->ionAuth->loggedIn()) {
-            return redirect()->to('/auth/login');
-        }
-
-        $userId = $this->ionAuth->getUserId();
-        $isSuperAdmin = $this->permissionService && $this->permissionService->isSuperAdmin($userId);
-        if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
-            $isSuperAdmin = true;
-        }
-        if (!$isSuperAdmin) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        $clinicId = (int) $this->request->getPost('clinic_id');
-        $clinicModel = new \App\Models\ClinicModel();
-        $clinic = $clinicModel->find($clinicId);
-        if (!$clinic) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
-        }
-
-        session()->set('global_mode', false);
-        session()->set('active_clinic_id', $clinicId);
-        session()->set('impersonated_clinic_id', $clinicId);
-        session()->set('is_impersonating', true);
-        session()->remove('active_clinic_role_id');
-        session()->regenerate();
-
-        $this->auditService->logEvent('impersonation_start', [
-            'route' => '/controlplane/impersonate',
-            'metadata' => [
-                'clinic_id' => $clinicId,
-            ],
-        ]);
-
-        return redirect()->to('/dashboard')->with('success', 'Impersonation active for ' . ($clinic['name'] ?? 'clinic') . '.');
-    }
-
-    /**
      * Exit impersonation and return to Control Plane
      * POST /controlplane/impersonation/exit
      */

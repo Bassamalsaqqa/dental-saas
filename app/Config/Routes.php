@@ -40,8 +40,8 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
         $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
-        $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03
-        $routes->post('impersonate', 'ControlPlane::impersonate'); // CP-GLASS-07
+        $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
+        $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
         $routes->post('exit', 'ControlPlane::exit');
