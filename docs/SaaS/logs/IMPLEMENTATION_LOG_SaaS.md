@@ -1034,3 +1034,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-GLASS-10.md
+
+## [2026-01-24] Plans Catalog Toggle UX (CP-PLAN-02)
+**Tasks:** CP-PLAN-02
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Reworked control plane plans view into glass cards with prominent pricing and full feature checklists.
+- Replaced activate/deactivate button with a toggle switch that submits on change.
+- Kept plan edits on the dedicated edit page.
+
+### Verification
+- docs/SaaS/verification/CP-PLAN-02.md

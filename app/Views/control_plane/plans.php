@@ -1,6 +1,45 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
+<style>
+    .toggle-switch {
+        position: relative;
+        display: inline-flex;
+        width: 44px;
+        height: 24px;
+        align-items: center;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-track {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        background: #e2e8f0;
+        border: 1px solid rgba(15, 23, 42, 0.15);
+        transition: background 0.2s ease;
+    }
+    .toggle-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 9999px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+        transition: transform 0.2s ease;
+    }
+    .toggle-switch input:checked + .toggle-track {
+        background: #10b981;
+    }
+    .toggle-switch input:checked + .toggle-track .toggle-thumb {
+        transform: translateX(20px);
+    }
+</style>
 <div class="space-y-8">
     <div class="glass-card rounded-3xl p-6 md:p-8">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -100,21 +139,38 @@
                     'Export tooling' => !empty($features['exports']['enabled']),
                     'Email notifications' => !empty($features['notifications']['email']['enabled']),
                 ];
+                $isActive = ($plan['status'] ?? 'inactive') === 'active';
             ?>
             <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-start justify-between">
+                <div class="flex items-start justify-between gap-4">
                     <div>
                         <h3 class="text-lg font-semibold text-slate-900"><?= esc($plan['name'] ?? 'Plan') ?></h3>
-                        <p class="text-xs text-slate-500"><?= esc($duration) ?></p>
+                        <p class="text-xs text-slate-500"><?= esc($duration) ?> plan</p>
                     </div>
-                    <span class="text-xs font-semibold px-2 py-1 rounded-full <?= ($plan['status'] ?? 'inactive') === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' ?>">
-                        <?= esc(ucfirst($plan['status'] ?? 'inactive')) ?>
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full <?= $isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' ?>">
+                            <?= esc($isActive ? 'Active' : 'Inactive') ?>
+                        </span>
+                        <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/toggle') ?>" method="post" class="plan-toggle-form">
+                            <?= csrf_field() ?>
+                            <label class="toggle-switch" title="Toggle plan status">
+                                <input type="checkbox" data-plan-toggle <?= $isActive ? 'checked' : '' ?> aria-label="Toggle plan status">
+                                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                                <span class="sr-only">Toggle plan status</span>
+                            </label>
+                        </form>
+                    </div>
                 </div>
-                <div class="mt-4 text-3xl font-semibold text-slate-900">$<?= number_format((float) $price, 2) ?></div>
-                <p class="text-xs text-slate-500 mt-1">Trial: <?= esc($trial) ?> days</p>
 
-                <div class="mt-4">
+                <div class="mt-5">
+                    <div class="flex items-end gap-2">
+                        <div class="text-4xl font-semibold text-slate-900">$<?= number_format((float) $price, 2) ?></div>
+                        <div class="text-sm text-slate-500">/<?= esc(strtolower($duration)) ?></div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Trial: <?= esc($trial) ?> days</p>
+                </div>
+
+                <div class="mt-5">
                     <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-2">Limits</p>
                     <ul class="space-y-1 text-sm text-slate-600">
                         <?php foreach ($limitLines as $limit): ?>
@@ -123,13 +179,16 @@
                     </ul>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-5">
                     <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-2">Features</p>
-                    <ul class="space-y-1 text-sm text-slate-600">
+                    <ul class="space-y-1 text-sm">
                         <?php foreach ($featureLabels as $label => $enabled): ?>
-                            <?php if ($enabled): ?>
-                                <li class="flex items-center gap-2"><i class="fas fa-star text-amber-400 text-xs"></i><?= esc($label) ?></li>
-                            <?php endif; ?>
+                            <li class="flex items-center gap-2">
+                                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full <?= $enabled ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400' ?>">
+                                    <i class="fas <?= $enabled ? 'fa-check' : 'fa-xmark' ?> text-[10px]"></i>
+                                </span>
+                                <span class="<?= $enabled ? 'text-slate-700' : 'text-slate-400' ?>"><?= esc($label) ?></span>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -140,16 +199,10 @@
                     </div>
                 <?php endif; ?>
 
-                <div class="mt-5 flex gap-2">
+                <div class="mt-6 flex items-center gap-2">
                     <a href="<?= base_url('controlplane/plans/' . $plan['id'] . '/edit') ?>" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">
                         Edit Plan
                     </a>
-                    <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/toggle') ?>" method="post">
-                        <?= csrf_field() ?>
-                        <button class="px-3 py-1.5 text-xs font-semibold rounded-lg <?= ($plan['status'] ?? 'inactive') === 'active' ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700' ?>">
-                            <?= ($plan['status'] ?? 'inactive') === 'active' ? 'Deactivate' : 'Activate' ?>
-                        </button>
-                    </form>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -160,4 +213,15 @@
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('[data-plan-toggle]').forEach((toggle) => {
+        toggle.addEventListener('change', (event) => {
+            const form = event.target.closest('form');
+            if (form) {
+                form.submit();
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?>
