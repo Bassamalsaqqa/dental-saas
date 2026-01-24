@@ -52,27 +52,33 @@ class ControlPlaneFilter implements FilterInterface
 
         $userId = $ionAuth->getUserId();
 
-        // 2. Session 'global_mode' must be truthy
-        if (!$session->get('global_mode')) {
-            log_message('warning', 'ControlPlaneFilter deny: global_mode missing or false for user_id={userId}', ['userId' => $userId]);
-            // Fail closed - do not reveal existence of route (404) or strictly deny (403)
-            // Prompt says "Denies (403 or 404 per existing patterns)"
-            // Using 404 is safer for hiding control plane
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        // 3. Super Admin Check
+        // 2. Super Admin Check (Moved up)
         $permissionService = service('permission');
         if (!$permissionService) {
             $permissionService = new \App\Services\PermissionService();
         }
 
-        if (!$permissionService->isSuperAdmin($userId)) {
+        $isSuperAdmin = $permissionService->isSuperAdmin($userId);
+
+        // 3. Session 'global_mode' check
+        if (!$session->get('global_mode')) {
+            // If Super Admin, redirect to Entry Gate for re-entry
+            if ($isSuperAdmin) {
+                return redirect()->to('/controlplane');
+            }
+            
+            // Otherwise, Fail Closed (404)
+            log_message('warning', 'ControlPlaneFilter deny: global_mode missing for user_id={userId}', ['userId' => $userId]);
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        // 4. Double check Super Admin (redundant but safe)
+        if (!$isSuperAdmin) {
              log_message('warning', 'ControlPlaneFilter deny: not superadmin for user_id={userId}', ['userId' => $userId]);
              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // 4. Clear/Ignore Tenant Context
+        // 5. Clear/Ignore Tenant Context
         $session->remove('active_clinic_id');
         $session->remove('active_clinic_role_id');
         $session->remove('impersonated_clinic_id');
