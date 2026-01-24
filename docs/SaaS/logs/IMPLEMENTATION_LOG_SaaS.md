@@ -1047,3 +1047,16 @@
 
 ### Verification
 - docs/SaaS/verification/CP-PLAN-02.md
+
+## [2026-01-24] Plan Requests Triage Inbox (CP-PLAN-03)
+**Tasks:** CP-PLAN-03
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Rebuilt plan requests queue into an inbox-style list with per-request summaries.
+- Added approve/reject action buttons with row fade on approve.
+- Added rejection modal that captures a decision reason before submitting.
+
+### Verification
+- docs/SaaS/verification/CP-PLAN-03.md

@@ -96,61 +96,159 @@
 
     <div class="glass-card rounded-3xl overflow-hidden">
         <div class="px-6 py-4 border-b border-white/40 bg-white/70 flex items-center justify-between">
-            <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Plan requests</h3>
+            <div>
+                <h3 class="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Inbox</h3>
+                <p class="text-xs text-slate-500 mt-1">Review subscription change requests in order.</p>
+            </div>
             <span class="text-[10px] uppercase tracking-widest text-slate-500 bg-white/70 border border-slate-200 px-2 py-1 rounded-full">
                 <?= number_format($requestStats['filtered'] ?? 0) ?> shown
             </span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead class="bg-white/70 text-xs uppercase tracking-widest text-slate-500">
-                    <tr>
-                        <th class="px-6 py-3 text-left">Clinic</th>
-                        <th class="px-6 py-3 text-left">Current Plan</th>
-                        <th class="px-6 py-3 text-left">Requested Plan</th>
-                        <th class="px-6 py-3 text-left">Duration</th>
-                        <th class="px-6 py-3 text-left">Requested</th>
-                        <th class="px-6 py-3 text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-white/50">
-                    <?php if (!empty($planRequests)): ?>
-                        <?php foreach ($planRequests as $request): ?>
-                            <tr>
-                                <td class="px-6 py-4 text-slate-700 font-semibold"><?= esc($request['clinic_name'] ?? 'Clinic') ?></td>
-                                <td class="px-6 py-4 text-slate-600"><?= esc($request['current_plan_name'] ?? '--') ?></td>
-                                <td class="px-6 py-4 text-slate-600"><?= esc($request['requested_plan_name'] ?? '--') ?></td>
-                                <td class="px-6 py-4 text-slate-600"><?= esc(ucfirst($request['requested_duration'] ?? 'monthly')) ?></td>
-                                <td class="px-6 py-4 text-slate-500"><?= esc($request['created_at'] ?? '-') ?></td>
-                                <td class="px-6 py-4 text-right">
-                                    <?php if (($request['status'] ?? '') === 'pending'): ?>
-                                        <div class="flex justify-end gap-2">
-                                            <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/approve') ?>" method="post">
-                                                <?= csrf_field() ?>
-                                                <button class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold">Approve</button>
-                                            </form>
-                                            <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/reject') ?>" method="post">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="decision_reason" value="">
-                                                <button class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold">Reject</button>
-                                            </form>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-xs font-semibold <?= ($request['status'] ?? '') === 'approved' ? 'text-emerald-700' : 'text-rose-700' ?>">
-                                            <?= esc(ucfirst($request['status'] ?? '')) ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td class="px-6 py-6 text-center text-slate-400" colspan="6">No plan requests yet.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+        <div class="divide-y divide-white/50">
+            <?php if (!empty($planRequests)): ?>
+                <?php foreach ($planRequests as $request): ?>
+                    <?php $status = $request['status'] ?? ''; ?>
+                    <div class="px-6 py-5 transition duration-300" data-request-row>
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm font-semibold text-slate-900"><?= esc($request['clinic_name'] ?? 'Clinic') ?></span>
+                                    <span class="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full <?= $status === 'pending' ? 'bg-amber-100 text-amber-700' : ($status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700') ?>">
+                                        <?= esc(ucfirst($status)) ?>
+                                    </span>
+                                </div>
+                                <div class="mt-2 text-sm text-slate-600">
+                                    <span class="text-slate-500">Current:</span>
+                                    <?= esc($request['current_plan_name'] ?? '--') ?>
+                                    <span class="text-slate-400 mx-2">?</span>
+                                    <span class="text-slate-500">Requested:</span>
+                                    <?= esc($request['requested_plan_name'] ?? '--') ?>
+                                    <span class="text-slate-400">(<?= esc(ucfirst($request['requested_duration'] ?? 'monthly')) ?>)</span>
+                                </div>
+                                <div class="mt-1 text-xs text-slate-500">Requested: <?= esc($request['created_at'] ?? '-') ?></div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <?php if ($status === 'pending'): ?>
+                                    <form action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/approve') ?>" method="post" data-approve-form>
+                                        <?= csrf_field() ?>
+                                        <button type="button" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold" data-approve-button>
+                                            <i class="fas fa-check"></i>
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <button type="button"
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold"
+                                            data-reject-action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/reject') ?>"
+                                            data-request-label="<?= esc($request['clinic_name'] ?? 'Clinic') ?>">
+                                        <i class="fas fa-xmark"></i>
+                                        Reject
+                                    </button>
+                                <?php else: ?>
+                                    <span class="text-xs font-semibold <?= $status === 'approved' ? 'text-emerald-700' : 'text-rose-700' ?>">
+                                        <?= esc(ucfirst($status)) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="px-6 py-10 text-center text-slate-400">No plan requests yet.</div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
+
+<div id="reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-6 w-full max-w-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold">Reject Request</p>
+                <h3 class="text-lg font-semibold text-slate-900 mt-1">Add a rejection reason</h3>
+                <p class="text-xs text-slate-500 mt-1" id="reject-label">This request will be closed.</p>
+            </div>
+            <button type="button" class="text-slate-400 hover:text-slate-600" data-reject-close>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="reject-form" method="post" class="mt-4 space-y-4">
+            <?= csrf_field() ?>
+            <div>
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Reason</label>
+                <textarea name="decision_reason" id="reject-reason" required rows="3"
+                          class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                          placeholder="Optional context for the clinic."></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-2">
+                <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" data-reject-close>Cancel</button>
+                <button class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold">Submit Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const rejectModal = document.getElementById('reject-modal');
+    const rejectForm = document.getElementById('reject-form');
+    const rejectReason = document.getElementById('reject-reason');
+    const rejectLabel = document.getElementById('reject-label');
+    let activeRejectRow = null;
+
+    document.querySelectorAll('[data-approve-form]').forEach((form) => {
+        const button = form.querySelector('[data-approve-button]');
+        if (!button) {
+            return;
+        }
+        button.addEventListener('click', () => {
+            const row = form.closest('[data-request-row]');
+            if (row) {
+                row.classList.add('opacity-40');
+                row.classList.add('pointer-events-none');
+            }
+            form.submit();
+        });
+    });
+
+    document.querySelectorAll('[data-reject-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+            activeRejectRow = button.closest('[data-request-row]');
+            const action = button.getAttribute('data-reject-action');
+            if (action && rejectForm) {
+                rejectForm.action = action;
+            }
+            if (rejectLabel) {
+                rejectLabel.textContent = button.getAttribute('data-request-label') || 'This request will be closed.';
+            }
+            if (rejectReason) {
+                rejectReason.value = '';
+            }
+            if (rejectModal) {
+                rejectModal.classList.remove('hidden');
+                rejectModal.classList.add('flex');
+            }
+            if (rejectReason) {
+                rejectReason.focus();
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-reject-close]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (rejectModal) {
+                rejectModal.classList.add('hidden');
+                rejectModal.classList.remove('flex');
+            }
+            activeRejectRow = null;
+        });
+    });
+
+    if (rejectForm) {
+        rejectForm.addEventListener('submit', () => {
+            if (activeRejectRow) {
+                activeRejectRow.classList.add('opacity-40');
+                activeRejectRow.classList.add('pointer-events-none');
+            }
+        });
+    }
+</script>
 <?= $this->endSection() ?>
