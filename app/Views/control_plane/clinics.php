@@ -271,8 +271,8 @@
             <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeTerminateModal()">
                 Cancel
             </button>
-            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold opacity-50 cursor-not-allowed shadow-lg hover:bg-rose-700 transition-all" disabled style="color: #ffffff !important;">
-                <span>Permanently Delete</span>
+            <button id="terminateConfirmButton" type="submit" class="px-6 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold opacity-50 cursor-not-allowed shadow-lg transition-all" disabled style="color: #ffffff !important;">
+                <span>Confirm Termination</span>
             </button>
         </form>
     </div>
