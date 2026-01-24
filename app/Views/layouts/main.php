@@ -12,6 +12,20 @@
     <meta name="theme-color" content="#0284c7">
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <?php if (session()->get('is_impersonating')): ?>
+    <div class="bg-indigo-600 text-white px-4 py-2 flex items-center justify-between text-sm font-medium relative z-[100]">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-mask"></i>
+            <span>Viewing as <strong><?= esc($clinic['name'] ?? 'Clinic') ?></strong></span>
+        </div>
+        <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post">
+            <?= csrf_field() ?>
+            <button type="submit" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition text-xs uppercase tracking-wider">
+                Exit Impersonation
+            </button>
+        </form>
+    </div>
+    <?php endif; ?>
     <div class="flex h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
         <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0" id="sidebar">
