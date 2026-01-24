@@ -1107,3 +1107,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-IMP-01.md
+
+## [2026-01-24] Control Plane Search Backend (CP-SEARCH-01)
+**Tasks:** CP-SEARCH-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added a `/controlplane/search/global` GET handler that returns clinics, users, and navigation links with 5-result limits.
+- Ensured the payload matches the Command Palette expectation (`results` with `clinics`, `users`, `links` arrays).
+
+### Verification
+- docs/SaaS/verification/CP-SEARCH-01.md
