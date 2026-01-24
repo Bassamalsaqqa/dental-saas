@@ -77,96 +77,110 @@
                 </div>
 
                 <nav class="flex-1 overflow-y-auto" id="sidebar-nav">
-                    <div class="p-4 space-y-6">
-                        <?php
-                        $menuGroups = [
-                            [
-                                'label' => 'Platform',
-                                'color' => 'slate',
-                                'items' => [
-                                    ['title' => 'Dashboard', 'url' => 'controlplane/dashboard', 'icon' => 'fas fa-tachometer-alt'],
-                                ],
-                            ],
-                            [
-                                'label' => 'Tenants',
-                                'color' => 'emerald',
-                                'items' => [
-                                    ['title' => 'Clinics', 'url' => 'controlplane/clinics', 'icon' => 'fas fa-hospital-user'],
-                                    ['title' => 'Onboarding', 'url' => 'controlplane/onboarding/clinic/create', 'icon' => 'fas fa-user-plus'],
-                                ],
-                            ],
-                            [
-                                'label' => 'Billing',
-                                'color' => 'indigo',
-                                'items' => [
-                                    ['title' => 'Plans', 'url' => 'controlplane/plans', 'icon' => 'fas fa-layer-group'],
-                                    ['title' => 'Requests', 'url' => 'controlplane/plan-requests', 'icon' => 'fas fa-inbox'],
-                                ],
-                            ],
-                            [
-                                'label' => 'Governance',
-                                'color' => 'amber',
-                                'items' => [
-                                    ['title' => 'Operations', 'url' => 'controlplane/operations', 'icon' => 'fas fa-cogs'],
-                                    ['title' => 'Templates', 'url' => 'controlplane/settings#template-editor', 'icon' => 'fas fa-envelope-open-text'],
-                                ],
-                            ],
-                            [
-                                'label' => 'System',
-                                'color' => 'teal',
-                                'items' => [
-                                    ['title' => 'Settings', 'url' => 'controlplane/settings', 'icon' => 'fas fa-sliders-h'],
-                                ],
-                            ],
-                        ];
+                    <!-- Platform -->
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Platform</h3>
+                        </div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="<?= base_url('controlplane/dashboard') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (uri_string() == 'controlplane/dashboard') ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-slate-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 relative z-10 <?= (uri_string() == 'controlplane/dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-slate-700' ?>"></i>
+                                    <span class="relative z-10">Dashboard</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
-                        $theme = [
-                            'slate' => ['from-slate-600 to-slate-800', 'text-slate-600', 'bg-slate-50', 'hover:bg-slate-100'],
-                            'emerald' => ['from-emerald-500 to-emerald-700', 'text-emerald-600', 'bg-emerald-50', 'hover:bg-emerald-100'],
-                            'indigo' => ['from-indigo-500 to-indigo-700', 'text-indigo-600', 'bg-indigo-50', 'hover:bg-indigo-100'],
-                            'amber' => ['from-amber-500 to-amber-700', 'text-amber-600', 'bg-amber-50', 'hover:bg-amber-100'],
-                            'teal' => ['from-teal-500 to-teal-700', 'text-teal-600', 'bg-teal-50', 'hover:bg-teal-100'],
-                        ];
-                        ?>
+                    <!-- Tenants -->
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Tenants</h3>
+                        </div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="<?= base_url('controlplane/clinics') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-hospital-user w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/clinics') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
+                                    <span class="relative z-10">Clinics</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-user-plus w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/onboarding') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
+                                    <span class="relative z-10">Onboarding</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
-                        <?php foreach ($menuGroups as $group): ?>
-                            <div>
-                                <?php if (!empty($group['label'])): ?>
-                                    <div class="px-2 mb-2 flex items-center gap-2">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r <?= $theme[$group['color']][0] ?>"></div>
-                                        <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400"><?= esc($group['label']) ?></h3>
-                                    </div>
-                                <?php endif; ?>
-                                <ul class="space-y-1">
-                                    <?php foreach ($group['items'] as $item): ?>
-                                        <?php
-                                        $navUrl = $item['url'];
-                                        $navPath = explode('#', $navUrl)[0];
-                                        $isActive = (strpos(uri_string(), $navPath) === 0);
-                                        $colors = $theme[$group['color']];
-                                        ?>
-                                        <li>
-                                            <a href="<?= base_url($item['url']) ?>" 
-                                               class="group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 <?= $isActive ? 'bg-white shadow-lg shadow-slate-200 border border-slate-100' : 'hover:bg-white/60 hover:shadow-sm' ?>">
-                                                
-                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:rotate-3 
-                                                            <?= $isActive ? 'bg-gradient-to-br ' . $colors[0] . ' text-white' : 'bg-white border border-slate-100 ' . $colors[1] ?>">
-                                                    <i class="<?= $item['icon'] ?> text-xs"></i>
-                                                </div>
-                                                
-                                                <span class="text-sm font-medium transition-colors duration-200 <?= $isActive ? 'text-slate-900 font-bold' : 'text-slate-600 group-hover:text-slate-900' ?>">
-                                                    <?= esc($item['title']) ?>
-                                                </span>
-                                                
-                                                <?php if ($isActive): ?>
-                                                    <div class="ml-auto w-1.5 h-1.5 rounded-full bg-gradient-to-r <?= $colors[0] ?>"></div>
-                                                <?php endif; ?>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endforeach; ?>
+                    <!-- Billing -->
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Billing</h3>
+                        </div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="<?= base_url('controlplane/plans') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-layer-group w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plans') === 0 && strpos(uri_string(), 'plan-requests') === false) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
+                                    <span class="relative z-10">Plans</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?= base_url('controlplane/plan-requests') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-inbox w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
+                                    <span class="relative z-10">Requests</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Governance -->
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Governance</h3>
+                        </div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="<?= base_url('controlplane/operations') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-cogs w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/operations') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
+                                    <span class="relative z-10">Operations</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?= base_url('controlplane/settings#template-editor') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') !== false) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-envelope-open-text w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') !== false) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
+                                    <span class="relative z-10">Templates</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- System -->
+                    <div class="p-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-blue-600 rounded-full animate-pulse"></div>
+                            <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">System</h3>
+                        </div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') === false) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') === false) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
+                                    <span class="relative z-10">Settings</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </nav>
 
