@@ -85,9 +85,9 @@
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/dashboard') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (uri_string() == 'controlplane/dashboard') ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                <a href="<?= base_url('controlplane/dashboard') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
                                     <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-slate-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 relative z-10 <?= (uri_string() == 'controlplane/dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-slate-700' ?>"></i>
+                                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/dashboard') === 0) ? 'text-white' : 'text-slate-500 group-hover:text-slate-700' ?>"></i>
                                     <span class="relative z-10">Dashboard</span>
                                 </a>
                             </li>
@@ -157,9 +157,9 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/settings#template-editor') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') !== false) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
+                                <a href="<?= base_url('controlplane/email-templates') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
                                     <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-envelope-open-text w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') !== false) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
+                                    <i class="fas fa-envelope-open-text w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
                                     <span class="relative z-10">Templates</span>
                                 </a>
                             </li>
@@ -174,9 +174,9 @@
                         </div>
                         <ul class="space-y-1">
                             <li>
-                                <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') === false) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
                                     <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0 && strpos(uri_string(), '#template-editor') === false) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
+                                    <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
                                     <span class="relative z-10">Settings</span>
                                 </a>
                             </li>
