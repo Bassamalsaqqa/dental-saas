@@ -1083,3 +1083,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-PLAN-03B.md
+
+## [2026-01-24] Dashboard Observability Charts (CP-OBS-01)
+**Tasks:** CP-OBS-01
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added Chart.js-powered MRR line, clinic status doughnut, and activity volume bar canvases to the control plane dashboard.
+- Dashboard controller now assembles structured `chart_data` (MRR history, activity series, clinic status breakdown) so the charts stay data-driven.
+
+### Verification
+- docs/SaaS/verification/CP-OBS-01.md

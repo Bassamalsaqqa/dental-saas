@@ -128,6 +128,60 @@ class Dashboard extends BaseController
             ];
         }
 
+        $clinicStatusRows = $clinicModel
+            ->select('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->findAll();
+        $statusCounts = array_column($clinicStatusRows, 'total', 'status');
+
+        $planMrrCache = [];
+        $mrrHistory = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = date('Y-m-01 00:00:00', strtotime('-' . $i . ' months'));
+            $monthEnd = date('Y-m-t 23:59:59', strtotime('-' . $i . ' months'));
+
+            $monthlySubscriptions = (new ClinicSubscriptionModel())
+                ->withoutTenantScope()
+                ->where('status', 'active')
+                ->groupStart()
+                    ->where('start_at IS NULL', null, false)
+                    ->orWhere('start_at <=', $monthEnd)
+                ->groupEnd()
+                ->groupStart()
+                    ->where('end_at IS NULL', null, false)
+                    ->orWhere('end_at >', $monthStart)
+                ->groupEnd()
+                ->findAll();
+
+            $monthlyTotal = 0.0;
+            foreach ($monthlySubscriptions as $subRow) {
+                $planId = (int) ($subRow['plan_id'] ?? 0);
+                if ($planId <= 0) {
+                    continue;
+                }
+
+                if (!isset($planMrrCache[$planId])) {
+                    $plan = $planModel->find($planId);
+                    if (!$plan) {
+                        $planMrrCache[$planId] = 0.0;
+                        continue;
+                    }
+                    $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
+                    $price = (float) ($limits['price'] ?? 0);
+                    $duration = $limits['duration'] ?? 'monthly';
+                    $monthlyAmount = ($duration === 'yearly' && $price > 0) ? ($price / 12) : $price;
+                    $planMrrCache[$planId] = round($monthlyAmount, 2);
+                }
+
+                $monthlyTotal += $planMrrCache[$planId];
+            }
+
+            $mrrHistory[] = [
+                'label' => date('M Y', strtotime('-' . $i . ' months')),
+                'value' => round($monthlyTotal, 2),
+            ];
+        }
+
         $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
         $pendingRequests = $planRequestModel->where('status', 'pending')->countAllResults();
         $recentRequestsRaw = $planRequestModel->orderBy('created_at', 'DESC')->limit(3)->findAll();
@@ -162,6 +216,15 @@ class Dashboard extends BaseController
             'recent_clinics' => $recentClinics,
             'recent_plan_requests' => $recentRequests,
             'activity_series' => $activitySeries,
+            'chart_data' => [
+                'mrr_series' => $mrrHistory,
+                'activity_series' => $activitySeries,
+                'status_breakdown' => [
+                    'active' => (int) ($statusCounts['active'] ?? 0),
+                    'suspended' => (int) ($statusCounts['suspended'] ?? 0),
+                    'trial' => (int) ($statusCounts['trial'] ?? 0),
+                ],
+            ],
         ];
 
         return view('control_plane/dashboard', $data);

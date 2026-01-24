@@ -74,57 +74,64 @@
         <div class="glass-card rounded-3xl p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-lg font-semibold text-slate-900">Activity trend</h3>
-                    <p class="text-xs text-slate-500 mt-1">Control plane activity volume.</p>
+                    <h3 class="text-lg font-semibold text-slate-900">MRR growth</h3>
+                    <p class="text-xs text-slate-500 mt-1">Trend of monthly recurring revenue.</p>
                 </div>
-                <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
+                <span class="text-xs uppercase tracking-widest text-slate-400">Last 6 months</span>
             </div>
-            <?php
-            $series = $activity_series ?? [];
-            $maxTotal = 0;
-            foreach ($series as $point) {
-                if (($point['total'] ?? 0) > $maxTotal) {
-                    $maxTotal = (int) $point['total'];
-                }
-            }
-            $maxTotal = max(1, $maxTotal);
-            ?>
-            <div class="h-56 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-indigo-50 border border-slate-100 p-4 flex items-end gap-2">
-                <?php foreach ($series as $point): ?>
-                    <?php $height = 18 + (int) (($point['total'] ?? 0) / $maxTotal * 70); ?>
-                    <div class="flex-1 bg-emerald-200/70 rounded-t-2xl" style="height: <?= $height ?>%"></div>
-                <?php endforeach; ?>
-            </div>
+            <canvas id="mrrGrowthChart" height="180"></canvas>
         </div>
         <div class="space-y-6">
             <div class="glass-card rounded-3xl p-6">
-                <h3 class="text-sm font-semibold text-slate-800">Quick actions</h3>
-                <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
-                        <i class="fas fa-plus"></i>
-                        Onboard clinic
-                    </a>
-                    <a href="<?= base_url('controlplane/plans/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 py-4 text-slate-700 font-semibold">
-                        <i class="fas fa-layer-group"></i>
-                        New plan
-                    </a>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-800">Clinic status</h3>
+                        <p class="text-xs text-slate-500 mt-1">Active vs suspended vs trial clinics.</p>
+                    </div>
                 </div>
+                <canvas id="clinicStatusChart" height="200"></canvas>
             </div>
             <div class="glass-card rounded-3xl p-6">
-                <h3 class="text-sm font-semibold text-slate-800">System posture</h3>
-                <div class="mt-4 space-y-3 text-sm text-slate-600">
-                    <div class="flex items-center justify-between">
-                        <span>Tenant isolation</span>
-                        <span class="text-xs font-semibold text-emerald-700">Enforced</span>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-800">Activity volume</h3>
+                        <p class="text-xs text-slate-500 mt-1">Control plane events (daily total).</p>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span>Legacy API monitor</span>
-                        <span class="text-xs font-semibold text-amber-700">Active</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Control plane mode</span>
-                        <span class="text-xs font-semibold text-indigo-700">Global only</span>
-                    </div>
+                    <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
+                </div>
+                <canvas id="activityVolumeChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-3xl p-6">
+            <h3 class="text-sm font-semibold text-slate-800">Quick actions</h3>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
+                    <i class="fas fa-plus"></i>
+                    Onboard clinic
+                </a>
+                <a href="<?= base_url('controlplane/plans/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 py-4 text-slate-700 font-semibold">
+                    <i class="fas fa-layer-group"></i>
+                    New plan
+                </a>
+            </div>
+        </div>
+        <div class="glass-card rounded-3xl p-6">
+            <h3 class="text-sm font-semibold text-slate-800">System posture</h3>
+            <div class="mt-4 space-y-3 text-sm text-slate-600">
+                <div class="flex items-center justify-between">
+                    <span>Tenant isolation</span>
+                    <span class="text-xs font-semibold text-emerald-700">Enforced</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Legacy API monitor</span>
+                    <span class="text-xs font-semibold text-amber-700">Active</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Control plane mode</span>
+                    <span class="text-xs font-semibold text-indigo-700">Global only</span>
                 </div>
             </div>
         </div>
@@ -184,5 +191,133 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const dashboardChartData = <?= json_encode($chart_data ?? []) ?>;
+
+        const mrrCtx = document.getElementById('mrrGrowthChart');
+        if (mrrCtx && Array.isArray(dashboardChartData.mrr_series)) {
+            const mrrLabels = dashboardChartData.mrr_series.map(point => point.label);
+            const mrrTotals = dashboardChartData.mrr_series.map(point => point.value);
+            const mrrGradient = mrrCtx.getContext('2d').createLinearGradient(0, 0, 0, 220);
+            mrrGradient.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+            mrrGradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+
+            new Chart(mrrCtx, {
+                type: 'line',
+                data: {
+                    labels: mrrLabels,
+                    datasets: [{
+                        label: 'MRR ($)',
+                        data: mrrTotals,
+                        borderColor: '#10b981',
+                        backgroundColor: mrrGradient,
+                        pointBackgroundColor: '#059669',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: true,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#475569' },
+                        },
+                        y: {
+                            grid: {
+                                borderDash: [4, 4],
+                                color: 'rgba(100, 116, 139, 0.15)',
+                            },
+                            ticks: {
+                                callback: value => typeof value === 'number' ? '$' + value.toLocaleString() : value,
+                                color: '#475569',
+                            },
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => '$' + Number(context.parsed.y ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }),
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        const statusCtx = document.getElementById('clinicStatusChart');
+        if (statusCtx) {
+            const statusLabels = ['Active', 'Suspended', 'Trial'];
+            const statusValues = statusLabels.map(label => dashboardChartData.status_breakdown?.[label.toLowerCase()] || 0);
+
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusValues,
+                        backgroundColor: ['#10b981', '#f97316', '#6366f1'],
+                        borderColor: 'rgba(255,255,255,0.8)',
+                        borderWidth: 2,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#475569', boxWidth: 10, boxHeight: 10 },
+                        },
+                    },
+                },
+            });
+        }
+
+        const activityCtx = document.getElementById('activityVolumeChart');
+        if (activityCtx && Array.isArray(dashboardChartData.activity_series)) {
+            const activityLabels = dashboardChartData.activity_series.map(point => point.day);
+            const activityTotals = dashboardChartData.activity_series.map(point => point.total);
+
+            new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: activityLabels,
+                    datasets: [{
+                        label: 'Events',
+                        data: activityTotals,
+                        backgroundColor: '#2563eb',
+                        borderRadius: 6,
+                        maxBarThickness: 24,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#475569' },
+                        },
+                        y: {
+                            grid: {
+                                borderDash: [4, 4],
+                                color: 'rgba(148, 163, 184, 0.35)',
+                            },
+                            ticks: { color: '#475569' },
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                    },
+                },
+            });
+        }
+    </script>
 <?= $this->endSection() ?>
