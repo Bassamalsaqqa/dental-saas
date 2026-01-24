@@ -1131,3 +1131,14 @@
 
 ### Verification
 - `rg -n "label' => date\\('M'" app/Controllers/ControlPlane/Dashboard.php`
+
+## [2026-01-24] Plan Toggle Polish (CP-PLAN-02B)
+**Tasks:** CP-PLAN-02B
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added cursor-aware toggle controls with ARIA state so the switch feels instant and accessible.
+
+### Verification
+- docs/SaaS/verification/CP-PLAN-02B.md

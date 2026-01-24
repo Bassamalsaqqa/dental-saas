@@ -8,6 +8,7 @@
         width: 44px;
         height: 24px;
         align-items: center;
+        cursor: pointer;
     }
     .toggle-switch input {
         opacity: 0;
@@ -151,14 +152,14 @@
                         <span class="text-xs font-semibold px-2 py-1 rounded-full <?= $isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' ?>">
                             <?= esc($isActive ? 'Active' : 'Inactive') ?>
                         </span>
-                        <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/toggle') ?>" method="post" class="plan-toggle-form">
-                            <?= csrf_field() ?>
-                            <label class="toggle-switch" title="Toggle plan status">
-                                <input type="checkbox" data-plan-toggle <?= $isActive ? 'checked' : '' ?> aria-label="Toggle plan status">
-                                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                                <span class="sr-only">Toggle plan status</span>
-                            </label>
-                        </form>
+    <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/toggle') ?>" method="post" class="plan-toggle-form">
+        <?= csrf_field() ?>
+        <label class="toggle-switch relative inline-flex items-center cursor-pointer" title="Toggle plan status">
+            <input type="checkbox" data-plan-toggle <?= $isActive ? 'checked aria-checked="true"' : 'aria-checked="false"' ?> aria-label="Toggle plan status">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="sr-only">Toggle plan status</span>
+        </label>
+    </form>
                     </div>
                 </div>
 
@@ -218,6 +219,7 @@
     document.querySelectorAll('[data-plan-toggle]').forEach((toggle) => {
         toggle.addEventListener('change', (event) => {
             const form = event.target.closest('form');
+            event.target.setAttribute('aria-checked', event.target.checked ? 'true' : 'false');
             if (form) {
                 form.submit();
             }
