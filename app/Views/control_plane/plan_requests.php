@@ -160,7 +160,7 @@
 </div>
 
 <div id="reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-    <div class="glass-card rounded-2xl p-6 w-full max-w-md">
+    <div class="glass-card rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold">Reject Request</p>
@@ -181,7 +181,7 @@
             </div>
             <div class="flex items-center justify-end gap-2">
                 <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" data-reject-close>Cancel</button>
-                <button class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold">Submit Rejection</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold">Confirm Reject</button>
             </div>
         </form>
     </div>

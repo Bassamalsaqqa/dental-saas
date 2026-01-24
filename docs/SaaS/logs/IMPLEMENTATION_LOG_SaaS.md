@@ -1060,3 +1060,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-PLAN-03.md
+
+## [2026-01-24] Plan Request Reject Modal Fix (CP-PLAN-03A)
+**Tasks:** CP-PLAN-03A
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added max-height + scroll to the reject modal to keep action buttons visible on smaller viewports.
+- Explicitly set the confirm button to type=submit and updated label to "Confirm Reject".
+
+### Verification
+- docs/SaaS/verification/CP-PLAN-03A.md
