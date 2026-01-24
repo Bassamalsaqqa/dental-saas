@@ -70,8 +70,10 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-[2fr,1fr] gap-6">
-        <div class="glass-card rounded-3xl p-6">
+    <!-- Modular Charts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- MRR Chart (Wide) -->
+        <div class="glass-card rounded-3xl p-6 md:col-span-2">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-900">MRR growth</h3>
@@ -79,118 +81,105 @@
                 </div>
                 <span class="text-xs uppercase tracking-widest text-slate-400">Last 6 months</span>
             </div>
-            <canvas id="mrrGrowthChart" height="180"></canvas>
-        </div>
-        <div class="space-y-6">
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="text-sm font-semibold text-slate-800">Clinic status</h3>
-                        <p class="text-xs text-slate-500 mt-1">Active vs suspended vs trial clinics.</p>
-                    </div>
-                </div>
-                <canvas id="clinicStatusChart" height="200"></canvas>
+            <div class="h-64">
+                <canvas id="mrrGrowthChart"></canvas>
             </div>
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="text-sm font-semibold text-slate-800">Activity volume</h3>
-                        <p class="text-xs text-slate-500 mt-1">Control plane events (daily total).</p>
-                    </div>
-                    <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
+        </div>
+
+        <!-- Status Chart (Square) -->
+        <div class="glass-card rounded-3xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-800">Clinic status</h3>
+                    <p class="text-xs text-slate-500 mt-1">Active vs suspended.</p>
                 </div>
-                <canvas id="activityVolumeChart" height="200"></canvas>
+            </div>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="clinicStatusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Activity Chart (Wide Row) -->
+        <div class="glass-card rounded-3xl p-6 md:col-span-2 xl:col-span-3">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-800">Activity volume</h3>
+                    <p class="text-xs text-slate-500 mt-1">Control plane events (daily total).</p>
+                </div>
+                <span class="text-xs uppercase tracking-widest text-slate-400">Last 14 days</span>
+            </div>
+            <div class="h-64">
+                <canvas id="activityVolumeChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="glass-card rounded-3xl p-6">
+    <!-- Operational Widgets Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <!-- Quick Actions -->
+        <div class="glass-card rounded-3xl p-6 xl:col-span-1">
             <h3 class="text-sm font-semibold text-slate-800">Quick actions</h3>
-            <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-4 text-emerald-700 font-semibold">
-                    <i class="fas fa-plus"></i>
+            <div class="mt-4 space-y-3 text-sm">
+                <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="flex items-center gap-3 p-3 rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-200 flex items-center justify-center text-emerald-800"><i class="fas fa-plus"></i></div>
                     Onboard clinic
                 </a>
-                <a href="<?= base_url('controlplane/plans/create') ?>" class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 py-4 text-slate-700 font-semibold">
-                    <i class="fas fa-layer-group"></i>
+                <a href="<?= base_url('controlplane/plans/create') ?>" class="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-white text-slate-700 font-semibold hover:bg-slate-50 transition">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600"><i class="fas fa-layer-group"></i></div>
                     New plan
                 </a>
             </div>
         </div>
-        <div class="glass-card rounded-3xl p-6">
+
+        <!-- System Posture -->
+        <div class="glass-card rounded-3xl p-6 xl:col-span-1">
             <h3 class="text-sm font-semibold text-slate-800">System posture</h3>
-            <div class="mt-4 space-y-3 text-sm text-slate-600">
-                <div class="flex items-center justify-between">
+            <div class="mt-4 space-y-4 text-sm text-slate-600">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                     <span>Tenant isolation</span>
-                    <span class="text-xs font-semibold text-emerald-700">Enforced</span>
+                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Enforced</span>
+                </div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span>Legacy API</span>
+                    <span class="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Monitor</span>
                 </div>
                 <div class="flex items-center justify-between">
-                    <span>Legacy API monitor</span>
-                    <span class="text-xs font-semibold text-amber-700">Active</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span>Control plane mode</span>
-                    <span class="text-xs font-semibold text-indigo-700">Global only</span>
+                    <span>Global mode</span>
+                    <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Active</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="glass-card rounded-3xl p-6">
+        <!-- Recent Clinics (Span 2) -->
+        <div class="glass-card rounded-3xl p-6 md:col-span-2 xl:col-span-2">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-slate-800">Recent clinics</h3>
-                <span class="text-xs text-slate-400">Last 3</span>
+                <a href="<?= base_url('controlplane/clinics') ?>" class="text-xs text-indigo-600 hover:underline">View all</a>
             </div>
             <div class="space-y-3 text-sm">
                 <?php if (!empty($recent_clinics)): ?>
                     <?php foreach ($recent_clinics as $clinic): ?>
                         <?php $status = $clinic['status'] ?? 'inactive'; ?>
-                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                            <div>
-                                <p class="font-semibold text-slate-800"><?= esc($clinic['name']) ?></p>
-                                <p class="text-xs text-slate-400">Created <?= esc($clinic['created_at'] ?? 'unknown') ?></p>
+                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white/50 px-4 py-3 hover:bg-white transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700">
+                                    <?= substr($clinic['name'], 0, 2) ?>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-800"><?= esc($clinic['name']) ?></p>
+                                    <p class="text-[10px] text-slate-400"><?= esc(substr($clinic['created_at'], 0, 10)) ?></p>
+                                </div>
                             </div>
-                            <span class="text-xs font-semibold <?= $status === 'active' ? 'text-emerald-700' : 'text-slate-500' ?>">
-                                <?= esc(ucfirst($status)) ?>
+                            <span class="text-[10px] font-bold uppercase tracking-wider <?= $status === 'active' ? 'text-emerald-600' : 'text-slate-400' ?>">
+                                <?= esc($status) ?>
                             </span>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="rounded-2xl border border-slate-100 bg-white px-4 py-6 text-center text-slate-400">
-                        No clinics yet.
-                    </div>
+                    <div class="text-center text-slate-400 py-4">No clinics yet.</div>
                 <?php endif; ?>
             </div>
         </div>
-
-        <div class="glass-card rounded-3xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-semibold text-slate-800">Plan requests</h3>
-                <span class="text-xs text-slate-400">Queue</span>
-            </div>
-            <div class="space-y-3 text-sm">
-                <?php if (!empty($recent_plan_requests)): ?>
-                    <?php foreach ($recent_plan_requests as $request): ?>
-                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                            <div>
-                                <p class="font-semibold text-slate-800"><?= esc($request['clinic_name'] ?? 'Clinic') ?></p>
-                                <p class="text-xs text-slate-400"><?= esc($request['summary'] ?? 'Plan change requested') ?></p>
-                            </div>
-                            <span class="text-xs font-semibold <?= ($request['status'] ?? 'pending') === 'approved' ? 'text-emerald-700' : 'text-amber-700' ?>">
-                                <?= esc(ucfirst($request['status'] ?? 'pending')) ?>
-                            </span>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="rounded-2xl border border-slate-100 bg-white px-4 py-6 text-center text-slate-400">
-                        No plan requests.
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
