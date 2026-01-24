@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main_control_plane') ?>
+﻿<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <?php $disableDataTables = false; ?>
@@ -334,6 +334,27 @@ function escapeHtml(text) {
         .replace(/'/g, '&#039;');
 }
 
+function getAvatarInitials(name) {
+    if (!name) {
+        return 'CL';
+    }
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 1) {
+        return words[0].substring(0, 2).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+}
+
+function getAvatarColor(seed) {
+    const palette = ['#c7d2fe', '#fbcfe8', '#bbf7d0', '#bfdbfe', '#fde68a', '#fed7aa'];
+    let hash = 0;
+    const value = seed || 'CL';
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) % palette.length;
+    }
+    return palette[Math.abs(hash)];
+}
+
 function renderCsrfField() {
     const name = getCsrfName();
     const token = getCsrfToken();
@@ -399,7 +420,9 @@ $(document).ready(function() {
     clinicsTable = $('#clinicsTable').DataTable({
         processing: true,
         serverSide: true,
-        responsive: true,
+        responsive: {
+            details: false
+        },
         searching: false,
         ajax: {
             url: '<?= base_url('controlplane/clinics') ?>',
@@ -442,17 +465,21 @@ $(document).ready(function() {
                 data: 'name',
                 name: 'name',
                 render: function(data, type, row) {
-                    const name = escapeHtml(data || 'Clinic');
+                    const nameRaw = data || 'Clinic';
+                    const name = escapeHtml(nameRaw);
                     const slug = escapeHtml(row.slug || 'no-slug');
                     const id = escapeHtml(row.id || '');
+                    const initials = escapeHtml(getAvatarInitials(nameRaw));
+                    const avatarColor = getAvatarColor(initials || name.charAt(0));
                     return `
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-hospital-user text-indigo-600 text-sm"></i>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-slate-900"
+                                 style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
+                                ${initials}
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-slate-900">${name}</div>
-                                <div class="text-xs text-slate-500">ID ${id} � ${slug}</div>
+                                <div class="text-xs text-slate-500">ID ${id} · ${slug}</div>
                             </div>
                         </div>
                     `;
@@ -529,6 +556,11 @@ $(document).ready(function() {
                 }
             }
         ],
+        columnDefs: [
+            { targets: 0, responsivePriority: 3 },
+            { targets: 2, responsivePriority: 2 },
+            { targets: 4, responsivePriority: 1, className: 'dt-actions' }
+        ],
         dom: 'B<"px-6 py-4 border-b border-slate-200 bg-slate-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>>rt<"px-6 py-4 border-t border-slate-200 bg-slate-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
@@ -555,10 +587,18 @@ $(document).ready(function() {
                 title: 'Clinics Report'
             }
         ],
+        autoWidth: false,
         language: {
             processing: 'Loading clinics...',
             lengthMenu: '_MENU_',
-            zeroRecords: 'No clinics found',
+            zeroRecords: `
+                <div class="py-12 text-center text-slate-400 space-y-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M4.93 4.93a10 10 0 1 1 14.14 14.14A10 10 0 0 1 4.93 4.93z" />
+                    </svg>
+                    <p class="text-sm font-semibold">No clinics found</p>
+                    <p class="text-xs text-slate-400">Reset filters or onboard a new clinic to populate this list.</p>
+                </div>`,
             info: 'Showing _START_ to _END_ of _TOTAL_ clinics',
             infoEmpty: 'No clinics available',
             infoFiltered: '(filtered from _MAX_ total clinics)',

@@ -1142,3 +1142,15 @@
 
 ### Verification
 - docs/SaaS/verification/CP-PLAN-02B.md
+
+
+## [2026-01-24] Clinic Table Polish (CP-UX-28)
+**Tasks:** CP-UX-28
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Surface initial avatars, responsive priorities, and a friendly zero-state graphic inside the clinics DataTables view.
+
+### Verification
+- docs/SaaS/verification/CP-UX-28.md
