@@ -185,6 +185,35 @@ class Plans extends BaseController
         return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan status updated.');
     }
 
+    /**
+     * POST /controlplane/plans/{id}/delete
+     */
+    public function delete(int $id)
+    {
+        $planModel = new PlanModel();
+        $plan = $planModel->find($id);
+        if (!$plan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Plan not found');
+        }
+
+        $subscriptionModel = (new \App\Models\ClinicSubscriptionModel())->withoutTenantScope();
+        $usageCount = $subscriptionModel->where('plan_id', $id)->countAllResults();
+
+        if ($usageCount > 0) {
+            return redirect()->back()->with('error', 'Cannot delete plan; it is linked to existing subscriptions. Deactivate it instead.');
+        }
+
+        $planModel->delete($id);
+
+        $this->auditService->logEvent('plan_delete', [
+            'route' => '/controlplane/plans/' . $id . '/delete',
+            'method' => 'POST',
+            'metadata' => ['plan_id' => $id, 'name' => $plan['name'] ?? null],
+        ]);
+
+        return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan deleted.');
+    }
+
     private function defaultLimits(): array
     {
         return [

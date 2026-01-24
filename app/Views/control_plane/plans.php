@@ -204,6 +204,12 @@
                     <a href="<?= base_url('controlplane/plans/' . $plan['id'] . '/edit') ?>" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">
                         Edit Plan
                     </a>
+                    <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/delete') ?>" method="post" onsubmit="return confirm('Are you sure you want to delete this plan? This action cannot be undone.');">
+                        <?= csrf_field() ?>
+                        <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100">
+                            Delete
+                        </button>
+                    </form>
                 </div>
             </div>
         <?php endforeach; ?>
