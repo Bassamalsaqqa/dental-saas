@@ -1072,3 +1072,14 @@
 
 ### Verification
 - docs/SaaS/verification/CP-PLAN-03A.md
+
+## [2026-01-24] Reject Modal Button Visibility (CP-PLAN-03B)
+**Tasks:** CP-PLAN-03B
+**Author:** Codex
+**Status:** Complete
+
+### Changes
+- Added padding and sticky footer to the reject modal so Cancel/Confirm buttons stay exposed even when the modal content scrolls.
+
+### Verification
+- docs/SaaS/verification/CP-PLAN-03B.md

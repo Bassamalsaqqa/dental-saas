@@ -171,7 +171,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="reject-form" method="post" class="mt-4 space-y-4">
+        <form id="reject-form" method="post" class="mt-4 space-y-4 pb-10">
             <?= csrf_field() ?>
             <div>
                 <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Reason</label>
@@ -179,7 +179,7 @@
                           class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
                           placeholder="Optional context for the clinic."></textarea>
             </div>
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-center justify-end gap-2 sticky bottom-0 left-0 right-0 bg-white/80 backdrop-blur border-t border-white/40 pt-3 -mx-6 -mb-6 px-6">
                 <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" data-reject-close>Cancel</button>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold">Confirm Reject</button>
             </div>
