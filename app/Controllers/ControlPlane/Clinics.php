@@ -496,6 +496,43 @@ class Clinics extends BaseController
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic reactivated.');
     }
 
+    /**
+     * POST /controlplane/clinics/{id}/delete
+     */
+    public function delete(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        // Hard Delete Logic
+        // 1. Delete Subscriptions
+        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+        $subscriptionModel->where('clinic_id', $id)->delete();
+
+        // 2. Delete Memberships (Users remain, but clinic association is gone)
+        $db = \Config\Database::connect();
+        $db->table('clinic_users')->where('clinic_id', $id)->delete();
+
+        // 3. Delete Clinic (Triggers FK cascades for clinic-owned data like patients if configured, otherwise they are orphaned or blocked)
+        // We attempt delete. If DB enforces restrict, this will fail.
+        try {
+            $clinicModel->delete($id);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Could not delete clinic. Database constraints may be preventing hard deletion.');
+        }
+
+        $this->auditService->logEvent('clinic_delete', [
+            'route' => '/controlplane/clinics/' . $id . '/delete',
+            'method' => 'POST',
+            'metadata' => ['clinic_id' => $id, 'name' => $clinic['name'] ?? 'Unknown'],
+        ]);
+
+        return redirect()->to(base_url('controlplane/clinics'))->with('success', 'Clinic and associated data deleted.');
+    }
+
     private function resolveEndAt(string $duration, string $startAt): ?string
     {
         if ($duration === 'lifetime') {

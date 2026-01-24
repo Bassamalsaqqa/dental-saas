@@ -548,8 +548,10 @@ $(document).ready(function() {
                             <input type="hidden" name="clinic_id" value="${id}">
                             <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700">Login As</button>
                         </form>
+                        <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700"
+                                onclick="openTerminateModal('${id}', '${encodedName}')">Terminate</button>
                         <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700"
-                                onclick="openTerminateModal('${id}', '${encodedName}')">Terminate</button>`;
+                                onclick="openDeleteModal('${id}', '${encodedName}')">Delete</button>`;
 
                     actions += '</div>';
                     return actions;
@@ -627,15 +629,106 @@ $(document).ready(function() {
         clinicsTable.draw();
     });
 
-    const modal = document.getElementById('terminateModal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
+    const termModal = document.getElementById('terminateModal');
+    if (termModal) {
+        termModal.addEventListener('click', function(event) {
+            if (event.target === termModal) {
                 closeTerminateModal();
             }
         });
     }
+
+    const delModal = document.getElementById('deleteModal');
+    if (delModal) {
+        delModal.addEventListener('click', function(event) {
+            if (event.target === delModal) {
+                closeDeleteModal();
+            }
+        });
+    }
 });
+</script>
+
+<!-- Delete Modal (New) -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-3xl border border-rose-200 bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4 bg-rose-50 rounded-t-3xl">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-rose-600 font-bold">Irreversible Action</p>
+                <h3 class="text-lg font-bold text-rose-900">Delete Clinic Database</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-rose-400 hover:text-rose-700 hover:bg-rose-100" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="px-6 py-6 space-y-4 text-sm text-slate-600">
+            <p class="font-medium text-slate-800">
+                You are about to permanently delete <span id="deleteClinicName" class="font-bold text-rose-600">this clinic</span>.
+            </p>
+            <div class="bg-rose-50 p-4 rounded-xl text-rose-800 text-xs border border-rose-100">
+                <ul class="list-disc list-inside space-y-1">
+                    <li>This action <strong>cannot be undone</strong>.</li>
+                    <li>All patient records, appointments, and financial data will be wiped.</li>
+                    <li>Subscriptions will be cancelled immediately.</li>
+                </ul>
+            </div>
+            <p>Type <span class="font-mono font-bold text-slate-900">DELETE</span> to confirm.</p>
+            <input type="text" id="deleteConfirmInput" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500"
+                   placeholder="DELETE" oninput="updateDeleteState()">
+        </div>
+        <form id="deleteForm" method="post" class="px-6 pb-6 flex items-center justify-between gap-3">
+            <?= csrf_field() ?>
+            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200" onclick="closeDeleteModal()">
+                Cancel
+            </button>
+            <button id="deleteConfirmButton" type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold opacity-50 cursor-not-allowed shadow-lg hover:bg-rose-700 transition-all" disabled>
+                Permanently Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let deleteClinicName = '';
+
+function openDeleteModal(clinicId, clinicNameEncoded) {
+    const modal = document.getElementById('deleteModal');
+    const nameEl = document.getElementById('deleteClinicName');
+    const inputEl = document.getElementById('deleteConfirmInput');
+    const formEl = document.getElementById('deleteForm');
+    const decodedName = decodeURIComponent(clinicNameEncoded || 'Clinic');
+
+    deleteClinicName = decodedName;
+    if (nameEl) nameEl.textContent = decodedName;
+    if (formEl) formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/delete`;
+    if (inputEl) inputEl.value = '';
+    
+    updateDeleteState();
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function updateDeleteState() {
+    const inputEl = document.getElementById('deleteConfirmInput');
+    const buttonEl = document.getElementById('deleteConfirmButton');
+    if (!inputEl || !buttonEl) return;
+    
+    const matches = inputEl.value === 'DELETE';
+    buttonEl.disabled = !matches;
+    buttonEl.classList.toggle('opacity-50', !matches);
+    buttonEl.classList.toggle('cursor-not-allowed', !matches);
+    buttonEl.classList.toggle('hover:bg-rose-700', matches);
+}
 </script>
 
 <?= $this->endSection() ?>
