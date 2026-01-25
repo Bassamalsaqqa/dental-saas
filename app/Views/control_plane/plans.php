@@ -1,7 +1,6 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<?= $this->section('content') ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
