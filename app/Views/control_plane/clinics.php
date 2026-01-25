@@ -412,50 +412,6 @@ function formatCurrency(value) {
 }
 
 function openTerminateModal(clinicId, clinicNameEncoded) {
-    const modal = document.getElementById('terminateModal');
-    const nameEl = document.getElementById('terminateClinicName');
-    const inputEl = document.getElementById('terminateConfirmInput');
-    const formEl = document.getElementById('terminateForm');
-    const decodedName = decodeURIComponent(clinicNameEncoded || 'Clinic');
-
-    terminateClinicName = decodedName;
-    if (nameEl) {
-        nameEl.textContent = decodedName;
-    }
-    if (formEl) {
-        formEl.action = `${baseUrl}controlplane/clinics/${clinicId}/terminate`;
-    }
-    if (inputEl) {
-        inputEl.value = '';
-    }
-    updateTerminateState();
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-}
-
-function closeTerminateModal() {
-    const modal = document.getElementById('terminateModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
-
-function updateTerminateState() {
-    const inputEl = document.getElementById('terminateConfirmInput');
-    const buttonEl = document.getElementById('terminateConfirmButton');
-    if (!inputEl || !buttonEl) {
-        return;
-    }
-    const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
-    buttonEl.disabled = !matches;
-    buttonEl.classList.toggle('opacity-50', !matches);
-    buttonEl.classList.toggle('cursor-not-allowed', !matches);
-}
-
-$(document).ready(function() {
     clinicsTable = $('#clinicsTable').DataTable({
         processing: true,
         serverSide: true,
