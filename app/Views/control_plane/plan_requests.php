@@ -38,7 +38,7 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-gray-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-200/50 group-hover:shadow-slate-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 text-white shadow-xl">
+                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #64748b, #4b5563);">
                                 <i class="fas fa-list text-xl"></i>
                             </div>
                         </div>
@@ -54,13 +54,13 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-200 to-orange-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-200/50 group-hover:shadow-amber-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl">
+                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #f59e0b, #ea580c);">
                                 <i class="fas fa-clock text-xl"></i>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending</p>
-                            <p class="text-3xl font-black text-amber-600"><?= number_format($requestStats['pending'] ?? 0) ?></p>
+                            <p class="text-3xl font-black text-amber-600" style="color: #d97706 !important;"><?= number_format($requestStats['pending'] ?? 0) ?></p>
                         </div>
                     </div>
                 </div>
@@ -70,13 +70,13 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-200 to-green-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-200/50 group-hover:shadow-emerald-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl">
+                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #10b981, #16a34a);">
                                 <i class="fas fa-check text-xl"></i>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Approved</p>
-                            <p class="text-3xl font-black text-emerald-600"><?= number_format($requestStats['approved'] ?? 0) ?></p>
+                            <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($requestStats['approved'] ?? 0) ?></p>
                         </div>
                     </div>
                 </div>
@@ -86,13 +86,13 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-rose-200 to-red-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-200/50 group-hover:shadow-rose-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xl">
+                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #f43f5e, #dc2626);">
                                 <i class="fas fa-times text-xl"></i>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Rejected</p>
-                            <p class="text-3xl font-black text-rose-600"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
+                            <p class="text-3xl font-black text-rose-600" style="color: #e11d48 !important;"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
                         </div>
                     </div>
                 </div>
