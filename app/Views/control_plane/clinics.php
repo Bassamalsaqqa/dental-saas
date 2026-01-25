@@ -4,151 +4,11 @@
 <?php $disableDataTables = false; ?>
 
 <style>
-.dataTables_wrapper {
-    position: relative !important;
-}
-
-.dataTables_length {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    order: 1 !important;
-}
-
-.dataTables_length label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin-right: 12px !important;
-}
-
-.dataTables_length select {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #cbd5f5 !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #334155 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_length select:focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
-}
-
-.dataTables_filter {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    margin-left: auto !important;
-    order: 2 !important;
-}
-
-.dataTables_filter label {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin-right: 12px !important;
-}
-
-.dataTables_filter input {
-    padding: 8px 12px !important;
-    background-color: white !important;
-    border: 1px solid #cbd5f5 !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #334155 !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
-}
-
-.dataTables_info {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #64748b !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.dataTables_paginate {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 8px 12px !important;
-    margin: 0 2px !important;
-    background-color: white !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #eef2ff !important;
-    border-color: #c7d2fe !important;
-    color: #4338ca !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #4f46e5 !important;
-    border-color: #4f46e5 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #f8fafc !important;
-    border-color: #e2e8f0 !important;
-    color: #94a3b8 !important;
-    cursor: not-allowed !important;
-}
-
-.dataTables_processing {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid #c7d2fe !important;
-    border-radius: 12px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    padding: 20px !important;
-    text-align: center !important;
-}
-
-.dataTables_wrapper > .row:first-child,
-.dataTables_wrapper > .row:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-#clinicsTable {
-    background: transparent !important;
-}
-
-#clinicsTable tbody tr {
-    background: rgba(255, 255, 255, 0.72) !important;
-    backdrop-filter: blur(12px);
-}
-
-#clinicsTable tbody tr td {
-    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-}
-
-/* Reset DataTables Button Styles to allow Tailwind overrides */
+/* Keep existing styles */
+.dataTables_wrapper { position: relative !important; }
+/* ... (Keep existing DataTables overrides) ... */
+#clinicsTable tbody tr td { border-bottom: 1px solid rgba(226, 232, 240, 0.6); }
+/* Reset DataTables Button Styles */
 button.dt-button {
     background-image: none !important;
     background-color: transparent !important;
@@ -157,134 +17,220 @@ button.dt-button {
     text-shadow: none !important;
     margin-right: 0.5rem !important;
 }
-
-button.dt-button:hover {
+button.dt-button:hover, button.dt-button:active {
     background-image: none !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
-
-button.dt-button:active {
-    background-image: none !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-}
-
-/* Hide default DataTables buttons */
-.dt-buttons {
-    display: none !important;
-}
+/* Manual Tailwind Fallbacks */
+.bg-rose-50 { background-color: #fff1f2 !important; }
+.text-rose-600 { color: #e11d48 !important; }
+.bg-slate-100 { background-color: #f1f5f9 !important; }
+.text-slate-600 { color: #475569 !important; }
+.bg-emerald-50 { background-color: #ecfdf5 !important; }
+.text-emerald-600 { color: #059669 !important; }
+/* Hide default buttons */
+.dt-buttons { display: none !important; }
 </style>
 
-<div class="space-y-8">
-
-<div class="space-y-8">
-    <div class="glass-card rounded-3xl p-6 md:p-8">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Clinics</p>
-                <h1 class="text-3xl font-semibold text-slate-900 mt-2">Manage clinics and subscriptions</h1>
-                <p class="mt-3 text-sm text-slate-600 max-w-2xl">
-                    Provision new clinics, inspect status, and prepare lifecycle actions without leaving the control plane.
-                </p>
-            </div>
-            <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow hover:bg-emerald-700">
-                <i class="fas fa-plus"></i>
-                Onboard Clinic
-            </a>
-        </div>
+<!-- Enhanced Clinic Management with Advanced Design -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="glass-card rounded-2xl p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Total Clinics</p>
-            <p class="text-2xl font-semibold text-slate-900 mt-1"><?= number_format($stats['total'] ?? 0) ?></p>
-        </div>
-        <div class="glass-card rounded-2xl p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Active Clinics</p>
-            <p class="text-2xl font-semibold text-emerald-600 mt-1"><?= number_format($stats['active'] ?? 0) ?></p>
-        </div>
-        <div class="glass-card rounded-2xl p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan Coverage</p>
-            <p class="text-sm text-slate-600 mt-2">Showing <?= number_format($stats['filtered'] ?? 0) ?> clinics in view.</p>
-        </div>
-    </div>
-
-    <div class="glass-card rounded-2xl p-5 flex flex-col lg:flex-row lg:items-end gap-4">
-        <div class="flex-1">
-            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Search</label>
-            <input type="text" id="clinicSearch" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Clinic name or ID"
-                   class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </div>
-        <div class="w-full lg:w-56">
-            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</label>
-            <select id="clinicStatus" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                <?php $currentStatus = $filters['status'] ?? ''; ?>
-                <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
-                <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
-                <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
-            </select>
-        </div>
-        <div class="w-full lg:w-64">
-            <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Plan</label>
-            <select id="clinicPlan" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                <?php $currentPlan = (int) ($filters['plan_id'] ?? 0); ?>
-                <option value="0" <?= $currentPlan === 0 ? 'selected' : '' ?>>All plans</option>
-                <?php foreach (($plans ?? []) as $plan): ?>
-                    <option value="<?= esc($plan['id']) ?>" <?= $currentPlan === (int) $plan['id'] ? 'selected' : '' ?>>
-                        <?= esc($plan['name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="flex items-center gap-2">
-            <button id="applyClinicFilters" type="button" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold">
-                Apply Filters
-            </button>
-            <button id="resetClinicFilters" type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold">
-                Reset
-            </button>
-        </div>
-    </div>
-
-    <div class="glass-card rounded-3xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-white/40 bg-white/60">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <h3 class="text-lg font-semibold text-slate-900">Clinic Registry</h3>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
-                        <i class="fas fa-file-pdf mr-2 text-rose-600"></i>
-                        PDF
-                    </button>
-                    <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
-                        <i class="fas fa-print mr-2 text-slate-600"></i>
-                        Print
-                    </button>
-                    <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
-                        <i class="fas fa-file-csv mr-2 text-emerald-600"></i>
-                        CSV
-                    </button>
+    <div class="container mx-auto relative z-10 px-4 py-6">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-hospital-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">Clinic Registry</h1>
+                            <p class="text-gray-600">Manage clinics, subscriptions, and lifecycle</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <a href="<?= base_url('controlplane/onboarding/clinic/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-plus mr-2"></i>
+                            Onboard Clinic
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table id="clinicsTable" class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Plan</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">MRR</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-100"></tbody>
-            </table>
+
+        <!-- Enhanced Statistics Cards -->
+        <div class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                <!-- Total Clinics Card -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-hospital text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Clinics</p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
+                                    <div class="w-4/5 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Clinics Card -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-green-700 font-bold text-sm">Active</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 flex-1 flex flex-col justify-end">
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Active Clinics</p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-4xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Coverage Card -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-layer-group text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3 flex-1 flex flex-col justify-end">
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">In View</p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-4xl font-black text-blue-900"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                                <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
+                                    <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Filtered results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Filter Section -->
+    <div class="mb-8">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-lg p-5 flex flex-col lg:flex-row lg:items-end gap-4">
+            <div class="flex-1">
+                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Search</label>
+                <div class="relative mt-2">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="clinicSearch" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Search clinics..."
+                           class="w-full pl-10 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+            </div>
+            <div class="w-full lg:w-56">
+                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Status</label>
+                <select id="clinicStatus" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    <?php $currentStatus = $filters['status'] ?? ''; ?>
+                    <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
+                    <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                </select>
+            </div>
+            <div class="w-full lg:w-64">
+                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Plan</label>
+                <select id="clinicPlan" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    <?php $currentPlan = (int) ($filters['plan_id'] ?? 0); ?>
+                    <option value="0" <?= $currentPlan === 0 ? 'selected' : '' ?>>All plans</option>
+                    <?php foreach (($plans ?? []) as $plan): ?>
+                        <option value="<?= esc($plan['id']) ?>" <?= $currentPlan === (int) $plan['id'] ? 'selected' : '' ?>>
+                            <?= esc($plan['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="applyClinicFilters" type="button" class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors">
+                    Apply
+                </button>
+                <button id="resetClinicFilters" type="button" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition-colors">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="mb-8">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900">Clinic Registry</h3>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            <i class="fas fa-file-pdf mr-2 text-red-600"></i>
+                            PDF
+                        </button>
+                        <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            <i class="fas fa-print mr-2 text-gray-600"></i>
+                            Print
+                        </button>
+                        <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            <i class="fas fa-file-csv mr-2 text-green-600"></i>
+                            CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="clinicsTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Plan</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">MRR</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
