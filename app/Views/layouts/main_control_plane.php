@@ -52,6 +52,7 @@
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
             <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col" id="sidebar">
+                <!-- Sidebar Header -->
                 <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
                     <div class="flex items-center justify-between">
                         <a href="<?= base_url('controlplane/dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
@@ -157,6 +158,13 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="<?= base_url('controlplane/activity-log') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-history w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
+                                    <span class="relative z-10">System Activity</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="<?= base_url('controlplane/email-templates') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
                                     <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-envelope-open-text w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
@@ -184,47 +192,47 @@
                     </div>
                 </nav>
 
-        <!-- Enhanced Sidebar Footer -->
-        <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/40">
-            <div class="group relative cursor-pointer hover:bg-white/60 rounded-xl p-3 transition-all duration-200 border border-transparent hover:border-white/50 hover:shadow-lg hover:shadow-slate-200/50" onclick="toggleUserMenu()">
-                <div class="flex items-center space-x-3 relative z-10">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg blur opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
-                        <div class="relative w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                            <span class="text-xs font-bold text-white"><?= strtoupper(substr($userEmail ?? 'SA', 0, 2)) ?></span>
+                <!-- Sidebar Footer -->
+                <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/40">
+                    <div class="group relative cursor-pointer hover:bg-white/60 rounded-xl p-3 transition-all duration-200 border border-transparent hover:border-white/50 hover:shadow-lg hover:shadow-slate-200/50" onclick="toggleUserMenu()">
+                        <div class="flex items-center space-x-3 relative z-10">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg blur opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <div class="relative w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <span class="text-xs font-bold text-white"><?= strtoupper(substr($userEmail ?? 'SA', 0, 2)) ?></span>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-slate-900 truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Global Admin</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-up text-slate-400 text-xs group-hover:text-slate-600 transition-colors duration-200"></i>
                         </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-bold text-slate-900 truncate"><?= esc($userEmail ?? 'Super Admin') ?></div>
-                        <div class="flex items-center space-x-1.5">
-                            <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Global Admin</div>
-                        </div>
+                    
+                    <!-- User Menu Dropdown -->
+                    <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 backdrop-blur-2xl bg-white/90 rounded-2xl shadow-2xl shadow-slate-200/50 border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
+                        <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all duration-200">
+                            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                <i class="fas fa-cog text-xs text-slate-500 group-hover:text-slate-700"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">Settings</span>
+                        </a>
+                        <div class="h-px bg-slate-100 my-1"></div>
+                        <form action="<?= base_url('controlplane/exit') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <button class="w-full group flex items-center px-3 py-2.5 rounded-xl hover:bg-rose-50 transition-all duration-200 text-left">
+                                <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                    <i class="fas fa-sign-out-alt text-xs text-rose-500 group-hover:text-rose-600"></i>
+                                </div>
+                                <span class="text-sm font-medium text-rose-600 group-hover:text-rose-700">Exit Control Plane</span>
+                            </button>
+                        </form>
                     </div>
-                    <i class="fas fa-chevron-up text-slate-400 text-xs group-hover:text-slate-600 transition-colors duration-200"></i>
                 </div>
-            </div>
-            
-            <!-- Enhanced User Menu Dropdown -->
-            <div id="userMenu" class="hidden absolute bottom-24 left-4 w-56 backdrop-blur-2xl bg-white/90 rounded-2xl shadow-2xl shadow-slate-200/50 border border-white/50 p-2 space-y-1 transform origin-bottom-left transition-all duration-200">
-                <a href="<?= base_url('controlplane/settings') ?>" class="group flex items-center px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all duration-200">
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
-                        <i class="fas fa-cog text-xs text-slate-500 group-hover:text-slate-700"></i>
-                    </div>
-                    <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">Settings</span>
-                </a>
-                <div class="h-px bg-slate-100 my-1"></div>
-                <form action="<?= base_url('controlplane/exit') ?>" method="post">
-                    <?= csrf_field() ?>
-                    <button class="w-full group flex items-center px-3 py-2.5 rounded-xl hover:bg-rose-50 transition-all duration-200 text-left">
-                        <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center mr-3 group-hover:bg-white group-hover:shadow-sm transition-all">
-                            <i class="fas fa-sign-out-alt text-xs text-rose-500 group-hover:text-rose-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-rose-600 group-hover:text-rose-700">Exit Control Plane</span>
-                    </button>
-                </form>
-            </div>
-        </div>
             </aside>
         <?php endif; ?>
 
