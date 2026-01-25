@@ -271,7 +271,7 @@
             <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeTerminateModal()">
                 Cancel
             </button>
-            <button id="terminateConfirmButton" type="submit" class="px-6 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="color: #ffffff !important;">
+            <button id="terminateConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
                 <span>Confirm Termination</span>
             </button>
         </form>
@@ -310,7 +310,7 @@
             <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeDeleteModal()">
                 Cancel
             </button>
-            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl bg-rose-600 text-white text-sm font-bold cursor-not-allowed shadow-lg hover:bg-rose-700 transition-all" disabled style="color: #ffffff !important;">
+            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
                 <span>Permanently Delete</span>
             </button>
         </form>
