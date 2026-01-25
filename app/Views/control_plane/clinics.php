@@ -147,6 +147,29 @@
 #clinicsTable tbody tr td {
     border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 }
+
+/* Reset DataTables Button Styles to allow Tailwind overrides */
+button.dt-button {
+    background-image: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    margin-right: 0.5rem !important;
+}
+
+button.dt-button:hover {
+    background-image: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+button.dt-button:active {
+    background-image: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
 </style>
 
 <div class="space-y-8">
