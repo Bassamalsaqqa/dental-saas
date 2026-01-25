@@ -170,7 +170,14 @@ button.dt-button:active {
     background-color: transparent !important;
     box-shadow: none !important;
 }
+
+/* Hide default DataTables buttons */
+.dt-buttons {
+    display: none !important;
+}
 </style>
+
+<div class="space-y-8">
 
 <div class="space-y-8">
     <div class="glass-card rounded-3xl p-6 md:p-8">
@@ -249,7 +256,20 @@ button.dt-button:active {
                     <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     <h3 class="text-lg font-semibold text-slate-900">Clinic Registry</h3>
                 </div>
-                <div class="text-xs text-slate-400">Powered by DataTables</div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
+                        <i class="fas fa-file-pdf mr-2 text-rose-600"></i>
+                        PDF
+                    </button>
+                    <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
+                        <i class="fas fa-print mr-2 text-slate-600"></i>
+                        Print
+                    </button>
+                    <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors duration-200">
+                        <i class="fas fa-file-csv mr-2 text-emerald-600"></i>
+                        CSV
+                    </button>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -632,22 +652,19 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'pdf',
-                text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
-                className: 'px-4 py-2 rounded-xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors border-none shadow-none',
+                className: 'btn-pdf',
                 title: 'Clinics Report',
                 orientation: 'landscape',
                 pageSize: 'A4'
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print mr-2"></i>Print',
-                className: 'px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition-colors border-none shadow-none',
+                className: 'btn-print',
                 title: 'Clinics Report'
             },
             {
                 extend: 'csv',
-                text: '<i class="fas fa-file-csv mr-2"></i>CSV',
-                className: 'px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 font-semibold hover:bg-emerald-100 transition-colors border-none shadow-none',
+                className: 'btn-csv',
                 title: 'Clinics Report'
             }
         ],
@@ -655,35 +672,18 @@ $(document).ready(function() {
         language: {
             processing: 'Loading clinics...',
             lengthMenu: '_MENU_',
-            zeroRecords: `
-                <div class="py-12 text-center text-slate-400 space-y-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M4.93 4.93a10 10 0 1 1 14.14 14.14A10 10 0 0 1 4.93 4.93z" />
-                    </svg>
-                    <p class="text-sm font-semibold">No clinics found</p>
-                    <p class="text-xs text-slate-400">Reset filters or onboard a new clinic to populate this list.</p>
-                </div>`,
+            zeroRecords: `<div class="py-12 text-center text-slate-400 space-y-3"><p class="text-sm font-semibold">No clinics found</p></div>`,
             info: 'Showing _START_ to _END_ of _TOTAL_ clinics',
             infoEmpty: 'No clinics available',
             infoFiltered: '(filtered from _MAX_ total clinics)',
             search: '',
             searchPlaceholder: 'Search clinics...',
-            paginate: {
-                first: 'First',
-                last: 'Last',
-                next: 'Next',
-                previous: 'Previous'
-            }
+            paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }
         },
-        drawCallback: function() {
-            refreshCsrfToken();
-        }
+        drawCallback: function() { refreshCsrfToken(); }
     });
 
-    $('#applyClinicFilters').on('click', function() {
-        clinicsTable.draw();
-    });
-
+    $('#applyClinicFilters').on('click', function() { clinicsTable.draw(); });
     $('#resetClinicFilters').on('click', function() {
         $('#clinicSearch').val('');
         $('#clinicStatus').val('');
@@ -692,23 +692,21 @@ $(document).ready(function() {
     });
 
     const termModal = document.getElementById('terminateModal');
-    if (termModal) {
-        termModal.addEventListener('click', function(event) {
-            if (event.target === termModal) {
-                closeTerminateModal();
-            }
-        });
-    }
-
+    if (termModal) termModal.addEventListener('click', function(event) { if (event.target === termModal) closeTerminateModal(); });
     const delModal = document.getElementById('deleteModal');
-    if (delModal) {
-        delModal.addEventListener('click', function(event) {
-            if (event.target === delModal) {
-                closeDeleteModal();
-            }
-        });
-    }
+    if (delModal) delModal.addEventListener('click', function(event) { if (event.target === delModal) closeDeleteModal(); });
 });
+
+// Export Functions
+function exportToPDF() {
+    if (clinicsTable) clinicsTable.button('.btn-pdf').trigger();
+}
+function printTable() {
+    if (clinicsTable) clinicsTable.button('.btn-print').trigger();
+}
+function exportToCSV() {
+    if (clinicsTable) clinicsTable.button('.btn-csv').trigger();
+}
 </script>
 
 
