@@ -44,6 +44,11 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
         $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
         $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
+        
+        // Activity Log (New)
+        $routes->get('activity-log', 'ControlPlane\ActivityLog::index');
+        $routes->get('activity-log/api', 'ControlPlane\ActivityLog::api');
+
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
         $routes->get('email-templates', 'ControlPlane\Settings::emailTemplates'); // CP-UX-25-MODULAR

@@ -31,9 +31,7 @@ class Operations extends BaseController
         $planModel = new PlanModel();
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $controlPlaneAuditModel = new ControlPlaneAuditModel();
         $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
-        $notificationModel = (new NotificationModel())->withoutTenantScope();
 
         $plansActive = $planModel->where('status', 'active')->countAllResults();
         $plansInactive = $planModel->where('status !=', 'active')->countAllResults();
@@ -52,9 +50,7 @@ class Operations extends BaseController
             ->groupEnd()
             ->countAllResults();
 
-        $controlPlaneAudits = $controlPlaneAuditModel->orderBy('id', 'DESC')->findAll(10);
         $planAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
-        $recentNotifications = $notificationModel->orderBy('id', 'DESC')->findAll(10);
 
         return view('control_plane/operations', [
             'title' => 'Operations',
@@ -62,9 +58,7 @@ class Operations extends BaseController
             'plansInactive' => $plansInactive,
             'clinicsTotal' => $clinicsTotal,
             'subscriptionsActive' => $subscriptionsActive,
-            'controlPlaneAudits' => $controlPlaneAudits,
             'planAudits' => $planAudits,
-            'recentNotifications' => $recentNotifications,
         ]);
     }
 }

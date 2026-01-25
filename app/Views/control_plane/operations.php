@@ -154,6 +154,20 @@
                         <i class="fas fa-chevron-right text-xs"></i>
                     </div>
                 </a>
+                <a href="<?= base_url('controlplane/activity-log') ?>" class="group flex items-center justify-between w-full px-4 py-3 rounded-xl border border-gray-100 hover:border-blue-200 bg-white hover:bg-blue-50/50 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-900 group-hover:text-blue-900 transition-colors">System Activity</span>
+                            <span class="text-xs text-gray-500">Audit logs & events</span>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </div>
+                </a>
             </div>
         </div>
 
@@ -204,130 +218,6 @@
     </div>
 
     <div class="space-y-8 mb-12">
-        <!-- Activity & Notifications Grid -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <!-- Control Plane Activity -->
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600">
-                            <i class="fas fa-history text-sm"></i>
-                        </div>
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Activity Log</h3>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                        <?= count($controlPlaneAudits ?? []) ?> events
-                    </span>
-                </div>
-                <div class="overflow-x-auto max-h-96">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-sm">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Timestamp</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Event</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Details</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-transparent">
-                            <?php if (empty($controlPlaneAudits)): ?>
-                                <tr>
-                                    <td colspan="3" class="px-6 py-12 text-center text-gray-400 text-sm">
-                                        <div class="flex flex-col items-center justify-center gap-2">
-                                            <i class="fas fa-wind text-2xl text-gray-300"></i>
-                                            <p>No recent activity</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($controlPlaneAudits as $audit): ?>
-                                    <tr class="hover:bg-indigo-50/30 transition-colors group/row">
-                                        <td class="px-6 py-3 text-xs text-gray-500 font-mono whitespace-nowrap">
-                                            <?= esc($audit['created_at']) ?>
-                                        </td>
-                                        <td class="px-6 py-3">
-                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                                <?= esc($audit['event_type']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-3 text-xs text-gray-600">
-                                            <div class="flex flex-col">
-                                                <span class="font-medium text-gray-900"><?= esc($audit['route']) ?></span>
-                                                <span class="text-gray-400 text-[10px]">User: <?= esc($audit['actor_user_id'] ?? '-') ?></span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Notifications Ledger -->
-            <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
-                            <i class="fas fa-bell text-sm"></i>
-                        </div>
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Notifications</h3>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                        <?= count($recentNotifications ?? []) ?> sent
-                    </span>
-                </div>
-                <div class="overflow-x-auto max-h-96">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-sm">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Channel</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-transparent">
-                            <?php if (empty($recentNotifications)): ?>
-                                <tr>
-                                    <td colspan="3" class="px-6 py-12 text-center text-gray-400 text-sm">
-                                        <div class="flex flex-col items-center justify-center gap-2">
-                                            <i class="far fa-bell-slash text-2xl text-gray-300"></i>
-                                            <p>No recent notifications</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($recentNotifications as $notif): ?>
-                                    <tr class="hover:bg-amber-50/30 transition-colors group/row">
-                                        <td class="px-6 py-3 text-xs text-gray-500 font-mono whitespace-nowrap">
-                                            <?= esc($notif['created_at']) ?>
-                                        </td>
-                                        <td class="px-6 py-3 text-xs font-bold text-gray-700">
-                                            <?= esc(ucfirst($notif['channel_type'])) ?>
-                                        </td>
-                                        <td class="px-6 py-3">
-                                            <?php if ($notif['status'] === 'sent'): ?>
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                                    <i class="fas fa-check"></i> SENT
-                                                </span>
-                                            <?php elseif ($notif['status'] === 'failed'): ?>
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                                                    <i class="fas fa-exclamation-triangle"></i> FAIL
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                                    <?= esc(strtoupper($notif['status'])) ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
         <!-- Plan Enforcement Audits -->
         <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
