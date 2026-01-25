@@ -550,36 +550,58 @@ $(document).ready(function() {
                     const id = escapeHtml(data || '');
                     const status = (row.status || 'inactive').toLowerCase();
                     const encodedName = encodeURIComponent(row.name || 'Clinic');
-                    let actions = '<div class="flex flex-wrap items-center gap-2">';
+                    let actions = '<div class="flex items-center justify-end space-x-2">';
 
+                    // View Details
                     actions += `
                         <a href="${baseUrl}controlplane/clinics/${id}"
-                           class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">View Details</a>`;
+                           class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200"
+                           title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>`;
 
+                    // Suspend / Reactivate
                     if (status === 'active') {
                         actions += `
-                            <form action="${baseUrl}controlplane/clinics/${id}/suspend" method="post">
+                            <form action="${baseUrl}controlplane/clinics/${id}/suspend" method="post" class="inline">
                                 ${renderCsrfField()}
-                                <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700">Suspend</button>
+                                <button type="submit" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="Suspend">
+                                    <i class="fas fa-pause"></i>
+                                </button>
                             </form>`;
                     } else {
                         actions += `
-                            <form action="${baseUrl}controlplane/clinics/${id}/reactivate" method="post">
+                            <form action="${baseUrl}controlplane/clinics/${id}/reactivate" method="post" class="inline">
                                 ${renderCsrfField()}
-                                <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700">Reactivate</button>
+                                <button type="submit" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="Reactivate">
+                                    <i class="fas fa-play"></i>
+                                </button>
                             </form>`;
                     }
 
+                    // Login As (Impersonate)
                     actions += `
-                        <form action="${baseUrl}controlplane/impersonate" method="post">
+                        <form action="${baseUrl}controlplane/impersonate" method="post" class="inline">
                             ${renderCsrfField()}
                             <input type="hidden" name="clinic_id" value="${id}">
-                            <button class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700">Login As</button>
-                        </form>
-                        <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700"
-                                onclick="openTerminateModal('${id}', '${encodedName}')">Terminate</button>
-                        <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700"
-                                onclick="openDeleteModal('${id}', '${encodedName}')">Delete</button>`;
+                            <button type="submit" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="Login As">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </button>
+                        </form>`;
+
+                    // Terminate
+                    actions += `
+                        <button type="button" class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200"
+                                onclick="openTerminateModal('${id}', '${encodedName}')" title="Terminate">
+                            <i class="fas fa-ban"></i>
+                        </button>`;
+
+                    // Delete
+                    actions += `
+                        <button type="button" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200"
+                                onclick="openDeleteModal('${id}', '${encodedName}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>`;
 
                     actions += '</div>';
                     return actions;
