@@ -149,83 +149,104 @@ button.dt-button:hover, button.dt-button:active {
             </div>
         </div>
 
-    <!-- Filter Section -->
-    <div class="mb-8">
-        <div class="bg-white rounded-xl border border-gray-200 shadow-lg p-5 flex flex-col lg:flex-row lg:items-end gap-4">
-            <div class="flex-1">
-                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Search</label>
-                <div class="relative mt-2">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" id="clinicSearch" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Search clinics..."
-                           class="w-full pl-10 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
-                </div>
-            </div>
-            <div class="w-full lg:w-56">
-                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Status</label>
-                <select id="clinicStatus" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
-                    <?php $currentStatus = $filters['status'] ?? ''; ?>
-                    <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All statuses</option>
-                    <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
-                </select>
-            </div>
-            <div class="w-full lg:w-64">
-                <label class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Plan</label>
-                <select id="clinicPlan" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500">
-                    <?php $currentPlan = (int) ($filters['plan_id'] ?? 0); ?>
-                    <option value="0" <?= $currentPlan === 0 ? 'selected' : '' ?>>All plans</option>
-                    <?php foreach (($plans ?? []) as $plan): ?>
-                        <option value="<?= esc($plan['id']) ?>" <?= $currentPlan === (int) $plan['id'] ? 'selected' : '' ?>>
-                            <?= esc($plan['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="applyClinicFilters" type="button" class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors">
-                    Apply
-                </button>
-                <button id="resetClinicFilters" type="button" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition-colors">
-                    Reset
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Table Section -->
+    <!-- Table Section with Integrated Filters -->
     <div class="mb-8">
         <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <!-- Integrated Header & Filters -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div class="flex items-center space-x-3">
                         <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
                         <h3 class="text-lg font-semibold text-gray-900">Clinic Registry</h3>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                            PDF
-                        </button>
-                        <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-print mr-2 text-gray-600"></i>
-                            Print
-                        </button>
-                        <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                            CSV
-                        </button>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Search -->
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="clinicSearch" value="<?= esc($filters['q'] ?? '') ?>" placeholder="Search clinics..."
+                                   class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 w-64">
+                        </div>
+
+                        <!-- Status Filter -->
+                        <select id="clinicStatus" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white">
+                            <?php $currentStatus = $filters['status'] ?? ''; ?>
+                            <option value="" <?= $currentStatus === '' ? 'selected' : '' ?>>All Status</option>
+                            <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                            <option value="suspended" <?= $currentStatus === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                        </select>
+
+                        <!-- Plan Filter -->
+                        <select id="clinicPlan" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white" style="max-width: 150px;">
+                            <?php $currentPlan = (int) ($filters['plan_id'] ?? 0); ?>
+                            <option value="0" <?= $currentPlan === 0 ? 'selected' : '' ?>>All Plans</option>
+                            <?php foreach (($plans ?? []) as $plan): ?>
+                                <option value="<?= esc($plan['id']) ?>" <?= $currentPlan === (int) $plan['id'] ? 'selected' : '' ?>>
+                                    <?= esc($plan['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <!-- Actions -->
+                        <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
+                            <button id="applyClinicFilters" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Apply Filters">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                            <button id="resetClinicFilters" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Reset Filters">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+
+                        <!-- Export -->
+                        <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
+                            <button onclick="exportToPDF()" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Export PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                            <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Print">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Export CSV">
+                                <i class="fas fa-file-csv"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+            
             <div class="overflow-x-auto">
                 <table id="clinicsTable" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Plan</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">MRR</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-hospital text-emerald-600"></i>
+                                    <span>Clinic Name</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-info-circle text-emerald-600"></i>
+                                    <span>Status</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-layer-group text-emerald-600"></i>
+                                    <span>Plan</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-dollar-sign text-emerald-600"></i>
+                                    <span>MRR</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-cogs text-emerald-600"></i>
+                                    <span>Actions</span>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200"></tbody>
@@ -516,15 +537,29 @@ $(document).ready(function() {
             {
                 data: 'status',
                 name: 'status',
-                render: function(data) {
+                render: function(data, type, row) {
                     const status = (data || 'inactive').toLowerCase();
-                    const colorMap = {
-                        active: 'bg-emerald-100 text-emerald-700',
-                        suspended: 'bg-amber-100 text-amber-700',
-                        inactive: 'bg-slate-100 text-slate-600'
+                    const statusColors = {
+                        'active': 'bg-green-100 text-green-800',
+                        'suspended': 'bg-yellow-100 text-yellow-800',
+                        'inactive': 'bg-gray-100 text-gray-800'
                     };
+                    const statusIcons = {
+                        'active': 'fas fa-check-circle',
+                        'suspended': 'fas fa-pause-circle',
+                        'inactive': 'fas fa-times-circle'
+                    };
+                    
+                    const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
+                    const iconClass = statusIcons[status] || 'fas fa-question-circle';
                     const label = status.charAt(0).toUpperCase() + status.slice(1);
-                    return `<span class="text-xs font-semibold px-2 py-1 rounded-full ${colorMap[status] || colorMap.inactive}">${label}</span>`;
+
+                    return `
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
+                            <i class="${iconClass} mr-1"></i>
+                            ${label}
+                        </span>
+                    `;
                 }
             },
             {
