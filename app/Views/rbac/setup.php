@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main_auth') ?>
+<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('title') ?>
 RBAC System Setup
