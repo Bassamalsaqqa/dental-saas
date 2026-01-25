@@ -1,3 +1,5 @@
+<?= $this->extend('layouts/main_control_plane') ?>
+
 <?= $this->section('content') ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
