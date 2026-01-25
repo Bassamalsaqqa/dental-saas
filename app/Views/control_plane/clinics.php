@@ -610,7 +610,7 @@ $(document).ready(function() {
             {
                 extend: 'pdf',
                 text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
-                className: 'btn-pdf',
+                className: 'px-4 py-2 rounded-xl bg-rose-50 text-rose-600 font-semibold hover:bg-rose-100 transition-colors border-none shadow-none',
                 title: 'Clinics Report',
                 orientation: 'landscape',
                 pageSize: 'A4'
@@ -618,13 +618,13 @@ $(document).ready(function() {
             {
                 extend: 'print',
                 text: '<i class="fas fa-print mr-2"></i>Print',
-                className: 'btn-print',
+                className: 'px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition-colors border-none shadow-none',
                 title: 'Clinics Report'
             },
             {
                 extend: 'csv',
                 text: '<i class="fas fa-file-csv mr-2"></i>CSV',
-                className: 'btn-csv',
+                className: 'px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 font-semibold hover:bg-emerald-100 transition-colors border-none shadow-none',
                 title: 'Clinics Report'
             }
         ],
