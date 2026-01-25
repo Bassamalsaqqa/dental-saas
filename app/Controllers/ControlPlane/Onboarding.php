@@ -97,7 +97,7 @@ class Onboarding extends BaseController
                 ],
             ]);
 
-            return redirect()->to('/settings')->with('success', "Clinic created successfully (ID: $clinicId).");
+            return redirect()->to('/controlplane/clinics')->with('success', "Clinic created successfully (ID: $clinicId).");
 
         } catch (\Exception $e) {
             $reasonCode = 'UNKNOWN_ERROR';

@@ -4,6 +4,7 @@ namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
 use App\Models\ClinicModel;
+use App\Models\ClinicUserModel;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Services\ControlPlaneAuditService;
@@ -513,8 +514,8 @@ class Clinics extends BaseController
         $subscriptionModel->where('clinic_id', $id)->delete();
 
         // 2. Delete Memberships (Users remain, but clinic association is gone)
-        $db = \Config\Database::connect();
-        $db->table('clinic_users')->where('clinic_id', $id)->delete();
+        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel->where('clinic_id', $id)->delete();
 
         // 3. Delete Clinic (Triggers FK cascades for clinic-owned data like patients if configured, otherwise they are orphaned or blocked)
         // We attempt delete. If DB enforces restrict, this will fail.

@@ -5,30 +5,36 @@ namespace App\Services;
 use App\Models\ClinicModel;
 use App\Models\UserModel;
 use App\Models\ClinicUserModel;
+use App\Models\UserRoleModel;
 use App\Models\RoleModel;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Models\PlanAuditModel;
+use App\Models\PermissionModel;
 
 class OnboardingService
 {
     protected $clinicModel;
     protected $userModel;
     protected $clinicUserModel;
+    protected $userRoleModel;
     protected $roleModel;
     protected $subscriptionModel;
     protected $planModel;
     protected $auditModel;
+    protected $permissionModel;
 
     public function __construct()
     {
         $this->clinicModel = new ClinicModel();
         $this->userModel = new UserModel();
         $this->clinicUserModel = new ClinicUserModel();
+        $this->userRoleModel = new UserRoleModel();
         $this->roleModel = new RoleModel();
         $this->subscriptionModel = new ClinicSubscriptionModel();
         $this->planModel = new PlanModel();
         $this->auditModel = new PlanAuditModel();
+        $this->permissionModel = new PermissionModel();
     }
 
     /**
@@ -53,14 +59,7 @@ class OnboardingService
         }
 
         // 3. Resolve Admin Role
-        // Trying 'clinic_admin' or fallback to 'practice_manager'
-        $role = $this->roleModel->getBySlug('clinic_admin');
-        if (!$role) {
-            $role = $this->roleModel->getBySlug('practice_manager');
-        }
-        if (!$role) {
-            throw new \RuntimeException("CONFIGURATION_ERROR: Required role (clinic_admin/practice_manager) not found.");
-        }
+        $role = $this->resolveOnboardingRole($actorUserId);
 
         helper('text'); // Load text helper for url_title
 
@@ -130,6 +129,9 @@ class OnboardingService
             // So insert is direct.
             $this->clinicUserModel->insert($membershipData);
 
+            // Assign the resolved role to the newly created user so permission checks pass
+            $this->userRoleModel->assignRole($userId, $role['id'], $actorUserId);
+
             // D. Create Subscription
             // ClinicSubscriptionModel extends TenantAwareModel?
             // "class ClinicSubscriptionModel extends TenantAwareModel" (from P5-10).
@@ -168,6 +170,60 @@ class OnboardingService
             $db->transRollback();
             log_message('error', "Onboarding Failed: " . $e->getMessage());
             throw $e;
+        }
+    }
+    
+    private function resolveOnboardingRole(int $actorUserId): array
+    {
+        $role = $this->roleModel->getBySlug('clinic_admin');
+        if (!$role) {
+            $role = $this->roleModel->getBySlug('practice_manager');
+        }
+
+        if (!$role) {
+            $roleId = $this->roleModel->insert([
+                'name' => 'Clinic Admin',
+                'slug' => 'clinic_admin',
+                'description' => 'Auto-created role for control plane onboarding',
+                'is_active' => 1,
+                'is_system' => 0,
+                'created_by' => $actorUserId,
+            ]);
+            $role = $this->roleModel->find($roleId);
+        }
+
+        if (isset($role['id'])) {
+            $this->ensureRoleHasPermission($role['id'], 'dashboard', 'read');
+            $this->ensureRoleHasPermission($role['id'], 'dashboard', 'view');
+        }
+
+        return $role;
+    }
+
+    private function ensureRoleHasPermission(int $roleId, string $module, string $action): void
+    {
+        $permission = $this->permissionModel->getByModuleAction($module, $action);
+        if (!$permission) {
+            $this->permissionModel->createIfNotExists($module, $action, ucfirst($module) . ' ' . ucfirst($action), 'Auto-granted during onboarding');
+            $permission = $this->permissionModel->getByModuleAction($module, $action);
+        }
+
+        if (!$permission) {
+            return;
+        }
+
+        $db = \Config\Database::connect();
+        $exists = $db->table('role_permissions')
+            ->where('role_id', $roleId)
+            ->where('permission_id', $permission['id'])
+            ->countAllResults();
+
+        if ($exists === 0) {
+            $db->table('role_permissions')->insert([
+                'role_id' => $roleId,
+                'permission_id' => $permission['id'],
+                'granted' => 1,
+            ]);
         }
     }
 
