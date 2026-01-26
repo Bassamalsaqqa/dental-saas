@@ -61,7 +61,7 @@ class ClinicService
         $this->session->set('active_clinic_membership_id', $membership['id']); // Recommendation #3
         
         // Regenerate ID for security
-        $this->session->regenerate();
+        // $this->session->regenerate(); // Commented out to prevent session race conditions causing login loops
     }
 
     /**
