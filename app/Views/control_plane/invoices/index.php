@@ -80,71 +80,28 @@
 
                 <!-- Overdue -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-red-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-600/20 to-rose-700/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-600 to-rose-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                                 <i class="fas fa-exclamation-circle text-xl"></i>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-50 to-red-50 px-3 py-1.5 rounded-full border border-rose-100">
-                                <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                                <span class="text-rose-700 font-bold text-xs">Attention</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-50 to-rose-50 px-3 py-1.5 rounded-full border border-red-100">
+                                <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                                <span class="text-red-700 font-bold text-xs">Attention</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Overdue</p>
-                            <p class="text-3xl font-black text-rose-900"><?= (int) ($stats['overdue'] ?? 0) ?></p>
-                            <p class="text-xs text-rose-600 font-medium">Invoices past due</p>
+                            <p class="text-3xl font-black text-red-900"><?= (int) ($stats['overdue'] ?? 0) ?></p>
+                            <p class="text-xs text-red-600 font-medium">Invoices past due</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="mb-6">
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30 p-6">
-                <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
-                        <select name="status" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
-                            <?php $statusValue = $filters['status'] ?? ''; ?>
-                            <option value="">All statuses</option>
-                            <?php foreach (['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as $statusOption): ?>
-                                <option value="<?= esc($statusOption) ?>" <?= $statusValue === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Clinic</label>
-                        <select name="clinic_id" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
-                            <option value="">All clinics</option>
-                            <?php $clinicValue = (int) ($filters['clinic_id'] ?? 0); ?>
-                            <?php foreach ($clinics as $clinic): ?>
-                                <option value="<?= esc($clinic['id']) ?>" <?= $clinicValue === (int) $clinic['id'] ? 'selected' : '' ?>><?= esc($clinic['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date Range</label>
-                        <div class="flex gap-2">
-                            <input type="date" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
-                            <input type="date" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
-                        </div>
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md">
-                            Filter
-                        </button>
-                        <a href="<?= base_url('controlplane/invoices') ?>" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-colors">
-                            Reset
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Invoices Table -->
+        <!-- Invoices Table & Filters -->
         <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30 overflow-hidden">
             <!-- Table Header Bar -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/80 rounded-t-xl">
@@ -168,6 +125,50 @@
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Integrated Filters -->
+            <div class="px-6 py-4 bg-white border-b border-gray-100">
+                <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Status</label>
+                        <select name="status" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
+                            <?php $statusValue = $filters['status'] ?? ''; ?>
+                            <option value="">All statuses</option>
+                            <?php foreach (['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as $statusOption): ?>
+                                <option value="<?= esc($statusOption) ?>" <?= $statusValue === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
+                        <select name="clinic_id" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
+                            <option value="">All clinics</option>
+                            <?php $clinicValue = (int) ($filters['clinic_id'] ?? 0); ?>
+                            <?php foreach ($clinics as $clinic): ?>
+                                <option value="<?= esc($clinic['id']) ?>" <?= $clinicValue === (int) $clinic['id'] ? 'selected' : '' ?>><?= esc($clinic['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">From</label>
+                            <input type="date" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">To</label>
+                            <input type="date" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                            Filter
+                        </button>
+                        <a href="<?= base_url('controlplane/invoices') ?>" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+                            Reset
+                        </a>
+                    </div>
+                </form>
             </div>
             
             <div class="overflow-x-auto">
