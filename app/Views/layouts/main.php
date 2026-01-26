@@ -512,6 +512,16 @@
                                         <i class="fas fa-question-circle mr-3 text-purple-600 relative z-10"></i>
                                         <span class="relative z-10 font-semibold">Help & Support</span>
                                     </a>
+                                    <?php if (!empty($is_super_admin) && empty($global_mode) && session()->get('active_clinic_id')): ?>
+                                    <form action="<?= base_url('controlplane/enter') ?>" method="post" class="mx-2">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="group/link flex w-full items-center px-4 py-3 text-sm text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-900 transition-all duration-200 rounded-xl">
+                                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-hover/link:opacity-100 transition-opacity duration-200"></div>
+                                            <i class="fas fa-shield-alt mr-3 text-indigo-600 relative z-10"></i>
+                                            <span class="relative z-10 font-semibold">Enter Control Plane</span>
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="border-t border-white/30 py-2">
                                     <a href="<?= base_url('auth/logout') ?>" class="group/link flex items-center px-4 py-3 text-sm text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:text-red-800 transition-all duration-200 mx-2 rounded-xl">
