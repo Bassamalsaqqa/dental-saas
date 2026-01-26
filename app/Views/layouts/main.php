@@ -512,7 +512,7 @@
                                         <i class="fas fa-question-circle mr-3 text-purple-600 relative z-10"></i>
                                         <span class="relative z-10 font-semibold">Help & Support</span>
                                     </a>
-                                    <?php if (!empty($is_super_admin) && empty($global_mode) && session()->get('active_clinic_id')): ?>
+                                    <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
                                     <form action="<?= base_url('controlplane/enter') ?>" method="post" class="mx-2">
                                         <?= csrf_field() ?>
                                         <button type="submit" class="group/link flex w-full items-center px-4 py-3 text-sm text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-900 transition-all duration-200 rounded-xl">

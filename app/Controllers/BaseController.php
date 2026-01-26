@@ -84,6 +84,9 @@ abstract class BaseController extends Controller
                 // P5-11-UX: Control Plane Visibility
                 $this->initPermissionService();
                 $isSuperAdmin = $this->permissionService->isSuperAdmin($user->id);
+                if (!$isSuperAdmin && $this->ionAuth->isAdmin()) {
+                    $isSuperAdmin = true;
+                }
                 $renderer->setVar('is_super_admin', $isSuperAdmin);
                 $renderer->setVar('global_mode', session()->get('global_mode'));
             }
