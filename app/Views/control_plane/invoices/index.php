@@ -112,15 +112,15 @@
                     </div>
                     
                     <div class="flex items-center space-x-2">
-                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="PDF Export">
+                        <button type="button" onclick="exportInvoicePDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="PDF Export">
                             <i class="fas fa-file-pdf mr-2 text-rose-600"></i>
                             PDF
                         </button>
-                        <button onclick="window.print()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="Print List">
+                        <button type="button" onclick="exportInvoicePrint()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="Print List">
                             <i class="fas fa-print mr-2 text-gray-600"></i>
                             Print
                         </button>
-                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="CSV Export">
+                        <button type="button" onclick="exportInvoiceCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="CSV Export">
                             <i class="fas fa-file-csv mr-2 text-emerald-600"></i>
                             CSV
                         </button>
@@ -206,7 +206,7 @@
                         <p class="text-gray-500 text-sm max-w-xs mx-auto">We couldn't find any invoices matching your current filters.</p>
                     </div>
                 <?php else: ?>
-                    <table class="w-full text-sm text-slate-600">
+                    <table id="invoicesTable" class="w-full text-sm text-slate-600">
                         <thead class="bg-gray-50/50 backdrop-blur-sm">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -312,4 +312,69 @@
         </div>
     </div>
 </div>
+<style>
+    #invoicesTable_wrapper .dt-buttons {
+        display: none;
+    }
+</style>
+
+<script>
+    let invoicesTableInstance;
+
+    function exportInvoicePDF() {
+        if (invoicesTableInstance) {
+            invoicesTableInstance.button('.btn-pdf').trigger();
+        }
+    }
+
+    function exportInvoiceCSV() {
+        if (invoicesTableInstance) {
+            invoicesTableInstance.button('.btn-csv').trigger();
+        }
+    }
+
+    function exportInvoicePrint() {
+        if (invoicesTableInstance) {
+            invoicesTableInstance.button('.btn-print').trigger();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tableEl = document.getElementById('invoicesTable');
+        if (!tableEl || typeof DataTable === 'undefined') {
+            return;
+        }
+
+        invoicesTableInstance = $(tableEl).DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'pdf',
+                    className: 'btn-pdf',
+                    title: 'Control Plane Invoices',
+                    orientation: 'landscape',
+                    pageSize: 'A4'
+                },
+                {
+                    extend: 'csv',
+                    className: 'btn-csv',
+                    title: 'Control Plane Invoices'
+                },
+                {
+                    extend: 'print',
+                    className: 'btn-print',
+                    title: 'Control Plane Invoices'
+                }
+            ],
+            paging: false,
+            searching: false,
+            info: false,
+            responsive: true,
+            order: [[2, 'desc']],
+            language: {
+                zeroRecords: 'No invoices available for export.'
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?>
