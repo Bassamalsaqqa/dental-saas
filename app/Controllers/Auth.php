@@ -165,6 +165,7 @@ class Auth extends BaseController
 				if ($count === 1) {
 					// Auto-select
 					$clinicService->setContext($memberships[0]);
+					session_write_close();
 					return redirect()->to('/dashboard')->withCookies();
 				} elseif ($count > 1) {
 					// Selection Wall
