@@ -291,14 +291,18 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="View Details">
-                                                <i class="fas fa-eye text-sm"></i>
+                                        <div class="flex items-center justify-end gap-2">
+                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" 
+                                               class="group/action relative w-9 h-9 flex items-center justify-center text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-xl transition-all duration-300 hover:scale-110" 
+                                               title="View Details">
+                                                <i class="fas fa-eye text-sm transition-transform group-hover/action:scale-110"></i>
                                             </a>
                                             <form action="<?= base_url('controlplane/invoices/' . $invoice['id'] . '/email') ?>" method="post" class="inline">
                                                 <?= csrf_field() ?>
-                                                <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Email Invoice">
-                                                    <i class="fas fa-envelope text-sm"></i>
+                                                <button type="submit" 
+                                                        class="group/action relative w-9 h-9 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-xl transition-all duration-300 hover:scale-110" 
+                                                        title="Email Invoice">
+                                                    <i class="fas fa-envelope text-sm transition-transform group-hover/action:scale-110"></i>
                                                 </button>
                                             </form>
                                         </div>
