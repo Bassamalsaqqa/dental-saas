@@ -159,6 +159,87 @@
 
         <p class="text-xs text-slate-500">All actions are audited and applied immediately.</p>
     </div>
+
+    <div class="glass-card rounded-3xl p-6 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-indigo-700 font-semibold">Invoices</p>
+                <h2 class="text-2xl font-semibold text-slate-900 mt-1">Billing snapshot</h2>
+                <p class="mt-1 text-sm text-slate-500">Latest invoices and outstanding balance for this clinic.</p>
+            </div>
+            <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/60 px-4 py-2 text-xs font-semibold text-indigo-700 hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-500/10 transition-all duration-200">
+                <i class="fas fa-file-invoice-dollar"></i>
+                View all invoices
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-slate-500">Outstanding</p>
+                <p class="text-2xl font-semibold text-slate-900"><?= number_format($invoiceStats['outstanding'] ?? 0, 2) ?></p>
+                <p class="text-xs text-slate-500">Across <?= count($invoices ?? []) ?> invoices</p>
+            </div>
+            <div class="rounded-2xl border border-slate-100 bg-emerald-50/70 p-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-emerald-500">Revenue this month</p>
+                <p class="text-2xl font-semibold text-emerald-900"><?= number_format($invoiceStats['revenue_month'] ?? 0, 2) ?></p>
+                <p class="text-xs text-slate-500">Paid invoices issued this month</p>
+            </div>
+            <div class="rounded-2xl border border-slate-100 bg-rose-50/70 p-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-rose-500">Overdue</p>
+                <p class="text-2xl font-semibold text-rose-700"><?= (int) ($invoiceStats['overdue'] ?? 0) ?></p>
+                <p class="text-xs text-slate-500">Invoices past due date</p>
+            </div>
+        </div>
+        <div class="mt-4 overflow-x-auto">
+            <?php $recentInvoices = array_slice($invoices ?? [], 0, 4); ?>
+            <?php if (empty($recentInvoices)): ?>
+                <p class="text-sm text-slate-500">No invoices have been issued for this clinic yet.</p>
+            <?php else: ?>
+                <table class="w-full text-sm text-slate-600">
+                    <thead>
+                        <tr class="text-left text-xs uppercase tracking-[0.3em] text-slate-400">
+                            <th class="pb-2">Invoice #</th>
+                            <th class="pb-2">Amount</th>
+                            <th class="pb-2">Due</th>
+                            <th class="pb-2">Status</th>
+                            <th class="pb-2">Tax %</th>
+                            <th class="pb-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recentInvoices as $invoiceRow): ?>
+                            <?php
+                                $statusClasses = [
+                                    'draft' => 'bg-slate-100 text-slate-600',
+                                    'sent' => 'bg-indigo-100 text-indigo-700',
+                                    'paid' => 'bg-emerald-100 text-emerald-700',
+                                    'overdue' => 'bg-rose-100 text-rose-700',
+                                    'void' => 'bg-slate-200 text-slate-600',
+                                    'cancelled' => 'bg-rose-50 text-rose-600',
+                                ];
+                                $statusLabel = ucfirst($invoiceRow['status'] ?? 'draft');
+                                $badgeClass = $statusClasses[$invoiceRow['status'] ?? 'draft'] ?? 'bg-slate-100 text-slate-600';
+                            ?>
+                            <tr>
+                                <td class="py-3">
+                                    <a href="<?= base_url('controlplane/invoices/' . $invoiceRow['id']) ?>" class="text-indigo-600 font-semibold hover:underline"><?= esc($invoiceRow['invoice_number'] ?? '—') ?></a>
+                                    <p class="text-xs text-slate-400 mt-1"><?= esc($invoiceRow['issue_date'] ?? '--') ?></p>
+                                </td>
+                                <td class="py-3 font-semibold text-slate-900"><?= esc($invoiceRow['currency'] ?? 'USD') ?> <?= number_format($invoiceRow['total_amount'] ?? 0, 2) ?></td>
+                                <td class="py-3"><?= esc($invoiceRow['due_date'] ?? '--') ?></td>
+                                <td class="py-3">
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <?= $badgeClass ?>"><?= esc($statusLabel) ?></span>
+                                </td>
+                                <td class="py-3"><?= number_format($invoiceRow['tax_percentage'] ?? 0, 2) ?>%</td>
+                                <td class="py-3">
+                                    <a href="<?= base_url('controlplane/invoices/' . $invoiceRow['id']) ?>" class="text-indigo-600 text-xs font-semibold hover:underline">Details</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4">

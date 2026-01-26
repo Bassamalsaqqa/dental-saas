@@ -134,6 +134,13 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="<?= base_url('controlplane/invoices') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-900 hover:shadow-md hover:shadow-emerald-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/invoices') === 0) ? 'text-white' : 'text-emerald-600 group-hover:text-emerald-700' ?>"></i>
+                                    <span class="relative z-10">Invoices</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="<?= base_url('controlplane/plan-requests') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     <i class="fas fa-inbox w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/plan-requests') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>

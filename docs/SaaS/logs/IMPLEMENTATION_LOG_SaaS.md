@@ -9,6 +9,17 @@
 - **Verification:** `docs/SaaS/verification/P5-20a.md`.
 - **Guardrails:** Green.
 
+### Task: CP-31/CP-32/CP-33 Control Plane Invoicing
+- **Date:** 2026-01-26
+- **Status:** Completed
+- **Description:** Added full control-plane invoicing (schema, controller routes, UI, and payment records) so super admins can bill clinics manually with glassmorphic dashboards and a clinic-detail snapshot.
+- **Actions:**
+    - Created `control_plane_invoices` and `control_plane_invoice_payments` tables plus models for invoice numbering, totals, and payment history.
+    - Implemented `ControlPlane\Invoices` (index/create/store/show/markPaid/email) and wired the `controlplane/invoices` routes.
+    - Built glassy index/create/view experiences, line-item builder, payment logging form, clinic-detail invoice card, and added the Billing nav integration.
+- **Verification:** `docs/SaaS/verification/CP-31.md`, `docs/SaaS/verification/CP-32.md`, `docs/SaaS/verification/CP-33.md`.
+- **Guardrails:** Guardrail script `bash scripts/ci/saas_guardrails.sh` could not execute because the host's Bash/WSL instance request was denied (`E_ACCESSDENIED`); the failure is recorded inside `CP-33.md`.
+
 ## [2026-01-16] Notification System & Preferences Hardening
 **Tasks:** S0-05, S0-06, S0-07
 **Author:** Gemini

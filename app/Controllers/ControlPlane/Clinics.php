@@ -7,6 +7,7 @@ use App\Models\ClinicModel;
 use App\Models\ClinicUserModel;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
+use App\Models\ControlPlaneInvoiceModel;
 use App\Services\ControlPlaneAuditService;
 
 class Clinics extends BaseController
@@ -239,12 +240,40 @@ class Clinics extends BaseController
             }
         }
 
+        $invoiceModel = new ControlPlaneInvoiceModel();
+        $invoices = $invoiceModel->where('clinic_id', $id)
+            ->orderBy('issue_date', 'DESC')
+            ->findAll();
+
+        $invoiceStats = [
+            'outstanding' => 0,
+            'revenue_month' => 0,
+            'overdue' => 0,
+        ];
+        $currentMonth = date('Y-m');
+        foreach ($invoices as $invoiceRow) {
+            $totalAmount = (float) ($invoiceRow['total_amount'] ?? 0);
+            if (($invoiceRow['status'] ?? '') !== 'paid') {
+                $invoiceStats['outstanding'] += $totalAmount;
+            }
+            if (($invoiceRow['status'] ?? '') === 'overdue') {
+                $invoiceStats['overdue'] += 1;
+            }
+            if (!empty($invoiceRow['issue_date']) && str_starts_with($invoiceRow['issue_date'], $currentMonth) && ($invoiceRow['status'] ?? '') === 'paid') {
+                $invoiceStats['revenue_month'] += $totalAmount;
+            }
+        }
+        $invoiceStats['outstanding'] = round($invoiceStats['outstanding'], 2);
+        $invoiceStats['revenue_month'] = round($invoiceStats['revenue_month'], 2);
+
         return view('control_plane/clinic_detail', [
             'title' => 'Clinic Overview',
             'clinic' => $clinic,
             'subscription' => $subscription,
             'plan_name' => $planName,
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
+            'invoices' => $invoices,
+            'invoiceStats' => $invoiceStats,
         ]);
     }
 

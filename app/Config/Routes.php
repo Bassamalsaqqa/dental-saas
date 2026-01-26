@@ -42,6 +42,12 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
         $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
+        $routes->get('invoices', 'ControlPlane\Invoices::index');
+        $routes->get('invoices/create', 'ControlPlane\Invoices::create');
+        $routes->post('invoices', 'ControlPlane\Invoices::store');
+        $routes->get('invoices/(:num)', 'ControlPlane\Invoices::show/$1');
+        $routes->post('invoices/(:num)/mark-paid', 'ControlPlane\Invoices::markPaid/$1');
+        $routes->post('invoices/(:num)/email', 'ControlPlane\Invoices::email/$1');
         $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
         $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
         
