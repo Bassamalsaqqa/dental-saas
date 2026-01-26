@@ -479,7 +479,15 @@
                                     <span class="font-medium">Switch Clinic</span>
                                 </a>
                                 
-                                <?php if (!empty($is_super_admin)): ?>
+                                <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
+                                    <div class="border-t border-gray-100 my-2"></div>
+                                    <form action="<?= base_url('controlplane/enter') ?>" method="post">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="w-full flex items-center space-x-3 px-3 py-2.5 text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200 text-left">
+                                            <i class="fas fa-rocket text-indigo-500 w-5"></i>
+                                            <span class="font-medium">Enter Control Plane</span>
+                                        </button>
+                                    </form>
                                 <?php endif; ?>
 
                                 <div class="border-t border-gray-100 my-2"></div>
