@@ -40,6 +40,7 @@ class ClinicSelector extends BaseController
         if ($count === 1) {
             // Auto-select
             $this->clinicService->setContext($memberships[0]);
+            session_write_close();
             return redirect()->to('/dashboard');
         }
 
@@ -77,6 +78,7 @@ class ClinicSelector extends BaseController
         }
 
         $this->clinicService->setContext($membership);
+        session_write_close();
 
         return redirect()->to('/dashboard');
     }
@@ -104,6 +106,7 @@ class ClinicSelector extends BaseController
         session()->remove('user_permissions');
 
         $this->clinicService->setContext($membership);
+        session_write_close();
 
         return redirect()->to('/dashboard')->with('success', "Switched to {$membership['clinic_name']}");
     }
@@ -131,10 +134,12 @@ class ClinicSelector extends BaseController
         if (!$membership) {
             // Invalid switch attempt
             $this->clinicService->clearContext();
+            session_write_close();
             return redirect()->to('/clinic/select')->with('error', 'Invalid clinic switch attempt.');
         }
 
         $this->clinicService->setContext($membership);
+        session_write_close();
 
         return redirect()->to('/dashboard')->with('success', 'Switched to new clinic.');
     }
