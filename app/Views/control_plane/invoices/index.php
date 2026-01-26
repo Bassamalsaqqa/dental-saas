@@ -12,7 +12,7 @@
         <!-- Page Header -->
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div class="flex items-center space-x-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-file-invoice-dollar text-xl"></i>
@@ -37,7 +37,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 <!-- Outstanding -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
@@ -81,45 +81,42 @@
                 <!-- Overdue -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-red-600/20 to-rose-700/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col border-rose-200/50">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-600 to-rose-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                <i class="fas fa-exclamation-circle text-xl"></i>
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-50 to-rose-50 px-3 py-1.5 rounded-full border border-red-100">
-                                <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
-                                <span class="text-red-700 font-bold text-xs">Attention</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-rose-100 px-3 py-1.5 rounded-full border border-red-200">
+                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                <span class="text-red-700 font-bold text-xs">Overdue</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Overdue</p>
                             <p class="text-3xl font-black text-red-900"><?= (int) ($stats['overdue'] ?? 0) ?></p>
-                            <p class="text-xs text-red-600 font-medium">Invoices past due</p>
+                            <p class="text-xs text-red-600 font-medium">Action required</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Invoices Table & Filters -->
+        <!-- Invoices Table & Filters Card -->
         <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30 overflow-hidden">
             <!-- Table Header Bar -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/80 rounded-t-xl">
-                <div class="flex items-center justify-between">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/80">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Registry</h3>
+                        <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                        <h3 class="text-lg font-bold text-gray-900 uppercase tracking-tight">Invoice Registry</h3>
                     </div>
+                    
                     <div class="flex items-center space-x-2">
-                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="PDF Export (Coming Soon)">
+                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="PDF Export">
                             <i class="fas fa-file-pdf mr-2 text-rose-600"></i>
                             PDF
                         </button>
-                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="Print List (Coming Soon)">
-                            <i class="fas fa-print mr-2 text-gray-600"></i>
-                            Print
-                        </button>
-                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="CSV Export (Coming Soon)">
+                        <button class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm" title="CSV Export">
                             <i class="fas fa-file-csv mr-2 text-emerald-600"></i>
                             CSV
                         </button>
@@ -127,45 +124,64 @@
                 </div>
             </div>
 
-            <!-- Integrated Filters -->
-            <div class="px-6 py-4 bg-white border-b border-gray-100">
-                <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Status</label>
-                        <select name="status" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
-                            <?php $statusValue = $filters['status'] ?? ''; ?>
-                            <option value="">All statuses</option>
-                            <?php foreach (['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as $statusOption): ?>
-                                <option value="<?= esc($statusOption) ?>" <?= $statusValue === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Clinic</label>
-                        <select name="clinic_id" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all">
-                            <option value="">All clinics</option>
-                            <?php $clinicValue = (int) ($filters['clinic_id'] ?? 0); ?>
-                            <?php foreach ($clinics as $clinic): ?>
-                                <option value="<?= esc($clinic['id']) ?>" <?= $clinicValue === (int) $clinic['id'] ? 'selected' : '' ?>><?= esc($clinic['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">From</label>
-                            <input type="date" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">To</label>
-                            <input type="date" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm transition-all">
+            <!-- Enhanced Filters Bar -->
+            <div class="px-6 py-4 bg-white/50 border-b border-gray-100">
+                <form method="get" action="<?= base_url('controlplane/invoices') ?>" class="flex flex-wrap items-center gap-4">
+                    <!-- Status Filter -->
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Status</label>
+                        <div class="relative group">
+                            <i class="fas fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <select name="status" class="w-full pl-9 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                                <?php $statusValue = $filters['status'] ?? ''; ?>
+                                <option value="">All Statuses</option>
+                                <?php foreach (['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as $statusOption): ?>
+                                    <option value="<?= esc($statusOption) ?>" <?= $statusValue === $statusOption ? 'selected' : '' ?>><?= ucfirst($statusOption) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-xs"></i>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                            Filter
+
+                    <!-- Clinic Filter -->
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Clinic</label>
+                        <div class="relative group">
+                            <i class="fas fa-hospital absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <select name="clinic_id" class="w-full pl-9 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                                <option value="">All Clinics</option>
+                                <?php $clinicValue = (int) ($filters['clinic_id'] ?? 0); ?>
+                                <?php foreach ($clinics as $clinic): ?>
+                                    <option value="<?= esc($clinic['id']) ?>" <?= $clinicValue === (int) $clinic['id'] ? 'selected' : '' ?>><?= esc($clinic['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-xs"></i>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="flex-[2] min-w-[300px]">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Period</label>
+                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-1 rounded-xl shadow-inner focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all">
+                            <div class="relative flex-1">
+                                <i class="far fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="date" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full pl-9 pr-2 py-1.5 bg-transparent border-none text-sm focus:ring-0">
+                            </div>
+                            <span class="text-gray-300 font-bold text-xs uppercase">to</span>
+                            <div class="relative flex-1">
+                                <i class="far fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="date" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full pl-9 pr-2 py-1.5 bg-transparent border-none text-sm focus:ring-0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2 mt-5">
+                        <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95">
+                            <i class="fas fa-search mr-2"></i> Filter
                         </button>
-                        <a href="<?= base_url('controlplane/invoices') ?>" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-50 transition-colors">
-                            Reset
+                        <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95">
+                            <i class="fas fa-undo mr-2"></i> Reset
                         </a>
                     </div>
                 </form>
@@ -173,58 +189,55 @@
             
             <div class="overflow-x-auto">
                 <?php if (empty($invoices)): ?>
-                    <div class="p-12 text-center">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-file-invoice text-gray-400 text-2xl"></i>
+                    <div class="p-16 text-center">
+                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-100">
+                            <i class="fas fa-file-invoice text-gray-300 text-3xl"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">No invoices found</h3>
-                        <p class="text-gray-500 text-sm">Adjust filters or create a new invoice.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">No results found</h3>
+                        <p class="text-gray-500 text-sm max-w-xs mx-auto">We couldn't find any invoices matching your current filters.</p>
                     </div>
                 <?php else: ?>
                     <table class="w-full text-sm text-slate-600">
                         <thead class="bg-gray-50/50 backdrop-blur-sm">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-hashtag text-indigo-500"></i>
+                                        <i class="fas fa-hashtag text-indigo-500/50"></i>
                                         <span>Invoice #</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-hospital text-indigo-500"></i>
+                                        <i class="fas fa-hospital text-indigo-500/50"></i>
                                         <span>Clinic</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar text-indigo-500"></i>
+                                        <i class="fas fa-calendar text-indigo-500/50"></i>
                                         <span>Issue Date</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-calendar-check text-indigo-500"></i>
+                                        <i class="fas fa-calendar-check text-indigo-500/50"></i>
                                         <span>Due Date</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-dollar-sign text-indigo-500"></i>
+                                        <i class="fas fa-dollar-sign text-indigo-500/50"></i>
                                         <span>Amount</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     <div class="flex items-center space-x-2">
-                                        <i class="fas fa-info-circle text-indigo-500"></i>
+                                        <i class="fas fa-info-circle text-indigo-500/50"></i>
                                         <span>Status</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <div class="flex items-center justify-end space-x-2">
-                                        <i class="fas fa-cogs text-indigo-500"></i>
-                                        <span>Actions</span>
-                                    </div>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <span>Actions</span>
                                 </th>
                             </tr>
                         </thead>
@@ -242,16 +255,16 @@
                                     $statusKey = $invoice['status'] ?? 'draft';
                                     $badgeClass = $statusClasses[$statusKey] ?? 'bg-slate-100 text-slate-600';
                                 ?>
-                                <tr class="hover:bg-blue-50/30 transition-colors group/row">
-                                    <td class="px-6 py-4 font-mono font-medium text-indigo-600">
+                                <tr class="hover:bg-indigo-50/30 transition-colors group/row">
+                                    <td class="px-6 py-4 font-mono font-bold text-indigo-600">
                                         <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" class="hover:underline flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                                            <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 group-hover/row:bg-indigo-600 group-hover/row:text-white transition-colors">
                                                 <i class="fas fa-file-invoice text-xs"></i>
                                             </div>
                                             <?= esc($invoice['invoice_number'] ?? '?') ?>
                                         </a>
                                     </td>
-                                    <td class="px-6 py-4 font-medium text-gray-900">
+                                    <td class="px-6 py-4 font-bold text-gray-900">
                                         <?= esc($invoice['clinic_name'] ?? '--') ?>
                                     </td>
                                     <td class="px-6 py-4 text-gray-500">
@@ -260,23 +273,23 @@
                                     <td class="px-6 py-4 text-gray-500">
                                         <?= esc($invoice['due_date'] ?? '--') ?>
                                     </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900">
+                                    <td class="px-6 py-4 font-black text-gray-900">
                                         <?= esc($invoice['currency'] ?? 'USD') ?> <?= number_format($invoice['total_amount'] ?? 0, 2) ?>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border <?= $badgeClass ?>">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider <?= $badgeClass ?>">
                                             <?= ucfirst($statusKey) ?>
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="flex items-center justify-end gap-1">
+                                            <a href="<?= base_url('controlplane/invoices/' . $invoice['id']) ?>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="View Details">
+                                                <i class="fas fa-eye text-sm"></i>
                                             </a>
                                             <form action="<?= base_url('controlplane/invoices/' . $invoice['id'] . '/email') ?>" method="post" class="inline">
                                                 <?= csrf_field() ?>
-                                                <button type="submit" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Email Invoice">
-                                                    <i class="fas fa-envelope"></i>
+                                                <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Email Invoice">
+                                                    <i class="fas fa-envelope text-sm"></i>
                                                 </button>
                                             </form>
                                         </div>
