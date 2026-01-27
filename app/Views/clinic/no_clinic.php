@@ -24,14 +24,7 @@
                 </a>
                 
                 <!-- Optional: Super Admin Recovery Link -->
-                <?php 
-                $userId = session('user_id');
-                $permissionService = service('permission');
-                // We use isSuperAdmin check if possible, or just link that is protected by filter
-                // If user is super admin, they can access /controlplane/enter
-                // But we don't want to expose this to everyone. 
-                // We can check permission here.
-                if ($userId && $permissionService->isSuperAdmin($userId)): ?>
+                <?php if (!empty($is_super_admin)): ?>
                     <form action="<?= base_url('controlplane/enter') ?>" method="post">
                         <?= csrf_field() ?>
                         <button type="submit" class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
