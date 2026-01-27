@@ -253,10 +253,10 @@ class Users extends BaseController
                 return redirect()->back()->withInput()->with('error', $errorMessage);
             }
 
-        $userRoleModel = new \App\Models\UserRoleModel();
-        if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
-            return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
-        }
+            $userRoleModel = new \App\Models\UserRoleModel();
+            if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
+                return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
+            }
 
             $clinicId = session()->get('active_clinic_id');
             if ($clinicId) {
@@ -278,6 +278,9 @@ class Users extends BaseController
                     $this->clinicUserModel->insert($membershipPayload);
                 }
             }
+
+            return redirect()->to(base_url('users'))->with('success', 'Existing user added to this clinic.');
+        }
 
         $additionalData = [
             'first_name' => $this->request->getPost('first_name'),
