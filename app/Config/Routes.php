@@ -398,6 +398,8 @@ $routes->group('doctors', ['filter' => ['auth', 'tenant', 'subscription']], func
 });
 
 // Users routes
+$routes->get('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);
+$routes->post('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);
 $routes->group('users', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('/', 'Users::index', ['filter' => 'permission:users:view']);
     $routes->get('create', 'Users::create', ['filter' => 'permission:users:create']);

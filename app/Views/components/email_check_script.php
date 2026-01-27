@@ -1,0 +1,119 @@
+<?php $emailCheckUrl = $emailCheckUrl ?? base_url('users/check-email'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const endpoint = '<?= esc($emailCheckUrl) ?>';
+    const inputs = document.querySelectorAll('[data-user-email-check]');
+    if (!inputs.length) {
+        return;
+    }
+
+    const debounce = (fn, delay = 450) => {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), delay);
+        };
+    };
+
+    const togglePasswordFields = (fields, disabled) => {
+        fields.forEach(field => {
+            if (!field) return;
+            field.disabled = disabled;
+            field.required = !disabled;
+            if (disabled) {
+                field.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                field.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        });
+    };
+
+    const setNoteText = (noteEl, message) => {
+        if (!noteEl) return;
+        const textEl = noteEl.querySelector('[data-note-text]') ?? noteEl;
+        textEl.textContent = message;
+        noteEl.classList.remove('hidden');
+    };
+
+    const hideNote = (noteEl) => {
+        if (!noteEl) return;
+        noteEl.classList.add('hidden');
+        const textEl = noteEl.querySelector('[data-note-text]') ?? noteEl;
+        textEl.textContent = '';
+    };
+
+    const resetState = (noteEl, fields) => {
+        togglePasswordFields(fields, false);
+        hideNote(noteEl);
+    };
+
+    inputs.forEach(input => {
+        const noteSelector = input.dataset.existingNoteTarget;
+        const noteEl = noteSelector ? document.querySelector(noteSelector) : null;
+        const passwordSelectors = (input.dataset.passwordTargets ?? '')
+            .split(',')
+            .map(sel => sel.trim())
+            .filter(Boolean);
+        const passwordFields = passwordSelectors
+            .map(sel => document.querySelector(sel))
+            .filter(Boolean);
+
+        const describeMemberships = (memberships) => {
+            if (!Array.isArray(memberships) || memberships.length === 0) {
+                return '';
+            }
+            const names = memberships.map(m => m.clinic_name || 'Unknown clinic');
+            return ` Member of ${names.join(', ')}.`;
+        };
+
+        const handleExisting = (payload) => {
+            togglePasswordFields(passwordFields, true);
+            if (!noteEl) return;
+            const membershipDesc = describeMemberships(payload.memberships);
+            let message = `Existing user${payload.name ? ` (${payload.name.trim()})` : ''} already exists.`;
+            if (membershipDesc) {
+                message += membershipDesc;
+            }
+            if (payload.in_current_clinic) {
+                message += ' They already belong to this clinic; manage them via the people list.';
+            } else {
+                message += ' Saving will add them to this clinic without changing their password.';
+            }
+            setNoteText(noteEl, message);
+        };
+
+        const checkEmail = debounce(async () => {
+            const email = input.value.trim();
+            if (!email) {
+                resetState(noteEl, passwordFields);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${endpoint}?email=${encodeURIComponent(email)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!response.ok) {
+                    resetState(noteEl, passwordFields);
+                    return;
+                }
+                const payload = await response.json();
+                if (payload.exists) {
+                    handleExisting(payload);
+                } else {
+                    resetState(noteEl, passwordFields);
+                }
+            } catch (error) {
+                console.warn('Email existence check failed', error);
+                resetState(noteEl, passwordFields);
+            }
+        });
+
+        input.addEventListener('input', checkEmail);
+        input.addEventListener('blur', checkEmail);
+        if (input.value.trim()) {
+            checkEmail();
+        }
+    });
+});
+</script>

@@ -111,6 +111,9 @@
                                             </label>
                                             <div class="relative">
                                                 <input type="email" id="email" name="email" 
+                                                       data-user-email-check
+                                                       data-password-targets="#password,#password_confirm"
+                                                       data-existing-note-target="#users-email-exists-note"
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('email')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('email') ?>" placeholder="Enter email address" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -213,17 +216,21 @@
                                             <i class="fas fa-lock text-red-600"></i>
                                             <span>Password *</span>
                                         </label>
-                                        <div class="relative">
-                                            <input type="password" id="password" name="password" 
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                   placeholder="Enter password" required>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <i class="fas fa-lock text-gray-400"></i>
+                                            <div class="relative">
+                                                <input type="password" id="password" name="password" 
+                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
+                                                       placeholder="Enter password" required>
+                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                    <i class="fas fa-lock text-gray-400"></i>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')): ?>
-                                            <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                <i class="fas fa-exclamation-circle"></i>
+                                            <p id="users-email-exists-note" class="mt-2 text-xs text-amber-600 hidden flex items-center gap-2" role="status">
+                                                <i class="fas fa-info-circle"></i>
+                                                <span data-note-text></span>
+                                            </p>
+                                            <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')): ?>
+                                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                                    <i class="fas fa-exclamation-circle"></i>
                                                 <span><?= session()->getFlashdata('validation')->getError('password') ?></span>
                                             </p>
                                         <?php endif; ?>
@@ -402,5 +409,6 @@
         </div>
     </div>
 </div>
+<?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
 <?= $this->endSection() ?>
 

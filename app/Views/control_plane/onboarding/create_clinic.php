@@ -92,7 +92,10 @@
                                     <i class="fas fa-envelope text-purple-600"></i>
                                     <span>Admin Email</span>
                                 </label>
-                                <input type="email" name="admin_email" value="<?= old('admin_email') ?>" 
+                                <input type="email" name="admin_email" value="<?= old('admin_email') ?>"
+                                       data-user-email-check
+                                       data-password-targets="#admin_password"
+                                       data-existing-note-target="#onboarding-email-exists-note"
                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl"
                                        placeholder="admin@clinic.com" required>
                             </div>
@@ -101,11 +104,15 @@
                                     <i class="fas fa-key text-purple-600"></i>
                                     <span>Password</span>
                                 </label>
-                                <input type="password" name="admin_password" 
+                                <input type="password" name="admin_password" id="admin_password"
                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl"
                                        placeholder="Minimum 8 characters" required minlength="8">
                                 <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
                                     <i class="fas fa-info-circle"></i> Share this securely with the clinic owner.
+                                </p>
+                                <p id="onboarding-email-exists-note" class="mt-2 text-xs text-amber-600 hidden flex items-center gap-2" role="status">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span data-note-text></span>
                                 </p>
                             </div>
                         </div>
@@ -209,6 +216,7 @@
         </form>
     </div>
 </div>
+<?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
 <?= $this->endSection() ?>
 
 

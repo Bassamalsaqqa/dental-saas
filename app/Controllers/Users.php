@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\IonAuthModel;
 use App\Models\RoleModel;
+use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use App\Models\PermissionModel;
 use App\Models\ClinicUserModel;
@@ -29,6 +30,56 @@ class Users extends BaseController
         $this->permissionModel = new PermissionModel();
         $this->permissionService = new PermissionService();
         $this->clinicUserModel = new ClinicUserModel();
+    }
+
+    /**
+     * AJAX/email helper: confirm whether user already exists and list clinic memberships.
+     *
+     * No tenant context required; global mode or tenant mode can both call this.
+     */
+    public function checkEmail()
+    {
+        $email = trim((string) ($this->request->getGet('email') ?? $this->request->getPost('email')));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->response->setJSON(['exists' => false]);
+        }
+
+        $userModel = new UserModel();
+        $user = $userModel->where('email', $email)->first();
+        if (!$user) {
+            return $this->response->setJSON(['exists' => false]);
+        }
+
+        $currentClinicId = session()->get('active_clinic_id');
+        $memberships = $this->clinicUserModel
+            ->select('clinic_users.clinic_id, clinic_users.status AS membership_status, clinics.name AS clinic_name, clinics.status AS clinic_status')
+            ->join('clinics', 'clinics.id = clinic_users.clinic_id', 'left')
+            ->where('clinic_users.user_id', $user['id'])
+            ->findAll();
+
+        $membershipRows = [];
+        $inCurrentClinic = false;
+        foreach ($memberships as $membership) {
+            $clinicId = isset($membership['clinic_id']) ? (int) $membership['clinic_id'] : null;
+            $membershipRows[] = [
+                'clinic_id' => $clinicId,
+                'clinic_name' => $membership['clinic_name'] ?? 'Clinic',
+                'clinic_status' => $membership['clinic_status'] ?? 'unknown',
+                'membership_status' => $membership['membership_status'] ?? 'unknown',
+            ];
+            if ($clinicId && $currentClinicId && $clinicId === (int) $currentClinicId) {
+                $inCurrentClinic = true;
+            }
+        }
+
+        return $this->response->setJSON([
+            'exists' => true,
+            'user_id' => $user['id'],
+            'name' => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
+            'memberships' => $membershipRows,
+            'current_clinic_id' => $currentClinicId,
+            'in_current_clinic' => $inCurrentClinic,
+        ]);
     }
 
     public function index()
