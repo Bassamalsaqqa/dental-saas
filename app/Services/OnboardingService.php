@@ -82,52 +82,52 @@ class OnboardingService
                 throw new \RuntimeException("Failed to create clinic: " . json_encode($this->clinicModel->errors()));
             }
 
-            // B. Create Admin User
-            // Check if user exists? "Prevent email duplication if user table enforces unique email globally (handle gracefully)."
-            // If user exists, do we link them? Requirement: "Create a normal tenant user...". 
-            // Implies new user. If email exists, maybe fail? Or reuse?
-            // "Initial clinic admin user is Option 1... Create a normal tenant user".
-            // I'll fail if email exists to be safe and simple.
+            // B. Resolve Admin User
             $existingUser = $this->userModel->where('email', $dto['admin_email'])->first();
             if ($existingUser) {
-                throw new \RuntimeException("USER_EXISTS: Email {$dto['admin_email']} is already in use.");
+                $userId = $existingUser['id'];
+            } else {
+                // Prepare User Data
+                $nameParts = explode(' ', $dto['admin_name'], 2);
+                $firstName = $nameParts[0];
+                $lastName = $nameParts[1] ?? 'Admin';
+
+                $userData = [
+                    'email' => $dto['admin_email'],
+                    'username' => explode('@', $dto['admin_email'])[0] . '_' . rand(100,999), // Unique-ish handle
+                    'password' => $dto['admin_password'], // Plaintext, model handles hashing
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'active' => 1,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                
+                $userId = $this->userModel->insert($userData);
+                if (!$userId) {
+                    throw new \RuntimeException("Failed to create user: " . json_encode($this->userModel->errors()));
+                }
             }
 
-            // Prepare User Data
-            // Splitting name assuming "First Last"
-            $nameParts = explode(' ', $dto['admin_name'], 2);
-            $firstName = $nameParts[0];
-            $lastName = $nameParts[1] ?? 'Admin';
-
-            $userData = [
-                'email' => $dto['admin_email'],
-                'username' => explode('@', $dto['admin_email'])[0] . '_' . rand(100,999), // Unique-ish handle
-                'password' => $dto['admin_password'], // Plaintext, model handles hashing
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'active' => 1,
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-            
-            $userId = $this->userModel->insert($userData);
-            if (!$userId) {
-                throw new \RuntimeException("Failed to create user: " . json_encode($this->userModel->errors()));
-            }
-
-            // C. Create Membership & Role
-            $membershipData = [
+            // C. Create or refresh Membership
+            $membershipPayload = [
                 'clinic_id' => $clinicId,
                 'user_id' => $userId,
                 'role_id' => $role['id'],
                 'status' => 'active'
             ];
-            
-            // Bypass TenantAwareModel session check for this system action? 
-            // ClinicUserModel extends Model (not TenantAwareModel in my previous read? Let me check).
-            // Wait, I read ClinicUserModel.php earlier.
-            // "class ClinicUserModel extends Model". It does NOT extend TenantAwareModel.
-            // So insert is direct.
-            $this->clinicUserModel->insert($membershipData);
+
+            $existingMembership = $this->clinicUserModel
+                ->where('clinic_id', $clinicId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($existingMembership) {
+                $membershipPayload['status'] = 'active';
+                $membershipPayload['role_id'] = $role['id'];
+                $this->clinicUserModel->update($existingMembership['id'], $membershipPayload);
+            } else {
+                $this->clinicUserModel->insert($membershipPayload);
+            }
 
             // Assign the resolved role to the newly created user so permission checks pass
             $this->userRoleModel->assignRole($userId, $role['id'], $actorUserId);
