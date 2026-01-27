@@ -206,6 +206,7 @@ class Users extends BaseController
     {
         $email = trim((string)$this->request->getPost('email'));
         $existingUser = (new UserModel())->where('email', $email)->first();
+        $roleId = (int)$this->request->getPost('role');
 
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
@@ -220,6 +221,11 @@ class Users extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+        $roleModel = new \App\Models\RoleModel();
+        $role = $roleModel->where('id', $roleId)->where('is_active', 1)->first();
+        if (!$role) {
+            return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
         }
         $currentUserId = $this->getCurrentUser()->id;
 
@@ -247,10 +253,10 @@ class Users extends BaseController
                 return redirect()->back()->withInput()->with('error', $errorMessage);
             }
 
-            $userRoleModel = new \App\Models\UserRoleModel();
-            if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
-                return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
-            }
+        $userRoleModel = new \App\Models\UserRoleModel();
+        if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
+            return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
+        }
 
             $clinicId = session()->get('active_clinic_id');
             if ($clinicId) {
@@ -272,19 +278,6 @@ class Users extends BaseController
                     $this->clinicUserModel->insert($membershipPayload);
                 }
             }
-
-            return redirect()->to(base_url('users'))->with('success', 'Existing user added to this clinic.');
-        }
-
-        $roleId = $this->request->getPost('role');
-        
-        // Validate that the role exists and is active
-        $roleModel = new \App\Models\RoleModel();
-        $role = $roleModel->where('id', $roleId)->where('is_active', 1)->first();
-        
-        if (!$role) {
-            return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
-        }
 
         $additionalData = [
             'first_name' => $this->request->getPost('first_name'),

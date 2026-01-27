@@ -129,8 +129,9 @@
             </div>
         </div>
         <!-- Detail Panel -->
-        <div id="activityDetailPanel" class="hidden mt-6 bg-white/90 border border-white/40 rounded-2xl shadow-xl p-6 transition transform duration-200">
-            <div class="flex items-start justify-between mb-4">
+        <div id="activityDetailOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6">
+            <div id="activityDetailPanel" class="w-full max-w-lg bg-white/95 border border-white/40 rounded-3xl shadow-2xl p-6 transition duration-200 transform scale-95">
+                <div class="flex items-start justify-between mb-4">
                 <div>
                     <p class="text-xs uppercase tracking-[0.5em] text-gray-400 font-semibold">Activity Detail</p>
                     <h3 class="text-lg font-bold text-gray-800" id="detailTitle">Select a log entry</h3>
@@ -170,6 +171,7 @@
 let currentPage = 1;
 let pageSize = 50;
 let totalActivities = 0;
+const activityDetailOverlay = document.getElementById('activityDetailOverlay');
 const activityDetailPanel = document.getElementById('activityDetailPanel');
 const detailTitle = document.getElementById('detailTitle');
 const detailUser = document.getElementById('detailUser');
@@ -333,13 +335,27 @@ function showActivityDetail(activity) {
     detailMethod.textContent = activity.action || '-';
     detailIp.textContent = activity.ip_address || 'Not recorded';
     detailMetadata.textContent = activity.metadata ? JSON.stringify(activity.metadata, null, 2) : 'No metadata logged.';
-    activityDetailPanel.classList.remove('hidden');
-    activityDetailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (activityDetailOverlay) {
+        activityDetailOverlay.classList.remove('hidden');
+    }
+    activityDetailPanel.classList.remove('scale-95');
+    activityDetailPanel.classList.add('scale-100');
 }
 
 function hideActivityDetail() {
-    if (!activityDetailPanel) return;
-    activityDetailPanel.classList.add('hidden');
+    if (activityDetailOverlay) {
+        activityDetailOverlay.classList.add('hidden');
+    }
+    activityDetailPanel.classList.remove('scale-100');
+    activityDetailPanel.classList.add('scale-95');
+}
+
+if (activityDetailOverlay) {
+    activityDetailOverlay.addEventListener('click', (event) => {
+        if (event.target === activityDetailOverlay) {
+            hideActivityDetail();
+        }
+    });
 }
 
 function showLoading() {
