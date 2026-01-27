@@ -264,7 +264,9 @@ function renderLineItems() {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'text-gray-400 hover:text-rose-500 transition-colors p-1';
-        removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-trash-alt';
+        removeBtn.appendChild(icon);
         removeBtn.addEventListener('click', () => removeLineItem(index));
         if (lineItems.length === 1) {
             removeBtn.disabled = true;
