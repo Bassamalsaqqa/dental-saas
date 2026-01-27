@@ -128,6 +128,41 @@
                 </div>
             </div>
         </div>
+        <!-- Detail Panel -->
+        <div id="activityDetailPanel" class="hidden mt-6 bg-white/90 border border-white/40 rounded-2xl shadow-xl p-6 transition transform duration-200">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.5em] text-gray-400 font-semibold">Activity Detail</p>
+                    <h3 class="text-lg font-bold text-gray-800" id="detailTitle">Select a log entry</h3>
+                </div>
+                <button type="button" onclick="hideActivityDetail()" class="text-gray-500 hover:text-gray-800 text-sm font-semibold flex items-center gap-1">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2 text-sm text-gray-600">
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Event / Route</p>
+                    <p id="detailEventRoute" class="font-medium text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Performed by</p>
+                    <p id="detailUser" class="font-medium text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Method</p>
+                    <p id="detailMethod" class="font-medium text-gray-800"></p>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-500">IP</p>
+                    <p id="detailIp" class="font-medium text-gray-800"></p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Metadata</p>
+                <pre id="detailMetadata" class="bg-slate-900 text-white text-xs p-3 rounded-lg max-h-48 overflow-auto">Select a row to view metadata.</pre>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -135,6 +170,13 @@
 let currentPage = 1;
 let pageSize = 50;
 let totalActivities = 0;
+const activityDetailPanel = document.getElementById('activityDetailPanel');
+const detailTitle = document.getElementById('detailTitle');
+const detailUser = document.getElementById('detailUser');
+const detailEventRoute = document.getElementById('detailEventRoute');
+const detailMethod = document.getElementById('detailMethod');
+const detailIp = document.getElementById('detailIp');
+const detailMetadata = document.getElementById('detailMetadata');
 
 document.addEventListener('DOMContentLoaded', function() {
     loadActivities();
@@ -278,8 +320,26 @@ function displayActivities(activities) {
         tr.appendChild(tdTime);
         tr.appendChild(tdIp);
         
+        tr.addEventListener('click', () => showActivityDetail(activity));
         tbody.appendChild(tr);
     });
+}
+
+function showActivityDetail(activity) {
+    if (!activityDetailPanel) return;
+    detailTitle.textContent = activity.title || 'Activity Detail';
+    detailUser.textContent = `${activity.user_name} (${activity.user_email || 'unknown'})`;
+    detailEventRoute.textContent = `${activity.description || activity.route || 'N/A'}`;
+    detailMethod.textContent = activity.action || '-';
+    detailIp.textContent = activity.ip_address || 'Not recorded';
+    detailMetadata.textContent = activity.metadata ? JSON.stringify(activity.metadata, null, 2) : 'No metadata logged.';
+    activityDetailPanel.classList.remove('hidden');
+    activityDetailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideActivityDetail() {
+    if (!activityDetailPanel) return;
+    activityDetailPanel.classList.add('hidden');
 }
 
 function showLoading() {

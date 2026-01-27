@@ -4,6 +4,7 @@ namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
 use App\Models\PlanModel;
+use App\Models\UserModel;
 use App\Services\OnboardingService;
 use App\Services\ControlPlaneAuditService;
 
@@ -58,11 +59,16 @@ class Onboarding extends BaseController
             ],
         ]);
 
+        $adminEmail = trim((string)$this->request->getPost('admin_email'));
+        $existingUser = (new UserModel())->where('email', $adminEmail)->first();
+
+        $passwordRule = $existingUser ? 'permit_empty|min_length[8]' : 'required|min_length[8]';
+
         $rules = [
             'clinic_name' => 'required|min_length[3]|max_length[100]',
             'admin_name' => 'required|min_length[3]|max_length[100]',
             'admin_email' => 'required|valid_email',
-            'admin_password' => 'required|min_length[8]',
+            'admin_password' => $passwordRule,
             'plan_id' => 'required|integer'
         ];
 

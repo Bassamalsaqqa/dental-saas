@@ -204,12 +204,15 @@ class Users extends BaseController
 
     public function store()
     {
+        $email = trim((string)$this->request->getPost('email'));
+        $existingUser = (new UserModel())->where('email', $email)->first();
+
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'required|valid_email',
-            'password' => 'required|min_length[8]|max_length[255]',
-            'password_confirm' => 'required|matches[password]',
+            'password' => (!$existingUser ? 'required|min_length[8]|max_length[255]' : 'permit_empty|min_length[8]|max_length[255]'),
+            'password_confirm' => (!$existingUser ? 'required|matches[password]' : 'permit_empty|matches[password]'),
             'role' => 'required|integer',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
             'address' => 'permit_empty|max_length[500]',
@@ -217,6 +220,60 @@ class Users extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+        $currentUserId = $this->getCurrentUser()->id;
+
+        if ($existingUser) {
+            $userId = $existingUser['id'];
+            $additionalData = [
+                'first_name' => $this->request->getPost('first_name'),
+                'last_name' => $this->request->getPost('last_name'),
+                'phone' => $this->request->getPost('phone') ?: null,
+                'address' => $this->request->getPost('address') ?: null,
+            ];
+
+            $updateData = [
+                'email' => $this->request->getPost('email'),
+                'additional_data' => $additionalData,
+            ];
+
+            if ($this->request->getPost('password')) {
+                $updateData['password'] = $this->request->getPost('password');
+            }
+
+            if (!$this->ionAuth->update($userId, $updateData)) {
+                $errors = $this->ionAuth->errors();
+                $errorMessage = is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update existing user.');
+                return redirect()->back()->withInput()->with('error', $errorMessage);
+            }
+
+            $userRoleModel = new \App\Models\UserRoleModel();
+            if (!$userRoleModel->assignRole($userId, $roleId, $currentUserId)) {
+                return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
+            }
+
+            $clinicId = session()->get('active_clinic_id');
+            if ($clinicId) {
+                $membershipPayload = [
+                    'clinic_id' => $clinicId,
+                    'user_id' => $userId,
+                    'role_id' => $roleId,
+                    'status' => 'active'
+                ];
+
+                $existingMembership = $this->clinicUserModel
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $userId)
+                    ->first();
+
+                if ($existingMembership) {
+                    $this->clinicUserModel->update($existingMembership['id'], $membershipPayload);
+                } else {
+                    $this->clinicUserModel->insert($membershipPayload);
+                }
+            }
+
+            return redirect()->to(base_url('users'))->with('success', 'Existing user added to this clinic.');
         }
 
         $roleId = $this->request->getPost('role');
