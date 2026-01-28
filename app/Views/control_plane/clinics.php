@@ -573,20 +573,14 @@ $(document).ready(function() {
                     // Suspend / Reactivate
                     if (status === 'active') {
                         actions += `
-                            <form action="${baseUrl}controlplane/clinics/${id}/suspend" method="post" class="inline">
-                                ${renderCsrfField()}
-                                <button type="submit" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="Suspend">
-                                    <i class="fas fa-pause"></i>
-                                </button>
-                            </form>`;
+                            <button onclick="toggleClinicStatus('${id}', 'suspend')" class="p-2 text-amber-600 hover:text-amber-700 rounded-md hover:bg-amber-50 transition-colors duration-200" title="Suspend">
+                                <i class="fas fa-pause"></i>
+                            </button>`;
                     } else {
                         actions += `
-                            <form action="${baseUrl}controlplane/clinics/${id}/reactivate" method="post" class="inline">
-                                ${renderCsrfField()}
-                                <button type="submit" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="Reactivate">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                            </form>`;
+                            <button onclick="toggleClinicStatus('${id}', 'reactivate')" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="Reactivate">
+                                <i class="fas fa-play"></i>
+                            </button>`;
                     }
 
                     // Login As (Impersonate)
@@ -682,6 +676,116 @@ function printTable() {
 function exportToCSV() {
     if (clinicsTable) clinicsTable.button('.btn-csv').trigger();
 }
+
+// AJAX Status Toggle
+function toggleClinicStatus(clinicId, action) {
+    // No confirmation as requested
+    const formData = new FormData();
+    const csrfName = getCsrfName();
+    const csrfToken = getCsrfToken();
+    if (csrfName && csrfToken) {
+        formData.append(csrfName, csrfToken);
+    }
+
+    fetch(`${baseUrl}controlplane/clinics/${clinicId}/${action}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (clinicsTable) clinicsTable.ajax.reload(null, false);
+            // Optional: Success toast
+        } else {
+            alert(data.message || 'Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred.');
+    })
+    .finally(() => {
+        refreshCsrfToken(); 
+    });
+}
+
+// AJAX Form Submissions for Modals
+document.addEventListener('DOMContentLoaded', function() {
+    // Terminate AJAX
+    const terminateForm = document.getElementById('terminateForm');
+    if (terminateForm) {
+        terminateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('terminateConfirmButton');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Terminating...';
+
+            const actionUrl = terminateForm.action;
+            const formData = new FormData(terminateForm);
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeTerminateModal();
+                    if (clinicsTable) clinicsTable.ajax.reload(null, false);
+                } else {
+                    alert(data.message || 'Failed to terminate clinic');
+                }
+            })
+            .catch(error => { console.error('Error:', error); alert('Error occurred'); })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                refreshCsrfToken();
+            });
+        });
+    }
+
+    // Delete AJAX
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('deleteConfirmButton');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+
+            const actionUrl = deleteForm.action;
+            const formData = new FormData(deleteForm);
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    if (clinicsTable) clinicsTable.ajax.reload(null, false);
+                } else {
+                    alert(data.message || 'Failed to delete clinic');
+                }
+            })
+            .catch(error => { console.error('Error:', error); alert('Error occurred'); })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                refreshCsrfToken();
+            });
+        });
+    }
+});
 </script>
 
 

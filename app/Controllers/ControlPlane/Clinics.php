@@ -466,6 +466,9 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Clinic not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
@@ -489,6 +492,9 @@ class Clinics extends BaseController
             'metadata' => ['clinic_id' => $id, 'reason' => 'clinic_terminated'],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Clinic terminated successfully.']);
+        }
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic terminated.');
     }
 
@@ -500,6 +506,9 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Clinic not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
@@ -522,6 +531,9 @@ class Clinics extends BaseController
             'metadata' => ['clinic_id' => $id, 'reason' => 'clinic_suspended'],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Clinic suspended.']);
+        }
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic suspended.');
     }
 
@@ -533,6 +545,9 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Clinic not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
@@ -554,6 +569,9 @@ class Clinics extends BaseController
             'metadata' => ['clinic_id' => $id],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Clinic reactivated.']);
+        }
         return redirect()->to(base_url('controlplane/clinics/' . $id))->with('success', 'Clinic reactivated.');
     }
 
@@ -565,23 +583,28 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Clinic not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
 
         // Hard Delete Logic
-        // 1. Delete Subscriptions
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $subscriptionModel->where('clinic_id', $id)->delete();
-
-        // 2. Delete Memberships (Users remain, but clinic association is gone)
-        $clinicUserModel = new ClinicUserModel();
-        $clinicUserModel->where('clinic_id', $id)->delete();
-
-        // 3. Delete Clinic (Triggers FK cascades for clinic-owned data like patients if configured, otherwise they are orphaned or blocked)
-        // We attempt delete. If DB enforces restrict, this will fail.
         try {
+            // 1. Delete Subscriptions
+            $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
+            $subscriptionModel->where('clinic_id', $id)->delete();
+
+            // 2. Delete Memberships (Users remain, but clinic association is gone)
+            $clinicUserModel = new ClinicUserModel();
+            $clinicUserModel->where('clinic_id', $id)->delete();
+
+            // 3. Delete Clinic
             $clinicModel->delete($id);
         } catch (\Exception $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Could not delete clinic. Database constraints may be preventing hard deletion.']);
+            }
             return redirect()->back()->with('error', 'Could not delete clinic. Database constraints may be preventing hard deletion.');
         }
 
@@ -591,6 +614,9 @@ class Clinics extends BaseController
             'metadata' => ['clinic_id' => $id, 'name' => $clinic['name'] ?? 'Unknown'],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Clinic deleted successfully.']);
+        }
         return redirect()->to(base_url('controlplane/clinics'))->with('success', 'Clinic and associated data deleted.');
     }
 
