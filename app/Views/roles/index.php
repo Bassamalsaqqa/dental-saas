@@ -23,6 +23,9 @@
                         </a>
                     <?php endif; ?>
                 <?php else: ?>
+                    <a href="<?= base_url('clinic/roles') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 shadow-sm transition-colors mr-2">
+                        <i class="fas fa-user-shield mr-2"></i> Manage Clinic Roles
+                    </a>
                     <span class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-500 text-xs font-medium rounded-lg border border-gray-200 shadow-sm" title="System roles are managed by the platform administrator">
                         <i class="fas fa-lock mr-2"></i> System Managed Roles
                     </span>
