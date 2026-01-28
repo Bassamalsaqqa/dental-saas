@@ -279,6 +279,8 @@ class Users extends BaseController
         } else {
             return redirect()->back()->with('error', 'Failed to update user status.');
         }
+    }
+
     /**
      * POST /controlplane/users/{id}/delete
      */
