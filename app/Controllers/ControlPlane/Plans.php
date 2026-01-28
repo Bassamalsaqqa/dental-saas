@@ -170,6 +170,9 @@ class Plans extends BaseController
         $planModel = new PlanModel();
         $plan = $planModel->find($id);
         if (!$plan) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Plan not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Plan not found');
         }
 
@@ -182,6 +185,13 @@ class Plans extends BaseController
             'metadata' => ['plan_id' => $id, 'status' => $newStatus],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true, 
+                'message' => 'Plan status updated.',
+                'new_status' => $newStatus
+            ]);
+        }
         return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan status updated.');
     }
 
@@ -193,6 +203,9 @@ class Plans extends BaseController
         $planModel = new PlanModel();
         $plan = $planModel->find($id);
         if (!$plan) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Plan not found.']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Plan not found');
         }
 
@@ -200,6 +213,9 @@ class Plans extends BaseController
         $usageCount = $subscriptionModel->where('plan_id', $id)->countAllResults();
 
         if ($usageCount > 0) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete plan; it is linked to existing subscriptions. Deactivate it instead.']);
+            }
             return redirect()->back()->with('error', 'Cannot delete plan; it is linked to existing subscriptions. Deactivate it instead.');
         }
 
@@ -211,6 +227,9 @@ class Plans extends BaseController
             'metadata' => ['plan_id' => $id, 'name' => $plan['name'] ?? null],
         ]);
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Plan deleted.']);
+        }
         return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan deleted.');
     }
 

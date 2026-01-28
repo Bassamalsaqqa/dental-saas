@@ -207,7 +207,7 @@
                                     if ($users === -1) $limitText[] = 'Unlimited Users'; else $limitText[] = "$users Users";
                                     if ($storage === -1) $limitText[] = 'Unlimited Storage'; else $limitText[] = "$storage GB";
                                 ?>
-                                <tr class="hover:bg-gray-50 transition-colors">
+                                <tr id="plan-row-<?= $plan['id'] ?>" class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
                                             <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
@@ -235,7 +235,7 @@
                                             <?php endforeach; ?>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap" id="status-badge-<?= $plan['id'] ?>">
                                         <?php if ($isActive): ?>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                                                 <i class="fas fa-check-circle mr-1.5"></i> Active
@@ -256,21 +256,21 @@
                                             </a>
                                             
                                             <!-- Toggle Status -->
-                                            <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/toggle') ?>" method="post" class="inline">
-                                                <?= csrf_field() ?>
-                                                <button type="submit" class="p-2 <?= $isActive ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' ?> rounded-md transition-colors duration-200"
-                                                        title="<?= $isActive ? 'Deactivate' : 'Activate' ?>">
-                                                    <i class="fas <?= $isActive ? 'fa-pause' : 'fa-play' ?>"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" 
+                                                    id="toggle-btn-<?= $plan['id'] ?>"
+                                                    onclick="togglePlanStatus(<?= $plan['id'] ?>)"
+                                                    class="p-2 <?= $isActive ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50' ?> rounded-md transition-colors duration-200"
+                                                    title="<?= $isActive ? 'Deactivate' : 'Activate' ?>">
+                                                <i class="fas <?= $isActive ? 'fa-pause' : 'fa-play' ?>"></i>
+                                            </button>
 
                                             <!-- Delete -->
-                                            <form action="<?= base_url('controlplane/plans/' . $plan['id'] . '/delete') ?>" method="post" class="inline" onsubmit="return confirm('Are you sure you want to delete this plan? This action cannot be undone.');">
-                                                <?= csrf_field() ?>
-                                                <button type="submit" class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200" title="Delete Plan">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" 
+                                                    onclick="openDeleteModal(<?= $plan['id'] ?>, '<?= esc($plan['name']) ?>')"
+                                                    class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200" 
+                                                    title="Delete Plan">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -282,15 +282,214 @@
         </div>
 </div>
 
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-3xl border border-rose-200 bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4 bg-rose-50 rounded-t-3xl">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-rose-600 font-bold">Irreversible Action</p>
+                <h3 class="text-lg font-bold text-rose-900">Delete Plan</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-rose-400 hover:text-slate-700 hover:bg-rose-100" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="px-6 py-6 space-y-4 text-sm text-slate-600">
+            <p class="font-medium text-slate-800">
+                You are about to permanently delete <span id="deletePlanName" class="font-bold text-rose-600">this plan</span>.
+            </p>
+            <div class="bg-rose-50 p-4 rounded-xl text-rose-800 text-xs border border-rose-100">
+                <ul class="list-disc list-inside space-y-1">
+                    <li>This action <strong>cannot be undone</strong>.</li>
+                    <li>If subscriptions use this plan, deletion will be blocked (deactivate instead).</li>
+                </ul>
+            </div>
+            <p>Type <span class="font-mono font-bold text-slate-900">DELETE</span> to confirm.</p>
+            <input type="text" id="deleteConfirmInput" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500"
+                   placeholder="DELETE" oninput="updateDeleteState()">
+        </div>
+        <form id="deleteForm" method="post" class="px-6 pb-6 flex items-center justify-end gap-3">
+            <?= csrf_field() ?>
+            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeDeleteModal()">
+                Cancel
+            </button>
+            <button id="deleteConfirmButton" type="submit" class="px-6 py-2 rounded-xl text-white text-sm font-bold cursor-not-allowed shadow-lg transition-all" disabled style="background-color: #e11d48 !important; color: #ffffff !important; opacity: 1 !important;">
+                <span>Permanently Delete</span>
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
-    document.querySelectorAll('[data-plan-toggle]').forEach((toggle) => {
-        toggle.addEventListener('change', (event) => {
-            const form = event.target.closest('form');
-            event.target.setAttribute('aria-checked', event.target.checked ? 'true' : 'false');
-            if (form) {
-                form.submit();
+const baseUrl = '<?= base_url() ?>';
+const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
+const csrfMetaToken = document.querySelector('meta[name="csrf-token"]');
+const csrfCookieName = '<?= esc(config('Security')->cookieName) ?>';
+let deletePlanId = '';
+let deletePlanName = '';
+
+function getCookieValue(name) {
+    if (!name) return '';
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [key, ...valueParts] = cookie.trim().split('=');
+        if (key === name) return decodeURIComponent(valueParts.join('='));
+    }
+    return '';
+}
+
+function getCsrfToken() {
+    return csrfMetaToken ? csrfMetaToken.getAttribute('content') : '';
+}
+
+function getCsrfName() {
+    return csrfMetaName ? csrfMetaName.getAttribute('content') : '<?= csrf_token() ?>';
+}
+
+function refreshCsrfToken() {
+    const cookieToken = getCookieValue(csrfCookieName);
+    if (cookieToken && csrfMetaToken) {
+        csrfMetaToken.setAttribute('content', cookieToken);
+    }
+}
+
+// Toggle Plan Status AJAX
+function togglePlanStatus(planId) {
+    // No confirmation requested for toggle
+    const formData = new FormData();
+    const csrfName = getCsrfName();
+    const csrfToken = getCsrfToken();
+    formData.append(csrfName, csrfToken);
+
+    fetch(`${baseUrl}controlplane/plans/${planId}/toggle`, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI
+            const isActive = data.new_status === 'active';
+            const badgeEl = document.getElementById(`status-badge-${planId}`);
+            const btnEl = document.getElementById(`toggle-btn-${planId}`);
+
+            if (badgeEl) {
+                if (isActive) {
+                    badgeEl.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800"><i class="fas fa-check-circle mr-1.5"></i> Active</span>`;
+                } else {
+                    badgeEl.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600"><i class="fas fa-pause-circle mr-1.5"></i> Inactive</span>`;
+                }
             }
-        });
+
+            if (btnEl) {
+                btnEl.title = isActive ? 'Deactivate' : 'Activate';
+                if (isActive) {
+                    btnEl.className = "p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-md transition-colors duration-200";
+                    btnEl.innerHTML = `<i class="fas fa-pause"></i>`;
+                } else {
+                    btnEl.className = "p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors duration-200";
+                    btnEl.innerHTML = `<i class="fas fa-play"></i>`;
+                }
+            }
+        } else {
+            alert(data.message || 'Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred.');
+    })
+    .finally(() => {
+        refreshCsrfToken(); 
     });
+}
+
+// Delete Modal Functions
+function openDeleteModal(id, name) {
+    const modal = document.getElementById('deleteModal');
+    const nameEl = document.getElementById('deletePlanName');
+    const inputEl = document.getElementById('deleteConfirmInput');
+    
+    deletePlanId = id;
+    deletePlanName = name;
+    
+    if (nameEl) nameEl.textContent = name;
+    if (inputEl) inputEl.value = '';
+    
+    updateDeleteState();
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function updateDeleteState() {
+    const inputEl = document.getElementById('deleteConfirmInput');
+    const buttonEl = document.getElementById('deleteConfirmButton');
+    if (!inputEl || !buttonEl) return;
+    
+    const matches = inputEl.value === 'DELETE';
+    buttonEl.disabled = !matches;
+    if (matches) {
+        buttonEl.classList.remove('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.add('hover:bg-rose-700');
+    } else {
+        buttonEl.classList.add('opacity-50', 'cursor-not-allowed');
+        buttonEl.classList.remove('hover:bg-rose-700');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('deleteConfirmButton');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+
+            const formData = new FormData();
+            const csrfName = getCsrfName();
+            const csrfToken = getCsrfToken();
+            formData.append(csrfName, csrfToken);
+
+            fetch(`${baseUrl}controlplane/plans/${deletePlanId}/delete`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    // Remove row from DOM
+                    const row = document.getElementById(`plan-row-${deletePlanId}`);
+                    if (row) row.remove();
+                } else {
+                    alert(data.message || 'Failed to delete plan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                refreshCsrfToken();
+            });
+        });
+    }
+});
 </script>
 <?= $this->endSection() ?>
