@@ -184,8 +184,9 @@ class Users extends BaseController
     public function create()
     {
         // Get all available roles from roles table
+        $clinicId = session()->get('active_clinic_id');
         $roleModel = new \App\Models\RoleModel();
-        $rolesData = $roleModel->getActiveRoles();
+        $rolesData = $roleModel->getActiveRoles($clinicId, true);
         
         // Convert roles to format for the view
         $roles = [];
@@ -394,8 +395,9 @@ class Users extends BaseController
         $user->roles = $userRoles;
         
         // Get all available roles from roles table
+        $clinicId = session()->get('active_clinic_id');
         $roleModel = new \App\Models\RoleModel();
-        $rolesData = $roleModel->getActiveRoles();
+        $rolesData = $roleModel->getActiveRoles($clinicId, true);
         
         // Convert roles to format for the view
         $roles = [];

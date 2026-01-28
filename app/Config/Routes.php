@@ -449,15 +449,7 @@ $routes->group('controlplane/roles', ['filter' => ['auth', 'controlplane']], fun
     $routes->get('(:num)/permissions', 'RoleController::getPermissions/$1');
 });
 
-$routes->group('clinic/roles', ['filter' => ['auth', 'tenant', 'subscription', 'permission:users:roles']], function ($routes) {
-    $routes->get('/', 'ClinicRolesController::index');
-    $routes->get('create', 'ClinicRolesController::create');
-    $routes->post('store', 'ClinicRolesController::store');
-    $routes->get('(:num)/edit', 'ClinicRolesController::edit/$1');
-    $routes->post('(:num)/update', 'ClinicRolesController::update/$1');
-    $routes->delete('(:num)', 'ClinicRolesController::delete/$1');
-    $routes->post('(:num)/toggle-status', 'ClinicRolesController::toggleStatus/$1');
-});
+
 
 // Notifications routes (accessible to all authenticated users - Tenant Plane)
 $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {

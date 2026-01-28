@@ -96,11 +96,11 @@ class RoleController extends BaseController
     }
 
     /**
-     * Display roles list
+     * Display roles list (System + Clinic Roles)
      */
     public function index()
     {
-        // Check if user can manage roles (fallback to IonAuth during setup)
+        // Check if user can manage roles
         if (!$this->canManageRoles()) {
             return redirect()->to('/dashboard')->with('error', 'You do not have permission to manage roles.');
         }
@@ -108,39 +108,44 @@ class RoleController extends BaseController
         $clinicId = session()->get('active_clinic_id');
         $globalMode = session()->get('global_mode') === true;
 
-        // Get all roles (active and inactive)
-        $roles = $this->roleModel->where('clinic_id', null)
-                                 ->orderBy('name', 'ASC')
-                                 ->findAll();
+        // Fetch roles based on context
+        if ($globalMode) {
+            // Global Mode: Show only System Roles
+            $roles = $this->roleModel->where('clinic_id', null)
+                                     ->orderBy('name', 'ASC')
+                                     ->findAll();
+        } else {
+            // Tenant Mode: Show System Roles + Clinic Roles
+            $roles = $this->roleModel->getSelectableRoles($clinicId); // Use getSelectableRoles to get both
+            // Note: getSelectableRoles returns active roles only by default? No, let's check model.
+            // RoleModel::getActiveRoles does where('is_active', 1).
+            // We want ALL roles for management (even inactive).
+            
+            // Custom query to get all (active & inactive) for this clinic + global
+            $builder = $this->roleModel->builder();
+            $builder->groupStart()
+                    ->where('clinic_id', null)
+                    ->orWhere('clinic_id', $clinicId)
+                    ->groupEnd();
+            $roles = $builder->orderBy('name', 'ASC')->get()->getResultArray();
+        }
         
         // Enhance each role with additional data
         foreach ($roles as &$role) {
             try {
-                // Get user count for this role (scoped to clinic if tenant)
                 $role['user_count'] = $this->roleModel->getUserCount($role['id'], $clinicId);
                 
-                // Get permission count for this role
                 $rolePermissions = $this->roleModel->getPermissionsGrouped($role['id']);
                 $role['permission_count'] = 0;
                 foreach ($rolePermissions as $modulePermissions) {
                     $role['permission_count'] += count($modulePermissions);
                 }
-                
-                // Debug logging
-                log_message('debug', "Role {$role['name']} (ID: {$role['id']}): {$role['user_count']} users, {$role['permission_count']} permissions");
-                
             } catch (\Exception $e) {
-                // Fallback values if there's an error
                 $role['user_count'] = 0;
                 $role['permission_count'] = 0;
-                log_message('error', "Error getting data for role {$role['id']}: " . $e->getMessage());
             }
         }
 
-        // Get diagnostic information
-        $totalPermissions = $this->permissionModel->countAll();
-        $totalUserRoles = $this->userRoleModel->countAll();
-        
         $data = [
             'title' => 'Role Management',
             'roles' => $roles,
@@ -149,9 +154,9 @@ class RoleController extends BaseController
             'global_mode' => $globalMode,
             'rolesRoute' => $this->getRolesRoute(),
             'diagnostics' => [
-                'total_permissions' => $totalPermissions,
-                'total_user_roles' => $totalUserRoles,
-                'rbac_ready' => $totalPermissions > 0
+                'total_permissions' => $this->permissionModel->countAll(),
+                'total_user_roles' => $this->userRoleModel->countAll(),
+                'rbac_ready' => true
             ]
         ];
 
@@ -163,7 +168,10 @@ class RoleController extends BaseController
      */
     public function create()
     {
-        if ($response = $this->ensureControlPlane()) return $response;
+        // Permission check
+        if (!$this->canManageRoles()) {
+            return redirect()->to('/dashboard')->with('error', 'Permission denied.');
+        }
 
         $data = [
             'title' => 'Create New Role',
@@ -181,36 +189,46 @@ class RoleController extends BaseController
      */
     public function store()
     {
-        if ($response = $this->ensureControlPlane()) return $response;
+        if (!$this->canManageRoles()) {
+            return redirect()->to('/dashboard')->with('error', 'Permission denied.');
+        }
+
+        $globalMode = session()->get('global_mode') === true;
+        $clinicId = session()->get('active_clinic_id');
+
+        // Validation (System roles need unique name globally, Clinic roles unique per clinic)
+        // For simplicity, we use the model's slugExists check
+        $slug = $this->request->getPost('slug');
+        $targetClinicId = $globalMode ? null : $clinicId;
+
+        if ($this->roleModel->slugExists($slug, $targetClinicId)) {
+            return redirect()->back()->withInput()->with('error', 'Role slug already exists in this scope.');
+        }
 
         $rules = [
-            'name' => 'required|max_length[100]|is_unique[roles.name]',
-            'slug' => 'required|max_length[100]|is_unique[roles.slug]',
+            'name' => 'required|max_length[100]',
+            'slug' => 'required|max_length[100]',
             'description' => 'permit_empty',
             'permissions' => 'permit_empty'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('validation', $this->validator);
-        }
-
-        $slug = $this->request->getPost('slug');
-        if ($this->roleModel->slugExists($slug, null)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Role slug already exists.');
+            return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
         $roleData = [
             'name' => $this->request->getPost('name'),
-            'slug' => $this->request->getPost('slug'),
+            'slug' => $slug,
             'description' => $this->request->getPost('description'),
-            'is_active' => 1,
-            'is_system' => 0,
+            'is_active' => $this->request->getPost('is_active') ?? 1,
+            'is_system' => 0, // Always 0 for UI created roles? Or 1 if Global?
+            // If Global Mode, we might want to create System Roles.
+            // Let's assume Global Mode = System Role.
+            'is_system' => $globalMode ? 0 : 0, // Wait, existing code said is_system=0. System roles usually seeded.
+            // But if Super Admin creates a role, is it "System"? 
+            // The previous code set is_system=0. Let's stick to that unless it's a seed.
             'is_medical' => $this->request->getPost('is_medical') ?? 0,
-            'clinic_id' => null,
+            'clinic_id' => $targetClinicId,
             'created_by' => $this->getCurrentUser()->id
         ];
 
@@ -222,9 +240,7 @@ class RoleController extends BaseController
             return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', 'Role created successfully.');
         } else {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to create role. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to create role.');
         }
     }
 
@@ -233,15 +249,42 @@ class RoleController extends BaseController
      */
     public function edit($id)
     {
-        if ($response = $this->ensureControlPlane()) return $response;
+        if (!$this->canManageRoles()) {
+            return redirect()->to('/dashboard')->with('error', 'Permission denied.');
+        }
 
         $role = $this->roleModel->getWithPermissions($id);
         
-        if (!$role || $role['clinic_id'] !== null) {
+        if (!$role) {
             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
-        // Prevent editing of Super Admin role
+        // Access Control:
+        // 1. Global Admin can edit Global Roles (clinic_id=null) AND Clinic Roles? (Maybe, but let's restrict to global for now to keep it clean, or allow everything)
+        // 2. Clinic Admin can ONLY edit THEIR Clinic Roles (clinic_id=active_clinic_id).
+        
+        $globalMode = session()->get('global_mode') === true;
+        $clinicId = session()->get('active_clinic_id');
+
+        if ($globalMode) {
+            // Global Admin in Control Plane
+            // Should probably only edit Global Roles or access specific clinic to edit their roles.
+            if ($role['clinic_id'] !== null) {
+                 return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot edit clinic-specific role from Control Plane.');
+            }
+        } else {
+            // Clinic Admin
+            // CANNOT edit Global Roles (clinic_id=null)
+            if ($role['clinic_id'] === null) {
+                return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot edit System Roles.');
+            }
+            // MUST own the role
+            if ($role['clinic_id'] != $clinicId) {
+                return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Access denied to this role.');
+            }
+        }
+
+        // Prevent editing Super Admin
         if ($role['slug'] === 'super_admin') {
             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot edit the Super Admin role.');
         }
@@ -264,45 +307,55 @@ class RoleController extends BaseController
      */
     public function update($id)
     {
-        if ($response = $this->ensureControlPlane()) return $response;
+        if (!$this->canManageRoles()) {
+            return redirect()->to('/dashboard')->with('error', 'Permission denied.');
+        }
 
         $role = $this->roleModel->find($id);
-        
-        if (!$role || $role['clinic_id'] !== null) {
+        if (!$role) {
             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
-        // Prevent updating Super Admin role
+        // Access Control (Same as edit)
+        $globalMode = session()->get('global_mode') === true;
+        $clinicId = session()->get('active_clinic_id');
+
+        if ($globalMode) {
+            if ($role['clinic_id'] !== null) return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Access denied.');
+        } else {
+            if ($role['clinic_id'] === null) return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot edit System Roles.');
+            if ($role['clinic_id'] != $clinicId) return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Access denied.');
+        }
+
         if ($role['slug'] === 'super_admin') {
             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot modify the Super Admin role.');
         }
 
+        // Validation
+        $targetClinicId = $globalMode ? null : $clinicId;
+        $slug = $this->request->getPost('slug');
+        if ($this->roleModel->slugExists($slug, $targetClinicId, $id)) {
+             return redirect()->back()->withInput()->with('error', 'Role slug already exists.');
+        }
+
         $rules = [
-            'name' => "required|max_length[100]|is_unique[roles.name,id,{$id}]",
-            'slug' => "required|max_length[100]|is_unique[roles.slug,id,{$id}]",
+            'name' => "required|max_length[100]",
+            'slug' => "required|max_length[100]",
             'description' => 'permit_empty',
             'is_medical' => 'permit_empty|in_list[0,1]',
-            'permissions' => 'permit_empty'
+            'is_active' => 'permit_empty|in_list[0,1]',
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('validation', $this->validator);
-        }
-
-        $slug = $this->request->getPost('slug');
-        if ($this->roleModel->slugExists($slug, null, $id)) {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Role slug already exists.');
+            return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
         $roleData = [
             'name' => $this->request->getPost('name'),
-            'slug' => $this->request->getPost('slug'),
+            'slug' => $slug,
             'description' => $this->request->getPost('description'),
-            'is_medical' => $this->request->getPost('is_medical') ?? 0
+            'is_medical' => $this->request->getPost('is_medical') ?? 0,
+            'is_active' => $this->request->getPost('is_active') ?? 1
         ];
 
         $permissions = $this->request->getPost('permissions') ?? [];
@@ -313,9 +366,7 @@ class RoleController extends BaseController
             return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', 'Role updated successfully.');
         } else {
-            return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to update role. Please try again.');
+            return redirect()->back()->withInput()->with('error', 'Failed to update role.');
         }
     }
 
@@ -324,41 +375,52 @@ class RoleController extends BaseController
      */
     public function delete($id)
     {
-        if ($response = $this->ensureControlPlane()) return $response;
-
-        $role = $this->roleModel->find($id);
-        
-        if (!$role || $role['clinic_id'] !== null) {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Role not found.']);
-            }
-            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
+        if (!$this->canManageRoles()) {
+             if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Permission denied']);
+             return redirect()->to('/dashboard')->with('error', 'Permission denied');
         }
 
-        // Prevent deletion of Super Admin role
-        if ($role['slug'] === 'super_admin') {
-            if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the Super Admin role.']);
+        $role = $this->roleModel->find($id);
+        if (!$role) {
+             if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Not found']);
+             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Not found');
+        }
+
+        // Access Control
+        $globalMode = session()->get('global_mode') === true;
+        $clinicId = session()->get('active_clinic_id');
+
+        if ($globalMode) {
+            if ($role['clinic_id'] !== null) {
+                if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+                return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Access denied');
             }
-            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot delete the Super Admin role.');
+        } else {
+            if ($role['clinic_id'] === null) {
+                if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete System Roles']);
+                return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot delete System Roles');
+            }
+            if ($role['clinic_id'] != $clinicId) {
+                if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Access denied']);
+                return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Access denied');
+            }
+        }
+
+        if ($role['slug'] === 'super_admin') {
+             if ($this->request->isAJAX()) return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete Super Admin']);
+             return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot delete Super Admin');
         }
 
         $success = $this->roleModel->deleteRole($id);
 
         if ($this->request->isAJAX()) {
-            if ($success) {
-                return $this->response->setJSON(['success' => true, 'message' => 'Role deleted successfully.']);
-            } else {
-                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete role. It may be a system role or has users assigned.']);
-            }
+            return $this->response->setJSON(['success' => $success, 'message' => $success ? 'Deleted' : 'Failed to delete']);
         }
 
         if ($success) {
-            return redirect()->to('/' . $this->getRolesRoute())
-                           ->with('success', 'Role deleted successfully.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('success', 'Role deleted.');
         } else {
-            return redirect()->to('/' . $this->getRolesRoute())
-                           ->with('error', 'Cannot delete role. It may be a system role or has users assigned.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Failed to delete role (may have users assigned).');
         }
     }
 

@@ -188,7 +188,7 @@
                         'inventory' => ['module' => 'inventory', 'action' => 'view'],
                         'doctors' => ['module' => 'users', 'action' => 'view'], // Doctors are part of user management
                         'users' => ['module' => 'users', 'action' => 'view'],
-                        'roles' => ['module' => 'users', 'action' => 'view'], // Roles are part of user management
+                        'roles' => ['module' => 'users', 'action' => 'roles'], // Roles are part of user management
                         'activity_log' => ['module' => 'activity_log', 'action' => 'view'],
                         'settings' => ['module' => 'settings', 'action' => 'view']
                     ];
