@@ -120,16 +120,67 @@
                 <div id="clinic-tab" class="settings-tab">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-8">
-                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                                     <i class="fas fa-building text-white text-xl"></i>
-                            </div>
-                            <div>
+                                </div>
+                                <div>
                                     <h3 class="text-2xl font-bold text-white">Clinic Information</h3>
                                     <p class="text-blue-100">Manage your clinic details and contact information</p>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <form action="<?= base_url('settings/updateClinic') ?>" method="POST" enctype="multipart/form-data">
+                                <?= csrf_field() ?>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Name</label>
+                                        <input type="text" name="clinic_name" value="<?= $settings['clinic_name'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Phone</label>
+                                        <input type="tel" name="clinic_phone" value="<?= $settings['clinic_phone'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Email</label>
+                                        <input type="email" name="clinic_email" value="<?= $settings['clinic_email'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Website</label>
+                                        <input type="url" name="clinic_website" value="<?= esc($settings['clinic_website'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Tagline</label>
+                                        <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Clinic tagline">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Upload</label>
+                                        <input type="file" name="clinic_logo" accept=".png,.jpg,.jpeg,.webp" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                        <p class="text-xs text-gray-500 mt-1">Allowed: PNG, JPG, WEBP. Max size: 512 KB. Recommended: 40x40 px (square).</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label class="flex items-center space-x-3 cursor-pointer">
+                                            <input type="checkbox" name="clinic_logo_remove" value="1" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition-colors">
+                                            <span class="text-sm font-semibold text-gray-700">Remove logo (use default)</span>
+                                        </label>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Address</label>
+                                        <textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required><?= esc($settings['clinic_address'] ?? '') ?></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                        <i class="fas fa-save mr-2"></i>Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Subscription Plan Tab -->
                 <div id="subscription-tab" class="settings-tab hidden">
@@ -207,57 +258,6 @@
                         </div>
                     </div>
                 </div>
-                    
-                    <div class="p-8">
-                            <form action="<?= base_url('settings/updateClinic') ?>" method="POST" enctype="multipart/form-data">
-                                <?= csrf_field() ?>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Name</label>
-                                        <input type="text" name="clinic_name" value="<?= $settings['clinic_name'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
-                                </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Phone</label>
-                                        <input type="tel" name="clinic_phone" value="<?= $settings['clinic_phone'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
-                                            </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Email</label>
-                                        <input type="email" name="clinic_email" value="<?= $settings['clinic_email'] ?? '' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
-                                        </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Website</label>
-                                        <input type="url" name="clinic_website" value="<?= esc($settings['clinic_website'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Tagline</label>
-                                        <input type="text" name="clinic_tagline" value="<?= esc($settings['clinic_tagline'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Clinic tagline">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo Upload</label>
-                                        <input type="file" name="clinic_logo" accept=".png,.jpg,.jpeg,.webp" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
-                                        <p class="text-xs text-gray-500 mt-1">Allowed: PNG, JPG, WEBP. Max size: 512 KB. Recommended: 40x40 px (square).</p>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <label class="flex items-center space-x-3 cursor-pointer">
-                                            <input type="checkbox" name="clinic_logo_remove" value="1" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition-colors">
-                                            <span class="text-sm font-semibold text-gray-700">Remove logo (use default)</span>
-                                        </label>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Address</label>
-                                        <textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required><?= esc($settings['clinic_address'] ?? '') ?></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="mt-8 flex justify-end">
-                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                                        <i class="fas fa-save mr-2"></i>Save Changes
-                                    </button>
-                                        </div>
-                            </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                     
                 <!-- System Preference Tab -->
                 <div id="system-tab" class="settings-tab hidden">
