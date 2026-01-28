@@ -285,14 +285,6 @@ function updateDeleteState() {
 
 // Toggle User Status AJAX
 function toggleUserStatus(userId, action) {
-    // Optional: Add confirmation if desired, but direct action was requested "same as popup" implies "no reload".
-    // If user wants popup for this too, we can add confirm().
-    // "same with all the popup confirmation cards" - interpreted as "make actions that behave like popups (or are popups) use AJAX".
-    // Toggle usually is instant or simple confirm. I'll add a simple confirm for safety.
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
-        return;
-    }
-
     const formData = new FormData();
     const csrfName = getCsrfName();
     const csrfToken = getCsrfToken();
