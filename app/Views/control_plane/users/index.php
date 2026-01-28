@@ -148,33 +148,43 @@ button.dt-button:hover, button.dt-button:active {
         <div class="mb-8">
             <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
                             <h3 class="text-lg font-semibold text-gray-900">User Registry</h3>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
-                            </button>
-                            <button onclick="printTable()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
-                            </button>
-                            <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
-                            </button>
+                        
+                        <div class="flex flex-wrap items-center gap-3">
+                            <!-- Search -->
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="userSearch" placeholder="Search users..." 
+                                       class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-64">
+                            </div>
+
+                            <!-- Status Filter -->
+                            <select id="userStatus" class="py-2 pl-3 pr-8 rounded-lg border border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+
+                            <!-- Export Actions -->
+                            <div class="flex items-center space-x-2 border-l border-gray-300 pl-3">
+                                <button onclick="exportToPDF()" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Export PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button onclick="exportToCSV()" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Export CSV">
+                                    <i class="fas fa-file-csv"></i>
+                                </button>
+                                <button onclick="printTable()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Print Table">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                                <a href="<?= base_url('controlplane/users') ?>" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Reset Filters">
+                                    <i class="fas fa-undo"></i>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mt-4 flex items-center space-x-2">
-                        <select id="userStatus" class="rounded-lg border-gray-300 text-sm focus:ring-indigo-500">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                        <input type="text" id="userSearch" placeholder="Search users..." class="flex-1 rounded-lg border-gray-300 text-sm focus:ring-indigo-500">
                     </div>
                 </div>
                 
