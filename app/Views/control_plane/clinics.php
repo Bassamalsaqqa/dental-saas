@@ -158,8 +158,6 @@ button.dt-button:hover, button.dt-button:active {
                 </div>
             </div>
         </div>
-            </div>
-        </div>
 
     <!-- Table Section -->
     <div class="mb-8">
