@@ -35,68 +35,116 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
                 <!-- Total -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-gray-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-200/50 group-hover:shadow-slate-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-gray-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #64748b, #4b5563);">
-                                <i class="fas fa-list text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-list text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-slate-700 font-bold text-sm bg-slate-100 px-3 py-1 rounded-full">All Time</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 rounded-full border border-slate-200">
+                                <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
+                                <span class="text-slate-700 font-bold text-xs">All Time</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Requests</p>
-                            <p class="text-3xl font-black text-slate-900"><?= number_format($requestStats['total'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-slate-900"><?= number_format($requestStats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-slate-200 to-gray-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-slate-500 to-gray-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">History</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pending -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-200 to-orange-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-200/50 group-hover:shadow-amber-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #f59e0b, #ea580c);">
-                                <i class="fas fa-clock text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-clock text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-amber-700 font-bold text-sm bg-amber-100 px-3 py-1 rounded-full">Queued</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1.5 rounded-full border border-amber-200">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                                <span class="text-amber-700 font-bold text-xs">Queued</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending</p>
-                            <p class="text-3xl font-black text-amber-600" style="color: #d97706 !important;"><?= number_format($requestStats['pending'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-amber-600" style="color: #d97706 !important;"><?= number_format($requestStats['pending'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Awaiting Action</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Approved -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-200 to-green-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-200/50 group-hover:shadow-emerald-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #10b981, #16a34a);">
-                                <i class="fas fa-check text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-emerald-700 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full">Finalized</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span class="text-emerald-700 font-bold text-xs">Finalized</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Approved</p>
-                            <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($requestStats['approved'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($requestStats['approved'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-green-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Provisioned</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Rejected -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-rose-200 to-red-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-200/50 group-hover:shadow-rose-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-red-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #f43f5e, #dc2626);">
-                                <i class="fas fa-times text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-times text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-rose-700 font-bold text-sm bg-rose-100 px-3 py-1 rounded-full">Declined</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-red-100 px-3 py-1.5 rounded-full border border-rose-200">
+                                <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+                                <span class="text-rose-700 font-bold text-xs">Declined</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Rejected</p>
-                            <p class="text-3xl font-black text-rose-600" style="color: #e11d48 !important;"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-rose-600" style="color: #e11d48 !important;"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-rose-200 to-red-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-rose-500 to-red-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Closed</p>
                         </div>
                     </div>
                 </div>

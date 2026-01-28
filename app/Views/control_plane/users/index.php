@@ -57,51 +57,87 @@ button.dt-button:hover, button.dt-button:active {
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 <!-- Total Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl">
-                                <i class="fas fa-users text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-users text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-indigo-700 font-bold text-sm bg-indigo-100 px-3 py-1 rounded-full">All Time</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 rounded-full border border-indigo-200">
+                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                                <span class="text-indigo-700 font-bold text-xs">All Time</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Users</p>
-                            <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Platform Users</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl">
-                                <i class="fas fa-user-check text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-user-check text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-green-700 font-bold text-sm bg-green-100 px-3 py-1 rounded-full">Active</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-green-700 font-bold text-xs">Active</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Users</p>
-                            <p class="text-3xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-green-900"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <div class="w-16 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Currently Online</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- New Users -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl">
-                                <i class="fas fa-user-plus text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-user-plus text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-blue-700 font-bold text-sm bg-blue-100 px-3 py-1 rounded-full">This Month</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-3 py-1.5 rounded-full border border-blue-200">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span class="text-blue-700 font-bold text-xs">This Month</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</p>
-                            <p class="text-3xl font-black text-blue-900"><?= number_format($stats['new'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-blue-900"><?= number_format($stats['new'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Monthly Growth</p>
                         </div>
                     </div>
                 </div>

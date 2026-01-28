@@ -43,17 +43,26 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl">
-                                <i class="fas fa-hospital-user text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-hospital-user text-xl"></i>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-100">
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-indigo-100 px-3 py-1.5 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <span class="text-blue-700 font-bold text-xs">Active: <?= number_format($stats['active_clinics'] ?? 0) ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Clinics</p>
-                            <p class="text-3xl font-black text-blue-900"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-blue-900"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Global Tenants</p>
                         </div>
                     </div>
                 </div>
@@ -63,17 +72,26 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl">
-                                <i class="fas fa-receipt text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-receipt text-xl"></i>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1.5 rounded-full border border-emerald-100">
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1.5 rounded-full border border-emerald-200">
                                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                                 <span class="text-emerald-700 font-bold text-xs">Recurring</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Subscriptions</p>
-                            <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
+                                <div class="w-16 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Revenue Accounts</p>
                         </div>
                     </div>
                 </div>
@@ -83,13 +101,26 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl">
-                                <i class="fas fa-layer-group text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-layer-group text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1.5 rounded-full border border-amber-200">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                                <span class="text-amber-700 font-bold text-xs">Published</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Catalog Plans</p>
-                            <p class="text-3xl font-black text-amber-900"><?= number_format($stats['active_plans'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-amber-900"><?= number_format($stats['active_plans'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Service Levels</p>
                         </div>
                     </div>
                 </div>
@@ -99,17 +130,26 @@
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl">
-                                <i class="fas fa-chart-line text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-chart-line text-xl"></i>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-1.5 rounded-full border border-purple-100">
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1.5 rounded-full border border-purple-200">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                                 <span class="text-purple-700 font-bold text-xs">Monthly</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Estimated MRR</p>
-                            <p class="text-3xl font-black text-purple-900">$<?= number_format((float) ($stats['mrr'] ?? 0), 2) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-purple-900">$<?= number_format((float) ($stats['mrr'] ?? 0), 2) ?></p>
+                                <div class="w-16 h-1 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Recurring Revenue</p>
                         </div>
                     </div>
                 </div>

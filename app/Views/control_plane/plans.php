@@ -34,53 +34,89 @@
         <!-- Stats Grid -->
         <div class="mb-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-                <!-- Total -->
+                <!-- Total Plans -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-gray-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-200/50 group-hover:shadow-slate-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-gray-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #64748b, #4b5563);">
-                                <i class="fas fa-layer-group text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-layer-group text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-slate-700 font-bold text-sm bg-slate-100 px-3 py-1 rounded-full">All Time</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 rounded-full border border-slate-200">
+                                <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
+                                <span class="text-slate-700 font-bold text-xs">All Time</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Plans</p>
-                            <p class="text-3xl font-black text-slate-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-slate-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-slate-200 to-gray-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-slate-500 to-gray-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Catalog Items</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-200 to-green-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-200/50 group-hover:shadow-emerald-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #10b981, #16a34a);">
-                                <i class="fas fa-check-circle text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-emerald-700 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full">Active</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span class="text-emerald-700 font-bold text-xs">Active</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Plans</p>
-                            <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($stats['active'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-emerald-600" style="color: #059669 !important;"><?= number_format($stats['active'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-green-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Currently Available</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- In View -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-200/50 group-hover:shadow-blue-300/50 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #3b82f6, #6366f1);">
-                                <i class="fas fa-eye text-xl"></i>
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-eye text-xl"></i>
+                                </div>
                             </div>
-                            <span class="text-blue-700 font-bold text-sm bg-blue-100 px-3 py-1 rounded-full">Filtered</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-indigo-100 px-3 py-1.5 rounded-full border border-blue-200">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span class="text-blue-700 font-bold text-xs">Filtered</span>
+                            </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">In View</p>
-                            <p class="text-3xl font-black text-blue-600" style="color: #2563eb !important;"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-blue-600" style="color: #2563eb !important;"><?= number_format($stats['filtered'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Filtered Results</p>
                         </div>
                     </div>
                 </div>
