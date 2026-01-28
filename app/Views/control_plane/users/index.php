@@ -63,6 +63,7 @@ button.dt-button:hover, button.dt-button:active {
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl">
                                 <i class="fas fa-users text-xl"></i>
                             </div>
+                            <span class="text-indigo-700 font-bold text-sm bg-indigo-100 px-3 py-1 rounded-full">All Time</span>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Users</p>
