@@ -122,26 +122,26 @@
 
                 <!-- Rejected -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-rose-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-rose-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
                                     <i class="fas fa-times text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-rose-50 px-3 py-1.5 rounded-full border border-rose-200">
-                                <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                                <span class="text-rose-700 font-bold text-xs">Declined</span>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-red-50 px-3 py-1.5 rounded-full border border-red-200">
+                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                <span class="text-red-700 font-bold text-xs">Declined</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Rejected</p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-rose-600" style="color: #e11d48 !important;"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-rose-200 to-rose-100 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-rose-500 to-rose-500 rounded-full animate-pulse"></div>
+                                <p class="text-3xl font-black text-red-900"><?= number_format($requestStats['rejected'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-red-200 to-red-100 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-red-500 to-red-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 font-medium">Closed</p>
