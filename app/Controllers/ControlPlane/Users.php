@@ -289,16 +289,25 @@ class Users extends BaseController
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
+            }
             return redirect()->back()->with('error', 'User not found.');
         }
 
         // Prevent deleting self
         if ($id == session()->get('user_id')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete your own account.']);
+            }
             return redirect()->back()->with('error', 'Cannot delete your own account.');
         }
 
         // Prevent deleting Super Admin (ID 1)
         if ($id == 1) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the primary Super Admin.']);
+            }
             return redirect()->back()->with('error', 'Cannot delete the primary Super Admin.');
         }
 
@@ -311,8 +320,15 @@ class Users extends BaseController
                     'target_email' => $user['email']
                 ],
             ]);
+            
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully.']);
+            }
             return redirect()->to('/controlplane/users')->with('success', 'User deleted successfully.');
         } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete user.']);
+            }
             return redirect()->back()->with('error', 'Failed to delete user.');
         }
     }

@@ -204,6 +204,7 @@ button.dt-button:hover, button.dt-button:active {
 let usersTable;
 const baseUrl = '<?= base_url() ?>';
 let deleteUserName = '';
+let deleteUserId = ''; // Add variable to store ID
 
 // ... (CSRF Helpers kept as is) ...
 const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
@@ -244,11 +245,11 @@ function openDeleteModal(userId, userName) {
     const modal = document.getElementById('deleteModal');
     const nameEl = document.getElementById('deleteUserName');
     const inputEl = document.getElementById('deleteConfirmInput');
-    const formEl = document.getElementById('deleteForm');
     
     deleteUserName = decodeURIComponent(userName);
+    deleteUserId = userId; // Store ID
+    
     if (nameEl) nameEl.textContent = deleteUserName;
-    if (formEl) formEl.action = `${baseUrl}controlplane/users/${userId}/delete`;
     if (inputEl) inputEl.value = '';
     
     updateDeleteState();
@@ -281,6 +282,66 @@ function updateDeleteState() {
         buttonEl.classList.remove('hover:bg-rose-700');
     }
 }
+
+// Handle Delete Form Submission via AJAX
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('deleteConfirmButton');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            
+            const formData = new FormData();
+            const csrfName = getCsrfName();
+            const csrfToken = getCsrfToken();
+            formData.append(csrfName, csrfToken);
+            
+            fetch(`${baseUrl}controlplane/users/${deleteUserId}/delete`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Success logic
+                    closeDeleteModal();
+                    // Refresh table without resetting pagination
+                    if (usersTable) {
+                        usersTable.ajax.reload(null, false);
+                    }
+                    // Show success toast (using existing toast system if available, or alert)
+                    // Assuming standard toast is not available in this view context without inclusion
+                    // But we can use a simple alert or reuse the flash message system if we reload page
+                    // Since requirement is "no full reload", we'll assume a toast function exists or alert
+                    if (typeof showToast === 'function') {
+                        showToast('success', data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.message || 'Failed to delete user');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the user.');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                // Refresh CSRF for next action
+                refreshCsrfToken(); 
+            });
+        });
+    }
+});
 
 $(document).ready(function() {
     usersTable = $('#usersTable').DataTable({
