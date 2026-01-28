@@ -193,8 +193,20 @@ class OnboardingService
         }
 
         if (isset($role['id'])) {
+            // Dashboard Access
             $this->ensureRoleHasPermission($role['id'], 'dashboard', 'read');
             $this->ensureRoleHasPermission($role['id'], 'dashboard', 'view');
+            
+            // User Management (Critical for Clinic Admin)
+            $this->ensureRoleHasPermission($role['id'], 'users', 'view');
+            $this->ensureRoleHasPermission($role['id'], 'users', 'create');
+            $this->ensureRoleHasPermission($role['id'], 'users', 'edit');
+            $this->ensureRoleHasPermission($role['id'], 'users', 'delete');
+            $this->ensureRoleHasPermission($role['id'], 'users', 'roles'); // Allows accessing /clinic/roles
+
+            // Settings Management
+            $this->ensureRoleHasPermission($role['id'], 'settings', 'view');
+            $this->ensureRoleHasPermission($role['id'], 'settings', 'edit');
         }
 
         return $role;

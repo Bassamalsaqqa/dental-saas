@@ -90,6 +90,11 @@ class RoleController extends BaseController
         return null;
     }
 
+    protected function getRolesRoute()
+    {
+        return session()->get('global_mode') ? 'controlplane/roles' : 'roles';
+    }
+
     /**
      * Display roles list
      */
@@ -104,7 +109,9 @@ class RoleController extends BaseController
         $globalMode = session()->get('global_mode') === true;
 
         // Get all roles (active and inactive)
-        $roles = $this->roleModel->findAll();
+        $roles = $this->roleModel->where('clinic_id', null)
+                                 ->orderBy('name', 'ASC')
+                                 ->findAll();
         
         // Enhance each role with additional data
         foreach ($roles as &$role) {
@@ -140,6 +147,7 @@ class RoleController extends BaseController
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories(),
             'global_mode' => $globalMode,
+            'rolesRoute' => $this->getRolesRoute(),
             'diagnostics' => [
                 'total_permissions' => $totalPermissions,
                 'total_user_roles' => $totalUserRoles,
@@ -163,6 +171,7 @@ class RoleController extends BaseController
             'categories' => \App\Config\Permissions::getCategories(),
             'action_descriptions' => \App\Config\Permissions::getActionDescriptions()
         ];
+        $data['rolesRoute'] = $this->getRolesRoute();
 
         return $this->view('roles/create', $data);
     }
@@ -187,6 +196,13 @@ class RoleController extends BaseController
                            ->with('validation', $this->validator);
         }
 
+        $slug = $this->request->getPost('slug');
+        if ($this->roleModel->slugExists($slug, null)) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Role slug already exists.');
+        }
+
         $roleData = [
             'name' => $this->request->getPost('name'),
             'slug' => $this->request->getPost('slug'),
@@ -194,6 +210,7 @@ class RoleController extends BaseController
             'is_active' => 1,
             'is_system' => 0,
             'is_medical' => $this->request->getPost('is_medical') ?? 0,
+            'clinic_id' => null,
             'created_by' => $this->getCurrentUser()->id
         ];
 
@@ -202,7 +219,7 @@ class RoleController extends BaseController
         $roleId = $this->roleModel->createWithPermissions($roleData, $permissions);
 
         if ($roleId) {
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', 'Role created successfully.');
         } else {
             return redirect()->back()
@@ -220,13 +237,13 @@ class RoleController extends BaseController
 
         $role = $this->roleModel->getWithPermissions($id);
         
-        if (!$role) {
-            return redirect()->to('/roles')->with('error', 'Role not found.');
+        if (!$role || $role['clinic_id'] !== null) {
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
         // Prevent editing of Super Admin role
         if ($role['slug'] === 'super_admin') {
-            return redirect()->to('/roles')->with('error', 'Cannot edit the Super Admin role.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot edit the Super Admin role.');
         }
 
         $data = [
@@ -237,6 +254,7 @@ class RoleController extends BaseController
             'action_descriptions' => \App\Config\Permissions::getActionDescriptions(),
             'role_permissions' => array_column($role['permissions'], 'id')
         ];
+        $data['rolesRoute'] = $this->getRolesRoute();
 
         return $this->view('roles/edit', $data);
     }
@@ -250,13 +268,13 @@ class RoleController extends BaseController
 
         $role = $this->roleModel->find($id);
         
-        if (!$role) {
-            return redirect()->to('/roles')->with('error', 'Role not found.');
+        if (!$role || $role['clinic_id'] !== null) {
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
         // Prevent updating Super Admin role
         if ($role['slug'] === 'super_admin') {
-            return redirect()->to('/roles')->with('error', 'Cannot modify the Super Admin role.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot modify the Super Admin role.');
         }
 
         $rules = [
@@ -273,6 +291,13 @@ class RoleController extends BaseController
                            ->with('validation', $this->validator);
         }
 
+        $slug = $this->request->getPost('slug');
+        if ($this->roleModel->slugExists($slug, null, $id)) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Role slug already exists.');
+        }
+
         $roleData = [
             'name' => $this->request->getPost('name'),
             'slug' => $this->request->getPost('slug'),
@@ -285,7 +310,7 @@ class RoleController extends BaseController
         $success = $this->roleModel->updateWithPermissions($id, $roleData, $permissions);
 
         if ($success) {
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', 'Role updated successfully.');
         } else {
             return redirect()->back()
@@ -303,11 +328,11 @@ class RoleController extends BaseController
 
         $role = $this->roleModel->find($id);
         
-        if (!$role) {
+        if (!$role || $role['clinic_id'] !== null) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Role not found.']);
             }
-            return redirect()->to('/roles')->with('error', 'Role not found.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
         // Prevent deletion of Super Admin role
@@ -315,7 +340,7 @@ class RoleController extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete the Super Admin role.']);
             }
-            return redirect()->to('/roles')->with('error', 'Cannot delete the Super Admin role.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot delete the Super Admin role.');
         }
 
         $success = $this->roleModel->deleteRole($id);
@@ -329,10 +354,10 @@ class RoleController extends BaseController
         }
 
         if ($success) {
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', 'Role deleted successfully.');
         } else {
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('error', 'Cannot delete role. It may be a system role or has users assigned.');
         }
     }
@@ -349,8 +374,8 @@ class RoleController extends BaseController
 
         $role = $this->roleModel->getWithPermissions($id);
         
-        if (!$role) {
-            return redirect()->to('/roles')->with('error', 'Role not found.');
+        if (!$role || $role['clinic_id'] !== null) {
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
         $clinicId = session()->get('active_clinic_id');
@@ -380,10 +405,10 @@ class RoleController extends BaseController
                 $message .= " Assigned {$result['admin_assigned']} admin user(s) to Super Admin role.";
             }
             
-            return redirect()->to('/roles')->with('success', $message);
+            return redirect()->to('/' . $this->getRolesRoute())->with('success', $message);
         } catch (\Exception $e) {
             log_message('error', 'Permission sync failed: ' . $e->getMessage());
-            return redirect()->to('/roles')->with('error', 'Failed to sync permissions: ' . $e->getMessage());
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Failed to sync permissions: ' . $e->getMessage());
         }
     }
 
@@ -439,11 +464,11 @@ class RoleController extends BaseController
 
         $role = $this->roleModel->find($id);
         
-        if (!$role) {
+        if (!$role || $role['clinic_id'] !== null) {
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Role not found.']);
             }
-            return redirect()->to('/roles')->with('error', 'Role not found.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Role not found.');
         }
 
         // Prevent toggling Super Admin role status
@@ -451,7 +476,7 @@ class RoleController extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Cannot modify the Super Admin role status.']);
             }
-            return redirect()->to('/roles')->with('error', 'Cannot modify the Super Admin role status.');
+            return redirect()->to('/' . $this->getRolesRoute())->with('error', 'Cannot modify the Super Admin role status.');
         }
 
         $newStatus = $role['is_active'] ? 0 : 1;
@@ -469,10 +494,10 @@ class RoleController extends BaseController
 
         if ($success) {
             $status = $newStatus ? 'activated' : 'deactivated';
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('success', "Role {$status} successfully.");
         } else {
-            return redirect()->to('/roles')
+            return redirect()->to('/' . $this->getRolesRoute())
                            ->with('error', 'Failed to update role status.');
         }
     }

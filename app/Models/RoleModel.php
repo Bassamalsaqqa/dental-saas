@@ -19,6 +19,7 @@ class RoleModel extends Model
         'is_active',
         'is_system',
         'is_medical',
+        'clinic_id',
         'created_by'
     ];
 
@@ -36,7 +37,8 @@ class RoleModel extends Model
         'is_active' => 'permit_empty|in_list[0,1]',
         'is_system' => 'permit_empty|in_list[0,1]',
         'is_medical' => 'permit_empty|in_list[0,1]',
-        'created_by' => 'required|integer'
+        'created_by' => 'required|integer',
+        'clinic_id' => 'permit_empty|is_natural'
     ];
 
     protected $validationMessages = [
@@ -59,19 +61,27 @@ class RoleModel extends Model
     /**
      * Get role by slug
      */
-    public function getBySlug($slug)
+    public function getBySlug($slug, $clinicId = null)
     {
-        return $this->where('slug', $slug)->first();
+        $builder = $this->builder()->where('slug', $slug);
+        if ($clinicId === null) {
+            $builder->where('clinic_id', null);
+        } else {
+            $builder->where('clinic_id', $clinicId);
+        }
+        return $builder->get()->getRowArray();
     }
 
     /**
      * Get active roles only
      */
-    public function getActiveRoles()
+    public function getActiveRoles($clinicId = null, $includeGlobal = true)
     {
-        return $this->where('is_active', 1)
-                   ->orderBy('name', 'ASC')
-                   ->findAll();
+        $builder = $this->builder()->where('is_active', 1);
+        $this->applyClinicScope($builder, $clinicId, $includeGlobal);
+        return $builder->orderBy('name', 'ASC')
+                       ->get()
+                       ->getResultArray();
     }
 
     /**
@@ -79,9 +89,12 @@ class RoleModel extends Model
      */
     public function getSystemRoles()
     {
-        return $this->where('is_system', 1)
+        return $this->builder()
+                   ->where('is_system', 1)
+                   ->where('clinic_id', null)
                    ->orderBy('name', 'ASC')
-                   ->findAll();
+                   ->get()
+                   ->getResultArray();
     }
 
     /**
@@ -89,9 +102,73 @@ class RoleModel extends Model
      */
     public function getCustomRoles()
     {
-        return $this->where('is_system', 0)
+        return $this->builder()
+                   ->where('is_system', 0)
                    ->orderBy('name', 'ASC')
-                   ->findAll();
+                   ->get()
+                   ->getResultArray();
+    }
+
+    /**
+     * Get roles tied to a specific clinic
+     */
+    public function getClinicRoles($clinicId, $activeOnly = true)
+    {
+        $builder = $this->builder();
+        if ($activeOnly) {
+            $builder->where('is_active', 1);
+        }
+        $this->applyClinicScope($builder, $clinicId, false);
+        return $builder->orderBy('name', 'ASC')->get()->getResultArray();
+    }
+
+    /**
+     * Get roles available for selection (global + clinic)
+     */
+    public function getSelectableRoles($clinicId = null)
+    {
+        return $this->getActiveRoles($clinicId, true);
+    }
+
+    /**
+     * Check if a slug already exists within the same clinic scope
+     */
+    public function slugExists($slug, $clinicId, $ignoreId = null)
+    {
+        $builder = $this->builder()->where('slug', $slug);
+
+        if ($clinicId === null) {
+            $builder->where('clinic_id', null);
+        } else {
+            $builder->where('clinic_id', $clinicId);
+        }
+
+        if ($ignoreId) {
+            $builder->where('id !=', $ignoreId);
+        }
+
+        return $builder->countAllResults() > 0;
+    }
+
+    /**
+     * Apply clinic scoping to builders
+     */
+    protected function applyClinicScope($builder, $clinicId, $includeGlobal = true)
+    {
+        if ($clinicId === null) {
+            $builder->where('clinic_id', null);
+        } else {
+            if ($includeGlobal) {
+                $builder->groupStart()
+                        ->where('clinic_id', null)
+                        ->orWhere('clinic_id', $clinicId)
+                      ->groupEnd();
+            } else {
+                $builder->where('clinic_id', $clinicId);
+            }
+        }
+
+        return $builder;
     }
 
     /**

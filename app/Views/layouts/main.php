@@ -191,6 +191,15 @@
                             <span class="relative z-10">Users</span>
                         </a>
                     </li>
+                    <?php if (has_permission('users', 'roles')): ?>
+                    <li>
+                        <a href="<?= base_url('clinic/roles') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'clinic/roles') === 0) ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
+                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            <i class="fas fa-user-shield w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'clinic/roles') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
+                            <span class="relative z-10">Clinic Roles</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </nav>

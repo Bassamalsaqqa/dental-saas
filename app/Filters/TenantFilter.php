@@ -37,7 +37,13 @@ class TenantFilter implements FilterInterface
                 if (str_starts_with(trim($path, '/'), 'controlplane')) {
                     return null;
                 }
+                
+                // UX: Redirect common tenant routes to their control plane equivalents if available
                 $pathOnly = trim($path, '/');
+                if ($pathOnly === 'roles') {
+                    return redirect()->to('/controlplane/roles');
+                }
+
                 if ($pathOnly === '') {
                     return redirect()->to('/controlplane/dashboard');
                 }

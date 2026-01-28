@@ -84,7 +84,7 @@ class UserManagementController extends BaseController
         $data = [
             'title' => 'User Management',
             'users' => $this->getUsersWithRoles(),
-            'roles' => $this->roleModel->getActiveRoles(),
+            'roles' => $this->getAvailableRoles(),
             'permissions' => $this->permissionModel->getGroupedByModule()
         ];
 
@@ -102,7 +102,7 @@ class UserManagementController extends BaseController
 
         $data = [
             'title' => 'Create New User',
-            'roles' => $this->roleModel->getActiveRoles(),
+            'roles' => $this->getAvailableRoles(),
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories()
         ];
@@ -205,7 +205,7 @@ class UserManagementController extends BaseController
             'user' => $user,
             'user_roles' => $this->userRoleModel->getUserRolesWithDetails($id),
             'user_permissions' => $this->permissionService->getUserPermissions($id),
-            'roles' => $this->roleModel->getActiveRoles(),
+            'roles' => $this->getAvailableRoles(),
             'permissions' => $this->permissionModel->getGroupedByModule(),
             'categories' => \App\Config\Permissions::getCategories()
         ];
@@ -376,6 +376,16 @@ class UserManagementController extends BaseController
         }
 
         return $users;
+    }
+
+    protected function getAvailableRoles()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        $roles = $this->roleModel->getSelectableRoles($clinicId);
+        foreach ($roles as &$role) {
+            $role['is_clinic_role'] = !empty($role['clinic_id']);
+        }
+        return $roles;
     }
 
     // AJAX Methods (No duplicates needed)

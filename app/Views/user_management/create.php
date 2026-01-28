@@ -105,6 +105,9 @@
                                        <?= old('roles') && in_array($role['id'], old('roles')) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="role_<?= $role['id'] ?>">
                                     <strong><?= esc($role['name']) ?></strong>
+                                    <?php if (!empty($role['is_clinic_role'])): ?>
+                                        <span class="badge bg-info text-dark ms-2">Clinic</span>
+                                    <?php endif; ?>
                                     <?php if ($role['description']): ?>
                                         <br><small class="text-muted"><?= esc($role['description']) ?></small>
                                     <?php endif; ?>

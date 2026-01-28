@@ -58,7 +58,7 @@ class PermissionSyncService
 
         foreach ($configRoles as $slug => $roleData) {
             // Check if role exists
-            $existingRole = $this->roleModel->getBySlug($slug);
+            $existingRole = $this->roleModel->getBySlug($slug, null);
             
             $isMedical = in_array($slug, $medicalRoles) ? 1 : 0;
 
@@ -71,6 +71,7 @@ class PermissionSyncService
                     'is_system' => 1,
                     'is_medical' => $isMedical,
                     'is_active' => 1,
+                    'clinic_id' => null,
                     'created_by' => 1 // Super admin
                 ]);
                 
@@ -82,6 +83,7 @@ class PermissionSyncService
             } else {
                 // Role exists, ensure it is marked as system and medical if applicable
                 $this->roleModel->update($existingRole['id'], [
+                    'clinic_id' => null,
                     'is_system' => 1,
                     'is_medical' => $isMedical
                 ]);
@@ -152,7 +154,7 @@ class PermissionSyncService
     {
         try {
             // Get Super Admin role
-            $superAdminRole = $this->roleModel->getBySlug('super_admin');
+            $superAdminRole = $this->roleModel->getBySlug('super_admin', null);
             if (!$superAdminRole) {
                 return false;
             }
@@ -209,7 +211,7 @@ class PermissionSyncService
      */
     public function updateRolePermissions($roleSlug, $permissions)
     {
-        $role = $this->roleModel->getBySlug($roleSlug);
+        $role = $this->roleModel->getBySlug($roleSlug, null);
         
         if (!$role) {
             return false;

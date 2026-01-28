@@ -6,6 +6,7 @@ use App\Models\PermissionModel;
 use App\Models\RoleModel;
 use App\Models\UserRoleModel;
 use App\Models\UserModel;
+use App\Models\ClinicUserModel;
 
 class PermissionService
 {
@@ -13,6 +14,7 @@ class PermissionService
     protected $roleModel;
     protected $userRoleModel;
     protected $userModel;
+    protected $clinicUserModel;
     protected array $actionAliases = [
         'view' => ['read'],
         'read' => ['view'],
@@ -26,6 +28,7 @@ class PermissionService
         $this->roleModel = new RoleModel();
         $this->userRoleModel = new UserRoleModel();
         $this->userModel = new UserModel();
+        $this->clinicUserModel = new ClinicUserModel();
     }
 
     /**
@@ -70,9 +73,8 @@ class PermissionService
 
     protected function hasPermissionForAction($userId, $module, $action)
     {
-        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-        foreach ($userRoles as $userRole) {
-            if ($this->roleModel->hasPermission($userRole['role_id'], $module, $action)) {
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            if ($this->roleModel->hasPermission($roleId, $module, $action)) {
                 return true;
             }
         }
@@ -90,6 +92,36 @@ class PermissionService
         return array_unique($candidates);
     }
 
+    protected function getActiveClinicRoleId($userId)
+    {
+        $session = service('session');
+        $clinicId = $session->get('active_clinic_id');
+        if (!$clinicId) {
+            return null;
+        }
+
+        $membership = $this->clinicUserModel->getMembership($userId, $clinicId);
+        return $membership['role_id'] ?? null;
+    }
+
+    protected function getEffectiveRoleIds($userId)
+    {
+        $roleIds = [];
+        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
+        foreach ($userRoles as $userRole) {
+            if (!in_array($userRole['role_id'], $roleIds, true)) {
+                $roleIds[] = $userRole['role_id'];
+            }
+        }
+
+        $clinicRoleId = $this->getActiveClinicRoleId($userId);
+        if ($clinicRoleId && !in_array($clinicRoleId, $roleIds, true)) {
+            $roleIds[] = $clinicRoleId;
+        }
+
+        return $roleIds;
+    }
+
     /**
      * Get user permissions
      */
@@ -97,10 +129,9 @@ class PermissionService
     {
         $permissions = [];
         
-        // Get role permissions
-        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-        foreach ($userRoles as $userRole) {
-            $rolePermissions = $this->roleModel->getPermissionsGrouped($userRole['role_id']);
+        // Get role permissions (include clinic membership)
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            $rolePermissions = $this->roleModel->getPermissionsGrouped($roleId);
             foreach ($rolePermissions as $module => $modulePermissions) {
                 if (!isset($permissions[$module])) {
                     $permissions[$module] = [];
@@ -168,7 +199,19 @@ class PermissionService
      */
     public function hasRole($userId, $roleSlug)
     {
-        return $this->userRoleModel->hasRole($userId, $roleSlug);
+        if ($this->userRoleModel->hasRole($userId, $roleSlug)) {
+            return true;
+        }
+
+        $clinicRoleId = $this->getActiveClinicRoleId($userId);
+        if ($clinicRoleId) {
+            $role = $this->roleModel->find($clinicRoleId);
+            if ($role && $role['slug'] === $roleSlug) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -176,7 +219,23 @@ class PermissionService
      */
     public function hasAnyRole($userId, $roleSlugs)
     {
-        return $this->userRoleModel->hasAnyRole($userId, $roleSlugs);
+        if (empty($roleSlugs)) {
+            return false;
+        }
+
+        if ($this->userRoleModel->hasAnyRole($userId, $roleSlugs)) {
+            return true;
+        }
+
+        $clinicRoleId = $this->getActiveClinicRoleId($userId);
+        if ($clinicRoleId) {
+            $role = $this->roleModel->find($clinicRoleId);
+            if ($role && in_array($role['slug'], $roleSlugs, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -220,15 +279,13 @@ class PermissionService
      */
     public function isSuperAdmin($userId)
     {
-        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-        
-        foreach ($userRoles as $userRole) {
-            $role = $this->roleModel->find($userRole['role_id']);
+        foreach ($this->getEffectiveRoleIds($userId) as $roleId) {
+            $role = $this->roleModel->find($roleId);
             if ($role && $role['slug'] === 'super_admin') {
                 return true;
             }
         }
-        
+
         return false;
     }
 

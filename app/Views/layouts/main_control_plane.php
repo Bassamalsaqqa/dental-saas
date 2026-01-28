@@ -187,16 +187,25 @@
                             <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-blue-600 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">System</h3>
                         </div>
-                        <ul class="space-y-1">
-                            <li>
-                                <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
-                                    <span class="relative z-10">Settings</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="<?= base_url('controlplane/settings') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'bg-gradient-to-r from-slate-700 to-blue-700 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <i class="fas fa-sliders-h w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/settings') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
+                                <span class="relative z-10">Settings</span>
+                            </a>
+                        </li>
+                        <?php if (has_role('super_admin')): ?>
+                        <li>
+                            <a href="<?= base_url('controlplane/roles') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'bg-gradient-to-r from-indigo-600 to-slate-600 text-white shadow-lg shadow-indigo-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-slate-50 hover:text-indigo-900 hover:shadow-md hover:shadow-indigo-500/10 mx-1' ?>">
+                                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                <i class="fas fa-user-shield w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/roles') === 0) ? 'text-white' : 'text-indigo-600 group-hover:text-indigo-700' ?>"></i>
+                                <span class="relative z-10">System Roles</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
                 </nav>
 
                 <!-- Sidebar Footer -->

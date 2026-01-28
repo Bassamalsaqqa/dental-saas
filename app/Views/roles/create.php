@@ -1,4 +1,5 @@
-<?= $this->extend('layouts/main_auth') ?>
+<?php $layout = session()->get('global_mode') ? 'layouts/main_control_plane' : 'layouts/main_auth'; ?>
+<?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
 <div class="container mx-auto px-6 py-8">
@@ -10,7 +11,7 @@
                 <p class="text-gray-600 text-lg">Define a new role with specific permissions</p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <a href="<?= base_url('roles') ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Roles
                 </a>
             </div>
@@ -54,7 +55,7 @@
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url('roles/store') ?>" method="post" id="roleForm" class="space-y-8">
+    <form action="<?= base_url($rolesRoute . '/store') ?>" method="post" id="roleForm" class="space-y-8">
         <?= csrf_field() ?>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Role Information -->
@@ -262,7 +263,7 @@
                                 </div>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">No permissions available</h3>
                                 <p class="text-gray-500 mb-6">Please sync permissions first to create roles.</p>
-                                <a href="<?= base_url('roles/sync') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                                     <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
                                 </a>
                             </div>
@@ -274,7 +275,7 @@
 
         <!-- Form Actions -->
         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
-            <a href="<?= base_url('roles') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+            <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
                 Cancel
             </a>
             <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">

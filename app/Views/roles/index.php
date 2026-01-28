@@ -1,4 +1,5 @@
-<?= $this->extend('layouts/main_auth') ?>
+<?php $layout = session()->get('global_mode') ? 'layouts/main_control_plane' : 'layouts/main_auth'; ?>
+<?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
 <div class="container mx-auto px-6 py-8">
@@ -10,14 +11,14 @@
                 <p class="text-gray-600 text-lg">Manage system roles and their permissions</p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <?php if ($global_mode): ?>
-                    <?php if (has_permission('settings', 'edit')): ?>
-                        <a href="<?= base_url('roles/sync') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <?php if ($global_mode): ?>
+                        <?php if (has_permission('settings', 'edit')): ?>
+                            <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
                         </a>
                     <?php endif; ?>
-                    <?php if (has_permission('users', 'create')): ?>
-                        <a href="<?= base_url('roles/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <?php if (has_permission('users', 'create')): ?>
+                            <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus mr-2"></i>Create Role
                         </a>
                     <?php endif; ?>
@@ -219,7 +220,7 @@
                         <div class="flex items-center space-x-2">
                             <?php if ($global_mode): ?>
                                 <?php if (has_permission('users', 'edit') && $role['slug'] !== 'super_admin'): ?>
-                                    <a href="<?= base_url('roles/' . $role['id'] . '/edit') ?>" 
+                                    <a href="<?= base_url($rolesRoute . '/' . $role['id'] . '/edit') ?>" 
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                         <i class="fas fa-edit mr-1"></i>
                                         Edit
@@ -261,7 +262,7 @@
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No roles found</h3>
             <p class="text-gray-500 mb-6">Get started by creating your first role.</p>
-            <a href="<?= base_url('roles/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus mr-2"></i>Create Role
             </a>
         </div>
@@ -272,7 +273,7 @@
 <script>
 function deleteRole(roleId) {
     if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
-        fetch(`<?= base_url('roles') ?>/${roleId}`, {
+        fetch(`<?= base_url($rolesRoute) ?>/${roleId}`, {
             method: 'DELETE',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -301,7 +302,7 @@ function deleteRole(roleId) {
 function toggleRoleStatus(roleId, newStatus) {
     const action = newStatus ? 'activate' : 'deactivate';
     if (confirm(`Are you sure you want to ${action} this role?`)) {
-        fetch(`<?= base_url('roles') ?>/${roleId}/toggle-status`, {
+        fetch(`<?= base_url($rolesRoute) ?>/${roleId}/toggle-status`, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
