@@ -81,6 +81,7 @@ button.dt-button:hover, button.dt-button:active {
                                     <i class="fas fa-hospital text-xl"></i>
                                 </div>
                             </div>
+                            <span class="text-emerald-700 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full">All Time</span>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Clinics</p>
@@ -133,9 +134,10 @@ button.dt-button:hover, button.dt-button:active {
                                     <i class="fas fa-layer-group text-xl"></i>
                                 </div>
                             </div>
+                            <span class="text-blue-700 font-bold text-sm bg-blue-100 px-3 py-1 rounded-full">Filtered</span>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">In View</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">In View</p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-blue-900"><?= number_format($stats['filtered'] ?? 0) ?></p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">

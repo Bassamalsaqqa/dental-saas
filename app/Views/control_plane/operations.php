@@ -46,12 +46,12 @@
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl">
                                 <i class="fas fa-layer-group text-xl"></i>
                             </div>
+                            <span class="text-indigo-700 font-bold text-sm bg-indigo-100 px-3 py-1 rounded-full">Active</span>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Plans</p>
                             <div class="flex items-baseline gap-2">
                                 <span class="text-3xl font-black text-indigo-900"><?= number_format($plansActive ?? 0) ?></span>
-                                <span class="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Active</span>
                             </div>
                         </div>
                     </div>
@@ -65,12 +65,12 @@
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl">
                                 <i class="fas fa-hospital text-xl"></i>
                             </div>
+                            <span class="text-emerald-700 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full">Registered</span>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinics</p>
                             <div class="flex items-baseline gap-2">
                                 <span class="text-3xl font-black text-emerald-900"><?= number_format($clinicsTotal ?? 0) ?></span>
-                                <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Registered</span>
                             </div>
                         </div>
                     </div>
@@ -84,12 +84,12 @@
                             <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-xl">
                                 <i class="fas fa-receipt text-xl"></i>
                             </div>
+                            <span class="text-blue-700 font-bold text-sm bg-blue-100 px-3 py-1 rounded-full">All Time</span>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Subscriptions</p>
                             <div class="flex items-baseline gap-2">
                                 <span class="text-3xl font-black text-blue-900"><?= number_format($subscriptionsActive ?? 0) ?></span>
-                                <span class="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Active</span>
                             </div>
                         </div>
                     </div>

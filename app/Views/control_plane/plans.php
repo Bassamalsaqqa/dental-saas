@@ -42,6 +42,7 @@
                             <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #64748b, #4b5563);">
                                 <i class="fas fa-layer-group text-xl"></i>
                             </div>
+                            <span class="text-slate-700 font-bold text-sm bg-slate-100 px-3 py-1 rounded-full">All Time</span>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Plans</p>
@@ -58,6 +59,7 @@
                             <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #10b981, #16a34a);">
                                 <i class="fas fa-check-circle text-xl"></i>
                             </div>
+                            <span class="text-emerald-700 font-bold text-sm bg-emerald-100 px-3 py-1 rounded-full">Active</span>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Plans</p>
@@ -74,6 +76,7 @@
                             <div class="relative p-3 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, #3b82f6, #6366f1);">
                                 <i class="fas fa-eye text-xl"></i>
                             </div>
+                            <span class="text-blue-700 font-bold text-sm bg-blue-100 px-3 py-1 rounded-full">Filtered</span>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">In View</p>
