@@ -52,6 +52,15 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
         $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
         
+        // Users Management (New)
+        $routes->group('users', function($routes) {
+            $routes->get('/', 'ControlPlane\Users::index');
+            $routes->post('/', 'ControlPlane\Users::index'); // DataTables
+            $routes->get('(:num)', 'ControlPlane\Users::show/$1');
+            $routes->post('(:num)/reset-password', 'ControlPlane\Users::resetPassword/$1');
+            $routes->post('(:num)/toggle-status', 'ControlPlane\Users::toggleStatus/$1');
+        });
+        
         // Activity Log (New)
         $routes->get('activity-log', 'ControlPlane\ActivityLog::index');
         $routes->get('activity-log/api', 'ControlPlane\ActivityLog::api');
