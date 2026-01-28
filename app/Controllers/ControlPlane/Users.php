@@ -218,12 +218,18 @@ class Users extends BaseController
     {
         $password = $this->request->getPost('password');
         if (strlen($password) < 8) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Password must be at least 8 characters long.']);
+            }
             return redirect()->back()->with('error', 'Password must be at least 8 characters long.');
         }
 
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
+            }
             return redirect()->back()->with('error', 'User not found.');
         }
 
@@ -236,8 +242,15 @@ class Users extends BaseController
                     'target_email' => $user['email']
                 ],
             ]);
+            
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true, 'message' => "Password reset for {$user['email']}."]);
+            }
             return redirect()->back()->with('success', "Password reset for {$user['email']}.");
         } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to reset password.']);
+            }
             return redirect()->back()->with('error', 'Failed to reset password.');
         }
     }
@@ -250,11 +263,17 @@ class Users extends BaseController
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
+            }
             return redirect()->back()->with('error', 'User not found.');
         }
 
         // Prevent deactivating self
         if ($id == session()->get('user_id')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Cannot deactivate your own account.']);
+            }
             return redirect()->back()->with('error', 'Cannot deactivate your own account.');
         }
 
@@ -263,8 +282,6 @@ class Users extends BaseController
         // Use IonAuth for safe status update
         $updateData = ['active' => $newStatus];
         
-        // If reactivating, we might need to clear activation code? 
-        // IonAuth update handles 'active' column directly.
         if ($this->ionAuth->update($id, $updateData)) {
             $statusLabel = $newStatus ? 'activated' : 'deactivated';
             $this->auditService->logEvent('user_status_toggle', [
@@ -275,8 +292,15 @@ class Users extends BaseController
                     'new_status' => $statusLabel
                 ],
             ]);
+            
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true, 'message' => "User {$statusLabel}."]);
+            }
             return redirect()->back()->with('success', "User {$statusLabel}.");
         } else {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update user status.']);
+            }
             return redirect()->back()->with('error', 'Failed to update user status.');
         }
     }
