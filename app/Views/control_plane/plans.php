@@ -36,26 +36,26 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 <!-- Total Plans -->
                 <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-gray-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="absolute inset-0 bg-indigo-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-500 to-gray-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                <div class="absolute inset-0 bg-indigo-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-indigo-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
                                     <i class="fas fa-layer-group text-xl"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2 bg-gradient-to-r from-slate-100 to-gray-100 px-3 py-1.5 rounded-full border border-slate-200">
-                                <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                                <span class="text-slate-700 font-bold text-xs">All Time</span>
+                            <div class="flex items-center space-x-2 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200">
+                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                                <span class="text-indigo-700 font-bold text-xs">All Time</span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Plans</p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-slate-900"><?= number_format($stats['total'] ?? 0) ?></p>
-                                <div class="w-12 h-1 bg-gradient-to-r from-slate-200 to-gray-200 rounded-full overflow-hidden">
-                                    <div class="w-3/4 h-full bg-gradient-to-r from-slate-500 to-gray-500 rounded-full animate-pulse"></div>
+                                <p class="text-3xl font-black text-indigo-900"><?= number_format($stats['total'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-indigo-100 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-indigo-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 font-medium">Catalog Items</p>
