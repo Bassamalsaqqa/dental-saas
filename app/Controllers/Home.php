@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use CodeIgniter\Exceptions\PageNotFoundException;
 use App\Models\ClinicSubscriptionModel;
+use App\Services\PermissionService;
 
 class Home extends BaseController
 {
@@ -45,6 +46,32 @@ class Home extends BaseController
 
         if (!$isValid) {
             throw PageNotFoundException::forPageNotFound("Access Denied: Subscription required.");
+        }
+
+        $userId = $this->ionAuth->getUserId();
+        $permissionService = new PermissionService();
+
+        if (!$permissionService->hasPermission($userId, 'dashboard', 'view')) {
+            $fallbacks = [
+                ['module' => 'patients', 'action' => 'view', 'route' => '/patients'],
+                ['module' => 'appointments', 'action' => 'view', 'route' => '/appointments'],
+                ['module' => 'examinations', 'action' => 'view', 'route' => '/examinations'],
+                ['module' => 'treatments', 'action' => 'view', 'route' => '/treatments'],
+                ['module' => 'prescriptions', 'action' => 'view', 'route' => '/prescriptions'],
+                ['module' => 'finance', 'action' => 'view', 'route' => '/finance'],
+                ['module' => 'reports', 'action' => 'view', 'route' => '/reports'],
+                ['module' => 'inventory', 'action' => 'view', 'route' => '/inventory'],
+                ['module' => 'users', 'action' => 'view', 'route' => '/users'],
+                ['module' => 'settings', 'action' => 'view', 'route' => '/settings'],
+            ];
+
+            foreach ($fallbacks as $fallback) {
+                if ($permissionService->hasPermission($userId, $fallback['module'], $fallback['action'])) {
+                    return redirect()->to($fallback['route']);
+                }
+            }
+
+            throw PageNotFoundException::forPageNotFound("Access Denied: Dashboard permission required.");
         }
 
         return redirect()->to('/dashboard');

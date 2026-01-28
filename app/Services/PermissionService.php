@@ -13,6 +13,12 @@ class PermissionService
     protected $roleModel;
     protected $userRoleModel;
     protected $userModel;
+    protected array $actionAliases = [
+        'view' => ['read'],
+        'read' => ['view'],
+        'update' => ['edit'],
+        'edit' => ['update'],
+    ];
 
     public function __construct()
     {
@@ -27,27 +33,17 @@ class PermissionService
      */
     public function hasPermission($userId, $module, $action)
     {
-        // Super Admin has all permissions
         if ($this->isSuperAdmin($userId)) {
             return true;
         }
-        
-        // Get user roles
-        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
-        
-        if (empty($userRoles)) {
-            return false;
-        }
 
-        // Check role permissions
-        foreach ($userRoles as $userRole) {
-            if ($this->roleModel->hasPermission($userRole['role_id'], $module, $action)) {
+        foreach ($this->getActionCandidates($action) as $candidate) {
+            if ($this->hasPermissionForAction($userId, $module, $candidate)) {
                 return true;
             }
         }
 
-        // Check user-specific permission overrides
-        return $this->hasUserPermission($userId, $module, $action);
+        return false;
     }
 
     /**
@@ -70,6 +66,28 @@ class PermissionService
                     ->countAllResults();
 
         return $result > 0;
+    }
+
+    protected function hasPermissionForAction($userId, $module, $action)
+    {
+        $userRoles = $this->userRoleModel->getUserRoles($userId, true);
+        foreach ($userRoles as $userRole) {
+            if ($this->roleModel->hasPermission($userRole['role_id'], $module, $action)) {
+                return true;
+            }
+        }
+
+        return $this->hasUserPermission($userId, $module, $action);
+    }
+
+    protected function getActionCandidates($action)
+    {
+        $candidates = [$action];
+        if (isset($this->actionAliases[$action])) {
+            $candidates = array_merge($candidates, $this->actionAliases[$action]);
+        }
+
+        return array_unique($candidates);
     }
 
     /**
