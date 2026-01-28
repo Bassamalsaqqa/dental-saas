@@ -279,5 +279,39 @@ class Users extends BaseController
         } else {
             return redirect()->back()->with('error', 'Failed to update user status.');
         }
+    /**
+     * POST /controlplane/users/{id}/delete
+     */
+    public function delete(int $id)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->find($id);
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        // Prevent deleting self
+        if ($id == session()->get('user_id')) {
+            return redirect()->back()->with('error', 'Cannot delete your own account.');
+        }
+
+        // Prevent deleting Super Admin (ID 1)
+        if ($id == 1) {
+            return redirect()->back()->with('error', 'Cannot delete the primary Super Admin.');
+        }
+
+        if ($this->ionAuth->deleteUser($id)) {
+            $this->auditService->logEvent('user_delete', [
+                'route' => '/controlplane/users/' . $id . '/delete',
+                'method' => 'POST',
+                'metadata' => [
+                    'target_user_id' => $id,
+                    'target_email' => $user['email']
+                ],
+            ]);
+            return redirect()->to('/controlplane/users')->with('success', 'User deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to delete user.');
+        }
     }
 }
