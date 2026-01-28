@@ -288,7 +288,9 @@ $(document).ready(function() {
         serverSide: true,
         responsive: { details: false },
         searching: false,
-        dom: 'Bfrtip', // Enable Buttons
+        dom: 'Blfrtip', // Enable Buttons and Length Menu
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]], // Define length options
+        lengthChange: true, // Allow user to change page length
         buttons: [
             { extend: 'pdf', className: 'btn-pdf', exportOptions: { columns: [0,1,2,3,4] } },
             { extend: 'print', className: 'btn-print', exportOptions: { columns: [0,1,2,3,4] } },
