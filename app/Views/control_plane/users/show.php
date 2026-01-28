@@ -6,12 +6,12 @@
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.3em] text-indigo-700 font-semibold">User Profile</p>
-                <h1 class="text-3xl font-semibold text-slate-900 mt-2"><?= esc(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))) ?: esc($user['email']) ?></h1>
-                <p class="mt-3 text-sm text-slate-600"><?= esc($user['email']) ?> · ID: <?= esc($user['id']) ?></p>
+                <h1 class="text-3xl font-semibold text-slate-900 mt-2"><?= esc(trim(($userProfile['first_name'] ?? '') . ' ' . ($userProfile['last_name'] ?? ''))) ?: esc($userProfile['email']) ?></h1>
+                <p class="mt-3 text-sm text-slate-600"><?= esc($userProfile['email']) ?> · ID: <?= esc($userProfile['id']) ?></p>
             </div>
             <?php
-                $statusClass = ($user['active'] == 1) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
-                $statusLabel = ($user['active'] == 1) ? 'Active' : 'Inactive';
+                $statusClass = ($userProfile['active'] == 1) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                $statusLabel = ($userProfile['active'] == 1) ? 'Active' : 'Inactive';
             ?>
             <div class="flex flex-wrap items-center gap-3">
                 <span class="text-xs font-semibold px-3 py-1 rounded-full <?= $statusClass ?>">
@@ -71,7 +71,7 @@
             <div class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
                 <h3 class="text-xs uppercase tracking-widest text-indigo-700 font-semibold">Security</h3>
                 <p class="text-xs text-slate-500">Reset user password manually.</p>
-                <form action="<?= base_url('controlplane/users/' . $user['id'] . '/reset-password') ?>" method="post" class="space-y-2">
+                <form action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/reset-password') ?>" method="post" class="space-y-2">
                     <?= csrf_field() ?>
                     <input type="password" name="password" placeholder="New Password (min 8 chars)" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs" required minlength="8">
                     <button class="w-full px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition">Reset Password</button>
@@ -82,9 +82,9 @@
             <div class="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-3">
                 <h3 class="text-xs uppercase tracking-widest text-rose-700 font-semibold">Account Status</h3>
                 <p class="text-xs text-slate-500">Enable or disable user access globally.</p>
-                <form action="<?= base_url('controlplane/users/' . $user['id'] . '/toggle-status') ?>" method="post">
+                <form action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/toggle-status') ?>" method="post">
                     <?= csrf_field() ?>
-                    <?php if ($user['active'] == 1): ?>
+                    <?php if ($userProfile['active'] == 1): ?>
                         <button class="w-full px-3 py-2 rounded-lg bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition">Deactivate User</button>
                     <?php else: ?>
                         <button class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition">Activate User</button>

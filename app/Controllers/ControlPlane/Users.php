@@ -205,7 +205,7 @@ class Users extends BaseController
 
         return view('control_plane/users/show', [
             'title' => 'User Profile',
-            'user' => $user,
+            'userProfile' => $user,
             'memberships' => $memberships,
             'globalRoles' => $globalRoles,
         ]);
