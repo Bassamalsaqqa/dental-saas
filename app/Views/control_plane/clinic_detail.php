@@ -1,324 +1,367 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="space-y-8">
-    <div class="glass-card rounded-3xl p-6 md:p-8">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+<div class="px-6 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
             <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-emerald-700 font-semibold">Clinic Profile</p>
-                <h1 class="text-3xl font-semibold text-slate-900 mt-2"><?= esc($clinic['name']) ?></h1>
-                <p class="mt-3 text-sm text-slate-600">Clinic overview, subscription status, and lifecycle controls.</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">Clinic Overview</h1>
+                <p class="text-gray-600 text-lg"><?= esc($clinic['name']) ?></p>
             </div>
-            <?php
-                $clinicStatus = $clinic['status'] ?? 'inactive';
-                $clinicStatusLabel = ucfirst($clinicStatus);
-                $clinicStatusClass = $clinicStatus === 'active'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : ($clinicStatus === 'suspended' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600');
-            ?>
-            <div class="flex flex-wrap items-center gap-3">
-                <span class="text-xs font-semibold px-3 py-1 rounded-full <?= $clinicStatusClass ?>">
-                    Status: <?= esc($clinicStatusLabel) ?>
-                </span>
-                <form action="<?= base_url('controlplane/impersonate') ?>" method="post">
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <a href="<?= base_url('controlplane/clinics') ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Clinics
+                </a>
+                <form action="<?= base_url('controlplane/impersonate') ?>" method="post" class="inline-block">
                     <?= csrf_field() ?>
                     <input type="hidden" name="clinic_id" value="<?= esc($clinic['id']) ?>">
-                    <button class="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">
-                        Login As
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login As
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1.2fr,0.8fr] gap-6">
-        <div class="glass-card rounded-3xl p-6">
-            <h2 class="text-sm font-semibold text-slate-800 mb-4">Clinic details</h2>
-            <div class="space-y-3 text-sm text-slate-600">
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Clinic ID</span>
-                    <span class="font-semibold text-slate-800"><?= esc($clinic['id']) ?></span>
+    <!-- Flash Messages -->
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-400 text-xl"></i>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Slug</span>
-                    <span><?= esc($clinic['slug'] ?? '--') ?></span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Created</span>
-                    <span><?= esc($clinic['created_at'] ?? '--') ?></span>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Success</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                        <p><?= session()->getFlashdata('success') ?></p>
+                    </div>
                 </div>
             </div>
         </div>
+    <?php endif; ?>
 
-        <div class="glass-card rounded-3xl p-6">
-            <h2 class="text-sm font-semibold text-slate-800 mb-4">Subscription</h2>
-            <div class="space-y-3 text-sm text-slate-600">
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Plan</span>
-                    <span class="font-semibold text-slate-800"><?= esc($plan_name ?? 'Unassigned') ?></span>
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Status</span>
-                    <span><?= esc($subscription['status'] ?? 'none') ?></span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">Start</span>
-                    <span><?= esc($subscription['start_at'] ?? '--') ?></span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">End</span>
-                    <span><?= esc($subscription['end_at'] ?? '--') ?></span>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p><?= session()->getFlashdata('error') ?></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 
-    <div class="glass-card rounded-3xl p-6 space-y-6">
-        <h2 class="text-sm font-semibold text-slate-800">Lifecycle actions</h2>
-
-        <?php
-            $startValue = !empty($subscription['start_at']) ? date('Y-m-d\\TH:i', strtotime($subscription['start_at'])) : '';
-            $endValue = !empty($subscription['end_at']) ? date('Y-m-d\\TH:i', strtotime($subscription['end_at'])) : '';
-        ?>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-slate-600">
-            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/start') ?>" method="post" class="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 space-y-3">
-                <?= csrf_field() ?>
-                <h3 class="text-xs uppercase tracking-widest text-emerald-700 font-semibold">Start subscription</h3>
-                <div>
-                    <label class="text-xs text-slate-500">Plan</label>
-                    <select name="plan_id" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required>
-                        <option value="">Select plan</option>
-                        <?php foreach (($plans ?? []) as $plan): ?>
-                            <option value="<?= esc($plan['id']) ?>"><?= esc($plan['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-500">Duration</label>
-                    <select name="duration" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="lifetime">Lifetime</option>
-                    </select>
-                </div>
-                <button class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Start</button>
-            </form>
-
-            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/extend') ?>" method="post" class="rounded-2xl border border-blue-100 bg-blue-50/40 p-4 space-y-3">
-                <?= csrf_field() ?>
-                <h3 class="text-xs uppercase tracking-widest text-blue-700 font-semibold">Extend subscription</h3>
-                <div>
-                    <label class="text-xs text-slate-500">Duration</label>
-                    <select name="duration" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="lifetime">Lifetime</option>
-                    </select>
-                </div>
-                <button class="w-full px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold">Extend</button>
-            </form>
-
-            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/update-dates') ?>" method="post" class="rounded-2xl border border-slate-100 bg-slate-50/40 p-4 space-y-3">
-                <?= csrf_field() ?>
-                <h3 class="text-xs uppercase tracking-widest text-slate-600 font-semibold">Adjust dates</h3>
-                <div>
-                    <label class="text-xs text-slate-500">Start</label>
-                    <input type="datetime-local" name="start_at" value="<?= esc($startValue) ?>" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-500">End</label>
-                    <input type="datetime-local" name="end_at" value="<?= esc($endValue) ?>" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-xs">
-                </div>
-                <button class="w-full px-3 py-2 rounded-lg bg-slate-700 text-white text-xs font-semibold">Save Dates</button>
-            </form>
-
-            <div class="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-3">
-                <h3 class="text-xs uppercase tracking-widest text-rose-700 font-semibold">Terminate clinic</h3>
-                <p class="text-xs text-slate-500">Disables clinic access and deactivates subscription.</p>
-                <?php if (($clinic['status'] ?? 'inactive') === 'active'): ?>
-                    <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/suspend') ?>" method="post">
-                        <?= csrf_field() ?>
-                        <button class="w-full px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">Suspend Clinic</button>
-                    </form>
-                <?php else: ?>
-                    <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/reactivate') ?>" method="post">
-                        <?= csrf_field() ?>
-                        <button class="w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Reactivate Clinic</button>
-                    </form>
-                <?php endif; ?>
-                <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/cancel') ?>" method="post">
-                    <?= csrf_field() ?>
-                    <button class="w-full px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold">Cancel Subscription</button>
-                </form>
-                <button type="button" class="w-full px-3 py-2 rounded-lg bg-rose-600 text-white text-xs font-semibold"
-                        onclick="openTerminateModal()">
-                    Terminate Clinic
-                </button>
-            </div>
-        </div>
-
-        <p class="text-xs text-slate-500">All actions are audited and applied immediately.</p>
-    </div>
-
-    <div class="glass-card rounded-3xl p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-indigo-700 font-semibold">Invoices</p>
-                <h2 class="text-2xl font-semibold text-slate-900 mt-1">Billing snapshot</h2>
-                <p class="mt-1 text-sm text-slate-500">Latest invoices and outstanding balance for this clinic.</p>
-            </div>
-            <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/60 px-4 py-2 text-xs font-semibold text-indigo-700 hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-500/10 transition-all duration-200">
-                <i class="fas fa-file-invoice-dollar"></i>
-                View all invoices
-            </a>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-                <p class="text-xs uppercase tracking-[0.4em] text-slate-500">Outstanding</p>
-                <p class="text-2xl font-semibold text-slate-900"><?= number_format($invoiceStats['outstanding'] ?? 0, 2) ?></p>
-                <p class="text-xs text-slate-500">Across <?= count($invoices ?? []) ?> invoices</p>
-            </div>
-            <div class="rounded-2xl border border-slate-100 bg-emerald-50/70 p-4">
-                <p class="text-xs uppercase tracking-[0.4em] text-emerald-500">Revenue this month</p>
-                <p class="text-2xl font-semibold text-emerald-900"><?= number_format($invoiceStats['revenue_month'] ?? 0, 2) ?></p>
-                <p class="text-xs text-slate-500">Paid invoices issued this month</p>
-            </div>
-            <div class="rounded-2xl border border-slate-100 bg-rose-50/70 p-4">
-                <p class="text-xs uppercase tracking-[0.4em] text-rose-500">Overdue</p>
-                <p class="text-2xl font-semibold text-rose-700"><?= (int) ($invoiceStats['overdue'] ?? 0) ?></p>
-                <p class="text-xs text-slate-500">Invoices past due date</p>
-            </div>
-        </div>
-        <div class="mt-4 overflow-x-auto">
-            <?php $recentInvoices = array_slice($invoices ?? [], 0, 4); ?>
-            <?php if (empty($recentInvoices)): ?>
-                <p class="text-sm text-slate-500">No invoices have been issued for this clinic yet.</p>
-            <?php else: ?>
-                <table class="w-full text-sm text-slate-600">
-                    <thead>
-                        <tr class="text-left text-xs uppercase tracking-[0.3em] text-slate-400">
-                            <th class="pb-2">Invoice #</th>
-                            <th class="pb-2">Amount</th>
-                            <th class="pb-2">Due</th>
-                            <th class="pb-2">Status</th>
-                            <th class="pb-2">Tax %</th>
-                            <th class="pb-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recentInvoices as $invoiceRow): ?>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Clinic Profile Card -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <!-- Clinic Header -->
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8 text-white">
+                    <div class="text-center">
+                        <div class="w-24 h-24 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm mx-auto mb-4 shadow-inner">
+                            <i class="fas fa-hospital text-white text-4xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold"><?= esc($clinic['name']) ?></h2>
+                        <p class="text-emerald-100 text-lg">ID: <?= esc($clinic['id']) ?></p>
+                        
+                        <div class="mt-4">
                             <?php
-                                $statusClasses = [
-                                    'draft' => 'bg-slate-100 text-slate-600',
-                                    'sent' => 'bg-indigo-100 text-indigo-700',
-                                    'paid' => 'bg-emerald-100 text-emerald-700',
-                                    'overdue' => 'bg-rose-100 text-rose-700',
-                                    'void' => 'bg-slate-200 text-slate-600',
-                                    'cancelled' => 'bg-rose-50 text-rose-600',
+                                $status = $clinic['status'] ?? 'inactive';
+                                $statusColors = [
+                                    'active' => 'bg-green-400 text-green-900',
+                                    'suspended' => 'bg-yellow-400 text-yellow-900',
+                                    'inactive' => 'bg-gray-400 text-gray-900'
                                 ];
-                                $statusLabel = ucfirst($invoiceRow['status'] ?? 'draft');
-                                $badgeClass = $statusClasses[$invoiceRow['status'] ?? 'draft'] ?? 'bg-slate-100 text-slate-600';
+                                $badgeClass = $statusColors[$status] ?? 'bg-gray-400 text-gray-900';
                             ?>
-                            <tr>
-                                <td class="py-3">
-                                    <a href="<?= base_url('controlplane/invoices/' . $invoiceRow['id']) ?>" class="text-indigo-600 font-semibold hover:underline"><?= esc($invoiceRow['invoice_number'] ?? '—') ?></a>
-                                    <p class="text-xs text-slate-400 mt-1"><?= esc($invoiceRow['issue_date'] ?? '--') ?></p>
-                                </td>
-                                <td class="py-3 font-semibold text-slate-900"><?= esc($invoiceRow['currency'] ?? 'USD') ?> <?= number_format($invoiceRow['total_amount'] ?? 0, 2) ?></td>
-                                <td class="py-3"><?= esc($invoiceRow['due_date'] ?? '--') ?></td>
-                                <td class="py-3">
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <?= $badgeClass ?>"><?= esc($statusLabel) ?></span>
-                                </td>
-                                <td class="py-3"><?= number_format($invoiceRow['tax_percentage'] ?? 0, 2) ?>%</td>
-                                <td class="py-3">
-                                    <a href="<?= base_url('controlplane/invoices/' . $invoiceRow['id']) ?>" class="text-indigo-600 text-xs font-semibold hover:underline">Details</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider <?= $badgeClass ?> shadow-sm">
+                                <?= ucfirst($status) ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinic Info -->
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-globe text-blue-600 text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-500">Slug</p>
+                                <p class="text-sm font-semibold text-gray-900 truncate"><?= esc($clinic['slug'] ?? '--') ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-calendar text-purple-600 text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-500">Created</p>
+                                <p class="text-sm font-semibold text-gray-900"><?= esc($clinic['created_at'] ?? '--') ?></p>
+                            </div>
+                        </div>
+
+                        <!-- Admin Info -->
+                        <div class="pt-4 border-t border-gray-100">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Primary Admin</h4>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-user-shield text-orange-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate"><?= esc($clinic['admin_name'] ?? 'Unknown') ?></p>
+                                    <p class="text-xs text-gray-500 truncate"><?= esc($clinic['admin_email'] ?? 'Unknown') ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinic Details -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Subscription Information -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-layer-group text-indigo-600 mr-2"></i>
+                        Subscription
+                    </h3>
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                        <?= esc($subscription['status'] ?? 'None') ?>
+                    </span>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Current Plan</label>
+                            <p class="text-xl font-bold text-gray-900"><?= esc($plan_name ?? 'Unassigned') ?></p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Billing Cycle</label>
+                            <div class="flex space-x-4 text-sm">
+                                <div>
+                                    <span class="text-gray-400">Start:</span>
+                                    <span class="font-medium text-gray-900"><?= !empty($subscription['start_at']) ? date('M j, Y', strtotime($subscription['start_at'])) : '--' ?></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">End:</span>
+                                    <span class="font-medium text-gray-900"><?= !empty($subscription['end_at']) ? date('M j, Y', strtotime($subscription['end_at'])) : '--' ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifecycle Actions -->
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <h4 class="text-sm font-bold text-gray-700 mb-4">Subscription Actions</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Start/Change Subscription -->
+                            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/start') ?>" method="post" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <?= csrf_field() ?>
+                                <label class="block text-xs font-medium text-gray-600 mb-2">Change Plan</label>
+                                <div class="flex gap-2">
+                                    <select name="plan_id" class="flex-1 rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                                        <option value="">Select plan...</option>
+                                        <?php foreach (($plans ?? []) as $plan): ?>
+                                            <option value="<?= esc($plan['id']) ?>"><?= esc($plan['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button class="px-3 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                                        Start
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Extend Subscription -->
+                            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/subscription/extend') ?>" method="post" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <?= csrf_field() ?>
+                                <label class="block text-xs font-medium text-gray-600 mb-2">Extend Duration</label>
+                                <div class="flex gap-2">
+                                    <select name="duration" class="flex-1 rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="monthly">1 Month</option>
+                                        <option value="yearly">1 Year</option>
+                                    </select>
+                                    <button class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                                        Extend
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Snapshot -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-file-invoice-dollar text-green-600 mr-2"></i>
+                        Billing Snapshot
+                    </h3>
+                    <a href="<?= base_url('controlplane/invoices') ?>" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All Invoices</a>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100 text-center">
+                            <p class="text-xs font-bold text-red-500 uppercase tracking-wider">Outstanding</p>
+                            <p class="text-2xl font-bold text-red-700 mt-1">$<?= number_format($invoiceStats['outstanding'] ?? 0, 2) ?></p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100 text-center">
+                            <p class="text-xs font-bold text-green-500 uppercase tracking-wider">Revenue (Mo)</p>
+                            <p class="text-2xl font-bold text-green-700 mt-1">$<?= number_format($invoiceStats['revenue_month'] ?? 0, 2) ?></p>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-100 text-center">
+                            <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">Overdue</p>
+                            <p class="text-2xl font-bold text-orange-700 mt-1"><?= (int)($invoiceStats['overdue'] ?? 0) ?></p>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($invoices)): ?>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-500 font-medium border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-4 py-3">Invoice #</th>
+                                        <th class="px-4 py-3">Date</th>
+                                        <th class="px-4 py-3">Amount</th>
+                                        <th class="px-4 py-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <?php foreach (array_slice($invoices, 0, 5) as $inv): ?>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 font-medium text-indigo-600">
+                                                <a href="<?= base_url('controlplane/invoices/' . $inv['id']) ?>"><?= esc($inv['invoice_number']) ?></a>
+                                            </td>
+                                            <td class="px-4 py-3"><?= esc($inv['issue_date']) ?></td>
+                                            <td class="px-4 py-3 font-semibold text-gray-900">$<?= number_format($inv['total_amount'], 2) ?></td>
+                                            <td class="px-4 py-3">
+                                                <?php
+                                                    $iStatus = $inv['status'] ?? 'draft';
+                                                    $iClass = match($iStatus) {
+                                                        'paid' => 'bg-green-100 text-green-700',
+                                                        'overdue' => 'bg-red-100 text-red-700',
+                                                        'sent' => 'bg-blue-100 text-blue-700',
+                                                        default => 'bg-gray-100 text-gray-600'
+                                                    };
+                                                ?>
+                                                <span class="px-2 py-1 rounded-full text-xs font-bold <?= $iClass ?>"><?= ucfirst($iStatus) ?></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center py-6 text-gray-400">
+                            <p>No invoices found.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-red-50 rounded-xl shadow-lg border border-red-200 p-6">
+                <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Danger Zone
+                </h3>
+                
+                <div class="flex flex-wrap gap-4">
+                    <?php if (($clinic['status'] ?? 'inactive') === 'active'): ?>
+                        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/suspend') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <button class="px-4 py-2 bg-yellow-500 text-white text-sm font-bold rounded-lg hover:bg-yellow-600 shadow-md transition-colors">
+                                Suspend Clinic
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/reactivate') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <button class="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-lg hover:bg-green-600 shadow-md transition-colors">
+                                Reactivate Clinic
+                            </button>
+                        </form>
+                    <?php endif; ?>
+
+                    <button type="button" class="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 shadow-md transition-colors" onclick="openTerminateModal()">
+                        Terminate Clinic
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4">
-    <div class="w-full max-w-lg rounded-3xl border border-rose-100 bg-white/95 shadow-2xl backdrop-blur-xl">
-        <div class="flex items-center justify-between border-b border-rose-100 px-6 py-4">
-            <div>
-                <p class="text-xs uppercase tracking-[0.3em] text-rose-400 font-semibold">Danger Zone</p>
-                <h3 class="text-lg font-semibold text-slate-900">Terminate clinic</h3>
-            </div>
-            <button type="button" class="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" onclick="closeTerminateModal()">
+<!-- Terminate Modal -->
+<div id="terminateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
+        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-red-800">Confirm Termination</h3>
+            <button onclick="closeTerminateModal()" class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="px-6 py-4 space-y-4 text-sm text-slate-600">
-            <p>
-                This will immediately disable access and cancel subscriptions for
-                <span id="terminateClinicName" class="font-semibold text-slate-900"><?= esc($clinic['name']) ?></span>.
-                Type the clinic name to confirm.
+        <div class="p-6">
+            <p class="text-gray-600 mb-4">
+                This will disable access and cancel the subscription for <strong class="text-gray-900"><?= esc($clinic['name']) ?></strong>. 
+                <br>Please type the clinic name below to confirm.
             </p>
-            <input type="text" id="terminateConfirmInput" class="w-full rounded-xl border border-rose-200 px-3 py-2 text-sm"
-                   placeholder="Type clinic name to confirm" oninput="updateTerminateState()">
+            <input type="text" id="terminateConfirmInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-4" placeholder="<?= esc($clinic['name']) ?>" oninput="checkTerminateInput()">
+            
+            <form id="terminateForm" action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/terminate') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200" onclick="closeTerminateModal()">Cancel</button>
+                    <button type="submit" id="terminateBtn" class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 opacity-50 cursor-not-allowed" disabled>Terminate</button>
+                </div>
+            </form>
         </div>
-        <form id="terminateForm" action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/terminate') ?>" method="post" class="px-6 pb-6 flex items-center justify-between gap-3">
-            <?= csrf_field() ?>
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" onclick="closeTerminateModal()">
-                Cancel
-            </button>
-            <button id="terminateConfirmButton" type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold opacity-60 cursor-not-allowed" disabled>
-                Terminate Clinic
-            </button>
-        </form>
     </div>
 </div>
 
 <script>
-let terminateClinicName = '<?= esc($clinic['name']) ?>';
-
-function openTerminateModal() {
-    const modal = document.getElementById('terminateModal');
-    const inputEl = document.getElementById('terminateConfirmInput');
-    if (inputEl) {
-        inputEl.value = '';
+    const clinicName = "<?= esc($clinic['name']) ?>";
+    
+    function openTerminateModal() {
+        document.getElementById('terminateModal').classList.remove('hidden');
+        document.getElementById('terminateModal').classList.add('flex');
     }
-    updateTerminateState();
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+    
+    function closeTerminateModal() {
+        document.getElementById('terminateModal').classList.add('hidden');
+        document.getElementById('terminateModal').classList.remove('flex');
+        document.getElementById('terminateConfirmInput').value = '';
+        checkTerminateInput();
     }
-}
-
-function closeTerminateModal() {
-    const modal = document.getElementById('terminateModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+    
+    function checkTerminateInput() {
+        const input = document.getElementById('terminateConfirmInput').value;
+        const btn = document.getElementById('terminateBtn');
+        
+        if (input === clinicName) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
     }
-}
-
-function updateTerminateState() {
-    const inputEl = document.getElementById('terminateConfirmInput');
-    const buttonEl = document.getElementById('terminateConfirmButton');
-    if (!inputEl || !buttonEl) {
-        return;
-    }
-    const matches = inputEl.value.trim().toLowerCase() === terminateClinicName.trim().toLowerCase();
-    buttonEl.disabled = !matches;
-    buttonEl.classList.toggle('opacity-60', !matches);
-    buttonEl.classList.toggle('cursor-not-allowed', !matches);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('terminateModal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeTerminateModal();
-            }
-        });
-    }
-});
 </script>
 <?= $this->endSection() ?>

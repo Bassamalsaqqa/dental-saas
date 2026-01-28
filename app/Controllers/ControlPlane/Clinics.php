@@ -114,6 +114,7 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
+        $db = \Config\Database::connect();
 
         $planRows = $planModel->findAll();
         $planMap = [];
@@ -166,6 +167,17 @@ class Clinics extends BaseController
                 continue;
             }
 
+            // Fetch Admin Email (First user added to clinic)
+            $adminUser = $db->table('clinic_users')
+                ->select('users.email')
+                ->join('users', 'users.id = clinic_users.user_id')
+                ->where('clinic_users.clinic_id', $clinic['id'])
+                ->orderBy('clinic_users.created_at', 'ASC')
+                ->limit(1)
+                ->get()
+                ->getRow();
+            $adminEmail = $adminUser ? $adminUser->email : 'Unknown';
+
             $rows[] = [
                 'id' => $clinic['id'],
                 'name' => $clinic['name'] ?? '',
@@ -173,6 +185,7 @@ class Clinics extends BaseController
                 'status' => $clinic['status'] ?? 'inactive',
                 'plan_name' => $planName,
                 'mrr' => $mrr,
+                'admin_email' => $adminEmail,
             ];
         }
 
@@ -225,11 +238,25 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
+        $db = \Config\Database::connect();
 
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
         }
+
+        // Fetch Admin Info
+        $adminUser = $db->table('clinic_users')
+            ->select('users.email, users.first_name, users.last_name')
+            ->join('users', 'users.id = clinic_users.user_id')
+            ->where('clinic_users.clinic_id', $id)
+            ->orderBy('clinic_users.created_at', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRow();
+            
+        $clinic['admin_email'] = $adminUser ? $adminUser->email : 'Unknown';
+        $clinic['admin_name'] = $adminUser ? trim($adminUser->first_name . ' ' . $adminUser->last_name) : 'Unknown';
 
         $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
         $planName = 'Unassigned';

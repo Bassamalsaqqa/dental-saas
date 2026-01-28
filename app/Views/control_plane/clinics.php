@@ -199,6 +199,12 @@ button.dt-button:hover, button.dt-button:active {
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
+                                    <i class="fas fa-user-shield text-emerald-600"></i>
+                                    <span>Admin Email</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                <div class="flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-emerald-600"></i>
                                     <span>MRR</span>
                                 </div>
@@ -532,6 +538,13 @@ $(document).ready(function() {
                 }
             },
             {
+                data: 'admin_email',
+                name: 'admin_email',
+                render: function(data) {
+                    return `<span class="text-sm text-slate-600">${escapeHtml(data || 'Unknown')}</span>`;
+                }
+            },
+            {
                 data: 'mrr',
                 name: 'mrr',
                 render: function(data) {
@@ -608,7 +621,7 @@ $(document).ready(function() {
         columnDefs: [
             { targets: 0, responsivePriority: 3 },
             { targets: 2, responsivePriority: 2 },
-            { targets: 4, responsivePriority: 1, className: 'dt-actions' }
+            { targets: 5, responsivePriority: 1, className: 'dt-actions' }
         ],
         // Layout: Length+Filters (Top Left), Empty (Top Right), Table, Info+Paginate (Bottom)
         dom: 'Bfrtip',
