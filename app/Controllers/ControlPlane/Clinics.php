@@ -9,15 +9,19 @@ use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Models\ControlPlaneInvoiceModel;
 use App\Services\ControlPlaneAuditService;
+use App\Libraries\IonAuth;
 
 class Clinics extends BaseController
 {
     protected $auditService;
+    protected $ionAuth;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
+        $this->ionAuth = new IonAuth();
     }
+
 
     /**
      * GET /controlplane/clinics
@@ -588,6 +592,54 @@ class Clinics extends BaseController
         ]);
 
         return redirect()->to(base_url('controlplane/clinics'))->with('success', 'Clinic and associated data deleted.');
+    }
+
+    /**
+     * POST /controlplane/clinics/{id}/reset-admin-password
+     */
+    public function resetAdminPassword(int $id)
+    {
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($id);
+        if (!$clinic) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Clinic not found');
+        }
+
+        $password = $this->request->getPost('password');
+        if (strlen($password) < 8) {
+            return redirect()->back()->with('error', 'Password must be at least 8 characters long.');
+        }
+
+        // Find Admin User
+        $db = \Config\Database::connect();
+        $adminUser = $db->table('clinic_users')
+            ->select('users.id, users.email')
+            ->join('users', 'users.id = clinic_users.user_id')
+            ->where('clinic_users.clinic_id', $id)
+            ->orderBy('clinic_users.created_at', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRow();
+
+        if (!$adminUser) {
+            return redirect()->back()->with('error', 'No admin user found for this clinic.');
+        }
+
+        // Update Password
+        if ($this->ionAuth->update($adminUser->id, ['password' => $password])) {
+            $this->auditService->logEvent('admin_password_reset', [
+                'route' => '/controlplane/clinics/' . $id . '/reset-admin-password',
+                'method' => 'POST',
+                'metadata' => [
+                    'clinic_id' => $id, 
+                    'admin_user_id' => $adminUser->id,
+                    'admin_email' => $adminUser->email
+                ],
+            ]);
+            return redirect()->back()->with('success', "Password reset for {$adminUser->email}.");
+        } else {
+            return redirect()->back()->with('error', 'Failed to reset password.');
+        }
     }
 
     private function resolveEndAt(string $duration, string $startAt): ?string

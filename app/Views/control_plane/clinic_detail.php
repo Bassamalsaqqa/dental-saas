@@ -112,14 +112,19 @@
 
                         <!-- Admin Info -->
                         <div class="pt-4 border-t border-gray-100">
-                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Primary Admin</h4>
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Primary Admin</h4>
+                                <button onclick="openPasswordResetModal()" class="text-xs font-semibold text-indigo-200 hover:text-white transition-colors">
+                                    Reset Password
+                                </button>
+                            </div>
                             <div class="flex items-center space-x-3">
                                 <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-user-shield text-orange-600 text-sm"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-gray-900 truncate"><?= esc($clinic['admin_name'] ?? 'Unknown') ?></p>
-                                    <p class="text-xs text-gray-500 truncate"><?= esc($clinic['admin_email'] ?? 'Unknown') ?></p>
+                                    <p class="text-xs text-emerald-100 truncate"><?= esc($clinic['admin_email'] ?? 'Unknown') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -336,6 +341,34 @@
     </div>
 </div>
 
+<!-- Password Reset Modal -->
+<div id="passwordResetModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all scale-100">
+        <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-indigo-800">Reset Admin Password</h3>
+            <button onclick="closePasswordResetModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-600 mb-4">
+                Enter a new password for <strong><?= esc($clinic['admin_email'] ?? 'the admin') ?></strong>.
+            </p>
+            <form action="<?= base_url('controlplane/clinics/' . $clinic['id'] . '/reset-admin-password') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">New Password</label>
+                    <input type="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required minlength="8" placeholder="Minimum 8 characters">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200" onclick="closePasswordResetModal()">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     const clinicName = "<?= esc($clinic['name']) ?>";
     
@@ -362,6 +395,16 @@
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
         }
+    }
+
+    function openPasswordResetModal() {
+        document.getElementById('passwordResetModal').classList.remove('hidden');
+        document.getElementById('passwordResetModal').classList.add('flex');
+    }
+
+    function closePasswordResetModal() {
+        document.getElementById('passwordResetModal').classList.add('hidden');
+        document.getElementById('passwordResetModal').classList.remove('flex');
     }
 </script>
 <?= $this->endSection() ?>
