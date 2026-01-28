@@ -285,6 +285,7 @@ function updateDeleteState() {
 
 // Toggle User Status AJAX
 function toggleUserStatus(userId, action) {
+    // Direct action without confirmation
     const formData = new FormData();
     const csrfName = getCsrfName();
     const csrfToken = getCsrfToken();
@@ -304,7 +305,8 @@ function toggleUserStatus(userId, action) {
             if (usersTable) {
                 usersTable.ajax.reload(null, false);
             }
-            alert(data.message);
+            // Optional: Show toast instead of alert for smoother UX
+            // alert(data.message); 
         } else {
             alert(data.message || 'Failed to update status');
         }
