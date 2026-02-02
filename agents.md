@@ -74,4 +74,18 @@ Constraints:
    - **Database Name:** `democa_dental_saas`
    - **DB Credentials:** `root` / `root`
    - **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
-   - **Session Cookie:** `ci_session_saas`
+- **Session Cookie:** `ci_session_saas`
+
+## G) Recent State Snapshot (for fast catch-up)
+- **Control Plane surface is fully modernized with AJAX-driven workflows.** Registry pages (Users, Clinics, Plans) now support zero-reload actions for Delete, Terminate, Suspend, and Status Toggles. These pages use `fetch` API and `DataTable.ajax.reload(null, false)` to maintain pagination and scroll position after updates.
+- **UI/UX Standardization:** All Control Plane statistics cards follow a uniform high-fidelity design pattern (Source of Truth: Clinic Dashboard). This includes glassmorphism, animated progress bars, vibrant solid-color themes for neutral/negative statuses (All Time, Rejected), and top-right status badges. Header search/filter bars are unified into a single responsive line.
+- **RBAC & Scoping:** Access is centralized in `RoleController` and `PermissionService`. System roles (`clinic_id IS NULL`) and tenant roles are unified under `/roles`. Control Plane routes are airlocked via `TenantFilter` and require `global_mode=true`.
+- **Clinic Settings Fix:** Resolved a structural regression in `app/Views/settings/index.php` where broken HTML nesting hid the "Subscription Plan" menu. The settings interface is now correctly partitioned and functional.
+- **Logs:** `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` and `DECISION_LOG_SaaS.md` capture specific task history. Sections G and H of this file, combined with `gemini.md`, provide the current architectural "source of truth."
+
+## H) Catch-up Checklist (for future sessions)
+1. Read sections A–H of this file and `gemini.md` first. These provide the authoritative map of the frontend, backend, and database schema as of Jan 28, 2026.
+2. For UI work, always match the new standardized pattern: `backdrop-blur-xl bg-white/80` for cards, animated progress bars for metrics, and `indigo-700` solid themes for neutral "All Time" metrics.
+3. For Control Plane actions, always prefer AJAX (fetch) over form redirects. Ensure `refreshCsrfToken()` is called after each background operation to keep security headers in sync.
+4. Verify all ID-based operations are scoped by `active_clinic_id` (Tenant Plane) or protected by `global_mode` (Control Plane).
+5. Guardrails (`bash scripts/ci/saas_guardrails.sh`) remain active; if environment issues (Windows/WSL) persist, prioritize manual code inspection for DOM sinks and raw queries.

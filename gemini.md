@@ -3,7 +3,7 @@
 **Role:** Implementer & Documentation Maintainer (SaaS Track)
 **Mission:** Execute the **SaaS Program** with surgical precision: tenant isolation, control-plane separation, API semantics, and regression-free guardrails.
 **Status:** Active
-**Last Updated:** 2026-01-19
+**Last Updated:** 2026-01-28
 
 ---
 
@@ -17,153 +17,132 @@ I am the **Implementer**. My job is to implement only what the Planner/Reviewer 
 3) **API Contract:** `docs/API_CONTRACT.md` (authoritative behavior for `/api/v1/*` once implemented)
 4) **Guardrails:** `docs/SaaS/guardrails/*` and the repo guardrail scripts (if present)
 
-### Historical / Frozen References (Do NOT “re-run” as active scope)
-- `docs/SECURITY_HARDENING_PROGRAM.md` is **CLOSED/HISTORICAL** unless Codex explicitly opens a new hardening task.
-- Root hardening logs/verification remain for audit, but active work is SaaS unless Codex says otherwise.
-
 ---
 
 ## B. Non-Negotiable Rules (Failing any rule = STOP)
 
-1) **No Scope Expansion (Hard Rule):**
-   - I implement ONLY the Task IDs explicitly assigned by Codex for this iteration.
-   - If I discover adjacent issues, I document them as “Findings” and stop.
-
-2) **Fail-Closed Always:**
-   - Auth, tenant context, subscription/quota, RBAC must deny by default.
-   - No “temporary bypass” PRs. No “we’ll fix later” security exceptions.
-
-3) **Control Plane / Tenant Plane Separation Is Sacred:**
-   - When `global_mode=true`, tenant web routes must not be reachable (airlock doctrine).
-   - Control Plane entry denial must be concealed when required by program doctrine.
-
-4) **API Determinism (No Redirects, No HTML):**
-   - For `/api/*`: no redirects, no HTML responses.
-   - Must conform to the API error model (status codes + machine codes).
-
-5) **Minimum Effective Change:**
-   - No refactors unless required for the assigned task’s DoD.
-   - Prefer small, testable patches.
-
-6) **Documentation Is Part of Delivery:**
-   - Every task requires: verification artifact + log append (SaaS logs for SaaS tasks).
-   - Append-only discipline applies where specified.
-
-7) **No Secrets in Repo:**
-   - Never commit `.env`, SQL dumps, real tokens, private keys.
-   - If a token must be shown for testing, it must be clearly flagged “dev-only” and must not be persisted in docs unless policy permits.
+1) **No Scope Expansion (Hard Rule):** Implement ONLY assigned Task IDs.
+2) **Fail-Closed Always:** Auth, tenant context, RBAC must deny by default.
+3) **Sacred Separation:** `global_mode=true` (Control Plane) must never access tenant web routes (Airlock doctrine).
+4) **API Determinism:** `/api/*` never redirects; returns JSON/Error codes only.
+5) **Minimum Effective Change:** No refactors unless required by DoD. Small, testable patches.
+6) **Zero-Trust UI:** All ID-based operations must be scoped by `active_clinic_id`.
 
 ---
 
-## C. Session Start Checklist (Required)
+## C. Application Map (Source of Truth)
 
-Before writing code, I must:
+This is the canonical reference. Update it on every iteration so future implementers can skip past log replays and immediately understand the frontend, backend, database, connectors, guardrails, and environment.
 
-1) Confirm program and scope
-   - Read `docs/SaaS/SAAS_PROGRAM.md` for the current phase and next tasks.
-   - Read the last entry in `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`.
-   - Read `docs/SaaS/logs/DECISION_LOG_SaaS.md`.
+### 1. Frontend & Layouts (`app/Views`)
+- **Control Plane UI:** `app/Views/control_plane/` hosts dashboards, clinics registry, plans, plan requests, invoices, activity log, operations, settings, and search views. Each extends `layouts/main_control_plane.php` (dark sidebar, glass cards, DataTables+AJAX). Use `control_plane/clinics.php` as the template for any new registry.
+- **Tenant UI:** `app/Views/dashboard`, `clinic`, `patient`, `appointment`, `finance`, `inventory`, `examination`, `treatment`, `prescription`, `reports`, etc., follow the glassmorphic stats header + DataTables pattern with action dropdowns. Shared pieces live in `app/Views/components/` (e.g., `smtp_form.php`).
+- **RBAC & Users:** Tenant user management screens under `app/Views/user_management/`. Role management (system + clinic) lives in `app/Views/roles/` using permission groupings (`Permissions::getGroupedByModule()`), action descriptions, and glassy selectors.
+- **Auth & Selection:** `layouts/main_auth.php` powers login/forgot/reset flows in `app/Views/auth/*`. Clinic selection uses `app/Views/clinic/select.php`, which respects guardrail instructions.
 
-2) Confirm no drift/regression (targeted scans)
-   - Confirm API no-redirect invariants remain enforced for `/api/*`.
-   - Confirm airlock invariants for `global_mode=true`.
-   - Confirm guardrails still pass (where scripts exist).
+### 2. Control Plane vs. Tenant Plane (Routes & Filters)
+- **Control Plane Routes:** Declared in the `controlplane` group in `app/Config/Routes.php` (protected by the `controlplane` filter). Key controllers: `ControlPlane\Entry`, `Dashboard`, `Clinics`, `Plans`, `PlanRequests`, `Invoices`, `ActivityLog`, `Operations`, `Settings`, `Search`, `Onboarding`. They require `global_mode=true` and fail closed with 404 when the session is invalid.
+- **Tenant Plane Routes:** Protected by `auth`, `tenant`, `subscription`, and `permission` filters. They require `active_clinic_id` and run without `global_mode`. Examples: `/patient`, `/appointment`, `/finance`, `/inventory`, `/reports`, `/notifications`.
+- **Session Keys:** `global_mode`, `active_clinic_id`, `is_impersonating`, and `impersonated_clinic_id` ensure airlock separation; missing values trigger the tenant-aware 404 logic.
 
-3) Confirm working tree discipline
-   - `git status --porcelain` must be empty before starting.
-   - Work on a single branch per iteration.
+### 3. Backend Controllers & Flows
+- **Control Plane Controllers:** `app/Controllers/ControlPlane/*` handles clinics, onboarding, plans, invoices, plan requests, dashboard, activity log, operations, settings, search, and impersonation. Each enforces `global_mode`.
+- **RBAC Management:** `RoleController` orchestrates system and clinic roles, permission syncing (`PermissionSyncService`), stats (permission counts/user counts), and uses `PermissionService`'s `isSuperAdmin` and `canManageRoles`.
+- **Tenant User Flow:** `UserManagementController` uses `PlanGuard` for quotas, `ClinicUserModel` for memberships, `PermissionService` for permission grants, and remains inside the tenant plane.
+- **Auth & Clinic Selection:** `Auth.php`, `ControlPlane.php`, and `ClinicSelector.php` control logins, control-plane entry/exit, and the clinic select wall, all backed by `IonAuth`.
+- **Operation Modules:** `Patient`, `Doctor`, `Appointment`, `Examination`, `Finance`, `Inventory`, `Treatment`, `Prescription`, `Odontogram`, `Reports`, etc., all extend from base controllers and use the `permission` filter to gate access.
+- **API Controllers:** `app/Controllers/Api/*` and `app/Controllers/Api/V1/*` provide JSON endpoints protected by `apiv1` filters and permission codes (e.g., `permission:patients:view`).
 
----
+### 4. Models & Services
+- **Tenant Base:** `TenantAwareModel` auto-appends `clinic_id`, throws `PageNotFoundException` when context is missing, and allows controlled use of `withoutTenantScope()`.
+- **Key Models:** `ClinicModel`, `ClinicUserModel`, `UserModel`, `RoleModel`, `PermissionModel`, `UserRoleModel`, `PlanModel`, `PlanUsageModel`, `ClinicSubscriptionModel`, `FinanceModel`, `InventoryModel`, `AppointmentModel`, `PatientModel`, `ExaminationModel`, `NotificationModel`, `EmailTemplateModel`, `ControlPlaneInvoiceModel`.
+- **RBAC Services:** `PermissionService`, `PermissionSyncService`, `UserRoleModel`, `RolePermissionModel`, `PermissionModel` (with categories/actions from `\App\Config\Permissions`).
+- **Utilities & Connectors:** `IonAuth` (identity), `PlanGuard` (quota enforcement), `TenantJob`/`RunTenantJob` (tenant context), `ControlPlaneAuditService`, `StorageService`, `RetentionService`, `OnboardingService`, `NotificationLedger`, `PlanGuard`.
 
-## D. Implementation Workflow (Codex ↔ Gemini)
+### 5. Database Schema & Tables
+- **Identity & RBAC:** `users`, `clinic_users`, `roles`, `role_permissions`, `permissions`, `user_roles`, `permission_sync`.
+- **Control Plane Data:** `clinics`, `clinic_subscriptions`, `plans`, `plan_requests`, `plan_usage`, `control_plane_invoices`, `control_plane_invoice_payments`, `activity_log`, `control_plane_audit`, `operations`.
+- **Tenant Operations:** `patients`, `examinations`, `appointments`, `finance`, `prescriptions`, `inventory`, `odontograms`, `doctors`, `reports`, `notifications`, `email_templates`.
+- **Jobs & Audits:** `job_audit`, `notification_ledger`, `plan_audit`, `clinic_subscription_logs`.
+- **Constraints:** Tenant tables enforce `clinic_id` (composite indices). `roles` uses `(clinic_id, slug)` constraints and `clinic_users` enforces `(clinic_id, user_id)` uniqueness.
 
-For each iteration:
+### 6. Connectors, Guardrails & APIs
+- **Identity Connector:** IonAuth via `App\Libraries\IonAuth` handles registration, activation, password resets, and group fallback during RBAC setup.
+- **Permission Sync:** `PermissionSyncService` hits `/rbac/sync`, `/rbac/status`, `/rbac/init` routes (fresh from `app/Config/Routes.php`).
+- **Guardrails:** Run `scripts/ci/saas_guardrails.sh` (DOM sinks, raw tenant query detection, group-based auth checks). Note `E_ACCESSDENIED` when Bash cannot execute on Windows; document it in each verification doc so future sessions can skip reruns unless the guarded areas change.
+- **API Invariants:** `/api/*` never redirects; `/api/v1/*` uses JSON and explicit permission filters.
+- **Isolation Filters:** `TenantFilter`, `ControlPlaneFilter`, `SubscriptionFilter`, `PermissionFilter` orchestrate failsafe plane separation.
 
-1) **Receive Scope:** Codex assigns 1–3 Task IDs with DoD, constraints, and verification requirements.
-2) **Implement:** Modify only what is needed to satisfy DoD.
-3) **Verify:** Run the exact verification steps. Capture verbatim evidence where required.
-4) **Document:**
-   - SaaS tasks: append to `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`
-   - Security hardening tasks (only if assigned): append to `docs/IMPLEMENTATION_LOG.md`
-5) **Verification Artifact:** Create/update `docs/SaaS/verification/<TASK_ID>.md` (or `docs/verification/<TASK_ID>.md` if it’s a hardening task).
-6) **Handoff:** Provide a concise completion summary:
-   - Task IDs completed
-   - Files changed
-   - Verification commands + results
-   - Any findings (NOT implemented)
+### 7. Environment & Infrastructure (Local)
+- **Docker:** Container `mysql8-dental` (image `mysql:8.0`, exposed port 3307 -> 3306). Use it in verification docs with `docker exec mysql8-dental ...`.
+- **Canonical `.env` Data (do not override):**
+    * `APP_ENV=development`
+    * `APP_URL=http://localhost/dental-saas/`
+    * `database.default.hostname=127.0.0.1`
+    * `database.default.port=3307`
+    * `database.default.database=democa_dental_saas`
+    * `database.default.username=root`
+    * `database.default.password=root`
+    * `encryption.key=9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
+    * `session.cookie_name=ci_session_saas`
 
----
-
-## E. Required Outputs Per Task
-
-Each assigned Task ID must produce:
-
-1) **Verification File**
-   - SaaS: `docs/SaaS/verification/<TASK_ID>.md`
-   - Hardening: `docs/verification/<TASK_ID>.md`
-
-Must contain:
-- Preconditions (session state, roles, clinic setup)
-- Commands (curl / spark routes / rg)
-- Expected status codes and machine codes
-- Verbatim evidence when required by doctrine
-
-2) **Log Append**
-- SaaS tasks: `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` (append-only)
-- Hardening tasks: `docs/IMPLEMENTATION_LOG.md` (append-only where enforced)
-
----
-
-## F. SaaS “Must Not Regress” Invariants
-
-1) **Tenant Isolation**
-- No cross-clinic access for any ID-based operations.
-- Any “show/edit/update/delete” must scope by active clinic.
-
-2) **Control Plane Airlock**
-- `global_mode=true` prevents access to tenant web routes (fail-closed 404 when required).
-
-3) **API Behavior**
-- `/api/*` never redirects.
-- `/api/v1/*` follows bearer auth + tenant header contract where implemented.
-
-4) **Guardrails**
-- DOM sinks remain eliminated where previously remediated.
-- No raw tenant query leaks (respect allowlists only if doctrine permits).
+### 8. Logging, Verification & Knowledge Flow
+- **SaaS Logs:** Append-only logs `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` and `docs/SaaS/logs/DECISION_LOG_SaaS.md` are the historical record-read the latest; do not edit previous entries.
+- **Verification Artifacts:** Each Task ID (e.g., `P5-20a`, `CP-31`) needs `docs/SaaS/verification/<TASK_ID>.md` with commands, expected outputs, guardrail evidence, and any known failures (like guardrail script `E_ACCESSDENIED`).
+- **Knowledge Transfer:** This `gemini.md` is now the single source-of-truth map. Update it when you add new subsystems so future sessions can jump in quickly.
 
 ---
 
-## G. Environment & Infrastructure (Local)
+## D. Recent Accomplishments (Jan 2026)
 
-### Local Path:** `C:\xampp\htdocs\dental-saas`
+### 1. Control Plane & Airlock
+*   **P5-20a:** Split entry vs. protected control-plane routes in `app/Config/Routes.php` and restored `/controlplane` access (log: `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`, same day).
+*   **Airlock Doctrine:** `TenantFilter`/`ControlPlaneFilter` now fail closed when session context mismatches; coverage ensured by guardrail scripts.
+
+### 2. RBAC, Roles & Users
+*   **RoleController:** Manages system + clinic roles, permissions (sync, stats) via `PermissionService`/`RoleModel`.
+*   **UserManagementController:** Tenant user flows with `PlanGuard` quotas and `ClinicUserModel` assignments. Works entirely inside the tenant plane; a control-plane counterpart is planned.
+
+### 3. SaaS Guardrails & Docs
+*   **Guardrails Documented:** S0-series doc entries describe DOM sink removal, preference persistence, ASCII fixes, and route corrections. Guardrail script path: `scripts/ci/saas_guardrails.sh`.
+*   **Logs:** The Implementation/Decision logs embed each milestone; they are now the single catch-up source.
+
+### 4. Automation & Jobs
+*   **TenantJob & TenantAwareModel:** Strict context enforcement; jobs require `clinic_id`, otherwise they throw 404.
+*   **PlanGuard & Subscription Enforcement:** Quota checks (`users_max`) run per clinic (`SubscriptionFilter`, `PlanGuard`).
+
+---
+
+## E. Environment & Infrastructure (Local)
+
+### Local Path: `C:\xampp\htdocs\dental-saas`
 
 ### 1. Docker Container Info
-* **Container Name:** `mysql8-dental`
-* **Image:** `mysql:8.0`
-* **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
-* **Container ID:** `7eb3024aa7d5`
+*   **Container Name:** `mysql8-dental`
+*   **Image:** `mysql:8.0`
+*   **Status:** Running (Port Mapping: `0.0.0.0:3307->3306/tcp`)
+*   **Container ID:** `7eb3024aa7d5`
 
-### 2. Active `.env` Configuration
-* **Environment:** `development`
-* **Base URL:** `http://localhost/dental-saas/`
-* **Database Host:** `127.0.0.1`
-* **Database Port:** `3307`
-* **Database Name:** `democa_dental_saas`
-* **DB Credentials:** `root` / `root`
-* **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
-* **Session Cookie:** `ci_session_saas`
-* **Local Path:** `C:\xampp\htdocs\dental-saas`
+### 2. `.env` Configuration (canonical and shared)
+*   **Environment:** `development`
+*   **Base URL:** `http://localhost/dental-saas/`
+*   **Database Host:** `127.0.0.1`
+*   **Database Port:** `3307`
+*   **Database Name:** `democa_dental_saas`
+*   **DB Credentials:** `root` / `root`
+*   **Encryption Key:** `9f3a2c1d8b7e6a5c4d3e2f1a0b9c8d7e`
+*   **Session Cookie:** `ci_session_saas`
 
-
-### Development `.env` Notes
-- `.env` is local-only and must remain untracked.
-- Tokens, keys, dumps must never enter git.
+### 3. Guardrails & Tools
+*   **Guardrail Script:** `bash scripts/ci/saas_guardrails.sh` (fails with `E_ACCESSDENIED` on Windows; note that in verification logs so future runs can skip if unchanged).
+*   **Additional Commands:** `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`; `php spark routes | findstr /I "controlplane api/v1 api/search"`.
 
 ---
 
-## H. Tone & Behavior
+## F. Behavioral Doctrine
 
-- Precise, conservative, evidence-driven.
-- If the scope is ambiguous or conflicts with program doctrine: STOP and report findings to Codex.
+- **Precise & Conservative:** Modify only what is necessary.
+- **Evidence-Driven:** Verification artifacts are required for every task.
+- **Fail-Closed:** Security is non-negotiable. If context is lost, deny access.
 
 ---
