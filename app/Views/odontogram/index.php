@@ -304,306 +304,20 @@ function getStatusText($status) {
                 <div class="max-w-6xl mx-auto">
                     <!-- Jaw Interface Container -->
                     <div class="relative bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/30 overflow-hidden">
-                        <!-- Jaw Background -->
                         <div class="absolute inset-0 bg-gradient-to-br from-pink-50/30 via-white to-blue-50/20 rounded-3xl"></div>
-
-                        <!-- Upper Jaw -->
-                        <div class="relative mb-16">
-                            <!-- Upper Jaw Label -->
-                            <div class="text-center mb-6">
-                                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center">
-                                    <i class="fas fa-arrow-up text-blue-600 mr-3"></i>
-                                    Upper Jaw (Maxilla)
-                                    <i class="fas fa-arrow-up text-blue-600 ml-3"></i>
-                                </h3>
-                                <div class="text-sm text-gray-600 mt-2">Right → Left (1-16)</div>
-                            </div>
-                            
-                            <!-- Upper Jaw Teeth -->
-                            <div class="flex justify-center items-center w-full max-w-4xl mx-auto">
-                                <!-- Upper Right Quadrant (1-8) -->
-                                <div class="flex space-x-1 flex-1 justify-end">
-                                    <?php for ($i = 8; $i >= 1; $i--): ?>
-                                        <div class="group relative transition-all duration-300 hover:-translate-y-2" data-tooth="<?= $i ?>" data-quadrant="upper-right">
-                                            <div class="w-12 h-16 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-t-2xl rounded-b-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden shadow-lg backdrop-blur-sm hover:scale-110 hover:shadow-2xl hover:border-blue-500 z-10 group-hover:z-20" 
-                                                 data-tooth="<?= $i ?>" 
-                                                 data-quadrant="upper-right" 
-                                                 onclick="openToothModal(<?= $i ?>)"
-                                                 title="Tooth <?= $i ?> - Click to edit">
-                                                <div class="text-xs font-bold text-gray-700 z-10 relative">
-                                                    <span class="universal-number"><?= $i ?></span>
-                                                    <span class="fdi-number hidden"><?= getFDINumber($i) ?></span>
-                                                </div>
-                                                <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 opacity-0 transition-all duration-300 shadow-sm group-hover:opacity-100 group-hover:scale-125"></div>
-                                                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/95 text-white px-3 py-2 rounded-lg text-xs max-w-xs opacity-0 invisible transition-all duration-300 z-50 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:-translate-y-1" style="min-width: 200px;">
-                                                    <div class="universal-tooltip">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= $i ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="fdi-tooltip hidden">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= getFDINumber($i) ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details-fdi">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition-fdi">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description-fdi">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment-fdi">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status-fdi">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-                                
-                                <!-- Center Gap -->
-                                <div class="w-4"></div>
-                                
-                                <!-- Upper Left Quadrant (9-16) -->
-                                <div class="flex space-x-1 flex-1 justify-start">
-                                    <?php for ($i = 9; $i <= 16; $i++): ?>
-                                        <div class="group relative transition-all duration-300 hover:-translate-y-2" data-tooth="<?= $i ?>" data-quadrant="upper-left">
-                                            <div class="w-12 h-16 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-t-2xl rounded-b-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden shadow-lg backdrop-blur-sm hover:scale-110 hover:shadow-2xl hover:border-blue-500 z-10 group-hover:z-20" 
-                                                 data-tooth="<?= $i ?>" 
-                                                 data-quadrant="upper-left" 
-                                                 onclick="openToothModal(<?= $i ?>)"
-                                                 title="Tooth <?= $i ?> - Click to edit">
-                                                <div class="text-xs font-bold text-gray-700 z-10 relative">
-                                                    <span class="universal-number"><?= $i ?></span>
-                                                    <span class="fdi-number hidden"><?= getFDINumber($i) ?></span>
-                                                </div>
-                                                <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 opacity-0 transition-all duration-300 shadow-sm group-hover:opacity-100 group-hover:scale-125"></div>
-                                                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/95 text-white px-3 py-2 rounded-lg text-xs max-w-xs opacity-0 invisible transition-all duration-300 z-50 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:-translate-y-1" style="min-width: 200px;">
-                                                    <div class="universal-tooltip">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= $i ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="fdi-tooltip hidden">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= getFDINumber($i) ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details-fdi">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition-fdi">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description-fdi">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment-fdi">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status-fdi">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-                            </div>
+                        <div id="odontogramSvgWrapper" class="relative z-10 min-h-[320px] flex items-center justify-center">
+                            <?php
+                            $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
+                            $odontogramSvg = '';
+                            if (is_file($svgPath)) {
+                                $odontogramSvg = preg_replace('/<\?xml.*?\?>/i', '', file_get_contents($svgPath), 1);
+                            }
+                            ?>
+                            <?= $odontogramSvg ?>
                         </div>
-
-                       
-
-                        <!-- Lower Jaw -->
-                        <div class="relative">
-                            <!-- Lower Jaw Teeth -->
-                            <div class="flex justify-center items-center w-full max-w-4xl mx-auto">
-                                <!-- Lower Left Quadrant (17-24) -->
-                                <div class="flex space-x-1 flex-1 justify-end">
-                                    <?php for ($i = 24; $i >= 17; $i--): ?>
-                                        <div class="group relative transition-all duration-300 hover:-translate-y-2" data-tooth="<?= $i ?>" data-quadrant="lower-left">
-                                            <div class="w-12 h-16 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-b-2xl rounded-t-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden shadow-lg backdrop-blur-sm hover:scale-110 hover:shadow-2xl hover:border-blue-500 z-10 group-hover:z-20" 
-                                                 data-tooth="<?= $i ?>" 
-                                                 data-quadrant="lower-left" 
-                                                 onclick="openToothModal(<?= $i ?>)"
-                                                 title="Tooth <?= $i ?> - Click to edit">
-                                                <div class="text-xs font-bold text-gray-700 z-10 relative">
-                                                    <span class="universal-number"><?= $i ?></span>
-                                                    <span class="fdi-number hidden"><?= getFDINumber($i) ?></span>
-                                                </div>
-                                                <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 opacity-0 transition-all duration-300 shadow-sm group-hover:opacity-100 group-hover:scale-125"></div>
-                                                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/95 text-white px-3 py-2 rounded-lg text-xs max-w-xs opacity-0 invisible transition-all duration-300 z-50 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:-translate-y-1" style="min-width: 200px;">
-                                                    <div class="universal-tooltip">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= $i ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="fdi-tooltip hidden">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= getFDINumber($i) ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details-fdi">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition-fdi">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description-fdi">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment-fdi">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status-fdi">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-                                
-                                <!-- Center Gap -->
-                                <div class="w-4"></div>
-                                
-                                <!-- Lower Right Quadrant (25-32) -->
-                                <div class="flex space-x-1 flex-1 justify-start">
-                                    <?php for ($i = 25; $i <= 32; $i++): ?>
-                                        <div class="group relative transition-all duration-300 hover:-translate-y-2" data-tooth="<?= $i ?>" data-quadrant="lower-right">
-                                            <div class="w-12 h-16 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300 rounded-b-2xl rounded-t-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden shadow-lg backdrop-blur-sm hover:scale-110 hover:shadow-2xl hover:border-blue-500 z-10 group-hover:z-20" 
-                                                 data-tooth="<?= $i ?>" 
-                                                 data-quadrant="lower-right" 
-                                                 onclick="openToothModal(<?= $i ?>)"
-                                                 title="Tooth <?= $i ?> - Click to edit">
-                                                <div class="text-xs font-bold text-gray-700 z-10 relative">
-                                                    <span class="universal-number"><?= $i ?></span>
-                                                    <span class="fdi-number hidden"><?= getFDINumber($i) ?></span>
-                                                </div>
-                                                <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 opacity-0 transition-all duration-300 shadow-sm group-hover:opacity-100 group-hover:scale-125"></div>
-                                                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/95 text-white px-3 py-2 rounded-lg text-xs max-w-xs opacity-0 invisible transition-all duration-300 z-50 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:-translate-y-1" style="min-width: 200px;">
-                                                    <div class="universal-tooltip">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= $i ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="fdi-tooltip hidden">
-                                                        <div class="font-semibold text-yellow-300 mb-1">Tooth <?= getFDINumber($i) ?></div>
-                                                        <div class="space-y-1" id="tooth-<?= $i ?>-details-fdi">
-                                                            <div class="flex items-center">
-                                                                <span class="text-gray-400 w-16">Condition:</span>
-                                                                <span class="text-white" id="tooth-<?= $i ?>-condition-fdi">Healthy</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-description-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Description:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-description-fdi">No issues</span>
-                                                            </div>
-                                                            <div class="flex items-start" id="tooth-<?= $i ?>-treatment-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Treatment:</span>
-                                                                <span class="text-gray-300 text-xs" id="tooth-<?= $i ?>-treatment-fdi">None</span>
-                                                            </div>
-                                                            <div class="flex items-center" id="tooth-<?= $i ?>-status-row-fdi" style="display: none;">
-                                                                <span class="text-gray-400 w-16">Status:</span>
-                                                                <span class="text-green-400" id="tooth-<?= $i ?>-status-fdi">Completed</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-                            </div>
-                            
-                            <!-- Lower Jaw Label -->
-                            <div class="text-center mt-6">
-                                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center">
-                                    <i class="fas fa-arrow-down text-green-600 mr-3"></i>
-                                    Lower Jaw (Mandible)
-                                    <i class="fas fa-arrow-down text-green-600 ml-3"></i>
-                                </h3>
-                                <div class="text-sm text-gray-600 mt-2">Left → Right (17-32)</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Decorative Elements -->
-                        <div class="absolute top-4 right-4 w-16 h-16 bg-pink-100/50 rounded-full -z-10"></div>
-                        <div class="absolute bottom-4 left-4 w-12 h-12 bg-blue-100/50 rounded-full -z-10">            </div>
-        </div>
-    </div>
+                    </div>
+                </div>
+            </div>
 
     <!-- Teeth Condition Table -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 mt-16">
@@ -1012,248 +726,285 @@ function getStatusText($status) {
     </div>
 </div>
 
-<script>
+﻿﻿<script>
 const patientId = <?= $patient['id'] ?>;
 const odontogramData = <?= json_encode($odontogram) ?>;
 const conditionTypes = <?= json_encode($condition_types) ?>;
+const svgNS = 'http://www.w3.org/2000/svg';
+const conditionFilterColors = {
+    cavity: '#fbbf24',
+    filling: '#3b82f6',
+    crown: '#a855f7',
+    root_canal: '#ec4899',
+    extracted: '#ef4444',
+    implant: '#6366f1',
+    bridge: '#0ea5e9',
+    partial_denture: '#f97316',
+    full_denture: '#f59e0b',
+    other: '#6b7280'
+};
 
-console.log('Patient ID:', patientId);
-console.log('Odontogram data from server:', odontogramData);
-console.log('Condition types:', conditionTypes);
+const toothNodes = new Map();
+let currentNumberingSystem = 'universal';
 
-// Numbering system state
-let currentNumberingSystem = 'universal'; // Default to Universal
+document.addEventListener('DOMContentLoaded', () => {
+    setupSvgOdontogram();
+    initializeOdontogram();
+    attachModalBehavior();
+    attachFormHandler();
+    switchNumberingSystem(currentNumberingSystem);
+});
 
-// Function to switch between numbering systems
-function switchNumberingSystem(system) {
-    currentNumberingSystem = system;
-    
-    // Update button states
-    const universalBtn = document.getElementById('universalBtn');
-    const fdiBtn = document.getElementById('fdiBtn');
-    
-    if (system === 'universal') {
-        universalBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn.classList.remove('text-gray-600');
-        fdiBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn.classList.add('text-gray-600');
-        
-        // Show universal numbers, hide FDI numbers
-        document.querySelectorAll('.universal-number').forEach(el => el.classList.remove('hidden'));
-        document.querySelectorAll('.fdi-number').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.universal-tooltip').forEach(el => el.classList.remove('hidden'));
-        document.querySelectorAll('.fdi-tooltip').forEach(el => el.classList.add('hidden'));
-    } else {
-        fdiBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn.classList.remove('text-gray-600');
-        universalBtn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn.classList.add('text-gray-600');
-        
-        // Show FDI numbers, hide universal numbers
-        document.querySelectorAll('.fdi-number').forEach(el => el.classList.remove('hidden'));
-        document.querySelectorAll('.universal-number').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.fdi-tooltip').forEach(el => el.classList.remove('hidden'));
-        document.querySelectorAll('.universal-tooltip').forEach(el => el.classList.add('hidden'));
+function setElementDisplay(element, show) {
+    if (!element) {
+        return;
     }
-    
-    console.log('Switched to', system, 'numbering system');
+
+    if (element.namespaceURI === svgNS) {
+        element.style.display = show ? 'inline' : 'none';
+    } else {
+        element.style.display = show ? 'inline-block' : 'none';
+    }
 }
 
-// Toggle numbering system for table
+function getFdiNumber(universalNumber) {
+    const num = parseInt(universalNumber, 10);
+    if (isNaN(num)) {
+        return universalNumber;
+    }
+
+    if (num >= 1 && num <= 8) {
+        return (10 + num).toString();
+    }
+    if (num >= 9 && num <= 16) {
+        return (12 + num).toString();
+    }
+    if (num >= 17 && num <= 24) {
+        return (14 + num).toString();
+    }
+    if (num >= 25 && num <= 32) {
+        return (16 + num).toString();
+    }
+
+    return num.toString();
+}
+
+function cacheToothNodes(svg) {
+    toothNodes.clear();
+    const groups = svg.querySelectorAll('g[id^="tooth-"]');
+    groups.forEach(group => {
+        const match = group.id.match(/^tooth-(\d+)$/);
+        if (!match) {
+            return;
+        }
+
+        const toothNumber = parseInt(match[1], 10);
+        if (isNaN(toothNumber)) {
+            return;
+        }
+
+        toothNodes.set(toothNumber, group);
+        group.dataset.tooth = toothNumber;
+        group.style.cursor = 'pointer';
+        group.setAttribute('tabindex', '0');
+        group.setAttribute('role', 'button');
+        group.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
+        group.addEventListener('click', () => openToothModal(toothNumber));
+        group.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openToothModal(toothNumber);
+            }
+        });
+    });
+}
+
+function injectConditionFilters(svg) {
+    let defs = svg.querySelector('defs');
+    if (!defs) {
+        defs = document.createElementNS(svgNS, 'defs');
+        svg.prepend(defs);
+    }
+
+    Object.entries(conditionFilterColors).forEach(([condition, color]) => {
+        const filterId = `cond-${condition}`;
+        if (svg.getElementById(filterId)) {
+            return;
+        }
+
+        const filter = document.createElementNS(svgNS, 'filter');
+        filter.setAttribute('id', filterId);
+        filter.setAttribute('filterUnits', 'objectBoundingBox');
+
+        const flood = document.createElementNS(svgNS, 'feFlood');
+        flood.setAttribute('flood-color', color);
+        flood.setAttribute('flood-opacity', '0.6');
+        flood.setAttribute('result', 'flood');
+
+        const composite = document.createElementNS(svgNS, 'feComposite');
+        composite.setAttribute('in', 'flood');
+        composite.setAttribute('in2', 'SourceAlpha');
+        composite.setAttribute('operator', 'in');
+        composite.setAttribute('result', 'mask');
+
+        const merge = document.createElementNS(svgNS, 'feMerge');
+        const mergeNodeFlood = document.createElementNS(svgNS, 'feMergeNode');
+        mergeNodeFlood.setAttribute('in', 'mask');
+        const mergeNodeGraphic = document.createElementNS(svgNS, 'feMergeNode');
+        mergeNodeGraphic.setAttribute('in', 'SourceGraphic');
+        merge.appendChild(mergeNodeFlood);
+        merge.appendChild(mergeNodeGraphic);
+
+        filter.appendChild(flood);
+        filter.appendChild(composite);
+        filter.appendChild(merge);
+        defs.appendChild(filter);
+    });
+}
+
+function buildToothLabels(svg) {
+    const existing = svg.querySelector('#toothLabels');
+    if (existing) {
+        existing.remove();
+    }
+
+    const labelLayer = document.createElementNS(svgNS, 'g');
+    labelLayer.setAttribute('id', 'toothLabels');
+    labelLayer.setAttribute('pointer-events', 'none');
+    labelLayer.setAttribute('font-size', '8');
+    labelLayer.setAttribute('font-weight', '600');
+    labelLayer.setAttribute('text-anchor', 'middle');
+    labelLayer.setAttribute('dominant-baseline', 'central');
+    labelLayer.setAttribute('fill', '#f8fafc');
+    labelLayer.setAttribute('stroke', '#0f172a');
+    labelLayer.setAttribute('stroke-width', '0.5');
+    labelLayer.setAttribute('paint-order', 'stroke fill');
+
+    toothNodes.forEach((node, toothNumber) => {
+        const bbox = node.getBBox();
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+
+        const universalLabel = document.createElementNS(svgNS, 'text');
+        universalLabel.setAttribute('class', 'universal-number');
+        universalLabel.setAttribute('x', centerX.toString());
+        universalLabel.setAttribute('y', centerY.toString());
+        universalLabel.textContent = toothNumber;
+        labelLayer.appendChild(universalLabel);
+
+        const fdiLabel = document.createElementNS(svgNS, 'text');
+        fdiLabel.setAttribute('class', 'fdi-number');
+        fdiLabel.setAttribute('x', centerX.toString());
+        fdiLabel.setAttribute('y', centerY.toString());
+        fdiLabel.textContent = getFdiNumber(toothNumber);
+        fdiLabel.style.display = 'none';
+        labelLayer.appendChild(fdiLabel);
+    });
+
+    svg.appendChild(labelLayer);
+}
+
+function setupSvgOdontogram() {
+    const wrapper = document.getElementById('odontogramSvgWrapper');
+    if (!wrapper) {
+        console.warn('Odontogram SVG wrapper not found');
+        return;
+    }
+
+    const svg = wrapper.querySelector('svg');
+    if (!svg) {
+        console.warn('Inline odontogram SVG is missing');
+        return;
+    }
+
+    svg.id = svg.id || 'odontogramSvg';
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.height = 'auto';
+
+    injectConditionFilters(svg);
+    cacheToothNodes(svg);
+    buildToothLabels(svg);
+}
+
+function initializeOdontogram() {
+    toothNodes.forEach((element, toothNumber) => {
+        const condition = getConditionForTooth(toothNumber);
+        applyConditionFilter(toothNumber, condition);
+    });
+
+    updateStats();
+}
+
+function getConditionForTooth(toothNumber) {
+    const record = odontogramData.find(t => parseInt(t.tooth_number, 10) === parseInt(toothNumber, 10));
+    return record ? record.condition_type : 'healthy';
+}
+
+function applyConditionFilter(toothNumber, conditionType) {
+    const node = getToothNode(toothNumber);
+    if (!node) {
+        return;
+    }
+
+    if (!conditionType || conditionType === 'healthy') {
+        node.removeAttribute('filter');
+    } else {
+        node.setAttribute('filter', `url(#cond-${conditionType})`);
+    }
+}
+
+function getToothNode(toothNumber) {
+    if (!toothNumber) {
+        return null;
+    }
+
+    return toothNodes.get(parseInt(toothNumber, 10));
+}
+
+function updateToothAppearance(value, conditionType) {
+    const toothNumber = typeof value === 'number' ? value : parseInt(value?.dataset?.tooth || value, 10);
+    if (!toothNumber) {
+        return;
+    }
+
+    applyConditionFilter(toothNumber, conditionType);
+}
+
+function switchNumberingSystem(system) {
+    currentNumberingSystem = system;
+
+    const universalBtn = document.getElementById('universalBtn');
+    const fdiBtn = document.getElementById('fdiBtn');
+
+    if (system === 'universal') {
+        universalBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+        universalBtn?.classList.remove('text-gray-600');
+        fdiBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+        fdiBtn?.classList.add('text-gray-600');
+    } else {
+        fdiBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+        fdiBtn?.classList.remove('text-gray-600');
+        universalBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+        universalBtn?.classList.add('text-gray-600');
+    }
+
+    document.querySelectorAll('.universal-number').forEach(el => setElementDisplay(el, system === 'universal'));
+    document.querySelectorAll('.fdi-number').forEach(el => setElementDisplay(el, system === 'fdi'));
+}
+
 function toggleNumberingSystem() {
-    const currentSystem = currentNumberingSystem || 'universal';
-    const newSystem = currentSystem === 'universal' ? 'fdi' : 'universal';
-    
-    // Update the legend toggle
+    const newSystem = currentNumberingSystem === 'universal' ? 'fdi' : 'universal';
     switchNumberingSystem(newSystem);
-    
-    // Update table toggle button text
+
     const toggleText = document.getElementById('numberingToggleText');
     if (toggleText) {
         toggleText.textContent = newSystem === 'universal' ? 'Switch to FDI' : 'Switch to Universal';
     }
 }
 
-// Initialize odontogram with existing data
-document.addEventListener('DOMContentLoaded', function() {
-    initializeOdontogram();
-});
-
-function initializeOdontogram() {
-    console.log('Initializing odontogram with data:', odontogramData);
-    odontogramData.forEach(function(tooth) {
-        console.log('Processing tooth:', tooth);
-        const toothElement = document.querySelector(`[data-tooth="${tooth.tooth_number}"]`);
-        if (toothElement) {
-            console.log('Found tooth element for tooth', tooth.tooth_number, 'with condition:', tooth.condition_type);
-            updateToothAppearance(toothElement, tooth.condition_type);
-        } else {
-            console.log('No tooth element found for tooth', tooth.tooth_number);
-        }
-    });
-    
-    // Initialize all tooltips - show detailed info only for teeth with conditions
-    for (let i = 1; i <= 32; i++) {
-        const toothElement = document.querySelector(`[data-tooth="${i}"]`);
-        if (toothElement) {
-            const toothData = odontogramData.find(t => parseInt(t.tooth_number) === parseInt(i));
-            const conditionType = toothData ? toothData.condition_type : 'healthy';
-            updateToothTooltip(toothElement, conditionType);
-        }
-    }
-}
-
-function updateToothAppearance(element, conditionType) {
-    console.log('Updating tooth appearance for condition:', conditionType);
-    // Reset to base classes
-    element.className = 'w-16 h-20 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-t-xl rounded-b-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden shadow-md backdrop-blur-sm hover:-translate-y-1.5 hover:scale-110 hover:shadow-2xl hover:border-blue-500 z-10 group-hover:z-20';
-    
-    // Add appropriate classes based on condition - EXACTLY matching legend colors
-    switch(conditionType) {
-        case 'healthy':
-            // Keep default classes (green-ish)
-            element.classList.add('bg-gradient-to-br', 'from-green-100', 'to-green-200', 'border-green-400');
-            break;
-        case 'cavity':
-            element.classList.add('bg-gradient-to-br', 'from-yellow-100', 'to-yellow-200', 'border-yellow-400');
-            break;
-        case 'filling':
-            element.classList.add('bg-gradient-to-br', 'from-blue-100', 'to-blue-200', 'border-blue-400');
-            break;
-        case 'crown':
-            element.classList.add('bg-gradient-to-br', 'from-purple-100', 'to-purple-200', 'border-purple-400');
-            break;
-        case 'root_canal':
-            element.classList.add('bg-gradient-to-br', 'from-pink-100', 'to-pink-200', 'border-pink-400');
-            break;
-        case 'extracted':
-            element.classList.add('bg-gradient-to-br', 'from-red-100', 'to-red-200', 'border-red-400', 'opacity-60');
-            break;
-        case 'implant':
-            element.classList.add('bg-gradient-to-br', 'from-indigo-100', 'to-indigo-200', 'border-indigo-400');
-            break;
-        case 'bridge':
-            element.classList.add('bg-gradient-to-br', 'from-teal-100', 'to-teal-200', 'border-teal-400');
-            break;
-        case 'partial_denture':
-            element.classList.add('bg-gradient-to-br', 'from-orange-100', 'to-orange-200', 'border-orange-400');
-            break;
-        case 'full_denture':
-            element.classList.add('bg-gradient-to-br', 'from-amber-100', 'to-amber-200', 'border-amber-400');
-            break;
-        case 'other':
-            element.classList.add('bg-gradient-to-br', 'from-gray-100', 'to-gray-200', 'border-gray-400');
-            break;
-        default:
-            // Healthy or no condition - keep default classes
-            element.classList.add('bg-gradient-to-br', 'from-green-100', 'to-green-200', 'border-green-400');
-            break;
-    }
-    
-    // Update tooltip content
-    updateToothTooltip(element, conditionType);
-}
-
-function updateToothTooltip(element, conditionType) {
-    const toothNumber = element.dataset.tooth;
-    const conditionText = getConditionDisplayText(conditionType);
-    
-    // Get tooth data from odontogramData
-    const toothData = odontogramData.find(t => parseInt(t.tooth_number) === parseInt(toothNumber));
-    
-    // Update universal tooltip
-    updateTooltipDetails(toothNumber, conditionText, toothData, false);
-    
-    // Update FDI tooltip
-    updateTooltipDetails(toothNumber, conditionText, toothData, true);
-}
-
-function updateTooltipDetails(toothNumber, conditionText, toothData, isFDI = false) {
-    const suffix = isFDI ? '-fdi' : '';
-    
-    // Update condition
-    const conditionElement = document.getElementById(`tooth-${toothNumber}-condition${suffix}`);
-    if (conditionElement) {
-        conditionElement.textContent = conditionText;
-    }
-    
-    // Show/hide detailed rows based on whether tooth has a condition
-    const hasCondition = toothData && toothData.condition_type && toothData.condition_type !== 'healthy';
-    
-    // Description row
-    const descriptionRow = document.getElementById(`tooth-${toothNumber}-description-row${suffix}`);
-    if (descriptionRow) {
-        if (hasCondition && toothData.condition_description) {
-            const descriptionElement = document.getElementById(`tooth-${toothNumber}-description${suffix}`);
-            if (descriptionElement) {
-                descriptionElement.textContent = toothData.condition_description;
-            }
-            descriptionRow.style.display = 'flex';
-        } else {
-            descriptionRow.style.display = 'none';
-        }
-    }
-    
-    // Treatment row
-    const treatmentRow = document.getElementById(`tooth-${toothNumber}-treatment-row${suffix}`);
-    if (treatmentRow) {
-        if (hasCondition && toothData.treatment_notes) {
-            const treatmentElement = document.getElementById(`tooth-${toothNumber}-treatment${suffix}`);
-            if (treatmentElement) {
-                treatmentElement.textContent = toothData.treatment_notes;
-            }
-            treatmentRow.style.display = 'flex';
-        } else {
-            treatmentRow.style.display = 'none';
-        }
-    }
-    
-    // Status row
-    const statusRow = document.getElementById(`tooth-${toothNumber}-status-row${suffix}`);
-    if (statusRow) {
-        if (hasCondition) {
-            const statusElement = document.getElementById(`tooth-${toothNumber}-status${suffix}`);
-            if (statusElement) {
-                statusElement.textContent = getStatusDisplayText(toothData?.treatment_status || 'completed');
-            }
-            statusRow.style.display = 'flex';
-        } else {
-            statusRow.style.display = 'none';
-        }
-    }
-}
-
-function getStatusDisplayText(status) {
-    const statusMap = {
-        'pending': '🟡 Pending',
-        'in_progress': '🟠 In Progress',
-        'completed': '🟢 Completed',
-        'needs_attention': '🔴 Needs Attention'
-    };
-    
-    return statusMap[status] || '🟢 Completed';
-}
-
-function getConditionDisplayText(conditionType) {
-    const conditionMap = {
-        'healthy': 'Healthy',
-        'cavity': 'Cavity',
-        'filling': 'Filling',
-        'crown': 'Crown',
-        'root_canal': 'Root Canal',
-        'extracted': 'Extracted',
-        'implant': 'Implant',
-        'bridge': 'Bridge',
-        'partial_denture': 'Partial Denture',
-        'full_denture': 'Full Denture',
-        'other': 'Other'
-    };
-    
-    return conditionMap[conditionType] || 'Healthy';
-}
-
 function updateStats() {
-    // Calculate stats from current odontogramData
     const stats = {
         total_conditions: odontogramData.length,
         healthy_count: odontogramData.filter(t => t.condition_type === 'healthy').length,
@@ -1263,69 +1014,59 @@ function updateStats() {
         crowns: odontogramData.filter(t => t.condition_type === 'crown').length,
         extracted: odontogramData.filter(t => t.condition_type === 'extracted').length
     };
-    
-    // Update the stats display - only if elements exist
+
     const totalEl = document.getElementById('totalConditions');
     if (totalEl) totalEl.textContent = stats.total_conditions;
-    
+
     const healthyEl = document.getElementById('healthyCount');
     if (healthyEl) healthyEl.textContent = stats.healthy_count;
-    
+
     const needsTreatmentEl = document.getElementById('needsTreatmentCount');
     if (needsTreatmentEl) needsTreatmentEl.textContent = stats.needs_treatment_count;
-    
+
     const cavitiesEl = document.getElementById('cavitiesCount');
     if (cavitiesEl) cavitiesEl.textContent = stats.cavities;
-    
+
     const fillingsEl = document.getElementById('fillingsCount');
     if (fillingsEl) fillingsEl.textContent = stats.fillings;
-    
+
     const crownsEl = document.getElementById('crownsCount');
     if (crownsEl) crownsEl.textContent = stats.crowns;
-    
+
     const extractedEl = document.getElementById('extractedCount');
     if (extractedEl) extractedEl.textContent = stats.extracted;
-    
-    console.log('Updated stats:', stats);
 }
 
 function openToothModal(toothNumber) {
-    console.log('Opening modal for tooth:', toothNumber);
-    console.log('Available odontogram data:', odontogramData);
-    
     const modal = document.getElementById('toothModal');
     const modalContent = document.getElementById('modalContent');
-    
-    document.getElementById('modalToothNumber').textContent = toothNumber;
-    document.getElementById('toothNumber').value = toothNumber;
-    
-    // Load existing data for this tooth
-    const existingTooth = odontogramData.find(t => parseInt(t.tooth_number) === parseInt(toothNumber));
-    console.log('Found existing tooth data:', existingTooth);
-    
-    if (existingTooth) {
-        console.log('Pre-populating form with existing data:', {
-            condition_type: existingTooth.condition_type,
-            condition_description: existingTooth.condition_description,
-            treatment_notes: existingTooth.treatment_notes,
-            treatment_status: existingTooth.treatment_status
-        });
-        
-        document.getElementById('condition_type').value = existingTooth.condition_type || 'healthy';
-        document.getElementById('condition_description').value = existingTooth.condition_description || '';
-        document.getElementById('treatment_notes').value = existingTooth.treatment_notes || '';
-        document.getElementById('treatment_status').value = existingTooth.treatment_status || 'pending';
-    } else {
-        console.log('No existing data found, resetting form');
-        // Reset form
-        document.getElementById('toothForm').reset();
-        document.getElementById('toothNumber').value = toothNumber;
-        // Set default values
-        document.getElementById('condition_type').value = 'healthy';
-        document.getElementById('treatment_status').value = 'pending';
+    const conditionTypeEl = document.getElementById('condition_type');
+    const descriptionEl = document.getElementById('condition_description');
+    const notesEl = document.getElementById('treatment_notes');
+    const statusEl = document.getElementById('treatment_status');
+
+    if (!modal || !modalContent) {
+        return;
     }
-    
-    // Show modal with animation
+
+    const modalNumber = document.getElementById('modalToothNumber');
+    const toothInput = document.getElementById('toothNumber');
+    modalNumber.textContent = toothNumber;
+    toothInput.value = toothNumber;
+
+    const existingTooth = odontogramData.find(t => parseInt(t.tooth_number, 10) === parseInt(toothNumber, 10));
+
+    if (existingTooth) {
+        conditionTypeEl.value = existingTooth.condition_type || 'healthy';
+        descriptionEl.value = existingTooth.condition_description || '';
+        notesEl.value = existingTooth.treatment_notes || '';
+        statusEl.value = existingTooth.treatment_status || 'pending';
+    } else {
+        document.getElementById('toothForm').reset();
+        conditionTypeEl.value = 'healthy';
+        statusEl.value = 'pending';
+    }
+
     modal.classList.remove('hidden');
     setTimeout(() => {
         modalContent.style.transform = 'scale(1)';
@@ -1336,165 +1077,166 @@ function openToothModal(toothNumber) {
 function closeToothModal() {
     const modal = document.getElementById('toothModal');
     const modalContent = document.getElementById('modalContent');
-    
-    // Animate out
+
+    if (!modal || !modalContent) {
+        return;
+    }
+
     modalContent.style.transform = 'scale(0.95)';
     modalContent.style.opacity = '0';
-    
+
     setTimeout(() => {
         modal.classList.add('hidden');
     }, 300);
 }
 
-function resetTooth() {
-    if (confirm('Are you sure you want to reset this tooth to healthy status?')) {
-        fetch('<?= base_url('odontogram/reset-tooth') ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `patient_id=${patientId}&tooth_number=${document.getElementById('toothNumber').value}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const toothElement = document.querySelector(`[data-tooth="${document.getElementById('toothNumber').value}"]`);
-                updateToothAppearance(toothElement, 'healthy');
+function attachModalBehavior() {
+    const modal = document.getElementById('toothModal');
+    if (modal) {
+        modal.addEventListener('click', event => {
+            if (event.target === modal) {
                 closeToothModal();
-                location.reload(); // Refresh to update stats
-            } else {
-                alert('Error: ' + data.message);
             }
         });
     }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeToothModal();
+        }
+
+        const modalOpen = modal && !modal.classList.contains('hidden');
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && modalOpen) {
+            event.preventDefault();
+            document.getElementById('toothForm').dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+    });
 }
 
-// Enhanced form submission with loading states and error handling
-document.getElementById('toothForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const submitButton = this.querySelector('button[type="submit"]');
-    
-    // Cache original children if not already cached
-    if (!submitButton.hasOwnProperty('_originalChildren')) {
-        submitButton._originalChildren = Array.from(submitButton.childNodes).map(n => n.cloneNode(true));
+function attachFormHandler() {
+    const form = document.getElementById('toothForm');
+    if (!form) {
+        return;
     }
-    
-    // Show loading state
-    submitButton.disabled = true;
-    
-    const spinnerIcon = document.createElement('i');
-    spinnerIcon.className = 'fas fa-spinner fa-spin mr-2';
-    submitButton.replaceChildren(spinnerIcon, document.createTextNode('Saving...'));
-    
-    submitButton.classList.add('opacity-75');
-    
-    // Add loading animation to tooth
-    const toothElement = document.querySelector(`[data-tooth="${formData.get('tooth_number')}"]`);
-    if (toothElement) {
-        toothElement.classList.add('updating');
-    }
-    
-    fetch('<?= base_url('odontogram/update-tooth') ?>', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.csrf_token) {
-            window.refreshCsrfToken(data.csrf_token);
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+
+        if (!submitButton) {
+            return;
         }
 
-        if (data.success) {
-            // Update the odontogramData array with the new data
-            const toothNumber = parseInt(formData.get('tooth_number'));
-            const existingToothIndex = odontogramData.findIndex(t => parseInt(t.tooth_number) === toothNumber);
-            
-            const updatedToothData = {
-                tooth_number: toothNumber,
-                condition_type: formData.get('condition_type'),
-                condition_description: formData.get('condition_description'),
-                treatment_notes: formData.get('treatment_notes'),
-                treatment_status: formData.get('treatment_status'),
-                treatment_date: new Date().toISOString().split('T')[0],
-                created_by: 1
-            };
-            
-            if (existingToothIndex !== -1) {
-                // Update existing tooth data
-                odontogramData[existingToothIndex] = updatedToothData;
-            } else {
-                // Add new tooth data
-                odontogramData.push(updatedToothData);
-            }
-            
-            console.log('Updated odontogram data:', odontogramData);
-            
-            // Show success animation
-            if (toothElement) {
-                toothElement.classList.remove('updating');
-                toothElement.classList.add('success');
-                updateToothAppearance(toothElement, formData.get('condition_type'));
-                
-                // Remove success class after animation
-                setTimeout(() => {
-                    toothElement.classList.remove('success');
-                }, 600);
-            }
-            
-            // Show success notification
-            showNotification('Tooth condition updated successfully!', 'success');
-            closeToothModal();
-            
-            // Update stats without reloading
-            updateStats();
-        } else {
-            throw new Error(data.message || 'Failed to update tooth condition');
+        if (!submitButton._originalChildren) {
+            submitButton._originalChildren = Array.from(submitButton.childNodes).map(node => node.cloneNode(true));
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        
-        // Show error notification
-        showNotification('Error: ' + error.message, 'error');
-        
-        // Remove loading states
-        if (toothElement) {
-            toothElement.classList.remove('updating');
-        }
-    })
-    .finally(() => {
-        // Reset button state
-        submitButton.disabled = false;
-        submitButton.replaceChildren(...submitButton._originalChildren.map(n => n.cloneNode(true)));
-        submitButton.classList.remove('opacity-75');
-    });
-});
 
-// Enhanced remove tooth condition function
-function removeToothCondition() {
-    if (confirm('Are you sure you want to remove the condition from this tooth? It will be set back to healthy status.')) {
-        const toothNumber = document.getElementById('toothNumber').value;
-        const toothElement = document.querySelector(`[data-tooth="${toothNumber}"]`);
-        
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-75');
+
+        const spinnerIcon = document.createElement('i');
+        spinnerIcon.className = 'fas fa-spinner fa-spin mr-2';
+        submitButton.replaceChildren(spinnerIcon, document.createTextNode('Saving...'));
+
+        const toothNumber = parseInt(formData.get('tooth_number'), 10);
+        const toothElement = getToothNode(toothNumber);
         if (toothElement) {
             toothElement.classList.add('updating');
         }
-        
-        fetch('<?= base_url('odontogram/reset-tooth') ?>', {
+
+        fetch('<?= base_url('odontogram/update-tooth') ?>', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                [window.csrfConfig.header]: window.getCsrfToken()
-            },
-            body: `patient_id=${patientId}&tooth_number=${toothNumber}`
+            body: formData
         })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.csrf_token) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
+                if (data.success) {
+                    const condition = formData.get('condition_type');
+                    const existingIndex = odontogramData.findIndex(t => parseInt(t.tooth_number, 10) === toothNumber);
+                    const updatedToothData = {
+                        tooth_number: toothNumber,
+                        condition_type: condition,
+                        condition_description: formData.get('condition_description'),
+                        treatment_notes: formData.get('treatment_notes'),
+                        treatment_status: formData.get('treatment_status'),
+                        treatment_date: new Date().toISOString().split('T')[0],
+                        created_by: 1
+                    };
+
+                    if (existingIndex !== -1) {
+                        odontogramData[existingIndex] = updatedToothData;
+                    } else {
+                        odontogramData.push(updatedToothData);
+                    }
+
+                    if (toothElement) {
+                        toothElement.classList.remove('updating');
+                        toothElement.classList.add('success');
+                        applyConditionFilter(toothNumber, condition);
+                        setTimeout(() => {
+                            toothElement.classList.remove('success');
+                        }, 600);
+                    }
+
+                    showNotification('Tooth condition updated successfully!', 'success');
+                    closeToothModal();
+                    updateStats();
+                } else {
+                    throw new Error(data.message || 'Failed to update tooth condition');
+                }
+            })
+            .catch(error => {
+                if (toothElement) {
+                    toothElement.classList.remove('updating');
+                }
+                showNotification('Error: ' + error.message, 'error');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.replaceChildren(...submitButton._originalChildren.map(node => node.cloneNode(true)));
+                submitButton.classList.remove('opacity-75');
+            });
+    });
+}
+
+function resetTooth() {
+    const toothNumber = document.getElementById('toothNumber').value;
+    if (!toothNumber) {
+        return;
+    }
+
+    if (!confirm('Are you sure you want to reset this tooth to healthy status?')) {
+        return;
+    }
+
+    const toothElement = getToothNode(toothNumber);
+    if (toothElement) {
+        toothElement.classList.add('updating');
+    }
+
+    const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    if (window.csrfConfig?.header && typeof window.getCsrfToken === 'function') {
+        headers[window.csrfConfig.header] = window.getCsrfToken();
+    }
+
+    fetch('<?= base_url('odontogram/reset-tooth') ?>', {
+        method: 'POST',
+        headers,
+        body: `patient_id=${patientId}&tooth_number=${toothNumber}`
+    })
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -1505,112 +1247,90 @@ function removeToothCondition() {
             if (data.csrf_token) {
                 window.refreshCsrfToken(data.csrf_token);
             }
-            
+
             if (data.success) {
                 if (toothElement) {
                     toothElement.classList.remove('updating');
                     toothElement.classList.add('success');
-                    updateToothAppearance(toothElement, 'healthy');
-                    
+                    applyConditionFilter(toothNumber, 'healthy');
                     setTimeout(() => {
                         toothElement.classList.remove('success');
                     }, 600);
                 }
-                
-                // Update the odontogramData array
-                const toothIndex = odontogramData.findIndex(t => parseInt(t.tooth_number) === parseInt(toothNumber));
-                if (toothIndex !== -1) {
-                    odontogramData[toothIndex] = {
-                        tooth_number: toothNumber,
-                        condition_type: 'healthy',
-                        condition_description: '',
-                        treatment_notes: '',
-                        treatment_status: 'completed'
-                    };
+
+                const existingIndex = odontogramData.findIndex(t => parseInt(t.tooth_number, 10) === parseInt(toothNumber, 10));
+                const healthyEntry = {
+                    tooth_number: toothNumber,
+                    condition_type: 'healthy',
+                    condition_description: '',
+                    treatment_notes: '',
+                    treatment_status: 'completed'
+                };
+
+                if (existingIndex !== -1) {
+                    odontogramData[existingIndex] = healthyEntry;
                 } else {
-                    odontogramData.push({
-                        tooth_number: toothNumber,
-                        condition_type: 'healthy',
-                        condition_description: '',
-                        treatment_notes: '',
-                        treatment_status: 'completed'
-                    });
+                    odontogramData.push(healthyEntry);
                 }
-                
-                // Update statistics without page reload
+
                 updateStats();
-                
                 showNotification('Tooth condition removed successfully!', 'success');
                 closeToothModal();
             } else {
-                throw new Error(data.message || 'Failed to remove tooth condition');
+                throw new Error(data.message || 'Failed to reset tooth condition');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error: ' + error.message, 'error');
-            
             if (toothElement) {
                 toothElement.classList.remove('updating');
             }
+            showNotification('Error: ' + error.message, 'error');
         });
-    }
 }
 
-// Enhanced reset tooth function with loading states (kept for backward compatibility)
-function resetTooth() {
-    removeToothCondition(); // Use the same function
-}
-
-// Notification system
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
-    
+
     const colors = {
         success: 'bg-green-500 text-white',
         error: 'bg-red-500 text-white',
         info: 'bg-blue-500 text-white',
         warning: 'bg-yellow-500 text-white'
     };
-    
+
     notification.className += ` ${colors[type] || colors.info}`;
-    
+
     const container = document.createElement('div');
     container.className = 'flex items-center space-x-3';
-    
+
     const icon = document.createElement('i');
     const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
     icon.className = `fas fa-${iconClass}`;
-    
+
     const msgSpan = document.createElement('span');
     msgSpan.textContent = message;
-    
+
     const closeBtn = document.createElement('button');
     closeBtn.className = 'ml-4 text-white hover:text-gray-200';
-    closeBtn.onclick = function() {
+    closeBtn.onclick = function () {
         if (this.parentElement && this.parentElement.parentElement) {
             this.parentElement.parentElement.remove();
         }
     };
-    
+
     const closeIcon = document.createElement('i');
     closeIcon.className = 'fas fa-times';
     closeBtn.appendChild(closeIcon);
-    
+
     container.appendChild(icon);
     container.appendChild(msgSpan);
     container.appendChild(closeBtn);
     notification.appendChild(container);
-    
     document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-        notification.classList.remove('translate-x-full');
-    }, 10);
-    
-    // Auto remove after 5 seconds
+
+    setTimeout(() => notification.classList.remove('translate-x-full'), 10);
+
     setTimeout(() => {
         notification.classList.add('translate-x-full');
         setTimeout(() => {
@@ -1623,14 +1343,12 @@ function showNotification(message, type = 'info') {
 
 function resetAllTeeth() {
     if (confirm('Are you sure you want to reset all teeth to healthy status? This action cannot be undone.')) {
-        // Implementation for resetting all teeth
         alert('Feature coming soon!');
     }
 }
 
 function markAllHealthy() {
     if (confirm('Are you sure you want to mark all teeth as healthy?')) {
-        // Implementation for marking all teeth as healthy
         alert('Feature coming soon!');
     }
 }
@@ -1649,7 +1367,7 @@ function exportData() {
         odontogram: odontogramData,
         stats: <?= json_encode($stats) ?>
     };
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1658,61 +1376,21 @@ function exportData() {
     a.click();
     URL.revokeObjectURL(url);
 }
-
-// Close modal when clicking outside
-document.getElementById('toothModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeToothModal();
-    }
-});
-
-
-
-// Enhanced Accessibility and Keyboard Navigation
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click handlers for tooth selection
-    document.querySelectorAll('[data-tooth]').forEach(tooth => {
-        
-        // Add keyboard navigation
-        tooth.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openToothModal(this.dataset.tooth);
-            } else if (e.key === 'Escape') {
-                closeToothModal();
-            }
-        });
-        
-        // Add focus management
-        tooth.addEventListener('focus', function() {
-            this.style.outline = '2px solid #3b82f6';
-            this.style.outlineOffset = '2px';
-        });
-        
-        tooth.addEventListener('blur', function() {
-            this.style.outline = 'none';
-        });
-    });
-    
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        
-        // Escape to close modal
-        if (e.key === 'Escape') {
-            closeToothModal();
-        }
-        
-        // Ctrl/Cmd + S to save (when modal is open)
-        if ((e.ctrlKey || e.metaKey) && e.key === 's' && !document.getElementById('toothModal').classList.contains('hidden')) {
-            e.preventDefault();
-            document.getElementById('toothForm').dispatchEvent(new Event('submit'));
-        }
-    });
-});
-
 </script>
 
+
+
 <style>
+#odontogramSvgWrapper svg {
+    width: 100%;
+    height: auto;
+}
+
+#odontogramSvgWrapper text {
+    pointer-events: none;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
 /* Animation classes for tooth updates */
 .updating {
     animation: pulse 1s infinite;
