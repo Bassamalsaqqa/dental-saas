@@ -126,7 +126,7 @@
                         <div class="text-sm font-medium text-green-800">Total Teeth</div>
                     </div>
                     <div class="text-center p-4 bg-blue-50 rounded-lg">
-                        <div class="text-3xl font-bold text-blue-600 mb-2"><?= $stats['healthy_teeth'] ?? 0 ?></div>
+                        <div class="text-3xl font-bold text-blue-600 mb-2"><?= $stats['healthy_count'] ?? 0 ?></div>
                         <div class="text-sm font-medium text-blue-800">Healthy</div>
                     </div>
                     <div class="text-center p-4 bg-yellow-50 rounded-lg">
@@ -146,8 +146,8 @@
                         <div class="text-sm font-medium text-red-800">Extracted</div>
                     </div>
                     <div class="text-center p-4 bg-orange-50 rounded-lg">
-                        <div class="text-3xl font-bold text-orange-600 mb-2"><?= $stats['needs_attention'] ?? 0 ?></div>
-                        <div class="text-sm font-medium text-orange-800">Needs Attention</div>
+                        <div class="text-3xl font-bold text-orange-600 mb-2"><?= $stats['needs_treatment_count'] ?? 0 ?></div>
+                        <div class="text-sm font-medium text-orange-800">Needs Treatment</div>
                     </div>
                     <div class="text-center p-4 bg-indigo-50 rounded-lg">
                         <div class="text-3xl font-bold text-indigo-600 mb-2"><?= $stats['root_canals'] ?? 0 ?></div>

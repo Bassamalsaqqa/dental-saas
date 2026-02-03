@@ -300,7 +300,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">
-                                <?= $tooth['description'] ?? 'No description' ?>
+                                <?= $tooth['condition_description'] ?? 'No description' ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <?= date('M j, Y', strtotime($tooth['treatment_date'])) ?>

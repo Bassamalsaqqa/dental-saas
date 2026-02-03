@@ -173,21 +173,72 @@ class PatientModel extends TenantAwareModel
         return $builder->countAllResults();
     }
 
-    public function getPatientsWithStats($clinicId = null)
+    private function applyOdontogramSearch($builder, ?string $searchValue)
     {
-        $builder = $this->select('patients.*, 
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('patients.first_name', $searchValue)
+                ->orLike('patients.last_name', $searchValue)
+                ->orLike('CONCAT(patients.first_name, " ", patients.last_name)', $searchValue)
+                ->orLike('patients.email', $searchValue)
+                ->orLike('patients.phone', $searchValue)
+                ->orLike('patients.patient_id', $searchValue)
+                ->groupEnd();
+        }
+
+        return $builder;
+    }
+
+    private function resolveOdontogramOrderColumn(int $columnIndex): string
+    {
+        switch ($columnIndex) {
+            case 1:
+                return 'patients.phone';
+            case 2:
+                return 'patients.patient_id';
+            case 3:
+                return 'patients.date_of_birth';
+            case 4:
+                return 'last_visit';
+            case 5:
+                return 'patients.id';
+            case 0:
+            default:
+                return 'patients.first_name';
+        }
+    }
+
+    public function getOdontogramPatients(int $clinicId, ?string $searchValue, int $orderColumn, string $orderDir, int $start, int $length)
+    {
+        $builder = $this->db->table('patients')
+            ->select('patients.*, 
                              COUNT(examinations.id) as total_examinations,
                              TIMESTAMPDIFF(YEAR, patients.date_of_birth, CURDATE()) as age,
                              (SELECT MAX(a.appointment_date) FROM appointments a WHERE a.patient_id = patients.id AND a.deleted_at IS NULL) as last_visit')
             ->join('examinations', 'examinations.patient_id = patients.id', 'left')
+            ->where('patients.clinic_id', $clinicId)
             ->where('patients.deleted_at', null);
 
-        if ($clinicId) {
-            $builder->where('patients.clinic_id', $clinicId);
-        }
+        $this->applyOdontogramSearch($builder, $searchValue);
+        $builder->groupBy('patients.id');
 
-        return $builder->groupBy('patients.id')
-            ->paginate(10);
+        $orderBy = $this->resolveOdontogramOrderColumn($orderColumn);
+        $builder->orderBy($orderBy, $orderDir);
+        $builder->limit($length, $start);
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function countOdontogramPatients(int $clinicId, ?string $searchValue = null): int
+    {
+        $builder = $this->db->table('patients')
+            ->select('patients.id')
+            ->where('patients.clinic_id', $clinicId)
+            ->where('patients.deleted_at', null);
+
+        $this->applyOdontogramSearch($builder, $searchValue);
+
+        return $builder->groupBy('patients.id')->countAllResults();
     }
 
     /**

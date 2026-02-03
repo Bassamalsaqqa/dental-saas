@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\OdontogramModel;
 use App\Models\PatientModel;
 use App\Models\ExaminationModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Odontogram extends BaseController
 {
@@ -51,59 +52,23 @@ class Odontogram extends BaseController
             $length = intval($request->getPost('length'));
             $searchValue = $request->getPost('search')['value'] ?? '';
             $orderColumn = intval($request->getPost('order')[0]['column'] ?? 0);
-            $orderDir = $request->getPost('order')[0]['dir'] ?? 'asc';
-            
-            // Get all patients with stats (includes last_visit) SCOPED
-            // Note: DataTables processing here is manual in-memory which is inefficient but preserving logic.
-            // Just ensuring fetch is scoped.
-            $allPatients = $this->patientModel->getPatientsWithStats($clinicId);
-            $totalRecords = count($allPatients);
-            
-            // Apply search filter
-            $filteredPatients = $allPatients;
-            if (!empty($searchValue)) {
-                $filteredPatients = array_filter($allPatients, function($patient) use ($searchValue) {
-                    $searchLower = strtolower($searchValue);
-                    return (
-                        strpos(strtolower($patient['first_name'] ?? ''), $searchLower) !== false ||
-                        strpos(strtolower($patient['last_name'] ?? ''), $searchLower) !== false ||
-                        strpos(strtolower($patient['phone'] ?? ''), $searchLower) !== false ||
-                        strpos(strtolower($patient['email'] ?? ''), $searchLower) !== false ||
-                        strpos(strtolower($patient['patient_id'] ?? ''), $searchLower) !== false
-                    );
-                });
-            }
-            
-            $filteredRecords = count($filteredPatients);
-            
-            // Apply sorting
-            $columns = ['first_name', 'phone', 'patient_id', 'date_of_birth', 'last_visit', 'id'];
-            $orderBy = $columns[$orderColumn] ?? 'first_name';
-            
-            usort($filteredPatients, function($a, $b) use ($orderBy, $orderDir) {
-                $valueA = $a[$orderBy] ?? '';
-                $valueB = $b[$orderBy] ?? '';
-                
-                if ($orderBy === 'first_name') {
-                    $valueA = ($a['first_name'] ?? '') . ' ' . ($a['last_name'] ?? '');
-                    $valueB = ($b['first_name'] ?? '') . ' ' . ($b['last_name'] ?? '');
-                }
-                
-                // Handle missing fields gracefully
-                if (empty($valueA)) $valueA = '';
-                if (empty($valueB)) $valueB = '';
-                
-                $result = strcmp($valueA, $valueB);
-                return $orderDir === 'desc' ? -$result : $result;
-            });
-            
-            // Apply pagination
-            $paginatedPatients = array_slice($filteredPatients, $start, $length);
-            
+            $orderDir = strtolower($request->getPost('order')[0]['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+
+            $patients = $this->patientModel->getOdontogramPatients(
+                $clinicId,
+                $searchValue,
+                $orderColumn,
+                $orderDir,
+                $start,
+                $length
+            );
+
+            $totalRecords = $this->patientModel->countOdontogramPatients($clinicId);
+            $filteredRecords = $this->patientModel->countOdontogramPatients($clinicId, $searchValue);
+
             // Format data for DataTables
             $data = [];
-            foreach ($paginatedPatients as $patient) {
-                // Use age from stats if available, otherwise calculate
+            foreach ($patients as $patient) {
                 $age = 'N/A';
                 if (isset($patient['age']) && $patient['age']) {
                     $age = $patient['age'] . ' years';
@@ -116,7 +81,7 @@ class Odontogram extends BaseController
                         $age = 'N/A';
                     }
                 }
-                
+
                 $data[] = [
                     'name' => trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')),
                     'contact' => [
@@ -130,7 +95,7 @@ class Odontogram extends BaseController
                     'id' => $patient['id'] ?? 0
                 ];
             }
-            
+
             return $this->response->setJSON([
                 'draw' => $draw,
                 'recordsTotal' => $totalRecords,
@@ -199,6 +164,7 @@ class Odontogram extends BaseController
         $treatmentNotes = $this->request->getPost('treatment_notes');
         $treatmentStatus = $this->request->getPost('treatment_status');
 
+        $currentUser = $this->getCurrentUser();
         $conditionData = [
             'examination_id' => $examinationId,
             'condition_type' => $conditionType,
@@ -206,7 +172,7 @@ class Odontogram extends BaseController
             'treatment_notes' => $treatmentNotes,
             'treatment_date' => date('Y-m-d'),
             'treatment_status' => $treatmentStatus,
-            'created_by' => 1
+            'created_by' => $currentUser ? $currentUser->id : 1
         ];
 
         if ($this->odontogramModel->updateToothCondition($patientId, $toothNumber, $conditionData)) {
@@ -312,7 +278,8 @@ class Odontogram extends BaseController
             'patient' => $patient,
             'odontogram' => $odontogram,
             'stats' => $stats,
-            'condition_types' => $this->odontogramModel->getConditionTypes()
+            'condition_types' => $this->odontogramModel->getConditionTypes(),
+            'clinic' => settings()->getClinicInfo()
         ];
 
         $html = view('odontogram/export', $data);
@@ -362,15 +329,7 @@ class Odontogram extends BaseController
         
         // Persist artifact
         $fileName = 'odontogram_print_' . ($patient['patient_id'] ?? $patientId) . '.html';
-        $this->storageService->storeExport(
-            $html, 
-            $fileName, 
-            'text/html', 
-            $clinicId, 
-            'patient', 
-            $patientId, 
-            'odontogram_print'
-        );
+        $this->persistPrintArtifact($html, $fileName, 'text/html', $clinicId, $patientId);
 
         return $this->response
             ->setHeader('Content-Type', 'text/html')
@@ -397,7 +356,8 @@ class Odontogram extends BaseController
             'patient' => $patient,
             'odontogram' => $odontogram,
             'stats' => $stats,
-            'condition_types' => $this->odontogramModel->getConditionTypes()
+            'condition_types' => $this->odontogramModel->getConditionTypes(),
+            'clinic' => settings()->getClinicInfo()
         ];
 
         $html = view('odontogram/pdf', $data);
@@ -439,7 +399,8 @@ class Odontogram extends BaseController
             'patient' => $patient,
             'odontogram' => $odontogram,
             'stats' => $stats,
-            'condition_types' => $this->odontogramModel->getConditionTypes()
+            'condition_types' => $this->odontogramModel->getConditionTypes(),
+            'clinic' => settings()->getClinicInfo()
         ];
 
         // Generate HTML content for PDF
@@ -458,5 +419,24 @@ class Odontogram extends BaseController
         );
         
         return redirect()->to(base_url('file/download/' . $attachment['id']));
+    }
+
+    private function persistPrintArtifact(string $html, string $fileName, string $mimeType, int $clinicId, int $patientId)
+    {
+        try {
+            $this->storageService->storeExport(
+                $html,
+                $fileName,
+                $mimeType,
+                $clinicId,
+                'patient',
+                $patientId,
+                'odontogram_print'
+            );
+        } catch (PageNotFoundException $e) {
+            log_message('warning', 'Odontogram print export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Odontogram print export failed: ' . $e->getMessage());
+        }
     }
 }

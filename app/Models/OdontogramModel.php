@@ -122,29 +122,38 @@ class OdontogramModel extends TenantAwareModel
             ->first();
     }
 
+    private function countByCondition(int $patientId, array $conditionTypes = null, bool $exclude = false): int
+    {
+        $builder = $this->db->table('odontograms')
+            ->where('patient_id', $patientId);
+
+        if ($conditionTypes !== null) {
+            if ($exclude) {
+                $builder->whereNotIn('condition_type', $conditionTypes);
+            } else {
+                $builder->whereIn('condition_type', $conditionTypes);
+            }
+        }
+
+        return $builder->countAllResults();
+    }
+
     public function getOdontogramStats($patientId)
     {
-        $builder = $this->db->table('odontograms');
-        
-        // Count problematic teeth (all conditions except healthy)
-        $problematicTeeth = $builder->where('patient_id', $patientId)
-            ->where('condition_type !=', 'healthy')
-            ->countAllResults();
-        
-        // Calculate healthy teeth: Total teeth (32) - problematic teeth
         $totalTeeth = 32;
-        $healthyCount = $totalTeeth - $problematicTeeth;
-        
+        $problematicTeeth = $this->countByCondition($patientId, ['healthy'], true);
+
         return [
-            'total_conditions' => $builder->where('patient_id', $patientId)->countAllResults(),
+            'total_conditions' => $this->countByCondition($patientId),
             'total_teeth' => $totalTeeth,
-            'healthy_count' => max(0, $healthyCount), // Ensure non-negative
-            'treated_count' => $builder->where('patient_id', $patientId)->whereIn('condition_type', ['filling', 'crown', 'bridge', 'implant'])->countAllResults(),
-            'needs_treatment_count' => $builder->where('patient_id', $patientId)->whereIn('condition_type', ['cavity', 'extracted'])->countAllResults(),
-            'cavities' => $builder->where('patient_id', $patientId)->where('condition_type', 'cavity')->countAllResults(),
-            'fillings' => $builder->where('patient_id', $patientId)->where('condition_type', 'filling')->countAllResults(),
-            'crowns' => $builder->where('patient_id', $patientId)->where('condition_type', 'crown')->countAllResults(),
-            'extracted' => $builder->where('patient_id', $patientId)->where('condition_type', 'extracted')->countAllResults()
+            'healthy_count' => max(0, $totalTeeth - $problematicTeeth),
+            'treated_count' => $this->countByCondition($patientId, ['filling', 'crown', 'bridge', 'implant']),
+            'needs_treatment_count' => $this->countByCondition($patientId, ['cavity', 'extracted']),
+            'cavities' => $this->countByCondition($patientId, ['cavity']),
+            'fillings' => $this->countByCondition($patientId, ['filling']),
+            'crowns' => $this->countByCondition($patientId, ['crown']),
+            'extracted' => $this->countByCondition($patientId, ['extracted']),
+            'root_canals' => $this->countByCondition($patientId, ['root_canal'])
         ];
     }
 
