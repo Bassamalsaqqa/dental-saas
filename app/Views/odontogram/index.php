@@ -744,7 +744,9 @@ const conditionFilterColors = {
     other: '#6b7280'
 };
 
-const toothNodes = new Map();
+const SHOW_SVG_LABELS = false;
+const toothGroups = new Map();
+const toothHitPaths = new Map();
 let currentNumberingSystem = 'universal';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -790,7 +792,8 @@ function getFdiNumber(universalNumber) {
 }
 
 function cacheToothNodes(svg) {
-    toothNodes.clear();
+    toothGroups.clear();
+    toothHitPaths.clear();
     const groups = svg.querySelectorAll('g[id^="tooth-"]');
     groups.forEach(group => {
         const match = group.id.match(/^tooth-(\d+)$/);
@@ -803,19 +806,30 @@ function cacheToothNodes(svg) {
             return;
         }
 
-        toothNodes.set(toothNumber, group);
+        toothGroups.set(toothNumber, group);
         group.dataset.tooth = toothNumber;
-        group.style.cursor = 'pointer';
-        group.setAttribute('tabindex', '0');
-        group.setAttribute('role', 'button');
-        group.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
-        group.addEventListener('click', () => openToothModal(toothNumber));
-        group.addEventListener('keydown', event => {
+        group.style.pointerEvents = 'none';
+
+        const hitPath = group.querySelector(':scope > path');
+        const target = hitPath || group;
+        target.style.pointerEvents = 'visiblePainted';
+        target.style.cursor = 'pointer';
+        target.setAttribute('tabindex', '0');
+        target.setAttribute('role', 'button');
+        target.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
+        target.addEventListener('click', () => openToothModal(toothNumber));
+        target.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 openToothModal(toothNumber);
             }
         });
+
+        if (hitPath) {
+            toothHitPaths.set(toothNumber, hitPath);
+        } else {
+            toothHitPaths.set(toothNumber, target);
+        }
     });
 }
 
@@ -838,7 +852,7 @@ function injectConditionFilters(svg) {
 
         const flood = document.createElementNS(svgNS, 'feFlood');
         flood.setAttribute('flood-color', color);
-        flood.setAttribute('flood-opacity', '0.6');
+        flood.setAttribute('flood-opacity', '0.72');
         flood.setAttribute('result', 'flood');
 
         const composite = document.createElementNS(svgNS, 'feComposite');
@@ -880,7 +894,7 @@ function buildToothLabels(svg) {
     labelLayer.setAttribute('stroke-width', '0.5');
     labelLayer.setAttribute('paint-order', 'stroke fill');
 
-    toothNodes.forEach((node, toothNumber) => {
+    toothGroups.forEach((node, toothNumber) => {
         const bbox = node.getBBox();
         const centerX = bbox.x + bbox.width / 2;
         const centerY = bbox.y + bbox.height / 2;
@@ -925,11 +939,13 @@ function setupSvgOdontogram() {
 
     injectConditionFilters(svg);
     cacheToothNodes(svg);
-    buildToothLabels(svg);
+    if (SHOW_SVG_LABELS) {
+        buildToothLabels(svg);
+    }
 }
 
 function initializeOdontogram() {
-    toothNodes.forEach((element, toothNumber) => {
+    toothHitPaths.forEach((element, toothNumber) => {
         const condition = getConditionForTooth(toothNumber);
         applyConditionFilter(toothNumber, condition);
     });
@@ -960,7 +976,7 @@ function getToothNode(toothNumber) {
         return null;
     }
 
-    return toothNodes.get(parseInt(toothNumber, 10));
+    return toothHitPaths.get(parseInt(toothNumber, 10));
 }
 
 function updateToothAppearance(value, conditionType) {
