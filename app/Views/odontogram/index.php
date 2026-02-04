@@ -746,6 +746,8 @@ const conditionFilterColors = {
 
 const SHOW_SVG_LABELS = false;
 const toothGroups = new Map();
+const toothArtGroups = new Map();
+const toothOutlines = new Map();
 const toothHitPaths = new Map();
 let currentNumberingSystem = 'universal';
 
@@ -791,6 +793,40 @@ function getFdiNumber(universalNumber) {
     return num.toString();
 }
 
+function findPrimaryShape(root) {
+    if (!root) {
+        return null;
+    }
+
+    const candidates = Array.from(root.querySelectorAll('path, polygon, rect, circle, ellipse'));
+    if (!candidates.length) {
+        return null;
+    }
+
+    let best = candidates[0];
+    let bestArea = 0;
+
+    candidates.forEach(node => {
+        const bbox = node.getBBox();
+        const area = bbox.width * bbox.height;
+        if (area > bestArea) {
+            bestArea = area;
+            best = node;
+        }
+    });
+
+    return best;
+}
+
+function setOutlineVisible(toothNumber, visible) {
+    const outline = toothOutlines.get(toothNumber);
+    if (!outline) {
+        return;
+    }
+
+    outline.style.opacity = visible ? '0.9' : '0';
+}
+
 function cacheToothNodes(svg) {
     toothGroups.clear();
     toothHitPaths.clear();
@@ -810,26 +846,55 @@ function cacheToothNodes(svg) {
         group.dataset.tooth = toothNumber;
         group.style.pointerEvents = 'none';
 
-        const hitPath = group.querySelector(':scope > path');
-        const target = hitPath || group;
-        target.style.pointerEvents = 'visiblePainted';
-        target.style.cursor = 'pointer';
-        target.setAttribute('tabindex', '0');
-        target.setAttribute('role', 'button');
-        target.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
-        target.addEventListener('click', () => openToothModal(toothNumber));
-        target.addEventListener('keydown', event => {
+        const artGroup = document.createElementNS(svgNS, 'g');
+        artGroup.classList.add('tooth-art');
+        artGroup.dataset.tooth = toothNumber;
+
+        while (group.firstChild) {
+            artGroup.appendChild(group.firstChild);
+        }
+
+        group.appendChild(artGroup);
+        toothArtGroups.set(toothNumber, artGroup);
+
+        const primaryShape = findPrimaryShape(artGroup) || artGroup;
+        const outlinePath = primaryShape.cloneNode(true);
+        outlinePath.setAttribute('class', 'tooth-outline');
+        outlinePath.setAttribute('fill', 'none');
+        outlinePath.setAttribute('stroke-width', '2.5');
+        outlinePath.setAttribute('opacity', '0');
+        outlinePath.style.pointerEvents = 'none';
+        outlinePath.style.transition = 'opacity 0.2s ease';
+
+        const hitPath = primaryShape.cloneNode(true);
+        hitPath.setAttribute('class', 'tooth-hit');
+        hitPath.setAttribute('fill', 'transparent');
+        hitPath.setAttribute('stroke', 'none');
+        hitPath.setAttribute('opacity', '0');
+        hitPath.style.pointerEvents = 'visiblePainted';
+        hitPath.style.cursor = 'pointer';
+        hitPath.setAttribute('tabindex', '0');
+        hitPath.setAttribute('role', 'button');
+        hitPath.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
+
+        hitPath.addEventListener('click', () => openToothModal(toothNumber));
+        hitPath.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 openToothModal(toothNumber);
             }
         });
 
-        if (hitPath) {
-            toothHitPaths.set(toothNumber, hitPath);
-        } else {
-            toothHitPaths.set(toothNumber, target);
-        }
+        hitPath.addEventListener('mouseenter', () => setOutlineVisible(toothNumber, true));
+        hitPath.addEventListener('focus', () => setOutlineVisible(toothNumber, true));
+        hitPath.addEventListener('mouseleave', () => setOutlineVisible(toothNumber, false));
+        hitPath.addEventListener('blur', () => setOutlineVisible(toothNumber, false));
+
+        group.appendChild(outlinePath);
+        group.appendChild(hitPath);
+
+        toothOutlines.set(toothNumber, outlinePath);
+        toothHitPaths.set(toothNumber, hitPath);
     });
 }
 
@@ -945,7 +1010,7 @@ function setupSvgOdontogram() {
 }
 
 function initializeOdontogram() {
-    toothHitPaths.forEach((element, toothNumber) => {
+    toothArtGroups.forEach((element, toothNumber) => {
         const condition = getConditionForTooth(toothNumber);
         applyConditionFilter(toothNumber, condition);
     });
@@ -959,16 +1024,24 @@ function getConditionForTooth(toothNumber) {
 }
 
 function applyConditionFilter(toothNumber, conditionType) {
-    const node = getToothNode(toothNumber);
-    if (!node) {
+    const artGroup = getToothArtGroup(toothNumber);
+    if (!artGroup) {
         return;
     }
 
     if (!conditionType || conditionType === 'healthy') {
-        node.removeAttribute('filter');
+        artGroup.removeAttribute('filter');
     } else {
-        node.setAttribute('filter', `url(#cond-${conditionType})`);
+        artGroup.setAttribute('filter', `url(#cond-${conditionType})`);
     }
+}
+
+function getToothArtGroup(toothNumber) {
+    if (!toothNumber) {
+        return null;
+    }
+
+    return toothArtGroups.get(parseInt(toothNumber, 10));
 }
 
 function getToothNode(toothNumber) {
@@ -1436,3 +1509,21 @@ function exportData() {
 </style>
 
 <?= $this->endSection() ?>
+#odontogramSvgWrapper svg {
+    width: 100%;
+    height: auto;
+}
+
+#odontogramSvgWrapper text {
+    pointer-events: none;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.tooth-hit {
+    outline: none;
+}
+
+.tooth-outline {
+    stroke: #3b82f6;
+    opacity: 0;
+}
