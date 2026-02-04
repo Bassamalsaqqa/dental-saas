@@ -856,33 +856,70 @@ function parseToothNumber(element) {
     return null;
 }
 
-function isFilledShape(shape) {
-    const fill = (shape.getAttribute('fill') || '').trim().toLowerCase();
-    if (fill === 'none' || fill === 'transparent') {
-        return false;
-    }
-    return true;
-}
-
 function getLargestShape(group) {
     const shapes = Array.from(group.querySelectorAll('path, polygon, rect, circle, ellipse'))
-        .filter(el => !el.classList.contains('tooth-hit') && !el.classList.contains('tooth-overlay') && !el.classList.contains('tooth-outline'));
-    const candidates = shapes.filter(isFilledShape);
-    const pool = candidates.length ? candidates : shapes;
-    let best = null;
-    let bestArea = 0;
-    pool.forEach(shape => {
-        try {
-            const bbox = shape.getBBox();
-            const area = bbox.width * bbox.height;
-            if (area > bestArea) {
-                bestArea = area;
-                best = shape;
+        .filter(el =>
+            !el.classList.contains('tooth-hit') &&
+            !el.classList.contains('tooth-overlay') &&
+            !el.classList.contains('tooth-outline')
+        );
+
+    const getOpacity = (el) => {
+        const attr = el.getAttribute('opacity');
+        if (attr !== null && attr !== '') {
+            const value = Number(attr);
+            return Number.isFinite(value) ? value : 1;
+        }
+        const styleValue = el.style && el.style.opacity ? Number(el.style.opacity) : NaN;
+        return Number.isFinite(styleValue) ? styleValue : 1;
+    };
+
+    const inMultiplyGroup = (el) => {
+        let node = el;
+        while (node && node !== group) {
+            if (node.getAttribute && (node.getAttribute('mix-blend-mode') || '').toLowerCase() === 'multiply') {
+                return true;
             }
+            node = node.parentNode;
+        }
+        return false;
+    };
+
+    const isVisibleFill = (el) => {
+        const fill = (el.getAttribute('fill') || '').trim().toLowerCase();
+        if (!fill || fill === 'none' || fill === 'transparent') {
+            return false;
+        }
+        return true;
+    };
+
+    const filled = shapes.filter(isVisibleFill);
+    const candidates = filled.length ? filled : shapes;
+    let best = null;
+    let bestScore = -1;
+
+    candidates.forEach(shape => {
+        let bbox;
+        try {
+            bbox = shape.getBBox();
         } catch (e) {
-            // ignore
+            return;
+        }
+        const area = bbox.width * bbox.height;
+        if (!area || area <= 0) {
+            return;
+        }
+
+        const opacity = Math.max(0, Math.min(1, getOpacity(shape)));
+        const multiplyPenalty = inMultiplyGroup(shape) ? 0.15 : 1;
+        const score = area * (0.25 + 0.75 * opacity) * multiplyPenalty;
+
+        if (score > bestScore) {
+            bestScore = score;
+            best = shape;
         }
     });
+
     return best;
 }
 
@@ -1156,7 +1193,7 @@ function applyToothVisual(toothNumber) {
         overlay.setAttribute('fill', 'transparent');
     } else {
         overlay.setAttribute('fill', conditionColors[condition] || '#6b7280');
-        overlay.setAttribute('opacity', '0.6');
+        overlay.setAttribute('opacity', '0.28');
     }
 }
 

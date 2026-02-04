@@ -232,6 +232,42 @@
                         }
 
                         $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+
+                        if ($overlays->length === 0) {
+                            $base = null;
+                            $directPaths = $xpath->query("./*[local-name()='path']", $group);
+                            foreach ($directPaths as $path) {
+                                $fill = strtolower(trim($path->getAttribute('fill')));
+                                if ($fill !== '' && $fill !== 'none' && $fill !== 'transparent') {
+                                    $base = $path;
+                                    break;
+                                }
+                            }
+
+                            if (!$base) {
+                                $anyPaths = $xpath->query(".//*[local-name()='path']", $group);
+                                foreach ($anyPaths as $path) {
+                                    $fill = strtolower(trim($path->getAttribute('fill')));
+                                    if ($fill !== '' && $fill !== 'none' && $fill !== 'transparent') {
+                                        $base = $path;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($base) {
+                                $overlay = $base->cloneNode(true);
+                                if ($overlay instanceof DOMElement) {
+                                    $overlay->removeAttribute('id');
+                                    $overlay->setAttribute('class', 'tooth-overlay');
+                                    $overlay->setAttribute('fill', 'transparent');
+                                    $overlay->setAttribute('opacity', '0');
+                                    $group->appendChild($overlay);
+                                    $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+                                }
+                            }
+                        }
+
                         if ($overlays->length === 0) {
                             continue;
                         }
@@ -247,9 +283,9 @@
                         $color = $conditionColors[$condition] ?? '#6b7280';
                         foreach ($overlays as $overlay) {
                             $overlay->setAttribute('fill', $color);
-                            $overlay->setAttribute('opacity', '0.6');
-                        }
+                        $overlay->setAttribute('opacity', '0.28');
                     }
+                }
 
                     return $dom->saveXML($dom->documentElement);
                 }
