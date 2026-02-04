@@ -110,7 +110,7 @@ class Users extends BaseController
     private function buildUserRows(string $statusFilter, string $search): array
     {
         $userModel = new UserModel();
-        $db = \Config\Database::connect();
+        $clinicUserModel = new ClinicUserModel();
 
         $builder = $userModel->orderBy('created_on', 'DESC');
 
@@ -134,12 +134,10 @@ class Users extends BaseController
         // Pre-fetch clinic counts to avoid N+1 query loop overhead in large sets
         // SELECT user_id, COUNT(*) as count FROM clinic_users GROUP BY user_id
         $clinicCounts = [];
-        $countQuery = $db->table('clinic_users')
-                         ->select('user_id, COUNT(*) as count')
-                         ->where('status', 'active')
-                         ->groupBy('user_id')
-                         ->get()
-                         ->getResultArray();
+        $countQuery = $clinicUserModel->select('user_id, COUNT(*) as count')
+            ->where('status', 'active')
+            ->groupBy('user_id')
+            ->findAll();
         foreach ($countQuery as $c) {
             $clinicCounts[$c['user_id']] = $c['count'];
         }

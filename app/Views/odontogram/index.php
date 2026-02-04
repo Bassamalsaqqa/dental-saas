@@ -66,16 +66,16 @@ function getStatusClass($status) {
 // Function to get status display text
 function getStatusText($status) {
     switch($status) {
-        case 'pending':
-            return '🟡 Pending';
-        case 'in_progress':
-            return '🟠 In Progress';
-        case 'completed':
-            return '🟢 Completed';
-        case 'needs_attention':
-            return '🔴 Needs Attention';
+        case "pending":
+            return "Pending";
+        case "in_progress":
+            return "In Progress";
+        case "completed":
+            return "Completed";
+        case "needs_attention":
+            return "Needs Attention";
         default:
-            return '🟢 Completed';
+            return "Completed";
     }
 }
 ?>
@@ -159,11 +159,11 @@ function getStatusText($status) {
                         <div class="flex items-center space-x-3">
                             <span class="text-sm font-medium text-gray-700">Numbering:</span>
                             <div class="flex bg-gray-100 rounded-lg p-1">
-                                <button id="universalBtn" onclick="switchNumberingSystem('universal')" 
+                                <button id="universalBtn" onclick="switchNumberingSystem('universal', true)" 
                                         class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-600 shadow-sm">
                                     Universal (1-32)
                                 </button>
-                                <button id="fdiBtn" onclick="switchNumberingSystem('fdi')" 
+                                <button id="fdiBtn" onclick="switchNumberingSystem('fdi', true)" 
                                         class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 text-gray-600 hover:text-blue-600">
                                     FDI (Two-digit)
                                 </button>
@@ -700,10 +700,10 @@ function getStatusText($status) {
                             <i class="fas fa-tasks mr-2 text-orange-600"></i>Treatment Status
                         </label>
                         <select id="treatment_status" name="treatment_status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm">
-                            <option value="pending">🟡 Pending</option>
-                            <option value="in_progress">🟠 In Progress</option>
-                            <option value="completed">🟢 Completed</option>
-                            <option value="needs_attention">🔴 Needs Attention</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="needs_attention">Needs Attention</option>
                         </select>
                     </div>
                     
@@ -726,12 +726,12 @@ function getStatusText($status) {
     </div>
 </div>
 
-﻿﻿<script>
+<script>
 const patientId = <?= $patient['id'] ?>;
 const odontogramData = <?= json_encode($odontogram) ?>;
 const conditionTypes = <?= json_encode($condition_types) ?>;
 const svgNS = 'http://www.w3.org/2000/svg';
-const conditionFilterColors = {
+const conditionColors = {
     cavity: '#fbbf24',
     filling: '#3b82f6',
     crown: '#a855f7',
@@ -746,10 +746,13 @@ const conditionFilterColors = {
 
 const SHOW_SVG_LABELS = false;
 const toothGroups = new Map();
-const toothArtGroups = new Map();
+const toothOverlays = new Map();
 const toothOutlines = new Map();
-const toothHitPaths = new Map();
+const toothHits = new Map();
 let currentNumberingSystem = 'universal';
+let labelsVisible = SHOW_SVG_LABELS;
+let activeTooth = null;
+let tooltipEl = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     setupSvgOdontogram();
@@ -793,108 +796,215 @@ function getFdiNumber(universalNumber) {
     return num.toString();
 }
 
-function findPrimaryShape(root) {
-    if (!root) {
-        return null;
-    }
-
-    const candidates = Array.from(root.querySelectorAll('path, polygon, rect, circle, ellipse'));
-    if (!candidates.length) {
-        return null;
-    }
-
-    let best = candidates[0];
-    let bestArea = 0;
-
-    candidates.forEach(node => {
-        const bbox = node.getBBox();
-        const area = bbox.width * bbox.height;
-        if (area > bestArea) {
-            bestArea = area;
-            best = node;
-        }
-    });
-
-    return best;
-}
-
 function setOutlineVisible(toothNumber, visible) {
     const outline = toothOutlines.get(toothNumber);
     if (!outline) {
         return;
     }
-
     outline.style.opacity = visible ? '0.9' : '0';
 }
 
-function cacheToothNodes(svg) {
-    toothGroups.clear();
-    toothHitPaths.clear();
-    const groups = svg.querySelectorAll('g[id^="tooth-"]');
-    groups.forEach(group => {
-        const match = group.id.match(/^tooth-(\d+)$/);
-        if (!match) {
-            return;
+function createTooltip() {
+    const el = document.createElement('div');
+    el.id = 'odontogramTooltip';
+    el.className = 'fixed z-50 pointer-events-none px-3 py-2 rounded-md text-xs font-medium shadow-lg bg-slate-900 text-white opacity-0 transition-opacity duration-150';
+    document.body.appendChild(el);
+    return el;
+}
+
+function showTooltip(event, toothNumber) {
+    if (!tooltipEl) {
+        tooltipEl = createTooltip();
+    }
+
+    const condition = getConditionForTooth(toothNumber);
+    const conditionLabel = conditionTypes?.[condition] || 'Healthy';
+    tooltipEl.textContent = `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)}) - ${conditionLabel}`;
+    tooltipEl.style.left = `${event.clientX + 12}px`;
+    tooltipEl.style.top = `${event.clientY + 12}px`;
+    tooltipEl.style.opacity = '1';
+}
+
+function moveTooltip(event) {
+    if (!tooltipEl || tooltipEl.style.opacity !== '1') {
+        return;
+    }
+    tooltipEl.style.left = `${event.clientX + 12}px`;
+    tooltipEl.style.top = `${event.clientY + 12}px`;
+}
+
+function hideTooltip() {
+    if (!tooltipEl) {
+        return;
+    }
+    tooltipEl.style.opacity = '0';
+}
+
+function parseToothNumber(element) {
+    if (!element) {
+        return null;
+    }
+    const dataTooth = element.dataset?.tooth;
+    if (dataTooth) {
+        return parseInt(dataTooth, 10);
+    }
+    const id = element.getAttribute('id') || '';
+    const match = id.match(/^tooth-(\d+)$/);
+    if (match) {
+        return parseInt(match[1], 10);
+    }
+    return null;
+}
+
+function isFilledShape(shape) {
+    const fill = (shape.getAttribute('fill') || '').trim().toLowerCase();
+    if (fill === 'none' || fill === 'transparent') {
+        return false;
+    }
+    return true;
+}
+
+function getLargestShape(group) {
+    const shapes = Array.from(group.querySelectorAll('path, polygon, rect, circle, ellipse'))
+        .filter(el => !el.classList.contains('tooth-hit') && !el.classList.contains('tooth-overlay') && !el.classList.contains('tooth-outline'));
+    const candidates = shapes.filter(isFilledShape);
+    const pool = candidates.length ? candidates : shapes;
+    let best = null;
+    let bestArea = 0;
+    pool.forEach(shape => {
+        try {
+            const bbox = shape.getBBox();
+            const area = bbox.width * bbox.height;
+            if (area > bestArea) {
+                bestArea = area;
+                best = shape;
+            }
+        } catch (e) {
+            // ignore
         }
+    });
+    return best;
+}
 
-        const toothNumber = parseInt(match[1], 10);
-        if (isNaN(toothNumber)) {
-            return;
-        }
-
-        toothGroups.set(toothNumber, group);
-        group.dataset.tooth = toothNumber;
-        group.style.pointerEvents = 'none';
-
-        const artGroup = document.createElementNS(svgNS, 'g');
-        artGroup.classList.add('tooth-art');
-        artGroup.dataset.tooth = toothNumber;
-
-        while (group.firstChild) {
-            artGroup.appendChild(group.firstChild);
-        }
-
-        group.appendChild(artGroup);
-        toothArtGroups.set(toothNumber, artGroup);
-
-        const primaryShape = findPrimaryShape(artGroup) || artGroup;
-        const outlinePath = primaryShape.cloneNode(true);
-        outlinePath.setAttribute('class', 'tooth-outline');
-        outlinePath.setAttribute('fill', 'none');
-        outlinePath.setAttribute('stroke-width', '2.5');
-        outlinePath.setAttribute('opacity', '0');
-        outlinePath.style.pointerEvents = 'none';
-        outlinePath.style.transition = 'opacity 0.2s ease';
-
-        const hitPath = primaryShape.cloneNode(true);
-        hitPath.setAttribute('class', 'tooth-hit');
-        hitPath.setAttribute('fill', 'transparent');
-        hitPath.setAttribute('stroke', 'none');
-        hitPath.setAttribute('opacity', '0');
-        hitPath.style.pointerEvents = 'visiblePainted';
-        hitPath.style.cursor = 'pointer';
-        hitPath.setAttribute('tabindex', '0');
-        hitPath.setAttribute('role', 'button');
-        hitPath.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
-
-        hitPath.addEventListener('click', () => openToothModal(toothNumber));
-        hitPath.addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                openToothModal(toothNumber);
+function ensureToothControls(group, toothNumber) {
+    group.querySelectorAll('.tooth-overlay, .tooth-outline, .tooth-hit').forEach(el => el.remove());
+    let overlay = null;
+    let outline = null;
+    let hit = null;
+    const base = getLargestShape(group);
+    if (base) {
+        group.querySelectorAll('path, polygon, rect, circle, ellipse').forEach(shape => {
+            if (!shape.classList.contains('tooth-hit') && !shape.classList.contains('tooth-overlay') && !shape.classList.contains('tooth-outline')) {
+                shape.style.pointerEvents = 'none';
             }
         });
 
-        hitPath.addEventListener('mouseenter', () => setOutlineVisible(toothNumber, true));
-        hitPath.addEventListener('focus', () => setOutlineVisible(toothNumber, true));
-        hitPath.addEventListener('mouseleave', () => setOutlineVisible(toothNumber, false));
-        hitPath.addEventListener('blur', () => setOutlineVisible(toothNumber, false));
+        if (!overlay) {
+            overlay = base.cloneNode(true);
+            overlay.removeAttribute('id');
+            overlay.setAttribute('class', 'tooth-overlay');
+            overlay.setAttribute('fill', 'transparent');
+            overlay.setAttribute('opacity', '0');
+            overlay.style.pointerEvents = 'none';
+            group.appendChild(overlay);
+        }
+        if (!outline) {
+            outline = base.cloneNode(true);
+            outline.removeAttribute('id');
+            outline.setAttribute('class', 'tooth-outline');
+            outline.setAttribute('fill', 'none');
+            outline.setAttribute('stroke', '#3b82f6');
+            outline.setAttribute('stroke-width', '1.5');
+            outline.setAttribute('opacity', '0');
+            outline.style.pointerEvents = 'none';
+            group.appendChild(outline);
+        }
+        if (!hit) {
+            hit = base.cloneNode(true);
+            hit.removeAttribute('id');
+            hit.setAttribute('class', 'tooth-hit');
+            hit.setAttribute('fill', 'transparent');
+            hit.setAttribute('opacity', '0');
+            hit.style.pointerEvents = 'fill';
+            group.appendChild(hit);
+        }
+    }
 
-        group.appendChild(outlinePath);
-        group.appendChild(hitPath);
+    if (hit) {
+        hit.style.cursor = 'pointer';
+        hit.setAttribute('tabindex', '0');
+        hit.setAttribute('role', 'button');
+        hit.setAttribute('aria-label', `Tooth ${toothNumber} (FDI ${getFdiNumber(toothNumber)})`);
+    }
 
-        toothOutlines.set(toothNumber, outlinePath);
-        toothHitPaths.set(toothNumber, hitPath);
+    if (overlay) {
+        overlay.style.pointerEvents = 'none';
+    }
+    if (outline) {
+        outline.style.pointerEvents = 'none';
+    }
+
+    return { overlay, outline, hit };
+}
+
+function cacheToothGroups(svg) {
+    toothGroups.clear();
+    toothOverlays.clear();
+    toothOutlines.clear();
+    toothHits.clear();
+
+    const groups = Array.from(svg.querySelectorAll('[id^=\"tooth-\"]'))
+        .filter(element => (element.tagName || '').toLowerCase().endsWith('g'));
+    groups.forEach(group => {
+        const toothNumber = parseToothNumber(group);
+        if (!toothNumber) {
+            return;
+        }
+
+        group.classList.add('tooth-group');
+        group.dataset.tooth = toothNumber;
+
+        const { overlay, outline, hit } = ensureToothControls(group, toothNumber);
+
+        if (overlay) {
+            toothOverlays.set(toothNumber, overlay);
+        }
+        if (outline) {
+            toothOutlines.set(toothNumber, outline);
+        }
+        if (hit) {
+            toothHits.set(toothNumber, hit);
+            hit.addEventListener('mouseenter', event => {
+                group.classList.add('is-hover');
+                setOutlineVisible(toothNumber, true);
+                showTooltip(event, toothNumber);
+            });
+            hit.addEventListener('mousemove', moveTooltip);
+            hit.addEventListener('mouseleave', () => {
+                group.classList.remove('is-hover');
+                setOutlineVisible(toothNumber, false);
+                hideTooltip();
+            });
+            hit.addEventListener('focus', event => {
+                group.classList.add('is-hover');
+                setOutlineVisible(toothNumber, true);
+                showTooltip(event, toothNumber);
+            });
+            hit.addEventListener('blur', () => {
+                group.classList.remove('is-hover');
+                setOutlineVisible(toothNumber, false);
+                hideTooltip();
+            });
+            hit.addEventListener('click', () => openToothModal(toothNumber));
+            hit.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openToothModal(toothNumber);
+                }
+            });
+        }
+
+        toothGroups.set(toothNumber, group);
     });
 }
 
@@ -947,6 +1057,10 @@ function buildToothLabels(svg) {
         existing.remove();
     }
 
+    const vb = svg.viewBox.baseVal;
+    const view = { x: vb.x, y: vb.y, width: vb.width, height: vb.height };
+    const labelGap = Math.max(view.height * 0.06, 3);
+
     const labelLayer = document.createElementNS(svgNS, 'g');
     labelLayer.setAttribute('id', 'toothLabels');
     labelLayer.setAttribute('pointer-events', 'none');
@@ -959,10 +1073,19 @@ function buildToothLabels(svg) {
     labelLayer.setAttribute('stroke-width', '0.5');
     labelLayer.setAttribute('paint-order', 'stroke fill');
 
-    toothGroups.forEach((node, toothNumber) => {
-        const bbox = node.getBBox();
+    toothGroups.forEach((group, toothNumber) => {
+        let bbox;
+        try {
+            bbox = group.getBBox();
+        } catch (e) {
+            return;
+        }
         const centerX = bbox.x + bbox.width / 2;
-        const centerY = bbox.y + bbox.height / 2;
+        const isUpper = toothNumber <= 16;
+        const targetY = isUpper
+            ? (bbox.y - labelGap)
+            : (bbox.y + bbox.height + labelGap);
+        const centerY = Math.max(view.y + 2, Math.min(view.y + view.height - 2, targetY));
 
         const universalLabel = document.createElementNS(svgNS, 'text');
         universalLabel.setAttribute('class', 'universal-number');
@@ -1002,17 +1125,15 @@ function setupSvgOdontogram() {
     svg.style.width = '100%';
     svg.style.height = 'auto';
 
-    injectConditionFilters(svg);
-    cacheToothNodes(svg);
-    if (SHOW_SVG_LABELS) {
+    cacheToothGroups(svg);
+    if (labelsVisible) {
         buildToothLabels(svg);
     }
 }
 
 function initializeOdontogram() {
-    toothArtGroups.forEach((element, toothNumber) => {
-        const condition = getConditionForTooth(toothNumber);
-        applyConditionFilter(toothNumber, condition);
+    toothGroups.forEach((_, toothNumber) => {
+        applyToothVisual(toothNumber);
     });
 
     updateStats();
@@ -1023,25 +1144,20 @@ function getConditionForTooth(toothNumber) {
     return record ? record.condition_type : 'healthy';
 }
 
-function applyConditionFilter(toothNumber, conditionType) {
-    const artGroup = getToothArtGroup(toothNumber);
-    if (!artGroup) {
+function applyToothVisual(toothNumber) {
+    const overlay = toothOverlays.get(parseInt(toothNumber, 10));
+    if (!overlay) {
         return;
     }
 
-    if (!conditionType || conditionType === 'healthy') {
-        artGroup.removeAttribute('filter');
+    const condition = getConditionForTooth(toothNumber);
+    if (!condition || condition === 'healthy') {
+        overlay.setAttribute('opacity', '0');
+        overlay.setAttribute('fill', 'transparent');
     } else {
-        artGroup.setAttribute('filter', `url(#cond-${conditionType})`);
+        overlay.setAttribute('fill', conditionColors[condition] || '#6b7280');
+        overlay.setAttribute('opacity', '0.6');
     }
-}
-
-function getToothArtGroup(toothNumber) {
-    if (!toothNumber) {
-        return null;
-    }
-
-    return toothArtGroups.get(parseInt(toothNumber, 10));
 }
 
 function getToothNode(toothNumber) {
@@ -1049,20 +1165,18 @@ function getToothNode(toothNumber) {
         return null;
     }
 
-    return toothHitPaths.get(parseInt(toothNumber, 10));
+    return toothGroups.get(parseInt(toothNumber, 10));
 }
 
-function updateToothAppearance(value, conditionType) {
-    const toothNumber = typeof value === 'number' ? value : parseInt(value?.dataset?.tooth || value, 10);
-    if (!toothNumber) {
-        return;
-    }
-
-    applyConditionFilter(toothNumber, conditionType);
-}
-
-function switchNumberingSystem(system) {
+function switchNumberingSystem(system, userInitiated = false) {
     currentNumberingSystem = system;
+    if (userInitiated && !labelsVisible) {
+        labelsVisible = true;
+        const svg = document.getElementById('odontogramSvgWrapper')?.querySelector('svg');
+        if (svg) {
+            buildToothLabels(svg);
+        }
+    }
 
     const universalBtn = document.getElementById('universalBtn');
     const fdiBtn = document.getElementById('fdiBtn');
@@ -1085,7 +1199,7 @@ function switchNumberingSystem(system) {
 
 function toggleNumberingSystem() {
     const newSystem = currentNumberingSystem === 'universal' ? 'fdi' : 'universal';
-    switchNumberingSystem(newSystem);
+    switchNumberingSystem(newSystem, true);
 
     const toggleText = document.getElementById('numberingToggleText');
     if (toggleText) {
@@ -1126,6 +1240,26 @@ function updateStats() {
     if (extractedEl) extractedEl.textContent = stats.extracted;
 }
 
+function setSelectedTooth(toothNumber) {
+    if (activeTooth) {
+        const previous = toothGroups.get(parseInt(activeTooth, 10));
+        previous?.classList.remove('is-selected');
+    }
+
+    activeTooth = toothNumber;
+    const current = toothGroups.get(parseInt(toothNumber, 10));
+    current?.classList.add('is-selected');
+}
+
+function clearSelectedTooth() {
+    if (!activeTooth) {
+        return;
+    }
+    const current = toothGroups.get(parseInt(activeTooth, 10));
+    current?.classList.remove('is-selected');
+    activeTooth = null;
+}
+
 function openToothModal(toothNumber) {
     const modal = document.getElementById('toothModal');
     const modalContent = document.getElementById('modalContent');
@@ -1161,6 +1295,8 @@ function openToothModal(toothNumber) {
         modalContent.style.transform = 'scale(1)';
         modalContent.style.opacity = '1';
     }, 10);
+
+    setSelectedTooth(toothNumber);
 }
 
 function closeToothModal() {
@@ -1177,6 +1313,8 @@ function closeToothModal() {
     setTimeout(() => {
         modal.classList.add('hidden');
     }, 300);
+
+    clearSelectedTooth();
 }
 
 function attachModalBehavior() {
@@ -1271,11 +1409,12 @@ function attachFormHandler() {
                     if (toothElement) {
                         toothElement.classList.remove('updating');
                         toothElement.classList.add('success');
-                        applyConditionFilter(toothNumber, condition);
                         setTimeout(() => {
                             toothElement.classList.remove('success');
                         }, 600);
                     }
+
+                    applyToothVisual(toothNumber);
 
                     showNotification('Tooth condition updated successfully!', 'success');
                     closeToothModal();
@@ -1341,7 +1480,6 @@ function resetTooth() {
                 if (toothElement) {
                     toothElement.classList.remove('updating');
                     toothElement.classList.add('success');
-                    applyConditionFilter(toothNumber, 'healthy');
                     setTimeout(() => {
                         toothElement.classList.remove('success');
                     }, 600);
@@ -1362,6 +1500,7 @@ function resetTooth() {
                     odontogramData.push(healthyEntry);
                 }
 
+                applyToothVisual(toothNumber);
                 updateStats();
                 showNotification('Tooth condition removed successfully!', 'success');
                 closeToothModal();
@@ -1480,6 +1619,34 @@ function exportData() {
     font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
+#odontogramSvgWrapper .tooth-hit {
+    outline: none;
+}
+
+#odontogramSvgWrapper .tooth-outline {
+    stroke: #3b82f6;
+    opacity: 0;
+}
+
+#odontogramSvgWrapper .tooth-overlay {
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+
+#odontogramSvgWrapper .tooth-group {
+    cursor: pointer;
+}
+
+#odontogramSvgWrapper .tooth-group.is-hover .tooth-outline {
+    opacity: 0.9;
+}
+
+#odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f97316;
+    stroke-width: 2;
+}
+
 /* Animation classes for tooth updates */
 .updating {
     animation: pulse 1s infinite;
@@ -1509,21 +1676,4 @@ function exportData() {
 </style>
 
 <?= $this->endSection() ?>
-#odontogramSvgWrapper svg {
-    width: 100%;
-    height: auto;
-}
 
-#odontogramSvgWrapper text {
-    pointer-events: none;
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-}
-
-.tooth-hit {
-    outline: none;
-}
-
-.tooth-outline {
-    stroke: #3b82f6;
-    opacity: 0;
-}

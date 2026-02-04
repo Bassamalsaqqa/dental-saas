@@ -118,7 +118,7 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
-        $db = \Config\Database::connect();
+        $clinicUserModel = new ClinicUserModel();
 
         $planRows = $planModel->findAll();
         $planMap = [];
@@ -172,15 +172,12 @@ class Clinics extends BaseController
             }
 
             // Fetch Admin Email (First user added to clinic)
-            $adminUser = $db->table('clinic_users')
-                ->select('users.email')
+            $adminUser = $clinicUserModel->select('users.email')
                 ->join('users', 'users.id = clinic_users.user_id')
                 ->where('clinic_users.clinic_id', $clinic['id'])
                 ->orderBy('clinic_users.created_at', 'ASC')
-                ->limit(1)
-                ->get()
-                ->getRow();
-            $adminEmail = $adminUser ? $adminUser->email : 'Unknown';
+                ->first();
+            $adminEmail = $adminUser ? $adminUser['email'] : 'Unknown';
 
             $rows[] = [
                 'id' => $clinic['id'],
@@ -242,7 +239,7 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
-        $db = \Config\Database::connect();
+        $clinicUserModel = new ClinicUserModel();
 
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
@@ -250,17 +247,14 @@ class Clinics extends BaseController
         }
 
         // Fetch Admin Info
-        $adminUser = $db->table('clinic_users')
-            ->select('users.email, users.first_name, users.last_name')
+        $adminUser = $clinicUserModel->select('users.email, users.first_name, users.last_name')
             ->join('users', 'users.id = clinic_users.user_id')
             ->where('clinic_users.clinic_id', $id)
             ->orderBy('clinic_users.created_at', 'ASC')
-            ->limit(1)
-            ->get()
-            ->getRow();
+            ->first();
             
-        $clinic['admin_email'] = $adminUser ? $adminUser->email : 'Unknown';
-        $clinic['admin_name'] = $adminUser ? trim($adminUser->first_name . ' ' . $adminUser->last_name) : 'Unknown';
+        $clinic['admin_email'] = $adminUser ? $adminUser['email'] : 'Unknown';
+        $clinic['admin_name'] = $adminUser ? trim(($adminUser['first_name'] ?? '') . ' ' . ($adminUser['last_name'] ?? '')) : 'Unknown';
 
         $subscription = $subscriptionModel->getNormalizedSubscription((int) $clinic['id']);
         $planName = 'Unassigned';
@@ -637,32 +631,29 @@ class Clinics extends BaseController
         }
 
         // Find Admin User
-        $db = \Config\Database::connect();
-        $adminUser = $db->table('clinic_users')
-            ->select('users.id, users.email')
+        $clinicUserModel = new ClinicUserModel();
+        $adminUser = $clinicUserModel->select('users.id, users.email')
             ->join('users', 'users.id = clinic_users.user_id')
             ->where('clinic_users.clinic_id', $id)
             ->orderBy('clinic_users.created_at', 'ASC')
-            ->limit(1)
-            ->get()
-            ->getRow();
+            ->first();
 
         if (!$adminUser) {
             return redirect()->back()->with('error', 'No admin user found for this clinic.');
         }
 
         // Update Password
-        if ($this->ionAuth->update($adminUser->id, ['password' => $password])) {
+        if ($this->ionAuth->update($adminUser['id'], ['password' => $password])) {
             $this->auditService->logEvent('admin_password_reset', [
                 'route' => '/controlplane/clinics/' . $id . '/reset-admin-password',
                 'method' => 'POST',
                 'metadata' => [
                     'clinic_id' => $id, 
-                    'admin_user_id' => $adminUser->id,
-                    'admin_email' => $adminUser->email
+                    'admin_user_id' => $adminUser['id'],
+                    'admin_email' => $adminUser['email']
                 ],
             ]);
-            return redirect()->back()->with('success', "Password reset for {$adminUser->email}.");
+            return redirect()->back()->with('success', "Password reset for {$adminUser['email']}.");
         } else {
             return redirect()->back()->with('error', 'Failed to reset password.');
         }

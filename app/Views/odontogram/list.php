@@ -113,31 +113,31 @@
                                 <th data-column="0" style="padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid #e5e7eb;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
                                         <span>Patient</span>
-                                        <span style="color: #9ca3af;">↕️</span>
+                                        <span style="color: #9ca3af;">Sort</span>
                                     </div>
                                 </th>
                                 <th data-column="1" style="padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid #e5e7eb;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
                                         <span>Contact Info</span>
-                                        <span style="color: #9ca3af;">↕️</span>
+                                        <span style="color: #9ca3af;">Sort</span>
                                     </div>
                                 </th>
                                 <th data-column="2" style="padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid #e5e7eb;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
                                         <span>Patient ID</span>
-                                        <span style="color: #9ca3af;">↕️</span>
+                                        <span style="color: #9ca3af;">Sort</span>
                                     </div>
                                 </th>
                                 <th data-column="3" style="padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid #e5e7eb;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
                                         <span>Age</span>
-                                        <span style="color: #9ca3af;">↕️</span>
+                                        <span style="color: #9ca3af;">Sort</span>
                                     </div>
                                 </th>
                                 <th data-column="4" style="padding: 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid #e5e7eb;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
                                         <span>Last Visit</span>
-                                        <span style="color: #9ca3af;">↕️</span>
+                                        <span style="color: #9ca3af;">Sort</span>
                                     </div>
                                 </th>
                                 <th style="padding: 16px; text-align: center; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">
@@ -160,13 +160,13 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <button id="prevPage" style="padding: 8px 12px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 2px solid #d1d5db; border-radius: 4px; cursor: pointer;">
-                            ← Previous
+                            Previous
                         </button>
                         <div id="paginationNumbers" style="display: flex; gap: 4px;">
                             <!-- Pagination numbers will be generated here -->
                         </div>
                         <button id="nextPage" style="padding: 8px 12px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 2px solid #d1d5db; border-radius: 4px; cursor: pointer;">
-                            Next →
+                            Next
                         </button>
                     </div>
                 </div>
@@ -780,13 +780,13 @@ class OdontogramTable {
     
     updateSortIcons() {
         document.querySelectorAll('th span[style*="color: #9ca3af"]').forEach(icon => {
-            icon.textContent = '↕️';
+            icon.textContent = 'Sort';
             icon.style.color = '#9ca3af';
         });
         
         const currentTh = document.querySelector(`th[data-column="${this.orderColumn}"] span[style*="color: #9ca3af"]`);
         if (currentTh) {
-            currentTh.textContent = this.orderDir === 'asc' ? '↑' : '↓';
+            currentTh.textContent = this.orderDir === 'asc' ? '^' : 'v';
             currentTh.style.color = '#3b82f6';
         }
     }
@@ -1053,7 +1053,7 @@ function submitAddPatient() {
             if (data.errors) {
                 let errorMessage = 'Validation errors:\n';
                 Object.keys(data.errors).forEach(field => {
-                    errorMessage += `• ${data.errors[field]}\n`;
+                    errorMessage += `- ${data.errors[field]}\n`;
                 });
                 showNotification(errorMessage, 'error');
             } else {

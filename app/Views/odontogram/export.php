@@ -197,199 +197,88 @@
                     </div>
                 </div>
 
-                <!-- Odontogram Grid -->
-                <div class="max-w-4xl mx-auto">
-                    <!-- Upper Jaw -->
-                    <div class="mb-8">
-                        <div class="text-center mb-4">
-                            <h4 class="text-lg font-semibold text-gray-800">Upper Jaw (Maxilla)</h4>
-                            <p class="text-sm text-gray-600">Right → Left</p>
-                        </div>
-                        <div class="flex justify-center space-x-2">
-                            <!-- Upper Right Quadrant (1-8) -->
-                            <?php for ($i = 8; $i >= 1; $i--): ?>
-                                <?php
-                                $toothData = null;
-                                foreach ($odontogram as $tooth) {
-                                    if ($tooth['tooth_number'] == $i) {
-                                        $toothData = $tooth;
-                                        break;
-                                    }
-                                }
-                                $conditionClass = 'bg-green-100 border-green-400'; // Default healthy
-                                if ($toothData) {
-                                    switch ($toothData['condition_type']) {
-                                        case 'cavity':
-                                            $conditionClass = 'bg-yellow-100 border-yellow-400';
-                                            break;
-                                        case 'filling':
-                                            $conditionClass = 'bg-blue-100 border-blue-400';
-                                            break;
-                                        case 'crown':
-                                            $conditionClass = 'bg-purple-100 border-purple-400';
-                                            break;
-                                        case 'root_canal':
-                                            $conditionClass = 'bg-pink-100 border-pink-400';
-                                            break;
-                                        case 'extracted':
-                                            $conditionClass = 'bg-red-100 border-red-400 opacity-70';
-                                            break;
-                                        default:
-                                            $conditionClass = 'bg-green-100 border-green-400';
-                                    }
-                                }
-                                ?>
-                                <div class="w-12 h-14 border-2 border-gray-200 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white <?= $conditionClass ?>" data-tooth="<?= $i ?>">
-                                    <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                    <?php if ($toothData): ?>
-                                        <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endfor; ?>
-                            
-                            <!-- Upper Left Quadrant (9-16) -->
-                            <?php for ($i = 9; $i <= 16; $i++): ?>
-                                <?php
-                                $toothData = null;
-                                foreach ($odontogram as $tooth) {
-                                    if ($tooth['tooth_number'] == $i) {
-                                        $toothData = $tooth;
-                                        break;
-                                    }
-                                }
-                                $conditionClass = 'bg-green-100 border-green-400'; // Default healthy
-                                if ($toothData) {
-                                    switch ($toothData['condition_type']) {
-                                        case 'cavity':
-                                            $conditionClass = 'bg-yellow-100 border-yellow-400';
-                                            break;
-                                        case 'filling':
-                                            $conditionClass = 'bg-blue-100 border-blue-400';
-                                            break;
-                                        case 'crown':
-                                            $conditionClass = 'bg-purple-100 border-purple-400';
-                                            break;
-                                        case 'root_canal':
-                                            $conditionClass = 'bg-pink-100 border-pink-400';
-                                            break;
-                                        case 'extracted':
-                                            $conditionClass = 'bg-red-100 border-red-400 opacity-70';
-                                            break;
-                                        default:
-                                            $conditionClass = 'bg-green-100 border-green-400';
-                                    }
-                                }
-                                ?>
-                                <div class="w-12 h-14 border-2 border-gray-200 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white <?= $conditionClass ?>" data-tooth="<?= $i ?>">
-                                    <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                    <?php if ($toothData): ?>
-                                        <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
+                                <!-- Odontogram Grid -->
+                <?php
+                $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
+                $odontogramSvg = '';
+                $conditionColors = [
+                    'cavity' => '#fbbf24',
+                    'filling' => '#3b82f6',
+                    'crown' => '#a855f7',
+                    'root_canal' => '#ec4899',
+                    'extracted' => '#ef4444',
+                    'implant' => '#6366f1',
+                    'bridge' => '#0ea5e9',
+                    'partial_denture' => '#f97316',
+                    'full_denture' => '#f59e0b',
+                    'other' => '#6b7280'
+                ];
 
-                    <!-- Center Line -->
-                    <div class="flex justify-center mb-8">
-                        <div class="w-1 h-16 bg-gray-400 rounded-full"></div>
-                    </div>
+                function injectOdontogramConditions(string $svgContent, array $odontogram, array $conditionColors): string {
+                    if ($svgContent === '') {
+                        return $svgContent;
+                    }
 
-                    <!-- Lower Jaw -->
-                    <div class="mb-8">
-                        <div class="text-center mb-4">
-                            <h4 class="text-lg font-semibold text-gray-800">Lower Jaw (Mandible)</h4>
-                            <p class="text-sm text-gray-600">Left → Right</p>
-                        </div>
-                        <div class="flex justify-center space-x-2">
-                            <!-- Lower Left Quadrant (17-24) -->
-                            <?php for ($i = 24; $i >= 17; $i--): ?>
-                                <?php
-                                $toothData = null;
-                                foreach ($odontogram as $tooth) {
-                                    if ($tooth['tooth_number'] == $i) {
-                                        $toothData = $tooth;
-                                        break;
-                                    }
-                                }
-                                $conditionClass = 'bg-green-100 border-green-400'; // Default healthy
-                                if ($toothData) {
-                                    switch ($toothData['condition_type']) {
-                                        case 'cavity':
-                                            $conditionClass = 'bg-yellow-100 border-yellow-400';
-                                            break;
-                                        case 'filling':
-                                            $conditionClass = 'bg-blue-100 border-blue-400';
-                                            break;
-                                        case 'crown':
-                                            $conditionClass = 'bg-purple-100 border-purple-400';
-                                            break;
-                                        case 'root_canal':
-                                            $conditionClass = 'bg-pink-100 border-pink-400';
-                                            break;
-                                        case 'extracted':
-                                            $conditionClass = 'bg-red-100 border-red-400 opacity-70';
-                                            break;
-                                        default:
-                                            $conditionClass = 'bg-green-100 border-green-400';
-                                    }
-                                }
-                                ?>
-                                <div class="w-12 h-14 border-2 border-gray-200 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white <?= $conditionClass ?>" data-tooth="<?= $i ?>">
-                                    <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                    <?php if ($toothData): ?>
-                                        <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endfor; ?>
-                            
-                            <!-- Lower Right Quadrant (25-32) -->
-                            <?php for ($i = 25; $i <= 32; $i++): ?>
-                                <?php
-                                $toothData = null;
-                                foreach ($odontogram as $tooth) {
-                                    if ($tooth['tooth_number'] == $i) {
-                                        $toothData = $tooth;
-                                        break;
-                                    }
-                                }
-                                $conditionClass = 'bg-green-100 border-green-400'; // Default healthy
-                                if ($toothData) {
-                                    switch ($toothData['condition_type']) {
-                                        case 'cavity':
-                                            $conditionClass = 'bg-yellow-100 border-yellow-400';
-                                            break;
-                                        case 'filling':
-                                            $conditionClass = 'bg-blue-100 border-blue-400';
-                                            break;
-                                        case 'crown':
-                                            $conditionClass = 'bg-purple-100 border-purple-400';
-                                            break;
-                                        case 'root_canal':
-                                            $conditionClass = 'bg-pink-100 border-pink-400';
-                                            break;
-                                        case 'extracted':
-                                            $conditionClass = 'bg-red-100 border-red-400 opacity-70';
-                                            break;
-                                        default:
-                                            $conditionClass = 'bg-green-100 border-green-400';
-                                    }
-                                }
-                                ?>
-                                <div class="w-12 h-14 border-2 border-gray-200 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white <?= $conditionClass ?>" data-tooth="<?= $i ?>">
-                                    <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                    <?php if ($toothData): ?>
-                                        <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
+                    $dom = new DOMDocument();
+                    $dom->preserveWhiteSpace = true;
+                    $dom->formatOutput = false;
+                    $previous = libxml_use_internal_errors(true);
+
+                    if (!$dom->loadXML($svgContent)) {
+                        libxml_clear_errors();
+                        libxml_use_internal_errors($previous);
+                        return $svgContent;
+                    }
+
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($previous);
+
+                    $xpath = new DOMXPath($dom);
+                    foreach ($odontogram as $tooth) {
+                        $toothNumber = (int)($tooth['tooth_number'] ?? 0);
+                        if ($toothNumber <= 0) {
+                            continue;
+                        }
+
+                        $condition = $tooth['condition_type'] ?? 'healthy';
+                        $group = $xpath->query("//*[@id='tooth-{$toothNumber}']")->item(0);
+                        if (!$group) {
+                            continue;
+                        }
+
+                        $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+                        if ($overlays->length === 0) {
+                            continue;
+                        }
+
+                        if (!$condition || $condition === 'healthy') {
+                            foreach ($overlays as $overlay) {
+                                $overlay->setAttribute('fill', 'transparent');
+                                $overlay->setAttribute('opacity', '0');
+                            }
+                            continue;
+                        }
+
+                        $color = $conditionColors[$condition] ?? '#6b7280';
+                        foreach ($overlays as $overlay) {
+                            $overlay->setAttribute('fill', $color);
+                            $overlay->setAttribute('opacity', '0.6');
+                        }
+                    }
+
+                    return $dom->saveXML($dom->documentElement);
+                }
+
+                if (is_file($svgPath)) {
+                    $svgContent = file_get_contents($svgPath);
+                    $svgContent = injectOdontogramConditions($svgContent, $odontogram, $conditionColors);
+                    $odontogramSvg = preg_replace('/<\?xml.*?\?>/i', '', $svgContent, 1);
+                }
+                ?>
+                <div id="exportOdontogramWrapper" class="max-w-4xl mx-auto">
+                    <?= $odontogramSvg ?>
                 </div>
-            </div>
-        </div>
-
-        <!-- Detailed Tooth Conditions -->
+<!-- Detailed Tooth Conditions -->
         <?php if (!empty($odontogram)): ?>
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm mb-8">
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
@@ -492,7 +381,6 @@
 </div>
 
 <script>
-// Auto-trigger print dialog when page loads
 window.addEventListener('load', function() {
     setTimeout(function() {
         window.print();
@@ -546,3 +434,4 @@ window.addEventListener('load', function() {
 
 </body>
 </html>
+

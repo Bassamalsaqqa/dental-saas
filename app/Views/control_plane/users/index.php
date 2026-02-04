@@ -369,15 +369,33 @@ function toggleUserStatus(userId, action) {
 
 // Handle Delete Form Submission via AJAX
 document.addEventListener('DOMContentLoaded', function() {
+    function setButtonLoading(btn, label) {
+        if (!btn) {
+            return;
+        }
+        if (!btn._originalChildren) {
+            btn._originalChildren = Array.from(btn.childNodes).map(node => node.cloneNode(true));
+        }
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-spinner fa-spin mr-2';
+        btn.replaceChildren(icon, document.createTextNode(label));
+    }
+
+    function restoreButton(btn) {
+        if (!btn || !btn._originalChildren) {
+            return;
+        }
+        btn.replaceChildren(...btn._originalChildren.map(node => node.cloneNode(true)));
+    }
+
     const deleteForm = document.getElementById('deleteForm');
     if (deleteForm) {
         deleteForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const btn = document.getElementById('deleteConfirmButton');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            setButtonLoading(btn, 'Deleting...');
             
             const formData = new FormData();
             const csrfName = getCsrfName();
@@ -419,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                restoreButton(btn);
                 // Refresh CSRF for next action
                 refreshCsrfToken(); 
             });

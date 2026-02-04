@@ -392,6 +392,44 @@ function refreshCsrfToken() {
     }
 }
 
+function setButtonLoading(btn, label) {
+    if (!btn) {
+        return;
+    }
+    if (!btn._originalChildren) {
+        btn._originalChildren = Array.from(btn.childNodes).map(node => node.cloneNode(true));
+    }
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-spinner fa-spin mr-2';
+    btn.replaceChildren(icon, document.createTextNode(label));
+}
+
+function restoreButton(btn) {
+    if (!btn || !btn._originalChildren) {
+        return;
+    }
+    btn.replaceChildren(...btn._originalChildren.map(node => node.cloneNode(true)));
+}
+
+function buildStatusBadge(isActive) {
+    const span = document.createElement('span');
+    span.className = isActive
+        ? 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800'
+        : 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600';
+
+    const icon = document.createElement('i');
+    icon.className = isActive ? 'fas fa-check-circle mr-1.5' : 'fas fa-pause-circle mr-1.5';
+    span.appendChild(icon);
+    span.appendChild(document.createTextNode(isActive ? ' Active' : ' Inactive'));
+    return span;
+}
+
+function buildToggleIcon(isActive) {
+    const icon = document.createElement('i');
+    icon.className = isActive ? 'fas fa-pause' : 'fas fa-play';
+    return icon;
+}
+
 // Toggle Plan Status AJAX
 function togglePlanStatus(planId) {
     // No confirmation requested for toggle
@@ -414,22 +452,17 @@ function togglePlanStatus(planId) {
             const btnEl = document.getElementById(`toggle-btn-${planId}`);
 
             if (badgeEl) {
-                if (isActive) {
-                    badgeEl.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800"><i class="fas fa-check-circle mr-1.5"></i> Active</span>`;
-                } else {
-                    badgeEl.innerHTML = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600"><i class="fas fa-pause-circle mr-1.5"></i> Inactive</span>`;
-                }
+                badgeEl.replaceChildren(buildStatusBadge(isActive));
             }
 
             if (btnEl) {
                 btnEl.title = isActive ? 'Deactivate' : 'Activate';
                 if (isActive) {
                     btnEl.className = "p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-md transition-colors duration-200";
-                    btnEl.innerHTML = `<i class="fas fa-pause"></i>`;
                 } else {
                     btnEl.className = "p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors duration-200";
-                    btnEl.innerHTML = `<i class="fas fa-play"></i>`;
                 }
+                btnEl.replaceChildren(buildToggleIcon(isActive));
             }
         } else {
             alert(data.message || 'Failed to update status');
@@ -493,9 +526,8 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('deleteConfirmButton');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            setButtonLoading(btn, 'Deleting...');
 
             const formData = new FormData();
             const csrfName = getCsrfName();
@@ -524,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                restoreButton(btn);
                 refreshCsrfToken();
             });
         });

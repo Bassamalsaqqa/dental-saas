@@ -724,15 +724,33 @@ function toggleClinicStatus(clinicId, action) {
 
 // AJAX Form Submissions for Modals
 document.addEventListener('DOMContentLoaded', function() {
+    function setButtonLoading(btn, label) {
+        if (!btn) {
+            return;
+        }
+        if (!btn._originalChildren) {
+            btn._originalChildren = Array.from(btn.childNodes).map(node => node.cloneNode(true));
+        }
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-spinner fa-spin mr-2';
+        btn.replaceChildren(icon, document.createTextNode(label));
+    }
+
+    function restoreButton(btn) {
+        if (!btn || !btn._originalChildren) {
+            return;
+        }
+        btn.replaceChildren(...btn._originalChildren.map(node => node.cloneNode(true)));
+    }
+
     // Terminate AJAX
     const terminateForm = document.getElementById('terminateForm');
     if (terminateForm) {
         terminateForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('terminateConfirmButton');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Terminating...';
+            setButtonLoading(btn, 'Terminating...');
 
             const actionUrl = terminateForm.action;
             const formData = new FormData(terminateForm);
@@ -754,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => { console.error('Error:', error); alert('Error occurred'); })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                restoreButton(btn);
                 refreshCsrfToken();
             });
         });
@@ -766,9 +784,8 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('deleteConfirmButton');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            setButtonLoading(btn, 'Deleting...');
 
             const actionUrl = deleteForm.action;
             const formData = new FormData(deleteForm);
@@ -790,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => { console.error('Error:', error); alert('Error occurred'); })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                restoreButton(btn);
                 refreshCsrfToken();
             });
         });

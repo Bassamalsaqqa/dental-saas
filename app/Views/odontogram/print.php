@@ -94,6 +94,74 @@
                     return 'bg-green-100 border-green-400';
             }
         }
+
+        $conditionColors = [
+            'cavity' => '#fbbf24',
+            'filling' => '#3b82f6',
+            'crown' => '#a855f7',
+            'root_canal' => '#ec4899',
+            'extracted' => '#ef4444',
+            'implant' => '#6366f1',
+            'bridge' => '#0ea5e9',
+            'partial_denture' => '#f97316',
+            'full_denture' => '#f59e0b',
+            'other' => '#6b7280'
+        ];
+
+        function injectOdontogramConditions(string $svgContent, array $odontogram, array $conditionColors): string {
+            if ($svgContent === '') {
+                return $svgContent;
+            }
+
+            $dom = new DOMDocument();
+            $dom->preserveWhiteSpace = true;
+            $dom->formatOutput = false;
+            $previous = libxml_use_internal_errors(true);
+
+            if (!$dom->loadXML($svgContent)) {
+                libxml_clear_errors();
+                libxml_use_internal_errors($previous);
+                return $svgContent;
+            }
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+
+            $xpath = new DOMXPath($dom);
+            foreach ($odontogram as $tooth) {
+                $toothNumber = (int)($tooth['tooth_number'] ?? 0);
+                if ($toothNumber <= 0) {
+                    continue;
+                }
+
+                $condition = $tooth['condition_type'] ?? 'healthy';
+                $group = $xpath->query("//*[@id='tooth-{$toothNumber}']")->item(0);
+                if (!$group) {
+                    continue;
+                }
+
+                $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+                if ($overlays->length === 0) {
+                    continue;
+                }
+
+                if (!$condition || $condition === 'healthy') {
+                    foreach ($overlays as $overlay) {
+                        $overlay->setAttribute('fill', 'transparent');
+                        $overlay->setAttribute('opacity', '0');
+                    }
+                    continue;
+                }
+
+                $color = $conditionColors[$condition] ?? '#6b7280';
+                foreach ($overlays as $overlay) {
+                    $overlay->setAttribute('fill', $color);
+                    $overlay->setAttribute('opacity', '0.6');
+                }
+            }
+
+            return $dom->saveXML($dom->documentElement);
+        }
         ?>
         <!-- Patient Information Section -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm mb-8 print:border-gray-300 print:shadow-none">
@@ -174,70 +242,17 @@
                 </h2>
             </div>
             <div class="p-6">
-                <!-- Upper Jaw -->
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Upper Jaw (Maxilla)</h3>
-                    <div class="grid grid-cols-8 gap-2 justify-center">
-                        <?php for ($i = 18; $i >= 11; $i--): ?>
-                            <?php
-                            $toothData = $toothLookup[$i] ?? null;
-                            $conditionClass = getToothConditionClass($toothData);
-                            ?>
-                            <div class="w-12 h-14 border-2 border-gray-300 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white print:border-gray-400 <?= $conditionClass ?>">
-                                <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                <?php if ($toothData): ?>
-                                    <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
-                    <div class="grid grid-cols-8 gap-2 justify-center mt-2">
-                        <?php for ($i = 21; $i <= 28; $i++): ?>
-                            <?php
-                            $toothData = $toothLookup[$i] ?? null;
-                            $conditionClass = getToothConditionClass($toothData);
-                            ?>
-                            <div class="w-12 h-14 border-2 border-gray-300 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white print:border-gray-400 <?= $conditionClass ?>">
-                                <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                <?php if ($toothData): ?>
-                                    <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
-                </div>
-
-                <!-- Lower Jaw -->
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Lower Jaw (Mandible)</h3>
-                    <div class="grid grid-cols-8 gap-2 justify-center">
-                        <?php for ($i = 48; $i >= 41; $i--): ?>
-                            <?php
-                            $toothData = $toothLookup[$i] ?? null;
-                            $conditionClass = getToothConditionClass($toothData);
-                            ?>
-                            <div class="w-12 h-14 border-2 border-gray-300 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white print:border-gray-400 <?= $conditionClass ?>">
-                                <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                <?php if ($toothData): ?>
-                                    <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
-                    <div class="grid grid-cols-8 gap-2 justify-center mt-2">
-                        <?php for ($i = 31; $i <= 38; $i++): ?>
-                            <?php
-                            $toothData = $toothLookup[$i] ?? null;
-                            $conditionClass = getToothConditionClass($toothData);
-                            ?>
-                            <div class="w-12 h-14 border-2 border-gray-300 rounded-lg flex flex-col items-center justify-center mx-0.5 relative bg-white print:border-gray-400 <?= $conditionClass ?>">
-                                <div class="text-xs font-bold text-gray-700"><?= $i ?></div>
-                                <?php if ($toothData): ?>
-                                    <div class="text-xs text-gray-500 mt-0.5 text-center leading-tight"><?= ucfirst($toothData['condition_type']) ?></div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
+                <?php
+                $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
+                $odontogramSvg = '';
+                if (is_file($svgPath)) {
+                    $svgContent = file_get_contents($svgPath);
+                    $svgContent = injectOdontogramConditions($svgContent, $odontogram, $conditionColors);
+                    $odontogramSvg = preg_replace('/<\\?xml.*?\\?>/i', '', $svgContent, 1);
+                }
+                ?>
+                <div id="printOdontogramWrapper" class="mx-auto max-w-4xl">
+                    <?= $odontogramSvg ?>
                 </div>
             </div>
         </div>
@@ -316,29 +331,10 @@
 </div>
 
 <script>
-// Auto-print when page loads
 window.addEventListener('load', function() {
-    // Small delay to ensure all content is loaded
     setTimeout(function() {
         window.print();
     }, 500);
-});
-
-// Print styles
-window.addEventListener('beforeprint', function() {
-    // Hide action buttons when printing
-    const actionButtons = document.querySelectorAll('button, .no-print');
-    actionButtons.forEach(button => {
-        button.style.display = 'none';
-    });
-});
-
-window.addEventListener('afterprint', function() {
-    // Show action buttons after printing
-    const actionButtons = document.querySelectorAll('button, .no-print');
-    actionButtons.forEach(button => {
-        button.style.display = '';
-    });
 });
 </script>
 
