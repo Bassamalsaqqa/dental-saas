@@ -287,7 +287,7 @@
                     $odontogramSvg = preg_replace('/<\\?xml.*?\\?>/i', '', $svgContent, 1);
                 }
                 ?>
-                <div id="printOdontogramWrapper" class="mx-auto max-w-4xl">
+                <div id="printOdontogramWrapper" class="mx-auto w-full max-w-full">
                     <?= $odontogramSvg ?>
                 </div>
             </div>
@@ -412,6 +412,15 @@ window.addEventListener('load', function() {
     
     .print\\:hidden {
         display: none !important;
+    }
+
+    #printOdontogramWrapper {
+        max-width: 100% !important;
+    }
+
+    #printOdontogramWrapper svg {
+        width: 100% !important;
+        height: auto !important;
     }
     
     @page {

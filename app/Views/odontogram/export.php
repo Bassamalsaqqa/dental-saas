@@ -311,7 +311,7 @@
                     $odontogramSvg = preg_replace('/<\?xml.*?\?>/i', '', $svgContent, 1);
                 }
                 ?>
-                <div id="exportOdontogramWrapper" class="max-w-4xl mx-auto">
+                <div id="exportOdontogramWrapper" class="mx-auto w-full max-w-full">
                     <?= $odontogramSvg ?>
                 </div>
 <!-- Detailed Tooth Conditions -->
@@ -453,6 +453,15 @@ window.addEventListener('load', function() {
     
     .page-break {
         page-break-before: always;
+    }
+
+    #exportOdontogramWrapper {
+        max-width: 100% !important;
+    }
+
+    #exportOdontogramWrapper svg {
+        width: 100% !important;
+        height: auto !important;
     }
 }
 

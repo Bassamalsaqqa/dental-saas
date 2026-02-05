@@ -53,6 +53,15 @@
                 -webkit-print-color-adjust: exact;
                 color-adjust: exact;
             }
+
+            #pdfOdontogramWrapper {
+                max-width: 100% !important;
+            }
+
+            #pdfOdontogramWrapper svg {
+                width: 100% !important;
+                height: auto !important;
+            }
         }
     </style>
 </head>
@@ -296,7 +305,7 @@
                     $odontogramSvg = preg_replace('/<\\?xml.*?\\?>/i', '', $svgContent, 1);
                 }
                 ?>
-                <div id="pdfOdontogramWrapper" class="mx-auto max-w-4xl">
+                <div id="pdfOdontogramWrapper" class="mx-auto w-full max-w-full">
                     <?= $odontogramSvg ?>
                 </div>
             </div>
