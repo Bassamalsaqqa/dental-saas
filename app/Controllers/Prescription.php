@@ -448,17 +448,23 @@ class Prescription extends BaseController
 
         $html = view('prescription/print', $data);
         
-        // Persist artifact
+        // Persist artifact (best-effort; do not block print on plan limits)
         $fileName = 'prescription_' . str_pad($prescription['id'], 6, '0', STR_PAD_LEFT) . '.html';
-        $this->storageService->storeExport(
-            $html, 
-            $fileName, 
-            'text/html', 
-            $clinicId, 
-            'prescription', 
-            $id, 
-            'prescription_print'
-        );
+        try {
+            $this->storageService->storeExport(
+                $html, 
+                $fileName, 
+                'text/html', 
+                $clinicId, 
+                'prescription', 
+                $id, 
+                'prescription_print'
+            );
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            log_message('warning', 'Prescription print export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Prescription print export failed: ' . $e->getMessage());
+        }
 
         return $this->response
             ->setHeader('Content-Type', 'text/html')

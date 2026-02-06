@@ -418,17 +418,23 @@ class Finance extends BaseController
 
         $html = view('finance/invoice', $data);
         
-        // Persist artifact
+        // Persist artifact (best-effort; do not block invoice view on plan limits)
         $fileName = 'invoice_' . $finance['transaction_id'] . '.html';
-        $attachment = $this->storageService->storeExport(
-            $html, 
-            $fileName, 
-            'text/html', 
-            $clinicId, 
-            'finance', 
-            $id, 
-            'invoice_print'
-        );
+        try {
+            $this->storageService->storeExport(
+                $html, 
+                $fileName, 
+                'text/html', 
+                $clinicId, 
+                'finance', 
+                $id, 
+                'invoice_print'
+            );
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            log_message('warning', 'Finance invoice export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Finance invoice export failed: ' . $e->getMessage());
+        }
 
         // Stream the response (standard print behavior)
         return $this->response

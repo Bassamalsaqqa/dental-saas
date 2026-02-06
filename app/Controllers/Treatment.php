@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\TreatmentModel;
 use App\Models\PatientModel;
 use App\Services\ActivityLogger;
+use App\Services\StorageService;
 
 class Treatment extends BaseController
 {
@@ -12,6 +13,7 @@ class Treatment extends BaseController
     protected $patientModel;
     protected $activityLogger;
     protected $db;
+    protected $storageService;
 
     public function __construct()
     {
@@ -19,6 +21,7 @@ class Treatment extends BaseController
         $this->patientModel = new PatientModel();
         $this->activityLogger = new ActivityLogger();
         $this->db = \Config\Database::connect();
+        $this->storageService = new StorageService();
     }
 
     public function index()
@@ -490,6 +493,50 @@ class Treatment extends BaseController
         ];
 
         return $this->response->setJSON($stats);
+    }
+
+    public function print($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
+        }
+
+        $treatment = $this->treatmentModel->getTreatmentWithPatientInfoByClinic($clinicId, $id);
+
+        if (!$treatment) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Treatment not found');
+        }
+
+        $data = [
+            'title' => 'Treatment Report - ' . ($treatment['treatment_id'] ?? $treatment['id']),
+            'treatment' => $treatment,
+            'clinic' => settings()->getClinicInfo()
+        ];
+
+        $html = view('treatment/print', $data);
+
+        $fileName = 'treatment_' . str_pad((string) $treatment['id'], 6, '0', STR_PAD_LEFT) . '.html';
+        try {
+            $this->storageService->storeExport(
+                $html,
+                $fileName,
+                'text/html',
+                $clinicId,
+                'treatment',
+                $id,
+                'treatment_print'
+            );
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            log_message('warning', 'Treatment print export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Treatment print export failed: ' . $e->getMessage());
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"')
+            ->setBody($html);
     }
 
     private function getTreatmentTypes()

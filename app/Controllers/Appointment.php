@@ -565,17 +565,23 @@ class Appointment extends BaseController
 
         $html = view('appointment/print', $data);
         
-        // Persist artifact
+        // Persist artifact (best-effort; do not block print on plan limits)
         $fileName = 'appointment_' . ($appointment['appointment_id'] ?? $id) . '.html';
-        $this->storageService->storeExport(
-            $html, 
-            $fileName, 
-            'text/html', 
-            $clinicId, 
-            'appointment', 
-            $id, 
-            'appointment_print'
-        );
+        try {
+            $this->storageService->storeExport(
+                $html, 
+                $fileName, 
+                'text/html', 
+                $clinicId, 
+                'appointment', 
+                $id, 
+                'appointment_print'
+            );
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            log_message('warning', 'Appointment print export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Appointment print export failed: ' . $e->getMessage());
+        }
 
         return $this->response
             ->setHeader('Content-Type', 'text/html')
