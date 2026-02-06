@@ -545,8 +545,9 @@ class Reports extends BaseController
 
     private function getPaymentMethodsData()
     {
-        return $this->financeModel->select('payment_method, COUNT(*) as count')
+        return $this->financeModel->select('payment_method, COUNT(*) as count, SUM(total_amount) as total_amount')
                                  ->where('clinic_id', session()->get('active_clinic_id'))
+                                 ->where('transaction_type', 'payment')
                                  ->groupBy('payment_method')
                                  ->findAll();
     }
