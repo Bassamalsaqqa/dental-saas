@@ -60,16 +60,20 @@ class StorageService
             mkdir($uploadPath, 0755, true);
         }
 
+        $mimeType = (string) $file->getMimeType();
+        $fileSize = (int) $file->getSize();
+        $originalName = $file->getClientName();
+
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);
 
         $data = [
             'clinic_id'     => $clinicId,
             'file_name'     => $newName,
-            'original_name' => $file->getClientName(),
+            'original_name' => $originalName,
             'file_path'     => $tenantPath . DIRECTORY_SEPARATOR . $newName,
-            'mime_type'     => $file->getMimeType(),
-            'file_size'     => $file->getSize(),
+            'mime_type'     => $mimeType,
+            'file_size'     => $fileSize,
             'entity_type'   => $entityType,
             'entity_id'     => $entityId,
             'purpose'       => $purpose,

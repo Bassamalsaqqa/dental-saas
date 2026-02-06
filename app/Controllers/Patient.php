@@ -447,36 +447,61 @@ class Patient extends BaseController
             'entity_id' => $patientId
         ]);
 
-        $file = $this->request->getFile('attachment');
-        if (!$file || !$file->isValid()) {
+        $files = $this->request->getFileMultiple('attachment');
+        if (empty($files)) {
+            $single = $this->request->getFile('attachment');
+            $files = $single ? [$single] : [];
+        }
+
+        if (empty($files)) {
             return $this->failAttachmentUpload('No valid file uploaded.');
         }
 
-        $validation = $this->validateAttachmentFile($file, $clinicId);
-        if (!$validation['ok']) {
-            return $this->failAttachmentUpload($validation['message']);
+        $totalSize = 0;
+        foreach ($files as $file) {
+            if (!$file || !$file->isValid()) {
+                return $this->failAttachmentUpload('One or more files are invalid.');
+            }
+            $validation = $this->validateAttachmentFile($file, $clinicId);
+            if (!$validation['ok']) {
+                return $this->failAttachmentUpload($validation['message']);
+            }
+            $totalSize += (int) $file->getSize();
         }
+
+        $this->planGuard->assertQuota($clinicId, 'storage_gb', $totalSize, [
+            'entity_type' => 'patient',
+            'entity_id' => $patientId,
+        ]);
 
         $category = trim((string) $this->request->getPost('category'));
         $notes = trim((string) $this->request->getPost('notes'));
 
         try {
-            $attachment = $this->storageService->store($file, $clinicId, 'patient', $patientId, 'attachment');
+            $uploaded = [];
+            foreach ($files as $file) {
+                $attachment = $this->storageService->store($file, $clinicId, 'patient', $patientId, 'attachment');
 
-            if (!empty($category) || !empty($notes)) {
-                $this->attachmentModel->update($attachment['id'], [
-                    'category' => $category ?: null,
-                    'notes' => $notes ?: null
-                ]);
+                if (!empty($category) || !empty($notes)) {
+                    $this->attachmentModel->update($attachment['id'], [
+                        'category' => $category ?: null,
+                        'notes' => $notes ?: null
+                    ]);
+                }
+
+                $this->activityLogger->logPatientActivity(
+                    'attachment_upload',
+                    $patientId,
+                    "Attachment '{$attachment['original_name']}' uploaded"
+                );
+
+                $uploaded[] = $attachment;
             }
 
-            $this->activityLogger->logPatientActivity(
-                'attachment_upload',
-                $patientId,
-                "Attachment '{$attachment['original_name']}' uploaded"
-            );
+            $count = count($uploaded);
+            $message = $count === 1 ? 'Attachment uploaded successfully.' : "{$count} attachments uploaded successfully.";
 
-            return $this->handleAttachmentSuccess('Attachment uploaded successfully.');
+            return $this->handleAttachmentSuccess($message);
         } catch (\Exception $e) {
             if ($e instanceof \CodeIgniter\Exceptions\PageNotFoundException) {
                 throw $e;

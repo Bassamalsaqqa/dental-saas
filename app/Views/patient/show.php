@@ -462,10 +462,22 @@ function getFDINumber($universalNumber) {
                                             <?= csrf_field() ?>
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div class="md:col-span-2">
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
-                                                    <input type="file" name="attachment" required
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
+                                                    <div id="attachmentDropzone" tabindex="0" role="button"
+                                                         class="w-full cursor-pointer rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40 px-4 py-6 text-center transition-all duration-200">
+                                                        <div class="text-sm text-gray-600">
+                                                            Drag & drop files here, or click to browse
+                                                        </div>
+                                                        <div class="mt-2 text-xs text-gray-500">You can select multiple files</div>
+                                                        <div class="mt-4 inline-flex items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700">
+                                                            <i class="fas fa-folder-open"></i>
+                                                            Choose Files
+                                                        </div>
+                                                    </div>
+                                                    <input type="file" name="attachment[]" id="attachmentInput" required multiple
                                                            accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                           class="mt-3 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
@@ -506,7 +518,7 @@ function getFDINumber($universalNumber) {
                                             <tbody class="bg-white divide-y divide-gray-200">
                                                 <?php if (!empty($attachments)): ?>
                                                     <?php foreach ($attachments as $attachment): ?>
-                                                        <tr>
+                                                        <tr data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>">
                                                             <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                                                                 <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
                                                             </td>
@@ -592,7 +604,7 @@ function getFDINumber($universalNumber) {
                                             <tbody class="bg-white divide-y divide-gray-200">
                                                 <?php if (!empty($contracts)): ?>
                                                     <?php foreach ($contracts as $contract): ?>
-                                                        <tr>
+                                                        <tr data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>">
                                                             <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                                                                 <?= !empty($contract['created_at']) ? formatDateTime($contract['created_at']) : '--' ?>
                                                             </td>
@@ -1236,6 +1248,78 @@ function getFDINumber($universalNumber) {
             }
         }
 
+        const dropzone = document.getElementById('attachmentDropzone');
+        const fileInput = document.getElementById('attachmentInput');
+        const fileList = document.getElementById('attachmentFileList');
+
+        if (dropzone && fileInput && fileList) {
+            const renderFiles = (files) => {
+                fileList.replaceChildren();
+                if (!files || files.length === 0) {
+                    return;
+                }
+                Array.from(files).forEach(file => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between rounded-md bg-white px-3 py-2 border border-gray-200';
+                    const name = document.createElement('div');
+                    name.className = 'text-sm text-gray-700';
+                    name.textContent = file.name;
+                    const size = document.createElement('div');
+                    size.className = 'text-xs text-gray-500';
+                    size.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                    row.appendChild(name);
+                    row.appendChild(size);
+                    fileList.appendChild(row);
+                });
+            };
+
+            const setHover = (active) => {
+                dropzone.classList.toggle('ring-2', active);
+                dropzone.classList.toggle('ring-blue-400', active);
+                dropzone.classList.toggle('bg-blue-50', active);
+            };
+
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropzone.addEventListener(evt, (event) => {
+                    event.preventDefault();
+                    setHover(true);
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(evt => {
+                dropzone.addEventListener(evt, (event) => {
+                    event.preventDefault();
+                    setHover(false);
+                });
+            });
+
+            dropzone.addEventListener('drop', (event) => {
+                const files = event.dataTransfer?.files;
+                if (!files || files.length === 0) {
+                    return;
+                }
+                const dataTransfer = new DataTransfer();
+                Array.from(files).forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                renderFiles(fileInput.files);
+            });
+
+            dropzone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            dropzone.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    fileInput.click();
+                }
+            });
+
+            fileInput.addEventListener('change', () => {
+                renderFiles(fileInput.files);
+            });
+        }
+
         const shouldOpenContracts = <?= json_encode((bool) session('contracts_flash')) ?>;
         if (shouldOpenContracts) {
             const contractsTab = document.getElementById('contracts-tab');
@@ -1417,17 +1501,19 @@ function getFDINumber($universalNumber) {
                 );
             }
             
-            // Check date range (assuming first cell contains date)
+            // Check date range (prefer ISO data-date when available)
             if (startDate || endDate) {
                 const dateCell = cells[0];
-                const dateText = dateCell.textContent.trim();
-                const cellDate = new Date(dateText);
+                const rawDate = row.dataset.date || (dateCell ? dateCell.getAttribute('data-date') : '') || (dateCell ? dateCell.textContent.trim() : '');
+                const cellDate = rawDate ? new Date(rawDate) : null;
                 
-                if (startDate && cellDate < new Date(startDate)) {
-                    matchesDateRange = false;
-                }
-                if (endDate && cellDate > new Date(endDate)) {
-                    matchesDateRange = false;
+                if (cellDate && !isNaN(cellDate.getTime())) {
+                    if (startDate && cellDate < new Date(startDate)) {
+                        matchesDateRange = false;
+                    }
+                    if (endDate && cellDate > new Date(endDate)) {
+                        matchesDateRange = false;
+                    }
                 }
             }
             
