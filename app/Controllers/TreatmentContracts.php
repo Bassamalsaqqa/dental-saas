@@ -8,6 +8,7 @@ use App\Models\TreatmentContractItemModel;
 use App\Models\TreatmentContractOdontogramSnapshotModel;
 use App\Models\TreatmentContractSignatureModel;
 use App\Models\OdontogramModel;
+use App\Models\ClinicModel;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
 use App\Services\ActivityLogger;
@@ -20,6 +21,7 @@ class TreatmentContracts extends BaseController
     protected $snapshotModel;
     protected $signatureModel;
     protected $odontogramModel;
+    protected $clinicModel;
     protected $planGuard;
     protected $storageService;
     protected $activityLogger;
@@ -32,6 +34,7 @@ class TreatmentContracts extends BaseController
         $this->snapshotModel = new TreatmentContractOdontogramSnapshotModel();
         $this->signatureModel = new TreatmentContractSignatureModel();
         $this->odontogramModel = new OdontogramModel();
+        $this->clinicModel = new ClinicModel();
         $this->planGuard = new PlanGuard();
         $this->storageService = service('storage');
         $this->activityLogger = new ActivityLogger();
@@ -425,6 +428,7 @@ class TreatmentContracts extends BaseController
         $html = view('contracts/print', [
             'contract' => $this->contractModel->findByClinic($clinicId, $contractId),
             'patient' => $patient,
+            'clinic' => $this->clinicModel->find($clinicId),
             'items' => $items,
             'snapshot' => $snapshot,
             'signature' => $this->signatureModel->find($signatureId)
@@ -486,6 +490,7 @@ class TreatmentContracts extends BaseController
         return $this->view('contracts/print', [
             'contract' => $contract,
             'patient' => $patient,
+            'clinic' => $this->clinicModel->find($clinicId),
             'items' => $items,
             'snapshot' => $snapshot,
             'signature' => $signature

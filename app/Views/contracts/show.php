@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<div class="px-4 sm:px-6 lg:px-12 py-8">
+<div class="w-full max-w-none px-4 sm:px-6 lg:px-12 py-8">
     <div class="space-y-6">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
             <div>
@@ -43,8 +43,8 @@
             </div>
         <?php endif; ?>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div class="lg:col-span-3 space-y-6">
+        <div class="space-y-6 w-full max-w-none">
+            <div class="space-y-6">
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">Contract Odontogram</h3>
@@ -183,6 +183,13 @@
         const ctx = canvas.getContext('2d');
         let drawing = false;
 
+        const getScale = () => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return { rect, scaleX, scaleY };
+        };
+
         const startDraw = (e) => {
             drawing = true;
             ctx.beginPath();
@@ -199,8 +206,16 @@
             ctx.lineTo(getX(e), getY(e));
             ctx.stroke();
         };
-        const getX = (e) => (e.touches ? e.touches[0].clientX : e.clientX) - canvas.getBoundingClientRect().left;
-        const getY = (e) => (e.touches ? e.touches[0].clientY : e.clientY) - canvas.getBoundingClientRect().top;
+        const getX = (e) => {
+            const point = e.touches ? e.touches[0] : e;
+            const { rect, scaleX } = getScale();
+            return (point.clientX - rect.left) * scaleX;
+        };
+        const getY = (e) => {
+            const point = e.touches ? e.touches[0] : e;
+            const { rect, scaleY } = getScale();
+            return (point.clientY - rect.top) * scaleY;
+        };
 
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mouseup', endDraw);
