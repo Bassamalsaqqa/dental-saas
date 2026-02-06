@@ -1,305 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treatment Details - <?= esc($treatment['treatment_id'] ?? $treatment['id']) ?></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<?php $title = 'Treatment Details - ' . ($treatment['treatment_id'] ?? $treatment['id'] ?? ''); ?>
+<?= $this->extend('layouts/print') ?>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: white;
-        }
-
-        .print-container {
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .clinic-name {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2563eb;
-            margin-bottom: 5px;
-        }
-
-        .clinic-subtitle {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .report-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-top: 15px;
-        }
-
-        .report-id {
-            font-size: 18px;
-            color: #6b7280;
-            font-weight: normal;
-        }
-
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .section {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 5px 0;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #4b5563;
-        }
-
-        .info-value {
-            font-weight: bold;
-            color: #1f2937;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .status-active { background: #dcfce7; color: #166534; }
-        .status-completed { background: #dbeafe; color: #1e40af; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        .status-on_hold { background: #fef3c7; color: #92400e; }
-
-        .notes-section {
-            grid-column: 1 / -1;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .notes-content {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 15px;
-            min-height: 90px;
-            color: #4b5563;
-        }
-
-        .footer {
-            text-align: center;
-            border-top: 2px solid #e5e7eb;
-            padding-top: 20px;
-            margin-top: 30px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .print-date {
-            margin-bottom: 10px;
-        }
-
-        .clinic-info {
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .print-container {
-                margin: 0;
-                padding: 0;
-                max-width: none;
-            }
-
-            .section {
-                break-inside: avoid;
-            }
-
-            .content {
-                break-inside: avoid;
-            }
-        }
-
-        @page {
-            margin: 0.5in;
-            size: A4;
-        }
-    </style>
-</head>
-<body>
-    <div class="print-container">
-        <div class="header">
-            <?php if (!empty($clinic['logo_path'])): ?>
-                <div style="text-align: center; margin-bottom: 10px;">
-                    <?php 
-                        $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
-                            ? $clinic['logo_path']
-                            : base_url(ltrim($clinic['logo_path'], '/'));
-                    ?>
-                    <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" style="max-height: 80px; width: auto;">
-                </div>
-            <?php else: ?>
-                <div style="text-align: center; margin-bottom: 10px; font-size: 48px; color: #2563eb;">
-                    <span style="font-family: 'Font Awesome 6 Free'; font-weight: 900;">&#xf5c9;</span>
-                </div>
-            <?php endif; ?>
-            <div class="clinic-name"><?= esc($clinic['name']) ?></div>
-            <div class="clinic-subtitle"><?= esc($clinic['tagline']) ?></div>
-            <div class="report-title">
-                Treatment Details
-                <span class="report-id">#<?= esc($treatment['treatment_id'] ?? $treatment['id']) ?></span>
+<?= $this->section('content') ?>
+<div class="min-h-screen bg-white print:bg-white">
+    <!-- Print Header - Only visible when printing -->
+    <div class="hidden print:block text-center mb-8">
+        <?php if (!empty($clinic['logo_path'])): ?>
+            <div class="mb-4 flex justify-center">
+                <?php
+                $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
+                    ? $clinic['logo_path']
+                    : base_url(ltrim($clinic['logo_path'], '/'));
+                ?>
+                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
             </div>
-        </div>
-
-        <div class="content">
-            <div class="section">
-                <div class="section-title">Patient Information</div>
-                <div class="info-row">
-                    <span class="info-label">Name:</span>
-                    <span class="info-value"><?= esc(($treatment['first_name'] ?? '') . ' ' . ($treatment['last_name'] ?? '')) ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Phone:</span>
-                    <span class="info-value"><?= esc($treatment['phone'] ?? 'N/A') ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Email:</span>
-                    <span class="info-value"><?= esc($treatment['email'] ?? 'N/A') ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Date of Birth:</span>
-                    <span class="info-value"><?= $treatment['date_of_birth'] ? date('F d, Y', strtotime($treatment['date_of_birth'])) : 'N/A' ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Gender:</span>
-                    <span class="info-value"><?= esc(ucfirst($treatment['gender'] ?? 'N/A')) ?></span>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Treatment Details</div>
-                <div class="info-row">
-                    <span class="info-label">Type:</span>
-                    <span class="info-value"><?= esc(ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? 'N/A'))) ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Tooth #:</span>
-                    <span class="info-value"><?= esc($treatment['tooth_number'] ?? 'N/A') ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Status:</span>
-                    <span class="badge status-<?= esc($treatment['status'] ?? 'active') ?>">
-                        <?= esc(ucfirst(str_replace('_', ' ', $treatment['status'] ?? 'active'))) ?>
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Cost:</span>
-                    <span class="info-value"><?= formatCurrency($treatment['cost'] ?? 0) ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Start Date:</span>
-                    <span class="info-value"><?= $treatment['start_date'] ? date('F d, Y', strtotime($treatment['start_date'])) : 'N/A' ?></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Estimated Duration:</span>
-                    <span class="info-value"><?= esc($treatment['estimated_duration'] ?? 'N/A') ?> minutes</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Completion Date:</span>
-                    <span class="info-value"><?= $treatment['completion_date'] ? date('F d, Y', strtotime($treatment['completion_date'])) : 'Not completed' ?></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="notes-section">
-            <div class="section-title">Treatment Description</div>
-            <div class="notes-content">
-                <?= !empty($treatment['treatment_description']) ? nl2br(htmlspecialchars($treatment['treatment_description'])) : 'No description provided.' ?>
-            </div>
-        </div>
-
-        <?php if (!empty($treatment['treatment_notes'])): ?>
-            <div class="notes-section">
-                <div class="section-title">Treatment Notes</div>
-                <div class="notes-content">
-                    <?= nl2br(htmlspecialchars($treatment['treatment_notes'])) ?>
-                </div>
-            </div>
+        <?php else: ?>
+            <h1 class="text-2xl font-bold text-gray-900">TREATMENT</h1>
         <?php endif; ?>
-
-        <div class="footer">
-            <div class="print-date">
-                Printed on: <?= date('F d, Y \a\t g:i A') ?>
-            </div>
-            <div class="clinic-info">
-                <strong><?= esc($clinic['name']) ?></strong><br>
-                <?= esc($clinic['address']) ?><br>
-                Phone: <?= esc($clinic['phone']) ?> | Email: <?= esc($clinic['email']) ?><br>
-                <?php if (!empty($clinic['website'])): ?>
-                    Website: <?= esc($clinic['website']) ?><br>
-                <?php endif; ?>
-            </div>
+        <div class="text-sm text-gray-600 mt-2">
+            <p><?= esc($clinic['name']) ?></p>
+            <p><?= esc($clinic['address']) ?></p>
+            <p>Phone: <?= esc($clinic['phone']) ?> | Email: <?= esc($clinic['email']) ?></p>
+            <?php if (!empty($clinic['website'])): ?>
+                <p>Website: <?= esc($clinic['website']) ?></p>
+            <?php endif; ?>
         </div>
     </div>
 
-    <script>
-        window.onload = function() {
-            setTimeout(function() {
-                window.print();
-            }, 500);
-        };
+    <div class="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none">
+        <div class="bg-white border-2 border-gray-200 rounded-lg print:border-0 print:rounded-none shadow-lg print:shadow-none overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6 print:bg-gray-100 print:text-black">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">TREATMENT DETAILS</h2>
+                        <p class="text-emerald-100 print:text-gray-600">
+                            Treatment ID: <?= esc($treatment['treatment_id'] ?? $treatment['id'] ?? 'N/A') ?>
+                        </p>
+                    </div>
+                    <div class="text-right text-sm">
+                        <p>Start: <?= !empty($treatment['start_date']) ? date('M j, Y', strtotime($treatment['start_date'])) : 'N/A' ?></p>
+                        <p>Status: <?= esc(ucfirst(str_replace('_', ' ', $treatment['status'] ?? 'active'))) ?></p>
+                    </div>
+                </div>
+            </div>
 
-        window.onafterprint = function() {
-            window.close();
-        };
-    </script>
-</body>
-</html>
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-user text-emerald-600 mr-2 print:hidden"></i>
+                    Patient Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Name:</p>
+                        <p class="font-semibold text-gray-900">
+                            <?= esc(($treatment['first_name'] ?? '') . ' ' . ($treatment['last_name'] ?? '')) ?>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Phone:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($treatment['phone'] ?? 'N/A') ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Email:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($treatment['email'] ?? 'N/A') ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Date of Birth:</p>
+                        <p class="font-semibold text-gray-900">
+                            <?= !empty($treatment['date_of_birth']) ? date('M j, Y', strtotime($treatment['date_of_birth'])) : 'N/A' ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-tooth text-teal-600 mr-2 print:hidden"></i>
+                    Treatment Details
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Type:</p>
+                        <p class="font-semibold text-gray-900">
+                            <?= esc(ucfirst(str_replace('_', ' ', $treatment['treatment_type'] ?? 'N/A'))) ?>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Tooth #:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($treatment['tooth_number'] ?? 'N/A') ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Status:</p>
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full
+                            <?= ($treatment['status'] ?? '') === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                                (($treatment['status'] ?? '') === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                (($treatment['status'] ?? '') === 'on_hold' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800')) ?>">
+                            <?= esc(ucfirst(str_replace('_', ' ', $treatment['status'] ?? 'active'))) ?>
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Cost:</p>
+                        <p class="font-semibold text-gray-900"><?= formatCurrency($treatment['cost'] ?? 0) ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Estimated Duration:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($treatment['estimated_duration'] ?? 'N/A') ?> minutes</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Completion Date:</p>
+                        <p class="font-semibold text-gray-900">
+                            <?= !empty($treatment['completion_date']) ? date('M j, Y', strtotime($treatment['completion_date'])) : 'Not completed' ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-sticky-note text-amber-600 mr-2 print:hidden"></i>
+                    Treatment Description
+                </h3>
+                <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
+                    <?php if (!empty($treatment['treatment_description'])): ?>
+                        <p class="text-gray-800 leading-relaxed whitespace-pre-line"><?= htmlspecialchars($treatment['treatment_description']) ?></p>
+                    <?php else: ?>
+                        <p class="text-gray-600">No description provided.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if (!empty($treatment['treatment_notes'])): ?>
+                <div class="p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-clipboard text-blue-600 mr-2 print:hidden"></i>
+                        Treatment Notes
+                    </h3>
+                    <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
+                        <p class="text-gray-800 leading-relaxed whitespace-pre-line"><?= htmlspecialchars($treatment['treatment_notes']) ?></p>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div class="bg-gray-50 p-6 print:bg-white print:border-t print:border-gray-300">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-600">
+                        <p>Generated on: <?= date('M j, Y g:i A') ?></p>
+                        <p>Treatment ID: <?= esc($treatment['treatment_id'] ?? $treatment['id'] ?? 'N/A') ?></p>
+                    </div>
+                    <div class="text-sm text-gray-600 text-right">
+                        <p><?= esc($clinic['name']) ?></p>
+                        <p><?= esc($clinic['website'] ?? '') ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 print:hidden">
+            <div class="flex justify-center space-x-4">
+                <button onclick="window.print()" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                    <i class="fas fa-print mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
+                    <span class="relative z-10">Print Treatment</span>
+                </button>
+                <a href="<?= base_url('treatment/' . ($treatment['id'] ?? $treatment['treatment_id'])) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-gray-500 to-slate-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-gray-500/25 hover:shadow-gray-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                    <i class="fas fa-arrow-left mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
+                    <span class="relative z-10">Back to Details</span>
+                </a>
+                <a href="<?= base_url('treatment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                    <i class="fas fa-list mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
+                    <span class="relative z-10">All Treatments</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .print\\:hidden { display: none !important; }
+    .print\\:block { display: block !important; }
+}
+</style>
+<?= $this->endSection() ?>
