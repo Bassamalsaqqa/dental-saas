@@ -20,6 +20,38 @@
 - **Verification:** `docs/SaaS/verification/CP-31.md`, `docs/SaaS/verification/CP-32.md`, `docs/SaaS/verification/CP-33.md`.
 - **Guardrails:** Guardrail script `bash scripts/ci/saas_guardrails.sh` could not execute because the host's Bash/WSL instance request was denied (`E_ACCESSDENIED`); the failure is recorded inside `CP-33.md`.
 
+### Task: P5-ATT-01 Patient Attachments
+- **Date:** 2026-02-05
+- **Status:** Completed
+- **Description:** Added patient attachments tab with plan gating, per-file size enforcement, server-side MIME validation, storage cap warning, and attachment metadata (category/notes).
+- **Actions:**
+    - **Plan Guard:** Added read-only helpers for limits/features and enforced per-file size for attachments in `StorageService`.
+    - **Patient UI:** Added Attachments tab, upload form, and attachment list in `app/Views/patient/show.php`.
+    - **Controller:** Added upload/delete endpoints with plan gating and server-side validation in `app/Controllers/Patient.php`.
+    - **Schema:** Added `category` and `notes` columns to `file_attachments`.
+- **Verification:** `docs/SaaS/verification/P5-ATT-01.md`.
+
+### Task: API-BX-01 Plan Feature/Limits Extensions
+- **Date:** 2026-02-05
+- **Status:** Completed
+- **Description:** Added plan limit `attachments_max_file_mb` and feature flags for attachments/contracts; surfaced in plan UI and persisted in plan payload.
+- **Actions:**
+    - **Plan UI:** Added `attachments_max_file_mb` input and new feature toggles in `app/Views/control_plane/plan_form.php`.
+    - **Plan Controller:** Persisted new limits/features in `app/Controllers/ControlPlane/Plans.php`.
+    - **Plan Guard:** Exposed read-only getters for plan limits and features.
+- **Verification:** `docs/SaaS/verification/API-BX-01.md`.
+
+### Task: P5-CON-01 Treatment Contracts
+- **Date:** 2026-02-05
+- **Status:** Completed
+- **Description:** Added treatment contracts with odontogram snapshots, itemized pricing, and in-app signature capture.
+- **Actions:**
+    - **Schema:** Added contracts, items, odontogram snapshot, and signature tables.
+    - **Controller:** Built contract create/show/sign/print endpoints in `app/Controllers/TreatmentContracts.php`.
+    - **Views:** Added contract create/show/print pages and integrated Contracts tab in patient profile.
+    - **Storage:** Added generated-document storage helper to persist signed contract HTML without export gating.
+- **Verification:** `docs/SaaS/verification/P5-CON-01.md`.
+
 ## [2026-01-16] Notification System & Preferences Hardening
 **Tasks:** S0-05, S0-06, S0-07
 **Author:** Gemini
@@ -1165,3 +1197,13 @@
 
 ### Verification
 - docs/SaaS/verification/CP-UX-28.md
+
+### Task: P5-CON-02 Contract Odontogram Parity
+- **Date:** 2026-02-06
+- **Status:** Completed
+- **Description:** Rebuilt the treatment contract editor to mirror the live odontogram UX, with deterministic tooth selection, hover/tooltip, live tint overlays, conditions table, and itemized treatments synchronized to tooth updates. Optional contract fields now render only when populated in show/print views.
+- **Actions:**
+    - **Create/Edit View:** Added full odontogram UI/JS, per-tooth overlay/hit/outline controls, tooltip hover, numbering toggle (default hidden), and live conditions table in `app/Views/contracts/create.php`.
+    - **Treatment Items:** Implemented auto item rows for conditioned teeth plus manual add/remove rows in `app/Views/contracts/create.php`.
+    - **Show/Print Views:** Added optional fields (terms/payment/duration/notes/cost details) and draft edit action in `app/Views/contracts/show.php` and `app/Views/contracts/print.php`.
+- **Verification:** `docs/SaaS/verification/P5-CON-02.md`.
