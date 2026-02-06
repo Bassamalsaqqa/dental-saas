@@ -2,38 +2,14 @@
 <?= $this->extend('layouts/print') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-white print:bg-white">
-    <!-- Print Header - Only visible when printing -->
-    <div class="hidden print:block text-center mb-8">
-        <?php if (!empty($clinic['logo_path'])): ?>
-            <div class="mb-4 flex justify-center">
-                <?php
-                $logoSrc = (strpos($clinic['logo_path'], 'http://') === 0 || strpos($clinic['logo_path'], 'https://') === 0)
-                    ? $clinic['logo_path']
-                    : base_url(ltrim($clinic['logo_path'], '/'));
-                ?>
-                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
-            </div>
-        <?php else: ?>
-            <h1 class="text-2xl font-bold text-gray-900">APPOINTMENT</h1>
-        <?php endif; ?>
-        <div class="text-sm text-gray-600 mt-2">
-            <p><?= esc($clinic['name']) ?></p>
-            <p><?= esc($clinic['address']) ?></p>
-            <p>Phone: <?= esc($clinic['phone']) ?> | Email: <?= esc($clinic['email']) ?></p>
-            <?php if (!empty($clinic['website'])): ?>
-                <p>Website: <?= esc($clinic['website']) ?></p>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <div class="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none">
-        <div class="bg-white border-2 border-gray-200 rounded-lg print:border-0 print:rounded-none shadow-lg print:shadow-none overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 print:bg-gray-100 print:text-black">
+<div class="min-h-screen bg-white">
+    <div class="max-w-4xl mx-auto p-8">
+        <div class="bg-white border-2 border-gray-200 rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-bold">APPOINTMENT DETAILS</h2>
-                        <p class="text-blue-100 print:text-gray-600">
+                        <p class="text-blue-100">
                             Appointment ID: <?= esc($appointment['appointment_id'] ?? 'N/A') ?>
                         </p>
                     </div>
@@ -46,7 +22,7 @@
 
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-user text-blue-600 mr-2 print:hidden"></i>
+                    <i class="fas fa-user text-blue-600 mr-2"></i>
                     Patient Information
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -73,7 +49,7 @@
 
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-calendar-check text-indigo-600 mr-2 print:hidden"></i>
+                    <i class="fas fa-calendar-check text-indigo-600 mr-2"></i>
                     Appointment Details
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -106,10 +82,10 @@
 
             <div class="p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-sticky-note text-amber-600 mr-2 print:hidden"></i>
+                    <i class="fas fa-sticky-note text-amber-600 mr-2"></i>
                     Additional Notes
                 </h3>
-                <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
+                <div class="bg-gray-50 p-4 rounded-lg">
                     <?php if (!empty($appointment['notes'])): ?>
                         <p class="text-gray-800 leading-relaxed whitespace-pre-line"><?= htmlspecialchars($appointment['notes']) ?></p>
                     <?php else: ?>
@@ -118,7 +94,7 @@
                 </div>
             </div>
 
-            <div class="bg-gray-50 p-6 print:bg-white print:border-t print:border-gray-300">
+            <div class="bg-gray-50 p-6">
                 <div class="flex justify-between items-center">
                     <div class="text-sm text-gray-600">
                         <p>Generated on: <?= date('M j, Y g:i A') ?></p>
@@ -132,7 +108,7 @@
             </div>
         </div>
 
-        <div class="mt-8 print:hidden">
+        <div class="mt-8">
             <div class="flex justify-center space-x-4">
                 <button onclick="window.print()" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
@@ -154,10 +130,4 @@
     </div>
 </div>
 
-<style>
-@media print {
-    .print\\:hidden { display: none !important; }
-    .print\\:block { display: block !important; }
-}
-</style>
 <?= $this->endSection() ?>
