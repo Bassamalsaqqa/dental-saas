@@ -9,7 +9,10 @@ use App\Models\FinanceModel;
 use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\PrescriptionModel;
+use App\Models\FileAttachmentModel;
+use App\Models\TreatmentContractModel;
 use App\Services\ActivityLogger;
+use App\Services\PlanGuard;
 
 class Patient extends BaseController
 {
@@ -20,7 +23,11 @@ class Patient extends BaseController
     protected $odontogramModel;
     protected $treatmentModel;
     protected $prescriptionModel;
+    protected $attachmentModel;
+    protected $contractModel;
     protected $activityLogger;
+    protected $storageService;
+    protected $planGuard;
 
     public function __construct()
     {
@@ -31,7 +38,11 @@ class Patient extends BaseController
         $this->odontogramModel = new OdontogramModel();
         $this->treatmentModel = new TreatmentModel();
         $this->prescriptionModel = new PrescriptionModel();
+        $this->attachmentModel = new FileAttachmentModel();
+        $this->contractModel = new TreatmentContractModel();
         $this->activityLogger = new ActivityLogger();
+        $this->storageService = service('storage');
+        $this->planGuard = new PlanGuard();
     }
 
     public function index()
@@ -365,6 +376,37 @@ class Patient extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
+        $attachmentsEnabled = $this->planGuard->isFeatureEnabled($clinicId, 'attachments.enabled', false);
+        $contractsEnabled = $this->planGuard->isFeatureEnabled($clinicId, 'contracts.enabled', false);
+        $attachments = [];
+        $storageUsageBytes = 0;
+        $storageLimitGb = $this->planGuard->getLimitValue($clinicId, 'storage_gb', 0);
+        $maxAttachmentMb = $this->planGuard->getLimitValue($clinicId, 'attachments_max_file_mb', 5);
+        $contracts = [];
+
+        if ((int) $maxAttachmentMb === -1) {
+            $maxAttachmentMb = null;
+        } elseif (!is_numeric($maxAttachmentMb) || (int) $maxAttachmentMb <= 0) {
+            $maxAttachmentMb = 5;
+        }
+
+        if ($attachmentsEnabled) {
+            $attachments = $this->attachmentModel
+                ->where('entity_type', 'patient')
+                ->where('entity_id', $id)
+                ->where('purpose', 'attachment')
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            $storageUsageBytes = $this->attachmentModel->getTotalSizeByClinic($clinicId);
+        }
+
+        if ($contractsEnabled) {
+            $contracts = $this->contractModel
+                ->where('patient_id', $id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+        }
 
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
@@ -375,10 +417,178 @@ class Patient extends BaseController
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
             'treatments' => $this->treatmentModel->getTreatmentsByPatient($id),
-            'prescriptions' => $this->prescriptionModel->getPrescriptionsByPatient($id)
+            'prescriptions' => $this->prescriptionModel->getPrescriptionsByPatient($id),
+            'attachments_enabled' => $attachmentsEnabled,
+            'attachments' => $attachments,
+            'attachments_storage_usage_bytes' => $storageUsageBytes,
+            'attachments_storage_limit_gb' => $storageLimitGb,
+            'attachments_max_file_mb' => $maxAttachmentMb,
+            'contracts_enabled' => $contractsEnabled,
+            'contracts' => $contracts
         ];
 
         return $this->view('patient/show', $data);
+    }
+
+    public function uploadAttachment($patientId)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $patient = $this->patientModel->findByClinic($clinicId, $patientId);
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $this->planGuard->assertFeature($clinicId, 'attachments.enabled', [
+            'entity_type' => 'patient',
+            'entity_id' => $patientId
+        ]);
+
+        $file = $this->request->getFile('attachment');
+        if (!$file || !$file->isValid()) {
+            return $this->failAttachmentUpload('No valid file uploaded.');
+        }
+
+        $validation = $this->validateAttachmentFile($file, $clinicId);
+        if (!$validation['ok']) {
+            return $this->failAttachmentUpload($validation['message']);
+        }
+
+        $category = trim((string) $this->request->getPost('category'));
+        $notes = trim((string) $this->request->getPost('notes'));
+
+        try {
+            $attachment = $this->storageService->store($file, $clinicId, 'patient', $patientId, 'attachment');
+
+            if (!empty($category) || !empty($notes)) {
+                $this->attachmentModel->update($attachment['id'], [
+                    'category' => $category ?: null,
+                    'notes' => $notes ?: null
+                ]);
+            }
+
+            $this->activityLogger->logPatientActivity(
+                'attachment_upload',
+                $patientId,
+                "Attachment '{$attachment['original_name']}' uploaded"
+            );
+
+            return $this->handleAttachmentSuccess('Attachment uploaded successfully.');
+        } catch (\Exception $e) {
+            if ($e instanceof \CodeIgniter\Exceptions\PageNotFoundException) {
+                throw $e;
+            }
+
+            log_message('error', 'Attachment upload failed: ' . $e->getMessage());
+            return $this->failAttachmentUpload('Upload failed. Please try again.');
+        }
+    }
+
+    public function deleteAttachment($patientId, $attachmentId)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $patient = $this->patientModel->findByClinic($clinicId, $patientId);
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $this->planGuard->assertFeature($clinicId, 'attachments.enabled', [
+            'entity_type' => 'patient',
+            'entity_id' => $patientId
+        ]);
+
+        $attachment = $this->attachmentModel
+            ->where('entity_type', 'patient')
+            ->where('entity_id', $patientId)
+            ->where('purpose', 'attachment')
+            ->find($attachmentId);
+
+        if (!$attachment) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Attachment not found');
+        }
+
+        $this->storageService->delete($attachmentId, $clinicId);
+
+        $this->activityLogger->logPatientActivity(
+            'attachment_delete',
+            $patientId,
+            "Attachment '{$attachment['original_name']}' deleted"
+        );
+
+        return $this->handleAttachmentSuccess('Attachment deleted.');
+    }
+
+    private function validateAttachmentFile($file, int $clinicId): array
+    {
+        $allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'docx', 'xlsx', 'zip'];
+        $allowedMimes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/zip',
+            'application/x-zip-compressed'
+        ];
+
+        $extension = strtolower((string) $file->getExtension());
+        if (!in_array($extension, $allowedExts, true)) {
+            return ['ok' => false, 'message' => 'Unsupported file type.'];
+        }
+
+        $mime = (string) $file->getMimeType();
+        if (!in_array($mime, $allowedMimes, true)) {
+            // Allow docx/xlsx that present as zip
+            if (!in_array($extension, ['docx', 'xlsx', 'zip'], true) || !in_array($mime, ['application/zip', 'application/x-zip-compressed'], true)) {
+                return ['ok' => false, 'message' => 'Unsupported file format.'];
+            }
+        }
+
+        $limitMb = $this->planGuard->getLimitValue($clinicId, 'attachments_max_file_mb', 5);
+        if ((int) $limitMb === -1) {
+            return ['ok' => true];
+        }
+
+        if (!is_numeric($limitMb) || (int) $limitMb <= 0) {
+            $limitMb = 5;
+        }
+
+        $maxBytes = (int) $limitMb * 1024 * 1024;
+        $size = (int) $file->getSize();
+        if ($size > $maxBytes) {
+            return ['ok' => false, 'message' => 'File exceeds the maximum allowed size.'];
+        }
+
+        return ['ok' => true];
+    }
+
+    private function handleAttachmentSuccess(string $message)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->back()
+            ->with('success', $message)
+            ->with('attachments_flash', '1');
+    }
+
+    private function failAttachmentUpload(string $message)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => $message]);
+        }
+
+        return redirect()->back()
+            ->with('error', $message)
+            ->with('attachments_flash', '1');
     }
 
     public function edit($id)

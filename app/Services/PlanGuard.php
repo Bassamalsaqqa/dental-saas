@@ -304,6 +304,50 @@ class PlanGuard
         return $this->planModel->find($sub['plan_id']);
     }
 
+    /**
+     * Read a plan limit value without enforcing or incrementing usage.
+     */
+    public function getLimitValue(int $clinicId, string $metricKey, $default = null)
+    {
+        $plan = $this->getClinicPlan($clinicId);
+        $limits = json_decode($plan['limits_json'] ?? '{}', true) ?? [];
+
+        $canonicalKey = $metricKey;
+        if ($metricKey === 'patients') {
+            $canonicalKey = 'patients_active_max';
+        }
+
+        if (array_key_exists($canonicalKey, $limits)) {
+            return $limits[$canonicalKey];
+        }
+
+        if (array_key_exists($metricKey, $limits)) {
+            return $limits[$metricKey];
+        }
+
+        return $default;
+    }
+
+    /**
+     * Check if a feature is enabled without emitting audits or throwing.
+     */
+    public function isFeatureEnabled(int $clinicId, string $featureKey, bool $default = false): bool
+    {
+        $plan = $this->getClinicPlan($clinicId);
+        $features = json_decode($plan['features_json'] ?? '{}', true) ?? [];
+
+        $keys = explode('.', $featureKey);
+        $current = $features;
+        foreach ($keys as $k) {
+            if (!isset($current[$k])) {
+                return $default;
+            }
+            $current = $current[$k];
+        }
+
+        return (bool) $current;
+    }
+
     private function checkNestedKey($array, $key)
     {
         $keys = explode('.', $key);

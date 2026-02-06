@@ -22,6 +22,8 @@ class FileAttachmentModel extends TenantAwareModel
         'entity_type',
         'entity_id',
         'purpose',
+        'category',
+        'notes',
         'file_hash',
         'created_by'
     ];

@@ -153,6 +153,8 @@ $routes->group('patient', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
     $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
     $routes->get('(:num)/data', 'Patient::getPatientData/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/attachments/upload', 'Patient::uploadAttachment/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/attachments/(:num)/delete', 'Patient::deleteAttachment/$1/$2', ['filter' => 'permission:patients:edit']);
     $routes->get('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
     $routes->post('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
     $routes->get('get-statistics', 'Patient::getStatistics', ['filter' => 'permission:patients:view']);
@@ -170,9 +172,23 @@ $routes->group('patients', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
     $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
     $routes->get('(:num)/data', 'Patient::getPatientData/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/attachments/upload', 'Patient::uploadAttachment/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/attachments/(:num)/delete', 'Patient::deleteAttachment/$1/$2', ['filter' => 'permission:patients:edit']);
     $routes->get('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
     $routes->post('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
     $routes->get('get-statistics', 'Patient::getStatistics', ['filter' => 'permission:patients:view']);
+});
+
+// Treatment Contract routes (Tenant Plane)
+$routes->group('contracts', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('create/(:num)', 'TreatmentContracts::create/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('create/(:num)', 'TreatmentContracts::store/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/edit', 'TreatmentContracts::edit/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/update', 'TreatmentContracts::update/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)', 'TreatmentContracts::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/sign', 'TreatmentContracts::sign/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/print', 'TreatmentContracts::print/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/delete', 'TreatmentContracts::delete/$1', ['filter' => 'permission:patients:edit']);
 });
 
 // Examination routes

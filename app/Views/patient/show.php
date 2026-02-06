@@ -84,6 +84,20 @@ function getFDINumber($universalNumber) {
                                         class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
                                     <i class="fas fa-prescription mr-2"></i>Rx (<?= count($prescriptions) ?>)
                                 </button>
+                                <?php if (!empty($attachments_enabled)): ?>
+                                    <button onclick="showTab('attachments')" 
+                                            id="attachments-tab" 
+                                            class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        <i class="fas fa-paperclip mr-2"></i>Attachments (<?= count($attachments ?? []) ?>)
+                                    </button>
+                                <?php endif; ?>
+                                <?php if (!empty($contracts_enabled)): ?>
+                                    <button onclick="showTab('contracts')" 
+                                            id="contracts-tab" 
+                                            class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        <i class="fas fa-file-signature mr-2"></i>Contracts (<?= count($contracts ?? []) ?>)
+                                    </button>
+                                <?php endif; ?>
                                 <button onclick="showTab('finances')" 
                                         id="finances-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
@@ -407,6 +421,224 @@ function getFDINumber($universalNumber) {
                                 </ul>
                             </div>
                         </div>
+
+                        <?php if (!empty($attachments_enabled)): ?>
+                            <!-- Attachments Tab -->
+                            <div id="attachments-content" class="tab-content hidden">
+                                <?php
+                                    $usageBytes = (int) ($attachments_storage_usage_bytes ?? 0);
+                                    $limitGb = (int) ($attachments_storage_limit_gb ?? 0);
+                                    $limitBytes = $limitGb > 0 ? $limitGb * 1024 * 1024 * 1024 : 0;
+                                    $usagePercent = $limitBytes > 0 ? round(($usageBytes / $limitBytes) * 100) : 0;
+                                    $maxFileMb = $attachments_max_file_mb ?? 5;
+                                ?>
+
+                                <?php if (session('success')): ?>
+                                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
+                                        <?= esc(session('success')) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (session('error')): ?>
+                                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700 text-sm">
+                                        <?= esc(session('error')) ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ($limitBytes > 0 && $usagePercent >= 80): ?>
+                                    <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm">
+                                        <strong>Storage warning:</strong> <?= $usagePercent ?>% of your plan storage is used.
+                                    </div>
+                                <?php endif; ?>
+
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">Patient Attachments</h3>
+                                            <p class="text-xs text-gray-500 mt-1">PDF, images, scans, and documents (max <?= $maxFileMb === null ? 'unlimited' : (int) $maxFileMb . 'MB' ?>)</p>
+                                        </div>
+                                    </div>
+                                    <div class="px-6 py-4">
+                                        <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
+                                            <?= csrf_field() ?>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div class="md:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+                                                    <input type="file" name="attachment" required
+                                                           accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                                    <input type="text" name="category" placeholder="Scan, X-Ray, Lab..."
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                </div>
+                                                <div class="md:col-span-3">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                                                    <textarea name="notes" rows="2" placeholder="Optional notes for this file"
+                                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-xs text-gray-500">Allowed: PDF, JPG, PNG, DOCX, XLSX, ZIP</p>
+                                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                    <i class="fas fa-upload mr-2"></i>Upload
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="px-6 py-4 border-b border-gray-200">
+                                        <h4 class="text-md font-semibold text-gray-800">Attachment History</h4>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <?php if (!empty($attachments)): ?>
+                                                    <?php foreach ($attachments as $attachment): ?>
+                                                        <tr>
+                                                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                                                <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                                <div class="font-medium"><?= esc($attachment['original_name'] ?? 'Attachment') ?></div>
+                                                                <div class="text-xs text-gray-500"><?= number_format(($attachment['file_size'] ?? 0) / 1024, 1) ?> KB</div>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                                <?= esc($attachment['category'] ?? '—') ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                                <?= esc($attachment['notes'] ?? '—') ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-right text-sm">
+                                                                <a href="<?= base_url('file/download/' . $attachment['id']) ?>" 
+                                                                   class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
+                                                                    <i class="fas fa-download mr-1"></i>Download
+                                                                </a>
+                                                                <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/' . $attachment['id'] . '/delete') ?>" method="post" class="inline">
+                                                                    <?= csrf_field() ?>
+                                                                    <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800" onclick="return confirm('Delete this attachment?');">
+                                                                        <i class="fas fa-trash mr-1"></i>Delete
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">No attachments uploaded yet.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($contracts_enabled)): ?>
+                            <!-- Contracts Tab -->
+                            <div id="contracts-content" class="tab-content hidden">
+                                <?php if (session('success')): ?>
+                                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 text-sm">
+                                        <?= esc(session('success')) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (session('error')): ?>
+                                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-700 text-sm">
+                                        <?= esc(session('error')) ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">Treatment Contracts</h3>
+                                            <p class="text-xs text-gray-500 mt-1">Create and sign treatment agreements with a snapshot odontogram.</p>
+                                        </div>
+                                        <?php if (has_permission('patients', 'edit')): ?>
+                                            <a href="<?= base_url('contracts/create/' . $patient['id']) ?>" 
+                                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                <i class="fas fa-plus mr-2"></i>Create Contract
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="px-6 py-4 border-b border-gray-200">
+                                        <h4 class="text-md font-semibold text-gray-800">Contract History</h4>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <?php if (!empty($contracts)): ?>
+                                                    <?php foreach ($contracts as $contract): ?>
+                                                        <tr>
+                                                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                                                <?= !empty($contract['created_at']) ? formatDateTime($contract['created_at']) : '--' ?>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                                                                    <?= esc(ucfirst($contract['status'] ?? 'draft')) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                                <?= esc($contract['currency'] ?? 'USD') ?> <?= number_format((float) ($contract['total_cost'] ?? 0), 2) ?>
+                                                            </td>
+                                                    <td class="px-6 py-4 text-right text-sm">
+                                                        <a href="<?= base_url('contracts/' . $contract['id']) ?>" 
+                                                           class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
+                                                            <i class="fas fa-eye mr-1"></i>View
+                                                        </a>
+                                                        <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
+                                                            <a href="<?= base_url('contracts/' . $contract['id'] . '/edit') ?>" 
+                                                               class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mr-3">
+                                                                <i class="fas fa-edit mr-1"></i>Edit
+                                                            </a>
+                                                            <form action="<?= base_url('contracts/' . $contract['id'] . '/delete') ?>" method="post" class="inline">
+                                                                <?= csrf_field() ?>
+                                                                <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800 mr-3" onclick="return confirm('Delete this contract?');">
+                                                                    <i class="fas fa-trash mr-1"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        <?php endif; ?>
+                                                        <a href="<?= base_url('contracts/' . $contract['id'] . '/print') ?>" 
+                                                           class="inline-flex items-center text-gray-600 hover:text-gray-800">
+                                                            <i class="fas fa-print mr-1"></i>Print
+                                                        </a>
+                                                    </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">No contracts created yet.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
@@ -994,6 +1226,24 @@ function getFDINumber($universalNumber) {
         document.getElementById('historySearch').addEventListener('input', filterHistory);
         document.getElementById('startDate').addEventListener('change', filterHistory);
         document.getElementById('endDate').addEventListener('change', filterHistory);
+
+        const shouldOpenAttachments = <?= json_encode((bool) session('attachments_flash')) ?>;
+        if (shouldOpenAttachments) {
+            const attachmentsTab = document.getElementById('attachments-tab');
+            const attachmentsContent = document.getElementById('attachments-content');
+            if (attachmentsTab && attachmentsContent) {
+                showTab('attachments');
+            }
+        }
+
+        const shouldOpenContracts = <?= json_encode((bool) session('contracts_flash')) ?>;
+        if (shouldOpenContracts) {
+            const contractsTab = document.getElementById('contracts-tab');
+            const contractsContent = document.getElementById('contracts-content');
+            if (contractsTab && contractsContent) {
+                showTab('contracts');
+            }
+        }
     });
 
     function showTab(tabName) {

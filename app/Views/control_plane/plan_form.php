@@ -176,6 +176,17 @@
 
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                                <i class="fas fa-file-upload text-purple-600"></i>
+                                                <span>Attachment Max Size (MB)</span>
+                                            </label>
+                                            <input type="number" name="attachments_max_file_mb" value="<?= esc($limits['attachments_max_file_mb'] ?? 5) ?>" min="-1" step="1"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" 
+                                                   placeholder="5">
+                                            <p class="mt-2 text-xs text-slate-400">Use -1 for unlimited.</p>
+                                        </div>
+
+                                        <div class="group/field relative">
+                                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-hourglass-half text-purple-600"></i>
                                                 <span>Trial Period (Days)</span>
                                             </label>
@@ -253,6 +264,27 @@
                                                        class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
                                             </div>
                                             <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">Email Notifications</div>
+                                        </label>
+                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" name="features[attachments][enabled]" <?= !empty($features['attachments']['enabled']) ? 'checked' : '' ?> 
+                                                       class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
+                                            </div>
+                                            <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">Patient Attachments</div>
+                                        </label>
+                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" name="features[contracts][enabled]" <?= !empty($features['contracts']['enabled']) ? 'checked' : '' ?> 
+                                                       class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
+                                            </div>
+                                            <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">Treatment Contracts</div>
+                                        </label>
+                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" name="features[contracts][signature][enabled]" <?= !empty($features['contracts']['signature']['enabled']) ? 'checked' : '' ?> 
+                                                       class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
+                                            </div>
+                                            <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">Contract E-Signatures</div>
                                         </label>
                                     </div>
                                 </div>

@@ -242,6 +242,7 @@ class Plans extends BaseController
             'patients_active_max' => -1,
             'users_max' => -1,
             'storage_gb' => -1,
+            'attachments_max_file_mb' => 5,
             'exports' => -1,
             'notifications_email' => -1,
             'description' => '',
@@ -259,6 +260,11 @@ class Plans extends BaseController
             'audit_exports' => false,
             'chairside_notes' => false,
             'claims_hub' => false,
+            'attachments' => ['enabled' => false],
+            'contracts' => [
+                'enabled' => false,
+                'signature' => ['enabled' => false],
+            ],
             'exports' => ['enabled' => false],
             'notifications' => [
                 'email' => ['enabled' => true],
@@ -282,6 +288,15 @@ class Plans extends BaseController
             'audit_exports' => !empty($featuresInput['audit_exports']),
             'chairside_notes' => !empty($featuresInput['chairside_notes']),
             'claims_hub' => !empty($featuresInput['claims_hub']),
+            'attachments' => [
+                'enabled' => !empty($featuresInput['attachments']['enabled']),
+            ],
+            'contracts' => [
+                'enabled' => !empty($featuresInput['contracts']['enabled']),
+                'signature' => [
+                    'enabled' => !empty($featuresInput['contracts']['signature']['enabled']),
+                ],
+            ],
             'exports' => [
                 'enabled' => !empty($featuresInput['exports']['enabled']),
             ],
@@ -298,6 +313,7 @@ class Plans extends BaseController
             'patients_active_max' => $this->normalizeLimit($post['patient_limit'] ?? null),
             'users_max' => $this->normalizeLimit($post['user_seats'] ?? null),
             'storage_gb' => $this->normalizeLimit($post['storage_gb'] ?? null),
+            'attachments_max_file_mb' => $this->normalizeLimit($post['attachments_max_file_mb'] ?? null),
             'exports' => $this->normalizeLimit($post['export_quota'] ?? null),
             'notifications_email' => $this->normalizeLimit($post['email_quota'] ?? null),
             'description' => trim($post['description'] ?? ''),

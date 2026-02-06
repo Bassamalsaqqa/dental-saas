@@ -22,10 +22,29 @@ class StorageService
     /**
      * Store a file in a tenant-isolated directory
      */
-    public function store($file, $clinicId, $entityType = null, $entityId = null)
+    public function store($file, $clinicId, $entityType = null, $entityId = null, $purpose = null)
     {
         if (!$file->isValid()) {
             throw new \RuntimeException($file->getErrorString() . '(' . $file->getError() . ')');
+        }
+
+        if ($entityType === 'patient' && $purpose === 'attachment') {
+            $this->planGuard->assertFeature($clinicId, 'attachments.enabled', [
+                'entity_type' => $entityType,
+                'entity_id' => $entityId
+            ]);
+
+            $limitMb = $this->planGuard->getLimitValue($clinicId, 'attachments_max_file_mb', 5);
+            if ((int) $limitMb !== -1) {
+                if (!is_numeric($limitMb) || (int) $limitMb <= 0) {
+                    $limitMb = 5;
+                }
+
+                $maxBytes = (int) $limitMb * 1024 * 1024;
+                if ((int) $file->getSize() > $maxBytes) {
+                    throw new \RuntimeException('Attachment exceeds maximum allowed size.');
+                }
+            }
         }
 
         // Enforce storage quota before persistence
@@ -49,10 +68,11 @@ class StorageService
             'file_name'     => $newName,
             'original_name' => $file->getClientName(),
             'file_path'     => $tenantPath . DIRECTORY_SEPARATOR . $newName,
-            'mime_type'     => $file->getClientMimeType(),
+            'mime_type'     => $file->getMimeType(),
             'file_size'     => $file->getSize(),
             'entity_type'   => $entityType,
             'entity_id'     => $entityId,
+            'purpose'       => $purpose,
             'created_by'    => session()->get('user_id')
         ];
 
@@ -115,6 +135,53 @@ class StorageService
             $retentionService->enforcePolicy($clinicId, $entityType, $entityId, $purpose);
         }
         
+        return $this->attachmentModel->find($id);
+    }
+
+    /**
+     * Store generated content without export feature gating.
+     */
+    public function storeGenerated($content, $fileName, $mimeType, $clinicId, $entityType = null, $entityId = null, $purpose = null)
+    {
+        $this->planGuard->assertQuota($clinicId, 'storage_gb', (int) strlen($content), [
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'purpose' => $purpose,
+        ]);
+
+        $tenantPath = 'clinic_' . $clinicId;
+        $uploadPath = $this->basePath . DIRECTORY_SEPARATOR . $tenantPath;
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        $fileHash = md5($content);
+        $uniqueName = $fileHash . '_' . $fileName;
+        $fullPath = $uploadPath . DIRECTORY_SEPARATOR . $uniqueName;
+
+        if ($entityType && $entityId && $purpose) {
+            $this->attachmentModel->supersedePrevious($clinicId, $entityType, $entityId, $purpose);
+        }
+
+        file_put_contents($fullPath, $content);
+
+        $data = [
+            'clinic_id' => $clinicId,
+            'file_name' => $uniqueName,
+            'original_name' => $fileName,
+            'file_path' => $tenantPath . DIRECTORY_SEPARATOR . $uniqueName,
+            'mime_type' => $mimeType,
+            'file_size' => strlen($content),
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'purpose' => $purpose,
+            'file_hash' => $fileHash,
+            'created_by' => session()->get('user_id') ?? 0
+        ];
+
+        $id = $this->attachmentModel->insert($data);
+
         return $this->attachmentModel->find($id);
     }
 
