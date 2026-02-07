@@ -99,17 +99,18 @@ class PatientModel extends TenantAwareModel
     public function getPatientStatsByClinic($clinicId)
     {
         try {
-            $builder = $this->where('clinic_id', $clinicId);
-            
+            $base = $this->db->table($this->table)
+                ->where('clinic_id', $clinicId);
+
             // Get total patients
-            $totalPatients = $builder->countAllResults(false);
-            
+            $totalPatients = (clone $base)->countAllResults();
+
             // Get active patients
-            $activePatients = $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(false);
-            
+            $activePatients = (clone $base)->where('status', 'active')->countAllResults();
+
             // Get new patients this month
             $currentMonth = date('Y-m');
-            $newPatients = $this->where('clinic_id', $clinicId)->where('DATE_FORMAT(created_at, "%Y-%m")', $currentMonth)->countAllResults(false);
+            $newPatients = (clone $base)->where('DATE_FORMAT(created_at, "%Y-%m")', $currentMonth)->countAllResults();
             
             return [
                 'total_patients' => $totalPatients,
