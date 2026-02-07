@@ -3,12 +3,130 @@
  * Replaces custom searchable select with Select2 for better UX and functionality
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+function getMetaContent(name) {
+    const el = document.querySelector(`meta[name="${name}"]`);
+    return el ? el.getAttribute('content') : '';
+}
+
+const uiSearchAuth = {
+    tokenUrl: getMetaContent('api-session-token-url'),
+    clinicId: getMetaContent('active-clinic-id'),
+    token: null,
+    expiresAt: null,
+    tokenPromise: null
+};
+
+function isV1SearchUrl(url) {
+    return typeof url === 'string' && url.indexOf('/api/v1/search/') !== -1;
+}
+
+function isTokenValid() {
+    if (!uiSearchAuth.token || !uiSearchAuth.expiresAt) {
+        return false;
+    }
+    const exp = Date.parse(uiSearchAuth.expiresAt);
+    if (isNaN(exp)) {
+        return true;
+    }
+    return (Date.now() + 30000) < exp;
+}
+
+function fetchUiSearchToken() {
+    if (!uiSearchAuth.tokenUrl) {
+        return Promise.resolve(null);
+    }
+    if (isTokenValid()) {
+        return Promise.resolve(uiSearchAuth.token);
+    }
+    if (uiSearchAuth.tokenPromise) {
+        return uiSearchAuth.tokenPromise;
+    }
+
+    uiSearchAuth.tokenPromise = fetch(uiSearchAuth.tokenUrl, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-store',
+            'Pragma': 'no-cache'
+        }
+    })
+        .then(response => response.ok ? response.json() : null)
+        .then(data => {
+            if (data && data.token) {
+                uiSearchAuth.token = data.token;
+                uiSearchAuth.expiresAt = data.expires_at || null;
+                return uiSearchAuth.token;
+            }
+            return null;
+        })
+        .catch(() => null)
+        .finally(() => {
+            uiSearchAuth.tokenPromise = null;
+        });
+
+    return uiSearchAuth.tokenPromise;
+}
+
+function invalidateUiSearchToken() {
+    uiSearchAuth.token = null;
+    uiSearchAuth.expiresAt = null;
+}
+
+function applyV1SearchHeaders(headers) {
+    const finalHeaders = headers || {};
+    if (uiSearchAuth.token) {
+        finalHeaders['Authorization'] = 'Bearer ' + uiSearchAuth.token;
+    }
+    if (uiSearchAuth.clinicId) {
+        finalHeaders['X-Clinic-Id'] = uiSearchAuth.clinicId;
+    }
+    finalHeaders['Cache-Control'] = 'no-store';
+    finalHeaders['Pragma'] = 'no-cache';
+    return finalHeaders;
+}
+
+$(document).ajaxError(function(_event, jqXHR, settings) {
+    if (!settings || !isV1SearchUrl(settings.url)) {
+        return;
+    }
+    if (jqXHR.status !== 401 || settings._uiSearchRetried) {
+        return;
+    }
+
+    invalidateUiSearchToken();
+    fetchUiSearchToken().then(token => {
+        if (!token) {
+            return;
+        }
+        const retrySettings = $.extend(true, {}, settings);
+        retrySettings._uiSearchRetried = true;
+        retrySettings.headers = applyV1SearchHeaders(retrySettings.headers || {});
+        $.ajax(retrySettings);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
     
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = document.querySelectorAll('[data-searchable-select]');
     console.log('Select2: Found', searchableSelects.length, 'searchable select elements');
+
+    let needsBearer = false;
+    searchableSelects.forEach(select => {
+        const searchUrl = select.dataset.searchUrl || '';
+        if (searchUrl.indexOf('/api/v1/search/') !== -1) {
+            needsBearer = true;
+        }
+    });
+
+    if (needsBearer) {
+        const token = await fetchUiSearchToken();
+        if (!token) {
+            console.warn('Select2: UI search token unavailable; v1 search may 401.');
+        }
+    }
     
     searchableSelects.forEach((select, index) => {
         try {
@@ -84,7 +202,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         };
                     },
-                    cache: true
+                    beforeSend: function (xhr) {
+                        if (isV1SearchUrl(searchUrl)) {
+                            const headers = applyV1SearchHeaders();
+                            Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
+                        }
+                    },
+                    cache: !isV1SearchUrl(searchUrl)
                 };
             }
             
@@ -155,36 +279,31 @@ const select2CustomCSS = `
 /* Select2 Custom Styling */
 .select2-container--default .select2-selection--single {
     height: 42px;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
 }
 
 .select2-container--default .select2-selection--single:hover {
-    border-color: #10b981;
-    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-color: #0284c7;
 }
 
 .select2-container--default.select2-container--focus .select2-selection--single {
-    border-color: #10b981;
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
     outline: none;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #374151 !important;
+    color: #374151;
     line-height: 40px;
     padding-left: 12px;
     padding-right: 20px;
-    background-color: transparent !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: #9ca3af !important;
-    background-color: transparent !important;
+    color: #9ca3af;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -212,9 +331,9 @@ const select2CustomCSS = `
 
 .select2-dropdown {
     border: 1px solid #d1d5db;
-    border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    background-color: #ffffff !important;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
     z-index: 9999;
 }
 
@@ -225,8 +344,6 @@ const select2CustomCSS = `
     font-size: 14px;
     margin: 4px;
     width: calc(100% - 8px);
-    background-color: #ffffff !important;
-    color: #374151 !important;
 }
 
 .select2-container--default .select2-search--dropdown .select2-search__field:focus {
@@ -238,8 +355,7 @@ const select2CustomCSS = `
 .select2-container--default .select2-results__option {
     padding: 8px 12px;
     font-size: 14px;
-    color: #374151 !important;
-    background-color: #ffffff !important;
+    color: #374151;
     transition: background-color 0.2s ease-in-out;
 }
 
@@ -325,42 +441,41 @@ const select2CustomCSS = `
     }
 }
 
-/* Force light mode for Select2 */
-.select2-container--default .select2-selection--single {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    border-color: #e5e7eb !important;
-    color: #374151 !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #374151 !important;
-    background-color: transparent !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: #9ca3af !important;
-    background-color: transparent !important;
-}
-
-.select2-dropdown {
-    background-color: #ffffff !important;
-    border-color: #d1d5db !important;
-}
-
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    background-color: #ffffff !important;
-    border-color: #d1d5db !important;
-    color: #374151 !important;
-}
-
-.select2-container--default .select2-results__option {
-    color: #374151 !important;
-    background-color: #ffffff !important;
-}
-
-.select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #f3f4f6 !important;
-    color: #374151 !important;
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .select2-container--default .select2-selection--single {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f9fafb;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #9ca3af;
+    }
+    
+    .select2-dropdown {
+        background-color: #1f2937;
+        border-color: #374151;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .select2-container--default .select2-results__option {
+        color: #f9fafb;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #374151;
+        color: #f9fafb;
+    }
 }
 </style>
 `;
