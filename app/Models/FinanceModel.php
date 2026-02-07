@@ -28,6 +28,8 @@ class FinanceModel extends TenantAwareModel
         'discount_amount',
         'tax_amount',
         'total_amount',
+        'amount_paid',
+        'balance_due',
         'due_date',
         'paid_date',
         'notes',
@@ -182,12 +184,42 @@ class FinanceModel extends TenantAwareModel
             }
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
+            $balanceField = $this->db->fieldExists('balance_due', 'finances') ? 'balance_due' : '(' . $sumField . ' - COALESCE(amount_paid, 0))';
 
-            $totalRevenue = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
+            $standalonePayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
             $totalInvoices = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
-            $pendingPayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'pending')->get()->getRow()->total_amount ?? 0;
-            $overduePayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'overdue')->get()->getRow()->total_amount ?? 0;
-            $outstandingInvoices = (clone $builder)->where('transaction_type', 'invoice')->whereIn('payment_status', ['pending', 'overdue'])->countAllResults();
+            $refunds = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
+
+            $paymentBuilder = $this->db->table('finance_payments')->where('clinic_id', $clinicId);
+            if ($startDate) {
+                $paymentBuilder->where('payment_date >=', $startDate);
+            }
+            if ($endDate) {
+                $paymentBuilder->where('payment_date <=', $endDate);
+            }
+            $invoicePayments = $paymentBuilder->selectSum('amount', 'total_amount')->get()->getRow()->total_amount ?? 0;
+
+            $pendingPayments = (clone $builder)
+                ->selectSum($balanceField, 'total_amount')
+                ->where('transaction_type', 'invoice')
+                ->whereIn('payment_status', ['pending', 'partial', 'overdue'])
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+
+            $overduePayments = (clone $builder)
+                ->selectSum($balanceField, 'total_amount')
+                ->where('transaction_type', 'invoice')
+                ->where('due_date <', date('Y-m-d'))
+                ->where($balanceField . ' >', 0, false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+
+            $outstandingInvoices = (clone $builder)
+                ->where('transaction_type', 'invoice')
+                ->where($balanceField . ' >', 0, false)
+                ->countAllResults();
 
             $monthStart = date('Y-m-01 00:00:00');
             $monthEnd = date('Y-m-t 23:59:59');
@@ -200,15 +232,23 @@ class FinanceModel extends TenantAwareModel
                 ->get()
                 ->getRow()
                 ->total_amount ?? 0;
+            $monthlyInvoicePayments = $this->db->table('finance_payments')
+                ->selectSum('amount', 'total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('payment_date >=', date('Y-m-01'))
+                ->where('payment_date <=', date('Y-m-t'))
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
 
             return [
-                'total_revenue' => floatval($totalRevenue),
+                'total_revenue' => floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds),
                 'total_invoices' => floatval($totalInvoices),
                 'pending_payments' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
-                'monthly_revenue' => floatval($monthlyRevenue),
+                'monthly_revenue' => floatval($monthlyRevenue) + floatval($monthlyInvoicePayments),
                 'outstanding_invoices' => intval($outstandingInvoices),
-                'net_income' => floatval($totalRevenue) - floatval($totalInvoices)
+                'net_income' => (floatval($standalonePayments) + floatval($invoicePayments)) - floatval($refunds)
             ];
         } catch (\Exception $e) {
             log_message('error', 'Finance stats error: ' . $e->getMessage());
@@ -230,13 +270,57 @@ class FinanceModel extends TenantAwareModel
             $year = $year ?? date('Y');
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            return $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+            $standalone = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
                 ->where('clinic_id', $clinicId)
                 ->where('YEAR(created_at)', $year)
                 ->where('transaction_type', 'payment')
                 ->groupBy('MONTH(created_at)')
                 ->orderBy('month', 'ASC')
                 ->findAll();
+
+            $invoicePayments = $this->db->table('finance_payments')
+                ->select('MONTH(payment_date) as month, SUM(amount) as total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('YEAR(payment_date)', $year)
+                ->groupBy('MONTH(payment_date)')
+                ->orderBy('month', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $refunds = $this->db->table('finances')
+                ->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('YEAR(created_at)', $year)
+                ->where('transaction_type', 'refund')
+                ->groupBy('MONTH(created_at)')
+                ->orderBy('month', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $merged = [];
+            foreach ($standalone as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($invoicePayments as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($refunds as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) - floatval($row['total_amount'] ?? 0);
+            }
+
+            ksort($merged);
+            $result = [];
+            foreach ($merged as $month => $total) {
+                $result[] = [
+                    'month' => $month,
+                    'total_amount' => $total,
+                ];
+            }
+
+            return $result;
         } catch (\Exception $e) {
             log_message('error', 'Monthly revenue error: ' . $e->getMessage());
             return [];
@@ -274,17 +358,41 @@ class FinanceModel extends TenantAwareModel
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            $totalRevenue = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
+            $balanceField = $this->db->fieldExists('balance_due', 'finances') ? 'balance_due' : '(' . $sumField . ' - COALESCE(amount_paid, 0))';
+
+            $standalonePayments = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
             $totalInvoices = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
-            $pendingPayments = $builder->selectSum($sumField, 'total_amount')->where('payment_status', 'pending')->get()->getRow()->total_amount ?? 0;
-            $overduePayments = $builder->selectSum($sumField, 'total_amount')->where('payment_status', 'overdue')->get()->getRow()->total_amount ?? 0;
+            $refunds = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
+
+            $paymentBuilder = $this->db->table('finance_payments');
+            if ($startDate) {
+                $paymentBuilder->where('payment_date >=', $startDate);
+            }
+            if ($endDate) {
+                $paymentBuilder->where('payment_date <=', $endDate);
+            }
+            $invoicePayments = $paymentBuilder->selectSum('amount', 'total_amount')->get()->getRow()->total_amount ?? 0;
+
+            $pendingPayments = $builder->selectSum($balanceField, 'total_amount')
+                ->where('transaction_type', 'invoice')
+                ->whereIn('payment_status', ['pending', 'partial', 'overdue'])
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
+            $overduePayments = $builder->selectSum($balanceField, 'total_amount')
+                ->where('transaction_type', 'invoice')
+                ->where('due_date <', date('Y-m-d'))
+                ->where($balanceField . ' >', 0, false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
 
             return [
-                'total_revenue' => floatval($totalRevenue),
+                'total_revenue' => floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds),
                 'total_invoices' => floatval($totalInvoices),
                 'pending_payments' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
-                'net_income' => floatval($totalRevenue) - floatval($totalInvoices)
+                'net_income' => (floatval($standalonePayments) + floatval($invoicePayments)) - floatval($refunds)
             ];
         } catch (\Exception $e) {
             log_message('error', 'Finance stats error: ' . $e->getMessage());
@@ -298,24 +406,60 @@ class FinanceModel extends TenantAwareModel
         }
     }
 
-    public function getPaymentMethodsStats($startDate = null, $endDate = null)
+    public function getPaymentMethodsStats($startDate = null, $endDate = null, $clinicId = null)
     {
-        $builder = $this->db->table('finances');
-
-        if ($startDate) {
-            $builder->where('created_at >=', $startDate);
-        }
-        if ($endDate) {
-            $builder->where('created_at <=', $endDate);
-        }
-
         $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-        return $builder->select('payment_method, SUM(' . $sumField . ') as total_amount, COUNT(*) as transaction_count')
-            ->where('transaction_type', 'payment')
-            ->groupBy('payment_method')
-            ->get()
-            ->getResultArray();
+        $standaloneBuilder = $this->db->table('finances')
+            ->select('payment_method, SUM(' . $sumField . ') as total_amount, COUNT(*) as transaction_count')
+            ->where('transaction_type', 'payment');
+        if ($clinicId) {
+            $standaloneBuilder->where('clinic_id', $clinicId);
+        }
+        if ($startDate) {
+            $standaloneBuilder->where('created_at >=', $startDate);
+        }
+        if ($endDate) {
+            $standaloneBuilder->where('created_at <=', $endDate);
+        }
+        $standalone = $standaloneBuilder->groupBy('payment_method')->get()->getResultArray();
+
+        $invoiceBuilder = $this->db->table('finance_payments')
+            ->select('payment_method, SUM(amount) as total_amount, COUNT(*) as transaction_count');
+        if ($clinicId) {
+            $invoiceBuilder->where('clinic_id', $clinicId);
+        }
+        if ($startDate) {
+            $invoiceBuilder->where('payment_date >=', $startDate);
+        }
+        if ($endDate) {
+            $invoiceBuilder->where('payment_date <=', $endDate);
+        }
+        $invoicePayments = $invoiceBuilder->groupBy('payment_method')->get()->getResultArray();
+
+        $merged = [];
+        foreach ($standalone as $row) {
+            $method = $row['payment_method'] ?? 'unknown';
+            $merged[$method] = [
+                'payment_method' => $method,
+                'total_amount' => floatval($row['total_amount'] ?? 0),
+                'transaction_count' => intval($row['transaction_count'] ?? 0),
+            ];
+        }
+        foreach ($invoicePayments as $row) {
+            $method = $row['payment_method'] ?? 'unknown';
+            if (!isset($merged[$method])) {
+                $merged[$method] = [
+                    'payment_method' => $method,
+                    'total_amount' => 0,
+                    'transaction_count' => 0,
+                ];
+            }
+            $merged[$method]['total_amount'] += floatval($row['total_amount'] ?? 0);
+            $merged[$method]['transaction_count'] += intval($row['transaction_count'] ?? 0);
+        }
+
+        return array_values($merged);
     }
 
     public function getMonthlyRevenue($year = null)
@@ -325,32 +469,83 @@ class FinanceModel extends TenantAwareModel
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            return $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+            $standalone = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
                 ->where('YEAR(created_at)', $year)
                 ->where('transaction_type', 'payment')
                 ->groupBy('MONTH(created_at)')
                 ->orderBy('month', 'ASC')
                 ->findAll();
+
+            $invoicePayments = $this->db->table('finance_payments')
+                ->select('MONTH(payment_date) as month, SUM(amount) as total_amount')
+                ->where('YEAR(payment_date)', $year)
+                ->groupBy('MONTH(payment_date)')
+                ->orderBy('month', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $refunds = $this->db->table('finances')
+                ->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+                ->where('YEAR(created_at)', $year)
+                ->where('transaction_type', 'refund')
+                ->groupBy('MONTH(created_at)')
+                ->orderBy('month', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $merged = [];
+            foreach ($standalone as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($invoicePayments as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($refunds as $row) {
+                $month = (int) $row['month'];
+                $merged[$month] = ($merged[$month] ?? 0) - floatval($row['total_amount'] ?? 0);
+            }
+
+            ksort($merged);
+            $result = [];
+            foreach ($merged as $month => $total) {
+                $result[] = [
+                    'month' => $month,
+                    'total_amount' => $total,
+                ];
+            }
+
+            return $result;
         } catch (\Exception $e) {
             log_message('error', 'Monthly revenue error: ' . $e->getMessage());
             return [];
         }
     }
 
-    public function getOverduePayments()
+    public function getOverduePayments($clinicId = null)
     {
-        return $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+        $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id')
-            ->where('finances.payment_status', 'overdue')
+            ->where('finances.transaction_type', 'invoice')
             ->where('finances.due_date <', date('Y-m-d'))
-            ->orderBy('due_date', 'ASC')
-            ->findAll();
+            ->where('finances.balance_due >', 0);
+
+        if ($clinicId) {
+            $builder->where('finances.clinic_id', $clinicId)
+                ->where('patients.clinic_id', $clinicId);
+        }
+
+        return $builder->orderBy('due_date', 'ASC')->findAll();
     }
 
-    public function getServiceTypeStats($startDate = null, $endDate = null)
+    public function getServiceTypeStats($startDate = null, $endDate = null, $clinicId = null)
     {
         $builder = $this->db->table('finances');
 
+        if ($clinicId) {
+            $builder->where('clinic_id', $clinicId);
+        }
         if ($startDate) {
             $builder->where('created_at >=', $startDate);
         }

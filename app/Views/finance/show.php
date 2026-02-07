@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']); ?>
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="space-y-8">
         <!-- Page Header -->
@@ -47,8 +48,9 @@
                     <div class="text-center">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                             <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
+                                ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
                                 ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) ?>">
+                                ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
                             <?= ucfirst($finance['payment_status']) ?>
                         </span>
                         <p class="text-sm text-gray-600 mt-2">Payment Status</p>
@@ -193,7 +195,7 @@
                             <div class="flex justify-between font-semibold">
                                 <span class="text-sm text-gray-900">Total Amount:</span>
                                 <span class="text-sm text-gray-900">
-                                    <?= number_format($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount'], 2) ?> <?= $finance['currency'] ?>
+                                    <?= number_format($totalAmount, 2) ?> <?= $finance['currency'] ?>
                                 </span>
                             </div>
                         </div>
@@ -219,11 +221,22 @@
                             <label class="block text-sm font-medium text-gray-600 mb-2">Payment Status</label>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
+                                    ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
                                     ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                    ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) ?>">
+                                    ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
                                 <?= ucfirst($finance['payment_status']) ?>
                             </span>
                         </div>
+                        <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Amount Paid</label>
+                            <p class="text-sm text-gray-900"><?= number_format($finance['amount_paid'] ?? 0, 2) ?> <?= $finance['currency'] ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Balance Due</label>
+                            <p class="text-sm font-semibold text-red-700"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?> <?= $finance['currency'] ?></p>
+                        </div>
+                        <?php endif; ?>
                         <?php if (!empty($finance['paid_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-2">Paid Date</label>
@@ -268,6 +281,87 @@
             </div>
         </div>
 
+        <?php if ($finance['transaction_type'] === 'invoice'): ?>
+        <!-- Invoice Payments -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
+            <div class="px-8 py-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Invoice Payments</h3>
+                        <p class="text-sm text-gray-500">Track partial and full payments for this invoice</p>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Paid <?= number_format($paid_total ?? 0, 2) ?> / <?= number_format($totalAmount, 2) ?> <?= $finance['currency'] ?>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8 py-6 space-y-6">
+                <?php if (!empty($payments)): ?>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <?php foreach ($payments as $payment): ?>
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-gray-700"><?= date('M j, Y', strtotime($payment['payment_date'])) ?></td>
+                                    <td class="px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900"><?= number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?></td>
+                                    <td class="px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="text-sm text-gray-600">No payments recorded yet.</div>
+                <?php endif; ?>
+
+                <?php if (has_permission('finance', 'edit')): ?>
+                <div class="border-t pt-6">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Add Payment</h4>
+                    <form id="invoicePaymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <?= csrf_field() ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Amount</label>
+                            <input type="number" name="amount" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" placeholder="0.00" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Method</label>
+                            <select name="payment_method" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" required>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="check">Check</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Date</label>
+                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                        </div>
+                        <div class="md:col-span-4">
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Notes</label>
+                            <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" placeholder="Optional payment notes..."></textarea>
+                        </div>
+                        <div class="md:col-span-4 flex justify-end">
+                            <button type="submit" class="inline-flex items-center px-5 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                <i class="fas fa-plus mr-2"></i>Add Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Notes -->
         <?php if (!empty($finance['notes'])): ?>
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
@@ -307,11 +401,15 @@ function markAsPaid(transactionId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -323,6 +421,37 @@ function markAsPaid(transactionId) {
             alert('An error occurred while updating the transaction.');
         });
     }
+}
+
+const invoicePaymentForm = document.getElementById('invoicePaymentForm');
+if (invoicePaymentForm) {
+    invoicePaymentForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(invoicePaymentForm);
+        fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while adding the payment.');
+        });
+    });
 }
 </script>
 <?= $this->endSection() ?>

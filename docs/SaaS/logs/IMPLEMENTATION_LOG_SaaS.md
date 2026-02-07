@@ -1230,3 +1230,14 @@
     - **Settings UX:** Disabled kiosk controls when feature is off and clarified the toggle behavior in `app/Views/settings/index.php`.
     - **Arabic Support:** Enabled auto-direction and Arabic-friendly font fallback in `app/Views/layouts/kiosk.php` and `app/Views/kiosk/check_in.php`.
 - **Verification:** `docs/SaaS/verification/P5-KIOSK-02.md`.
+### Task: P5-FIN-01 Invoice Payments & Revenue Recognition
+- **Date:** 2026-02-07
+- **Status:** Completed
+- **Description:** Added invoice payment ledger, partial payments, and payment-based revenue recognition for tenant finance.
+- **Actions:**
+    - **Schema:** Added `finance_payments` table and `amount_paid`/`balance_due` columns on `finances` via migration.
+    - **Models:** Added `FinancePaymentModel`; updated `FinanceModel` stats and monthly revenue to include invoice payments and refunds.
+    - **Controllers:** Added invoice payment endpoint, synced invoice balance/status, and scoped finance reports to clinic.
+    - **Views:** Added due date/service details fields, invoice payment history, and balance display in finance show/invoice views.
+    - **Reports:** Updated finance charts/summary to use payment-based revenue.
+- **Verification:** `docs/SaaS/verification/P5-FIN-01.md`.

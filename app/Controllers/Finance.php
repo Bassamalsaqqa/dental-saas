@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\FinanceModel;
+use App\Models\FinancePaymentModel;
 use App\Models\PatientModel;
 use App\Models\ExaminationModel;
 use App\Services\ActivityLogger;
@@ -10,6 +11,7 @@ use App\Services\ActivityLogger;
 class Finance extends BaseController
 {
     protected $financeModel;
+    protected $financePaymentModel;
     protected $patientModel;
     protected $examinationModel;
     protected $activityLogger;
@@ -19,6 +21,7 @@ class Finance extends BaseController
     public function __construct()
     {
         $this->financeModel = new FinanceModel();
+        $this->financePaymentModel = new FinancePaymentModel();
         $this->patientModel = new PatientModel();
         $this->examinationModel = new ExaminationModel();
         $this->activityLogger = new ActivityLogger();
@@ -78,20 +81,37 @@ class Finance extends BaseController
         $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
         $taxAmount = floatval($this->request->getPost('tax_amount') ?? 0);
         $totalAmount = $amount - $discountAmount + $taxAmount;
+        $transactionType = $this->request->getPost('transaction_type');
+        $paymentStatus = $this->request->getPost('payment_status') ?? 'pending';
+        if ($transactionType === 'invoice' && $paymentStatus === 'partial') {
+            $paymentStatus = 'pending';
+        }
+
+        $amountPaid = 0;
+        $balanceDue = 0;
+        if ($transactionType === 'invoice') {
+            $amountPaid = 0;
+            $balanceDue = $totalAmount;
+        } else {
+            $amountPaid = $totalAmount;
+            $balanceDue = 0;
+        }
 
         $financeData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_id' => $this->request->getPost('examination_id'),
-            'transaction_type' => $this->request->getPost('transaction_type'),
+            'transaction_type' => $transactionType,
             'amount' => $amount,
             'currency' => settings()->get('currency', 'USD'),
             'payment_method' => $this->request->getPost('payment_method'),
-            'payment_status' => $this->request->getPost('payment_status') ?? 'pending',
+            'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
             'service_type' => $this->request->getPost('service_type'),
             'service_details' => $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
             'tax_amount' => $taxAmount,
+            'amount_paid' => $amountPaid,
+            'balance_due' => $balanceDue,
             'due_date' => $this->request->getPost('due_date'),
             'paid_date' => $this->request->getPost('paid_date'),
             'notes' => $this->request->getPost('notes'),
@@ -100,6 +120,20 @@ class Finance extends BaseController
 
         if ($this->financeModel->insert($financeData)) {
             $financeId = $this->financeModel->getInsertID();
+
+            if ($transactionType === 'invoice') {
+                if ($paymentStatus === 'paid') {
+                    $this->financePaymentModel->insert([
+                        'finance_id' => $financeId,
+                        'amount' => $totalAmount,
+                        'payment_method' => $this->request->getPost('payment_method') ?? 'cash',
+                        'payment_date' => $this->request->getPost('paid_date') ?? date('Y-m-d'),
+                        'notes' => 'Payment recorded on invoice creation',
+                        'created_by' => 1
+                    ]);
+                }
+                $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
+            }
 
             // Get patient name for the activity log
             $patient = $this->patientModel->find($financeData['patient_id']);
@@ -136,12 +170,21 @@ class Finance extends BaseController
 
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
         $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
+        $payments = [];
+        $paidTotal = 0;
+
+        if ($finance['transaction_type'] === 'invoice') {
+            $payments = $this->financePaymentModel->getPaymentsByInvoice($clinicId, $finance['id']);
+            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+        }
 
         $data = [
             'title' => 'Financial Transaction Details - ' . $finance['transaction_id'],
             'finance' => $finance,
             'patient' => $patient,
-            'examination' => $examination
+            'examination' => $examination,
+            'payments' => $payments,
+            'paid_total' => $paidTotal
         ];
 
         return $this->view('finance/show', $data);
@@ -205,25 +248,44 @@ class Finance extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
+        $amount = floatval($this->request->getPost('amount'));
+        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $taxAmount = floatval($this->request->getPost('tax_amount') ?? 0);
+        $totalAmount = $amount - $discountAmount + $taxAmount;
+
+        $amountPaid = floatval($finance['amount_paid'] ?? 0);
+        if ($this->request->getPost('transaction_type') !== 'invoice') {
+            $amountPaid = $totalAmount;
+        }
+
+        if ($this->request->getPost('transaction_type') === 'invoice' && $amountPaid > $totalAmount) {
+            return redirect()->back()->withInput()->with('error', 'Invoice total cannot be less than the amount already paid.');
+        }
+
         $financeData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_id' => $this->request->getPost('examination_id'),
             'transaction_type' => $this->request->getPost('transaction_type'),
-            'amount' => $this->request->getPost('amount'),
+            'amount' => $amount,
             'currency' => settings()->get('currency', 'USD'),
             'payment_method' => $this->request->getPost('payment_method'),
             'payment_status' => $this->request->getPost('payment_status'),
             'description' => $this->request->getPost('description'),
             'service_type' => $this->request->getPost('service_type'),
             'service_details' => $this->request->getPost('service_details'),
-            'discount_amount' => $this->request->getPost('discount_amount') ?? 0,
-            'tax_amount' => $this->request->getPost('tax_amount') ?? 0,
+            'discount_amount' => $discountAmount,
+            'tax_amount' => $taxAmount,
+            'amount_paid' => $amountPaid,
+            'balance_due' => max(0, $totalAmount - $amountPaid),
             'due_date' => $this->request->getPost('due_date'),
             'paid_date' => $this->request->getPost('paid_date'),
             'notes' => $this->request->getPost('notes')
         ];
 
         if ($this->financeModel->update($id, $financeData)) {
+            if ($financeData['transaction_type'] === 'invoice') {
+                $this->syncInvoicePaymentStatus($id, $clinicId);
+            }
             // Get patient name for the activity log (scoped)
             $patient = $this->patientModel->where('clinic_id', $clinicId)->find($financeData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
@@ -301,6 +363,11 @@ class Finance extends BaseController
 
     public function reports()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
 
@@ -308,11 +375,11 @@ class Finance extends BaseController
             'title' => 'Financial Reports',
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'stats' => $this->financeModel->getFinanceStats($startDate, $endDate),
-            'monthly_revenue' => $this->financeModel->getMonthlyRevenue(),
-            'payment_methods' => $this->financeModel->getPaymentMethodsStats($startDate, $endDate),
-            'service_types' => $this->financeModel->getServiceTypeStats($startDate, $endDate),
-            'overdue_payments' => $this->financeModel->getOverduePayments(),
+            'stats' => $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate),
+            'monthly_revenue' => $this->financeModel->getMonthlyRevenueByClinic($clinicId),
+            'payment_methods' => $this->financeModel->getPaymentMethodsStats($startDate, $endDate, $clinicId),
+            'service_types' => $this->financeModel->getServiceTypeStats($startDate, $endDate, $clinicId),
+            'overdue_payments' => $this->financeModel->getOverduePayments($clinicId),
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
         ];
@@ -372,30 +439,172 @@ class Finance extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'Financial transaction not found']);
             }
 
+            if ($finance['transaction_type'] === 'invoice') {
+                $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
+                $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+                $remaining = max(0, $totalAmount - $paidTotal);
+
+                if ($remaining <= 0) {
+                    return $this->response->setJSON(['success' => true, 'message' => 'Invoice already fully paid.']);
+                }
+
+                $paymentData = [
+                    'finance_id' => $finance['id'],
+                    'amount' => $remaining,
+                    'payment_method' => $finance['payment_method'] ?? 'cash',
+                    'payment_date' => date('Y-m-d'),
+                    'notes' => 'Full payment via Mark as Paid',
+                    'created_by' => 1
+                ];
+
+                $this->financePaymentModel->insert($paymentData);
+                $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Invoice marked as paid.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
             $updateData = [
                 'payment_status' => 'paid',
-                'paid_date' => date('Y-m-d')
+                'paid_date' => date('Y-m-d'),
+                'amount_paid' => floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount'])),
+                'balance_due' => 0
             ];
 
-            // Add debugging
-            log_message('info', 'Marking transaction as paid - ID: ' . $id . ', Data: ' . json_encode($updateData));
-
-            // Skip validation for this specific update
             $this->financeModel->setValidationRules([]);
             $result = $this->financeModel->update($id, $updateData);
 
             if ($result) {
-                log_message('info', 'Transaction marked as paid successfully - ID: ' . $id);
-                return $this->response->setJSON(['success' => true, 'message' => 'Transaction marked as paid']);
-            } else {
-                $errors = $this->financeModel->errors();
-                log_message('error', 'Failed to update transaction - ID: ' . $id . ', Errors: ' . json_encode($errors));
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update transaction: ' . implode(', ', $errors)]);
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Transaction marked as paid',
+                    'csrf_token' => csrf_hash()
+                ]);
             }
+
+            $errors = $this->financeModel->errors();
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to update transaction: ' . implode(', ', $errors),
+                'csrf_token' => csrf_hash()
+            ]);
         } catch (\Exception $e) {
             log_message('error', 'Exception in markAsPaid - ID: ' . $id . ', Error: ' . $e->getMessage());
-            return $this->response->setJSON(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash()
+            ]);
         }
+    }
+
+    public function addInvoicePayment($id)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
+            if (!$finance || $finance['transaction_type'] !== 'invoice') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invoice not found',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $amount = floatval($this->request->getPost('amount'));
+            if ($amount <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment amount must be greater than 0.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
+            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+            $remaining = max(0, $totalAmount - $paidTotal);
+
+            if ($amount > $remaining) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment exceeds remaining balance.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $paymentData = [
+                'finance_id' => $finance['id'],
+                'amount' => $amount,
+                'payment_method' => $this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash'),
+                'payment_date' => $this->request->getPost('payment_date') ?? date('Y-m-d'),
+                'notes' => $this->request->getPost('notes'),
+                'created_by' => 1
+            ];
+
+            if (!$this->financePaymentModel->insert($paymentData)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to add payment.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Payment added successfully.',
+                'csrf_token' => csrf_hash()
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Invoice payment error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash()
+            ]);
+        }
+    }
+
+    private function syncInvoicePaymentStatus($invoiceId, $clinicId)
+    {
+        $finance = $this->financeModel->findByClinic($clinicId, $invoiceId);
+        if (!$finance || $finance['transaction_type'] !== 'invoice') {
+            return;
+        }
+
+        $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
+        $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+        $balanceDue = max(0, $totalAmount - $paidTotal);
+
+        $status = 'pending';
+        if ($balanceDue <= 0) {
+            $status = 'paid';
+        } elseif (!empty($finance['due_date']) && strtotime($finance['due_date']) < strtotime(date('Y-m-d'))) {
+            $status = 'overdue';
+        } elseif ($paidTotal > 0 && $balanceDue > 0) {
+            $status = 'partial';
+        }
+
+        $updateData = [
+            'amount_paid' => $paidTotal,
+            'balance_due' => $balanceDue,
+            'payment_status' => $status,
+        ];
+
+        if ($status === 'paid' && empty($finance['paid_date'])) {
+            $updateData['paid_date'] = date('Y-m-d');
+        }
+
+        $this->financeModel->setValidationRules([]);
+        $this->financeModel->update($finance['id'], $updateData);
     }
 
     public function generateInvoice($id)
@@ -413,12 +622,20 @@ class Finance extends BaseController
 
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
         $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
+        $payments = [];
+        $paidTotal = 0;
+        if ($finance['transaction_type'] === 'invoice') {
+            $payments = $this->financePaymentModel->getPaymentsByInvoice($clinicId, $finance['id']);
+            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+        }
 
         $data = [
             'title' => 'Invoice - ' . $finance['transaction_id'],
             'finance' => $finance,
             'patient' => $patient,
             'examination' => $examination,
+            'payments' => $payments,
+            'paid_total' => $paidTotal,
             'clinic' => settings()->getClinicInfo()
         ];
 

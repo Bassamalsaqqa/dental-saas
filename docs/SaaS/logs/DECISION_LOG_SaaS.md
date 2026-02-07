@@ -24,3 +24,7 @@
 - Decision: Kiosk check-in is controlled by a plan feature flag (`features.kiosk.enabled`) and remains fail-closed even if the clinic settings toggle is enabled.
 - Rationale: Feature access must be commercial-plan driven and enforced in public kiosk endpoints.
 - Impact: Clinics without the feature cannot enable or access kiosk check-in.
+### [2026-02-07] Revenue Recognition Basis for Tenant Finance
+- **Decision:** Revenue metrics are computed on **payments received** (standalone payments + invoice payments) minus refunds. Invoices do not count as revenue until paid.
+- **Rationale:** Matches cash-basis expectations in small clinics and supports partial payments without double-counting.
+- **Impacted Areas:** Finance stats, monthly revenue, reports, dashboard.

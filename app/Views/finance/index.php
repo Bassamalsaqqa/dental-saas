@@ -674,12 +674,14 @@ $(document).ready(function() {
                     const statusColors = {
                         'paid': 'bg-green-100 text-green-800',
                         'pending': 'bg-yellow-100 text-yellow-800',
+                        'partial': 'bg-blue-100 text-blue-800',
                         'overdue': 'bg-red-100 text-red-800',
                         'cancelled': 'bg-gray-100 text-gray-800'
                     };
                     const statusIcons = {
                         'paid': 'fas fa-check-circle',
                         'pending': 'fas fa-clock',
+                        'partial': 'fas fa-adjust',
                         'overdue': 'fas fa-exclamation-triangle',
                         'cancelled': 'fas fa-times-circle'
                     };

@@ -182,6 +182,7 @@
                                     <select name="payment_status" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value="pending" <?= (old('payment_status') == 'pending') ? 'selected' : '' ?>>Pending</option>
                                         <option value="paid" <?= (old('payment_status') == 'paid') ? 'selected' : '' ?>>Paid</option>
+                                        <option value="partial" <?= (old('payment_status') == 'partial') ? 'selected' : '' ?>>Partial</option>
                                         <option value="overdue" <?= (old('payment_status') == 'overdue') ? 'selected' : '' ?>>Overdue</option>
                                         <option value="cancelled" <?= (old('payment_status') == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
                                     </select>
@@ -201,6 +202,20 @@
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Due Date -->
+                        <div class="group/field relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                <i class="fas fa-calendar-day text-orange-600"></i>
+                                <span>Due Date</span>
+                            </label>
+                            <div class="relative">
+                                <input type="date" name="due_date" value="<?= old('due_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-calendar text-gray-400"></i>
                                 </div>
                             </div>
                         </div>
@@ -230,6 +245,20 @@
                                     <span><?= session()->getFlashdata('validation')->getError('service_type') ?></span>
                                 </p>
                             <?php endif; ?>
+                        </div>
+
+                        <!-- Service Details -->
+                        <div class="group/field relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                <i class="fas fa-notes-medical text-emerald-600"></i>
+                                <span>Service Details</span>
+                            </label>
+                            <div class="relative">
+                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Details about the service provided..."><?= old('service_details') ?></textarea>
+                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                            </div>
                         </div>
 
 

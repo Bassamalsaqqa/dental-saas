@@ -228,6 +228,9 @@ class Reports extends BaseController
         log_message('info', 'Reports: Examination types data: ' . json_encode($examinationTypesData));
         log_message('info', 'Reports: Appointment status data: ' . json_encode($appointmentStatusData));
         
+        $totalRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId);
+        $periodRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
+
         return [
             'summary' => [
                 'total_patients' => $this->patientModel->where('clinic_id', $clinicId)->countAllResults(),
@@ -236,8 +239,8 @@ class Reports extends BaseController
                 'examinations_this_period' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->countAllResults(),
                 'total_appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->countAllResults(),
                 'appointments_this_period' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->countAllResults(),
-                'total_revenue' => $this->financeModel->selectSum('total_amount')->where('clinic_id', $clinicId)->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0,
-                'revenue_this_period' => $this->financeModel->selectSum('total_amount')->where('clinic_id', $clinicId)->where('transaction_type', 'payment')->where('created_at >=', $startDate)->get()->getRow()->total_amount ?? 0,
+                'total_revenue' => $totalRevenueStats['total_revenue'] ?? 0,
+                'revenue_this_period' => $periodRevenueStats['total_revenue'] ?? 0,
             ],
             'charts' => [
                 'monthly_patients' => $this->getMonthlyPatientsData(),
@@ -378,20 +381,24 @@ class Reports extends BaseController
             return [];
         }
 
+        $year = date('Y');
+        $monthlyRevenue = $this->financeModel->getMonthlyRevenueByClinic($clinicId, $year);
+        $existingData = [];
+
+        foreach ($monthlyRevenue as $row) {
+            $existingData[(int) $row['month']] = floatval($row['total_amount'] ?? 0);
+        }
+
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = date('Y-m-01', strtotime("-{$i} months"));
-            $revenue = $this->financeModel->selectSum('total_amount')
-                                        ->where('clinic_id', $clinicId)
-                                        ->where('transaction_type', 'payment')
-                                        ->where('MONTH(created_at)', date('n', strtotime($date)))
-                                        ->where('YEAR(created_at)', date('Y', strtotime($date)))
-                                        ->get()->getRow()->total_amount ?? 0;
+            $monthIndex = (int) date('n', strtotime($date));
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
-                'amount' => (float)$revenue
+                'amount' => $existingData[$monthIndex] ?? 0
             ];
         }
+
         return $data;
     }
 
@@ -545,11 +552,19 @@ class Reports extends BaseController
 
     private function getPaymentMethodsData()
     {
-        return $this->financeModel->select('payment_method, COUNT(*) as count, SUM(total_amount) as total_amount')
-                                 ->where('clinic_id', session()->get('active_clinic_id'))
-                                 ->where('transaction_type', 'payment')
-                                 ->groupBy('payment_method')
-                                 ->findAll();
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return [];
+        }
+
+        $rows = $this->financeModel->getPaymentMethodsStats(null, null, $clinicId);
+        return array_map(function ($row) {
+            return [
+                'payment_method' => $row['payment_method'] ?? 'unknown',
+                'count' => $row['transaction_count'] ?? 0,
+                'total_amount' => $row['total_amount'] ?? 0,
+            ];
+        }, $rows);
     }
 
     private function getOutstandingPaymentsData()
@@ -559,7 +574,10 @@ class Reports extends BaseController
             return [];
         }
 
-        return $this->financeModel->where('clinic_id', $clinicId)->where('payment_status', 'pending')->findAll();
+        return $this->financeModel->where('clinic_id', $clinicId)
+            ->where('transaction_type', 'invoice')
+            ->where('balance_due >', 0)
+            ->findAll();
     }
 
     private function getTreatmentTypesData()

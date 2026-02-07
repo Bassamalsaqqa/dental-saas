@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']); ?>
 <!-- Professional Invoice Document -->
 <div class="min-h-screen bg-gray-100 py-8">
     <div class="max-w-4xl mx-auto">
@@ -68,8 +69,9 @@
                                         <span class="font-semibold text-gray-700">Status:</span>
                                         <span class="px-3 py-1 rounded-full text-xs font-semibold
                                             <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
+                                                ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
                                                 ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                                ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) ?>">
+                                                ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
                                             <?= ucfirst($finance['payment_status']) ?>
                                         </span>
                                     </div>
@@ -198,17 +200,57 @@
                                     <span class="text-sm font-semibold text-gray-900"><?= formatCurrency($finance['tax_amount']) ?></span>
                                 </div>
                                 <?php endif; ?>
+
+                                <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                                <div class="flex justify-between items-center py-2 px-3 bg-emerald-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Amount Paid:</span>
+                                    <span class="text-sm font-semibold text-emerald-700"><?= formatCurrency($finance['amount_paid'] ?? 0) ?></span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 px-3 bg-red-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Balance Due:</span>
+                                    <span class="text-sm font-semibold text-red-700"><?= formatCurrency($finance['balance_due'] ?? $totalAmount) ?></span>
+                                </div>
+                                <?php endif; ?>
                                 
                                 <div class="border-t-2 border-gray-400 pt-3">
                                     <div class="flex justify-between items-center py-3 px-3 bg-blue-50 rounded-lg">
                                         <span class="text-lg font-bold text-gray-900">TOTAL AMOUNT:</span>
-                                        <span class="text-xl font-bold text-blue-600"><?= formatCurrency($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']) ?></span>
+                                        <span class="text-xl font-bold text-blue-600"><?= formatCurrency($totalAmount) ?></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <?php if (!empty($payments)): ?>
+                <!-- Payment History -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">PAYMENT HISTORY</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Date</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Method</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700">Amount</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($payments as $payment): ?>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= formatDate($payment['payment_date']) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= formatCurrency($payment['amount']) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Payment Information -->
                 <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
