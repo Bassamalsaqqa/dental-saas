@@ -161,15 +161,15 @@ class ExaminationModel extends TenantAwareModel
     public function getExaminationStatsByClinic($clinicId)
     {
         try {
-            $builder = $this->db->table('examinations')
+            $base = $this->db->table('examinations')
                 ->where('clinic_id', $clinicId);
-            
+
             return [
-                'total_examinations' => $builder->countAllResults(false),
-                'pending_examinations' => $builder->where('status', 'pending')->countAllResults(false),
-                'completed_examinations' => $builder->where('status', 'completed')->countAllResults(false),
-                'today_examinations' => $builder->where('status', 'completed')->where('DATE(examination_date)', date('Y-m-d'))->countAllResults(false),
-                'emergency_examinations' => $builder->where('examination_type', 'emergency')->countAllResults(false)
+                'total_examinations' => (clone $base)->countAllResults(),
+                'pending_examinations' => (clone $base)->where('status', 'pending')->countAllResults(),
+                'completed_examinations' => (clone $base)->where('status', 'completed')->countAllResults(),
+                'today_examinations' => (clone $base)->where('status', 'completed')->where('DATE(examination_date)', date('Y-m-d'))->countAllResults(),
+                'emergency_examinations' => (clone $base)->where('examination_type', 'emergency')->countAllResults()
             ];
         } catch (\Exception $e) {
             log_message('error', 'Examination stats error: ' . $e->getMessage());
