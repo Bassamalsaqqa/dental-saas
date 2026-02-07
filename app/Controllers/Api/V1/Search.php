@@ -146,9 +146,23 @@ class Search extends Controller
 
         $results = [];
         foreach ($examinations as $examination) {
+            $date = !empty($examination['examination_date']) ? date('M d, Y', strtotime($examination['examination_date'])) : 'No date';
+            $type = !empty($examination['examination_type']) ? ucfirst(str_replace('_', ' ', $examination['examination_type'])) : 'Unknown';
+            $patientName = trim(($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? ''));
+            $examId = $examination['examination_id'] ?? $examination['id'] ?? '';
+            $parts = [];
+            if ($examId !== '') {
+                $parts[] = $examId;
+            }
+            $parts[] = $date;
+            $parts[] = $type;
+            if ($patientName !== '') {
+                $parts[] = $patientName;
+            }
+            $text = implode(' • ', $parts);
             $results[] = [
                 'id' => $examination['id'],
-                'text' => $examination['examination_id'],
+                'text' => $text,
                 'value' => $examination['id']
             ];
         }
