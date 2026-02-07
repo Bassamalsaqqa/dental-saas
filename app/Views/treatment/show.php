@@ -199,15 +199,22 @@
 <script>
 function completeTreatment(id) {
     if (confirm('Are you sure you want to mark this treatment as completed?')) {
+        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
+        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('treatment') ?>/${id}/complete`, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data && data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 location.reload();
             } else {
@@ -227,15 +234,22 @@ function printTreatment(id) {
 
 function deleteTreatment(id) {
     if (confirm('Are you sure you want to delete this treatment? This action cannot be undone.')) {
+        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
+        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('treatment') ?>/${id}`, {
             method: 'DELETE',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())
         .then(data => {
+            if (data && data.csrf_token && window.refreshCsrfToken) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
             if (data.success) {
                 window.location.href = '<?= base_url('treatment') ?>';
             } else {
