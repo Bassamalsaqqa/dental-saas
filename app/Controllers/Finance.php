@@ -28,10 +28,11 @@ class Finance extends BaseController
 
     public function index()
     {
+        $clinicId = session()->get('active_clinic_id');
         $data = [
             'title' => 'Finance Management',
             'finances' => [], // Data will be loaded via AJAX
-            'stats' => $this->financeModel->getFinanceStats(),
+            'stats' => $clinicId ? $this->financeModel->getFinanceStatsByClinic($clinicId) : [],
             'disableDataTables' => true, // Disable DataTables scripts for custom implementation
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
@@ -321,10 +322,15 @@ class Finance extends BaseController
 
     public function getFinanceStats()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $startDate = $this->request->getGet('start_date');
         $endDate = $this->request->getGet('end_date');
 
-        $stats = $this->financeModel->getFinanceStats($startDate, $endDate);
+        $stats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
 
         // Format currency values
         if (isset($stats['total_revenue'])) {

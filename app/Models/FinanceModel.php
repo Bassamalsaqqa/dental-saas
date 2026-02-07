@@ -187,12 +187,27 @@ class FinanceModel extends TenantAwareModel
             $totalInvoices = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
             $pendingPayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'pending')->get()->getRow()->total_amount ?? 0;
             $overduePayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('payment_status', 'overdue')->get()->getRow()->total_amount ?? 0;
+            $outstandingInvoices = (clone $builder)->where('transaction_type', 'invoice')->whereIn('payment_status', ['pending', 'overdue'])->countAllResults();
+
+            $monthStart = date('Y-m-01 00:00:00');
+            $monthEnd = date('Y-m-t 23:59:59');
+            $monthlyRevenue = $this->db->table('finances')
+                ->selectSum($sumField, 'total_amount')
+                ->where('clinic_id', $clinicId)
+                ->where('transaction_type', 'payment')
+                ->where('created_at >=', $monthStart)
+                ->where('created_at <=', $monthEnd)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
 
             return [
                 'total_revenue' => floatval($totalRevenue),
                 'total_invoices' => floatval($totalInvoices),
                 'pending_payments' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
+                'monthly_revenue' => floatval($monthlyRevenue),
+                'outstanding_invoices' => intval($outstandingInvoices),
                 'net_income' => floatval($totalRevenue) - floatval($totalInvoices)
             ];
         } catch (\Exception $e) {
@@ -202,6 +217,8 @@ class FinanceModel extends TenantAwareModel
                 'total_invoices' => 0,
                 'pending_payments' => 0,
                 'overdue_payments' => 0,
+                'monthly_revenue' => 0,
+                'outstanding_invoices' => 0,
                 'net_income' => 0
             ];
         }
