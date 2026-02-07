@@ -130,13 +130,25 @@ class Odontogram extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
+        $examinationId = $this->request->getGet('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        if ($examinationId) {
+            $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam || (int)$exam['patient_id'] !== (int)$patientId) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
+            }
+        }
+
         $data = [
             'title' => 'Odontogram - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
-            'odontogram' => $this->odontogramModel->getOdontogramByPatient($patientId),
+            'odontogram' => $examinationId
+                ? $this->odontogramModel->getOdontogramByExamination($examinationId)
+                : $this->odontogramModel->getOdontogramByPatient($patientId),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
-            'stats' => $this->odontogramModel->getOdontogramStats($patientId)
+            'stats' => $this->odontogramModel->getOdontogramStats($patientId, $examinationId),
+            'examination_id' => $examinationId
         ];
 
         return $this->view('odontogram/index', $data);
@@ -156,6 +168,14 @@ class Odontogram extends BaseController
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
         if (!$patient) {
              return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient']);
+        }
+
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        if ($examinationId) {
+            $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam || (int)$exam['patient_id'] !== (int)$patientId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid examination']);
+            }
         }
 
         $toothNumber = $this->request->getPost('tooth_number');
@@ -190,6 +210,7 @@ class Odontogram extends BaseController
         }
 
         $patientId = $this->request->getGet('patient_id');
+        $examinationId = $this->request->getGet('examination_id');
         
         // Verify patient ownership
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
@@ -199,7 +220,15 @@ class Odontogram extends BaseController
 
         $toothNumber = $this->request->getGet('tooth_number');
 
-        $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber);
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        if ($examinationId) {
+            $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam || (int)$exam['patient_id'] !== (int)$patientId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid examination']);
+            }
+        }
+
+        $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber, $examinationId);
         
         return $this->response->setJSON($condition);
     }
@@ -236,6 +265,7 @@ class Odontogram extends BaseController
         }
 
         $patientId = $this->request->getPost('patient_id');
+        $examinationId = $this->request->getPost('examination_id');
         
         // Verify patient ownership
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
@@ -245,7 +275,15 @@ class Odontogram extends BaseController
 
         $toothNumber = $this->request->getPost('tooth_number');
 
-        $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber);
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        if ($examinationId) {
+            $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam || (int)$exam['patient_id'] !== (int)$patientId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid examination']);
+            }
+        }
+
+        $condition = $this->odontogramModel->getToothCondition($patientId, $toothNumber, $examinationId);
         
         if ($condition) {
             if ($this->odontogramModel->delete($condition['id'])) {

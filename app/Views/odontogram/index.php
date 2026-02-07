@@ -659,7 +659,7 @@ function getStatusText($status) {
                     <?= csrf_field() ?>
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <input type="hidden" name="patient_id" value="<?= $patient['id'] ?>">
-                    <input type="hidden" name="examination_id" value="">
+                    <input type="hidden" name="examination_id" value="<?= esc($examination_id ?? '') ?>">
                     
                     <!-- Condition Type Selection -->
                     <div class="space-y-2">
@@ -728,6 +728,7 @@ function getStatusText($status) {
 
 <script>
 const patientId = <?= $patient['id'] ?>;
+const examinationId = <?= isset($examination_id) && $examination_id ? (int)$examination_id : 'null' ?>;
 const odontogramData = <?= json_encode($odontogram) ?>;
 const conditionTypes = <?= json_encode($condition_types) ?>;
 const svgNS = 'http://www.w3.org/2000/svg';
@@ -1434,7 +1435,8 @@ function attachFormHandler() {
                         treatment_notes: formData.get('treatment_notes'),
                         treatment_status: formData.get('treatment_status'),
                         treatment_date: new Date().toISOString().split('T')[0],
-                        created_by: 1
+                        created_by: 1,
+                        examination_id: examinationId || null
                     };
 
                     if (existingIndex !== -1) {
@@ -1500,7 +1502,7 @@ function resetTooth() {
     fetch('<?= base_url('odontogram/reset-tooth') ?>', {
         method: 'POST',
         headers,
-        body: `patient_id=${patientId}&tooth_number=${toothNumber}`
+        body: `patient_id=${patientId}&tooth_number=${toothNumber}${examinationId ? `&examination_id=${examinationId}` : ''}`
     })
         .then(response => {
             if (!response.ok) {

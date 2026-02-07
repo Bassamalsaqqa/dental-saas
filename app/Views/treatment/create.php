@@ -46,6 +46,7 @@
                 <div class="p-8"> 
                     <form action="<?= base_url('treatment/store') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
+                        <input type="hidden" name="examination_id" value="<?= esc($selected_examination_id ?? '') ?>">
                         <!-- Patient Selection -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
@@ -61,6 +62,13 @@
                                                                         data-placeholder="Search patients by name, phone, or ID..."
                                                                         required>
                                                                     <option value="">Select a patient</option>
+                                                                    <?php if (!empty($patients)): ?>
+                                                                        <?php foreach ($patients as $patient): ?>
+                                                                            <option value="<?= $patient['id'] ?>" selected>
+                                                                                <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                                            </option>
+                                                                        <?php endforeach; ?>
+                                                                    <?php endif; ?>
                                                                 </select>
                                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                                     <i class="fas fa-chevron-down text-gray-400"></i>

@@ -210,12 +210,25 @@ class Treatment extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create a treatment.');
         }
 
+        $examinationId = $this->request->getGet('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        $selectedPatient = null;
+        if ($examinationId) {
+            $exam = (new \App\Models\ExaminationModel())->where('clinic_id', $clinicId)->find($examinationId);
+            if ($exam) {
+                $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($exam['patient_id']);
+            } else {
+                return redirect()->to('/treatment')->with('error', 'Examination not found.');
+            }
+        }
+
         $data = [
             'title' => 'Create New Treatment',
-            'patients' => [], // S4-02f: No bulk preload
+            'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'treatment_types' => $this->getTreatmentTypes(),
             'validation' => null, // Initialize validation as null
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'selected_examination_id' => $examinationId
         ];
 
         return $this->view('treatment/create', $data);
@@ -236,22 +249,43 @@ class Treatment extends BaseController
             'cost' => 'required|decimal|greater_than[0]',
             'start_date' => 'required|valid_date',
             'estimated_duration' => 'required|integer|greater_than[0]',
+            'examination_id' => 'permit_empty|integer'
         ];
 
         if (!$this->validate($rules)) {
+            $examId = $this->request->getPost('examination_id');
+            $examId = is_numeric($examId) ? (int)$examId : null;
+            $selectedPatient = null;
+            if ($examId) {
+                $exam = (new \App\Models\ExaminationModel())->where('clinic_id', $clinicId)->find($examId);
+                if ($exam) {
+                    $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($exam['patient_id']);
+                }
+            }
             $data = [
                 'title' => 'Create New Treatment',
-                'patients' => [], 
+                'patients' => $selectedPatient ? [$selectedPatient] : [], 
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
-                'loadSelect2' => true
+                'loadSelect2' => true,
+                'selected_examination_id' => $examId
             ];
             return $this->view('treatment/create', $data);
+        }
+
+        $examinationId = $this->request->getPost('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+        if ($examinationId) {
+            $exam = (new \App\Models\ExaminationModel())->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam || (int)$exam['patient_id'] !== (int)$this->request->getPost('patient_id')) {
+                return redirect()->back()->withInput()->with('error', 'Invalid examination selection.');
+            }
         }
 
         $treatmentData = [
             'clinic_id' => $clinicId,
             'patient_id' => $this->request->getPost('patient_id'),
+            'examination_id' => $examinationId,
             'treatment_name' => $this->getTreatmentName($this->request->getPost('treatment_type')),
             'treatment_type' => $this->request->getPost('treatment_type'),
             'tooth_number' => $this->request->getPost('tooth_number') ?: null,
@@ -276,6 +310,9 @@ class Treatment extends BaseController
                 "New {$treatmentData['treatment_type']} treatment created for {$patientName} - Cost: " . settings()->getCurrencySymbol() . number_format($treatmentData['cost'], 2)
             );
             
+            if ($examinationId) {
+                return redirect()->to('/examination/' . $examinationId)->with('success', 'Treatment has been created successfully!');
+            }
             return redirect()->to('/treatment')->with('success', 'Treatment has been created successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create treatment. Please check your input and try again.');

@@ -356,7 +356,7 @@
                     <p class="text-sm text-gray-500">Visual dental chart and tooth records</p>
                 </div>
             </div>
-            <a href="<?= base_url('odontogram/' . $examination['patient_id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+            <a href="<?= base_url('odontogram/' . $examination['patient_id'] . '?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                 <i class="fas fa-tooth mr-2"></i>View Full Odontogram
             </a>
         </div>
@@ -374,7 +374,7 @@
                     <i class="fas fa-tooth text-gray-400 text-2xl"></i>
                 </div>
                 <p class="text-gray-600 mb-4">No odontogram data recorded for this examination.</p>
-                <a href="<?= base_url('odontogram/' . $examination['patient_id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= base_url('odontogram/' . $examination['patient_id'] . '?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-plus mr-2"></i>Create Odontogram
                 </a>
             </div>
@@ -410,7 +410,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-semibold text-gray-900"><?= $treatment['treatment_name'] ?></h3>
-                                    <p class="text-sm text-gray-600"><?= $treatment['description'] ?></p>
+                                    <p class="text-sm text-gray-600"><?= $treatment['treatment_description'] ?? '' ?></p>
                                 </div>
                             </div>
                             <a href="<?= base_url('treatment/' . $treatment['id']) ?>" class="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="View Treatment Details">

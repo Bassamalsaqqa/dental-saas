@@ -77,6 +77,7 @@ class OdontogramModel extends TenantAwareModel
     public function getOdontogramByPatient($patientId)
     {
         return $this->where('patient_id', $patientId)
+            ->where('examination_id', null)
             ->orderBy('tooth_number', 'ASC')
             ->findAll();
     }
@@ -90,9 +91,15 @@ class OdontogramModel extends TenantAwareModel
 
     public function updateToothCondition($patientId, $toothNumber, $conditionData)
     {
-        $existing = $this->where('patient_id', $patientId)
-            ->where('tooth_number', $toothNumber)
-            ->first();
+        $examinationId = $conditionData['examination_id'] ?? null;
+        $query = $this->where('patient_id', $patientId)
+            ->where('tooth_number', $toothNumber);
+        if (!empty($examinationId)) {
+            $query->where('examination_id', $examinationId);
+        } else {
+            $query->where('examination_id', null);
+        }
+        $existing = $query->first();
 
         // Map the incoming data to match database fields
         $mappedData = [
@@ -115,17 +122,28 @@ class OdontogramModel extends TenantAwareModel
         }
     }
 
-    public function getToothCondition($patientId, $toothNumber)
+    public function getToothCondition($patientId, $toothNumber, $examinationId = null)
     {
-        return $this->where('patient_id', $patientId)
-            ->where('tooth_number', $toothNumber)
-            ->first();
+        $query = $this->where('patient_id', $patientId)
+            ->where('tooth_number', $toothNumber);
+        if (!empty($examinationId)) {
+            $query->where('examination_id', $examinationId);
+        } else {
+            $query->where('examination_id', null);
+        }
+        return $query->first();
     }
 
-    private function countByCondition(int $patientId, array $conditionTypes = null, bool $exclude = false): int
+    private function countByCondition(int $patientId, array $conditionTypes = null, bool $exclude = false, $examinationId = null): int
     {
         $builder = $this->db->table('odontograms')
             ->where('patient_id', $patientId);
+
+        if (!empty($examinationId)) {
+            $builder->where('examination_id', $examinationId);
+        } else {
+            $builder->where('examination_id', null);
+        }
 
         if ($conditionTypes !== null) {
             if ($exclude) {
@@ -138,22 +156,22 @@ class OdontogramModel extends TenantAwareModel
         return $builder->countAllResults();
     }
 
-    public function getOdontogramStats($patientId)
+    public function getOdontogramStats($patientId, $examinationId = null)
     {
         $totalTeeth = 32;
-        $problematicTeeth = $this->countByCondition($patientId, ['healthy'], true);
+        $problematicTeeth = $this->countByCondition($patientId, ['healthy'], true, $examinationId);
 
         return [
-            'total_conditions' => $this->countByCondition($patientId),
+            'total_conditions' => $this->countByCondition($patientId, null, false, $examinationId),
             'total_teeth' => $totalTeeth,
             'healthy_count' => max(0, $totalTeeth - $problematicTeeth),
-            'treated_count' => $this->countByCondition($patientId, ['filling', 'crown', 'bridge', 'implant']),
-            'needs_treatment_count' => $this->countByCondition($patientId, ['cavity', 'extracted']),
-            'cavities' => $this->countByCondition($patientId, ['cavity']),
-            'fillings' => $this->countByCondition($patientId, ['filling']),
-            'crowns' => $this->countByCondition($patientId, ['crown']),
-            'extracted' => $this->countByCondition($patientId, ['extracted']),
-            'root_canals' => $this->countByCondition($patientId, ['root_canal'])
+            'treated_count' => $this->countByCondition($patientId, ['filling', 'crown', 'bridge', 'implant'], false, $examinationId),
+            'needs_treatment_count' => $this->countByCondition($patientId, ['cavity', 'extracted'], false, $examinationId),
+            'cavities' => $this->countByCondition($patientId, ['cavity'], false, $examinationId),
+            'fillings' => $this->countByCondition($patientId, ['filling'], false, $examinationId),
+            'crowns' => $this->countByCondition($patientId, ['crown'], false, $examinationId),
+            'extracted' => $this->countByCondition($patientId, ['extracted'], false, $examinationId),
+            'root_canals' => $this->countByCondition($patientId, ['root_canal'], false, $examinationId)
         ];
     }
 
