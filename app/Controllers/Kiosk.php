@@ -156,11 +156,22 @@ class Kiosk extends BaseController
             'pin_required' => true,
             'pin_verified' => true,
             'appointments' => $matching,
-            'lookup_phone' => $this->maskPhone($normalizedPhone),
+            'lookup_phone' => $normalizedPhone,
         ];
 
         if (empty($matching)) {
             $data['info_message'] = 'No scheduled appointments found for today.';
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'appointments' => $matching,
+                'lookup_phone' => $normalizedPhone,
+                'info_message' => $data['info_message'] ?? '',
+                'csrf_name' => csrf_token(),
+                'csrf_token' => csrf_hash(),
+            ]);
         }
 
         return $this->view('kiosk/check_in', $data);
