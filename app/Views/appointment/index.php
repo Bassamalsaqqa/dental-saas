@@ -606,11 +606,11 @@
                         <div class="space-y-4 p-6 pt-0 flex-1">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200">
-                                    <div class="text-3xl font-black text-blue-900"><?= $stats['today'] ?? 0 ?></div>
+                                      <div class="text-3xl font-black text-blue-900"><?= $stats['total_appointments'] ?? 0 ?></div>
                                     <div class="text-sm font-bold text-blue-700 uppercase tracking-wider">Total</div>
                                 </div>
                                 <div class="text-center p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
-                                    <div class="text-3xl font-black text-green-900"><?= $stats['scheduled'] ?? 0 ?></div>
+                                      <div class="text-3xl font-black text-green-900"><?= $stats['upcoming_appointments'] ?? 0 ?></div>
                                     <div class="text-sm font-bold text-green-700 uppercase tracking-wider">Scheduled</div>
                                 </div>
                             </div>

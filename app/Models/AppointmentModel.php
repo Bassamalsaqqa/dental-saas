@@ -143,15 +143,15 @@ class AppointmentModel extends TenantAwareModel
     public function getAppointmentStatsByClinic($clinicId)
     {
         try {
-            $builder = $this->db->table('appointments')
+            $base = $this->db->table('appointments')
                 ->where('clinic_id', $clinicId);
-            
+
             return [
-                'total_appointments' => $builder->countAllResults(false),
-                'today_appointments' => $builder->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(false),
-                'upcoming_appointments' => $builder->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(false),
-                'completed_appointments' => $builder->where('status', 'completed')->countAllResults(false),
-                'cancelled_appointments' => $builder->where('status', 'cancelled')->countAllResults(false)
+                'total_appointments' => (clone $base)->countAllResults(),
+                'today_appointments' => (clone $base)->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(),
+                'upcoming_appointments' => (clone $base)->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(),
+                'completed_appointments' => (clone $base)->where('status', 'completed')->countAllResults(),
+                'cancelled_appointments' => (clone $base)->where('status', 'cancelled')->countAllResults()
             ];
         } catch (\Exception $e) {
             log_message('error', 'Appointment stats error: ' . $e->getMessage());
@@ -323,14 +323,14 @@ class AppointmentModel extends TenantAwareModel
     public function getAppointmentStats()
     {
         try {
-            $builder = $this->db->table('appointments');
-            
+            $base = $this->db->table('appointments');
+
             return [
-                'total_appointments' => $builder->countAllResults(false),
-                'today_appointments' => $builder->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(false),
-                'upcoming_appointments' => $builder->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(false),
-                'completed_appointments' => $builder->where('status', 'completed')->countAllResults(false),
-                'cancelled_appointments' => $builder->where('status', 'cancelled')->countAllResults(false)
+                'total_appointments' => (clone $base)->countAllResults(),
+                'today_appointments' => (clone $base)->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(),
+                'upcoming_appointments' => (clone $base)->where('appointment_date >=', date('Y-m-d'))->where('status', 'scheduled')->countAllResults(),
+                'completed_appointments' => (clone $base)->where('status', 'completed')->countAllResults(),
+                'cancelled_appointments' => (clone $base)->where('status', 'cancelled')->countAllResults()
             ];
         } catch (\Exception $e) {
             log_message('error', 'Appointment stats error: ' . $e->getMessage());
