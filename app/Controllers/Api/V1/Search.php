@@ -133,8 +133,10 @@ class Search extends Controller
         $query = $this->request->getGet('q');
         $limit = (int)($this->request->getGet('limit') ?? 20);
         $status = $this->request->getGet('status') ?? 'completed';
+        $patientId = $this->request->getGet('patient_id');
+        $patientId = is_numeric($patientId) ? (int)$patientId : null;
 
-        $examinations = $this->examinationModel->searchExaminationsByClinic($clinicId, $query, $limit, $status);
+        $examinations = $this->examinationModel->searchExaminationsByClinic($clinicId, $query, $limit, $status, $patientId);
 
         $results = [];
         foreach ($examinations as $examination) {

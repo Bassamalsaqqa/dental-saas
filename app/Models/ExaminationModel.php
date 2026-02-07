@@ -81,13 +81,17 @@ class ExaminationModel extends TenantAwareModel
         return $data;
     }
 
-    public function searchExaminationsByClinic($clinicId, $searchTerm = null, $limit = 20, $status = 'completed')
+    public function searchExaminationsByClinic($clinicId, $searchTerm = null, $limit = 20, $status = 'completed', $patientId = null)
     {
         $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id')
             ->join('patients', 'patients.id = examinations.patient_id')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId) // Join guard
             ->where('examinations.status', $status);
+
+        if (!empty($patientId)) {
+            $builder->where('examinations.patient_id', $patientId);
+        }
 
         if (!empty($searchTerm)) {
             $builder->groupStart()

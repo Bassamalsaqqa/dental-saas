@@ -55,6 +55,8 @@
                                                             <div class="relative">
                                                                 <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
                                                                         data-searchable-select 
+                                                                        data-minimum-input-length="0"
+                                                                        data-limit="5"
                                                                         data-search-url="<?= base_url('api/v1/search/patients') ?>"
                                                                         data-placeholder="Search patients by name, phone, or ID..."
                                                                         required>

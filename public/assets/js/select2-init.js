@@ -138,6 +138,20 @@ document.addEventListener('DOMContentLoaded', async function() {
             const allowClear = select.dataset.allowClear !== 'false';
             const minimumInputLength = parseInt(select.dataset.minimumInputLength) || 1; 
             const delay = parseInt(select.dataset.delay) || 300;
+            const limit = parseInt(select.dataset.limit) || null;
+            const dependsOnId = select.dataset.dependsOn || '';
+            const dependsParam = select.dataset.dependsParam || 'parent_id';
+            const requireDependency = select.dataset.requireDependency !== 'false';
+            const getDependencyValue = () => {
+                if (!dependsOnId) {
+                    return '';
+                }
+                const depEl = document.getElementById(dependsOnId);
+                if (!depEl) {
+                    return '';
+                }
+                return depEl.value || '';
+            };
             
             console.log(`Select2: Initializing element ${index + 1}`, {
                 id: select.id || 'unnamed',
@@ -174,10 +188,31 @@ document.addEventListener('DOMContentLoaded', async function() {
                     dataType: 'json',
                     delay: delay,
                     data: function (params) {
-                        return {
+                        const payload = {
                             [searchParam]: params.term,
                             page: params.page || 1
                         };
+                        if (dependsOnId) {
+                            const depValue = getDependencyValue();
+                            if (depValue) {
+                                payload[dependsParam] = depValue;
+                            } else if (requireDependency) {
+                                payload.__skip = 1;
+                            }
+                        }
+                        if (limit) {
+                            payload.limit = limit;
+                        }
+                        return payload;
+                    },
+                    transport: function (params, success, failure) {
+                        if (params && params.data && params.data.__skip) {
+                            success({ results: [], total: 0, pagination: { more: false } });
+                            return { abort: function () {} };
+                        }
+                        const request = $.ajax(params);
+                        request.then(success).fail(failure);
+                        return request;
                     },
                     processResults: function (data, params) {
                         params.page = params.page || 1;
@@ -198,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                                 text: item[textField]
                             })),
                             pagination: {
-                                more: (params.page * 10) < (data.total || results.length)
+                                more: (params.page * (limit || 10)) < (data.total || results.length)
                             }
                         };
                     },
@@ -214,6 +249,33 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // Initialize Select2
             $(select).select2(select2Options);
+
+            if (searchUrl && minimumInputLength === 0) {
+                $(select).on('select2:open', function() {
+                    const instance = $(this).data('select2');
+                    if (instance) {
+                        instance.trigger('query', { term: '', page: 1 });
+                    }
+                });
+            }
+
+            if (dependsOnId) {
+                const depEl = document.getElementById(dependsOnId);
+                if (depEl) {
+                    const syncDependencyState = () => {
+                        if (!requireDependency) {
+                            return;
+                        }
+                        const hasValue = !!(depEl.value || '');
+                        $(select).prop('disabled', !hasValue).trigger('change.select2');
+                        if (!hasValue) {
+                            $(select).val(null).trigger('change');
+                        }
+                    };
+                    syncDependencyState();
+                    depEl.addEventListener('change', syncDependencyState);
+                }
+            }
             
             // Add custom styling classes
             $(select).on('select2:open', function() {
