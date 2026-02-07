@@ -709,7 +709,7 @@ function loadTreatmentStatistics() {
             $('#totalTreatments').text(data.total || 0);
             $('#activeTreatments').text(data.active || 0);
             $('#completedTreatments').text(data.completed || 0);
-            $('#monthlyTreatments').text(data.cancelled || 0);
+                $('#monthlyTreatments').text(data.monthly_treatments || 0);
         },
         error: function() {
             $('#totalTreatments').text('0');

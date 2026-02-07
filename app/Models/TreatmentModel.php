@@ -160,14 +160,21 @@ class TreatmentModel extends TenantAwareModel
     public function getTreatmentStatsByClinic($clinicId)
     {
         try {
+            $base = $this->db->table('treatments')
+                ->where('clinic_id', $clinicId);
+
+            $monthStart = date('Y-m-01');
+            $monthEnd = date('Y-m-t');
+
             return [
-                'total' => $this->where('clinic_id', $clinicId)->countAllResults(),
-                'active' => $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
-                'completed' => $this->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
-                'cancelled' => $this->where('clinic_id', $clinicId)->where('status', 'cancelled')->countAllResults(),
-                'on_hold' => $this->where('clinic_id', $clinicId)->where('status', 'on_hold')->countAllResults(),
-                'active_treatments' => $this->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
-                'completed_treatments' => $this->where('clinic_id', $clinicId)->where('status', 'completed')->countAllResults(),
+                'total' => (clone $base)->countAllResults(),
+                'active' => (clone $base)->where('status', 'active')->countAllResults(),
+                'completed' => (clone $base)->where('status', 'completed')->countAllResults(),
+                'cancelled' => (clone $base)->where('status', 'cancelled')->countAllResults(),
+                'on_hold' => (clone $base)->where('status', 'on_hold')->countAllResults(),
+                'monthly_treatments' => (clone $base)->where('start_date >=', $monthStart)->where('start_date <=', $monthEnd)->countAllResults(),
+                'active_treatments' => (clone $base)->where('status', 'active')->countAllResults(),
+                'completed_treatments' => (clone $base)->where('status', 'completed')->countAllResults(),
             ];
         } catch (\Exception $e) {
             log_message('error', 'Treatment stats error: ' . $e->getMessage());
@@ -177,6 +184,7 @@ class TreatmentModel extends TenantAwareModel
                 'completed' => 0,
                 'cancelled' => 0,
                 'on_hold' => 0,
+                'monthly_treatments' => 0,
                 'active_treatments' => 0,
                 'completed_treatments' => 0,
             ];
