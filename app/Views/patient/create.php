@@ -279,7 +279,7 @@
                                          <div class="relative">
                                              <input type="text" id="country" name="country" 
                                                     class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" 
-                                                    value="<?= old('country') ?: 'United States' ?>" placeholder="Enter country">
+                                                    value="<?= old('country') ?: 'Palestine' ?>" placeholder="Enter country">
                                              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                  <i class="fas fa-globe text-gray-400"></i>
                                              </div>
