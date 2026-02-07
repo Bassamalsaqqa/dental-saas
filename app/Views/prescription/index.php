@@ -791,7 +791,7 @@ function loadPrescriptionStatistics() {
             $('#totalPrescriptions').text(data.total || 0);
             $('#activePrescriptions').text(data.active || 0);
             $('#expiredPrescriptions').text(data.expired || 0);
-            $('#monthlyPrescriptions').text(data.cancelled || 0);
+            $('#monthlyPrescriptions').text(data.monthly || 0);
         },
         error: function() {
             $('#totalPrescriptions').text('0');

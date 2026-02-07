@@ -479,11 +479,15 @@ class Prescription extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
+        $monthStart = date('Y-m-01');
+        $monthEnd = date('Y-m-t');
+
         $stats = [
             'total' => $this->prescriptionModel->where('clinic_id', $clinicId)->countAllResults(),
             'active' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
             'expired' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'expired')->countAllResults(),
             'cancelled' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('status', 'cancelled')->countAllResults(),
+            'monthly' => $this->prescriptionModel->where('clinic_id', $clinicId)->where('prescribed_date >=', $monthStart)->where('prescribed_date <=', $monthEnd)->countAllResults(),
         ];
 
         return $this->response->setJSON($stats);

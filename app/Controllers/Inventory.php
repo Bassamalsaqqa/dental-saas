@@ -60,7 +60,7 @@ class Inventory extends BaseController
                 $data['inventory'] = $inventory;
                 $data['available_categories'] = $availableCategories;
                 $data['total_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults();
-                $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->countAllResults();
+                $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->countAllResults();
                 $data['out_of_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->countAllResults();
             }
 
@@ -402,7 +402,7 @@ class Inventory extends BaseController
         $stats = [
             'total_items' => $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults(),
             'active_items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('status', 'active')->countAllResults(),
-            'low_stock_items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->where('status', 'active')->countAllResults(),
+            'low_stock_items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->where('status', 'active')->countAllResults(),
             'out_of_stock_items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->where('status', 'active')->countAllResults(),
             'expired_items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('expiry_date <', date('Y-m-d'))->where('status', 'active')->countAllResults(),
             'total_value' => $totalValue,
