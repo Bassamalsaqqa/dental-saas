@@ -133,6 +133,12 @@ class Search extends Controller
         $query = $this->request->getGet('q');
         $limit = (int)($this->request->getGet('limit') ?? 20);
         $status = $this->request->getGet('status') ?? 'completed';
+        if (is_string($status)) {
+            $status = trim($status);
+            if ($status === '' || strtolower($status) === 'all') {
+                $status = null;
+            }
+        }
         $patientId = $this->request->getGet('patient_id');
         $patientId = is_numeric($patientId) ? (int)$patientId : null;
 

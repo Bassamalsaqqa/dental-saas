@@ -86,8 +86,11 @@ class ExaminationModel extends TenantAwareModel
         $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id')
             ->join('patients', 'patients.id = examinations.patient_id')
             ->where('examinations.clinic_id', $clinicId)
-            ->where('patients.clinic_id', $clinicId) // Join guard
-            ->where('examinations.status', $status);
+            ->where('patients.clinic_id', $clinicId); // Join guard
+
+        if (!empty($status)) {
+            $builder->where('examinations.status', $status);
+        }
 
         if (!empty($patientId)) {
             $builder->where('examinations.patient_id', $patientId);

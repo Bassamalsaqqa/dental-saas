@@ -84,6 +84,8 @@
                                     <select id="treatment_type" name="treatment_type" 
                                             class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" 
                                             data-searchable-select 
+                                            data-minimum-input-length="0"
+                                            data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/treatment-types') ?>"
                                             data-placeholder="Search treatment types..."
                                             required>

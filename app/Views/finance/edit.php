@@ -121,6 +121,7 @@
                                         data-depends-on="patientSelect"
                                         data-depends-param="patient_id"
                                         data-require-dependency="true"
+                                        data-status="all"
                                         data-search-url="<?= base_url('api/v1/search/examinations') ?>"
                                         data-placeholder="Search examinations by ID, type, or patient...">
                                     <option value="">Select examination (optional)</option>
