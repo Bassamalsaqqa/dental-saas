@@ -121,6 +121,17 @@ $routes->post('logout', 'Auth::logout');
 $routes->get('/', 'Home::index');
 
 // --------------------------------------------------------------------
+// Kiosk Check-In (Public)
+// --------------------------------------------------------------------
+$routes->group('kiosk', function ($routes) {
+    $routes->get('(:segment)/check-in', 'Kiosk::checkIn/$1');
+    $routes->get('(:segment)/check-in/reset', 'Kiosk::reset/$1');
+    $routes->post('(:segment)/unlock', 'Kiosk::unlock/$1');
+    $routes->post('(:segment)/lookup', 'Kiosk::lookup/$1');
+    $routes->post('(:segment)/confirm', 'Kiosk::confirm/$1');
+});
+
+// --------------------------------------------------------------------
 // Clinic Selection Wall (Auth Only)
 // --------------------------------------------------------------------
 $routes->group('clinic', ['filter' => 'auth'], function($routes) {
@@ -518,6 +529,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings:edit']);
     $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings:edit']);
     $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateKiosk', 'Settings::updateKiosk', ['filter' => 'permission:settings:edit']);
     $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings:edit']);
     $routes->get('backup', 'Settings::backup', ['filter' => 'permission:settings:view']);
     $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);

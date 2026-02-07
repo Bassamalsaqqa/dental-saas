@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\ClinicModel;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanAuditModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
 use App\Models\SettingsModel;
 use App\Services\ControlPlaneAuditService;
+use App\Services\PlanGuard;
 use App\Services\SettingsService;
 
 class Settings extends BaseController
@@ -26,6 +28,10 @@ class Settings extends BaseController
         if (!$clinicId) {
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view settings.');
         }
+
+        $clinicModel = new ClinicModel();
+        $clinic = $clinicModel->find($clinicId);
+        $planGuard = new PlanGuard();
 
         $planModel = new PlanModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
@@ -50,15 +56,21 @@ class Settings extends BaseController
         // Check if demo mode is enabled
         $appConfig = config('App');
         
+        $settings = $this->getSettings();
+        $kioskPinSet = !empty($settings['kiosk_pin_hash'] ?? '');
+        $kioskFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'kiosk.enabled', false);
         $data = [
             'title' => 'System Settings',
-            'settings' => $this->getSettings(),
+            'settings' => $settings,
             'backups' => $backups,
             'demo' => $appConfig->demo,
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
             'subscription' => $subscription,
             'subscription_plan' => $subscriptionPlan,
             'latest_plan_request' => $latestRequest,
+            'clinic_uuid' => $clinic['uuid'] ?? '',
+            'kiosk_pin_set' => $kioskPinSet,
+            'kiosk_feature_enabled' => $kioskFeatureEnabled,
         ];
 
         return $this->view('settings/index', $data);
@@ -252,6 +264,67 @@ class Settings extends BaseController
             log_message('error', 'Failed to save working hours settings');
             return redirect()->back()->withInput()->with('error', 'Failed to update working hours. Please try again.');
         }
+    }
+
+    public function updateKiosk()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context required');
+        }
+
+        $planGuard = new PlanGuard();
+        $planGuard->assertFeature($clinicId, 'kiosk.enabled', ['route' => 'settings/updateKiosk']);
+
+        $rules = [
+            'kiosk_enabled' => 'permit_empty|in_list[0,1]',
+            'kiosk_pin' => 'permit_empty|regex_match[/^[0-9]{4,8}$/]',
+            'kiosk_pin_confirm' => 'permit_empty|regex_match[/^[0-9]{4,8}$/]',
+            'kiosk_header' => 'permit_empty|max_length[60]',
+            'kiosk_subheader' => 'permit_empty|max_length[120]',
+            'kiosk_footer_note' => 'permit_empty|max_length[160]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $pin = trim((string) $this->request->getPost('kiosk_pin'));
+        $pinConfirm = trim((string) $this->request->getPost('kiosk_pin_confirm'));
+        if ($pin !== '' || $pinConfirm !== '') {
+            if ($pin !== $pinConfirm) {
+                return redirect()->back()->withInput()->with('error', 'Kiosk PIN confirmation does not match.');
+            }
+        }
+
+        $current = $this->getSettings();
+        $hasPin = !empty($current['kiosk_pin_hash'] ?? '');
+        $enableRequested = $this->request->getPost('kiosk_enabled') ? true : false;
+
+        if ($enableRequested && !$hasPin && $pin === '') {
+            return redirect()->back()->withInput()->with('error', 'Set a kiosk PIN before enabling the kiosk.');
+        }
+
+        $settingsData = [
+            'kiosk_enabled' => $enableRequested ? 1 : 0,
+            'kiosk_header' => trim((string) $this->request->getPost('kiosk_header')) ?: 'Self Check-In',
+            'kiosk_subheader' => trim((string) $this->request->getPost('kiosk_subheader')) ?: 'Confirm your appointment in seconds.',
+            'kiosk_footer_note' => trim((string) $this->request->getPost('kiosk_footer_note')) ?: 'Need help? Please ask the reception desk.',
+        ];
+
+        if (!$this->saveSettings($settingsData)) {
+            return redirect()->back()->withInput()->with('error', 'Failed to update kiosk settings.');
+        }
+
+        if ($pin !== '') {
+            $pinHash = password_hash($pin, PASSWORD_DEFAULT);
+            if (!$this->settingsModel->setSetting('kiosk_pin_hash', $pinHash, 'string')) {
+                return redirect()->back()->withInput()->with('error', 'Failed to update kiosk PIN.');
+            }
+        }
+
+        $this->settingsService->reloadSettings();
+        return redirect()->to('/settings')->with('success', 'Kiosk settings updated successfully.');
     }
 
     public function update()
@@ -706,6 +779,11 @@ class Settings extends BaseController
                 'working_hours_start' => '09:00',
                 'working_hours_end' => '17:00',
                 'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+                'kiosk_enabled' => 0,
+                'kiosk_pin_hash' => '',
+                'kiosk_header' => 'Self Check-In',
+                'kiosk_subheader' => 'Confirm your appointment in seconds.',
+                'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
             ];
             
             return array_merge($defaults, $settings);
@@ -734,6 +812,11 @@ class Settings extends BaseController
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            'kiosk_enabled' => 0,
+            'kiosk_pin_hash' => '',
+            'kiosk_header' => 'Self Check-In',
+            'kiosk_subheader' => 'Confirm your appointment in seconds.',
+            'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
         ];
     }
 
@@ -839,6 +922,11 @@ class Settings extends BaseController
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            'kiosk_enabled' => 0,
+            'kiosk_pin_hash' => '',
+            'kiosk_header' => 'Self Check-In',
+            'kiosk_subheader' => 'Confirm your appointment in seconds.',
+            'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
         ];
         
         log_message('info', 'Initializing default settings');

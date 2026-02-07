@@ -265,6 +265,7 @@ class Plans extends BaseController
                 'enabled' => false,
                 'signature' => ['enabled' => false],
             ],
+            'kiosk' => ['enabled' => false],
             'exports' => ['enabled' => false],
             'notifications' => [
                 'email' => ['enabled' => true],
@@ -296,6 +297,9 @@ class Plans extends BaseController
                 'signature' => [
                     'enabled' => !empty($featuresInput['contracts']['signature']['enabled']),
                 ],
+            ],
+            'kiosk' => [
+                'enabled' => !empty($featuresInput['kiosk']['enabled']),
             ],
             'exports' => [
                 'enabled' => !empty($featuresInput['exports']['enabled']),

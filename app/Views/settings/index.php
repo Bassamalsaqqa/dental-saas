@@ -100,6 +100,10 @@
                             <i class="fas fa-clock w-5 h-5 mr-3"></i>
                             Working Hours
                         </button>
+                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i>
+                            Kiosk Check-In
+                        </button>
                         <button onclick="showSettingsTab('backup')" id="tab-backup" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                             <i class="fas fa-database w-5 h-5 mr-3"></i>
                             DB Backup
@@ -259,6 +263,106 @@
                     </div>
                 </div>
                                     
+                <!-- Kiosk Check-In Tab -->
+                <div id="kiosk-tab" class="settings-tab hidden">
+                    <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-indigo-500 via-blue-600 to-cyan-600 p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-tablet-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Kiosk Check-In</h3>
+                                    <p class="text-blue-100">Configure the in-clinic self check-in experience</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-8 space-y-8">
+                            <?php $kioskFeatureEnabled = !empty($kiosk_feature_enabled); ?>
+                            <?php $kioskLink = !empty($clinic_uuid) ? base_url('kiosk/' . $clinic_uuid . '/check-in') : ''; ?>
+
+                            <?php if (!$kioskFeatureEnabled): ?>
+                                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-amber-700 text-sm">
+                                    Kiosk check-in is not enabled in your plan. Ask the clinic administrator to enable the feature.
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-slate-800">Kiosk Link</h4>
+                                        <p class="text-sm text-slate-500">Open this link on the clinic tablet or kiosk device.</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold <?= ($kiosk_pin_set ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                                            <?= ($kiosk_pin_set ?? false) ? 'PIN Set' : 'PIN Not Set' ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col md:flex-row gap-3">
+                                    <input id="kioskLinkInput" type="text" readonly value="<?= esc($kioskLink) ?>" class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-sm text-gray-600" />
+                                    <button type="button" onclick="copyKioskLink()" class="px-5 py-3 bg-white border-2 border-blue-200 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-copy mr-2"></i>Copy Link
+                                    </button>
+                                </div>
+                            </div>
+
+                            <form action="<?= base_url('settings/updateKiosk') ?>" method="POST" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 <?= $kioskFeatureEnabled ? '' : 'opacity-60' ?>">
+                                <?= csrf_field() ?>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-slate-800">Enable Kiosk Check-In</h4>
+                                        <p class="text-sm text-slate-500">Allow patients to confirm appointments from a clinic kiosk.</p>
+                                    </div>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="kiosk_enabled" value="1" class="sr-only kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <span class="w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
+                                            <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'translate-x-5 bg-blue-500' : '' ?>"></span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kiosk Header</label>
+                                        <input type="text" name="kiosk_header" value="<?= esc($settings['kiosk_header'] ?? 'Self Check-In') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kiosk Subheader</label>
+                                        <input type="text" name="kiosk_subheader" value="<?= esc($settings['kiosk_subheader'] ?? 'Confirm your appointment in seconds.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Footer Note (optional)</label>
+                                        <input type="text" name="kiosk_footer_note" value="<?= esc($settings['kiosk_footer_note'] ?? 'Need help? Please ask the reception desk.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-gray-100 pt-6">
+                                    <h5 class="text-sm font-bold text-slate-800 mb-3">Kiosk PIN</h5>
+                                    <p class="text-xs text-slate-500 mb-4">PIN is required to unlock the kiosk screen. Leave blank to keep the current PIN.</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">New PIN</label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="4 to 8 digits" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm PIN</label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Re-enter PIN" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-save mr-2"></i>Save Kiosk Settings
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- System Preference Tab -->
                 <div id="system-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
@@ -1138,8 +1242,56 @@ function pruneExports() {
     });
 }
 
+function copyKioskLink() {
+    const input = document.getElementById('kioskLinkInput');
+    if (!input || !input.value) {
+        if (window.showToast) {
+            window.showToast('error', 'Error', 'Kiosk link is not available yet.');
+        }
+        return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value)
+            .then(() => {
+                if (window.showToast) {
+                    window.showToast('success', 'Success', 'Kiosk link copied to clipboard.');
+                }
+            })
+            .catch(() => {
+                if (window.showToast) {
+                    window.showToast('error', 'Error', 'Unable to copy kiosk link.');
+                }
+            });
+        return;
+    }
+
+    input.removeAttribute('readonly');
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+    document.execCommand('copy');
+    input.setAttribute('readonly', 'readonly');
+    window.getSelection()?.removeAllRanges();
+    if (window.showToast) {
+        window.showToast('success', 'Success', 'Kiosk link copied to clipboard.');
+    }
+}
+
 // Initialize Select2 for all select elements
 document.addEventListener('DOMContentLoaded', function() {
+    const kioskToggle = document.querySelector('.kiosk-toggle');
+    if (kioskToggle) {
+        const knob = kioskToggle.closest('label')?.querySelector('.kiosk-toggle-knob');
+        kioskToggle.addEventListener('change', function() {
+            if (!knob) return;
+            if (kioskToggle.checked) {
+                knob.classList.add('translate-x-5', 'bg-blue-500');
+            } else {
+                knob.classList.remove('translate-x-5', 'bg-blue-500');
+            }
+        });
+    }
+
     // Initialize Select2
     if (typeof $ !== 'undefined' && $.fn.select2) {
         $('select').select2({

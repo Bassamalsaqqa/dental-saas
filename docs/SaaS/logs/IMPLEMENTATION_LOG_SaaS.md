@@ -1207,3 +1207,26 @@
     - **Treatment Items:** Implemented auto item rows for conditioned teeth plus manual add/remove rows in `app/Views/contracts/create.php`.
     - **Show/Print Views:** Added optional fields (terms/payment/duration/notes/cost details) and draft edit action in `app/Views/contracts/show.php` and `app/Views/contracts/print.php`.
 - **Verification:** `docs/SaaS/verification/P5-CON-02.md`.
+
+### Task: P5-KIOSK-01 Kiosk Self Check-In
+- **Date:** 2026-02-07
+- **Status:** Completed
+- **Description:** Added a clinic-branded kiosk self check-in flow using a clinic UUID link + PIN gate, plus settings for kiosk branding and PIN management.
+- **Actions:**
+    - **Routes:** Added public kiosk routes for check-in, PIN unlock, lookup, and confirm in `app/Config/Routes.php`.
+    - **Controller:** Implemented `app/Controllers/Kiosk.php` with fail-closed clinic resolution, PIN gating, rate limits, and appointment confirmation scoped to clinic + today.
+    - **Settings UI:** Added kiosk configuration tab and copyable kiosk link in `app/Views/settings/index.php`.
+    - **Layout/View:** Added `app/Views/layouts/kiosk.php` and `app/Views/kiosk/check_in.php` for tenant-themed kiosk UX.
+    - **Settings:** Added kiosk defaults and update handler in `app/Controllers/Settings.php`.
+- **Verification:** `docs/SaaS/verification/P5-KIOSK-01.md`.
+
+### Task: P5-KIOSK-02 Plan-Gated Kiosk Feature
+- **Date:** 2026-02-07
+- **Status:** Completed
+- **Description:** Added plan feature gating for kiosk check-in, disabled kiosk settings when feature is off, and improved kiosk layout to support Arabic text.
+- **Actions:**
+    - **Plan Features:** Added `features.kiosk.enabled` to plan defaults and form in `app/Controllers/ControlPlane/Plans.php` and `app/Views/control_plane/plan_form.php`.
+    - **Plan Guard:** Enforced kiosk feature gate in `app/Controllers/Kiosk.php` and `app/Controllers/Settings.php`.
+    - **Settings UX:** Disabled kiosk controls when feature is off and clarified the toggle behavior in `app/Views/settings/index.php`.
+    - **Arabic Support:** Enabled auto-direction and Arabic-friendly font fallback in `app/Views/layouts/kiosk.php` and `app/Views/kiosk/check_in.php`.
+- **Verification:** `docs/SaaS/verification/P5-KIOSK-02.md`.

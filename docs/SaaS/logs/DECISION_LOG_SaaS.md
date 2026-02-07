@@ -14,3 +14,13 @@
 - Decision: Store signed contract HTML via `StorageService::storeGenerated` (no export feature gate) while still enforcing `storage_gb` quotas.
 - Rationale: Contracts are core clinical records and must remain available regardless of export feature toggles.
 - Impact: Signed contract artifacts persist under tenant storage and are downloadable via `file/download/{id}`.
+
+## 2026-02-07 ? Kiosk Check-In Access Model
+- Decision: Kiosk check-in uses a clinic-specific URL (`/kiosk/{clinic_uuid}/check-in`) protected by a clinic PIN configured in settings. Branding strings (header/subheader/footer note) are configurable per clinic.
+- Rationale: Static kiosk link is simple for in-clinic devices, while the PIN prevents unauthorized use if the URL leaks.
+- Impact: Kiosk access is fail-closed unless the clinic is active, kiosk is enabled, and a PIN is set.
+
+## 2026-02-07 ? Kiosk Feature Gating
+- Decision: Kiosk check-in is controlled by a plan feature flag (`features.kiosk.enabled`) and remains fail-closed even if the clinic settings toggle is enabled.
+- Rationale: Feature access must be commercial-plan driven and enforced in public kiosk endpoints.
+- Impact: Clinics without the feature cannot enable or access kiosk check-in.
