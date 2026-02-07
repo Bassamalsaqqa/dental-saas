@@ -81,7 +81,7 @@
                                     <?php foreach ($appointments as $appointment): ?>
                                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-5">
                                             <div>
-                                                <p class="text-sm font-semibold text-slate-900"><?= esc($appointment['patient_display'] ?? '') ?></p>
+                                                <p class="text-sm font-semibold text-slate-900" dir="auto" style="unicode-bidi: plaintext;"><?= esc($appointment['patient_display'] ?? '') ?></p>
                                                 <p class="text-sm text-slate-500">
                                                     <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
                                                 </p>

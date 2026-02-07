@@ -354,7 +354,13 @@ class Kiosk extends BaseController
     {
         $firstName = trim((string) ($appointment['first_name'] ?? ''));
         $lastName = trim((string) ($appointment['last_name'] ?? ''));
-        $lastInitial = $lastName !== '' ? strtoupper($lastName[0]) . '.' : '';
+        $lastInitial = '';
+        if ($lastName !== '') {
+            $initial = $this->safeInitial($lastName);
+            if ($initial !== '') {
+                $lastInitial = strtoupper($initial) . '.';
+            }
+        }
 
         $time = $appointment['appointment_time'] ?? '';
         $displayTime = $this->formatTime((string) $time, $settings['time_format'] ?? '12');
@@ -394,6 +400,21 @@ class Kiosk extends BaseController
         }
 
         return date('g:i A', $timestamp);
+    }
+
+    private function safeInitial(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        $initial = $value[0];
+        if (!preg_match('/[A-Za-z]/', $initial)) {
+            return '';
+        }
+
+        return $initial;
     }
 
     private function rateLimit(string $key, int $maxAttempts, int $windowSeconds): bool
