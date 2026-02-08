@@ -644,6 +644,15 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     let actions = '<div class="flex items-center space-x-2">';
                     
+                    // View button
+                    if (permissions.prescriptions.view) {
+                        actions += `
+                            <a href="<?= base_url('prescription') ?>/${data}" 
+                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>`;
+                    }
+
                     // Print button
                     if (permissions.prescriptions.print) {
                         actions += `
