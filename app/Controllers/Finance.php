@@ -7,6 +7,7 @@ use App\Models\FinancePaymentModel;
 use App\Models\PatientModel;
 use App\Models\ExaminationModel;
 use App\Services\ActivityLogger;
+use App\Libraries\ApiRuntimeContext;
 
 class Finance extends BaseController
 {
@@ -27,6 +28,15 @@ class Finance extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
+    }
+
+    private function resolveActorUserId(): int
+    {
+        $apiUserId = ApiRuntimeContext::getUserId();
+        if ($apiUserId) {
+            return (int) $apiUserId;
+        }
+        return (int) (session()->get('user_id') ?? 0);
     }
 
     public function index()
@@ -93,8 +103,13 @@ class Finance extends BaseController
             $amountPaid = 0;
             $balanceDue = $totalAmount;
         } else {
-            $amountPaid = $totalAmount;
-            $balanceDue = 0;
+            if ($paymentStatus === 'paid') {
+                $amountPaid = $totalAmount;
+                $balanceDue = 0;
+            } else {
+                $amountPaid = 0;
+                $balanceDue = $totalAmount;
+            }
         }
 
         $financeData = [
@@ -115,7 +130,7 @@ class Finance extends BaseController
             'due_date' => $this->request->getPost('due_date'),
             'paid_date' => $this->request->getPost('paid_date'),
             'notes' => $this->request->getPost('notes'),
-            'created_by' => 1
+            'created_by' => $this->resolveActorUserId()
         ];
 
         if ($this->financeModel->insert($financeData)) {
@@ -126,10 +141,11 @@ class Finance extends BaseController
                     $this->financePaymentModel->insert([
                         'finance_id' => $financeId,
                         'amount' => $totalAmount,
+                        'type' => 'payment',
                         'payment_method' => $this->request->getPost('payment_method') ?? 'cash',
                         'payment_date' => $this->request->getPost('paid_date') ?? date('Y-m-d'),
                         'notes' => 'Payment recorded on invoice creation',
-                        'created_by' => 1
+                        'created_by' => $this->resolveActorUserId()
                     ]);
                 }
                 $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
@@ -255,7 +271,7 @@ class Finance extends BaseController
 
         $amountPaid = floatval($finance['amount_paid'] ?? 0);
         if ($this->request->getPost('transaction_type') !== 'invoice') {
-            $amountPaid = $totalAmount;
+            $amountPaid = ($this->request->getPost('payment_status') === 'paid') ? $totalAmount : 0;
         }
 
         if ($this->request->getPost('transaction_type') === 'invoice' && $amountPaid > $totalAmount) {
@@ -451,10 +467,11 @@ class Finance extends BaseController
                 $paymentData = [
                     'finance_id' => $finance['id'],
                     'amount' => $remaining,
+                    'type' => 'payment',
                     'payment_method' => $finance['payment_method'] ?? 'cash',
                     'payment_date' => date('Y-m-d'),
                     'notes' => 'Full payment via Mark as Paid',
-                    'created_by' => 1
+                    'created_by' => $this->resolveActorUserId()
                 ];
 
                 $this->financePaymentModel->insert($paymentData);
@@ -542,10 +559,11 @@ class Finance extends BaseController
             $paymentData = [
                 'finance_id' => $finance['id'],
                 'amount' => $amount,
+                'type' => 'payment',
                 'payment_method' => $this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash'),
                 'payment_date' => $this->request->getPost('payment_date') ?? date('Y-m-d'),
                 'notes' => $this->request->getPost('notes'),
-                'created_by' => 1
+                'created_by' => $this->resolveActorUserId()
             ];
 
             if (!$this->financePaymentModel->insert($paymentData)) {
@@ -565,6 +583,179 @@ class Finance extends BaseController
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Invoice payment error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash()
+            ]);
+        }
+    }
+
+    public function refundInvoicePayment($id)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
+            if (!$finance || $finance['transaction_type'] !== 'invoice') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invoice not found',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $amount = floatval($this->request->getPost('amount'));
+            if ($amount <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Refund amount must be greater than 0.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $netPaid = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+            if ($amount > $netPaid) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Refund exceeds paid amount.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $relatedPaymentId = (int) ($this->request->getPost('related_payment_id') ?? 0);
+            if ($relatedPaymentId) {
+                $payment = $this->financePaymentModel
+                    ->where('clinic_id', $clinicId)
+                    ->where('finance_id', $finance['id'])
+                    ->find($relatedPaymentId);
+
+                if (!$payment || ($payment['type'] ?? 'payment') !== 'payment') {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Related payment not found.',
+                        'csrf_token' => csrf_hash()
+                    ]);
+                }
+
+                $refunded = $this->financePaymentModel->getRelatedAdjustmentsTotal($clinicId, $relatedPaymentId);
+                $remaining = max(0, floatval($payment['amount']) - $refunded);
+                if ($amount > $remaining) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Refund exceeds remaining amount for the selected payment.',
+                        'csrf_token' => csrf_hash()
+                    ]);
+                }
+            }
+
+            $refundData = [
+                'finance_id' => $finance['id'],
+                'amount' => $amount,
+                'type' => 'refund',
+                'payment_method' => $this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash'),
+                'payment_date' => $this->request->getPost('payment_date') ?? date('Y-m-d'),
+                'notes' => $this->request->getPost('notes'),
+                'related_payment_id' => $relatedPaymentId ?: null,
+                'created_by' => $this->resolveActorUserId()
+            ];
+
+            if (!$this->financePaymentModel->insert($refundData)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to record refund.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Refund recorded successfully.',
+                'csrf_token' => csrf_hash()
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Invoice refund error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash()
+            ]);
+        }
+    }
+
+    public function voidInvoicePayment($id, $paymentId)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
+            if (!$finance || $finance['transaction_type'] !== 'invoice') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invoice not found',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $payment = $this->financePaymentModel
+                ->where('clinic_id', $clinicId)
+                ->where('finance_id', $finance['id'])
+                ->find($paymentId);
+
+            if (!$payment || ($payment['type'] ?? 'payment') !== 'payment') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment not found.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $refunded = $this->financePaymentModel->getRelatedAdjustmentsTotal($clinicId, $paymentId);
+            $remaining = max(0, floatval($payment['amount']) - $refunded);
+            if ($remaining <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment already refunded or voided.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $voidData = [
+                'finance_id' => $finance['id'],
+                'amount' => $remaining,
+                'type' => 'void',
+                'payment_method' => $payment['payment_method'] ?? ($finance['payment_method'] ?? 'cash'),
+                'payment_date' => date('Y-m-d'),
+                'notes' => $this->request->getPost('notes') ?? 'Payment voided',
+                'related_payment_id' => $paymentId,
+                'created_by' => $this->resolveActorUserId()
+            ];
+
+            if (!$this->financePaymentModel->insert($voidData)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to void payment.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Payment voided successfully.',
+                'csrf_token' => csrf_hash()
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Invoice void error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred: ' . $e->getMessage(),

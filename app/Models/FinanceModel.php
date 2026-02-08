@@ -198,7 +198,11 @@ class FinanceModel extends TenantAwareModel
             if ($endDate) {
                 $paymentBuilder->where('payment_date <=', $endDate);
             }
-            $invoicePayments = $paymentBuilder->selectSum('amount', 'total_amount')->get()->getRow()->total_amount ?? 0;
+            $invoicePayments = $paymentBuilder
+                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
 
             $pendingPayments = (clone $builder)
                 ->selectSum($balanceField, 'total_amount')
@@ -234,7 +238,7 @@ class FinanceModel extends TenantAwareModel
                 ->getRow()
                 ->total_amount ?? 0;
             $monthlyInvoicePayments = $this->db->table('finance_payments')
-                ->selectSum('amount', 'total_amount')
+                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
                 ->where('clinic_id', $clinicId)
                 ->where('payment_date >=', date('Y-m-01'))
                 ->where('payment_date <=', date('Y-m-t'))
@@ -314,7 +318,7 @@ class FinanceModel extends TenantAwareModel
                 ->findAll();
 
             $invoicePayments = $this->db->table('finance_payments')
-                ->select('MONTH(payment_date) as month, SUM(amount) as total_amount')
+                ->select("MONTH(payment_date) as month, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) as total_amount", false)
                 ->where('clinic_id', $clinicId)
                 ->where('YEAR(payment_date)', $year)
                 ->groupBy('MONTH(payment_date)')
@@ -407,7 +411,11 @@ class FinanceModel extends TenantAwareModel
             if ($endDate) {
                 $paymentBuilder->where('payment_date <=', $endDate);
             }
-            $invoicePayments = $paymentBuilder->selectSum('amount', 'total_amount')->get()->getRow()->total_amount ?? 0;
+            $invoicePayments = $paymentBuilder
+                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+                ->get()
+                ->getRow()
+                ->total_amount ?? 0;
 
             $pendingPayments = $builder->selectSum($balanceField, 'total_amount')
                 ->where('transaction_type', 'invoice')
@@ -479,8 +487,8 @@ class FinanceModel extends TenantAwareModel
         $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
         $standaloneBuilder = $this->db->table('finances')
-            ->select('payment_method, SUM(' . $sumField . ') as total_amount, COUNT(*) as transaction_count')
-            ->where('transaction_type', 'payment');
+            ->select("payment_method, SUM(CASE WHEN transaction_type = 'payment' THEN {$sumField} WHEN transaction_type = 'refund' THEN -{$sumField} ELSE 0 END) as total_amount, COUNT(*) as transaction_count", false)
+            ->whereIn('transaction_type', ['payment', 'refund']);
         if ($clinicId) {
             $standaloneBuilder->where('clinic_id', $clinicId);
         }
@@ -493,7 +501,7 @@ class FinanceModel extends TenantAwareModel
         $standalone = $standaloneBuilder->groupBy('payment_method')->get()->getResultArray();
 
         $invoiceBuilder = $this->db->table('finance_payments')
-            ->select('payment_method, SUM(amount) as total_amount, COUNT(*) as transaction_count');
+            ->select("payment_method, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) as total_amount, COUNT(*) as transaction_count", false);
         if ($clinicId) {
             $invoiceBuilder->where('clinic_id', $clinicId);
         }

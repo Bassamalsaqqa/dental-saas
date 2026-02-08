@@ -716,12 +716,30 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     let actions = '<div class="flex items-center space-x-2">';
                     
+                    // View Transaction button
+                    if (permissions.finance.view) {
+                        actions += `
+                            <a href="<?= base_url('finance') ?>/${data}" 
+                               class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="View Transaction">
+                                <i class="fas fa-eye"></i>
+                            </a>`;
+                    }
+
                     // View Invoice button
                     if (permissions.finance.view) {
                         actions += `
                             <a href="<?= base_url('finance') ?>/${data}/invoice" 
                                class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="View Invoice">
                                 <i class="fas fa-file-invoice"></i>
+                            </a>`;
+                    }
+
+                    // Add Payment button (invoices only)
+                    if (permissions.finance.edit && row.transaction_type === 'invoice') {
+                        actions += `
+                            <a href="<?= base_url('finance') ?>/${data}" 
+                               class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Add Payment">
+                                <i class="fas fa-money-bill-wave"></i>
                             </a>`;
                     }
                     

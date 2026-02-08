@@ -302,18 +302,51 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                    <?php if (has_permission('finance', 'edit')): ?>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <?php foreach ($payments as $payment): ?>
+                                <?php
+                                    $type = $payment['type'] ?? 'payment';
+                                    $typeClass = 'bg-green-100 text-green-800';
+                                    if ($type === 'refund') {
+                                        $typeClass = 'bg-red-100 text-red-800';
+                                    } elseif ($type === 'void') {
+                                        $typeClass = 'bg-gray-100 text-gray-800';
+                                    }
+                                ?>
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-gray-700"><?= date('M j, Y', strtotime($payment['payment_date'])) ?></td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold <?= $typeClass ?>">
+                                            <?= ucfirst($type) ?>
+                                        </span>
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900"><?= number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?></td>
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900">
+                                        <?= ($type === 'payment' ? '+' : '-') . number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?>
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
+                                    <?php if (has_permission('finance', 'edit')): ?>
+                                    <td class="px-4 py-3 text-sm">
+                                        <?php if ($type === 'payment'): ?>
+                                            <button type="button"
+                                                    onclick="voidPayment(<?= (int) $payment['id'] ?>)"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-md hover:bg-gray-200">
+                                                <i class="fas fa-ban mr-1"></i>Void
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="text-xs text-gray-400">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <?php endif; ?>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -353,6 +386,55 @@
                         <div class="md:col-span-4 flex justify-end">
                             <button type="submit" class="inline-flex items-center px-5 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                                 <i class="fas fa-plus mr-2"></i>Add Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <?php endif; ?>
+
+                <?php if (has_permission('finance', 'edit')): ?>
+                <div class="border-t pt-6">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Record Refund</h4>
+                    <form id="invoiceRefundForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <?= csrf_field() ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Amount</label>
+                            <input type="number" name="amount" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" placeholder="0.00" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Method</label>
+                            <select name="payment_method" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" required>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="check">Check</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Date</label>
+                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Related Payment (optional)</label>
+                            <select name="related_payment_id" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30">
+                                <option value="">No specific payment</option>
+                                <?php foreach ($payments as $payment): ?>
+                                    <?php if (($payment['type'] ?? 'payment') === 'payment'): ?>
+                                        <option value="<?= (int) $payment['id'] ?>">
+                                            <?= date('M j, Y', strtotime($payment['payment_date'])) ?> - <?= number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?>
+                                        </option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="md:col-span-4">
+                            <label class="block text-xs font-semibold text-gray-600 mb-2">Notes</label>
+                            <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" placeholder="Optional refund notes..."></textarea>
+                        </div>
+                        <div class="md:col-span-4 flex justify-end">
+                            <button type="submit" class="inline-flex items-center px-5 py-2 bg-red-600 text-white text-sm font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                <i class="fas fa-undo mr-2"></i>Record Refund
                             </button>
                         </div>
                     </form>
@@ -451,6 +533,69 @@ if (invoicePaymentForm) {
             console.error('Error:', error);
             alert('An error occurred while adding the payment.');
         });
+    });
+}
+
+const invoiceRefundForm = document.getElementById('invoiceRefundForm');
+if (invoiceRefundForm) {
+    invoiceRefundForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(invoiceRefundForm);
+        fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments/refund`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while recording the refund.');
+        });
+    });
+}
+
+function voidPayment(paymentId) {
+    if (!confirm('Void this payment? This will reverse the payment in the ledger.')) {
+        return;
+    }
+    const reason = prompt('Reason for voiding this payment (optional):') || '';
+    const formData = new FormData();
+    formData.append('notes', reason);
+    fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments/${paymentId}/void`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            [window.csrfConfig.header]: window.getCsrfToken()
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.csrf_token) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while voiding the payment.');
     });
 }
 </script>

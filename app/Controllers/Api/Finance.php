@@ -18,7 +18,7 @@ class Finance extends ResourceController
         }
 
         // Minimal financial data list (scoped)
-        $data = $this->model->select('id, patient_id, invoice_number, amount, status, created_at')
+        $data = $this->model->select('id, patient_id, transaction_id, transaction_type, amount, total_amount, currency, payment_status, amount_paid, balance_due, due_date, created_at')
                             ->where('clinic_id', $clinicId)
                             ->orderBy('created_at', 'DESC')
                             ->findAll(100);
@@ -32,7 +32,7 @@ class Finance extends ResourceController
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
 
-        $data = $this->model->select('id, invoice_number, amount, status, due_date, created_at')
+        $data = $this->model->select('id, patient_id, transaction_id, transaction_type, amount, total_amount, currency, payment_status, amount_paid, balance_due, due_date, created_at')
                             ->where('clinic_id', $clinicId)
                             ->find($id);
         

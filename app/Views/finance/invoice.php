@@ -232,6 +232,7 @@
                             <thead>
                                 <tr class="bg-gray-100">
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Date</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Type</th>
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Method</th>
                                     <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700">Amount</th>
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Notes</th>
@@ -239,10 +240,12 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($payments as $payment): ?>
+                                <?php $type = $payment['type'] ?? 'payment'; ?>
                                 <tr>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= formatDate($payment['payment_date']) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst($type) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
-                                    <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= formatCurrency($payment['amount']) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= ($type === 'payment' ? '+' : '-') . formatCurrency($payment['amount']) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
                                 </tr>
                                 <?php endforeach; ?>

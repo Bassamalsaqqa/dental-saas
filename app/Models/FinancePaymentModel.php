@@ -14,9 +14,11 @@ class FinancePaymentModel extends TenantAwareModel
         'clinic_id',
         'finance_id',
         'amount',
+        'type',
         'payment_method',
         'payment_date',
         'notes',
+        'related_payment_id',
         'created_by',
         'created_at',
         'updated_at'
@@ -34,14 +36,27 @@ class FinancePaymentModel extends TenantAwareModel
         return $this->where('clinic_id', $clinicId)
             ->where('finance_id', $financeId)
             ->orderBy('payment_date', 'DESC')
+            ->orderBy('id', 'DESC')
             ->findAll();
     }
 
     public function getPaidTotalByInvoice($clinicId, $financeId)
     {
-        $row = $this->selectSum('amount', 'total_amount')
+        $row = $this->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
             ->where('clinic_id', $clinicId)
             ->where('finance_id', $financeId)
+            ->get()
+            ->getRow();
+
+        return $row ? floatval($row->total_amount ?? 0) : 0.0;
+    }
+
+    public function getRelatedAdjustmentsTotal(int $clinicId, int $paymentId): float
+    {
+        $row = $this->selectSum('amount', 'total_amount')
+            ->where('clinic_id', $clinicId)
+            ->where('related_payment_id', $paymentId)
+            ->whereIn('type', ['refund', 'void'])
             ->get()
             ->getRow();
 
