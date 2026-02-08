@@ -44,7 +44,7 @@
 
                 <!-- Form Content -->
                 <div class="p-8">
-                    <form action="<?= base_url('patient/store') ?>" method="POST" class="space-y-8">
+                    <form action="<?= base_url('patients/store') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
                         <!-- Personal Information -->
                         <div class="group/section relative">

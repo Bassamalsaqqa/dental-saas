@@ -1007,10 +1007,10 @@ function submitAddPatient() {
     submitButton.disabled = true;
     
     // Submit form data
-    console.log('Submitting to URL:', '<?= base_url('patient/store') ?>');
+    console.log('Submitting to URL:', '<?= base_url('patients/store') ?>');
     console.log('Form data:', Object.fromEntries(formData));
     
-    fetch('<?= base_url('patient/store') ?>', {
+    fetch('<?= base_url('patients/store') ?>', {
         method: 'POST',
         body: formData,
         headers: {

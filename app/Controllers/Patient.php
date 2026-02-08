@@ -287,10 +287,15 @@ class Patient extends BaseController
                 return redirect()->back()->withInput()->with('validation', $this->validator);
             }
 
+            $email = trim((string) $this->request->getPost('email'));
+            if ($email === '') {
+                $email = null;
+            }
+
             $patientData = [
                 'first_name' => $this->request->getPost('first_name'),
                 'last_name' => $this->request->getPost('last_name'),
-                'email' => $this->request->getPost('email'),
+                'email' => $email,
                 'phone' => $this->request->getPost('phone'),
                 'date_of_birth' => $this->request->getPost('date_of_birth'),
                 'gender' => $this->request->getPost('gender'),
@@ -665,7 +670,7 @@ class Patient extends BaseController
         }
 
         // Check email uniqueness manually for updates
-        $email = $this->request->getPost('email');
+        $email = trim((string) $this->request->getPost('email'));
         if (!empty($email)) {
             $existingPatient = $this->patientModel->where('email', $email)
                                                 ->where('clinic_id', $clinicId)
@@ -676,10 +681,14 @@ class Patient extends BaseController
             }
         }
 
+        if ($email === '') {
+            $email = null;
+        }
+
         $patientData = [
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name'),
-            'email' => $this->request->getPost('email'),
+            'email' => $email,
             'phone' => $this->request->getPost('phone'),
             'date_of_birth' => $this->request->getPost('date_of_birth'),
             'gender' => $this->request->getPost('gender'),
