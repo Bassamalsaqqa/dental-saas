@@ -232,13 +232,20 @@
                         </div>
                     </div>
                     
-                    <!-- Chart Placeholder -->
-                    <div class="h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <div class="text-center">
-                            <i class="fas fa-chart-line text-4xl text-gray-400 mb-4"></i>
-                            <p class="text-gray-500 font-medium">Revenue chart will be displayed here</p>
-                            <p class="text-gray-400 text-sm">Chart integration coming soon</p>
-                        </div>
+                    <?php
+                        $monthlyMap = array_fill(1, 12, 0);
+                        if (!empty($monthly_revenue)) {
+                            foreach ($monthly_revenue as $row) {
+                                $monthNum = intval($row['month'] ?? 0);
+                                if ($monthNum >= 1 && $monthNum <= 12) {
+                                    $monthlyMap[$monthNum] = floatval($row['total_amount'] ?? 0);
+                                }
+                            }
+                        }
+                        $monthlyValues = array_values($monthlyMap);
+                    ?>
+                    <div class="h-64 bg-white rounded-xl p-4 border border-gray-200">
+                        <canvas id="financeRevenueChart" height="240"></canvas>
                     </div>
                 </div>
             </div>
@@ -397,6 +404,60 @@ function downloadReport(format) {
 
 // Add smooth scrolling and enhanced interactions
 document.addEventListener('DOMContentLoaded', function() {
+    const revenueCtx = document.getElementById('financeRevenueChart');
+    if (revenueCtx) {
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const dataPoints = <?= json_encode($monthlyValues) ?>;
+        const currencySymbol = <?= json_encode($currency_symbol ?? '$') ?>;
+
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: dataPoints,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: true,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#4f46e5'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.y ?? 0;
+                                return currencySymbol + value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return currencySymbol + value;
+                            }
+                        },
+                        grid: { color: 'rgba(15, 23, 42, 0.06)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
     // Add smooth transitions to all interactive elements
     const interactiveElements = document.querySelectorAll('button, input, select, a');
     interactiveElements.forEach(element => {

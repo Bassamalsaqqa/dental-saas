@@ -189,6 +189,7 @@ class FinanceModel extends TenantAwareModel
             $standalonePayments = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
             $totalInvoices = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
             $refunds = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
+            $totalTransactions = (clone $builder)->countAllResults();
 
             $paymentBuilder = $this->db->table('finance_payments')->where('clinic_id', $clinicId);
             if ($startDate) {
@@ -241,14 +242,44 @@ class FinanceModel extends TenantAwareModel
                 ->getRow()
                 ->total_amount ?? 0;
 
+            $summaryBuilder = $this->db->table('finances')
+                ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount')
+                ->where('clinic_id', $clinicId);
+            if ($startDate) {
+                $summaryBuilder->where('created_at >=', $startDate);
+            }
+            if ($endDate) {
+                $summaryBuilder->where('created_at <=', $endDate);
+            }
+            $summaryRows = $summaryBuilder->groupBy('transaction_type')->get()->getResultArray();
+            $transactionSummary = [];
+            foreach ($summaryRows as $row) {
+                $count = intval($row['count'] ?? 0);
+                $total = floatval($row['total_amount'] ?? 0);
+                $transactionSummary[] = [
+                    'transaction_type' => $row['transaction_type'],
+                    'count' => $count,
+                    'total_amount' => $total,
+                    'average_amount' => $count > 0 ? ($total / $count) : 0,
+                ];
+            }
+
+            $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
+            $averageTransaction = $totalTransactions > 0 ? ($totalRevenue / $totalTransactions) : 0;
+
             return [
-                'total_revenue' => floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds),
+                'total_revenue' => $totalRevenue,
                 'total_invoices' => floatval($totalInvoices),
                 'pending_payments' => floatval($pendingPayments),
+                // Legacy alias used by finance/reports view
+                'pending_amount' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
                 'monthly_revenue' => floatval($monthlyRevenue) + floatval($monthlyInvoicePayments),
                 'outstanding_invoices' => intval($outstandingInvoices),
-                'net_income' => (floatval($standalonePayments) + floatval($invoicePayments)) - floatval($refunds)
+                'net_income' => $totalRevenue,
+                'total_transactions' => intval($totalTransactions),
+                'average_transaction' => $averageTransaction,
+                'transaction_summary' => $transactionSummary
             ];
         } catch (\Exception $e) {
             log_message('error', 'Finance stats error: ' . $e->getMessage());
@@ -256,10 +287,14 @@ class FinanceModel extends TenantAwareModel
                 'total_revenue' => 0,
                 'total_invoices' => 0,
                 'pending_payments' => 0,
+                'pending_amount' => 0,
                 'overdue_payments' => 0,
                 'monthly_revenue' => 0,
                 'outstanding_invoices' => 0,
-                'net_income' => 0
+                'net_income' => 0,
+                'total_transactions' => 0,
+                'average_transaction' => 0,
+                'transaction_summary' => []
             ];
         }
     }
@@ -363,6 +398,7 @@ class FinanceModel extends TenantAwareModel
             $standalonePayments = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
             $totalInvoices = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
             $refunds = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
+            $totalTransactions = (clone $builder)->countAllResults();
 
             $paymentBuilder = $this->db->table('finance_payments');
             if ($startDate) {
@@ -387,12 +423,40 @@ class FinanceModel extends TenantAwareModel
                 ->getRow()
                 ->total_amount ?? 0;
 
+            $summaryBuilder = $this->db->table('finances')
+                ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount');
+            if ($startDate) {
+                $summaryBuilder->where('created_at >=', $startDate);
+            }
+            if ($endDate) {
+                $summaryBuilder->where('created_at <=', $endDate);
+            }
+            $summaryRows = $summaryBuilder->groupBy('transaction_type')->get()->getResultArray();
+            $transactionSummary = [];
+            foreach ($summaryRows as $row) {
+                $count = intval($row['count'] ?? 0);
+                $total = floatval($row['total_amount'] ?? 0);
+                $transactionSummary[] = [
+                    'transaction_type' => $row['transaction_type'],
+                    'count' => $count,
+                    'total_amount' => $total,
+                    'average_amount' => $count > 0 ? ($total / $count) : 0,
+                ];
+            }
+
+            $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
+            $averageTransaction = $totalTransactions > 0 ? ($totalRevenue / $totalTransactions) : 0;
+
             return [
-                'total_revenue' => floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds),
+                'total_revenue' => $totalRevenue,
                 'total_invoices' => floatval($totalInvoices),
                 'pending_payments' => floatval($pendingPayments),
+                'pending_amount' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
-                'net_income' => (floatval($standalonePayments) + floatval($invoicePayments)) - floatval($refunds)
+                'net_income' => $totalRevenue,
+                'total_transactions' => intval($totalTransactions),
+                'average_transaction' => $averageTransaction,
+                'transaction_summary' => $transactionSummary
             ];
         } catch (\Exception $e) {
             log_message('error', 'Finance stats error: ' . $e->getMessage());
@@ -400,8 +464,12 @@ class FinanceModel extends TenantAwareModel
                 'total_revenue' => 0,
                 'total_invoices' => 0,
                 'pending_payments' => 0,
+                'pending_amount' => 0,
                 'overdue_payments' => 0,
-                'net_income' => 0
+                'net_income' => 0,
+                'total_transactions' => 0,
+                'average_transaction' => 0,
+                'transaction_summary' => []
             ];
         }
     }
