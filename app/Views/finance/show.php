@@ -2,476 +2,497 @@
 
 <?= $this->section('content') ?>
 <?php $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']); ?>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="space-y-8">
-        <!-- Page Header -->
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Financial Transaction Details</h1>
-                <p class="text-gray-600 mt-1">Transaction ID: <?= $finance['transaction_id'] ?></p>
-            </div>
-            <div class="flex space-x-3">
-                <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Finance
-                </a>
-                <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-edit mr-2"></i>Edit Transaction
-                </a>
-            </div>
-        </div>
-
-        <!-- Transaction Overview -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-            <div class="px-8 py-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800">Transaction Overview</h3>
-            </div>
-            <div class="px-8 py-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600 mb-2">
-                            <?= number_format($finance['amount'], 2) ?> <?= $finance['currency'] ?>
-                        </div>
-                        <p class="text-sm text-gray-600">Amount</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50/30">
+    <div class="w-full px-6 py-8">
+        <div class="space-y-6">
+            <!-- Page Header -->
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-file-invoice-dollar text-white text-xl"></i>
                     </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-600 mb-2">
-                            <?= ucfirst(str_replace('_', ' ', $finance['transaction_type'])) ?>
+                    <div>
+                        <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                            Financial Transaction
+                        </h1>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 font-mono shadow-sm">
+                                <?= $finance['transaction_id'] ?>
+                            </span>
+                            <span class="text-gray-500 text-sm font-medium">Created on <?= date('M j, Y', strtotime($finance['created_at'])) ?></span>
                         </div>
-                        <p class="text-sm text-gray-600">Transaction Type</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-purple-600 mb-2">
-                            <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?>
-                        </div>
-                        <p class="text-sm text-gray-600">Payment Method</p>
-                    </div>
-                    <div class="text-center">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
-                                ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
-                                ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
-                            <?= ucfirst($finance['payment_status']) ?>
-                        </span>
-                        <p class="text-sm text-gray-600 mt-2">Payment Status</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Patient Information -->
-        <?php if ($patient): ?>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-            <div class="px-8 py-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-800">Patient Information</h2>
-                            <p class="text-sm text-gray-500">Patient details for this transaction</p>
-                        </div>
-                    </div>
-                    <a href="<?= base_url('patient/' . $patient['id']) ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-external-link-alt mr-2"></i>View Patient
+                <div class="flex space-x-3">
+                    <a href="<?= base_url('finance') ?>" 
+                       class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Finance
+                    </a>
+                    <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg">
+                        <i class="fas fa-edit mr-2"></i>Edit Transaction
                     </a>
                 </div>
             </div>
-            <div class="px-8 py-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Patient Name</label>
-                        <p class="text-gray-900 font-semibold text-lg"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Patient ID</label>
-                        <p class="text-gray-900 font-semibold text-lg"><?= $patient['patient_id'] ?></p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Phone</label>
-                        <p class="text-gray-900 font-semibold text-lg"><?= $patient['phone'] ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
 
-        <!-- Examination Information -->
-        <?php if ($examination): ?>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-            <div class="px-8 py-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                            <i class="fas fa-stethoscope text-white text-lg"></i>
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Left Column: Main Content (5/6) -->
+                <div class="lg:w-5/6 space-y-6">
+                    
+                    <!-- Transaction Overview Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 p-6 shadow-sm hover:shadow-lg transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
+                                    <?= number_format($finance['amount'], 2) ?> <span class="text-sm text-gray-500 font-medium"><?= $finance['currency'] ?></span>
+                                </div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Base Amount</div>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-800">Related Examination</h2>
-                            <p class="text-sm text-gray-500">Examination details for this transaction</p>
+                        
+                        <div class="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 p-6 shadow-sm hover:shadow-lg transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center">
+                                    <i class="fas fa-exchange-alt mr-2 text-blue-500/50 group-hover:rotate-180 transition-transform duration-500"></i>
+                                    <?= ucfirst(str_replace('_', ' ', $finance['transaction_type'])) ?>
+                                </div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Transaction Type</div>
+                            </div>
                         </div>
-                    </div>
-                    <a href="<?= base_url('examination/' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-external-link-alt mr-2"></i>View Examination
-                    </a>
-                </div>
-            </div>
-            <div class="px-8 py-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Examination ID</label>
-                        <p class="text-gray-900 font-semibold text-lg"><?= $examination['examination_id'] ?></p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Examination Date</label>
-                        <p class="text-gray-900 font-semibold text-lg"><?= date('M j, Y', strtotime($examination['examination_date'])) ?></p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Status</label>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 
-                                ($examination['status'] == 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') ?>">
-                            <?= ucfirst($examination['status']) ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
 
-        <!-- Transaction Details -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Service Information -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                <div class="px-8 py-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Service Information</h3>
-                </div>
-                <div class="px-8 py-6">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Service Type</label>
-                            <p class="text-sm text-gray-900"><?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
-                        </div>
-                        <?php if (!empty($finance['service_details'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Service Details</label>
-                            <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($finance['service_details'])) ?></p>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($finance['description'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Description</label>
-                            <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($finance['description'])) ?></p>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Financial Details -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                <div class="px-8 py-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Financial Details</h3>
-                </div>
-                <div class="px-8 py-6">
-                    <div class="space-y-6">
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-600">Base Amount:</span>
-                            <span class="text-sm text-gray-900"><?= number_format($finance['amount'], 2) ?> <?= $finance['currency'] ?></span>
-                        </div>
-                        <?php if ($finance['discount_amount'] > 0): ?>
-                        <div class="flex justify-between text-red-600">
-                            <span class="text-sm font-medium">Discount:</span>
-                            <span class="text-sm">-<?= number_format($finance['discount_amount'], 2) ?> <?= $finance['currency'] ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($finance['tax_amount'] > 0): ?>
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-600">Tax:</span>
-                            <span class="text-sm text-gray-900"><?= number_format($finance['tax_amount'], 2) ?> <?= $finance['currency'] ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <div class="border-t pt-4">
-                            <div class="flex justify-between font-semibold">
-                                <span class="text-sm text-gray-900">Total Amount:</span>
-                                <span class="text-sm text-gray-900">
-                                    <?= number_format($totalAmount, 2) ?> <?= $finance['currency'] ?>
-                                </span>
+                        <div class="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 p-6 shadow-sm hover:shadow-lg transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
+                                        <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' : 
+                                            ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
+                                            ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' : 
+                                            ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
+                                        <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
+                                        <?= ucfirst($finance['payment_status']) ?>
+                                    </span>
+                                </div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-widest">Payment Status</div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Payment Information -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Payment Details -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                <div class="px-8 py-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Payment Details</h3>
-                </div>
-                <div class="px-8 py-6">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Payment Method</label>
-                            <p class="text-sm text-gray-900"><?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Payment Status</label>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
-                                    ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
-                                    ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                    ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
-                                <?= ucfirst($finance['payment_status']) ?>
+                    <!-- Financial Details & Breakdown -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                        <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-8 py-5 flex justify-between items-center text-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-list-ul text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold">Details & Breakdown</h3>
+                            </div>
+                            <span class="text-xs font-black px-3 py-1.5 bg-blue-500 text-white rounded-full uppercase tracking-tighter shadow-lg">
+                                <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?>
                             </span>
                         </div>
-                        <?php if ($finance['transaction_type'] === 'invoice'): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Amount Paid</label>
-                            <p class="text-sm text-gray-900"><?= number_format($finance['amount_paid'] ?? 0, 2) ?> <?= $finance['currency'] ?></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Balance Due</label>
-                            <p class="text-sm font-semibold text-red-700"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?> <?= $finance['currency'] ?></p>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($finance['paid_date'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Paid Date</label>
-                            <p class="text-sm text-gray-900"><?= date('M j, Y', strtotime($finance['paid_date'])) ?></p>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($finance['due_date'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Due Date</label>
-                            <p class="text-sm text-gray-900"><?= date('M j, Y', strtotime($finance['due_date'])) ?></p>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transaction Metadata -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                <div class="px-8 py-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Transaction Metadata</h3>
-                </div>
-                <div class="px-8 py-6">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Transaction ID</label>
-                            <p class="text-sm text-gray-900 font-mono"><?= $finance['transaction_id'] ?></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Created Date</label>
-                            <p class="text-sm text-gray-900"><?= date('M j, Y g:i A', strtotime($finance['created_at'])) ?></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Last Updated</label>
-                            <p class="text-sm text-gray-900"><?= date('M j, Y g:i A', strtotime($finance['updated_at'])) ?></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Created By</label>
-                            <p class="text-sm text-gray-900">User ID: <?= $finance['created_by'] ?></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <?php if ($finance['transaction_type'] === 'invoice'): ?>
-        <!-- Invoice Payments -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-            <div class="px-8 py-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Invoice Payments</h3>
-                        <p class="text-sm text-gray-500">Track partial and full payments for this invoice</p>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        Paid <?= number_format($paid_total ?? 0, 2) ?> / <?= number_format($totalAmount, 2) ?> <?= $finance['currency'] ?>
-                    </div>
-                </div>
-            </div>
-            <div class="px-8 py-6 space-y-6">
-                <?php if (!empty($payments)): ?>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                                    <?php if (has_permission('finance', 'edit')): ?>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <!-- Description -->
+                                <div class="space-y-6">
+                                    <div class="group/info">
+                                        <label class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] block mb-3">Service Description</label>
+                                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 text-gray-700 text-sm leading-relaxed group-hover/info:bg-white group-hover/info:shadow-inner transition-all duration-300">
+                                            <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">No description provided</span>' ?>
+                                        </div>
+                                    </div>
+                                    <?php if (!empty($finance['service_details'])): ?>
+                                    <div class="group/info">
+                                        <label class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] block mb-3">Technical Details</label>
+                                        <div class="p-5 bg-blue-50/30 rounded-2xl border border-blue-100/50 text-gray-700 text-sm leading-relaxed group-hover/info:bg-white group-hover/info:shadow-inner transition-all duration-300">
+                                            <?= nl2br(htmlspecialchars($finance['service_details'])) ?>
+                                        </div>
+                                    </div>
                                     <?php endif; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($payments as $payment): ?>
-                                <?php
-                                    $type = $payment['type'] ?? 'payment';
-                                    $typeClass = 'bg-green-100 text-green-800';
-                                    if ($type === 'refund') {
-                                        $typeClass = 'bg-red-100 text-red-800';
-                                    } elseif ($type === 'void') {
-                                        $typeClass = 'bg-gray-100 text-gray-800';
-                                    }
-                                ?>
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-700"><?= date('M j, Y', strtotime($payment['payment_date'])) ?></td>
-                                    <td class="px-4 py-3 text-sm">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold <?= $typeClass ?>">
-                                            <?= ucfirst($type) ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900">
-                                        <?= ($type === 'payment' ? '+' : '-') . number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
-                                    <?php if (has_permission('finance', 'edit')): ?>
-                                    <td class="px-4 py-3 text-sm">
-                                        <?php if ($type === 'payment'): ?>
-                                            <button type="button"
-                                                    onclick="voidPayment(<?= (int) $payment['id'] ?>)"
-                                                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-md hover:bg-gray-200">
-                                                <i class="fas fa-ban mr-1"></i>Void
-                                            </button>
-                                        <?php else: ?>
-                                            <span class="text-xs text-gray-400">—</span>
+                                </div>
+
+                                <!-- Calculations -->
+                                <div class="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-3xl p-8 border border-slate-200/60 shadow-inner">
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center text-sm">
+                                            <span class="text-gray-500 font-medium uppercase tracking-widest">Subtotal</span>
+                                            <span class="font-bold text-gray-900"><?= number_format($finance['amount'], 2) ?></span>
+                                        </div>
+                                        <?php if ($finance['discount_amount'] > 0): ?>
+                                        <div class="flex justify-between items-center text-sm text-rose-600 bg-rose-50 px-3 py-2 rounded-lg">
+                                            <span class="font-bold uppercase tracking-widest">Discount</span>
+                                            <span class="font-black">-<?= number_format($finance['discount_amount'], 2) ?></span>
+                                        </div>
                                         <?php endif; ?>
-                                    </td>
-                                    <?php endif; ?>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                        <?php if ($finance['tax_amount'] > 0): ?>
+                                        <div class="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+                                            <span class="font-bold uppercase tracking-widest">Tax (VAT)</span>
+                                            <span class="font-black">+<?= number_format($finance['tax_amount'], 2) ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="border-t-2 border-slate-200 pt-6 mt-6 flex justify-between items-end">
+                                            <div class="flex flex-col">
+                                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Total Due</span>
+                                                <span class="font-black text-gray-900 text-3xl leading-none tracking-tight">
+                                                    <?= number_format($totalAmount, 2) ?>
+                                                </span>
+                                            </div>
+                                            <span class="text-sm font-black text-blue-600 bg-blue-100 px-3 py-1 rounded-lg uppercase"><?= $finance['currency'] ?></span>
+                                        </div>
+                                        
+                                        <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                                            <div class="pt-6 mt-6 border-t border-slate-200 border-dashed space-y-3">
+                                                <div class="flex justify-between items-center text-sm">
+                                                    <span class="text-emerald-600 font-bold uppercase tracking-widest">Paid to Date</span>
+                                                    <span class="text-emerald-700 font-black"><?= number_format($finance['amount_paid'] ?? 0, 2) ?></span>
+                                                </div>
+                                                <div class="flex justify-between items-center text-sm bg-rose-50 p-4 rounded-2xl border border-rose-100 shadow-sm">
+                                                    <span class="text-rose-600 font-black uppercase tracking-widest">Balance Due</span>
+                                                    <span class="text-rose-700 text-2xl font-black"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?></span>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                <?php else: ?>
-                    <div class="text-sm text-gray-600">No payments recorded yet.</div>
-                <?php endif; ?>
 
-                <?php if (has_permission('finance', 'edit')): ?>
-                <div class="border-t pt-6">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Add Payment</h4>
-                    <form id="invoicePaymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <?= csrf_field() ?>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Amount</label>
-                            <input type="number" name="amount" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" placeholder="0.00" required>
+                    <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                    <!-- Invoice Payments Ledger -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-5 flex justify-between items-center text-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-history text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold">Payments Ledger</h3>
+                            </div>
+                            <div class="text-xs font-black uppercase tracking-widest opacity-80">
+                                History of Settlements
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Method</label>
-                            <select name="payment_method" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" required>
-                                <option value="cash">Cash</option>
-                                <option value="card">Card</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="check">Check</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Date</label>
-                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                        </div>
-                        <div class="md:col-span-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Notes</label>
-                            <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30" placeholder="Optional payment notes..."></textarea>
-                        </div>
-                        <div class="md:col-span-4 flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-5 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                                <i class="fas fa-plus mr-2"></i>Add Payment
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <?php endif; ?>
-
-                <?php if (has_permission('finance', 'edit')): ?>
-                <div class="border-t pt-6">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-4">Record Refund</h4>
-                    <form id="invoiceRefundForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <?= csrf_field() ?>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Amount</label>
-                            <input type="number" name="amount" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" placeholder="0.00" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Method</label>
-                            <select name="payment_method" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" required>
-                                <option value="cash">Cash</option>
-                                <option value="card">Card</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="check">Check</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Payment Date</label>
-                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Related Payment (optional)</label>
-                            <select name="related_payment_id" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30">
-                                <option value="">No specific payment</option>
-                                <?php foreach ($payments as $payment): ?>
-                                    <?php if (($payment['type'] ?? 'payment') === 'payment'): ?>
-                                        <option value="<?= (int) $payment['id'] ?>">
-                                            <?= date('M j, Y', strtotime($payment['payment_date'])) ?> - <?= number_format($payment['amount'], 2) ?> <?= $finance['currency'] ?>
-                                        </option>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-8 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Date</th>
+                                        <th class="px-8 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                                        <th class="px-8 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Method</th>
+                                        <th class="px-8 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Amount</th>
+                                        <th class="px-8 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Notes</th>
+                                        <?php if (has_permission('finance', 'edit')): ?>
+                                        <th class="px-8 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Actions</th>
+                                        <?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-50">
+                                    <?php if (!empty($payments)): ?>
+                                        <?php foreach ($payments as $payment): ?>
+                                        <?php
+                                            $type = $payment['type'] ?? 'payment';
+                                            $typeClass = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                                            $amountClass = 'text-emerald-700';
+                                            $prefix = '+';
+                                            
+                                            if ($type === 'refund') {
+                                                $typeClass = 'bg-rose-100 text-rose-700 border-rose-200';
+                                                $amountClass = 'text-rose-700';
+                                                $prefix = '-';
+                                            } elseif ($type === 'void') {
+                                                $typeClass = 'bg-slate-100 text-slate-500 border-slate-200 line-through opacity-50';
+                                                $amountClass = 'text-slate-400 line-through opacity-50';
+                                                $prefix = '';
+                                            }
+                                        ?>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-8 py-5 whitespace-nowrap text-sm font-bold text-slate-700">
+                                                <?= date('M j, Y', strtotime($payment['payment_date'])) ?>
+                                            </td>
+                                            <td class="px-8 py-5 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black border uppercase tracking-wider <?= $typeClass ?>">
+                                                    <?= ucfirst($type) ?>
+                                                </span>
+                                            </td>
+                                            <td class="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-600">
+                                                <?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>
+                                            </td>
+                                            <td class="px-8 py-5 whitespace-nowrap text-sm font-black text-right <?= $amountClass ?>">
+                                                <?= $prefix . number_format($payment['amount'], 2) ?>
+                                            </td>
+                                            <td class="px-8 py-5 text-sm text-slate-500 truncate max-w-xs italic">
+                                                <?= $payment['notes'] ? esc($payment['notes']) : '<span class="text-slate-300">—</span>' ?>
+                                            </td>
+                                            <?php if (has_permission('finance', 'edit')): ?>
+                                            <td class="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
+                                                <?php if ($type === 'payment'): ?>
+                                                    <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all" title="Void Payment">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="6" class="px-8 py-12 text-center text-sm text-slate-400 font-medium">
+                                                <i class="fas fa-inbox text-3xl mb-3 block opacity-20"></i>
+                                                No payment history found for this invoice.
+                                            </td>
+                                        </tr>
                                     <?php endif; ?>
-                                <?php endforeach; ?>
-                            </select>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="md:col-span-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">Notes</label>
-                            <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/30" placeholder="Optional refund notes..."></textarea>
+                    </div>
+
+                    <?php if (has_permission('finance', 'edit')): ?>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Record Payment Form -->
+                        <div class="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden group/card">
+                            <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-transparent flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner group-hover/card:scale-110 transition-transform">
+                                    <i class="fas fa-plus-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Settlement</h4>
+                                    <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">Receive new payment</p>
+                                </div>
+                            </div>
+                            <div class="p-8">
+                                <form id="invoicePaymentForm" class="space-y-6">
+                                    <?= csrf_field() ?>
+                                    <div class="group/field">
+                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Amount to Receive</label>
+                                        <div class="relative group">
+                                            <div class="absolute inset-0 bg-emerald-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div class="relative">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
+                                                    <span class="text-slate-400 font-black text-lg">$</span>
+                                                </div>
+                                                <input type="number" name="amount" step="0.01" min="0" 
+                                                       class="w-full pl-10 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-lg font-black text-slate-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all duration-300 shadow-inner" 
+                                                       placeholder="0.00" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div class="group/field">
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Method</label>
+                                            <select name="payment_method" class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 shadow-inner appearance-none">
+                                                <option value="cash">Cash Settlement</option>
+                                                <option value="card">Card Payment</option>
+                                                <option value="bank_transfer">Wire Transfer</option>
+                                                <option value="check">Check Deposit</option>
+                                                <option value="other">Alternative</option>
+                                            </select>
+                                        </div>
+                                        <div class="group/field">
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Execution Date</label>
+                                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" 
+                                                   class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 focus:bg-white transition-all duration-300 shadow-inner">
+                                        </div>
+                                    </div>
+                                    <div class="group/field">
+                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Memo / Notes</label>
+                                        <textarea name="notes" rows="2" 
+                                                  class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 focus:bg-white transition-all duration-300 shadow-inner resize-none" 
+                                                  placeholder="Internal bookkeeping details..."></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full relative flex justify-center items-center py-4 px-6 border-transparent rounded-2xl shadow-xl text-sm font-black text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 transition-all transform hover:-translate-y-1 active:translate-y-0 group/btn">
+                                        <i class="fas fa-check-double mr-3 group-hover/btn:animate-bounce"></i>
+                                        Post Settlement
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="md:col-span-4 flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-5 py-2 bg-red-600 text-white text-sm font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                                <i class="fas fa-undo mr-2"></i>Record Refund
-                            </button>
+
+                        <!-- Record Refund Form -->
+                        <div class="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden group/card">
+                            <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-rose-50 to-transparent flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 shadow-inner group-hover/card:scale-110 transition-transform">
+                                    <i class="fas fa-undo-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Reversal</h4>
+                                    <p class="text-[10px] text-rose-600 font-bold uppercase tracking-tighter">Process financial refund</p>
+                                </div>
+                            </div>
+                            <div class="p-8">
+                                <form id="invoiceRefundForm" class="space-y-6">
+                                    <?= csrf_field() ?>
+                                    <div class="group/field">
+                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Amount to Refund</label>
+                                        <div class="relative group">
+                                            <div class="absolute inset-0 bg-rose-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div class="relative">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
+                                                    <span class="text-slate-400 font-black text-lg">$</span>
+                                                </div>
+                                                <input type="number" name="amount" step="0.01" min="0" 
+                                                       class="w-full pl-10 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-lg font-black text-slate-800 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 focus:bg-white transition-all duration-300 shadow-inner" 
+                                                       placeholder="0.00" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div class="group/field">
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Reversal Method</label>
+                                            <select name="payment_method" class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 shadow-inner appearance-none">
+                                                <option value="cash">Cash Refund</option>
+                                                <option value="card">Card Reversal</option>
+                                                <option value="bank_transfer">Wire Back</option>
+                                                <option value="check">Check Issued</option>
+                                                <option value="other">Alternative</option>
+                                            </select>
+                                        </div>
+                                        <div class="group/field">
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Refund Date</label>
+                                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" 
+                                                   class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 focus:bg-white transition-all duration-300 shadow-inner">
+                                        </div>
+                                    </div>
+                                    <div class="group/field">
+                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Refund Logic / Reason</label>
+                                        <textarea name="notes" rows="2" 
+                                                  class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 focus:bg-white transition-all duration-300 shadow-inner resize-none" 
+                                                  placeholder="Justification for this refund..."></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full flex justify-center items-center py-4 px-6 border-2 border-rose-200 rounded-2xl shadow-sm text-sm font-black text-rose-600 bg-white hover:bg-rose-50 transition-all transform hover:-translate-y-1 active:translate-y-0 group/btn">
+                                        <i class="fas fa-reply-all mr-3 group-hover/btn:-rotate-45 transition-transform"></i>
+                                        Execute Reversal
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                    <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php if (!empty($finance['notes'])): ?>
+                    <!-- Additional Notes -->
+                    <div class="bg-white rounded-3xl border border-gray-200 shadow-xl p-10 group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 rounded-full -translate-y-16 translate-x-16"></div>
+                        <h3 class="text-xl font-black text-slate-800 mb-6 flex items-center">
+                            <i class="fas fa-sticky-note mr-3 text-yellow-500"></i> Administrative Notes
+                        </h3>
+                        <div class="text-base text-slate-600 bg-gradient-to-br from-yellow-50/50 to-orange-50/20 p-8 rounded-3xl border border-yellow-100 shadow-inner leading-loose">
+                            <?= nl2br(htmlspecialchars($finance['notes'])) ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endif; ?>
 
-        <!-- Notes -->
-        <?php if (!empty($finance['notes'])): ?>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-            <div class="px-8 py-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800">Notes</h3>
-            </div>
-            <div class="px-8 py-6">
-                <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($finance['notes'])) ?></p>
-            </div>
-        </div>
-        <?php endif; ?>
+                <!-- Right Column: Sidebar (1/6) -->
+                <div class="lg:w-1/6 space-y-6">
+                    
+                    <!-- Action Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl p-5 group hover:shadow-2xl transition-all duration-500">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 px-2 flex items-center">
+                            <i class="fas fa-cogs mr-2"></i> Control Panel
+                        </h3>
+                        <div class="space-y-4">
+                            <?php if ($finance['payment_status'] != 'paid'): ?>
+                                <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white text-sm font-black rounded-2xl transition-all shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-1 group/mark">
+                                    <span>Settle All</span>
+                                    <i class="fas fa-check-circle group-hover/mark:scale-125 transition-transform"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="w-full flex items-center justify-between px-5 py-4 bg-white border-2 border-slate-100 hover:border-blue-200 hover:bg-blue-50 text-slate-700 text-sm font-bold rounded-2xl transition-all group/print">
+                                <span>Export Invoice</span>
+                                <i class="fas fa-file-pdf text-slate-300 group-hover/print:text-blue-500 group-hover/print:scale-110 transition-all"></i>
+                            </a>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-wrap justify-end gap-4 pt-6">
-            <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>Back to List
-            </a>
-            <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                <i class="fas fa-edit mr-2"></i>Edit Transaction
-            </a>
-            <?php if ($finance['payment_status'] != 'paid'): ?>
-                <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="inline-flex items-center px-6 py-3 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-check mr-2"></i>Mark as Paid
-                </button>
-            <?php endif; ?>
-            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="inline-flex items-center px-6 py-3 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
-                <i class="fas fa-file-invoice mr-2"></i>Generate Invoice
-            </a>
+                            <?php if (has_permission('finance', 'delete')): ?>
+                            <div class="pt-4 border-t border-slate-100 mt-4">
+                                <form action="<?= base_url('finance/' . $finance['id'] . '/delete') ?>" method="post" onsubmit="return confirm('Are you sure? This will wipe the transaction from existence.');">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="w-full flex items-center justify-between px-5 py-3 text-rose-500 hover:bg-rose-50 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all group/del">
+                                        <span>Delete Ledger</span>
+                                        <i class="fas fa-trash-alt opacity-30 group-hover/del:opacity-100 group-hover/del:scale-110 transition-all"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Patient Card -->
+                    <?php if ($patient): ?>
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 hover:shadow-2xl transition-all duration-500 group/patient">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Subject</h3>
+                        <div class="flex flex-col items-center text-center mb-6">
+                            <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center text-white font-black text-2xl shadow-xl group-hover/patient:rotate-6 transition-transform mb-4">
+                                <?= substr($patient['first_name'], 0, 1) . substr($patient['last_name'], 0, 1) ?>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-base font-black text-slate-800 truncate">
+                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?>
+                                </div>
+                                <div class="text-xs font-bold text-blue-500 mt-1 uppercase tracking-tighter">Patient Record #<?= $patient['patient_id'] ?></div>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('patient/' . $patient['id']) ?>" class="block w-full text-center px-4 py-3 bg-slate-50 hover:bg-blue-600 hover:text-white text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-slate-100 transition-all duration-300">
+                            Subject Profile
+                        </a>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Metadata Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 text-sm hover:shadow-2xl transition-all duration-500">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Registry Info</h3>
+                        <div class="space-y-4">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Standard Method</span>
+                                <span class="font-bold text-slate-800"><?= ucfirst($finance['payment_method']) ?></span>
+                            </div>
+                            <?php if (!empty($finance['due_date'])): ?>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Expiration / Due</span>
+                                <span class="font-bold text-rose-600"><?= date('M j, Y', strtotime($finance['due_date'])) ?></span>
+                            </div>
+                            <?php endif; ?>
+                             <?php if (!empty($finance['paid_date'])): ?>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Settlement Date</span>
+                                <span class="font-bold text-emerald-600"><?= date('M j, Y', strtotime($finance['paid_date'])) ?></span>
+                            </div>
+                            <?php endif; ?>
+                            <div class="pt-4 border-t border-slate-50 mt-2">
+                                <div class="flex justify-between items-center opacity-40">
+                                    <span class="text-[8px] font-black uppercase tracking-widest italic">Rev.</span>
+                                    <span class="text-[8px] font-black tracking-tighter"><?= date('M j, g:i a', strtotime($finance['updated_at'])) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Related Examination -->
+                    <?php if ($examination): ?>
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 hover:shadow-2xl transition-all duration-500 group/exam">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Clinical Link</h3>
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner group-hover/exam:bg-emerald-100 transition-colors">
+                                <i class="fas fa-stethoscope text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-black text-slate-800">
+                                    <?= date('M j, Y', strtotime($examination['examination_date'])) ?>
+                                </div>
+                                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
+                                    Status: <?= ucfirst($examination['status']) ?>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('examination/' . $examination['id']) ?>" class="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest flex items-center justify-center group/link transition-colors">
+                            Clinical Record <i class="fas fa-chevron-right ml-2 text-[8px] group-hover/link:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -510,6 +531,13 @@ if (invoicePaymentForm) {
     invoicePaymentForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(invoicePaymentForm);
+        
+        // Disable button to prevent double submit
+        const btn = this.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+
         fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments`, {
             method: 'POST',
             headers: {
@@ -527,11 +555,15 @@ if (invoicePaymentForm) {
                 location.reload();
             } else {
                 alert('Error: ' + data.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while adding the payment.');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         });
     });
 }
@@ -541,6 +573,12 @@ if (invoiceRefundForm) {
     invoiceRefundForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(invoiceRefundForm);
+        
+        const btn = this.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+
         fetch(`<?= base_url('finance') ?>/<?= $finance['id'] ?>/payments/refund`, {
             method: 'POST',
             headers: {
@@ -558,11 +596,15 @@ if (invoiceRefundForm) {
                 location.reload();
             } else {
                 alert('Error: ' + data.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while recording the refund.');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         });
     });
 }
