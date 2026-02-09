@@ -1261,3 +1261,14 @@
     - Seeded clinic settings from global defaults during onboarding in `app/Services/OnboardingService.php`.
     - Expanded control-plane defaults migration and superadmin SQL dump.
 - **Verification:** `docs/SaaS/verification/CP-SET-02.md`.
+
+### Task: P5-FIN-02 Multi-Currency Finance + Check Scan Attachments
+- **Date:** 2026-02-09
+- **Status:** Completed
+- **Description:** Added per-transaction original currency capture with exchange rate and optional check scan uploads, while keeping base-currency totals and storage quotas enforced.
+- **Actions:**
+  - Added `amount_original` and `exchange_rate` columns to `finances` via migration.
+  - Updated finance create/edit flows to capture original amount, currency, exchange rate, and optional check scan.
+  - Updated finance show/invoice/export views to display base totals plus original currency details when applicable.
+  - Enforced attachment limits for check scans through existing `StorageService` logic.
+- **Verification:** `docs/SaaS/verification/P5-FIN-02.md`.

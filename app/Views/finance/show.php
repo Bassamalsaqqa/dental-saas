@@ -8,6 +8,10 @@
     if (!$taxPercent && $taxableBase > 0 && !empty($finance['tax_amount'])) {
         $taxPercent = round((floatval($finance['tax_amount']) / $taxableBase) * 100, 2);
     }
+    $baseCurrency = $base_currency ?? ($finance['currency'] ?? 'ILS');
+    $amountOriginal = $finance['amount_original'] ?? $finance['amount'];
+    $exchangeRate = $finance['exchange_rate'] ?? 1;
+    $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -54,7 +58,7 @@
                     <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
-                                <?= number_format($totalAmount, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= $finance['currency'] ?></span>
+                                <?= number_format($totalAmount, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
                             </div>
                             <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Amount</div>
                         </div>
@@ -127,6 +131,15 @@
                                         <span class="text-gray-600 font-medium">Subtotal</span>
                                         <span class="font-bold text-gray-900"><?= number_format($finance['amount'], 2) ?></span>
                                     </div>
+                                    <?php if ($isConverted): ?>
+                                    <div class="flex justify-between items-center text-xs text-gray-500">
+                                        <span class="font-medium">Original</span>
+                                        <span class="font-semibold">
+                                            <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?>
+                                            @ <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?>
+                                        </span>
+                                    </div>
+                                    <?php endif; ?>
                                     <?php if ($finance['discount_amount'] > 0): ?>
                                     <div class="flex justify-between items-center text-sm text-rose-600">
                                         <span class="font-medium">Discount</span>
@@ -142,7 +155,7 @@
                                     <div class="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
                                         <span class="text-lg font-bold text-gray-800">Total</span>
                                         <span class="text-2xl font-bold text-gray-900">
-                                            <?= number_format($totalAmount, 2) ?> <span class="text-sm font-normal text-gray-500"><?= $finance['currency'] ?></span>
+                                            <?= number_format($totalAmount, 2) ?> <span class="text-sm font-normal text-gray-500"><?= esc($baseCurrency) ?></span>
                                         </span>
                                     </div>
                                     
@@ -478,6 +491,29 @@
                             <label class="block text-sm font-medium text-gray-600 mb-1">Standard Method</label>
                             <p class="text-gray-800 font-semibold"><?= ucfirst($finance['payment_method']) ?></p>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Currency</label>
+                            <p class="text-gray-800 font-semibold">
+                                <?= esc($baseCurrency) ?>
+                                <?php if ($isConverted): ?>
+                                    <span class="text-xs text-gray-500">from <?= esc($finance['currency']) ?></span>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <?php if ($isConverted): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Exchange Rate</label>
+                            <p class="text-gray-800 font-semibold"><?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($check_attachment)): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Check Scan</label>
+                            <a class="text-blue-600 hover:text-blue-700 font-semibold" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                Download Check Scan
+                            </a>
+                        </div>
+                        <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Due Date</label>
@@ -593,9 +629,9 @@ if (invoicePaymentForm) {
         event.preventDefault();
         const formData = new FormData(invoicePaymentForm);
         const btn = this.querySelector('button[type="submit"]');
-        const originalText = btn.innerHTML;
+        const originalText = btn.textContent;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+        btn.textContent = 'Processing...';
 
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -618,14 +654,14 @@ if (invoicePaymentForm) {
             } else {
                 alert('Error: ' + data.message);
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while adding the payment.');
             btn.disabled = false;
-            btn.innerHTML = originalText;
+            btn.textContent = originalText;
         });
     });
 }
@@ -636,9 +672,9 @@ if (invoiceRefundForm) {
         event.preventDefault();
         const formData = new FormData(invoiceRefundForm);
         const btn = this.querySelector('button[type="submit"]');
-        const originalText = btn.innerHTML;
+        const originalText = btn.textContent;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+        btn.textContent = 'Processing...';
 
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -661,14 +697,14 @@ if (invoiceRefundForm) {
             } else {
                 alert('Error: ' + data.message);
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while recording the refund.');
             btn.disabled = false;
-            btn.innerHTML = originalText;
+            btn.textContent = originalText;
         });
     });
 }

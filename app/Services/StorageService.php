@@ -28,7 +28,7 @@ class StorageService
             throw new \RuntimeException($file->getErrorString() . '(' . $file->getError() . ')');
         }
 
-        if ($entityType === 'patient' && $purpose === 'attachment') {
+        if ($purpose && in_array($purpose, ['attachment', 'check_scan'], true)) {
             $this->planGuard->assertFeature($clinicId, 'attachments.enabled', [
                 'entity_type' => $entityType,
                 'entity_id' => $entityId

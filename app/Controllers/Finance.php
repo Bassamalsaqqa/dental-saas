@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\FinanceModel;
 use App\Models\FinancePaymentModel;
+use App\Models\FileAttachmentModel;
 use App\Models\PatientModel;
 use App\Models\ExaminationModel;
 use App\Services\ActivityLogger;
@@ -13,6 +14,7 @@ class Finance extends BaseController
 {
     protected $financeModel;
     protected $financePaymentModel;
+    protected $attachmentModel;
     protected $patientModel;
     protected $examinationModel;
     protected $activityLogger;
@@ -23,6 +25,7 @@ class Finance extends BaseController
     {
         $this->financeModel = new FinanceModel();
         $this->financePaymentModel = new FinancePaymentModel();
+        $this->attachmentModel = new FileAttachmentModel();
         $this->patientModel = new PatientModel();
         $this->examinationModel = new ExaminationModel();
         $this->activityLogger = new ActivityLogger();
@@ -76,7 +79,9 @@ class Finance extends BaseController
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'examinations' => [], // S4-02f: No bulk preload
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT']
         ];
 
         return $this->view('finance/create', $data);
@@ -84,10 +89,12 @@ class Finance extends BaseController
 
     public function store()
     {
+        $clinicId = session()->get('active_clinic_id');
         $rules = [
             'patient_id' => 'required|integer',
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
-            'amount' => 'required|decimal|greater_than[0]',
+            'amount_original' => 'required|decimal|greater_than[0]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP,BDT]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
@@ -98,7 +105,17 @@ class Finance extends BaseController
         }
 
         // Calculate total amount
-        $amount = floatval($this->request->getPost('amount'));
+        $amountOriginal = floatval($this->request->getPost('amount_original'));
+        $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
+        $baseCurrency = settings()->get('currency', 'ILS');
+        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        if ($currency === $baseCurrency) {
+            $exchangeRate = $exchangeRate > 0 ? $exchangeRate : 1.0;
+        } elseif ($exchangeRate <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
+        }
+
+        $amount = $amountOriginal * $exchangeRate;
         $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
@@ -130,7 +147,9 @@ class Finance extends BaseController
             'examination_id' => $this->request->getPost('examination_id'),
             'transaction_type' => $transactionType,
             'amount' => $amount,
-            'currency' => settings()->get('currency', 'USD'),
+            'currency' => $currency,
+            'amount_original' => $amountOriginal,
+            'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
             'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
@@ -149,6 +168,16 @@ class Finance extends BaseController
 
         if ($this->financeModel->insert($financeData)) {
             $financeId = $this->financeModel->getInsertID();
+
+            $checkFile = $this->request->getFile('check_scan');
+            if ($checkFile && $checkFile->isValid() && ($this->request->getPost('payment_method') === 'check')) {
+                $validation = $this->validateCheckScan($checkFile);
+                if ($validation !== null) {
+                    return redirect()->back()->withInput()->with('error', $validation);
+                }
+                $this->attachmentModel->supersedePrevious($clinicId, 'finance', $financeId, 'check_scan');
+                $this->storageService->store($checkFile, $clinicId, 'finance', $financeId, 'check_scan');
+            }
 
             if ($transactionType === 'invoice') {
                 if ($paymentStatus === 'paid') {
@@ -214,7 +243,14 @@ class Finance extends BaseController
             'patient' => $patient,
             'examination' => $examination,
             'payments' => $payments,
-            'paid_total' => $paidTotal
+            'paid_total' => $paidTotal,
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'check_attachment' => $this->attachmentModel
+                ->where('clinic_id', $clinicId)
+                ->where('entity_type', 'finance')
+                ->where('entity_id', $finance['id'])
+                ->where('purpose', 'check_scan')
+                ->first()
         ];
 
         return $this->view('finance/show', $data);
@@ -247,7 +283,15 @@ class Finance extends BaseController
             'patients' => $patient ? [$patient] : [],
             'examinations' => $examination ? [$examination] : [],
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'check_attachment' => $this->attachmentModel
+                ->where('clinic_id', $clinicId)
+                ->where('entity_type', 'finance')
+                ->where('entity_id', $finance['id'])
+                ->where('purpose', 'check_scan')
+                ->first()
         ];
 
         return $this->view('finance/edit', $data);
@@ -269,7 +313,8 @@ class Finance extends BaseController
         $rules = [
             'patient_id' => 'required|integer',
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
-            'amount' => 'required|decimal|greater_than[0]',
+            'amount_original' => 'required|decimal|greater_than[0]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP,BDT]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
@@ -279,7 +324,17 @@ class Finance extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
-        $amount = floatval($this->request->getPost('amount'));
+        $amountOriginal = floatval($this->request->getPost('amount_original'));
+        $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
+        $baseCurrency = settings()->get('currency', 'ILS');
+        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        if ($currency === $baseCurrency) {
+            $exchangeRate = $exchangeRate > 0 ? $exchangeRate : 1.0;
+        } elseif ($exchangeRate <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
+        }
+
+        $amount = $amountOriginal * $exchangeRate;
         $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
         $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
         $taxableBase = max(0, $amount - $discountAmount);
@@ -300,7 +355,9 @@ class Finance extends BaseController
             'examination_id' => $this->request->getPost('examination_id'),
             'transaction_type' => $this->request->getPost('transaction_type'),
             'amount' => $amount,
-            'currency' => settings()->get('currency', 'USD'),
+            'currency' => $currency,
+            'amount_original' => $amountOriginal,
+            'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
             'payment_status' => $this->request->getPost('payment_status'),
             'description' => $this->request->getPost('description'),
@@ -317,6 +374,15 @@ class Finance extends BaseController
         ];
 
         if ($this->financeModel->update($id, $financeData)) {
+            $checkFile = $this->request->getFile('check_scan');
+            if ($checkFile && $checkFile->isValid() && ($this->request->getPost('payment_method') === 'check')) {
+                $validation = $this->validateCheckScan($checkFile);
+                if ($validation !== null) {
+                    return redirect()->back()->withInput()->with('error', $validation);
+                }
+                $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'check_scan');
+                $this->storageService->store($checkFile, $clinicId, 'finance', $id, 'check_scan');
+            }
             if ($financeData['transaction_type'] === 'invoice') {
                 $this->syncInvoicePaymentStatus($id, $clinicId);
             }
@@ -845,7 +911,14 @@ class Finance extends BaseController
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
-            'clinic' => settings()->getClinicInfo()
+            'clinic' => settings()->getClinicInfo(),
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'check_attachment' => $this->attachmentModel
+                ->where('clinic_id', $clinicId)
+                ->where('entity_type', 'finance')
+                ->where('entity_id', $finance['id'])
+                ->where('purpose', 'check_scan')
+                ->first()
         ];
 
         $html = view('finance/invoice', $data);
@@ -1078,6 +1151,7 @@ class Finance extends BaseController
     private function generateCSVContent($data)
     {
         $output = fopen('php://temp', 'r+');
+        $baseCurrency = settings()->get('currency', 'ILS');
 
         // CSV headers
         fputcsv($output, [
@@ -1085,8 +1159,10 @@ class Finance extends BaseController
             'Transaction ID',
             'Patient Name',
             'Transaction Type',
-            'Amount',
-            'Currency',
+            'Original Amount',
+            'Original Currency',
+            'Exchange Rate',
+            'Amount (' . $baseCurrency . ')',
             'Payment Method',
             'Payment Status',
             'Service Type',
@@ -1096,13 +1172,16 @@ class Finance extends BaseController
 
         // CSV data
         foreach ($data as $row) {
+            $amount = floatval($row['total_amount'] ?? ($row['amount'] - ($row['discount_amount'] ?? 0) + ($row['tax_amount'] ?? 0)));
             fputcsv($output, [
                 $row['id'],
                 $row['transaction_id'] ?? $row['id'],
                 ($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''),
                 $row['transaction_type'],
-                $row['amount'],
-                $row['currency'],
+                $row['amount_original'] ?? $row['amount'],
+                $row['currency'] ?? $baseCurrency,
+                $row['exchange_rate'] ?? 1,
+                $amount,
                 $row['payment_method'],
                 $row['payment_status'],
                 $row['service_type'],
@@ -1126,6 +1205,28 @@ class Finance extends BaseController
     private function exportToExcel($data)
     {
         // Deprecated - using generateCSVContent + persistence
+    }
+
+    private function validateCheckScan($file): ?string
+    {
+        $allowedExts = ['pdf', 'jpg', 'jpeg', 'png'];
+        $allowedMimes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+        ];
+
+        $extension = strtolower((string) $file->getExtension());
+        if (!in_array($extension, $allowedExts, true)) {
+            return 'Unsupported check scan file type.';
+        }
+
+        $mime = (string) $file->getMimeType();
+        if (!in_array($mime, $allowedMimes, true)) {
+            return 'Unsupported check scan file format.';
+        }
+
+        return null;
     }
 
     public function bulkMarkAsPaid()

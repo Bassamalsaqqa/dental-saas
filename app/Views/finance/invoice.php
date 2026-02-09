@@ -8,6 +8,10 @@
     if (!$taxPercent && $taxableBase > 0 && !empty($finance['tax_amount'])) {
         $taxPercent = round((floatval($finance['tax_amount']) / $taxableBase) * 100, 2);
     }
+    $baseCurrency = $base_currency ?? ($finance['currency'] ?? 'ILS');
+    $amountOriginal = $finance['amount_original'] ?? $finance['amount'];
+    $exchangeRate = $finance['exchange_rate'] ?? 1;
+    $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
 ?>
 <!-- Professional Invoice Document -->
 <div class="min-h-screen bg-gray-100 py-8">
@@ -117,7 +121,14 @@
                         <div class="space-y-2">
                             <p class="text-sm text-gray-600"><span class="font-semibold">Service Type:</span> <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Payment Method:</span> <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Currency:</span> <?= $finance['currency'] ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Currency:</span> <?= esc($baseCurrency) ?></p>
+                            <?php if ($isConverted): ?>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Original:</span> <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Exchange Rate:</span> <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($check_attachment)): ?>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Check Scan:</span> <a class="text-blue-600" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">Download</a></p>
+                            <?php endif; ?>
                             <?php if ($examination): ?>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Related Examination:</span> <?= $examination['examination_id'] ?></p>
                             <?php endif; ?>
@@ -193,6 +204,12 @@
                                     <span class="text-sm font-medium text-gray-700">Service Amount:</span>
                                     <span class="text-sm font-semibold text-gray-900"><?= formatCurrency($finance['amount']) ?></span>
                                 </div>
+                                <?php if ($isConverted): ?>
+                                <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Original Amount:</span>
+                                    <span class="text-sm font-semibold text-gray-900"><?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></span>
+                                </div>
+                                <?php endif; ?>
                                 
                                 <?php if ($finance['discount_amount'] > 0): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-green-50 rounded-lg">
@@ -271,7 +288,7 @@
                     
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <h4 class="text-sm font-bold text-gray-700 mb-2">CURRENCY</h4>
-                        <p class="text-sm text-gray-600"><?= $finance['currency'] ?></p>
+                        <p class="text-sm text-gray-600"><?= esc($baseCurrency) ?></p>
                     </div>
                     
                     <div class="bg-gray-50 p-3 rounded-lg">

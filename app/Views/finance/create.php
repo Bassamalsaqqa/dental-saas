@@ -51,7 +51,7 @@
 
                 <!-- Form Content -->
                 <div class="p-8">
-                    <form action="<?= base_url('finance/store') ?>" method="POST" class="space-y-8">
+                    <form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-8">
                         <?= csrf_field() ?>
                         <!-- Patient and Transaction Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -140,37 +140,75 @@
                             </div>
                         </div>
 
-                        <!-- Amount and Payment Method -->
+                        <!-- Amount, Currency & Payment Method -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span>Amount *</span>
+                                    <span>Amount (Original) *</span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
-                                    </div>
-                                    <input type="number" name="amount" value="<?= old('amount') ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-dollar-sign text-gray-400"></i>
-                                    </div>
+                                    <input type="number" name="amount_original" id="amountOriginal" value="<?= old('amount_original') ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
                                 </div>
-                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('amount')): ?>
+                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('amount_original')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
-                                        <span><?= session()->getFlashdata('validation')->getError('amount') ?></span>
+                                        <span><?= session()->getFlashdata('validation')->getError('amount_original') ?></span>
                                     </p>
                                 <?php endif; ?>
                             </div>
 
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-coins text-indigo-600"></i>
+                                    <span>Currency *</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="currency" id="currencySelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                        <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
+                                            <option value="<?= esc($option) ?>" <?= (old('currency', $base_currency ?? 'ILS') === $option) ? 'selected' : '' ?>>
+                                                <?= esc($option) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-exchange-alt text-blue-600"></i>
+                                    <span>Exchange Rate *</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" name="exchange_rate" id="exchangeRate" value="<?= old('exchange_rate', 1) ?>" step="0.0001" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="1.0000">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Rate to convert into clinic currency (<?= esc($base_currency ?? 'ILS') ?>).</p>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calculator text-emerald-600"></i>
+                                    <span>Converted Amount (<?= esc($base_currency ?? 'ILS') ?>)</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="amountConverted" readonly class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl shadow-lg text-gray-700" value="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-credit-card text-indigo-600"></i>
                                     <span>Payment Method</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="payment_method" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="payment_method" id="paymentMethod" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value="">Select method</option>
                                         <option value="cash" <?= (old('payment_method') == 'cash') ? 'selected' : '' ?>>Cash</option>
                                         <option value="card" <?= (old('payment_method') == 'card') ? 'selected' : '' ?>>Card</option>
@@ -182,6 +220,14 @@
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="group/field relative hidden" id="checkScanField">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-file-upload text-rose-600"></i>
+                                    <span>Check Scan (optional)</span>
+                                </label>
+                                <input type="file" name="check_scan" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 bg-white/80 border-2 border-dashed border-gray-300 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300">
                             </div>
                         </div>
 
@@ -360,4 +406,45 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+
+<script>
+    (function () {
+        const amountInput = document.getElementById('amountOriginal');
+        const rateInput = document.getElementById('exchangeRate');
+        const currencySelect = document.getElementById('currencySelect');
+        const convertedOutput = document.getElementById('amountConverted');
+        const methodSelect = document.getElementById('paymentMethod');
+        const checkField = document.getElementById('checkScanField');
+        const baseCurrency = <?= json_encode($base_currency ?? 'ILS') ?>;
+
+        function updateConverted() {
+            const amount = parseFloat(amountInput?.value || '0') || 0;
+            const rate = parseFloat(rateInput?.value || '0') || 0;
+            const currency = currencySelect?.value || baseCurrency;
+            const effectiveRate = currency === baseCurrency ? (rate > 0 ? rate : 1) : rate;
+            const converted = amount * (effectiveRate || 0);
+            if (convertedOutput) {
+                convertedOutput.value = converted.toFixed(2);
+            }
+        }
+
+        function toggleCheck() {
+            if (!methodSelect || !checkField) return;
+            checkField.classList.toggle('hidden', methodSelect.value !== 'check');
+        }
+
+        amountInput?.addEventListener('input', updateConverted);
+        rateInput?.addEventListener('input', updateConverted);
+        currencySelect?.addEventListener('change', () => {
+            if (currencySelect.value === baseCurrency && (!rateInput.value || parseFloat(rateInput.value) <= 0)) {
+                rateInput.value = '1';
+            }
+            updateConverted();
+        });
+        methodSelect?.addEventListener('change', toggleCheck);
+
+        updateConverted();
+        toggleCheck();
+    })();
+</script>
 
