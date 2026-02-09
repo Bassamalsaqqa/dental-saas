@@ -9,15 +9,15 @@
     <meta name="description" content="Professional dental management system login - Secure access to your dental practice management system.">
     <meta name="theme-color" content="#0284c7">
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 relative overflow-hidden">
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 relative flex flex-col overflow-hidden">
     <!-- Subtle Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-2xl animate-pulse"></div>
         <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-emerald-200/30 to-cyan-200/30 rounded-full blur-2xl animate-pulse delay-1000"></div>
     </div>
 
-    <!-- Main Login Container -->
-    <div class="relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
+    <!-- Main Content Area -->
+    <div class="relative z-10 flex-grow flex items-center justify-center px-4 py-8">
         <div class="w-full max-w-sm">
             <!-- Enhanced Login Card with Glassmorphism -->
             <div class="group relative">
@@ -81,39 +81,28 @@
                             </div>
                         <?php endif; ?>
 
-                       
-
                         <!-- Login Form -->
                         <?= form_open('auth/login', ['class' => 'space-y-4', 'novalidate' => true]) ?>
-                            <!-- Email/Username Field -->
                             <div class="space-y-1">
                                 <label for="identity" class="flex items-center text-xs font-bold text-gray-700">
                                     <i class="fas fa-user w-3 h-3 mr-2 text-blue-600"></i>
                                     Email or Username
                                 </label>
                                 <div class="relative group">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-400/5 to-purple-400/5 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <div class="relative">
-                                        <?= form_input($identity + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md text-sm', 'placeholder' => 'Enter your email or username']) ?>
-                                    </div>
+                                    <?= form_input($identity + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm text-sm', 'placeholder' => 'Enter your email or username']) ?>
                                 </div>
                             </div>
 
-                            <!-- Password Field -->
                             <div class="space-y-1">
                                 <label for="password" class="flex items-center text-xs font-bold text-gray-700">
                                     <i class="fas fa-lock w-3 h-3 mr-2 text-blue-600"></i>
                                     Password
                                 </label>
                                 <div class="relative group">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-400/5 to-purple-400/5 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <div class="relative">
-                                        <?= form_input($password + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md text-sm', 'placeholder' => 'Enter your password']) ?>
-                                    </div>
+                                    <?= form_input($password + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm text-sm', 'placeholder' => 'Enter your password']) ?>
                                 </div>
                             </div>
 
-                            <!-- Remember Me -->
                             <div class="flex items-center justify-between">
                                 <label class="flex items-center space-x-3 cursor-pointer group">
                                     <div class="relative">
@@ -122,18 +111,15 @@
                                             <i class="fas fa-check text-white text-xs opacity-0 transition-opacity duration-200" id="checkIcon"></i>
                                         </div>
                                     </div>
-                                    <span class="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-200">Remember me</span>
+                                    <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-200">Remember me</span>
                                 </label>
-                                
-                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
+                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
                                     Forgot password?
                                 </a>
                             </div>
 
-                            <!-- Submit Button -->
                             <div class="pt-1">
-                                <button type="submit" class="group relative w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <button type="submit" class="group relative w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-all duration-300">
                                     <div class="relative flex items-center justify-center space-x-2 text-sm">
                                         <i class="fas fa-sign-in-alt"></i>
                                         <span>Sign In to Dashboard</span>
@@ -141,41 +127,87 @@
                                 </button>
                             </div>
                         <?= form_close() ?>
-
-                        <!-- Additional Links -->
-                        <div class="mt-6 text-center">
-                            <div class="flex items-center justify-center space-x-3 text-xs text-gray-500">
-                                <div class="flex items-center space-x-1">
-                                    <div class="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
-                                    <span class="font-semibold">Secure Login</span>
-                                </div>
-                                <div class="w-px h-3 bg-gray-300"></div>
-                                <div class="flex items-center space-x-1">
-                                    <i class="fas fa-shield-alt text-blue-500 text-xs"></i>
-                                    <span class="font-semibold">SSL Encrypted</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Footer --> 
-            <div class="mt-6 text-center">
-                <p class="text-xs text-gray-400">
-                    &copy; <?= date('Y') ?> <?= esc($clinic['name']) ?> Management System. All rights reserved.
-                </p>
             </div>
         </div>
     </div>
 
+    <!-- Enhanced Global Footer -->
+    <footer class="relative z-10 w-full backdrop-blur-md bg-white/40 border-t border-white/40">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Branding & Legal -->
+                <div class="col-span-1 md:col-span-1 space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                            <i class="fas fa-tooth text-sm"></i>
+                        </div>
+                        <span class="text-lg font-black text-gray-800 tracking-tight">Palsync Dental</span>
+                    </div>
+                    <p class="text-xs font-medium text-gray-500 leading-relaxed">
+                        Precision-engineered SaaS for modern dental clinic management. Powered by Palsync technologies.
+                    </p>
+                    <p class="text-[10px] text-gray-400">
+                        &copy; <?= date('Y') ?> <?= esc($clinic['name']) ?>. All rights reserved.
+                    </p>
+                </div>
+
+                <!-- Contact Links -->
+                <div class="col-span-1 space-y-4">
+                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-widest border-l-2 border-blue-500 pl-2">Connectivity</h4>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="https://palsync.palsync.net" target="_blank" class="inline-flex items-center group">
+                                <span class="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-600 transition-all duration-300">
+                                    <i class="fas fa-globe text-[10px] text-blue-600 group-hover:text-white"></i>
+                                </span>
+                                <span class="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors tracking-tight">palsync.palsync.net</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:Bassamalsaqqa@hotmail.com" class="inline-flex items-center group">
+                                <span class="w-6 h-6 rounded-md bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-600 transition-all duration-300">
+                                    <i class="fas fa-envelope text-[10px] text-purple-600 group-hover:text-white"></i>
+                                </span>
+                                <span class="text-xs font-bold text-gray-600 group-hover:text-purple-600 transition-colors tracking-tight">Bassamalsaqqa@hotmail.com</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support Channels -->
+                <div class="col-span-1 md:col-span-2 space-y-4">
+                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-widest border-l-2 border-green-500 pl-2">24/7 WhatsApp Support</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a href="https://wa.me/970599350450" target="_blank" class="flex items-center p-3 rounded-xl bg-white/40 border border-white/60 hover:bg-green-50 hover:border-green-200 transition-all duration-300 group">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fab fa-whatsapp text-green-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1 tracking-tighter">Support Line (PS)</p>
+                                <p class="text-xs font-bold text-gray-700 group-hover:text-green-700 transition-colors">+970 599 350 450</p>
+                            </div>
+                        </a>
+                        <a href="https://wa.me/972569885000" target="_blank" class="flex items-center p-3 rounded-xl bg-white/40 border border-white/60 hover:bg-green-50 hover:border-green-200 transition-all duration-300 group">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fab fa-whatsapp text-green-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1 tracking-tighter">Support Line (IL)</p>
+                                <p class="text-xs font-bold text-gray-700 group-hover:text-green-700 transition-colors">+972 569 885 000</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // Enhanced form validation and interactions
         document.addEventListener('DOMContentLoaded', function() {
-            // Remember me checkbox functionality
             const rememberCheckbox = document.getElementById('remember');
             const checkIcon = document.getElementById('checkIcon');
-            
             if (rememberCheckbox && checkIcon) {
                 rememberCheckbox.addEventListener('change', function() {
                     if (this.checked) {
@@ -189,49 +221,6 @@
                     }
                 });
             }
-
-            // Form validation
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    const inputs = form.querySelectorAll('input[required]');
-                    let isValid = true;
-                    
-                    inputs.forEach(input => {
-                        if (!input.value.trim()) {
-                            isValid = false;
-                            input.style.borderColor = '#ef4444';
-                            input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
-                        } else {
-                            input.style.borderColor = '#d1d5db';
-                            input.style.boxShadow = 'none';
-                        }
-                    });
-                    
-                    if (!isValid) {
-                        e.preventDefault();
-                    }
-                });
-            }
-
-            // Input focus effects
-            const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.style.borderColor = '#3b82f6';
-                    this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                });
-                
-                input.addEventListener('blur', function() {
-                    if (!this.value.trim()) {
-                        this.style.borderColor = '#d1d5db';
-                        this.style.boxShadow = 'none';
-                    }
-                });
-            });
-
-            // Add smooth scrolling
-            document.documentElement.style.scrollBehavior = 'smooth';
         });
     </script>
 </body>
