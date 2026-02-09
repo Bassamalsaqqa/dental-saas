@@ -324,6 +324,15 @@
                     <p class="text-gray-500">No next appointment scheduled</p>
                 </div>
             <?php endif; ?>
+
+            <?php if (has_permission('appointments', 'create')): ?>
+                <div class="mt-6">
+                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id']) ?>"
+                       class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Schedule Follow-Up
+                    </a>
+                </div>
+            <?php endif; ?>
             </div>
         </div>
     </div>

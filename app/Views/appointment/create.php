@@ -33,6 +33,13 @@
                         </div>
                         
                         <div class="flex items-center space-x-3">
+                            <?php if (!empty($examination_id)): ?>
+                                <a href="<?= base_url('examination/' . $examination_id) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-indigo-200 text-indigo-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 hover:border-indigo-300 transition-all duration-300 hover:scale-105">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                    <i class="fas fa-arrow-left mr-2 relative z-10"></i>
+                                    <span class="relative z-10">Back to Examination</span>
+                                </a>
+                            <?php endif; ?>
                             <?php if (!empty($selected_patient)): ?>
                                 <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-blue-200 text-blue-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 transition-all duration-300 hover:scale-105">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
@@ -93,14 +100,15 @@
                                     <span>Appointment Type *</span>
                                 </label>
                                 <div class="relative">
+                                    <?php $selectedType = old('appointment_type', $appointment_type_prefill ?? ''); ?>
                                     <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value="">Select type</option>
-                                        <option value="consultation" <?= (old('appointment_type') == 'consultation') ? 'selected' : '' ?>>Consultation</option>
-                                        <option value="treatment" <?= (old('appointment_type') == 'treatment') ? 'selected' : '' ?>>Treatment</option>
-                                        <option value="follow_up" <?= (old('appointment_type') == 'follow_up') ? 'selected' : '' ?>>Follow-up</option>
-                                        <option value="emergency" <?= (old('appointment_type') == 'emergency') ? 'selected' : '' ?>>Emergency</option>
-                                        <option value="cleaning" <?= (old('appointment_type') == 'cleaning') ? 'selected' : '' ?>>Cleaning</option>
-                                        <option value="checkup" <?= (old('appointment_type') == 'checkup') ? 'selected' : '' ?>>Checkup</option>
+                                        <option value="consultation" <?= ($selectedType == 'consultation') ? 'selected' : '' ?>>Consultation</option>
+                                        <option value="treatment" <?= ($selectedType == 'treatment') ? 'selected' : '' ?>>Treatment</option>
+                                        <option value="follow_up" <?= ($selectedType == 'follow_up') ? 'selected' : '' ?>>Follow-up</option>
+                                        <option value="emergency" <?= ($selectedType == 'emergency') ? 'selected' : '' ?>>Emergency</option>
+                                        <option value="cleaning" <?= ($selectedType == 'cleaning') ? 'selected' : '' ?>>Cleaning</option>
+                                        <option value="checkup" <?= ($selectedType == 'checkup') ? 'selected' : '' ?>>Checkup</option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>

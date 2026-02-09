@@ -176,12 +176,23 @@ class Appointment extends BaseController
             }
         }
 
+        $examinationId = $this->request->getGet('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int)$examinationId : null;
+
+        $appointmentType = $this->request->getGet('appointment_type');
+        $allowedTypes = ['consultation', 'treatment', 'follow_up', 'emergency', 'cleaning', 'checkup'];
+        if (!in_array($appointmentType, $allowedTypes, true)) {
+            $appointmentType = null;
+        }
+
         $data = [
             'title' => 'New Appointment',
             'patients' => [], // S4-02e-FIX: Do not preload patient list server-side. Autocomplete will handle it.
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
-            'selected_patient' => $selectedPatient
+            'selected_patient' => $selectedPatient,
+            'examination_id' => $examinationId,
+            'appointment_type_prefill' => $appointmentType
         ];
 
         // Ensure user data is included
