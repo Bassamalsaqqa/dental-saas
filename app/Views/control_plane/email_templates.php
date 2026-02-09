@@ -295,12 +295,20 @@
 
 <!-- Template Editor Modal -->
 <div id="templateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm">
-    <div class="w-full max-w-4xl rounded-2xl bg-white shadow-2xl border border-gray-200 flex flex-col max-h-[90vh]">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
-            <h3 class="text-lg font-bold text-gray-900" id="modalTitle">
-                <?= $activeTemplate ? 'Edit Template' : 'Create Template' ?>
-            </h3>
-            <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeTemplateModal()">
+    <div class="w-full max-w-4xl rounded-2xl bg-white shadow-2xl border border-white/30 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-5 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+                    <i class="fas fa-pen-nib text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white" id="modalTitle">
+                        <?= $activeTemplate ? 'Edit Template' : 'Create Template' ?>
+                    </h3>
+                    <p class="text-xs text-violet-100">Design consistent email messaging for every clinic</p>
+                </div>
+            </div>
+            <button type="button" class="text-white/80 hover:text-white" onclick="closeTemplateModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -311,57 +319,57 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Template Name</label>
-                        <input type="text" name="name" value="<?= esc($activeTemplate['name'] ?? '') ?>" 
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm" required>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Template Name</label>
+                        <input type="text" name="name" value="<?= esc($activeTemplate['name'] ?? '') ?>"
+                               class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 font-medium focus:border-violet-500 focus:ring-4 focus:ring-violet-200/60 transition-all" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Slug (Unique)</label>
-                        <input type="text" name="slug" value="<?= esc($activeTemplate['slug'] ?? '') ?>" 
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm" 
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Slug (Unique)</label>
+                        <input type="text" name="slug" value="<?= esc($activeTemplate['slug'] ?? '') ?>"
+                               class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 font-medium focus:border-violet-500 focus:ring-4 focus:ring-violet-200/60 transition-all"
                                placeholder="auto-generated-if-empty">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Subject</label>
-                    <input type="text" name="subject" value="<?= esc($activeTemplate['subject'] ?? '') ?>" 
-                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm" required>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Subject</label>
+                    <input type="text" name="subject" value="<?= esc($activeTemplate['subject'] ?? '') ?>"
+                           class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 font-medium focus:border-violet-500 focus:ring-4 focus:ring-violet-200/60 transition-all" required>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
                     <?php $templateStatus = $activeTemplate['status'] ?? 'draft'; ?>
-                    <select name="status" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm">
+                    <select name="status" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 font-medium focus:border-violet-500 focus:ring-4 focus:ring-violet-200/60 transition-all">
                         <option value="draft" <?= $templateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
                         <option value="active" <?= $templateStatus === 'active' ? 'selected' : '' ?>>Active</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">HTML Body</label>
-                    <div class="rounded-lg border border-gray-300 overflow-hidden shadow-sm">
-                        <textarea name="body_html" rows="12" 
-                                  class="w-full border-0 p-4 text-sm font-mono focus:ring-0" 
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HTML Body</label>
+                    <div class="rounded-xl border-2 border-slate-200 overflow-hidden">
+                        <textarea name="body_html" rows="12"
+                                  class="w-full border-0 p-4 text-sm font-mono text-slate-700 focus:ring-0"
                                   placeholder="<html>...</html>"><?= esc($activeTemplate['body_html'] ?? '') ?></textarea>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Supports standard HTML tags. Use {{var}} for dynamic content.</p>
+                    <p class="mt-2 text-xs text-slate-500">Supports standard HTML tags. Use {{var}} for dynamic content.</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Plain Text Body</label>
-                    <textarea name="body_text" rows="6" 
-                              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm font-mono" 
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Plain Text Body</label>
+                    <textarea name="body_text" rows="6"
+                              class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-mono text-slate-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-200/60 transition-all"
                               placeholder="Plain text fallback..."><?= esc($activeTemplate['body_text'] ?? '') ?></textarea>
                 </div>
             </form>
         </div>
 
-        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 shrink-0 rounded-b-2xl">
-            <button type="button" class="px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors" onclick="closeTemplateModal()">
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
+            <button type="button" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors" onclick="closeTemplateModal()">
                 Cancel
             </button>
-            <button type="submit" form="templateForm" class="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 shadow-md transition-colors">
+            <button type="submit" form="templateForm" class="px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-700 text-white text-sm font-semibold shadow-lg hover:from-violet-700 hover:to-purple-800 transition-all">
                 <?= $activeTemplate ? 'Update Template' : 'Create Template' ?>
             </button>
         </div>
