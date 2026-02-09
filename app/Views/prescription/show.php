@@ -21,6 +21,11 @@
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                        <?php if (!empty($prescription['patient_id'])): ?>
+                        <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-user mr-2"></i>Back to Patient
+                        </a>
+                        <?php endif; ?>
                         <a href="<?= base_url('prescription') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Prescriptions
                         </a>

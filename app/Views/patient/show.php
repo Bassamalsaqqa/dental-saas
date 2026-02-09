@@ -654,6 +654,20 @@ function getFDINumber($universalNumber) {
 
                         <!-- Examinations Tab -->
                         <div id="examinations-content" class="tab-content hidden">
+                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Examinations</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Clinical examinations for this patient.</p>
+                                    </div>
+                                    <?php if (has_permission('examinations', 'create')): ?>
+                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-plus mr-2"></i>Create Examination
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                             <?php if (!empty($examinations)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
@@ -702,6 +716,20 @@ function getFDINumber($universalNumber) {
 
                         <!-- Appointments Tab -->
                         <div id="appointments-content" class="tab-content hidden">
+                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Appointments</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Scheduled visits and appointment history.</p>
+                                    </div>
+                                    <?php if (has_permission('appointments', 'create')): ?>
+                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-plus mr-2"></i>Schedule Appointment
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                             <?php if (!empty($appointments)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
@@ -760,6 +788,20 @@ function getFDINumber($universalNumber) {
 
                         <!-- Treatments Tab -->
                         <div id="treatments-content" class="tab-content hidden">
+                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Treatments</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Procedures and treatment plans for this patient.</p>
+                                    </div>
+                                    <?php if (has_permission('treatments', 'create')): ?>
+                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id']) ?>"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-plus mr-2"></i>Add Treatment
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                             <?php if (!empty($treatments)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
@@ -821,6 +863,20 @@ function getFDINumber($universalNumber) {
 
                         <!-- Prescriptions Tab -->
                         <div id="prescriptions-content" class="tab-content hidden">
+                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Prescriptions</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Medication plans for this patient.</p>
+                                    </div>
+                                    <?php if (has_permission('prescriptions', 'create')): ?>
+                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id']) ?>"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-plus mr-2"></i>Create Prescription
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                             <?php if (!empty($prescriptions)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
@@ -926,6 +982,20 @@ function getFDINumber($universalNumber) {
 
                         <!-- Invoice Tab -->
                         <div id="finances-content" class="tab-content hidden">
+                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
+                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Invoices</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Financial records and invoices for this patient.</p>
+                                    </div>
+                                    <?php if (has_permission('finance', 'create')): ?>
+                                        <a href="<?= base_url('finance/create?patient_id=' . $patient['id']) ?>"
+                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-plus mr-2"></i>Create Invoice
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                             <?php if (!empty($finances)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
