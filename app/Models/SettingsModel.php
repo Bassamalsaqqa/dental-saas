@@ -71,7 +71,7 @@ class SettingsModel extends TenantAwareModel
     {
         $setting = $this->withoutTenantScope()
                         ->where('setting_key', $key)
-                        ->where('clinic_id', 0)
+                        ->where('clinic_id', null)
                         ->first();
         return $setting ? $this->parseValue($setting['setting_value'], $setting['setting_type']) : $default;
     }
@@ -121,13 +121,13 @@ class SettingsModel extends TenantAwareModel
         $db = \Config\Database::connect();
         $builder = $db->table($this->table);
         $existing = $builder->where('setting_key', $key)
-            ->where('clinic_id', 0)
+            ->where('clinic_id', null)
             ->get()
             ->getRowArray();
 
         $now = date('Y-m-d H:i:s');
         $data = [
-            'clinic_id' => 0,
+            'clinic_id' => null,
             'setting_key' => $key,
             'setting_value' => $this->serializeValue($value, $type),
             'setting_type' => $type,
@@ -169,7 +169,7 @@ class SettingsModel extends TenantAwareModel
     public function getGlobalSettings()
     {
         $settings = $this->withoutTenantScope()
-                         ->where('clinic_id', 0)
+                         ->where('clinic_id', null)
                          ->findAll();
         $result = [];
         

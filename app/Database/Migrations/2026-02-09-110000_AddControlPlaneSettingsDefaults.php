@@ -39,7 +39,7 @@ class AddControlPlaneSettingsDefaults extends Migration
 
         foreach ($defaults as $key => $meta) {
             $exists = $db->table('settings')
-                ->where('clinic_id', 0)
+                ->where('clinic_id', null)
                 ->where('setting_key', $key)
                 ->countAllResults();
 
@@ -48,7 +48,7 @@ class AddControlPlaneSettingsDefaults extends Migration
             }
 
             $db->table('settings')->insert([
-                'clinic_id' => 0,
+                'clinic_id' => null,
                 'setting_key' => $key,
                 'setting_value' => $meta['value'],
                 'setting_type' => $meta['type'],
@@ -89,7 +89,7 @@ class AddControlPlaneSettingsDefaults extends Migration
         ];
 
         $db->table('settings')
-            ->where('clinic_id', 0)
+            ->where('clinic_id', null)
             ->whereIn('setting_key', $keys)
             ->delete();
     }
