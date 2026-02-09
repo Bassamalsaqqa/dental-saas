@@ -32,6 +32,13 @@
                         </div>
                         
                         <div class="flex items-center space-x-3">
+                            <?php if (!empty($selected_patient)): ?>
+                                <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-teal-200 text-teal-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 hover:border-teal-300 transition-all duration-300 hover:scale-105">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                    <i class="fas fa-user mr-2 relative z-10"></i>
+                                    <span class="relative z-10">Back to Patient</span>
+                                </a>
+                            <?php endif; ?>
                             <a href="<?= base_url('examination') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
