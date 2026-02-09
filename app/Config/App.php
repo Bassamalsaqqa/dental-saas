@@ -24,6 +24,9 @@ class App extends BaseConfig
         
         // Auto-detect baseURL from environment or server variables
         $this->baseURL = $this->getBaseURL(); 
+
+        // Allow demo mode to be configured via .env
+        $this->demo = filter_var(env('app.demo', $this->demo), FILTER_VALIDATE_BOOL);
     }
     
     private function getBaseURL(): string
