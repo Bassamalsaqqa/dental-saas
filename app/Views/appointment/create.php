@@ -60,6 +60,9 @@
                 <div class="p-8">
                     <form action="<?= base_url('appointment/store') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
+                        <?php if (!empty($examination_id)): ?>
+                            <input type="hidden" name="examination_id" value="<?= (int)$examination_id ?>">
+                        <?php endif; ?>
                         <!-- Patient Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">

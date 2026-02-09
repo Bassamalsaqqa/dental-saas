@@ -309,7 +309,28 @@
                         <p class="text-sm text-gray-500">Scheduled follow-up appointment</p>
                     </div>
                 </div>
-            <?php if (!empty($examination['next_appointment'])): ?>
+            <?php if (!empty($next_appointment)): ?>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-calendar text-blue-600"></i>
+                            <div>
+                                <p class="text-gray-900 font-semibold">
+                                    <?= date('M j, Y', strtotime($next_appointment['appointment_date'])) ?>
+                                    <?= date('g:i A', strtotime($next_appointment['appointment_time'])) ?>
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    <?= ucfirst(str_replace('_', ' ', $next_appointment['appointment_type'] ?? 'follow_up')) ?>
+                                    · <?= ucfirst($next_appointment['status'] ?? 'scheduled') ?>
+                                </p>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('appointment/' . $next_appointment['id']) ?>" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View
+                        </a>
+                    </div>
+                </div>
+            <?php elseif (!empty($examination['next_appointment'])): ?>
                 <div class="p-4 bg-gray-50 rounded-lg">
                     <div class="flex items-center space-x-3">
                         <i class="fas fa-calendar text-blue-600"></i>

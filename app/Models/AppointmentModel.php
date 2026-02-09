@@ -292,6 +292,18 @@ class AppointmentModel extends TenantAwareModel
             ->findAll();
     }
 
+    public function getNextAppointmentForPatient($clinicId, $patientId)
+    {
+        return $this->select('appointments.*')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('appointments.patient_id', $patientId)
+            ->where('appointments.appointment_date >=', date('Y-m-d'))
+            ->whereIn('appointments.status', ['scheduled', 'confirmed'])
+            ->orderBy('appointments.appointment_date', 'ASC')
+            ->orderBy('appointments.appointment_time', 'ASC')
+            ->first();
+    }
+
     public function getUpcomingAppointments($limit = 10)
     {
         try {

@@ -154,9 +154,12 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        $nextAppointment = (new \App\Models\AppointmentModel())->getNextAppointmentForPatient($clinicId, $examination['patient_id']);
+
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
             'examination' => $examination,
+            'next_appointment' => $nextAppointment,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),

@@ -266,6 +266,10 @@ class Appointment extends BaseController
                 "New {$appointmentData['appointment_type']} appointment scheduled for {$patientName} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
             
+            $examinationId = $this->request->getPost('examination_id');
+            if (is_numeric($examinationId)) {
+                return redirect()->to('/examination/' . (int)$examinationId)->with('success', 'Follow-up appointment scheduled successfully');
+            }
             return redirect()->to('/appointment')->with('success', 'Appointment created successfully');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create appointment');
