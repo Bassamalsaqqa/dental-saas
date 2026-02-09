@@ -257,25 +257,68 @@
                             </div>
                         </div>
 
-                        <!-- Service Details -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-notes-medical text-emerald-600"></i>
-                                <span>Service Details</span>
-                            </label>
-                            <div class="relative">
-                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Details about the service provided..."><?= old('service_details', $finance['service_details']) ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                    <i class="fas fa-edit"></i>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Service Details -->
+        <div class="group/field relative">
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                <i class="fas fa-notes-medical text-emerald-600"></i>
+                <span>Service Details</span>
+            </label>
+            <div class="relative">
+                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Details about the service provided..."><?= old('service_details', $finance['service_details']) ?></textarea>
+                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                    <i class="fas fa-edit"></i>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Description -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-align-left text-purple-600"></i>
-                                <span>Description</span>
+        <?php
+            $taxPercent = $finance['tax_percentage'] ?? 0;
+            $taxableBase = max(0, floatval($finance['amount']) - floatval($finance['discount_amount'] ?? 0));
+            if (!$taxPercent && $taxableBase > 0 && !empty($finance['tax_amount'])) {
+                $taxPercent = round((floatval($finance['tax_amount']) / $taxableBase) * 100, 2);
+            }
+        ?>
+
+        <!-- Discount and Tax Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="group/field relative">
+                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                    <i class="fas fa-percentage text-blue-600"></i>
+                    <span>Discount Amount</span>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
+                    </div>
+                    <input type="number" name="discount_amount" value="<?= old('discount_amount', $finance['discount_amount'] ?? 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i class="fas fa-percentage text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group/field relative">
+                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                    <i class="fas fa-percent text-indigo-600"></i>
+                    <span>Tax Percentage (%)</span>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-bold">%</span>
+                    </div>
+                    <input type="number" name="tax_percentage" value="<?= old('tax_percentage', $taxPercent) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i class="fas fa-percent text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="group/field relative">
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                <i class="fas fa-align-left text-purple-600"></i>
+                <span>Description</span>
                             </label>
                             <div class="relative">
                                 <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Transaction description or notes..."><?= old('description', $finance['description']) ?></textarea>

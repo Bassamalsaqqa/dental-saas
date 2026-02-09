@@ -26,6 +26,7 @@ class FinanceModel extends TenantAwareModel
         'service_type',
         'service_details',
         'discount_amount',
+        'tax_percentage',
         'tax_amount',
         'total_amount',
         'amount_paid',
@@ -109,8 +110,11 @@ class FinanceModel extends TenantAwareModel
         if (isset($data['data']['amount'])) {
             $amount = floatval($data['data']['amount']);
             $discount = floatval($data['data']['discount_amount'] ?? 0);
-            $tax = floatval($data['data']['tax_amount'] ?? 0);
+            $taxPercent = floatval($data['data']['tax_percentage'] ?? 0);
+            $taxableBase = max(0, $amount - $discount);
+            $tax = $taxableBase * ($taxPercent / 100);
 
+            $data['data']['tax_amount'] = $tax;
             $total = $amount - $discount + $tax;
 
             // Only set total_amount if the field exists in the table

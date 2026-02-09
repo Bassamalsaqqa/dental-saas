@@ -89,7 +89,8 @@ class Finance extends BaseController
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
             'amount' => 'required|decimal|greater_than[0]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
-            'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]'
+            'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
         ];
 
         if (!$this->validate($rules)) {
@@ -99,7 +100,9 @@ class Finance extends BaseController
         // Calculate total amount
         $amount = floatval($this->request->getPost('amount'));
         $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
-        $taxAmount = floatval($this->request->getPost('tax_amount') ?? 0);
+        $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
+        $taxableBase = max(0, $amount - $discountAmount);
+        $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
         $transactionType = $this->request->getPost('transaction_type');
         $paymentStatus = $this->request->getPost('payment_status') ?? 'pending';
@@ -134,6 +137,7 @@ class Finance extends BaseController
             'service_type' => $this->request->getPost('service_type'),
             'service_details' => $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
+            'tax_percentage' => $taxPercentage,
             'tax_amount' => $taxAmount,
             'amount_paid' => $amountPaid,
             'balance_due' => $balanceDue,
@@ -267,7 +271,8 @@ class Finance extends BaseController
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
             'amount' => 'required|decimal|greater_than[0]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
-            'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]'
+            'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
         ];
 
         if (!$this->validate($rules)) {
@@ -276,7 +281,9 @@ class Finance extends BaseController
 
         $amount = floatval($this->request->getPost('amount'));
         $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
-        $taxAmount = floatval($this->request->getPost('tax_amount') ?? 0);
+        $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
+        $taxableBase = max(0, $amount - $discountAmount);
+        $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
 
         $amountPaid = floatval($finance['amount_paid'] ?? 0);
@@ -300,6 +307,7 @@ class Finance extends BaseController
             'service_type' => $this->request->getPost('service_type'),
             'service_details' => $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
+            'tax_percentage' => $taxPercentage,
             'tax_amount' => $taxAmount,
             'amount_paid' => $amountPaid,
             'balance_due' => max(0, $totalAmount - $amountPaid),

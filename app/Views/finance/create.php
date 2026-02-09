@@ -298,13 +298,13 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-percent text-indigo-600"></i>
-                                    <span>Tax Amount</span>
+                                    <span>Tax Percentage (%)</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
+                                        <span class="text-gray-500 font-bold">%</span>
                                     </div>
-                                    <input type="number" name="tax_amount" value="<?= old('tax_amount', 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                                    <input type="number" name="tax_percentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-percent text-gray-400"></i>
                                     </div>

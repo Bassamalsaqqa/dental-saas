@@ -1,7 +1,14 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<?php $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']); ?>
+<?php
+    $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']);
+    $taxPercent = $finance['tax_percentage'] ?? 0;
+    $taxableBase = max(0, floatval($finance['amount']) - floatval($finance['discount_amount'] ?? 0));
+    if (!$taxPercent && $taxableBase > 0 && !empty($finance['tax_amount'])) {
+        $taxPercent = round((floatval($finance['tax_amount']) / $taxableBase) * 100, 2);
+    }
+?>
 <!-- Professional Invoice Document -->
 <div class="min-h-screen bg-gray-100 py-8">
     <div class="max-w-4xl mx-auto">
@@ -196,7 +203,7 @@
                                 
                                 <?php if ($finance['tax_amount'] > 0): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Tax:</span>
+                                    <span class="text-sm font-medium text-gray-700">Tax (<?= number_format($taxPercent, 2) ?>%):</span>
                                     <span class="text-sm font-semibold text-gray-900"><?= formatCurrency($finance['tax_amount']) ?></span>
                                 </div>
                                 <?php endif; ?>

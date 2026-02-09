@@ -1,7 +1,14 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<?php $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']); ?>
+<?php
+    $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']);
+    $taxPercent = $finance['tax_percentage'] ?? 0;
+    $taxableBase = max(0, floatval($finance['amount']) - floatval($finance['discount_amount'] ?? 0));
+    if (!$taxPercent && $taxableBase > 0 && !empty($finance['tax_amount'])) {
+        $taxPercent = round((floatval($finance['tax_amount']) / $taxableBase) * 100, 2);
+    }
+?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <!-- Page Header -->
@@ -128,7 +135,7 @@
                                     <?php endif; ?>
                                     <?php if ($finance['tax_amount'] > 0): ?>
                                     <div class="flex justify-between items-center text-sm text-gray-600">
-                                        <span class="font-medium">Tax</span>
+                                        <span class="font-medium">Tax (<?= number_format($taxPercent, 2) ?>%)</span>
                                         <span class="font-bold">+<?= number_format($finance['tax_amount'], 2) ?></span>
                                     </div>
                                     <?php endif; ?>
