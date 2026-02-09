@@ -183,16 +183,6 @@
                 </div>
             </div>
 
-            <!-- Next Appointment -->
-            <div>
-                <label for="next_appointment" class="block text-sm font-medium text-gray-700 mb-2">
-                    Next Appointment
-                </label>
-                <input type="date" name="next_appointment" id="next_appointment" 
-                       value="<?= old('next_appointment', $examination['next_appointment']) ?>" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
             <!-- Examination Notes -->
             <div>
                 <label for="examination_notes" class="block text-sm font-medium text-gray-700 mb-2">

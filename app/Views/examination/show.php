@@ -330,13 +330,6 @@
                         </a>
                     </div>
                 </div>
-            <?php elseif (!empty($examination['next_appointment'])): ?>
-                <div class="p-4 bg-gray-50 rounded-lg">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-calendar text-blue-600"></i>
-                        <p class="text-gray-900 font-semibold"><?= date('M j, Y g:i A', strtotime($examination['next_appointment'])) ?></p>
-                    </div>
-                </div>
             <?php else: ?>
                 <div class="text-center py-8">
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

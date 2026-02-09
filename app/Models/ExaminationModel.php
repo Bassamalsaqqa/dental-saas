@@ -27,7 +27,6 @@ class ExaminationModel extends TenantAwareModel
         'treatment_plan',
         'prognosis',
         'recommendations',
-        'next_appointment',
         'examination_notes',
         'status',
         'created_by',

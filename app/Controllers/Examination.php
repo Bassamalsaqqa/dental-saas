@@ -104,7 +104,6 @@ class Examination extends BaseController
             'treatment_plan' => $this->request->getPost('treatment_plan'),
             'prognosis' => $this->request->getPost('prognosis'),
             'recommendations' => $this->request->getPost('recommendations'),
-            'next_appointment' => $this->request->getPost('next_appointment'),
             'examination_notes' => $this->request->getPost('examination_notes'),
             'status' => 'pending',
             'created_by' => 1
@@ -234,7 +233,6 @@ class Examination extends BaseController
             'treatment_plan' => $this->request->getPost('treatment_plan'),
             'prognosis' => $this->request->getPost('prognosis'),
             'recommendations' => $this->request->getPost('recommendations'),
-            'next_appointment' => $this->request->getPost('next_appointment'),
             'examination_notes' => $this->request->getPost('examination_notes'),
             'status' => $this->request->getPost('status')
         ];
