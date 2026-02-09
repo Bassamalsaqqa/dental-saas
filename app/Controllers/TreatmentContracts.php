@@ -8,6 +8,7 @@ use App\Models\TreatmentContractItemModel;
 use App\Models\TreatmentContractOdontogramSnapshotModel;
 use App\Models\TreatmentContractSignatureModel;
 use App\Models\OdontogramModel;
+use App\Models\ExaminationModel;
 use App\Models\ClinicModel;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
@@ -21,6 +22,7 @@ class TreatmentContracts extends BaseController
     protected $snapshotModel;
     protected $signatureModel;
     protected $odontogramModel;
+    protected $examinationModel;
     protected $clinicModel;
     protected $planGuard;
     protected $storageService;
@@ -34,6 +36,7 @@ class TreatmentContracts extends BaseController
         $this->snapshotModel = new TreatmentContractOdontogramSnapshotModel();
         $this->signatureModel = new TreatmentContractSignatureModel();
         $this->odontogramModel = new OdontogramModel();
+        $this->examinationModel = new ExaminationModel();
         $this->clinicModel = new ClinicModel();
         $this->planGuard = new PlanGuard();
         $this->storageService = service('storage');
@@ -59,6 +62,15 @@ class TreatmentContracts extends BaseController
 
         $examinationId = $this->request->getGet('examination_id');
         $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
+        if (!$examinationId) {
+            return redirect()->to(base_url('patient/' . $patientId))
+                ->with('error', 'Please start the treatment plan from an examination.');
+        }
+
+        $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+        if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
+        }
 
         $data = [
             'title' => 'Create Treatment Contract',
@@ -102,6 +114,14 @@ class TreatmentContracts extends BaseController
         $odontogramSvg = (string) $this->request->getPost('odontogram_svg');
         $examinationId = $this->request->getPost('examination_id');
         $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
+        if (!$examinationId) {
+            return redirect()->back()->with('error', 'Examination context is required to create a treatment plan.');
+        }
+
+        $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+        if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
+        }
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
@@ -115,6 +135,7 @@ class TreatmentContracts extends BaseController
 
         $contractId = $this->contractModel->insert([
             'patient_id' => $patientId,
+            'examination_id' => $examinationId,
             'status' => 'draft',
             'currency' => $currency,
             'total_cost' => $total,

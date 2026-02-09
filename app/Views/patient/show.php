@@ -578,12 +578,7 @@ function getFDINumber($universalNumber) {
                                             <h3 class="text-lg font-semibold text-gray-800">Treatment Contracts</h3>
                                             <p class="text-xs text-gray-500 mt-1">Create and sign treatment agreements with a snapshot odontogram.</p>
                                         </div>
-                                        <?php if (has_permission('patients', 'edit')): ?>
-                                            <a href="<?= base_url('contracts/create/' . $patient['id']) ?>" 
-                                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                                <i class="fas fa-plus mr-2"></i>Create Contract
-                                            </a>
-                                        <?php endif; ?>
+                                        <p class="text-xs text-gray-500 mt-1">Create treatment plans from an examination.</p>
                                     </div>
                                 </div>
 
@@ -597,6 +592,7 @@ function getFDINumber($universalNumber) {
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                                 </tr>
@@ -612,6 +608,9 @@ function getFDINumber($universalNumber) {
                                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
                                                                     <?= esc(ucfirst($contract['status'] ?? 'draft')) ?>
                                                                 </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                                <?= !empty($contract['examination_id']) ? esc($contract['examination_id']) : '--' ?>
                                                             </td>
                                                             <td class="px-6 py-4 text-sm text-gray-700">
                                                                 <?= esc($contract['currency'] ?? 'USD') ?> <?= number_format((float) ($contract['total_cost'] ?? 0), 2) ?>
@@ -642,7 +641,7 @@ function getFDINumber($universalNumber) {
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">No contracts created yet.</td>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">No contracts created yet.</td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>

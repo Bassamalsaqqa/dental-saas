@@ -160,6 +160,7 @@ class Examination extends BaseController
         $latestContract = $this->contractModel
             ->where('clinic_id', $clinicId)
             ->where('patient_id', $examination['patient_id'])
+            ->where('examination_id', $examination['id'])
             ->orderBy('created_at', 'DESC')
             ->first();
 
@@ -579,6 +580,7 @@ class Examination extends BaseController
         $latestContract = $this->contractModel
             ->where('clinic_id', $clinicId)
             ->where('patient_id', $examination['patient_id'])
+            ->where('examination_id', $examination['id'])
             ->orderBy('created_at', 'DESC')
             ->first();
 

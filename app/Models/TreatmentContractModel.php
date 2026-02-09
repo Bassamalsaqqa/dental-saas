@@ -13,6 +13,7 @@ class TreatmentContractModel extends TenantAwareModel
     protected $allowedFields = [
         'clinic_id',
         'patient_id',
+        'examination_id',
         'status',
         'currency',
         'total_cost',
