@@ -243,8 +243,8 @@ class Settings extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=governance'))
-            ->with('success', 'Tenant defaults updated for new clinics.');
+        return redirect()->to(base_url('controlplane/settings?tab=clinic-defaults'))
+            ->with('success', 'Clinic defaults updated for new clinics.');
     }
 
     /**
