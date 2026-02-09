@@ -185,6 +185,69 @@ class Settings extends BaseController
     }
 
     /**
+     * POST /controlplane/settings/tenant-defaults
+     */
+    public function updateTenantDefaults()
+    {
+        $rules = [
+            'default_timezone' => 'required',
+            'default_date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
+            'default_time_format' => 'required|in_list[24,12]',
+            'default_currency' => 'required|max_length[10]',
+            'default_currency_position' => 'required|in_list[before,after]',
+            'default_appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
+            'default_working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
+            'default_working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $workingDays = $this->request->getPost('default_working_days');
+        if (!is_array($workingDays)) {
+            $workingDays = [];
+        }
+
+        $allowedDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        $workingDays = array_values(array_intersect($workingDays, $allowedDays));
+
+        $settings = [
+            'default_timezone' => trim((string) $this->request->getPost('default_timezone')),
+            'default_date_format' => $this->request->getPost('default_date_format'),
+            'default_time_format' => $this->request->getPost('default_time_format'),
+            'default_currency' => $this->request->getPost('default_currency'),
+            'default_currency_position' => $this->request->getPost('default_currency_position'),
+            'default_appointment_duration' => (int) $this->request->getPost('default_appointment_duration'),
+            'default_working_hours_start' => $this->request->getPost('default_working_hours_start'),
+            'default_working_hours_end' => $this->request->getPost('default_working_hours_end'),
+            'default_working_days' => $workingDays,
+        ];
+
+        foreach ($settings as $key => $value) {
+            $type = 'string';
+            if ($key === 'default_working_days') {
+                $type = 'json';
+            } elseif (is_numeric($value)) {
+                $type = 'number';
+            }
+            $this->settingsModel->setGlobalSetting($key, $value, $type);
+        }
+
+        $this->auditService->logEvent('controlplane_settings_tenant_defaults_update', [
+            'route' => '/controlplane/settings/tenant-defaults',
+            'method' => 'POST',
+            'metadata' => [
+                'default_timezone' => $settings['default_timezone'],
+                'default_currency' => $settings['default_currency'],
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/settings?tab=governance'))
+            ->with('success', 'Tenant defaults updated for new clinics.');
+    }
+
+    /**
      * POST /controlplane/settings/audit-retention/prune
      */
     public function pruneAuditLogs()
@@ -232,6 +295,15 @@ class Settings extends BaseController
             'retention_last_n' => 5,
             'retention_days' => 30,
             'control_plane_audit_retention_days' => 365,
+            'default_timezone' => 'America/New_York',
+            'default_date_format' => 'Y-m-d',
+            'default_time_format' => '12',
+            'default_currency' => 'USD',
+            'default_currency_position' => 'before',
+            'default_appointment_duration' => 30,
+            'default_working_hours_start' => '09:00',
+            'default_working_hours_end' => '17:00',
+            'default_working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
         ];
 
         $stored = $this->settingsModel->withoutTenantScope()->getGlobalSettings();

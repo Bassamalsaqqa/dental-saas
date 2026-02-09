@@ -26,6 +26,15 @@ class AddControlPlaneSettingsDefaults extends Migration
             'retention_last_n' => ['value' => '5', 'type' => 'number'],
             'retention_days' => ['value' => '30', 'type' => 'number'],
             'control_plane_audit_retention_days' => ['value' => '365', 'type' => 'number'],
+            'default_timezone' => ['value' => 'America/New_York', 'type' => 'string'],
+            'default_date_format' => ['value' => 'Y-m-d', 'type' => 'string'],
+            'default_time_format' => ['value' => '12', 'type' => 'string'],
+            'default_currency' => ['value' => 'USD', 'type' => 'string'],
+            'default_currency_position' => ['value' => 'before', 'type' => 'string'],
+            'default_appointment_duration' => ['value' => '30', 'type' => 'number'],
+            'default_working_hours_start' => ['value' => '09:00', 'type' => 'string'],
+            'default_working_hours_end' => ['value' => '17:00', 'type' => 'string'],
+            'default_working_days' => ['value' => '["monday","tuesday","wednesday","thursday","friday"]', 'type' => 'json'],
         ];
 
         foreach ($defaults as $key => $meta) {
@@ -68,6 +77,15 @@ class AddControlPlaneSettingsDefaults extends Migration
             'retention_last_n',
             'retention_days',
             'control_plane_audit_retention_days',
+            'default_timezone',
+            'default_date_format',
+            'default_time_format',
+            'default_currency',
+            'default_currency_position',
+            'default_appointment_duration',
+            'default_working_hours_start',
+            'default_working_hours_end',
+            'default_working_days',
         ];
 
         $db->table('settings')

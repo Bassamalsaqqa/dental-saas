@@ -1251,3 +1251,13 @@
     - Updated `app/Views/control_plane/settings.php` to a governance-focused UI with retention controls and plan/email template links.
     - Registered control-plane settings routes and added defaults migration for global settings keys.
 - **Verification:** `docs/SaaS/verification/CP-SET-01.md`.
+
+### Task: CP-SET-02 Control Plane Tenant Defaults
+- **Date:** 2026-02-09
+- **Status:** Completed
+- **Description:** Added control-plane defaults for new clinics (timezone, formats, currency, working hours) and seeded these values during onboarding.
+- **Actions:**
+    - Added tenant defaults form to `app/Views/control_plane/settings.php` and persistence in `app/Controllers/ControlPlane/Settings.php`.
+    - Seeded clinic settings from global defaults during onboarding in `app/Services/OnboardingService.php`.
+    - Expanded control-plane defaults migration and superadmin SQL dump.
+- **Verification:** `docs/SaaS/verification/CP-SET-02.md`.

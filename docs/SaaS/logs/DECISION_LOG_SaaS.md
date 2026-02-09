@@ -33,3 +33,8 @@
 - Decision: Control plane settings manage platform identity and governance (retention policies) only; tenant feature availability remains exclusively managed through plan configuration to avoid duplicate toggles.
 - Rationale: Prevent inconsistent feature states and keep commercial entitlements centralized in plan management.
 - Impact: Control plane settings page links to plan management for feature access changes while retaining global retention policy controls.
+
+## 2026-02-09 — Tenant Defaults for New Clinics
+- Decision: Control plane defines default system preferences for new clinics (timezone, date/time formats, currency, working hours) and applies them only at onboarding.
+- Rationale: Provide consistent starting configuration without overriding existing tenant preferences.
+- Impact: New clinics are seeded with platform defaults at creation; existing clinics are unchanged.

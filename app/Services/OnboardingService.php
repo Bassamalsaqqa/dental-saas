@@ -11,6 +11,7 @@ use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Models\PlanAuditModel;
 use App\Models\PermissionModel;
+use App\Models\SettingsModel;
 
 class OnboardingService
 {
@@ -23,6 +24,7 @@ class OnboardingService
     protected $planModel;
     protected $auditModel;
     protected $permissionModel;
+    protected $settingsModel;
 
     public function __construct()
     {
@@ -35,6 +37,7 @@ class OnboardingService
         $this->planModel = new PlanModel();
         $this->auditModel = new PlanAuditModel();
         $this->permissionModel = new PermissionModel();
+        $this->settingsModel = new SettingsModel();
     }
 
     /**
@@ -163,6 +166,8 @@ class OnboardingService
                 ])
             ]);
 
+            $this->seedClinicDefaults($clinicId);
+
             $db->transCommit();
             return $clinicId;
 
@@ -170,6 +175,55 @@ class OnboardingService
             $db->transRollback();
             log_message('error', "Onboarding Failed: " . $e->getMessage());
             throw $e;
+        }
+    }
+
+    private function seedClinicDefaults(int $clinicId): void
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('settings');
+
+        $defaults = [
+            'timezone' => $this->settingsModel->getGlobalSetting('default_timezone', 'America/New_York'),
+            'date_format' => $this->settingsModel->getGlobalSetting('default_date_format', 'Y-m-d'),
+            'time_format' => $this->settingsModel->getGlobalSetting('default_time_format', '12'),
+            'currency' => $this->settingsModel->getGlobalSetting('default_currency', 'USD'),
+            'currency_position' => $this->settingsModel->getGlobalSetting('default_currency_position', 'before'),
+            'appointment_duration' => (int) $this->settingsModel->getGlobalSetting('default_appointment_duration', 30),
+            'working_hours_start' => $this->settingsModel->getGlobalSetting('default_working_hours_start', '09:00'),
+            'working_hours_end' => $this->settingsModel->getGlobalSetting('default_working_hours_end', '17:00'),
+            'working_days' => $this->settingsModel->getGlobalSetting('default_working_days', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
+        ];
+
+        $now = date('Y-m-d H:i:s');
+
+        foreach ($defaults as $key => $value) {
+            $exists = $builder->where('clinic_id', $clinicId)
+                ->where('setting_key', $key)
+                ->countAllResults();
+
+            if ($exists) {
+                continue;
+            }
+
+            $type = 'string';
+            $storedValue = $value;
+            if ($key === 'working_days') {
+                $type = 'json';
+                $storedValue = json_encode($value);
+            } elseif (is_numeric($value)) {
+                $type = 'number';
+            }
+
+            $builder->insert([
+                'clinic_id' => $clinicId,
+                'setting_key' => $key,
+                'setting_value' => (string) $storedValue,
+                'setting_type' => $type,
+                'description' => 'Auto-seeded from control plane defaults',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
         }
     }
     

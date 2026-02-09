@@ -189,6 +189,102 @@
                             </div>
                         </div>
 
+                        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-sliders-h text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">Tenant Defaults</h3>
+                                        <p class="text-emerald-100 text-sm">Applied only when a new clinic is onboarded</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-8">
+                                <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-6">
+                                    <?= csrf_field() ?>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Timezone</label>
+                                            <input type="text" name="default_timezone" value="<?= esc($settings['default_timezone'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Appointment Duration (minutes)</label>
+                                            <input type="number" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>" min="5" max="480" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Date Format</label>
+                                            <select name="default_date_format" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                                <?php $dateFormat = $settings['default_date_format'] ?? 'Y-m-d'; ?>
+                                                <option value="Y-m-d" <?= $dateFormat === 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option>
+                                                <option value="m/d/Y" <?= $dateFormat === 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option>
+                                                <option value="d/m/Y" <?= $dateFormat === 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Time Format</label>
+                                            <select name="default_time_format" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                                <?php $timeFormat = $settings['default_time_format'] ?? '12'; ?>
+                                                <option value="12" <?= $timeFormat === '12' ? 'selected' : '' ?>>12-hour</option>
+                                                <option value="24" <?= $timeFormat === '24' ? 'selected' : '' ?>>24-hour</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Currency</label>
+                                            <input type="text" name="default_currency" value="<?= esc($settings['default_currency'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Currency Position</label>
+                                            <select name="default_currency_position" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                                <?php $currencyPosition = $settings['default_currency_position'] ?? 'before'; ?>
+                                                <option value="before" <?= $currencyPosition === 'before' ? 'selected' : '' ?>>Before amount</option>
+                                                <option value="after" <?= $currencyPosition === 'after' ? 'selected' : '' ?>>After amount</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Working Hours Start</label>
+                                            <input type="time" name="default_working_hours_start" value="<?= esc($settings['default_working_hours_start'] ?? '09:00') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Default Working Hours End</label>
+                                            <input type="time" name="default_working_hours_end" value="<?= esc($settings['default_working_hours_end'] ?? '17:00') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/60 transition-all" required>
+                                        </div>
+                                    </div>
+
+                                    <?php $workingDefaults = $settings['default_working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']; ?>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Default Working Days</label>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <?php
+                                                $dayLabels = [
+                                                    'monday' => 'Monday',
+                                                    'tuesday' => 'Tuesday',
+                                                    'wednesday' => 'Wednesday',
+                                                    'thursday' => 'Thursday',
+                                                    'friday' => 'Friday',
+                                                    'saturday' => 'Saturday',
+                                                    'sunday' => 'Sunday',
+                                                ];
+                                            ?>
+                                            <?php foreach ($dayLabels as $dayKey => $dayLabel): ?>
+                                                <label class="flex items-center space-x-2 p-3 border border-slate-200 rounded-xl bg-slate-50">
+                                                    <input type="checkbox" name="default_working_days[]" value="<?= esc($dayKey) ?>" class="h-4 w-4 text-emerald-600 border-slate-300 rounded" <?= in_array($dayKey, $workingDefaults, true) ? 'checked' : '' ?>>
+                                                    <span class="text-sm font-medium text-slate-700"><?= esc($dayLabel) ?></span>
+                                                </label>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all">
+                                            <i class="fas fa-save mr-2"></i>Save Tenant Defaults
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
                             <div class="flex items-start justify-between flex-wrap gap-6">
                                 <div>

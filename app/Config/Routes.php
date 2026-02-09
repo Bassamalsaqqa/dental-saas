@@ -77,6 +77,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('settings/retention/prune', 'ControlPlane\Settings::pruneExports');
         $routes->post('settings/audit-retention', 'ControlPlane\Settings::updateAuditRetention');
         $routes->post('settings/audit-retention/prune', 'ControlPlane\Settings::pruneAuditLogs');
+        $routes->post('settings/tenant-defaults', 'ControlPlane\Settings::updateTenantDefaults');
 
         // Legacy onboarding alias to avoid 404 on /controlplane/clinic/create
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic'); // CP-UX-02b
