@@ -228,10 +228,31 @@
                         <p class="text-sm text-gray-500">Proposed treatment procedures</p>
                     </div>
                 </div>
-                <div class="p-4 bg-gray-50 rounded-lg">
-                    <p class="text-gray-700 mb-4">
-                        Use a Treatment Contract to build the plan with odontogram details, cost items, and signature flow.
-                    </p>
+                <div class="p-4 bg-gray-50 rounded-lg space-y-4">
+                    <?php if (!empty($latest_contract)): ?>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Latest Contract</p>
+                                <p class="text-gray-900 font-semibold">
+                                    #<?= $latest_contract['id'] ?> · <?= ucfirst($latest_contract['status'] ?? 'draft') ?>
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?>
+                                    <?php if (!empty($latest_contract['created_at'])): ?>
+                                        · <?= date('M j, Y', strtotime($latest_contract['created_at'])) ?>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                            <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-gray-700">
+                            Use a Treatment Contract to build the plan with odontogram details, cost items, and signature flow.
+                        </p>
+                    <?php endif; ?>
+
                     <?php if (has_permission('contracts', 'create')): ?>
                         <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-file-signature mr-2"></i>Add Treatment Plan

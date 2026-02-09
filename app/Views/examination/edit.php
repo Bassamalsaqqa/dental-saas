@@ -145,7 +145,7 @@
                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Objective findings from the examination..."><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
             </div>
 
-            <!-- Diagnosis and Treatment Plan -->
+            <!-- Diagnosis -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                     <label for="diagnosis" class="block text-sm font-medium text-gray-700 mb-2">
@@ -153,14 +153,6 @@
                     </label>
                     <textarea name="diagnosis" id="diagnosis" rows="4" 
                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Clinical diagnosis based on findings..."><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
-                </div>
-
-                <div>
-                    <label for="treatment_plan" class="block text-sm font-medium text-gray-700 mb-2">
-                        Treatment Plan
-                    </label>
-                    <textarea name="treatment_plan" id="treatment_plan" rows="4" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Proposed treatment plan and procedures..."><?= old('treatment_plan', $examination['treatment_plan']) ?></textarea>
                 </div>
             </div>
 

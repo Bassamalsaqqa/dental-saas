@@ -223,7 +223,7 @@
                             </div>
                         </div>
 
-                        <!-- Diagnosis & Treatment Plan -->
+                        <!-- Diagnosis -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
@@ -234,21 +234,6 @@
                                     <textarea name="diagnosis" id="diagnosis" rows="4" 
                                               class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" 
                                               placeholder="Clinical diagnosis based on findings..."><?= old('diagnosis') ?></textarea>
-                                    <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                        <i class="fas fa-edit"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-clipboard-list text-cyan-600"></i>
-                                    <span>Treatment Plan</span>
-                                </label>
-                                <div class="relative">
-                                    <textarea name="treatment_plan" id="treatment_plan" rows="4" 
-                                              class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl resize-none" 
-                                              placeholder="Proposed treatment plan and procedures..."><?= old('treatment_plan') ?></textarea>
                                     <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                         <i class="fas fa-edit"></i>
                                     </div>

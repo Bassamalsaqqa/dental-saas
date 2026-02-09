@@ -6,6 +6,7 @@ use App\Models\ExaminationModel;
 use App\Models\PatientModel;
 use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
+use App\Models\TreatmentContractModel;
 use App\Services\ActivityLogger;
 
 class Examination extends BaseController
@@ -14,6 +15,7 @@ class Examination extends BaseController
     protected $patientModel;
     protected $odontogramModel;
     protected $treatmentModel;
+    protected $contractModel;
     protected $activityLogger;
     protected $storageService;
     protected $db;
@@ -24,6 +26,7 @@ class Examination extends BaseController
         $this->patientModel = new PatientModel();
         $this->odontogramModel = new OdontogramModel();
         $this->treatmentModel = new TreatmentModel();
+        $this->contractModel = new TreatmentContractModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
@@ -101,7 +104,6 @@ class Examination extends BaseController
             'dental_history' => $this->request->getPost('dental_history'),
             'clinical_findings' => $this->request->getPost('clinical_findings'),
             'diagnosis' => $this->request->getPost('diagnosis'),
-            'treatment_plan' => $this->request->getPost('treatment_plan'),
             'prognosis' => $this->request->getPost('prognosis'),
             'recommendations' => $this->request->getPost('recommendations'),
             'examination_notes' => $this->request->getPost('examination_notes'),
@@ -155,10 +157,17 @@ class Examination extends BaseController
 
         $nextAppointment = (new \App\Models\AppointmentModel())->getNextAppointmentForPatient($clinicId, $examination['patient_id']);
 
+        $latestContract = $this->contractModel
+            ->where('clinic_id', $clinicId)
+            ->where('patient_id', $examination['patient_id'])
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
             'examination' => $examination,
             'next_appointment' => $nextAppointment,
+            'latest_contract' => $latestContract,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
@@ -230,7 +239,6 @@ class Examination extends BaseController
             'dental_history' => $this->request->getPost('dental_history'),
             'clinical_findings' => $this->request->getPost('clinical_findings'),
             'diagnosis' => $this->request->getPost('diagnosis'),
-            'treatment_plan' => $this->request->getPost('treatment_plan'),
             'prognosis' => $this->request->getPost('prognosis'),
             'recommendations' => $this->request->getPost('recommendations'),
             'examination_notes' => $this->request->getPost('examination_notes'),
@@ -568,9 +576,16 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        $latestContract = $this->contractModel
+            ->where('clinic_id', $clinicId)
+            ->where('patient_id', $examination['patient_id'])
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
         $data = [
             'title' => 'Examination Report - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
+            'latest_contract' => $latestContract,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'clinic' => settings()->getClinicInfo()

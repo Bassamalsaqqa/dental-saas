@@ -124,12 +124,20 @@
         </div>
         <?php endif; ?>
 
-        <!-- Treatment Plan -->
-        <?php if (!empty($examination['treatment_plan'])): ?>
+        <!-- Treatment Plan (Contract) -->
+        <?php if (!empty($latest_contract)): ?>
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">Treatment Plan</h2>
             <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-gray-900 leading-relaxed"><?= nl2br(esc($examination['treatment_plan'])) ?></p>
+                <p class="text-gray-900 leading-relaxed">
+                    Contract #<?= esc($latest_contract['id']) ?> · <?= ucfirst($latest_contract['status'] ?? 'draft') ?>
+                </p>
+                <p class="text-gray-700 mt-2">
+                    Total: <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?>
+                </p>
+                <?php if (!empty($latest_contract['created_at'])): ?>
+                    <p class="text-sm text-gray-600 mt-2">Created: <?= date('M j, Y', strtotime($latest_contract['created_at'])) ?></p>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>

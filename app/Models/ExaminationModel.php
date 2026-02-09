@@ -24,7 +24,6 @@ class ExaminationModel extends TenantAwareModel
         'dental_history',
         'clinical_findings',
         'diagnosis',
-        'treatment_plan',
         'prognosis',
         'recommendations',
         'examination_notes',
