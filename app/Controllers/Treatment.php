@@ -220,6 +220,15 @@ class Treatment extends BaseController
             } else {
                 return redirect()->to('/treatment')->with('error', 'Examination not found.');
             }
+        } else {
+            $patientId = $this->request->getGet('patient_id');
+            $patientId = is_numeric($patientId) ? (int)$patientId : null;
+            if ($patientId) {
+                $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+                if (!$selectedPatient) {
+                    throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+                }
+            }
         }
 
         $data = [
@@ -260,6 +269,12 @@ class Treatment extends BaseController
                 $exam = (new \App\Models\ExaminationModel())->where('clinic_id', $clinicId)->find($examId);
                 if ($exam) {
                     $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($exam['patient_id']);
+                }
+            } else {
+                $patientId = $this->request->getPost('patient_id');
+                $patientId = is_numeric($patientId) ? (int)$patientId : null;
+                if ($patientId) {
+                    $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
                 }
             }
             $data = [

@@ -61,9 +61,19 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create a transaction.');
         }
 
+        $patientId = $this->request->getGet('patient_id');
+        $patientId = is_numeric($patientId) ? (int)$patientId : null;
+        $selectedPatient = null;
+        if ($patientId) {
+            $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+            if (!$selectedPatient) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+            }
+        }
+
         $data = [
             'title' => 'New Financial Transaction',
-            'patients' => [], // S4-02f: No bulk preload
+            'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'examinations' => [], // S4-02f: No bulk preload
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true
