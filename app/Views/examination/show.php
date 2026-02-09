@@ -228,18 +228,16 @@
                         <p class="text-sm text-gray-500">Proposed treatment procedures</p>
                     </div>
                 </div>
-            <?php if (!empty($examination['treatment_plan'])): ?>
                 <div class="p-4 bg-gray-50 rounded-lg">
-                    <p class="text-gray-900"><?= $examination['treatment_plan'] ?></p>
+                    <p class="text-gray-700 mb-4">
+                        Use a Treatment Contract to build the plan with odontogram details, cost items, and signature flow.
+                    </p>
+                    <?php if (has_permission('contracts', 'create')): ?>
+                        <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-file-signature mr-2"></i>Add Treatment Plan
+                        </a>
+                    <?php endif; ?>
                 </div>
-            <?php else: ?>
-                <div class="text-center py-8">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-clipboard-list text-gray-400 text-2xl"></i>
-                    </div>
-                    <p class="text-gray-500">No treatment plan recorded</p>
-                </div>
-            <?php endif; ?>
             </div>
         </div>
 

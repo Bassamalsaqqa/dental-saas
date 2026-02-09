@@ -57,11 +57,15 @@ class TreatmentContracts extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
+        $examinationId = $this->request->getGet('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
+
         $data = [
             'title' => 'Create Treatment Contract',
             'mode' => 'create',
             'contract' => null,
             'patient' => $patient,
+            'examination_id' => $examinationId,
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($patientId),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'items' => [],
@@ -96,6 +100,8 @@ class TreatmentContracts extends BaseController
         $currency = trim((string) $this->request->getPost('currency')) ?: 'USD';
         $odontogramJson = (string) $this->request->getPost('odontogram_json');
         $odontogramSvg = (string) $this->request->getPost('odontogram_svg');
+        $examinationId = $this->request->getPost('examination_id');
+        $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
@@ -142,6 +148,12 @@ class TreatmentContracts extends BaseController
             $patientId,
             "Treatment contract #{$contractId} created"
         );
+
+        if ($examinationId) {
+            return redirect()
+                ->to(base_url('examination/' . $examinationId))
+                ->with('success', 'Treatment plan contract created successfully.');
+        }
 
         return redirect()
             ->to(base_url('contracts/' . $contractId))

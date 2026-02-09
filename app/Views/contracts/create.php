@@ -53,6 +53,11 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
+                    <?php if (!empty($examination_id)): ?>
+                        <a href="<?= base_url('examination/' . $examination_id) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-indigo-200 rounded-lg text-sm font-medium text-indigo-700 hover:text-indigo-900 shadow-sm hover:shadow-md transition-all duration-200">
+                            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Examination
+                        </a>
+                    <?php endif; ?>
                     <a href="<?= base_url('patient/' . $patient['id']) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
                         <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Patient
                     </a>
@@ -65,6 +70,9 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
         <?= csrf_field() ?>
         <input type="hidden" name="odontogram_json" id="odontogramJson">
         <input type="hidden" name="odontogram_svg" id="odontogramSvg">
+        <?php if (!empty($examination_id)): ?>
+            <input type="hidden" name="examination_id" value="<?= (int) $examination_id ?>">
+        <?php endif; ?>
 
         <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 pb-12 contract-shell">
             <div class="space-y-6 mt-8 w-full max-w-none contract-grid">
