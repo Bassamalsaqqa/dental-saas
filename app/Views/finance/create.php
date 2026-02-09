@@ -51,7 +51,7 @@
 
                 <!-- Form Content -->
                 <div class="p-8">
-                    <form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-8">
+                    <form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-8" data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>">
                         <?= csrf_field() ?>
                         <!-- Patient and Transaction Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -179,7 +179,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="group/field relative">
+                            <div class="group/field relative" id="exchangeRateField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-exchange-alt text-blue-600"></i>
                                     <span>Exchange Rate *</span>
@@ -222,12 +222,19 @@
                                 </div>
                             </div>
 
-                            <div class="group/field relative hidden" id="checkScanField">
+                            <div class="group/field relative" id="checkScanField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-file-upload text-rose-600"></i>
                                     <span>Check Scan (optional)</span>
                                 </label>
-                                <input type="file" name="check_scan" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 bg-white/80 border-2 border-dashed border-gray-300 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <label class="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-rose-700 cursor-pointer transition-all w-fit">
+                                        <i class="fas fa-upload mr-2"></i>Upload Check Scan
+                                        <input type="file" name="check_scan" id="checkScanInput" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                    </label>
+                                    <span class="text-xs text-gray-500">PDF, JPG, PNG (max per plan)</span>
+                                    <span id="checkScanName" class="text-xs text-gray-400"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -334,7 +341,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
-                                    <input type="number" name="discount_amount" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                                    <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-percentage text-gray-400"></i>
                                     </div>
@@ -350,12 +357,24 @@
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold">%</span>
                                     </div>
-                                    <input type="number" name="tax_percentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                                    <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-percent text-gray-400"></i>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Live Total -->
+                        <div class="group/field relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                <i class="fas fa-receipt text-emerald-600"></i>
+                                <span>Total (<?= esc($base_currency ?? 'ILS') ?>)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-lg text-emerald-700 font-bold" value="0.00">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Total = Converted Amount - Discount + Tax</p>
                         </div>
 
                         <!-- Description -->
@@ -404,47 +423,9 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
+
+<script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
 <?= $this->endSection() ?>
-
-<script>
-    (function () {
-        const amountInput = document.getElementById('amountOriginal');
-        const rateInput = document.getElementById('exchangeRate');
-        const currencySelect = document.getElementById('currencySelect');
-        const convertedOutput = document.getElementById('amountConverted');
-        const methodSelect = document.getElementById('paymentMethod');
-        const checkField = document.getElementById('checkScanField');
-        const baseCurrency = <?= json_encode($base_currency ?? 'ILS') ?>;
-
-        function updateConverted() {
-            const amount = parseFloat(amountInput?.value || '0') || 0;
-            const rate = parseFloat(rateInput?.value || '0') || 0;
-            const currency = currencySelect?.value || baseCurrency;
-            const effectiveRate = currency === baseCurrency ? (rate > 0 ? rate : 1) : rate;
-            const converted = amount * (effectiveRate || 0);
-            if (convertedOutput) {
-                convertedOutput.value = converted.toFixed(2);
-            }
-        }
-
-        function toggleCheck() {
-            if (!methodSelect || !checkField) return;
-            checkField.classList.toggle('hidden', methodSelect.value !== 'check');
-        }
-
-        amountInput?.addEventListener('input', updateConverted);
-        rateInput?.addEventListener('input', updateConverted);
-        currencySelect?.addEventListener('change', () => {
-            if (currencySelect.value === baseCurrency && (!rateInput.value || parseFloat(rateInput.value) <= 0)) {
-                rateInput.value = '1';
-            }
-            updateConverted();
-        });
-        methodSelect?.addEventListener('change', toggleCheck);
-
-        updateConverted();
-        toggleCheck();
-    })();
-</script>
 
