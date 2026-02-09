@@ -1241,3 +1241,13 @@
     - **Views:** Added due date/service details fields, invoice payment history, and balance display in finance show/invoice views.
     - **Reports:** Updated finance charts/summary to use payment-based revenue.
 - **Verification:** `docs/SaaS/verification/P5-FIN-01.md`.
+
+### Task: CP-SET-01 Control Plane Settings Governance
+- **Date:** 2026-02-09
+- **Status:** Completed
+- **Description:** Rebuilt control plane settings to persist platform profile and governance policies, including export retention and control-plane audit retention, without duplicating plan feature toggles.
+- **Actions:**
+    - Added control-plane settings handlers for platform profile, export retention, and audit retention in `app/Controllers/ControlPlane/Settings.php`.
+    - Updated `app/Views/control_plane/settings.php` to a governance-focused UI with retention controls and plan/email template links.
+    - Registered control-plane settings routes and added defaults migration for global settings keys.
+- **Verification:** `docs/SaaS/verification/CP-SET-01.md`.

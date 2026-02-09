@@ -28,3 +28,8 @@
 - **Decision:** Revenue metrics are computed on **payments received** (standalone payments + invoice payments) minus refunds. Invoices do not count as revenue until paid.
 - **Rationale:** Matches cash-basis expectations in small clinics and supports partial payments without double-counting.
 - **Impacted Areas:** Finance stats, monthly revenue, reports, dashboard.
+
+## 2026-02-09 — Control Plane Settings Scope
+- Decision: Control plane settings manage platform identity and governance (retention policies) only; tenant feature availability remains exclusively managed through plan configuration to avoid duplicate toggles.
+- Rationale: Prevent inconsistent feature states and keep commercial entitlements centralized in plan management.
+- Impact: Control plane settings page links to plan management for feature access changes while retaining global retention policy controls.

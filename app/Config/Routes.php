@@ -72,6 +72,11 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('exit', 'ControlPlane::exit');
         $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
         $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');
+        $routes->post('settings/platform', 'ControlPlane\Settings::updatePlatform');
+        $routes->post('settings/retention', 'ControlPlane\Settings::updateRetention');
+        $routes->post('settings/retention/prune', 'ControlPlane\Settings::pruneExports');
+        $routes->post('settings/audit-retention', 'ControlPlane\Settings::updateAuditRetention');
+        $routes->post('settings/audit-retention/prune', 'ControlPlane\Settings::pruneAuditLogs');
 
         // Legacy onboarding alias to avoid 404 on /controlplane/clinic/create
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic'); // CP-UX-02b
@@ -542,8 +547,6 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('security/update', 'Settings::updateSecurity', ['filter' => 'permission:settings:edit']);
     $routes->get('notification-settings', 'Settings::notifications', ['filter' => 'permission:settings:view']);
     $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
-    $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings:edit']);
-    $routes->post('pruneExports', 'Settings::pruneExports', ['filter' => 'permission:settings:edit']);
     
     // Notification Channels (P5-09a)
     $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);

@@ -1,15 +1,13 @@
-<?= $this->extend('layouts/main_control_plane') ?>
+﻿<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-gray-600/10 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-zinc-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
     </div>
 
     <div class="container mx-auto relative z-10 px-4 py-6">
-        <!-- Page Header -->
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -24,209 +22,186 @@
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Global Mode</span>
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Read-only (Staged)</span>
+                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Live Settings</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Settings Layout -->
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar -->
             <div class="lg:w-72 flex-shrink-0">
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 sticky top-6">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Settings Menu</h3>
                     <nav class="space-y-1">
-                        <button onclick="showTab('retention')" id="nav-retention" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md">
-                            <i class="fas fa-history w-5 h-5 mr-3 text-slate-300"></i>
-                            Retention & Audit
+                        <button onclick="showTab('platform')" id="nav-platform" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md">
+                            <i class="fas fa-id-badge w-5 h-5 mr-3 text-slate-300"></i>
+                            Platform Profile
                         </button>
-                        <button onclick="showTab('features')" id="nav-features" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-toggle-on w-5 h-5 mr-3 text-slate-400"></i>
-                            Feature Flags
-                        </button>
-                        <button onclick="showTab('limits')" id="nav-limits" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-tachometer-alt w-5 h-5 mr-3 text-slate-400"></i>
-                            System Limits
-                        </button>
-                        <button onclick="showTab('notifications')" id="nav-notifications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-bell w-5 h-5 mr-3 text-slate-400"></i>
-                            Notifications
+                        <button onclick="showTab('governance')" id="nav-governance" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+                            <i class="fas fa-shield-alt w-5 h-5 mr-3 text-slate-400"></i>
+                            Governance
                         </button>
                     </nav>
                 </div>
             </div>
 
-            <!-- Content Area -->
             <div class="flex-1">
-                <!-- Retention & Audit -->
-                <div id="tab-retention" class="settings-content">
+                <div id="tab-platform" class="settings-content">
                     <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-slate-700 to-gray-800 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-history text-white text-xl"></i>
+                                    <i class="fas fa-id-badge text-white text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-white">Retention & Audit</h3>
-                                    <p class="text-slate-300 text-sm">Configure data lifecycle and compliance logging</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-8 space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Audit Log Retention</label>
-                                    <div class="relative">
-                                        <input type="text" value="365" disabled class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-medium cursor-not-allowed">
-                                        <span class="absolute right-4 top-3.5 text-sm text-slate-400">Days</span>
-                                    </div>
-                                    <p class="mt-2 text-xs text-slate-400">Retention period for immutable audit trails.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Log Exports</label>
-                                    <select disabled class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-medium cursor-not-allowed appearance-none">
-                                        <option>Manual approval required</option>
-                                    </select>
-                                    <p class="mt-2 text-xs text-slate-400">Security requirement for bulk data egress.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature Flags -->
-                <div id="tab-features" class="settings-content hidden">
-                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-8">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-toggle-on text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">Feature Flags</h3>
-                                    <p class="text-indigo-100 text-sm">Manage global feature rollouts and experiments</p>
+                                    <h3 class="text-xl font-bold text-white">Platform Profile</h3>
+                                    <p class="text-slate-300 text-sm">Support identity used across control plane surfaces</p>
                                 </div>
                             </div>
                         </div>
                         <div class="p-8">
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm">
-                                            <i class="fas fa-rocket"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-slate-700">Early Access Modules</h4>
-                                            <p class="text-xs text-slate-500">Enable beta features for flagged tenants.</p>
-                                        </div>
+                            <form action="<?= base_url('controlplane/settings/platform') ?>" method="POST" class="space-y-6">
+                                <?= csrf_field() ?>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Platform Name</label>
+                                        <input type="text" name="platform_name" value="<?= esc($settings['platform_name'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all" required>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full bg-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider">Disabled</span>
-                                </div>
-
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm">
-                                            <i class="fas fa-credit-card"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-slate-700">Experimental Billing</h4>
-                                            <p class="text-xs text-slate-500">New Stripe integration testing.</p>
-                                        </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Email</label>
+                                        <input type="email" name="platform_support_email" value="<?= esc($settings['platform_support_email'] ?? '') ?>" placeholder="support@yourdomain.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
                                     </div>
-                                    <span class="px-3 py-1 rounded-full bg-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider">Disabled</span>
-                                </div>
-
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm">
-                                            <i class="fas fa-file-export"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-slate-700">Audit Vault Exports</h4>
-                                            <p class="text-xs text-slate-500">Allow superadmins to export raw audit logs.</p>
-                                        </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Phone</label>
+                                        <input type="text" name="platform_support_phone" value="<?= esc($settings['platform_support_phone'] ?? '') ?>" placeholder="+970 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
                                     </div>
-                                    <span class="px-3 py-1 rounded-full bg-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider">Disabled</span>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp (Primary)</label>
+                                        <input type="text" name="platform_support_whatsapp_primary" value="<?= esc($settings['platform_support_whatsapp_primary'] ?? '') ?>" placeholder="+970 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp (Secondary)</label>
+                                        <input type="text" name="platform_support_whatsapp_secondary" value="<?= esc($settings['platform_support_whatsapp_secondary'] ?? '') ?>" placeholder="+972 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Website</label>
+                                        <input type="url" name="platform_support_website" value="<?= esc($settings['platform_support_website'] ?? '') ?>" placeholder="https://yourdomain.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-slate-700 to-gray-800 text-white font-semibold rounded-xl shadow-lg hover:from-slate-800 hover:to-gray-900 transition-all">
+                                        <i class="fas fa-save mr-2"></i>Save Profile
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- System Limits -->
-                <div id="tab-limits" class="settings-content hidden">
-                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-8">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-tachometer-alt text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">System Limits</h3>
-                                    <p class="text-blue-100 text-sm">Default quotas for new tenants</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-8">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Patient Cap</p>
-                                    <p class="text-3xl font-black text-slate-700">1,000</p>
-                                    <p class="text-xs text-slate-400 mt-1">Default records</p>
-                                </div>
-                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Storage</p>
-                                    <p class="text-3xl font-black text-slate-700">10 GB</p>
-                                    <p class="text-xs text-slate-400 mt-1">S3 allocation</p>
-                                </div>
-                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Seats</p>
-                                    <p class="text-3xl font-black text-slate-700">25</p>
-                                    <p class="text-xs text-slate-400 mt-1">User licenses</p>
+                <div id="tab-governance" class="settings-content hidden">
+                    <div class="space-y-8">
+                        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-8">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-file-shield text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">Export Retention Policy</h3>
+                                        <p class="text-slate-300 text-sm">Global policy for export artifacts across all clinics</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                            <div class="p-8 space-y-6">
+                                <form action="<?= base_url('controlplane/settings/retention') ?>" method="POST" class="space-y-6">
+                                    <?= csrf_field() ?>
+                                    <?php $retentionMode = $settings['retention_mode'] ?? 'latest'; ?>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-slate-50 transition-all <?= $retentionMode === 'latest' ? 'border-slate-700 bg-slate-50' : 'border-slate-200' ?>">
+                                            <input type="radio" name="retention_mode" value="latest" class="sr-only" <?= $retentionMode === 'latest' ? 'checked' : '' ?>>
+                                            <span class="font-semibold text-slate-800">Keep Latest Only</span>
+                                            <span class="text-xs text-slate-500 mt-1">Supersede previous exports for each purpose.</span>
+                                        </label>
+                                        <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-slate-50 transition-all <?= $retentionMode === 'keep_last_n' ? 'border-slate-700 bg-slate-50' : 'border-slate-200' ?>">
+                                            <input type="radio" name="retention_mode" value="keep_last_n" class="sr-only" <?= $retentionMode === 'keep_last_n' ? 'checked' : '' ?>>
+                                            <span class="font-semibold text-slate-800">Keep Last N</span>
+                                            <span class="text-xs text-slate-500 mt-1">Retain a fixed number of recent exports.</span>
+                                        </label>
+                                        <label class="relative flex flex-col p-4 border-2 rounded-xl cursor-pointer hover:bg-slate-50 transition-all <?= $retentionMode === 'keep_x_days' ? 'border-slate-700 bg-slate-50' : 'border-slate-200' ?>">
+                                            <input type="radio" name="retention_mode" value="keep_x_days" class="sr-only" <?= $retentionMode === 'keep_x_days' ? 'checked' : '' ?>>
+                                            <span class="font-semibold text-slate-800">Keep for X Days</span>
+                                            <span class="text-xs text-slate-500 mt-1">Delete exports older than the time window.</span>
+                                        </label>
+                                    </div>
 
-                <!-- Notifications -->
-                <div id="tab-notifications" class="settings-content hidden">
-                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-bell text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">Notifications</h3>
-                                    <p class="text-amber-100 text-sm">Delivery providers and rate limits</p>
-                                </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div id="retention-last-n" class="<?= $retentionMode === 'keep_last_n' ? '' : 'hidden' ?>">
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Number of exports to keep</label>
+                                            <input type="number" name="retention_last_n" value="<?= esc((int) ($settings['retention_last_n'] ?? 5)) ?>" min="1" max="100" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        </div>
+                                        <div id="retention-days" class="<?= $retentionMode === 'keep_x_days' ? '' : 'hidden' ?>">
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Number of days to keep</label>
+                                            <input type="number" name="retention_days" value="<?= esc((int) ($settings['retention_days'] ?? 30)) ?>" min="1" max="3650" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                                        <button type="button" id="prune-exports-btn" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                                            <i class="fas fa-broom mr-2"></i>Prune Export Artifacts
+                                        </button>
+                                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-slate-700 to-gray-800 text-white font-semibold rounded-xl shadow-lg hover:from-slate-800 hover:to-gray-900 transition-all">
+                                            <i class="fas fa-save mr-2"></i>Save Retention Policy
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                        <div class="p-8 space-y-6">
-                            <div class="grid grid-cols-1 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Delivery Provider</label>
-                                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
-                                                <i class="fas fa-server"></i>
-                                            </div>
-                                            <span class="font-semibold text-slate-700">Primary SMTP Relay</span>
-                                        </div>
-                                        <span class="text-xs font-bold text-green-600 uppercase tracking-wide">Active</span>
+
+                        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-8">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-user-shield text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">Control Plane Audit Retention</h3>
+                                        <p class="text-indigo-100 text-sm">Retention policy for operator activity logs</p>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-2 gap-6">
+                            </div>
+                            <div class="p-8">
+                                <form action="<?= base_url('controlplane/settings/audit-retention') ?>" method="POST" class="space-y-6">
+                                    <?= csrf_field() ?>
                                     <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Escalation Window</label>
-                                        <input type="text" value="15 min" disabled class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-medium">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Audit log retention window (days)</label>
+                                        <input type="number" name="control_plane_audit_retention_days" value="<?= esc((int) ($settings['control_plane_audit_retention_days'] ?? 365)) ?>" min="30" max="3650" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200/60 transition-all">
+                                        <p class="text-xs text-slate-500 mt-2">Retention applies to control plane audit events only. Tenant audit policies remain unchanged.</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Outbound Throttle</label>
-                                        <input type="text" value="120 / min" disabled class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-medium">
+                                    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                                        <button type="button" id="prune-audits-btn" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                                            <i class="fas fa-broom mr-2"></i>Prune Audit Logs
+                                        </button>
+                                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-lg hover:from-indigo-700 hover:to-violet-700 transition-all">
+                                            <i class="fas fa-save mr-2"></i>Save Audit Policy
+                                        </button>
                                     </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+                            <div class="flex items-start justify-between flex-wrap gap-6">
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">Feature Governance</h4>
+                                    <p class="text-sm text-slate-600 mt-2 max-w-2xl">Feature availability is managed through Plans to avoid duplication. Use plan settings to enable or disable tenant-facing capabilities.</p>
+                                </div>
+                                <div class="flex flex-wrap gap-3">
+                                    <a href="<?= base_url('controlplane/plans') ?>" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-all">
+                                        <i class="fas fa-layer-group mr-2"></i>Manage Plans
+                                    </a>
+                                    <a href="<?= base_url('controlplane/email-templates') ?>" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all">
+                                        <i class="fas fa-envelope mr-2"></i>Email Templates
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -239,39 +214,129 @@
 
 <script>
 function showTab(tabName) {
-    // Hide all contents
     document.querySelectorAll('.settings-content').forEach(el => el.classList.add('hidden'));
-    
-    // Show target content
-    document.getElementById('tab-' + tabName).classList.remove('hidden');
-    
-    // Reset all nav buttons
+
+    const target = document.getElementById('tab-' + tabName);
+    if (target) {
+        target.classList.remove('hidden');
+    }
+
     const navButtons = document.querySelectorAll('[id^="nav-"]');
     navButtons.forEach(btn => {
-        // Reset to default style
         btn.className = 'w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900';
-        // Reset icon color
         const icon = btn.querySelector('i');
         if (icon) icon.className = icon.className.replace('text-slate-300', 'text-slate-400');
     });
-    
-    // Activate target button
+
     const activeBtn = document.getElementById('nav-' + tabName);
-    
-    // Determine active color based on tab (matching the content header gradients)
-    let activeClass = 'bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md'; // Default Retention
-    if (tabName === 'features') activeClass = 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md';
-    if (tabName === 'limits') activeClass = 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md';
-    if (tabName === 'notifications') activeClass = 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md';
-    
-    activeBtn.className = `w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 ${activeClass}`;
-    
-    // Set icon color to white/light
-    const activeIcon = activeBtn.querySelector('i');
-    if (activeIcon) {
-        activeIcon.classList.remove('text-slate-400');
-        activeIcon.classList.add('text-white/80');
+    let activeClass = 'bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md';
+    if (tabName === 'governance') activeClass = 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md';
+
+    if (activeBtn) {
+        activeBtn.className = `w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 ${activeClass}`;
+        const activeIcon = activeBtn.querySelector('i');
+        if (activeIcon) {
+            activeIcon.classList.remove('text-slate-400');
+            activeIcon.classList.add('text-white/80');
+        }
     }
 }
+
+function toastMessage(type, message) {
+    if (window.showToast) {
+        window.showToast(type === 'success' ? 'success' : 'error', type === 'success' ? 'Success' : 'Error', message);
+        return;
+    }
+    alert(message);
+}
+
+function initRetentionControls() {
+    const retentionRadios = document.querySelectorAll('input[name="retention_mode"]');
+    const lastN = document.getElementById('retention-last-n');
+    const days = document.getElementById('retention-days');
+
+    retentionRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (lastN) lastN.classList.add('hidden');
+            if (days) days.classList.add('hidden');
+
+            if (radio.value === 'keep_last_n' && lastN) {
+                lastN.classList.remove('hidden');
+            }
+            if (radio.value === 'keep_x_days' && days) {
+                days.classList.remove('hidden');
+            }
+        });
+    });
+}
+
+function bindPruneActions() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    const csrfHeader = document.querySelector('meta[name="csrf-header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+    const pruneExportsBtn = document.getElementById('prune-exports-btn');
+    if (pruneExportsBtn) {
+        pruneExportsBtn.addEventListener('click', () => {
+            if (!confirm('Prune all expired/superseded export artifacts? This cannot be undone.')) return;
+
+            fetch('<?= base_url('controlplane/settings/retention/prune') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastMessage('success', data.message || 'Export artifacts pruned.');
+                        return;
+                    }
+                    toastMessage('error', data.message || 'Pruning failed.');
+                })
+                .catch(() => toastMessage('error', 'Pruning failed.'));
+        });
+    }
+
+    const pruneAuditsBtn = document.getElementById('prune-audits-btn');
+    if (pruneAuditsBtn) {
+        pruneAuditsBtn.addEventListener('click', () => {
+            if (!confirm('Prune control plane audit logs beyond the retention window?')) return;
+
+            fetch('<?= base_url('controlplane/settings/audit-retention/prune') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastMessage('success', data.message || 'Audit logs pruned.');
+                        return;
+                    }
+                    toastMessage('error', data.message || 'Pruning failed.');
+                })
+                .catch(() => toastMessage('error', 'Pruning failed.'));
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab && document.getElementById(`tab-${urlTab}`)) {
+        showTab(urlTab);
+    } else {
+        showTab('platform');
+    }
+
+    initRetentionControls();
+    bindPruneActions();
+});
 </script>
 <?= $this->endSection() ?>

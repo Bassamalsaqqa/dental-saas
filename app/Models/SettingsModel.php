@@ -118,23 +118,29 @@ class SettingsModel extends TenantAwareModel
      */
     public function setGlobalSetting($key, $value, $type = 'string', $description = null)
     {
-        $existing = $this->where('setting_key', $key)
-                         ->where('clinic_id', 0)
-                         ->first();
-        
+        $db = \Config\Database::connect();
+        $builder = $db->table($this->table);
+        $existing = $builder->where('setting_key', $key)
+            ->where('clinic_id', 0)
+            ->get()
+            ->getRowArray();
+
+        $now = date('Y-m-d H:i:s');
         $data = [
-            'clinic_id'     => 0,
-            'setting_key'   => $key,
+            'clinic_id' => 0,
+            'setting_key' => $key,
             'setting_value' => $this->serializeValue($value, $type),
-            'setting_type'  => $type,
-            'description'   => $description
+            'setting_type' => $type,
+            'description' => $description,
+            'updated_at' => $now,
         ];
 
         if ($existing) {
-            return $this->update($existing['id'], $data);
-        } else {
-            return $this->insert($data);
+            return (bool) $builder->where('id', $existing['id'])->update($data);
         }
+
+        $data['created_at'] = $now;
+        return (bool) $builder->insert($data);
     }
 
     /**
