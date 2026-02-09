@@ -167,11 +167,21 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to schedule an appointment.');
         }
 
+        $patientId = $this->request->getGet('patient_id');
+        $selectedPatient = null;
+        if ($patientId) {
+            $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+            if (!$selectedPatient) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+            }
+        }
+
         $data = [
             'title' => 'New Appointment',
             'patients' => [], // S4-02e-FIX: Do not preload patient list server-side. Autocomplete will handle it.
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'selected_patient' => $selectedPatient
         ];
 
         // Ensure user data is included

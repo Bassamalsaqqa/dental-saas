@@ -54,6 +54,9 @@ class Examination extends BaseController
         
         if ($patientId) {
             $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+            if (!$selectedPatient) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+            }
         }
         
         $data = [

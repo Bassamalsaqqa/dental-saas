@@ -62,6 +62,11 @@
                                             data-placeholder="Search patients by name, phone, or ID..."
                                             required>
                                         <option value="">Select a patient</option>
+                                        <?php if (!empty($selected_patient)): ?>
+                                            <option value="<?= $selected_patient['id'] ?>" selected>
+                                                <?= esc($selected_patient['first_name'] . ' ' . $selected_patient['last_name']) ?> (<?= esc($selected_patient['phone'] ?? $selected_patient['patient_id'] ?? 'N/A') ?>)
+                                            </option>
+                                        <?php endif; ?>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>

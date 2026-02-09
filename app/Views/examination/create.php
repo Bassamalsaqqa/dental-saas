@@ -64,7 +64,7 @@
                                         <option value="">Select a patient</option>
                                         <?php if (!empty($selected_patient)): ?>
                                             <option value="<?= $selected_patient['id'] ?>" selected>
-                                                <?= $selected_patient['first_name'] . ' ' . $selected_patient['last_name'] ?> (<?= $selected['phone'] ?>)
+                                                <?= esc($selected_patient['first_name'] . ' ' . $selected_patient['last_name']) ?> (<?= esc($selected_patient['phone'] ?? $selected_patient['patient_id'] ?? 'N/A') ?>)
                                             </option>
                                         <?php endif; ?>
                                     </select>
