@@ -364,7 +364,7 @@
                             $totalRevenue = 0.0;
                             if (!empty($reports['monthly_revenue'])) {
                                 foreach ($reports['monthly_revenue'] as $row) {
-                                    $totalRevenue += (float)($row['amount'] ?? 0);
+                                    $totalRevenue += (float)($row['total_amount'] ?? ($row['amount'] ?? 0));
                                 }
                             }
                             ?>
@@ -544,7 +544,7 @@ if (revenueCtx) {
     
     // Extract labels and data
     const labels = revenueData.map(item => item.month || '');
-    const data = revenueData.map(item => parseFloat(item.amount) || 0);
+    const data = revenueData.map(item => parseFloat(item.total_amount ?? item.amount) || 0);
     
     // Debug: Log processed data
     console.log('Revenue Chart Labels:', labels);

@@ -54,9 +54,9 @@
                     <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
-                                <?= number_format($finance['amount'], 2) ?> <span class="text-sm text-gray-500 font-medium"><?= $finance['currency'] ?></span>
+                                <?= number_format($totalAmount, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= $finance['currency'] ?></span>
                             </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Base Amount</div>
+                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Amount</div>
                         </div>
                     </div>
                     

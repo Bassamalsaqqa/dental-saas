@@ -1004,6 +1004,7 @@ function getFDINumber($universalNumber) {
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                             </tr>
@@ -1019,6 +1020,12 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         <?= ucfirst($finance['payment_method'] ?? 'N/A') ?>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        <?php
+                                                            $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0));
+                                                        ?>
+                                                        <?= formatCurrency($totalAmount) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <?php

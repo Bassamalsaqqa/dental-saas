@@ -945,7 +945,7 @@ class Finance extends BaseController
                 'finances.id',
                 'patients.first_name',
                 'finances.transaction_type',
-                'finances.amount',
+                'finances.total_amount',
                 'finances.payment_status',
                 'finances.created_at'
             ];
@@ -975,7 +975,7 @@ class Finance extends BaseController
             // Format data
             $data = [];
             foreach ($finances as $finance) {
-                $amount = floatval($finance['amount'] ?? 0);
+                $amount = floatval($finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
                 $data[] = [
                     'id' => intval($finance['id'] ?? 0),
                     'transaction_id' => 'TXN-' . str_pad($finance['id'], 6, '0', STR_PAD_LEFT),

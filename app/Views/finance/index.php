@@ -417,7 +417,7 @@
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-dollar-sign text-green-600"></i>
-                                            <span>Amount</span>
+                                            <span>Total</span>
                                 </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
