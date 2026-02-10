@@ -196,7 +196,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label>
-                                        <?php $defaultTimeFormat = $settings['default_time_format'] ?? '12'; ?>
+                                        <?php $defaultTimeFormat = (string) ($settings['default_time_format'] ?? '12'); ?>
                                         <select name="default_time_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200" required>
                                             <option value="24" <?= $defaultTimeFormat === '24' ? 'selected' : '' ?>>24 Hour</option>
                                             <option value="12" <?= $defaultTimeFormat === '12' ? 'selected' : '' ?>>12 Hour</option>

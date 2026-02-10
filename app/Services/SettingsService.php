@@ -250,7 +250,7 @@ class SettingsService
             return '';
         }
 
-        $timeFormat = $this->get('time_format', '12');
+        $timeFormat = (string) $this->get('time_format', '12');
         
         if ($format) {
             $formatToUse = $format;

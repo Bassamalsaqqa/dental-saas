@@ -228,6 +228,16 @@ class Settings extends BaseController
             $type = 'string';
             if ($key === 'default_working_days') {
                 $type = 'json';
+            } elseif (in_array($key, [
+                'default_time_format',
+                'default_date_format',
+                'default_currency',
+                'default_currency_position',
+                'default_timezone',
+                'default_working_hours_start',
+                'default_working_hours_end',
+            ], true)) {
+                $type = 'string';
             } elseif (is_numeric($value)) {
                 $type = 'number';
             }
