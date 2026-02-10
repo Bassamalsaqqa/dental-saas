@@ -372,9 +372,21 @@ class Treatment extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Treatment not found');
         }
 
+        $usageModel = new InventoryUsageModel();
+        $usageRecords = $usageModel->where('clinic_id', $clinicId)
+            ->where('treatment_id', $id)
+            ->orderBy('usage_date', 'DESC')
+            ->findAll();
+        $totalUsageCost = 0.0;
+        foreach ($usageRecords as $usage) {
+            $totalUsageCost += (float) ($usage['total_cost'] ?? 0);
+        }
+
         $data = [
             'title' => 'Treatment Details',
             'treatment' => $treatment,
+            'usage_records' => $usageRecords,
+            'usage_total_cost' => $totalUsageCost,
         ];
 
         return $this->view('treatment/show', $data);

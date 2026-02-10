@@ -632,7 +632,7 @@ class Inventory extends BaseController
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
             ->where('inventory_usage.id', $id)
-            ->where('treatments.clinic_id', $clinicId) // Scope via treatment
+            ->where('inventory_usage.clinic_id', $clinicId)
             ->first();
 
         if (!$usage) {
@@ -661,7 +661,7 @@ class Inventory extends BaseController
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
             ->where('inventory_usage.id', $id)
-            ->where('treatments.clinic_id', $clinicId) // Scope
+            ->where('inventory_usage.clinic_id', $clinicId)
             ->first();
 
         if (!$usage) {
@@ -677,15 +677,21 @@ class Inventory extends BaseController
         
         // Persist artifact
         $fileName = 'inventory_usage_' . $id . '.html';
-        $this->storageService->storeExport(
-            $html, 
-            $fileName, 
-            'text/html', 
-            $clinicId, 
-            'inventory_usage', 
-            $id, 
-            'usage_print'
-        );
+        try {
+            $this->storageService->storeExport(
+                $html,
+                $fileName,
+                'text/html',
+                $clinicId,
+                'inventory_usage',
+                $id,
+                'usage_print'
+            );
+        } catch (\CodeIgniter\Exceptions\PageNotFoundException $e) {
+            log_message('warning', 'Inventory usage print export blocked: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            log_message('error', 'Inventory usage print export failed: ' . $e->getMessage());
+        }
 
         return $this->response
             ->setHeader('Content-Type', 'text/html')

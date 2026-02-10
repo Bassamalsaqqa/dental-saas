@@ -111,10 +111,91 @@
                     </div>
                 </div>
                 <?php endif; ?>
+
+                <?php if (!empty($usage_records)): ?>
+                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-boxes text-emerald-600 mr-2"></i>
+                        Inventory Usage
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
+                                    <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Items Used</th>
+                                    <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Cost</th>
+                                    <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500 uppercase">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <?php foreach ($usage_records as $usage): ?>
+                                    <?php
+                                        $items = json_decode($usage['items_used'] ?? '[]', true);
+                                        $itemList = [];
+                                        if (is_array($items)) {
+                                            foreach ($items as $item) {
+                                                $label = ($item['item_name'] ?? 'Item') . ' x' . ($item['quantity_used'] ?? 0);
+                                                $itemList[] = $label;
+                                            }
+                                        }
+                                    ?>
+                                    <tr>
+                                        <td class="py-2 px-3 text-gray-700">
+                                            <?= !empty($usage['usage_date']) ? date('M j, Y', strtotime($usage['usage_date'])) : 'N/A' ?>
+                                        </td>
+                                        <td class="py-2 px-3 text-gray-700">
+                                            <?= !empty($itemList) ? esc(implode(', ', $itemList)) : '—' ?>
+                                        </td>
+                                        <td class="py-2 px-3 font-semibold text-emerald-700">
+                                            <?= formatCurrency((float) ($usage['total_cost'] ?? 0)) ?>
+                                        </td>
+                                        <td class="py-2 px-3 text-gray-600">
+                                            <?= !empty($usage['notes']) ? esc($usage['notes']) : '—' ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Sidebar Information -->
             <div class="space-y-6">
+                <!-- Treatment Financials -->
+                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-coins text-emerald-600 mr-2"></i>
+                        Treatment Financials
+                    </h2>
+                    <?php
+                        $treatmentCost = (float) ($treatment['cost'] ?? 0);
+                        $usageCost = (float) ($usage_total_cost ?? 0);
+                        $grossMargin = $treatmentCost - $usageCost;
+                    ?>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Charged</span>
+                            <span class="text-sm font-semibold text-gray-800"><?= formatCurrency($treatmentCost) ?></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Inventory Cost</span>
+                            <span class="text-sm font-semibold text-rose-600"><?= formatCurrency($usageCost) ?></span>
+                        </div>
+                        <div class="pt-3 border-t border-gray-200 flex items-center justify-between">
+                            <span class="text-sm text-gray-700 font-semibold">Gross Margin</span>
+                            <span class="text-sm font-bold <?= $grossMargin >= 0 ? 'text-emerald-700' : 'text-rose-600' ?>">
+                                <?= formatCurrency($grossMargin) ?>
+                            </span>
+                        </div>
+                        <?php if (empty($usage_records)): ?>
+                            <p class="text-xs text-gray-500 pt-2">No inventory usage recorded for this treatment yet.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
                 <!-- Patient Information -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
