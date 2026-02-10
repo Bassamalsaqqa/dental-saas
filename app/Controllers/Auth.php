@@ -984,7 +984,7 @@ class Auth extends BaseController
 		}
 
 		$clinicId = (int) $memberships[0]['clinic_id'];
-		$channelModel = new ClinicNotificationChannelModel();
+		$channelModel = (new ClinicNotificationChannelModel())->withoutTenantScope();
 		$config = $channelModel->getConfig($clinicId, 'email');
 		$channel = $channelModel->where('clinic_id', $clinicId)
 			->where('channel_type', 'email')

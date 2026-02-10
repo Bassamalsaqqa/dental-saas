@@ -1319,3 +1319,11 @@
 - **Actions:**
     - Updated redirect targets in `app/Controllers/Auth.php` to `/auth/forgot-password` and `/auth/reset-password`.
 - **Verification:** `docs/SaaS/verification/P5-AUTH-02.md`.
+
+### Task: P5-AUTH-03 Forgot Password Tenant Scope Fix
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Bypassed tenant auto-scoping when loading clinic notification channel config during logged-out password reset requests.
+- **Actions:**
+    - Updated `Auth::sendForgotPasswordEmail` to call `ClinicNotificationChannelModel::withoutTenantScope()` for config lookups.
+- **Verification:** `docs/SaaS/verification/P5-AUTH-03.md`.
