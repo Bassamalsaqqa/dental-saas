@@ -131,19 +131,37 @@ class Users extends BaseController
         $users = $builder->findAll();
         $rows = [];
 
-        // Pre-fetch clinic counts to avoid N+1 query loop overhead in large sets
-        // SELECT user_id, COUNT(*) as count FROM clinic_users GROUP BY user_id
+        // Pre-fetch clinic memberships to avoid N+1 query loop overhead in large sets
         $clinicCounts = [];
-        $countQuery = $clinicUserModel->select('user_id, COUNT(*) as count')
-            ->where('status', 'active')
-            ->groupBy('user_id')
+        $clinicNames = [];
+        $membershipRows = $clinicUserModel
+            ->select('clinic_users.user_id, clinics.name as clinic_name, clinics.slug as clinic_slug')
+            ->join('clinics', 'clinics.id = clinic_users.clinic_id', 'left')
+            ->where('clinic_users.status', 'active')
             ->findAll();
-        foreach ($countQuery as $c) {
-            $clinicCounts[$c['user_id']] = $c['count'];
+
+        foreach ($membershipRows as $row) {
+            $userId = (int) ($row['user_id'] ?? 0);
+            if ($userId <= 0) {
+                continue;
+            }
+
+            $clinicCounts[$userId] = ($clinicCounts[$userId] ?? 0) + 1;
+
+            if (!isset($clinicNames[$userId])) {
+                $clinicNames[$userId] = [];
+            }
+
+            $clinicLabel = trim((string) ($row['clinic_name'] ?? ''));
+            if ($clinicLabel === '') {
+                $clinicLabel = 'Clinic';
+            }
+            $clinicNames[$userId][] = $clinicLabel;
         }
 
         foreach ($users as $user) {
             $clinicCount = $clinicCounts[$user['id']] ?? 0;
+            $clinicList = $clinicNames[$user['id']] ?? [];
             
             // Determine primary role (Global > Clinic) - simplified
             // We could join user_roles, but for list view, clinic count is more relevant for CP.
@@ -161,6 +179,7 @@ class Users extends BaseController
                 'email' => $user['email'],
                 'role' => $roleLabel,
                 'clinic_count' => $clinicCount,
+                'clinic_names' => $clinicList,
                 'status' => $user['active'] == 1 ? 'active' : 'inactive',
                 'created_on' => date('Y-m-d', $user['created_on']),
             ];

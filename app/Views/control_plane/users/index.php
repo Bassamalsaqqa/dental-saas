@@ -507,9 +507,17 @@ $(document).ready(function() {
                 }
             },
             {
-                data: 'clinic_count',
-                render: function(data) {
-                    return `<span class="text-sm text-gray-600 font-semibold">${data}</span>`;
+                data: 'clinic_names',
+                render: function(data, type, row) {
+                    const names = Array.isArray(data) ? data : [];
+                    if (names.length === 0) {
+                        return `<span class="text-xs text-gray-400">No clinic</span>`;
+                    }
+                    const preview = names.slice(0, 2);
+                    const extra = names.length - preview.length;
+                    const badges = preview.map(name => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">${name}</span>`).join(' ');
+                    const extraBadge = extra > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">+${extra}</span>` : '';
+                    return `<div class="flex flex-wrap gap-1">${badges}${extraBadge}</div>`;
                 }
             },
             {
