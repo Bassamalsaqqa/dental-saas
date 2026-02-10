@@ -293,34 +293,67 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
                 </div>
 
                 <div class="space-y-6">
-                    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Contract Summary</h3>
-                        <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white p-5">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-receipt text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold">Contract Summary</h3>
+                                    <p class="text-emerald-100 text-xs">Currency, totals, and cost notes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4 bg-white/70">
+                            <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Currency</label>
-                                <input type="text" name="currency" value="<?= esc($contract['currency'] ?? 'USD') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                                <?php
+                                    $baseCurrency = $base_currency ?? 'ILS';
+                                    $selectedCurrency = $contract['currency'] ?? $baseCurrency;
+                                ?>
+                                <select name="currency" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
+                                        <option value="<?= esc($option) ?>" <?= ($selectedCurrency === $option) ? 'selected' : '' ?>>
+                                            <?= esc($option) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Total</label>
-                                <div class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" id="contractTotal">0.00</div>
+                                <div class="px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700" id="contractTotal">0.00</div>
                             </div>
-                        </div>
-                        <div class="mt-4">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Details</label>
-                            <textarea name="cost_details" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Additional cost breakdown (optional)"><?= esc($contract['cost_details'] ?? '') ?></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Details</label>
+                                <textarea name="cost_details" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Additional cost breakdown (optional)"><?= esc($contract['cost_details'] ?? '') ?></textarea>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800">Treatment Items</h3>
-                            <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700">
-                                <i class="fas fa-plus mr-2"></i>Add Item
-                            </button>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-list text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold">Treatment Items</h3>
+                                        <p class="text-blue-100 text-xs">Auto-filled from tooth updates or add manually</p>
+                                    </div>
+                                </div>
+                                <button type="button" id="addItemBtn" class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
+                                    <i class="fas fa-plus mr-2"></i>Add Item
+                                </button>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                <thead class="bg-gray-50">
+                        <div class="p-6 bg-white/70">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-white/80">
                                     <tr>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tooth</th>
@@ -329,29 +362,42 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Price</th>
                                         <th class="px-3 py-2"></th>
                                     </tr>
-                                </thead>
-                                <tbody id="itemsBody" class="divide-y divide-gray-100"></tbody>
-                            </table>
+                                    </thead>
+                                    <tbody id="itemsBody" class="divide-y divide-gray-100"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Contract Terms</h3>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
-                            <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                        <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-gray-900 text-white p-5">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-pen-fancy text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold">Contract Terms</h3>
+                                    <p class="text-slate-200 text-xs">Optional terms, timeline, and notes</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Terms</label>
-                            <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Duration Plan</label>
-                            <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Optional duration or timeline">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
-                            <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
+                        <div class="p-6 space-y-4 bg-white/70">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
+                                <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Terms</label>
+                                <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Duration Plan</label>
+                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+                                <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
+                            </div>
                         </div>
                     </div>
 
