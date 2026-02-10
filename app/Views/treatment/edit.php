@@ -235,6 +235,91 @@
                             <?php endif; ?>
                         </div>
 
+                        <!-- Inventory Usage (Optional) -->
+                        <div class="group/field relative">
+                            <div class="bg-white/70 border border-white/30 rounded-2xl shadow-xl p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white">
+                                            <i class="fas fa-boxes"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-lg font-bold text-gray-900">Record Inventory Usage</h4>
+                                            <p class="text-sm text-gray-500">Optional: log materials used for this treatment</p>
+                                        </div>
+                                    </div>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only">
+                                        <div class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
+                                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
+                                        </div>
+                                        <span class="ml-3 text-sm font-semibold text-gray-700">Enable</span>
+                                    </label>
+                                </div>
+
+                                <div id="usageSection" class="hidden space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Usage Date *</label>
+                                            <input type="date" name="usage_date" id="usage_date" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+                                        </div>
+                                        <div class="flex items-end">
+                                            <p class="text-sm text-gray-500">Items must be in stock to record usage.</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="usageItemsContainer" class="space-y-4">
+                                        <div class="usage-item bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Item *</label>
+                                                    <select name="usage_items[0][item_id]" class="w-full px-3 py-2 border border-gray-300 rounded-lg item-select">
+                                                        <option value="">Select item...</option>
+                                                        <?php foreach ($inventory_items ?? [] as $item): ?>
+                                                            <option value="<?= $item['id'] ?>" data-quantity="<?= $item['quantity'] ?>" data-unit="<?= $item['unit'] ?>" data-price="<?= $item['unit_price'] ?>">
+                                                                <?= $item['item_name'] ?> (<?= $item['quantity'] ?> <?= $item['unit'] ?: 'pieces' ?>)
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                                                    <input type="number" name="usage_items[0][quantity]" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg quantity-input">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit Cost</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 unit-cost" readonly>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 total-cost" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 flex justify-end">
+                                                <button type="button" class="text-red-600 hover:text-red-800 remove-usage-item hidden">
+                                                    <i class="fas fa-trash mr-1"></i>Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <button type="button" id="addUsageItem" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700">
+                                            <i class="fas fa-plus mr-2"></i>Add Item
+                                        </button>
+                                        <div class="text-sm font-semibold text-gray-700">
+                                            Total: <span id="usageGrandTotal"><?= formatCurrency(0) ?></span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Usage Notes</label>
+                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="Optional notes about usage..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
                             <a href="<?= base_url('treatment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
@@ -263,6 +348,96 @@ document.addEventListener('DOMContentLoaded', function() {
         startDateInput.value = new Date().toISOString().split('T')[0];
     }
     
+    // Inventory usage toggle
+    const usageToggle = document.getElementById('usageEnabled');
+    const usageSection = document.getElementById('usageSection');
+    const toggleTrack = usageToggle?.parentElement?.querySelector('.toggle-track');
+    const toggleDot = usageToggle?.parentElement?.querySelector('.dot');
+    if (usageToggle) {
+        usageToggle.addEventListener('change', function() {
+            if (this.checked) {
+                usageSection.classList.remove('hidden');
+                toggleTrack?.classList.add('bg-emerald-500');
+                toggleTrack?.classList.remove('bg-gray-200');
+                toggleDot.style.transform = 'translateX(20px)';
+            } else {
+                usageSection.classList.add('hidden');
+                toggleTrack?.classList.remove('bg-emerald-500');
+                toggleTrack?.classList.add('bg-gray-200');
+                toggleDot.style.transform = 'translateX(0)';
+            }
+        });
+    }
+
+    let usageItemCount = 1;
+    const usageContainer = document.getElementById('usageItemsContainer');
+    const addUsageItemBtn = document.getElementById('addUsageItem');
+    const usageTotalEl = document.getElementById('usageGrandTotal');
+
+    const formatCurrency = (amount) => {
+        if (isNaN(amount)) return '<?= settings()->getCurrencySymbol() ?>0.00';
+        return '<?= settings()->getCurrencySymbol() ?>' + parseFloat(amount).toFixed(2);
+    };
+
+    const calculateUsageTotal = () => {
+        let total = 0;
+        usageContainer.querySelectorAll('.usage-item').forEach(row => {
+            const cost = parseFloat(row.querySelector('.total-cost')?.dataset?.value || 0);
+            total += cost;
+        });
+        usageTotalEl.textContent = formatCurrency(total);
+    };
+
+    const bindUsageRow = (row) => {
+        const select = row.querySelector('.item-select');
+        const quantity = row.querySelector('.quantity-input');
+        const unitCost = row.querySelector('.unit-cost');
+        const totalCost = row.querySelector('.total-cost');
+
+        const updateRow = () => {
+            const option = select.options[select.selectedIndex];
+            const price = parseFloat(option?.getAttribute('data-price') || 0);
+            const qty = parseFloat(quantity.value || 0);
+            unitCost.value = price ? formatCurrency(price) : '';
+            const rowTotal = price * qty;
+            totalCost.value = rowTotal ? formatCurrency(rowTotal) : '';
+            totalCost.dataset.value = rowTotal || 0;
+            calculateUsageTotal();
+        };
+
+        select.addEventListener('change', updateRow);
+        quantity.addEventListener('input', updateRow);
+    };
+
+    usageContainer.querySelectorAll('.usage-item').forEach(bindUsageRow);
+
+    addUsageItemBtn?.addEventListener('click', () => {
+        const baseRow = usageContainer.querySelector('.usage-item');
+        if (!baseRow) return;
+        const newRow = baseRow.cloneNode(true);
+        newRow.querySelectorAll('select, input').forEach(field => {
+            if (field.name) {
+                field.name = field.name.replace('[0]', '[' + usageItemCount + ']');
+            }
+            field.value = '';
+            if (field.classList.contains('total-cost')) {
+                field.dataset.value = '0';
+            }
+        });
+        newRow.querySelector('.remove-usage-item').classList.remove('hidden');
+        usageContainer.appendChild(newRow);
+        usageItemCount++;
+        bindUsageRow(newRow);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-usage-item')) {
+            e.preventDefault();
+            e.target.closest('.usage-item').remove();
+            calculateUsageTotal();
+        }
+    });
+
     // Add some basic form validation
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {

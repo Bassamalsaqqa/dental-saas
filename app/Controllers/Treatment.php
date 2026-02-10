@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\TreatmentModel;
 use App\Models\PatientModel;
+use App\Models\InventoryModel;
+use App\Models\InventoryUsageModel;
 use App\Services\ActivityLogger;
 use App\Services\StorageService;
 
@@ -11,6 +13,7 @@ class Treatment extends BaseController
 {
     protected $treatmentModel;
     protected $patientModel;
+    protected $inventoryModel;
     protected $activityLogger;
     protected $db;
     protected $storageService;
@@ -19,6 +22,7 @@ class Treatment extends BaseController
     {
         $this->treatmentModel = new TreatmentModel();
         $this->patientModel = new PatientModel();
+        $this->inventoryModel = new InventoryModel();
         $this->activityLogger = new ActivityLogger();
         $this->db = \Config\Database::connect();
         $this->storageService = new StorageService();
@@ -231,13 +235,20 @@ class Treatment extends BaseController
             }
         }
 
+        $inventoryItems = $this->inventoryModel->where('status', 'active')
+            ->where('clinic_id', $clinicId)
+            ->where('quantity >', 0)
+            ->orderBy('item_name', 'ASC')
+            ->findAll();
+
         $data = [
             'title' => 'Create New Treatment',
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'treatment_types' => $this->getTreatmentTypes(),
             'validation' => null, // Initialize validation as null
             'loadSelect2' => true,
-            'selected_examination_id' => $examinationId
+            'selected_examination_id' => $examinationId,
+            'inventory_items' => $inventoryItems
         ];
 
         return $this->view('treatment/create', $data);
@@ -277,13 +288,20 @@ class Treatment extends BaseController
                     $selectedPatient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
                 }
             }
+            $inventoryItems = $this->inventoryModel->where('status', 'active')
+                ->where('clinic_id', $clinicId)
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->findAll();
+
             $data = [
                 'title' => 'Create New Treatment',
                 'patients' => $selectedPatient ? [$selectedPatient] : [], 
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
                 'loadSelect2' => true,
-                'selected_examination_id' => $examId
+                'selected_examination_id' => $examId,
+                'inventory_items' => $inventoryItems
             ];
             return $this->view('treatment/create', $data);
         }
@@ -325,6 +343,13 @@ class Treatment extends BaseController
                 "New {$treatmentData['treatment_type']} treatment created for {$patientName} - Cost: " . settings()->getCurrencySymbol() . number_format($treatmentData['cost'], 2)
             );
             
+            $usageResult = $this->recordInventoryUsage($clinicId, $treatmentId);
+            if ($usageResult && !$usageResult['success']) {
+                return redirect()
+                    ->to(base_url('treatment/' . $treatmentId . '/edit'))
+                    ->with('error', $usageResult['message']);
+            }
+
             if ($examinationId) {
                 return redirect()->to('/examination/' . $examinationId)->with('success', 'Treatment has been created successfully!');
             }
@@ -370,13 +395,20 @@ class Treatment extends BaseController
 
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($treatment['patient_id']);
 
+        $inventoryItems = $this->inventoryModel->where('status', 'active')
+            ->where('clinic_id', $clinicId)
+            ->where('quantity >', 0)
+            ->orderBy('item_name', 'ASC')
+            ->findAll();
+
         $data = [
             'title' => 'Edit Treatment',
             'treatment' => $treatment,
             'patients' => $patient ? [$patient] : [], // Only emit current patient
             'treatment_types' => $this->getTreatmentTypes(),
             'validation' => null,
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'inventory_items' => $inventoryItems
         ];
 
         return $this->view('treatment/edit', $data);
@@ -406,12 +438,19 @@ class Treatment extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            $inventoryItems = $this->inventoryModel->where('status', 'active')
+                ->where('clinic_id', $clinicId)
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->findAll();
+
             $data = [
                 'title' => 'Edit Treatment',
                 'treatment' => $treatment,
                 'patients' => $this->patientModel->where('clinic_id', $clinicId)->findAll(),
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
+                'inventory_items' => $inventoryItems
             ];
             return $this->view('treatment/edit', $data);
         }
@@ -440,6 +479,14 @@ class Treatment extends BaseController
                 "Treatment updated for {$patientName} - {$treatmentData['treatment_type']} - Cost: " . settings()->getCurrencySymbol() . number_format($treatmentData['cost'], 2)
             );
             
+            $usageResult = $this->recordInventoryUsage($clinicId, $id);
+            if ($usageResult && !$usageResult['success']) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', $usageResult['message']);
+            }
+
             return redirect()->to('/treatment')->with('success', 'Treatment has been updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update treatment. Please check your input and try again.');
@@ -583,6 +630,88 @@ class Treatment extends BaseController
             ->setHeader('Content-Type', 'text/html')
             ->setHeader('Content-Disposition', 'inline; filename="' . $fileName . '"')
             ->setBody($html);
+    }
+
+    private function recordInventoryUsage(int $clinicId, int $treatmentId): ?array
+    {
+        $enabled = $this->request->getPost('usage_enabled');
+        if (!$enabled) {
+            return null;
+        }
+
+        $usageDate = $this->request->getPost('usage_date');
+        $notes = $this->request->getPost('usage_notes');
+        $items = $this->request->getPost('usage_items');
+        $items = is_array($items) ? $items : [];
+
+        if (!$usageDate) {
+            return ['success' => false, 'message' => 'Usage date is required when recording inventory usage.'];
+        }
+
+        if (empty($items)) {
+            return ['success' => false, 'message' => 'Please select at least one inventory item to record usage.'];
+        }
+
+        $usageData = [];
+        $totalCost = 0.0;
+
+        foreach ($items as $item) {
+            $itemId = $item['item_id'] ?? null;
+            $quantity = $item['quantity'] ?? null;
+            if (!$itemId || !is_numeric($quantity) || (int) $quantity <= 0) {
+                return ['success' => false, 'message' => 'Please provide valid quantities for all selected items.'];
+            }
+
+            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($itemId);
+            if (!$inventoryItem) {
+                return ['success' => false, 'message' => 'Invalid inventory item selected.'];
+            }
+
+            if ((int) $inventoryItem['quantity'] < (int) $quantity) {
+                return [
+                    'success' => false,
+                    'message' => "Insufficient stock for {$inventoryItem['item_name']}. Available: {$inventoryItem['quantity']}, Requested: {$quantity}"
+                ];
+            }
+
+            $usageData[] = [
+                'item_id' => $itemId,
+                'item_name' => $inventoryItem['item_name'],
+                'quantity_used' => (int) $quantity,
+                'unit_cost' => (float) $inventoryItem['unit_price'],
+                'total_cost' => (float) $inventoryItem['unit_price'] * (int) $quantity
+            ];
+
+            $totalCost += (float) $inventoryItem['unit_price'] * (int) $quantity;
+        }
+
+        $usageModel = new InventoryUsageModel();
+        $usageId = $usageModel->insert([
+            'treatment_id' => $treatmentId,
+            'usage_date' => $usageDate,
+            'items_used' => json_encode($usageData),
+            'total_cost' => $totalCost,
+            'notes' => $notes,
+            'recorded_by' => session()->get('user_id') ?? 1,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        if (!$usageId) {
+            return ['success' => false, 'message' => 'Failed to record inventory usage.'];
+        }
+
+        foreach ($usageData as $usage) {
+            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($usage['item_id']);
+            if ($inventoryItem) {
+                $newQuantity = (int) $inventoryItem['quantity'] - (int) $usage['quantity_used'];
+                $this->inventoryModel->update($usage['item_id'], [
+                    'quantity' => $newQuantity,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
+
+        return ['success' => true, 'message' => 'Inventory usage recorded.'];
     }
 
     private function getTreatmentTypes()
