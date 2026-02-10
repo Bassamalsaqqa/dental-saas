@@ -236,6 +236,7 @@
                                     $duration = ucfirst($limits['duration'] ?? 'monthly');
                                     $trial = (int) ($limits['trial_days'] ?? 0);
                                     $isActive = ($plan['status'] ?? 'inactive') === 'active';
+                                    $usageCount = (int) ($row['usage_count'] ?? 0);
                                     
                                     // Format limits
                                     $patients = $limits['patients_active_max'] ?? -1;
@@ -255,6 +256,7 @@
                                             <div>
                                                 <span class="block text-sm font-medium text-slate-900"><?= esc($plan['name'] ?? 'Plan') ?></span>
                                                 <span class="block text-xs text-slate-500 font-mono">ID: <?= esc($plan['id']) ?></span>
+                                                <span class="block text-[10px] text-slate-400">Linked subscriptions: <?= number_format($usageCount) ?></span>
                                             </div>
                                         </div>
                                     </td>

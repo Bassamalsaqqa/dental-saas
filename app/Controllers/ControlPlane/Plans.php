@@ -40,6 +40,15 @@ class Plans extends BaseController
                 ->groupEnd();
         }
         $plans = $planQuery->findAll();
+        $subscriptionModel = (new \App\Models\ClinicSubscriptionModel())->withoutTenantScope();
+        $usageRows = $subscriptionModel
+            ->select('plan_id, COUNT(*) as total')
+            ->groupBy('plan_id')
+            ->findAll();
+        $usageCounts = [];
+        foreach ($usageRows as $row) {
+            $usageCounts[(int) $row['plan_id']] = (int) $row['total'];
+        }
         $totalPlans = $planModel->countAllResults();
         $activePlans = (new PlanModel())->where('status', 'active')->countAllResults();
         $inactivePlans = (new PlanModel())->where('status', 'inactive')->countAllResults();
@@ -58,6 +67,7 @@ class Plans extends BaseController
                 'plan' => $plan,
                 'limits' => $limits,
                 'features' => $features,
+                'usage_count' => $usageCounts[(int) ($plan['id'] ?? 0)] ?? 0,
             ];
         }
 
