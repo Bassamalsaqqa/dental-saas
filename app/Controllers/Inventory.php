@@ -850,18 +850,18 @@ class Inventory extends BaseController
         $columns = ['inventory_usage.id', 'inventory_usage.usage_date', 'patients.first_name', 'treatments.treatment_name', 'inventory_usage.total_cost', 'users.first_name', 'inventory_usage.created_at'];
         $orderColumnName = $columns[$orderColumn] ?? 'inventory_usage.created_at';
         
-        // Build query
         $usageModel = new \App\Models\InventoryUsageModel();
         
-        $query = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left') // Use LEFT join to keep records without treatment?
+        $baseBuilder = $usageModel->builder()
+            ->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
             ->join('patients', 'patients.id = treatments.patient_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
-            ->where('treatments.clinic_id', $clinicId); // Enforce clinic scope. If treatment is null, this will exclude the row.
+            ->where('inventory_usage.clinic_id', $clinicId);
         
         // Apply search filter
         if (!empty($searchValue)) {
-            $query->groupStart()
+            $baseBuilder->groupStart()
                 ->like('treatments.treatment_id', $searchValue)
                 ->orLike('treatments.treatment_name', $searchValue)
                 ->orLike('patients.first_name', $searchValue)
@@ -870,16 +870,18 @@ class Inventory extends BaseController
                 ->groupEnd();
         }
         
-        // Get total count (scoped)
-        $totalRecords = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')->where('treatments.clinic_id', $clinicId)->countAllResults(false);
+        // Get total count (scoped, no joins needed)
+        $totalRecords = $usageModel->where('inventory_usage.clinic_id', $clinicId)->countAllResults();
         
         // Get filtered count
-        $filteredRecords = $query->countAllResults(false);
+        $countBuilder = clone $baseBuilder;
+        $filteredRecords = $countBuilder->countAllResults();
         
         // Get data
-        $data = $query->orderBy($orderColumnName, $orderDir)
+        $data = $baseBuilder->orderBy($orderColumnName, $orderDir)
             ->limit($length, $start)
-            ->findAll();
+            ->get()
+            ->getResultArray();
         
         // Format data for DataTables
         $formattedData = [];
@@ -894,13 +896,18 @@ class Inventory extends BaseController
                 }
             }
             
+            $patientName = trim(($usage['first_name'] ?? '') . ' ' . ($usage['last_name'] ?? ''));
+            $patientName = $patientName !== '' ? $patientName : 'Unknown Patient';
+            $treatmentName = $usage['treatment_name'] ?? 'N/A';
+            $treatmentId = $usage['treatment_id'] ?? 'N/A';
+            $totalCost = isset($usage['total_cost']) ? (float) $usage['total_cost'] : 0;
             $formattedData[] = [
-                $this->formatUsageDate($usage['usage_date'], $usage['created_at']),
-                $usage['first_name'] . ' ' . $usage['last_name'],
-                $usage['treatment_name'] . '<br><small class="text-gray-500">' . $usage['treatment_id'] . '</small>',
+                $this->formatUsageDate($usage['usage_date'] ?? null, $usage['created_at'] ?? null),
+                $patientName,
+                $treatmentName . '<br><small class="text-gray-500">' . $treatmentId . '</small>',
                 $itemsText,
-                '<span class="font-bold text-green-600">$' . number_format($usage['total_cost'], 2) . '</span>',
-                $usage['recorded_by_name'],
+                '<span class="font-bold text-green-600">$' . number_format($totalCost, 2) . '</span>',
+                $usage['recorded_by_name'] ?? '-',
                 $this->getUsageActionButtons($usage['id'])
             ];
         }
@@ -1100,14 +1107,23 @@ class Inventory extends BaseController
 
     private function formatUsageDate($usageDate, $createdAt)
     {
+        $usageLabel = 'N/A';
+        $timeLabel = '';
+        if (!empty($usageDate)) {
+            $usageLabel = date('M j, Y', strtotime($usageDate));
+        }
+        if (!empty($createdAt)) {
+            $timeLabel = date('g:i A', strtotime($createdAt));
+        }
+
         return '
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
                     <i class="fas fa-calendar-day"></i>
                 </div>
                 <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">' . date('M j, Y', strtotime($usageDate)) . '</div>
-                    <div class="text-sm text-gray-500">' . date('g:i A', strtotime($createdAt)) . '</div>
+                    <div class="text-sm font-medium text-gray-900">' . $usageLabel . '</div>
+                    <div class="text-sm text-gray-500">' . ($timeLabel ?: '—') . '</div>
                 </div>
             </div>
         ';
