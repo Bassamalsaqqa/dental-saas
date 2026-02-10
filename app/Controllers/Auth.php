@@ -5,6 +5,7 @@ use App\Libraries\ApiRuntimeContext;
 use App\Models\ClinicUserModel;
 use App\Models\ClinicNotificationChannelModel;
 use App\Models\ActivityLogModel;
+use App\Models\SettingsModel;
 
 /**
  * Class Auth
@@ -346,6 +347,7 @@ class Auth extends BaseController
 
 			// set any errors and display the form
 			$this->data['message'] = $this->validation->getErrors() ? $this->validation->listErrors($this->validationListTemplate) : $this->session->getFlashdata('message');
+			$this->data['clinic_admin_email'] = $this->session->getFlashdata('clinic_admin_email');
 			return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'forgot_password', $this->data);
 		}
 		else
@@ -380,6 +382,9 @@ class Auth extends BaseController
 			$sendResult = $this->sendForgotPasswordEmail((int) $identity->id, (string) $identity->email, $forgotten);
 			if (! $sendResult['success'])
 			{
+				if (!empty($sendResult['clinic_admin_email'])) {
+					$this->session->setFlashdata('clinic_admin_email', $sendResult['clinic_admin_email']);
+				}
 				$this->session->setFlashdata('message', $sendResult['message']);
 				return redirect()->to('/auth/forgot-password');
 			}
@@ -990,6 +995,9 @@ class Auth extends BaseController
 			->where('channel_type', 'email')
 			->first();
 
+		$clinicAdminEmail = $this->getClinicAdminEmail($clinicId);
+		$supportEmail = $this->getPlatformSupportEmail();
+
 		$isReady = $config
 			&& ($channel['enabled_by_superadmin'] ?? 0)
 			&& ($channel['configured_by_clinic'] ?? 0)
@@ -999,7 +1007,8 @@ class Auth extends BaseController
 			$this->logPasswordResetIssue($clinicId, $userId, 'SMTP_NOT_CONFIGURED');
 			return [
 				'success' => false,
-				'message' => 'Email delivery is not configured for this clinic. Please contact your clinic administrator.'
+				'message' => 'Email delivery is not configured for this clinic. Please contact platform support at ' . $supportEmail . '.',
+				'clinic_admin_email' => $clinicAdminEmail
 			];
 		}
 
@@ -1024,7 +1033,8 @@ class Auth extends BaseController
 			$this->logPasswordResetIssue($clinicId, $userId, 'SMTP_FROM_MISSING');
 			return [
 				'success' => false,
-				'message' => 'Email delivery is not configured for this clinic. Please contact your clinic administrator.'
+				'message' => 'Email delivery is not configured for this clinic. Please contact platform support at ' . $supportEmail . '.',
+				'clinic_admin_email' => $clinicAdminEmail
 			];
 		}
 
@@ -1042,6 +1052,39 @@ class Auth extends BaseController
 		}
 
 		return ['success' => true];
+	}
+
+	private function getClinicAdminEmail(int $clinicId): ?string
+	{
+		$db = \Config\Database::connect();
+		$admin = $db->table('clinic_users cu')
+			->select('u.email')
+			->join('users u', 'u.id = cu.user_id', 'left')
+			->join('roles r', 'r.id = cu.role_id', 'left')
+			->where('cu.clinic_id', $clinicId)
+			->where('cu.status', 'active')
+			->where('r.slug', 'clinic_admin')
+			->orderBy('cu.id', 'ASC')
+			->get()
+			->getRowArray();
+
+		if (!empty($admin['email'])) {
+			return $admin['email'];
+		}
+
+		$settings = (new SettingsModel())->withoutTenantScope();
+		$clinicEmail = $settings->where('clinic_id', $clinicId)
+			->where('setting_key', 'clinic_email')
+			->first();
+
+		return $clinicEmail['setting_value'] ?? null;
+	}
+
+	private function getPlatformSupportEmail(): string
+	{
+		$settings = new SettingsModel();
+		$email = $settings->getGlobalSetting('platform_support_email', $this->configIonAuth->adminEmail);
+		return $email ?: $this->configIonAuth->adminEmail;
 	}
 
 	private function logPasswordResetIssue(int $clinicId, int $userId, string $reason): void

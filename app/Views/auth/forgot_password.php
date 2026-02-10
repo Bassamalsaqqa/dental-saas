@@ -79,6 +79,11 @@
                                 <?= session()->getFlashdata('message') ?>
                             </div>
                         <?php endif; ?>
+                        <?php if (!empty($clinic_admin_email)): ?>
+                            <div class="alert alert-light text-center text-sm text-gray-700" role="alert">
+                                Clinic Admin: <strong><?= esc($clinic_admin_email) ?></strong>
+                            </div>
+                        <?php endif; ?>
 
                         <?= form_open('auth/forgot-password', ['class' => 'needs-validation', 'novalidate' => true]) ?>
                             <div class="mb-3">

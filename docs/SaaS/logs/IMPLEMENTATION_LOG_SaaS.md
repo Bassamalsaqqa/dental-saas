@@ -1327,3 +1327,12 @@
 - **Actions:**
     - Updated `Auth::sendForgotPasswordEmail` to call `ClinicNotificationChannelModel::withoutTenantScope()` for config lookups.
 - **Verification:** `docs/SaaS/verification/P5-AUTH-03.md`.
+
+### Task: P5-AUTH-04 Forgot Password Contact Surfacing
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Surfaced clinic admin email on the forgot-password page and included platform support email when SMTP is not configured.
+- **Actions:**
+    - Added clinic admin lookup and platform support email helper in `app/Controllers/Auth.php`.
+    - Added clinic admin email display in `app/Views/auth/forgot_password.php`.
+- **Verification:** `docs/SaaS/verification/P5-AUTH-04.md`.
