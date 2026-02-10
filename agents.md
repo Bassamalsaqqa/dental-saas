@@ -93,3 +93,17 @@ Constraints:
 ## I) Deployment Note
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or superadmin bootstrap data changes.
 - Ensure the dump includes the IonAuth default group `members` (in addition to `admin`) to avoid "Invalid default group name set" errors.
+
+## J) Recent Updates (Feb 10, 2026)
+- **Activity Logs (Tenant + Control Plane):**
+  - Tenant Activity Log now supports name/email user filtering, correct filtered/total counts, and CSV export at `activity-log/export`.
+  - Control Plane Activity Log has CSV export at `controlplane/activity-log/export` and UI aligned to the tenant version (max width, shaded event badges, 250 rows/page).
+  - Task IDs: `P5-AL-01`, `CP-AL-01`, `CP-AL-02`.
+- **Kiosk Guardrail Fix:** Removed all `innerHTML` DOM sinks in `app/Views/kiosk/check_in.php` to satisfy guardrails. Task ID `P5-KIOSK-03`.
+- **Forgot Password (Tenant SMTP):**
+  - Forgot-password now sends using **clinic SMTP** (per-clinic channel config), not global config.
+  - If SMTP not configured, requester sees a message including **platform support email** (from control plane settings) and an activity log entry is written (`entity_type=auth`, `action=password_reset_failed`).
+  - Forgot-password page displays the **clinic admin email** (tenant) when available.
+  - Reset email link now uses `/auth/reset-password/{code}`.
+  - Redirects in Auth controller standardized to hyphenated routes.
+  - Task IDs: `P5-AUTH-01` to `P5-AUTH-04`.
