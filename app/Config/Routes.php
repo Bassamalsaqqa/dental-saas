@@ -135,6 +135,8 @@ $routes->group('kiosk', function ($routes) {
     $routes->post('(:segment)/unlock', 'Kiosk::unlock/$1');
     $routes->post('(:segment)/lookup', 'Kiosk::lookup/$1');
     $routes->post('(:segment)/confirm', 'Kiosk::confirm/$1');
+    $routes->post('(:segment)/update-details', 'Kiosk::updateDetails/$1');
+    $routes->post('(:segment)/sign-contract', 'Kiosk::signContract/$1');
 });
 
 // --------------------------------------------------------------------

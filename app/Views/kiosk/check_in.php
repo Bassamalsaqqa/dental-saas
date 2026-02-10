@@ -82,7 +82,7 @@
                             </button>
                         </form>
 
-                        <div id="kioskResults" class="border-t border-gray-100 pt-6 <?= !empty($appointments) || !empty($info_message) ? '' : 'hidden' ?>">
+                        <div id="kioskResults" class="border-t border-gray-100 pt-6 <?= !empty($appointments) || !empty($patients) || !empty($info_message) ? '' : 'hidden' ?>">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 id="kioskResultsTitle" class="text-lg font-semibold text-slate-900">Appointments for <?= esc($lookup_phone ?? '') ?></h3>
                                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
@@ -95,16 +95,23 @@
                                         <div>
                                             <p class="text-sm font-semibold text-slate-900" dir="auto" style="unicode-bidi: plaintext;"><?= esc($appointment['patient_display'] ?? '') ?></p>
                                             <p class="text-sm text-slate-500">
-                                                <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
+                                                <?= esc($appointment['appointment_date'] ?? '') ?> · <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
+                                                <?php if (!empty($appointment['status'])): ?>
+                                                    · <?= esc(ucfirst($appointment['status'])) ?>
+                                                <?php endif; ?>
                                             </p>
                                         </div>
-                                        <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>" method="POST">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="appointment_id" value="<?= (int) ($appointment['id'] ?? 0) ?>">
-                                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg">
-                                                <i class="fas fa-check-circle mr-2"></i>Confirm
-                                            </button>
-                                        </form>
+                                        <?php if (!empty($appointment['can_confirm'])): ?>
+                                            <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>" method="POST">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="appointment_id" value="<?= (int) ($appointment['id'] ?? 0) ?>">
+                                                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg">
+                                                    <i class="fas fa-check-circle mr-2"></i>Confirm Today
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-xs font-semibold text-slate-500">Confirmation available on appointment day</span>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                                 <?php if (empty($appointments) && !empty($info_message)): ?>
@@ -113,6 +120,62 @@
                                     </div>
                                 <?php endif; ?>
                             </div>
+
+                            <div id="kioskPatientDetails" class="mt-6 <?= !empty($patients) ? '' : 'hidden' ?>">
+                                <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Update Your Details</h3>
+                                    <p class="text-sm text-slate-500 mb-4">Keep your contact details up to date.</p>
+                                    <form id="kioskDetailsForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/update-details') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
+                                        <?= csrf_field() ?>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Select Patient</label>
+                                            <select name="patient_id" id="kioskPatientSelect" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                                <?php foreach ($patients ?? [] as $patient): ?>
+                                                    <option value="<?= (int) $patient['id'] ?>" data-phone="<?= esc($patient['phone'] ?? '') ?>" data-email="<?= esc($patient['email'] ?? '') ?>">
+                                                        <?= esc($patient['name'] ?? '') ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Mobile Number</label>
+                                                <input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                                <input type="email" name="email" id="kioskEmailUpdate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg">
+                                            <i class="fas fa-save mr-2"></i>Update Details
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div id="kioskContracts" class="mt-6 <?= !empty($contracts) ? '' : 'hidden' ?>">
+                                <div class="bg-white border border-slate-200 rounded-2xl p-6">
+                                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Treatment Plan</h3>
+                                    <p class="text-sm text-slate-500 mb-4">Review and sign your treatment plan.</p>
+                                    <div id="kioskContractList" class="space-y-4">
+                                        <?php foreach ($contracts ?? [] as $contract): ?>
+                                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-slate-900">Plan #<?= (int) $contract['id'] ?></p>
+                                                        <p class="text-sm text-slate-500">Total: <?= esc($contract['currency']) ?> <?= number_format((float) $contract['total_cost'], 2) ?></p>
+                                                    </div>
+                                                    <button type="button" class="kiosk-sign-btn px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all"
+                                                            data-contract='<?= esc(json_encode($contract), 'attr') ?>'>
+                                                        <i class="fas fa-pen-fancy mr-2"></i>Review &amp; Sign
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -120,6 +183,64 @@
 
             <div class="text-center text-xs text-slate-500" dir="auto" style="unicode-bidi: plaintext;">
                 <?= esc($settings['kiosk_footer_note'] ?? 'Need help? Please ask the reception desk.') ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kioskContractModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-6 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-semibold">Treatment Plan</h3>
+                    <p class="text-sm text-blue-100" id="kioskContractMeta"></p>
+                </div>
+                <button type="button" id="kioskCloseContract" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center">
+                    <i class="fas fa-times text-white"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6 overflow-y-auto">
+                <div id="kioskContractSnapshot" class="border border-gray-200 rounded-2xl p-4 bg-gray-50"></div>
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Plan Items</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-gray-500 uppercase text-xs">
+                                    <th class="py-2 px-3 text-left">Tooth</th>
+                                    <th class="py-2 px-3 text-left">Description</th>
+                                    <th class="py-2 px-3 text-left">Qty</th>
+                                    <th class="py-2 px-3 text-left">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kioskContractItems" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <form id="kioskContractForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/sign-contract') ?>" method="POST" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="contract_id" id="kioskContractId">
+                    <input type="hidden" name="patient_id" id="kioskContractPatientId">
+                    <input type="hidden" name="signature_data" id="kioskSignatureData">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Typed Name</label>
+                            <input type="text" name="signer_name" id="kioskSignerName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
+                        </div>
+                        <div class="flex items-end text-sm text-gray-500">
+                            Please sign below to confirm your treatment plan.
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Draw Signature</label>
+                        <canvas id="kioskSignatureCanvas" class="border border-gray-300 rounded-xl w-full" height="160"></canvas>
+                        <button type="button" id="kioskClearSignature" class="mt-2 text-xs text-gray-500 hover:text-gray-700">Clear</button>
+                    </div>
+                    <button type="submit" class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
+                        <i class="fas fa-signature mr-2"></i>Sign Plan
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -210,42 +331,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         const meta = document.createElement('p');
                         meta.className = 'text-sm text-slate-500';
-                        meta.textContent = `${appointment.appointment_time || ''} - ${appointment.appointment_type || ''}`;
+                        const dateLabel = appointment.appointment_date ? `${appointment.appointment_date} · ` : '';
+                        const statusLabel = appointment.status ? ` · ${appointment.status.charAt(0).toUpperCase()}${appointment.status.slice(1)}` : '';
+                        meta.textContent = `${dateLabel}${appointment.appointment_time || ''} - ${appointment.appointment_type || ''}${statusLabel}`;
 
                         info.appendChild(name);
                         info.appendChild(meta);
 
-                        const confirmForm = document.createElement('form');
-                        confirmForm.method = 'POST';
-                        confirmForm.action = '<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>';
-
-                        const confirmCsrf = document.createElement('input');
-                        confirmCsrf.type = 'hidden';
-                        const confirmCsrfName = form.dataset.csrfName || '<?= csrf_token() ?>';
-                        const confirmCsrfToken = form.dataset.csrfToken || '<?= csrf_hash() ?>';
-                        confirmCsrf.name = confirmCsrfName;
-                        confirmCsrf.value = confirmCsrfToken;
-
-                        const appointmentId = document.createElement('input');
-                        appointmentId.type = 'hidden';
-                        appointmentId.name = 'appointment_id';
-                        appointmentId.value = appointment.id || '';
-
-                        const confirmBtn = document.createElement('button');
-                        confirmBtn.type = 'submit';
-                        confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg';
-
-                        const icon = document.createElement('i');
-                        icon.className = 'fas fa-check-circle mr-2';
-                        confirmBtn.appendChild(icon);
-                        confirmBtn.appendChild(document.createTextNode('Confirm'));
-
-                        confirmForm.appendChild(confirmCsrf);
-                        confirmForm.appendChild(appointmentId);
-                        confirmForm.appendChild(confirmBtn);
-
                         row.appendChild(info);
-                        row.appendChild(confirmForm);
+                        if (appointment.can_confirm) {
+                            const confirmForm = document.createElement('form');
+                            confirmForm.method = 'POST';
+                            confirmForm.action = '<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>';
+
+                            const confirmCsrf = document.createElement('input');
+                            confirmCsrf.type = 'hidden';
+                            const confirmCsrfName = form.dataset.csrfName || '<?= csrf_token() ?>';
+                            const confirmCsrfToken = form.dataset.csrfToken || '<?= csrf_hash() ?>';
+                            confirmCsrf.name = confirmCsrfName;
+                            confirmCsrf.value = confirmCsrfToken;
+
+                            const appointmentId = document.createElement('input');
+                            appointmentId.type = 'hidden';
+                            appointmentId.name = 'appointment_id';
+                            appointmentId.value = appointment.id || '';
+
+                            const confirmBtn = document.createElement('button');
+                            confirmBtn.type = 'submit';
+                            confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg';
+
+                            const icon = document.createElement('i');
+                            icon.className = 'fas fa-check-circle mr-2';
+                            confirmBtn.appendChild(icon);
+                            confirmBtn.appendChild(document.createTextNode('Confirm Today'));
+
+                            confirmForm.appendChild(confirmCsrf);
+                            confirmForm.appendChild(appointmentId);
+                            confirmForm.appendChild(confirmBtn);
+
+                            row.appendChild(confirmForm);
+                        } else {
+                            const note = document.createElement('span');
+                            note.className = 'text-xs font-semibold text-slate-500';
+                            note.textContent = 'Confirmation available on appointment day';
+                            row.appendChild(note);
+                        }
                         resultsList.appendChild(row);
                     });
                 } else {
@@ -253,6 +383,62 @@ document.addEventListener('DOMContentLoaded', function () {
                     empty.className = 'bg-amber-50 border border-amber-100 rounded-2xl p-5 text-amber-700 text-sm';
                     empty.textContent = data.info_message || 'No scheduled appointments found for today.';
                     resultsList.appendChild(empty);
+                }
+
+                const patientDetails = document.getElementById('kioskPatientDetails');
+                const patientSelect = document.getElementById('kioskPatientSelect');
+                const phoneUpdate = document.getElementById('kioskPhoneUpdate');
+                const emailUpdate = document.getElementById('kioskEmailUpdate');
+                if (patientDetails && patientSelect) {
+                    patientSelect.innerHTML = '';
+                    (data.patients || []).forEach((patient) => {
+                        const option = document.createElement('option');
+                        option.value = patient.id;
+                        option.dataset.phone = patient.phone || '';
+                        option.dataset.email = patient.email || '';
+                        option.textContent = patient.name || '';
+                        patientSelect.appendChild(option);
+                    });
+                    if ((data.patients || []).length) {
+                        patientDetails.classList.remove('hidden');
+                        const selected = patientSelect.options[0];
+                        if (selected) {
+                            phoneUpdate.value = selected.dataset.phone || '';
+                            emailUpdate.value = selected.dataset.email || '';
+                        }
+                    } else {
+                        patientDetails.classList.add('hidden');
+                    }
+                }
+
+                const contractsWrap = document.getElementById('kioskContracts');
+                const contractsList = document.getElementById('kioskContractList');
+                if (contractsWrap && contractsList) {
+                    contractsList.innerHTML = '';
+                    (data.contracts || []).forEach((contract) => {
+                        const card = document.createElement('div');
+                        card.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-5';
+                        card.innerHTML = `
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">Plan #${contract.id}</p>
+                                    <p class="text-sm text-slate-500">Total: ${contract.currency} ${Number(contract.total_cost).toFixed(2)}</p>
+                                </div>
+                                <button type="button" class="kiosk-sign-btn px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
+                                    <i class="fas fa-pen-fancy mr-2"></i>Review & Sign
+                                </button>
+                            </div>
+                        `;
+                        card.querySelector('.kiosk-sign-btn').addEventListener('click', () => {
+                            openContractModal(contract);
+                        });
+                        contractsList.appendChild(card);
+                    });
+                    if ((data.contracts || []).length) {
+                        contractsWrap.classList.remove('hidden');
+                    } else {
+                        contractsWrap.classList.add('hidden');
+                    }
                 }
 
                 results.classList.remove('hidden');
@@ -264,5 +450,176 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+const patientSelect = document.getElementById('kioskPatientSelect');
+if (patientSelect) {
+    patientSelect.addEventListener('change', () => {
+        const option = patientSelect.options[patientSelect.selectedIndex];
+        document.getElementById('kioskPhoneUpdate').value = option?.dataset?.phone || '';
+        document.getElementById('kioskEmailUpdate').value = option?.dataset?.email || '';
+    });
+}
+
+const detailsForm = document.getElementById('kioskDetailsForm');
+if (detailsForm) {
+    detailsForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(detailsForm);
+        const csrfName = detailsForm.dataset.csrfName || '';
+        const csrfToken = detailsForm.dataset.csrfToken || '';
+        if (csrfName && csrfToken) {
+            formData.set(csrfName, csrfToken);
+        }
+        const response = await fetch(detailsForm.action, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        const data = await response.json();
+        if (data.csrf_name && data.csrf_token) {
+            detailsForm.dataset.csrfName = data.csrf_name;
+            detailsForm.dataset.csrfToken = data.csrf_token;
+        }
+        if (window.showToast) {
+            if (data.success) {
+                window.showToast('success', 'Updated', data.message || 'Details updated.');
+            } else {
+                window.showToast('error', 'Error', data.message || 'Unable to update details.');
+            }
+        }
+    });
+}
+
+const kioskModal = document.getElementById('kioskContractModal');
+const kioskClose = document.getElementById('kioskCloseContract');
+const kioskMeta = document.getElementById('kioskContractMeta');
+const kioskSnapshot = document.getElementById('kioskContractSnapshot');
+const kioskItems = document.getElementById('kioskContractItems');
+const kioskForm = document.getElementById('kioskContractForm');
+const kioskContractId = document.getElementById('kioskContractId');
+const kioskPatientId = document.getElementById('kioskContractPatientId');
+const kioskSignatureCanvas = document.getElementById('kioskSignatureCanvas');
+const kioskSignatureData = document.getElementById('kioskSignatureData');
+const kioskClearSignature = document.getElementById('kioskClearSignature');
+
+const openContractModal = (contract) => {
+    if (!kioskModal) return;
+    kioskContractId.value = contract.id;
+    kioskPatientId.value = contract.patient_id;
+    kioskMeta.textContent = `Plan #${contract.id} · ${contract.currency} ${Number(contract.total_cost).toFixed(2)}`;
+    kioskSnapshot.innerHTML = contract.snapshot_svg || '<p class="text-sm text-gray-500">No snapshot available.</p>';
+    kioskItems.innerHTML = '';
+    (contract.items || []).forEach((item) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="py-2 px-3">${item.tooth_no || '-'}</td>
+            <td class="py-2 px-3">${item.description || '-'}</td>
+            <td class="py-2 px-3">${item.qty || 1}</td>
+            <td class="py-2 px-3">${Number(item.price || 0).toFixed(2)}</td>
+        `;
+        kioskItems.appendChild(row);
+    });
+    if (!kioskItems.children.length) {
+        const empty = document.createElement('tr');
+        empty.innerHTML = '<td colspan="4" class="py-3 text-center text-gray-500">No items listed.</td>';
+        kioskItems.appendChild(empty);
+    }
+    if (kioskSignatureCanvas) {
+        const ctx = kioskSignatureCanvas.getContext('2d');
+        ctx.clearRect(0, 0, kioskSignatureCanvas.width, kioskSignatureCanvas.height);
+    }
+    kioskSignatureData.value = '';
+    kioskModal.classList.remove('hidden');
+};
+
+document.querySelectorAll('.kiosk-sign-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const payload = btn.getAttribute('data-contract');
+        if (!payload) return;
+        openContractModal(JSON.parse(payload));
+    });
+});
+
+kioskClose?.addEventListener('click', () => {
+    kioskModal?.classList.add('hidden');
+});
+
+if (kioskSignatureCanvas) {
+    const ctx = kioskSignatureCanvas.getContext('2d');
+    let drawing = false;
+    const getPos = (e) => {
+        const rect = kioskSignatureCanvas.getBoundingClientRect();
+        const point = e.touches ? e.touches[0] : e;
+        const scaleX = kioskSignatureCanvas.width / rect.width;
+        const scaleY = kioskSignatureCanvas.height / rect.height;
+        return {
+            x: (point.clientX - rect.left) * scaleX,
+            y: (point.clientY - rect.top) * scaleY,
+        };
+    };
+    const start = (e) => {
+        drawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    };
+    const draw = (e) => {
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#111827';
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    };
+    const end = () => { drawing = false; };
+
+    kioskSignatureCanvas.addEventListener('mousedown', start);
+    kioskSignatureCanvas.addEventListener('mousemove', draw);
+    kioskSignatureCanvas.addEventListener('mouseup', end);
+    kioskSignatureCanvas.addEventListener('mouseleave', end);
+    kioskSignatureCanvas.addEventListener('touchstart', start);
+    kioskSignatureCanvas.addEventListener('touchmove', draw);
+    kioskSignatureCanvas.addEventListener('touchend', end);
+
+    kioskClearSignature?.addEventListener('click', () => {
+        ctx.clearRect(0, 0, kioskSignatureCanvas.width, kioskSignatureCanvas.height);
+    });
+}
+
+if (kioskForm) {
+    kioskForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (kioskSignatureCanvas) {
+            kioskSignatureData.value = kioskSignatureCanvas.toDataURL('image/png');
+        }
+        const formData = new FormData(kioskForm);
+        const csrfName = kioskForm.dataset.csrfName || '';
+        const csrfToken = kioskForm.dataset.csrfToken || '';
+        if (csrfName && csrfToken) {
+            formData.set(csrfName, csrfToken);
+        }
+        const response = await fetch(kioskForm.action, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        const data = await response.json();
+        if (data.csrf_name && data.csrf_token) {
+            kioskForm.dataset.csrfName = data.csrf_name;
+            kioskForm.dataset.csrfToken = data.csrf_token;
+        }
+        if (window.showToast) {
+            if (data.success) {
+                window.showToast('success', 'Signed', data.message || 'Plan signed.');
+            } else {
+                window.showToast('error', 'Error', data.message || 'Unable to sign plan.');
+            }
+        }
+        if (data.success) {
+            kioskModal?.classList.add('hidden');
+        }
+    });
+}
 </script>
 <?= $this->endSection() ?>

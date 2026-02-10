@@ -5,8 +5,14 @@ namespace App\Controllers;
 use App\Libraries\ApiRuntimeContext;
 use App\Models\AppointmentModel;
 use App\Models\ClinicModel;
+use App\Models\PatientModel;
 use App\Models\SettingsModel;
+use App\Models\TreatmentContractItemModel;
+use App\Models\TreatmentContractModel;
+use App\Models\TreatmentContractOdontogramSnapshotModel;
+use App\Models\TreatmentContractSignatureModel;
 use App\Services\PlanGuard;
+use App\Services\StorageService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Kiosk extends BaseController
@@ -14,14 +20,26 @@ class Kiosk extends BaseController
     protected ClinicModel $clinicModel;
     protected SettingsModel $settingsModel;
     protected AppointmentModel $appointmentModel;
+    protected PatientModel $patientModel;
+    protected TreatmentContractModel $contractModel;
+    protected TreatmentContractItemModel $contractItemModel;
+    protected TreatmentContractOdontogramSnapshotModel $contractSnapshotModel;
+    protected TreatmentContractSignatureModel $contractSignatureModel;
     protected PlanGuard $planGuard;
+    protected StorageService $storageService;
 
     public function __construct()
     {
         $this->clinicModel = new ClinicModel();
         $this->settingsModel = new SettingsModel();
         $this->appointmentModel = new AppointmentModel();
+        $this->patientModel = new PatientModel();
+        $this->contractModel = new TreatmentContractModel();
+        $this->contractItemModel = new TreatmentContractItemModel();
+        $this->contractSnapshotModel = new TreatmentContractOdontogramSnapshotModel();
+        $this->contractSignatureModel = new TreatmentContractSignatureModel();
         $this->planGuard = new PlanGuard();
+        $this->storageService = new StorageService();
     }
 
     public function checkIn(string $clinicUuid)
@@ -124,29 +142,67 @@ class Kiosk extends BaseController
             return redirect()->back()->withInput()->with('error', 'Too many attempts. Please wait a few minutes.');
         }
 
-        $today = date('Y-m-d');
         $appointments = $this->appointmentModel
-            ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.status, patients.first_name, patients.last_name, patients.phone')
+            ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.status, patients.id as patient_id, patients.first_name, patients.last_name, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
-            ->where('appointments.appointment_date', $today)
-            ->where('appointments.status', 'scheduled')
             ->where('patients.clinic_id', (int) $clinic['id'])
+            ->orderBy('appointments.appointment_date', 'ASC')
             ->orderBy('appointments.appointment_time', 'ASC')
             ->findAll();
 
         $matching = [];
+        $patientMap = [];
         foreach ($appointments as $appointment) {
             $storedPhone = $this->normalizePhone((string) ($appointment['phone'] ?? ''));
             if ($storedPhone !== '' && $storedPhone === $normalizedPhone) {
                 $matching[] = $this->formatAppointmentCard($appointment, $settings);
+                if (!empty($appointment['patient_id'])) {
+                    $patientMap[(int) $appointment['patient_id']] = [
+                        'id' => (int) $appointment['patient_id'],
+                        'name' => trim(($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '')),
+                        'phone' => $appointment['phone'] ?? '',
+                        'email' => $appointment['email'] ?? ''
+                    ];
+                }
             }
         }
 
         $allowedIds = array_map(static fn($row) => $row['id'], $matching);
+        $allowedPatients = array_keys($patientMap);
+        $contractsEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.enabled', false);
+        $signatureEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.signature.enabled', false);
+        $contracts = [];
+        if ($contractsEnabled && !empty($allowedPatients)) {
+            foreach ($allowedPatients as $patientId) {
+                $contract = $this->contractModel
+                    ->where('clinic_id', (int) $clinic['id'])
+                    ->where('patient_id', (int) $patientId)
+                    ->where('status', 'draft')
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+                if (!$contract) {
+                    continue;
+                }
+                $items = $this->contractItemModel->where('contract_id', $contract['id'])->findAll();
+                $snapshot = $this->contractSnapshotModel->where('contract_id', $contract['id'])->first();
+                $contracts[] = [
+                    'id' => (int) $contract['id'],
+                    'patient_id' => (int) $patientId,
+                    'currency' => $contract['currency'] ?? 'ILS',
+                    'total_cost' => $contract['total_cost'] ?? 0,
+                    'created_at' => $contract['created_at'] ?? null,
+                    'items' => $items,
+                    'snapshot_svg' => $snapshot['svg_snapshot'] ?? '',
+                ];
+            }
+        }
+
         session()->set([
             'kiosk_last_phone' => $normalizedPhone,
             'kiosk_last_clinic' => (int) $clinic['id'],
             'kiosk_allowed_appointments' => $allowedIds,
+            'kiosk_allowed_patients' => $allowedPatients,
+            'kiosk_allowed_contracts' => array_map(static fn($row) => (int) $row['id'], $contracts),
         ]);
 
         $data = [
@@ -157,10 +213,14 @@ class Kiosk extends BaseController
             'pin_verified' => true,
             'appointments' => $matching,
             'lookup_phone' => $normalizedPhone,
+            'patients' => array_values($patientMap),
+            'contracts' => $contracts,
+            'contracts_enabled' => $contractsEnabled,
+            'signature_enabled' => $signatureEnabled,
         ];
 
         if (empty($matching)) {
-            $data['info_message'] = 'No scheduled appointments found for today.';
+            $data['info_message'] = 'No appointments found for this mobile number.';
         }
 
         if ($this->request->isAJAX()) {
@@ -169,6 +229,10 @@ class Kiosk extends BaseController
                 'appointments' => $matching,
                 'lookup_phone' => $normalizedPhone,
                 'info_message' => $data['info_message'] ?? '',
+                'patients' => array_values($patientMap),
+                'contracts' => $contracts,
+                'contracts_enabled' => $contractsEnabled,
+                'signature_enabled' => $signatureEnabled,
                 'csrf_name' => csrf_token(),
                 'csrf_token' => csrf_hash(),
             ]);
@@ -242,6 +306,157 @@ class Kiosk extends BaseController
 
         return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))
             ->with('success', 'Appointment confirmed. Please have a seat.');
+    }
+
+    public function updateDetails(string $clinicUuid)
+    {
+        $clinic = $this->resolveClinic($clinicUuid);
+        if (!$this->isKioskFeatureEnabled((int) $clinic['id'])) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $settings = $this->getClinicSettings((int) $clinic['id']);
+        if (!$this->isKioskEnabled($settings)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if (!$this->isPinVerified((int) $clinic['id'])) {
+            return $this->respondKioskError($clinic, 'Please enter the kiosk PIN first.');
+        }
+
+        $patientId = (int) $this->request->getPost('patient_id');
+        $allowedPatients = session()->get('kiosk_allowed_patients') ?? [];
+        if (!$patientId || !in_array($patientId, $allowedPatients, true)) {
+            return $this->respondKioskError($clinic, 'Invalid patient selection.');
+        }
+
+        $phone = trim((string) $this->request->getPost('phone'));
+        $email = trim((string) $this->request->getPost('email'));
+        if ($phone !== '' && !preg_match('/^[0-9\s\-()+]{6,20}$/', $phone)) {
+            return $this->respondKioskError($clinic, 'Please enter a valid mobile number.');
+        }
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->respondKioskError($clinic, 'Please enter a valid email address.');
+        }
+
+        $updated = $this->patientModel
+            ->where('clinic_id', (int) $clinic['id'])
+            ->update($patientId, [
+                'phone' => $phone ?: null,
+                'email' => $email ?: null,
+            ]);
+
+        if (!$updated) {
+            return $this->respondKioskError($clinic, 'Unable to update your details right now.');
+        }
+
+        return $this->respondKioskSuccess($clinic, 'Details updated successfully.');
+    }
+
+    public function signContract(string $clinicUuid)
+    {
+        $clinic = $this->resolveClinic($clinicUuid);
+        if (!$this->isKioskFeatureEnabled((int) $clinic['id'])) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        $settings = $this->getClinicSettings((int) $clinic['id']);
+        if (!$this->isKioskEnabled($settings)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if (!$this->isPinVerified((int) $clinic['id'])) {
+            return $this->respondKioskError($clinic, 'Please enter the kiosk PIN first.');
+        }
+
+        $this->planGuard->assertFeature((int) $clinic['id'], 'contracts.enabled');
+        $this->planGuard->assertFeature((int) $clinic['id'], 'contracts.signature.enabled');
+
+        $contractId = (int) $this->request->getPost('contract_id');
+        $patientId = (int) $this->request->getPost('patient_id');
+        $allowedContracts = session()->get('kiosk_allowed_contracts') ?? [];
+        $allowedPatients = session()->get('kiosk_allowed_patients') ?? [];
+
+        if (!$contractId || !in_array($contractId, $allowedContracts, true)) {
+            return $this->respondKioskError($clinic, 'Invalid contract selection.');
+        }
+        if (!$patientId || !in_array($patientId, $allowedPatients, true)) {
+            return $this->respondKioskError($clinic, 'Invalid patient selection.');
+        }
+
+        $contract = $this->contractModel->findByClinic((int) $clinic['id'], $contractId);
+        if (!$contract || (int) $contract['patient_id'] !== $patientId) {
+            return $this->respondKioskError($clinic, 'Contract not found.');
+        }
+        if (($contract['status'] ?? 'draft') !== 'draft') {
+            return $this->respondKioskError($clinic, 'This contract is already signed.');
+        }
+
+        $signatureData = trim((string) $this->request->getPost('signature_data'));
+        $signerName = trim((string) $this->request->getPost('signer_name'));
+        if ($signatureData === '' || $signerName === '') {
+            return $this->respondKioskError($clinic, 'Signature and name are required.');
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $userAgent = substr((string) $this->request->getUserAgent(), 0, 255);
+
+        $signatureId = $this->contractSignatureModel->insert([
+            'contract_id' => $contractId,
+            'signer_name' => $signerName,
+            'signer_role' => 'patient',
+            'signature_data' => $signatureData,
+            'ip_address' => $this->request->getIPAddress(),
+            'user_agent' => $userAgent,
+            'signed_at' => $now
+        ]);
+
+        $snapshot = $this->contractSnapshotModel->where('contract_id', $contractId)->first();
+        $items = $this->contractItemModel->where('contract_id', $contractId)->findAll();
+
+        $signatureHash = hash('sha256', json_encode([
+            'contract' => $contractId,
+            'signature' => $signatureData,
+            'name' => $signerName,
+            'snapshot' => $snapshot,
+            'items' => $items,
+            'notes' => $contract['notes'] ?? null
+        ]));
+
+        $this->contractModel->update($contractId, [
+            'status' => 'signed',
+            'signed_at' => $now,
+            'signature_hash' => $signatureHash,
+            'signature_meta_json' => json_encode([
+                'signer_name' => $signerName,
+                'signature_id' => $signatureId
+            ])
+        ]);
+
+        $patient = $this->patientModel->findByClinic((int) $clinic['id'], $contract['patient_id']);
+        $html = view('contracts/print', [
+            'contract' => $this->contractModel->findByClinic((int) $clinic['id'], $contractId),
+            'patient' => $patient,
+            'clinic' => $this->clinicModel->find((int) $clinic['id']),
+            'items' => $items,
+            'snapshot' => $snapshot,
+            'signature' => $this->contractSignatureModel->find($signatureId)
+        ]);
+
+        $fileName = 'contract_' . ($patient['patient_id'] ?? $contract['patient_id']) . '_' . date('Y-m-d') . '.html';
+        $attachment = $this->storageService->storeGenerated(
+            $html,
+            $fileName,
+            'text/html',
+            (int) $clinic['id'],
+            'contract',
+            $contractId,
+            'contract_pdf'
+        );
+
+        $this->contractModel->update($contractId, [
+            'signed_attachment_id' => $attachment['id']
+        ]);
+
+        return $this->respondKioskSuccess($clinic, 'Contract signed successfully.', [
+            'contract_id' => $contractId
+        ]);
     }
 
     private function resolveClinic(string $clinicUuid): array
@@ -342,6 +557,8 @@ class Kiosk extends BaseController
             'kiosk_last_phone',
             'kiosk_last_clinic',
             'kiosk_allowed_appointments',
+            'kiosk_allowed_patients',
+            'kiosk_allowed_contracts',
         ]);
     }
 
@@ -373,14 +590,21 @@ class Kiosk extends BaseController
             }
         }
 
+        $date = $appointment['appointment_date'] ?? '';
         $time = $appointment['appointment_time'] ?? '';
         $displayTime = $this->formatTime((string) $time, $settings['time_format'] ?? '12');
+        $displayDate = $date ? date('M j, Y', strtotime($date)) : '';
+        $isToday = $date === date('Y-m-d');
+        $confirmAllowed = $isToday && ($appointment['status'] ?? '') === 'scheduled';
 
         return [
             'id' => (int) $appointment['id'],
             'patient_display' => trim($firstName . ' ' . $lastInitial),
             'appointment_time' => $displayTime,
             'appointment_type' => $this->formatAppointmentType((string) ($appointment['appointment_type'] ?? '')),
+            'appointment_date' => $displayDate,
+            'can_confirm' => $confirmAllowed,
+            'status' => $appointment['status'] ?? '',
         ];
     }
 
@@ -453,5 +677,33 @@ class Kiosk extends BaseController
     private function isKioskFeatureEnabled(int $clinicId): bool
     {
         return $this->planGuard->isFeatureEnabled($clinicId, 'kiosk.enabled', false);
+    }
+
+    private function respondKioskError(array $clinic, string $message)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $message,
+                'csrf_name' => csrf_token(),
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
+
+        return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))->with('error', $message);
+    }
+
+    private function respondKioskSuccess(array $clinic, string $message, array $extra = [])
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(array_merge([
+                'success' => true,
+                'message' => $message,
+                'csrf_name' => csrf_token(),
+                'csrf_token' => csrf_hash(),
+            ], $extra));
+        }
+
+        return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))->with('success', $message);
     }
 }
