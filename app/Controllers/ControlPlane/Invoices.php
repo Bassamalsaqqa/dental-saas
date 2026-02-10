@@ -216,6 +216,35 @@ class Invoices extends BaseController
         return redirect()->back()->with('success', 'Invoice email action logged.');
     }
 
+    public function delete(int $id)
+    {
+        $invoice = $this->invoiceModel->find($id);
+        if (!$invoice) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Invoice not found');
+        }
+
+        $status = $invoice['status'] ?? 'draft';
+        $deletableStatuses = ['draft', 'void', 'cancelled'];
+        if (!in_array($status, $deletableStatuses, true)) {
+            return redirect()->back()->with('error', 'Only draft, void, or cancelled invoices can be deleted.');
+        }
+
+        if (!$this->invoiceModel->delete($id)) {
+            return redirect()->back()->with('error', 'Failed to delete invoice.');
+        }
+
+        $this->auditService->logEvent('invoice_delete', [
+            'route' => '/controlplane/invoices/' . $id . '/delete',
+            'metadata' => [
+                'invoice_id' => $id,
+                'clinic_id' => $invoice['clinic_id'] ?? null,
+                'status' => $status,
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/invoices'))->with('success', 'Invoice deleted.');
+    }
+
     private function getCurrentUserId(): ?int
     {
         return $this->ionAuth->loggedIn() ? (int) $this->ionAuth->getUserId() : null;

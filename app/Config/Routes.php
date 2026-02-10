@@ -50,6 +50,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('invoices/(:num)', 'ControlPlane\Invoices::show/$1');
         $routes->post('invoices/(:num)/mark-paid', 'ControlPlane\Invoices::markPaid/$1');
         $routes->post('invoices/(:num)/email', 'ControlPlane\Invoices::email/$1');
+        $routes->post('invoices/(:num)/delete', 'ControlPlane\Invoices::delete/$1');
         $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
         $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
         

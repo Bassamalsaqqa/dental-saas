@@ -305,6 +305,16 @@
                                                     <i class="fas fa-envelope text-sm transition-transform group-hover/action:scale-110"></i>
                                                 </button>
                                             </form>
+                                            <?php $canDelete = in_array($statusKey, ['draft', 'void', 'cancelled'], true); ?>
+                                            <button type="button"
+                                                    class="group/action relative w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-110 <?= $canDelete ? 'text-rose-600 hover:text-rose-800 hover:bg-rose-50' : 'text-gray-300 cursor-not-allowed' ?>"
+                                                    title="<?= $canDelete ? 'Delete Invoice' : 'Cannot delete paid or sent invoice' ?>"
+                                                    data-id="<?= esc($invoice['id']) ?>"
+                                                    data-number="<?= esc($invoice['invoice_number'] ?? '') ?>"
+                                                    data-clinic="<?= esc($invoice['clinic_name'] ?? '') ?>"
+                                                    <?= $canDelete ? 'onclick="openInvoiceDeleteModal(this)"' : '' ?>>
+                                                <i class="fas fa-trash text-sm transition-transform group-hover/action:scale-110"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -379,6 +389,87 @@
                 zeroRecords: 'No invoices available for export.'
             }
         });
+    });
+</script>
+
+<!-- Delete Invoice Modal -->
+<div id="invoiceDeleteModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-rose-100">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-rose-100">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold">Delete Invoice</p>
+                <h3 class="text-lg font-bold text-rose-900">Confirm Deletion</h3>
+            </div>
+            <button type="button" class="rounded-full p-2 text-rose-400 hover:text-rose-700 hover:bg-rose-50" onclick="closeInvoiceDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+            <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 text-sm text-rose-700">
+                This will permanently delete the invoice. This action cannot be undone.
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs text-slate-500 uppercase tracking-widest">Invoice</p>
+                <p id="invoiceDeleteLabel" class="text-sm font-semibold text-slate-900 mt-1"></p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Type DELETE to confirm</label>
+                <input type="text" id="invoiceDeleteConfirm" class="w-full px-4 py-3 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500" placeholder="DELETE" oninput="toggleInvoiceDeleteButton()">
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition" onclick="closeInvoiceDeleteModal()">Cancel</button>
+            <form id="invoiceDeleteForm" method="post" action="">
+                <?= csrf_field() ?>
+                <button type="submit" id="invoiceDeleteSubmit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold opacity-50 cursor-not-allowed" disabled>Delete Invoice</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openInvoiceDeleteModal(button) {
+        const modal = document.getElementById('invoiceDeleteModal');
+        const label = document.getElementById('invoiceDeleteLabel');
+        const form = document.getElementById('invoiceDeleteForm');
+        const input = document.getElementById('invoiceDeleteConfirm');
+        if (!modal || !label || !form || !input) return;
+        const id = button?.dataset?.id;
+        const number = button?.dataset?.number;
+        const clinicName = button?.dataset?.clinic;
+        label.textContent = `#${number || id} ? ${clinicName || 'Clinic'}`;
+        form.action = `<?= base_url('controlplane/invoices') ?>/${id}/delete`;
+        input.value = '';
+        toggleInvoiceDeleteButton();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeInvoiceDeleteModal() {
+        const modal = document.getElementById('invoiceDeleteModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function toggleInvoiceDeleteButton() {
+        const input = document.getElementById('invoiceDeleteConfirm');
+        const button = document.getElementById('invoiceDeleteSubmit');
+        if (!input || !button) return;
+        if (input.value.trim().toUpperCase() === 'DELETE') {
+            button.disabled = false;
+            button.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    document.getElementById('invoiceDeleteModal')?.addEventListener('click', function (event) {
+        if (event.target === this) {
+            closeInvoiceDeleteModal();
+        }
     });
 </script>
 <?= $this->endSection() ?>
