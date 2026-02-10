@@ -157,9 +157,9 @@ $routes->group('clinic', ['filter' => 'auth'], function($routes) {
 
 // Dashboard routes
 $routes->group('dashboard', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
-    $routes->get('/', 'Dashboard::index', ['filter' => 'permission:dashboard:read']);
-    $routes->get('stats', 'Dashboard::getStats', ['filter' => 'permission:dashboard:read']);
-    $routes->get('chart-data', 'Dashboard::getChartData', ['filter' => 'permission:dashboard:read']);
+    $routes->get('/', 'Dashboard::index', ['filter' => 'permission:dashboard:view']);
+    $routes->get('stats', 'Dashboard::getStats', ['filter' => 'permission:dashboard:view']);
+    $routes->get('chart-data', 'Dashboard::getChartData', ['filter' => 'permission:dashboard:view']);
 });
 
 // Patient routes

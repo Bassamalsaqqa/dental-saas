@@ -113,7 +113,7 @@ class Permissions
                 'name' => 'Practice Manager',
                 'description' => 'Management level access with most permissions',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view', 'create', 'edit'],
                     'appointments' => ['view', 'create', 'edit', 'delete', 'calendar'],
                     'examinations' => ['view', 'create', 'edit'],
@@ -130,7 +130,7 @@ class Permissions
                 'name' => 'Senior Doctor',
                 'description' => 'Full medical access with management capabilities',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view', 'create', 'edit'],
                     'appointments' => ['view', 'create', 'edit'],
                     'examinations' => ['view', 'create', 'edit', 'delete'],
@@ -145,7 +145,7 @@ class Permissions
                 'name' => 'Doctor',
                 'description' => 'Standard medical access for patient care',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view', 'create', 'edit'],
                     'appointments' => ['view', 'create', 'edit'],
                     'examinations' => ['view', 'create', 'edit'],
@@ -160,7 +160,7 @@ class Permissions
                 'name' => 'Receptionist',
                 'description' => 'Patient management and appointment scheduling',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view', 'create', 'edit'],
                     'appointments' => ['view', 'create', 'edit', 'delete', 'calendar'],
                     'examinations' => ['view'],
@@ -175,7 +175,7 @@ class Permissions
                 'name' => 'Dental Assistant',
                 'description' => 'Limited medical access for assistance',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view'],
                     'appointments' => ['view'],
                     'examinations' => ['view', 'create', 'edit'],
@@ -190,7 +190,7 @@ class Permissions
                 'name' => 'Accountant',
                 'description' => 'Financial management and reporting',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view'],
                     'finance' => ['view', 'create', 'edit', 'reports'],
                     'reports' => ['view', 'export']
@@ -200,7 +200,7 @@ class Permissions
                 'name' => 'Read Only',
                 'description' => 'View-only access to most features',
                 'permissions' => [
-                    'dashboard' => ['read'],
+                    'dashboard' => ['view'],
                     'patients' => ['view'],
                     'appointments' => ['view'],
                     'examinations' => ['view'],
