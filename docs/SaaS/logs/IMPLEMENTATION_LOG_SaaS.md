@@ -1311,3 +1311,11 @@
     - Added auth activity mapping for password reset failures.
     - Corrected reset link route in `app/Views/auth/email/forgot_password.tpl.php`.
 - **Verification:** `docs/SaaS/verification/P5-AUTH-01.md`.
+
+### Task: P5-AUTH-02 Forgot/Reset Route Alignment
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Standardized Auth redirects to use hyphenated forgot/reset routes to avoid 404s after failed validation or reset errors.
+- **Actions:**
+    - Updated redirect targets in `app/Controllers/Auth.php` to `/auth/forgot-password` and `/auth/reset-password`.
+- **Verification:** `docs/SaaS/verification/P5-AUTH-02.md`.

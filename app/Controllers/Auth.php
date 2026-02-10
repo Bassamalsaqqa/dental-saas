@@ -365,7 +365,7 @@ class Auth extends BaseController
 				}
 
 				$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-				return redirect()->to('/auth/forgot_password');
+				return redirect()->to('/auth/forgot-password');
 			}
 
 			// generate reset code (email dispatch handled per clinic SMTP)
@@ -374,14 +374,14 @@ class Auth extends BaseController
 			if (! $forgotten)
 			{
 				$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-				return redirect()->to('/auth/forgot_password');
+				return redirect()->to('/auth/forgot-password');
 			}
 
 			$sendResult = $this->sendForgotPasswordEmail((int) $identity->id, (string) $identity->email, $forgotten);
 			if (! $sendResult['success'])
 			{
 				$this->session->setFlashdata('message', $sendResult['message']);
-				return redirect()->to('/auth/forgot_password');
+				return redirect()->to('/auth/forgot-password');
 			}
 
 			$this->session->setFlashdata('message', $this->ionAuth->messages());
@@ -471,7 +471,7 @@ class Auth extends BaseController
 					else
 					{
 						$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-						return redirect()->to('/auth/reset_password/' . $code);
+						return redirect()->to('/auth/reset-password/' . $code);
 					}
 				}
 			}
@@ -480,7 +480,7 @@ class Auth extends BaseController
 		{
 			// if the code is invalid then send them back to the forgot password page
 			$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-			return redirect()->to('/auth/forgot_password');
+			return redirect()->to('/auth/forgot-password');
 		}
 	}
 
@@ -515,7 +515,7 @@ class Auth extends BaseController
 		{
 			// redirect them to the forgot password page
 			$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
-			return redirect()->to('/auth/forgot_password');
+			return redirect()->to('/auth/forgot-password');
 		}
 	}
 
