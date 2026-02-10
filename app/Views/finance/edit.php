@@ -229,7 +229,7 @@
                                 </div>
                             </div>
 
-                            <div class="group/field relative" id="checkScanField">
+                            <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-file-upload text-rose-600"></i>
                                     <span>Check Scan (optional)</span>

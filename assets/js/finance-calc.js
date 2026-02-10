@@ -41,9 +41,9 @@
     };
 
     const toggleCheck = () => {
-      if (!methodSelect || !checkField) return;
-      const show = methodSelect.value === 'check';
-      checkField.style.display = show ? 'block' : 'none';
+      if (checkField) {
+        checkField.style.display = 'block';
+      }
     };
 
     const toggleCurrencyFields = () => {

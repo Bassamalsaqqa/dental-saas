@@ -507,11 +507,26 @@
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($check_attachment)): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Check Scan</label>
-                            <a class="text-blue-600 hover:text-blue-700 font-semibold" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                Download Check Scan
-                            </a>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-600">Check Scan</label>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <a class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </a>
+                                <a class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-eye mr-2"></i>View
+                                </a>
+                            </div>
+                            <?php
+                                $isImage = !empty($check_attachment['mime_type']) && strpos($check_attachment['mime_type'], 'image/') === 0;
+                            ?>
+                            <?php if ($isImage): ?>
+                                <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                    <img src="<?= base_url('file/download/' . $check_attachment['id']) ?>" alt="Check Scan Preview" class="max-h-56 w-auto rounded-lg">
+                                </div>
+                            <?php else: ?>
+                                <p class="text-xs text-gray-500">Preview available for images only. Use View to open the file.</p>
+                            <?php endif; ?>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
