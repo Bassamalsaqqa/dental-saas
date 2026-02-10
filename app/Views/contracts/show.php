@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $return_to = $return_to ?? null; ?>
 <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 py-8">
     <div class="space-y-6">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -9,6 +10,12 @@
                 <p class="text-gray-600 mt-1">Patient: <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?></p>
             </div>
             <div class="flex space-x-3">
+                <?php if (!empty($return_to)): ?>
+                    <a href="<?= base_url($return_to) ?>"
+                       class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Examination
+                    </a>
+                <?php endif; ?>
                 <a href="<?= base_url('patient/' . $patient['id']) ?>" 
                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Patient
@@ -136,7 +143,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6" id="signatureSection">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Signature</h3>
                     <?php if (!empty($signature)): ?>
                         <div class="space-y-3">
@@ -148,9 +155,18 @@
                         </div>
                     <?php else: ?>
                         <?php if (($contract['status'] ?? 'draft') === 'draft' && !empty($signature_enabled)): ?>
-                            <form action="<?= base_url('contracts/' . $contract['id'] . '/sign') ?>" method="post" id="signatureForm">
+                            <?php
+                                $signAction = base_url('contracts/' . $contract['id'] . '/sign');
+                                if (!empty($return_to)) {
+                                    $signAction .= '?return=' . urlencode($return_to);
+                                }
+                            ?>
+                            <form action="<?= $signAction ?>" method="post" id="signatureForm">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="signature_data" id="signatureData">
+                                <?php if (!empty($return_to)): ?>
+                                    <input type="hidden" name="return" value="<?= esc($return_to) ?>">
+                                <?php endif; ?>
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Typed Name</label>

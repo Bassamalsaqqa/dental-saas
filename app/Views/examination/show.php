@@ -243,9 +243,17 @@
                                     <?php endif; ?>
                                 </p>
                             </div>
-                            <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                View
-                            </a>
+                            <div class="flex items-center space-x-3">
+                                <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View
+                                </a>
+                                <?php if (($latest_contract['status'] ?? 'draft') === 'draft' && !empty($signature_enabled)): ?>
+                                    <a href="<?= base_url('contracts/' . $latest_contract['id'] . '?return=examination/' . $examination['id'] . '#signatureSection') ?>"
+                                       class="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-md hover:bg-emerald-700">
+                                        <i class="fas fa-signature mr-2"></i>Sign Plan
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php else: ?>
                         <p class="text-gray-700">

@@ -8,6 +8,7 @@ use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\TreatmentContractModel;
 use App\Services\ActivityLogger;
+use App\Services\PlanGuard;
 
 class Examination extends BaseController
 {
@@ -163,12 +164,15 @@ class Examination extends BaseController
             ->where('examination_id', $examination['id'])
             ->orderBy('created_at', 'DESC')
             ->first();
+        $planGuard = new PlanGuard();
+        $signatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'contracts.signature.enabled', false);
 
         $data = [
             'title' => 'Examination Details - ' . $examination['examination_id'],
             'examination' => $examination,
             'next_appointment' => $nextAppointment,
             'latest_contract' => $latestContract,
+            'signature_enabled' => $signatureEnabled,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),

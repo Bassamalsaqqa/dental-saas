@@ -214,6 +214,14 @@ class TreatmentContracts extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
+        $returnTo = $this->request->getGet('return');
+        if ($returnTo && !preg_match('#^examination/\\d+$#', $returnTo)) {
+            $returnTo = null;
+        }
+        if (!$returnTo && !empty($contract['examination_id'])) {
+            $returnTo = 'examination/' . $contract['examination_id'];
+        }
+
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
 
@@ -398,6 +406,7 @@ class TreatmentContracts extends BaseController
             'snapshot' => $snapshot,
             'signature' => $signature,
             'signature_enabled' => $this->planGuard->isFeatureEnabled($clinicId, 'contracts.signature.enabled', false),
+            'return_to' => $returnTo,
             'condition_types' => $this->odontogramModel->getConditionTypes()
         ];
 
@@ -501,6 +510,14 @@ class TreatmentContracts extends BaseController
             $contract['patient_id'],
             "Treatment contract #{$contractId} signed"
         );
+
+        $returnTo = $this->request->getGet('return') ?: $this->request->getPost('return');
+        if ($returnTo && preg_match('#^examination/\\d+$#', $returnTo)) {
+            return redirect()
+                ->to(base_url($returnTo))
+                ->with('success', 'Contract signed successfully.')
+                ->with('contracts_flash', '1');
+        }
 
         return redirect()
             ->to(base_url('contracts/' . $contractId))
