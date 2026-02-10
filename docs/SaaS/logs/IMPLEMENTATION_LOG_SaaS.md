@@ -1272,3 +1272,14 @@
   - Updated finance show/invoice/export views to display base totals plus original currency details when applicable.
   - Enforced attachment limits for check scans through existing `StorageService` logic.
 - **Verification:** `docs/SaaS/verification/P5-FIN-02.md`.
+
+### Task: P5-AL-01 Activity Log Filters + Export
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Fixed Activity Log filtering to support name/email search, corrected filtered counts/pagination, and added CSV export scoped to clinic context.
+- **Actions:**
+    - Added `activity-log/export` route and CSV export handler in `app/Controllers/ActivityLog.php`.
+    - Updated Activity Log API to return `total_all` + `total_filtered` and support user name/email search.
+    - Updated `app/Views/activity_log/index.php` to send `user` filter, show correct counts, and trigger export.
+    - Added icon/badge support for prescription/user/contract entity types.
+- **Verification:** `docs/SaaS/verification/P5-AL-01.md`.

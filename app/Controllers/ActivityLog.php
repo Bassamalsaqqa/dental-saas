@@ -83,18 +83,112 @@ class ActivityLog extends BaseController
         }
         $entityType = $this->request->getGet('entity_type');
         $action = $this->request->getGet('action');
-        $userId = $this->request->getGet('user_id');
+        $userFilter = $this->request->getGet('user');
+        if ($userFilter === null) {
+            $userFilter = $this->request->getGet('user_id');
+        }
+        [$userId, $userQuery] = $this->parseUserFilter($userFilter);
 
-        $activities = $this->getActivities($limit, $offset, $entityType, $action, $userId, $clinicId);
+        $activities = $this->getActivities($limit, $offset, $entityType, $action, $userId, $userQuery, $clinicId);
 
         return $this->response->setJSON([
             'success' => true,
             'activities' => $activities,
-            'total' => $this->getTotalCount($entityType, $action, $userId, $clinicId)
+            'total_all' => $this->getTotalCount(null, null, null, null, $clinicId),
+            'total_filtered' => $this->getTotalCount($entityType, $action, $userId, $userQuery, $clinicId)
         ]);
     }
 
-    private function getActivities($limit = 50, $offset = 0, $entityType = null, $action = null, $userId = null, $clinicId = null)
+    public function export()
+    {
+        if (!session()->get('user_id')) {
+            return redirect()->to('/auth/login');
+        }
+
+        if (!has_permission('activity_log', 'view')) {
+            return redirect()->to('/dashboard')->with('error', 'You do not have permission to export activity logs.');
+        }
+
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to export activity logs.');
+        }
+
+        $entityType = $this->request->getGet('entity_type');
+        $action = $this->request->getGet('action');
+        $userFilter = $this->request->getGet('user');
+        if ($userFilter === null) {
+            $userFilter = $this->request->getGet('user_id');
+        }
+
+        [$userId, $userQuery] = $this->parseUserFilter($userFilter);
+
+        $builder = $this->activityLogModel->builder();
+        $builder->select('activity_logs.*, users.first_name, users.last_name, users.email');
+        $builder->join('users', 'users.id = activity_logs.user_id', 'left');
+        $builder->where('activity_logs.clinic_id', $clinicId);
+        $builder->orderBy('activity_logs.created_at', 'DESC');
+
+        if ($entityType) {
+            $builder->where('activity_logs.entity_type', $entityType);
+        }
+        if ($action) {
+            $builder->where('activity_logs.action', $action);
+        }
+        if ($userId) {
+            $builder->where('activity_logs.user_id', $userId);
+        } elseif ($userQuery) {
+            $builder->groupStart()
+                ->like('users.first_name', $userQuery)
+                ->orLike('users.last_name', $userQuery)
+                ->orLike('users.email', $userQuery)
+                ->groupEnd();
+        }
+
+        $rows = $builder->get()->getResultArray();
+        $filename = 'activity_log_' . date('Ymd_His') . '.csv';
+
+        $handle = fopen('php://temp', 'w+');
+        fputcsv($handle, [
+            'ID',
+            'Date',
+            'User',
+            'Email',
+            'Action',
+            'Entity Type',
+            'Entity ID',
+            'Description',
+            'IP Address',
+            'User Agent'
+        ]);
+
+        foreach ($rows as $row) {
+            $userName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+            fputcsv($handle, [
+                $row['id'],
+                $row['created_at'],
+                $userName !== '' ? $userName : 'System',
+                $row['email'] ?? '',
+                $row['action'],
+                $row['entity_type'],
+                $row['entity_id'],
+                $row['description'],
+                $row['ip_address'],
+                $row['user_agent']
+            ]);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setBody($csv);
+    }
+
+    private function getActivities($limit = 50, $offset = 0, $entityType = null, $action = null, $userId = null, $userQuery = null, $clinicId = null)
     {
         try {
             if (!$clinicId) {
@@ -124,6 +218,12 @@ class ActivityLog extends BaseController
             }
             if ($userId) {
                 $builder->where('activity_logs.user_id', $userId);
+            } elseif ($userQuery) {
+                $builder->groupStart()
+                    ->like('users.first_name', $userQuery)
+                    ->orLike('users.last_name', $userQuery)
+                    ->orLike('users.email', $userQuery)
+                    ->groupEnd();
             }
 
             $activities = $builder->findAll();
@@ -136,19 +236,35 @@ class ActivityLog extends BaseController
         }
     }
 
-    private function getTotalCount($entityType = null, $action = null, $userId = null, $clinicId = null)
+    private function getTotalCount($entityType = null, $action = null, $userId = null, $userQuery = null, $clinicId = null)
     {
         try {
             if (!$clinicId) {
                 return 0;
             }
 
-            $criteria = [];
-            if ($entityType) $criteria['entity_type'] = $entityType;
-            if ($action) $criteria['action'] = $action;
-            if ($userId) $criteria['user_id'] = $userId;
+            $builder = $this->activityLogModel->builder();
+            $builder->select('activity_logs.id');
+            $builder->join('users', 'users.id = activity_logs.user_id', 'left');
+            $builder->where('activity_logs.clinic_id', $clinicId);
 
-            return $this->activityLogModel->countByClinic($clinicId, $criteria);
+            if ($entityType) {
+                $builder->where('activity_logs.entity_type', $entityType);
+            }
+            if ($action) {
+                $builder->where('activity_logs.action', $action);
+            }
+            if ($userId) {
+                $builder->where('activity_logs.user_id', $userId);
+            } elseif ($userQuery) {
+                $builder->groupStart()
+                    ->like('users.first_name', $userQuery)
+                    ->orLike('users.last_name', $userQuery)
+                    ->orLike('users.email', $userQuery)
+                    ->groupEnd();
+            }
+
+            return $builder->countAllResults();
         } catch (\Exception $e) {
             log_message('error', 'Failed to count activities: ' . $e->getMessage());
             return 0;
@@ -207,7 +323,18 @@ class ActivityLog extends BaseController
             ],
             'finance' => [
                 'create' => ['title' => 'Payment Received', 'icon' => 'fas fa-dollar-sign', 'color' => 'green'],
-                'update' => ['title' => 'Payment Updated', 'icon' => 'fas fa-edit', 'color' => 'blue']
+                'update' => ['title' => 'Payment Updated', 'icon' => 'fas fa-edit', 'color' => 'blue'],
+                'refund' => ['title' => 'Payment Refunded', 'icon' => 'fas fa-undo', 'color' => 'red']
+            ],
+            'prescription' => [
+                'create' => ['title' => 'Prescription Created', 'icon' => 'fas fa-prescription-bottle-alt', 'color' => 'indigo'],
+                'update' => ['title' => 'Prescription Updated', 'icon' => 'fas fa-edit', 'color' => 'blue'],
+                'delete' => ['title' => 'Prescription Deleted', 'icon' => 'fas fa-trash', 'color' => 'red']
+            ],
+            'user' => [
+                'create' => ['title' => 'User Created', 'icon' => 'fas fa-user-plus', 'color' => 'green'],
+                'update' => ['title' => 'User Updated', 'icon' => 'fas fa-user-edit', 'color' => 'blue'],
+                'delete' => ['title' => 'User Deleted', 'icon' => 'fas fa-user-times', 'color' => 'red']
             ]
         ];
 
@@ -287,5 +414,19 @@ class ActivityLog extends BaseController
         }
 
         return $this->activityLogModel->getUserActivities($userId, $limit, $clinicId);
+    }
+
+    private function parseUserFilter($userFilter): array
+    {
+        $userFilter = is_string($userFilter) ? trim($userFilter) : '';
+        if ($userFilter === '') {
+            return [null, null];
+        }
+
+        if (ctype_digit($userFilter)) {
+            return [(int) $userFilter, null];
+        }
+
+        return [null, $userFilter];
     }
 }

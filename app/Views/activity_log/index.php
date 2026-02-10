@@ -184,7 +184,7 @@ function loadActivities() {
         offset: (currentPage - 1) * pageSize,
         entity_type: entityType,
         action: action,
-        user_id: user
+        user: user
     });
     
     fetch(`<?= base_url('activity-log/api') ?>?${params}`)
@@ -192,7 +192,8 @@ function loadActivities() {
         .then(data => {
             if (data.success) {
                 displayActivities(data.activities);
-                totalActivities = data.total;
+                totalActivities = data.total_all ?? 0;
+                filteredActivities = data.total_filtered ?? 0;
                 updatePagination();
                 updateCounts();
             } else {
@@ -338,7 +339,7 @@ function showError(message) {
 }
 
 function updatePagination() {
-    const maxPage = Math.ceil(totalActivities / pageSize);
+    const maxPage = Math.max(1, Math.ceil(filteredActivities / pageSize));
     const prevBtn = document.getElementById('prevPage');
     const nextBtn = document.getElementById('nextPage');
     const pageInfo = document.getElementById('pageInfo');
@@ -348,7 +349,7 @@ function updatePagination() {
     
     pageInfo.textContent = `Page ${currentPage} of ${maxPage}`;
     
-    if (totalActivities > 0) {
+    if (filteredActivities > 0) {
         document.getElementById('paginationContainer').classList.remove('hidden');
     } else {
         document.getElementById('paginationContainer').classList.add('hidden');
@@ -370,8 +371,17 @@ function refreshActivities() {
 }
 
 function exportActivities() {
-    // Implement export functionality
-    alert('Export functionality will be implemented');
+    const entityType = document.getElementById('entityTypeFilter').value;
+    const action = document.getElementById('actionFilter').value;
+    const user = document.getElementById('userFilter').value;
+
+    const params = new URLSearchParams({
+        entity_type: entityType,
+        action: action,
+        user: user
+    });
+
+    window.location.href = `<?= base_url('activity-log/export') ?>?${params.toString()}`;
 }
 
 // Navigate to entity details page
@@ -403,6 +413,9 @@ function navigateToEntity(entityType, entityId) {
         case 'finance':
             url = `${baseUrl}finance/${entityId}`;
             break;
+        case 'contract':
+            url = `${baseUrl}contracts/${entityId}`;
+            break;
         case 'inventory':
             url = `${baseUrl}inventory/${entityId}`;
             break;
@@ -427,7 +440,8 @@ function getActivityIconBgClass(color) {
         'purple': 'bg-purple-100',
         'red': 'bg-red-100',
         'gray': 'bg-gray-100',
-        'teal': 'bg-teal-100'
+        'teal': 'bg-teal-100',
+        'indigo': 'bg-indigo-100'
     };
     return colorMap[color] || 'bg-gray-100';
 }
@@ -440,7 +454,8 @@ function getActivityIconClass(color) {
         'purple': 'text-purple-600',
         'red': 'text-red-600',
         'gray': 'text-gray-600',
-        'teal': 'text-teal-600'
+        'teal': 'text-teal-600',
+        'indigo': 'text-indigo-600'
     };
     return colorMap[color] || 'text-gray-600';
 }
@@ -452,7 +467,10 @@ function getEntityBadgeClass(entityType) {
         'examination': 'bg-purple-100 text-purple-800',
         'treatment': 'bg-orange-100 text-orange-800',
         'inventory': 'bg-yellow-100 text-yellow-800',
-        'finance': 'bg-emerald-100 text-emerald-800'
+        'finance': 'bg-emerald-100 text-emerald-800',
+        'prescription': 'bg-indigo-100 text-indigo-800',
+        'user': 'bg-slate-100 text-slate-700',
+        'contract': 'bg-violet-100 text-violet-800'
     };
     return colorMap[entityType] || 'bg-gray-100 text-gray-800';
 }

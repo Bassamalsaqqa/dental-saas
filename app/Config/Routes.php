@@ -519,6 +519,7 @@ $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($
 $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('activity-log', 'ActivityLog::index');
     $routes->get('activity-log/api', 'ActivityLog::api');
+    $routes->get('activity-log/export', 'ActivityLog::export');
 });
 
 // File routes (Tenant Plane)
