@@ -364,8 +364,17 @@ class SettingsService
      */
     public function getClinicInfo()
     {
+        $clinicName = $this->get('clinic_name', '');
+        if ($clinicName === '' || $clinicName === null) {
+            $clinicId = (int) (service('session')->get('active_clinic_id') ?? 0);
+            if ($clinicId > 0) {
+                $clinic = (new \App\Models\ClinicModel())->find($clinicId);
+                $clinicName = $clinic['name'] ?? '';
+            }
+        }
+
         return [
-            'name' => $this->get('clinic_name', 'DentalCare Clinic'),
+            'name' => $clinicName !== '' ? $clinicName : 'DentalCare Clinic',
             'address' => $this->get('clinic_address', '123 Dental Street, Medical District, City 12345'),
             'phone' => $this->get('clinic_phone', '+1 (555) 123-4567'),
             'email' => $this->get('clinic_email', 'info@dentalclinic.com'),

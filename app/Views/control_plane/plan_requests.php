@@ -298,7 +298,13 @@
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             <?php else: ?>
-                                                <span class="text-gray-400 italic text-xs">Archived</span>
+                                                <button type="button"
+                                                        class="p-2 text-rose-600 hover:text-rose-700 rounded-md hover:bg-rose-50 transition-colors duration-200"
+                                                        data-delete-action="<?= base_url('controlplane/plan-requests/' . $request['id'] . '/delete') ?>"
+                                                        data-request-label="<?= esc($request['clinic_name'] ?? 'Clinic') ?>"
+                                                        title="Delete Request">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -420,12 +426,41 @@ function closeQueueModal() {
     </div>
 </div>
 
+<div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl p-6 w-full max-w-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-rose-500 font-semibold">Delete Request</p>
+                <h3 class="text-lg font-semibold text-slate-900 mt-1">Remove this request</h3>
+                <p class="text-xs text-slate-500 mt-1" id="delete-label">This request will be removed permanently.</p>
+            </div>
+            <button type="button" class="text-slate-400 hover:text-slate-600" data-delete-close>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="delete-form" method="post" class="mt-4 space-y-4">
+            <?= csrf_field() ?>
+            <div class="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-xs text-rose-700">
+                This action cannot be undone.
+            </div>
+            <div class="flex items-center justify-end gap-2">
+                <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold" data-delete-close>Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const rejectModal = document.getElementById('reject-modal');
     const rejectForm = document.getElementById('reject-form');
     const rejectReason = document.getElementById('reject-reason');
     const rejectLabel = document.getElementById('reject-label');
     let activeRejectRow = null;
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteForm = document.getElementById('delete-form');
+    const deleteLabel = document.getElementById('delete-label');
+    let activeDeleteRow = null;
 
     document.querySelectorAll('[data-approve-form]').forEach((form) => {
         const button = form.querySelector('[data-approve-button]');
@@ -480,6 +515,42 @@ function closeQueueModal() {
             if (activeRejectRow) {
                 activeRejectRow.classList.add('opacity-40');
                 activeRejectRow.classList.add('pointer-events-none');
+            }
+        });
+    }
+
+    document.querySelectorAll('[data-delete-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+            activeDeleteRow = button.closest('[data-request-row]');
+            const action = button.getAttribute('data-delete-action');
+            if (action && deleteForm) {
+                deleteForm.action = action;
+            }
+            if (deleteLabel) {
+                deleteLabel.textContent = button.getAttribute('data-request-label') || 'This request will be removed permanently.';
+            }
+            if (deleteModal) {
+                deleteModal.classList.remove('hidden');
+                deleteModal.classList.add('flex');
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-delete-close]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (deleteModal) {
+                deleteModal.classList.add('hidden');
+                deleteModal.classList.remove('flex');
+            }
+            activeDeleteRow = null;
+        });
+    });
+
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', () => {
+            if (activeDeleteRow) {
+                activeDeleteRow.classList.add('opacity-40');
+                activeDeleteRow.classList.add('pointer-events-none');
             }
         });
     }

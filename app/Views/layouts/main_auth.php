@@ -178,7 +178,7 @@
 
                     // Permission mapping for menu items
                     $permissionMap = [
-                        'dashboard' => ['module' => 'dashboard', 'action' => 'read'],
+                        'dashboard' => ['module' => 'dashboard', 'action' => 'view'],
                         'patients' => ['module' => 'patients', 'action' => 'view'],
                         'examinations' => ['module' => 'examinations', 'action' => 'view'],
                         'appointments' => ['module' => 'appointments', 'action' => 'view'],
@@ -347,7 +347,8 @@
                                             </div>
                                             <div class="flex flex-col overflow-hidden">
                                                 <span class="truncate font-bold text-sm"><?= esc($m['clinic_name']) ?></span>
-                                                <span class="text-[10px] opacity-60"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'Active Now' : 'Click to switch' ?></span>
+                                                <span class="text-[10px] opacity-60"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
+                                                <span class="text-[10px] opacity-60 block"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'Active Now' : 'Click to switch' ?></span>
                                             </div>
                                         </div>
                                         <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>

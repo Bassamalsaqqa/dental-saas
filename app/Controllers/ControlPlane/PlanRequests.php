@@ -191,6 +191,32 @@ class PlanRequests extends BaseController
         return redirect()->to(base_url('controlplane/plans'))->with('success', 'Plan request rejected.');
     }
 
+    /**
+     * POST /controlplane/plan-requests/{id}/delete
+     */
+    public function delete(int $id)
+    {
+        $planRequestModel = (new PlanRequestModel())->withoutTenantScope();
+        $request = $planRequestModel->find($id);
+        if (!$request) {
+            return redirect()->to(base_url('controlplane/plan-requests'))->with('error', 'Request not found.');
+        }
+
+        if (($request['status'] ?? '') === 'pending') {
+            return redirect()->to(base_url('controlplane/plan-requests'))->with('error', 'Cannot delete a pending request. Approve or reject it first.');
+        }
+
+        $planRequestModel->delete($id);
+
+        $this->auditService->logEvent('plan_request_delete', [
+            'route' => '/controlplane/plan-requests/' . $id . '/delete',
+            'method' => 'POST',
+            'metadata' => ['request_id' => $id, 'clinic_id' => $request['clinic_id'] ?? null],
+        ]);
+
+        return redirect()->to(base_url('controlplane/plan-requests'))->with('success', 'Plan request deleted.');
+    }
+
     private function resolveEndAt(string $duration, string $startAt): ?string
     {
         if ($duration === 'lifetime') {

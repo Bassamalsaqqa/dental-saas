@@ -43,6 +43,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
         $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
         $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
+        $routes->post('plan-requests/(:num)/delete', 'ControlPlane\PlanRequests::delete/$1');
         $routes->get('invoices', 'ControlPlane\Invoices::index');
         $routes->get('invoices/create', 'ControlPlane\Invoices::create');
         $routes->post('invoices', 'ControlPlane\Invoices::store');

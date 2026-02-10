@@ -5,6 +5,7 @@ namespace App\Controllers\ControlPlane;
 use App\Controllers\BaseController;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\ControlPlaneAuditModel;
+use App\Models\FileAttachmentModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
 use App\Models\UserModel;
@@ -134,6 +135,24 @@ class Dashboard extends BaseController
             ->findAll();
         $statusCounts = array_column($clinicStatusRows, 'total', 'status');
 
+        $storageRows = (new FileAttachmentModel())
+            ->withoutTenantScope()
+            ->select('file_attachments.clinic_id, SUM(file_attachments.file_size) as total_size, clinics.name as clinic_name')
+            ->join('clinics', 'clinics.id = file_attachments.clinic_id', 'left')
+            ->groupBy('file_attachments.clinic_id')
+            ->orderBy('total_size', 'DESC')
+            ->findAll();
+        $storageTotalBytes = 0;
+        foreach ($storageRows as $row) {
+            $storageTotalBytes += (int) ($row['total_size'] ?? 0);
+        }
+        $storageTop = array_slice($storageRows, 0, 5);
+
+        $events7d = $auditModel->where('created_at >=', date('Y-m-d H:i:s', strtotime('-7 days')))->countAllResults();
+        $events30d = $auditModel->where('created_at >=', date('Y-m-d H:i:s', strtotime('-30 days')))->countAllResults();
+        $lastEvent = $auditModel->selectMax('created_at', 'last_event')->first();
+        $lastEventAt = $lastEvent['last_event'] ?? null;
+
         $planMrrCache = [];
         $mrrHistory = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -200,6 +219,47 @@ class Dashboard extends BaseController
             }
         }
 
+        $planDistributionRows = (new ClinicSubscriptionModel())
+            ->withoutTenantScope()
+            ->select('plan_id, COUNT(*) as total')
+            ->where('status', 'active')
+            ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+            ->groupEnd()
+            ->groupStart()
+                ->where('end_at IS NULL', null, false)
+                ->orWhere('end_at >', $now)
+            ->groupEnd()
+            ->groupBy('plan_id')
+            ->findAll();
+        $planDistribution = [];
+        foreach ($planDistributionRows as $row) {
+            $planId = (int) ($row['plan_id'] ?? 0);
+            if ($planId <= 0) {
+                continue;
+            }
+            $plan = $planModel->find($planId);
+            $planDistribution[] = [
+                'label' => $plan['name'] ?? ('Plan #' . $planId),
+                'value' => (int) ($row['total'] ?? 0),
+            ];
+        }
+
+        $clinicGrowth = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = date('Y-m-01 00:00:00', strtotime('-' . $i . ' months'));
+            $monthEnd = date('Y-m-t 23:59:59', strtotime('-' . $i . ' months'));
+            $count = (new \App\Models\ClinicModel())
+                ->where('created_at >=', $monthStart)
+                ->where('created_at <=', $monthEnd)
+                ->countAllResults();
+            $clinicGrowth[] = [
+                'label' => date('M', strtotime('-' . $i . ' months')),
+                'value' => $count,
+            ];
+        }
+
         $data = [
             'title' => 'Control Plane Dashboard',
             'global_mode' => true,
@@ -212,13 +272,20 @@ class Dashboard extends BaseController
                 'expiring_subscriptions' => $expiringCount,
                 'mrr' => $mrr,
                 'pending_requests' => $pendingRequests,
+                'storage_total_bytes' => $storageTotalBytes,
+                'events_7d' => $events7d,
+                'events_30d' => $events30d,
+                'last_event_at' => $lastEventAt,
             ],
             'recent_clinics' => $recentClinics,
             'recent_plan_requests' => $recentRequests,
             'activity_series' => $activitySeries,
+            'storage_top' => $storageTop,
             'chart_data' => [
                 'mrr_series' => $mrrHistory,
                 'activity_series' => $activitySeries,
+                'plan_distribution' => $planDistribution,
+                'clinic_growth' => $clinicGrowth,
                 'status_breakdown' => [
                     'active' => (int) ($statusCounts['active'] ?? 0),
                     'suspended' => (int) ($statusCounts['suspended'] ?? 0),

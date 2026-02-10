@@ -43,7 +43,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition-colors"><?= esc($clinic['clinic_name']) ?></h3>
-                                    <p class="text-xs text-gray-500">Role ID: <?= esc($clinic['role_id']) ?></p>
+                                    <p class="text-xs text-gray-500">Slug: <?= esc($clinic['clinic_slug'] ?? ('ID ' . $clinic['clinic_id'])) ?></p>
                                 </div>
                                 <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                                     <i class="fas fa-arrow-right text-blue-500"></i>

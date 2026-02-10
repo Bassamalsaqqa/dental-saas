@@ -166,7 +166,7 @@ class OnboardingService
                 ])
             ]);
 
-            $this->seedClinicDefaults($clinicId);
+            $this->seedClinicDefaults($clinicId, $clinicData['name']);
 
             $db->transCommit();
             return $clinicId;
@@ -178,12 +178,13 @@ class OnboardingService
         }
     }
 
-    private function seedClinicDefaults(int $clinicId): void
+    private function seedClinicDefaults(int $clinicId, string $clinicName): void
     {
         $db = \Config\Database::connect();
         $builder = $db->table('settings');
 
         $defaults = [
+            'clinic_name' => $clinicName,
             'timezone' => $this->settingsModel->getGlobalSetting('default_timezone', 'America/New_York'),
             'date_format' => $this->settingsModel->getGlobalSetting('default_date_format', 'Y-m-d'),
             'time_format' => $this->settingsModel->getGlobalSetting('default_time_format', '12'),

@@ -1,6 +1,11 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
+<?php
+    $storageBytes = (int) ($stats['storage_total_bytes'] ?? 0);
+    $storageGb = $storageBytes > 0 ? ($storageBytes / 1024 / 1024 / 1024) : 0;
+    $lastEventAt = $stats['last_event_at'] ?? null;
+?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -55,7 +60,12 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Clinics</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Total Clinics
+                                <span class="text-gray-400" title="All clinics in the system (including inactive).">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-blue-900"><?= number_format($stats['total_clinics'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full overflow-hidden">
@@ -84,7 +94,12 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Subscriptions</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Active Subscriptions
+                                <span class="text-gray-400" title="Active subscriptions where current date is within start/end window.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-emerald-900"><?= number_format($stats['active_subscriptions'] ?? 0) ?></p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
@@ -113,7 +128,12 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Catalog Plans</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Catalog Plans
+                                <span class="text-gray-400" title="Plans marked active in the catalog.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-amber-900"><?= number_format($stats['active_plans'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
@@ -142,7 +162,12 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Estimated MRR</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Estimated MRR
+                                <span class="text-gray-400" title="Sum of active plan prices (yearly plans converted to monthly).">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-purple-900">$<?= number_format((float) ($stats['mrr'] ?? 0), 2) ?></p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full overflow-hidden">
@@ -150,6 +175,143 @@
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 font-medium">Recurring Revenue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mt-6">
+                <!-- Active Users -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-indigo-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-500 to-indigo-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-500 to-indigo-500 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-user-shield text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-slate-100 to-indigo-100 px-3 py-1.5 rounded-full border border-slate-200">
+                                <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
+                                <span class="text-slate-700 font-bold text-xs">Operators</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Active Users
+                                <span class="text-gray-400" title="All active users across clinics and control plane.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-slate-900"><?= number_format($stats['active_users'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-slate-200 to-indigo-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-slate-500 to-indigo-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Enabled Accounts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expiring Subscriptions -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-orange-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-orange-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-hourglass-half text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-orange-100 px-3 py-1.5 rounded-full border border-rose-200">
+                                <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+                                <span class="text-rose-700 font-bold text-xs">30 Days</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Expiring Subscriptions
+                                <span class="text-gray-400" title="Active subscriptions ending in the next 30 days.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-rose-700"><?= number_format($stats['expiring_subscriptions'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-rose-200 to-orange-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-rose-500 to-orange-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Renewal Watch</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Usage -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-hdd text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span class="text-emerald-700 font-bold text-xs">All Files</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Storage Used
+                                <span class="text-gray-400" title="Total attachments and generated documents across all clinics.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-emerald-700"><?= number_format($storageGb, 2) ?> GB</p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Storage Footprint</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Requests -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-inbox text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1.5 rounded-full border border-amber-200">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                                <span class="text-amber-700 font-bold text-xs">Queue</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                                Pending Requests
+                                <span class="text-gray-400" title="Plan change requests awaiting review.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </p>
+                            <div class="flex items-baseline space-x-2">
+                                <p class="text-3xl font-black text-amber-700"><?= number_format($stats['pending_requests'] ?? 0) ?></p>
+                                <div class="w-12 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
+                                    <div class="w-3/4 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium">Awaiting Action</p>
                         </div>
                     </div>
                 </div>
@@ -167,7 +329,12 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-xl font-black text-gray-900">MRR Growth</h3>
+                                    <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                                        MRR Growth
+                                        <span class="text-gray-400 text-sm" title="MRR trend derived from active subscriptions (yearly normalized).">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-sm">Monthly Recurring Revenue Trend</p>
                             </div>
@@ -191,7 +358,12 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-xl font-black text-gray-900">Activity Volume</h3>
+                                    <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                                        Activity Volume
+                                        <span class="text-gray-400 text-sm" title="Control plane audit events per day (last 14 days).">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-sm">Control Plane Events</p>
                             </div>
@@ -202,6 +374,60 @@
                         <div class="relative h-64 p-6 pt-0 flex-1">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-cyan-50/50 rounded-2xl"></div>
                             <canvas id="activityVolumeChart" class="relative z-10"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                <!-- Plan Distribution -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
+                        <div class="flex items-center justify-between p-6 pb-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+                                    <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                                        Plan Distribution
+                                        <span class="text-gray-400 text-sm" title="Active subscriptions by plan.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
+                                </div>
+                                <p class="text-gray-600 font-medium text-sm">Active plan mix</p>
+                            </div>
+                        </div>
+                        <div class="relative h-64 p-6 pt-0 flex-1">
+                            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 rounded-2xl"></div>
+                            <canvas id="planDistributionChart" class="relative z-10"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinic Growth -->
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
+                        <div class="flex items-center justify-between p-6 pb-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full animate-pulse"></div>
+                                    <h3 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                                        Clinic Growth
+                                        <span class="text-gray-400 text-sm" title="New clinics created in the last 6 months.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
+                                </div>
+                                <p class="text-gray-600 font-medium text-sm">New clinic onboarding</p>
+                            </div>
+                        </div>
+                        <div class="relative h-64 p-6 pt-0 flex-1">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 rounded-2xl"></div>
+                            <canvas id="clinicGrowthChart" class="relative z-10"></canvas>
                         </div>
                     </div>
                 </div>
@@ -219,7 +445,12 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-lg font-black text-gray-900">Recent Clinics</h3>
+                                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                                        Recent Clinics
+                                        <span class="text-gray-400 text-xs" title="Newest clinics by creation date.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-xs">Newest onboarded tenants</p>
                             </div>
@@ -267,7 +498,12 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-lg font-black text-gray-900">Plan Requests</h3>
+                                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                                        Plan Requests
+                                        <span class="text-gray-400 text-xs" title="Most recent plan change requests (pending queue).">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-xs">Pending approval queue</p>
                             </div>
@@ -312,7 +548,12 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-lg font-black text-gray-900">Quick Actions</h3>
+                                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                                        Quick Actions
+                                        <span class="text-gray-400 text-xs" title="Shortcuts for common control-plane tasks.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-xs">Operator shortcuts</p>
                             </div>
@@ -349,6 +590,81 @@
                                 </div>
                                 <span class="text-xs font-bold text-gray-700 group-hover/action:text-blue-900">List Clinics</span>
                             </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
+                        <div class="flex justify-between items-center p-4 pb-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+                                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                                        Storage Hotspots
+                                        <span class="text-gray-400 text-xs" title="Top clinics by attachment storage usage.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
+                                </div>
+                                <p class="text-gray-600 font-medium text-xs">Largest storage consumers</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1 p-4 pt-0 flex-1">
+                            <?php if (!empty($storage_top ?? [])): ?>
+                                <?php foreach ($storage_top as $row): ?>
+                                    <?php
+                                        $clinicName = $row['clinic_name'] ?? 'Clinic';
+                                        $sizeBytes = (int) ($row['total_size'] ?? 0);
+                                        $sizeGb = $sizeBytes > 0 ? ($sizeBytes / 1024 / 1024 / 1024) : 0;
+                                    ?>
+                                    <div class="flex items-center justify-between p-3 rounded-xl border border-emerald-100 bg-emerald-50/60">
+                                        <span class="text-sm font-semibold text-emerald-900"><?= esc($clinicName) ?></span>
+                                        <span class="text-xs font-semibold text-emerald-700"><?= number_format($sizeGb, 2) ?> GB</span>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center py-10 text-slate-400 text-sm">No storage usage yet.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
+                        <div class="flex justify-between items-center p-4 pb-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-pulse"></div>
+                                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                                        System Health
+                                        <span class="text-gray-400 text-xs" title="Recent control plane activity and last event timestamp.">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </h3>
+                                </div>
+                                <p class="text-gray-600 font-medium text-xs">Audit pulse</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2 p-4 pt-0 flex-1 text-sm text-slate-600">
+                            <div class="flex items-center justify-between">
+                                <span>Events (7d)</span>
+                                <span class="font-semibold text-slate-900"><?= number_format($stats['events_7d'] ?? 0) ?></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Events (30d)</span>
+                                <span class="font-semibold text-slate-900"><?= number_format($stats['events_30d'] ?? 0) ?></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Last Event</span>
+                                <span class="font-semibold text-slate-900"><?= $lastEventAt ? esc(date('M j, Y g:i A', strtotime($lastEventAt))) : '—' ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -471,6 +787,81 @@
                             grid: {
                                 borderDash: [4, 4],
                                 color: 'rgba(148, 163, 184, 0.35)',
+                            },
+                            ticks: { color: '#475569' },
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                    },
+                },
+            });
+        }
+
+        const distributionCtx = document.getElementById('planDistributionChart');
+        if (distributionCtx && Array.isArray(dashboardChartData.plan_distribution)) {
+            const distLabels = dashboardChartData.plan_distribution.map(point => point.label);
+            const distValues = dashboardChartData.plan_distribution.map(point => point.value);
+            new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: distLabels,
+                    datasets: [{
+                        data: distValues,
+                        backgroundColor: ['#10b981', '#14b8a6', '#6366f1', '#f59e0b', '#ef4444', '#0ea5e9'],
+                        borderColor: 'rgba(255,255,255,0.8)',
+                        borderWidth: 2,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#475569', boxWidth: 10, boxHeight: 10 },
+                        },
+                    },
+                },
+            });
+        }
+
+        const growthCtx = document.getElementById('clinicGrowthChart');
+        if (growthCtx && Array.isArray(dashboardChartData.clinic_growth)) {
+            const growthLabels = dashboardChartData.clinic_growth.map(point => point.label);
+            const growthValues = dashboardChartData.clinic_growth.map(point => point.value);
+            const growthGradient = growthCtx.getContext('2d').createLinearGradient(0, 0, 0, 220);
+            growthGradient.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
+            growthGradient.addColorStop(1, 'rgba(99, 102, 241, 0.05)');
+
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: growthLabels,
+                    datasets: [{
+                        label: 'New Clinics',
+                        data: growthValues,
+                        borderColor: '#6366f1',
+                        backgroundColor: growthGradient,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: true,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#475569' },
+                        },
+                        y: {
+                            grid: {
+                                borderDash: [4, 4],
+                                color: 'rgba(100, 116, 139, 0.15)',
                             },
                             ticks: { color: '#475569' },
                         },
