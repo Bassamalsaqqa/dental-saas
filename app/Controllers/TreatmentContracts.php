@@ -394,6 +394,14 @@ class TreatmentContracts extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
+        $returnTo = $this->request->getGet('return');
+        if ($returnTo && !preg_match('#^examination/\\d+$#', $returnTo)) {
+            $returnTo = null;
+        }
+        if (!$returnTo && !empty($contract['examination_id'])) {
+            $returnTo = 'examination/' . $contract['examination_id'];
+        }
+
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
         $signature = $this->signatureModel->where('contract_id', $contractId)->first();
