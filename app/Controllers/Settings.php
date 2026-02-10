@@ -270,11 +270,15 @@ class Settings extends BaseController
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
-            return redirect()->back()->with('error', 'Clinic context required');
+            return $this->kioskErrorResponse('Clinic context required.');
         }
 
         $planGuard = new PlanGuard();
-        $planGuard->assertFeature($clinicId, 'kiosk.enabled', ['route' => 'settings/updateKiosk']);
+        try {
+            $planGuard->assertFeature($clinicId, 'kiosk.enabled', ['route' => 'settings/updateKiosk']);
+        } catch (\Throwable $e) {
+            return $this->kioskErrorResponse($e->getMessage());
+        }
 
         $rules = [
             'kiosk_enabled' => 'permit_empty|in_list[0,1]',
@@ -286,14 +290,15 @@ class Settings extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            $message = implode(' ', $this->validator->getErrors());
+            return $this->kioskErrorResponse($message ?: 'Invalid kiosk settings.');
         }
 
         $pin = trim((string) $this->request->getPost('kiosk_pin'));
         $pinConfirm = trim((string) $this->request->getPost('kiosk_pin_confirm'));
         if ($pin !== '' || $pinConfirm !== '') {
             if ($pin !== $pinConfirm) {
-                return redirect()->back()->withInput()->with('error', 'Kiosk PIN confirmation does not match.');
+                return $this->kioskErrorResponse('Kiosk PIN confirmation does not match.');
             }
         }
 
@@ -302,7 +307,7 @@ class Settings extends BaseController
         $enableRequested = $this->request->getPost('kiosk_enabled') ? true : false;
 
         if ($enableRequested && !$hasPin && $pin === '') {
-            return redirect()->back()->withInput()->with('error', 'Set a kiosk PIN before enabling the kiosk.');
+            return $this->kioskErrorResponse('Set a kiosk PIN before enabling the kiosk.');
         }
 
         $settingsData = [
@@ -313,18 +318,37 @@ class Settings extends BaseController
         ];
 
         if (!$this->saveSettings($settingsData)) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update kiosk settings.');
+            return $this->kioskErrorResponse('Failed to update kiosk settings.');
         }
 
         if ($pin !== '') {
             $pinHash = password_hash($pin, PASSWORD_DEFAULT);
             if (!$this->settingsModel->setSetting('kiosk_pin_hash', $pinHash, 'string')) {
-                return redirect()->back()->withInput()->with('error', 'Failed to update kiosk PIN.');
+                return $this->kioskErrorResponse('Failed to update kiosk PIN.');
             }
         }
 
         $this->settingsService->reloadSettings();
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Kiosk settings updated successfully.',
+            ]);
+        }
+
         return redirect()->to('/settings')->with('success', 'Kiosk settings updated successfully.');
+    }
+
+    private function kioskErrorResponse(string $message)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->withInput()->with('error', $message);
     }
 
     public function update()

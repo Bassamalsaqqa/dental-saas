@@ -315,12 +315,12 @@
                                         <h4 class="text-sm font-bold text-slate-800">Enable Kiosk Check-In</h4>
                                         <p class="text-sm text-slate-500">Allow patients to confirm appointments from a clinic kiosk.</p>
                                     </div>
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="kiosk_enabled" value="1" class="sr-only kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                        <span class="w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
-                                            <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'translate-x-5 bg-blue-500' : '' ?>"></span>
-                                        </span>
-                                    </label>
+                                      <label class="inline-flex items-center cursor-pointer">
+                                          <input type="checkbox" name="kiosk_enabled" value="1" class="sr-only kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                          <span class="kiosk-toggle-track w-11 h-6 rounded-full relative transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'bg-blue-500' : 'bg-gray-200' ?>">
+                                              <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'translate-x-5 bg-blue-500' : '' ?>"></span>
+                                          </span>
+                                      </label>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1281,14 +1281,56 @@ function copyKioskLink() {
 document.addEventListener('DOMContentLoaded', function() {
     const kioskToggle = document.querySelector('.kiosk-toggle');
     if (kioskToggle) {
-        const knob = kioskToggle.closest('label')?.querySelector('.kiosk-toggle-knob');
+        const label = kioskToggle.closest('label');
+        const knob = label?.querySelector('.kiosk-toggle-knob');
+        const track = label?.querySelector('.kiosk-toggle-track');
+        const kioskForm = kioskToggle.closest('form');
+        const restoreToggle = () => {
+            kioskToggle.checked = !kioskToggle.checked;
+            if (kioskToggle.checked) {
+                knob?.classList.add('translate-x-5', 'bg-blue-500');
+                track?.classList.remove('bg-gray-200');
+                track?.classList.add('bg-blue-500');
+            } else {
+                knob?.classList.remove('translate-x-5', 'bg-blue-500');
+                track?.classList.remove('bg-blue-500');
+                track?.classList.add('bg-gray-200');
+            }
+        };
+
         kioskToggle.addEventListener('change', function() {
             if (!knob) return;
             if (kioskToggle.checked) {
                 knob.classList.add('translate-x-5', 'bg-blue-500');
+                track?.classList.remove('bg-gray-200');
+                track?.classList.add('bg-blue-500');
             } else {
                 knob.classList.remove('translate-x-5', 'bg-blue-500');
+                track?.classList.remove('bg-blue-500');
+                track?.classList.add('bg-gray-200');
             }
+
+            if (!kioskForm) return;
+            const formData = new FormData(kioskForm);
+            formData.set('kiosk_enabled', kioskToggle.checked ? '1' : '0');
+
+            fetch(kioskForm.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            }).then(async (response) => {
+                if (response.ok) {
+                    window.showToast?.('success', 'Updated', 'Kiosk status updated.');
+                    return;
+                }
+                restoreToggle();
+                const payload = await response.json().catch(() => null);
+                const message = payload?.message || 'Failed to update kiosk status.';
+                window.showToast?.('error', 'Error', message);
+            }).catch(() => {
+                restoreToggle();
+                window.showToast?.('error', 'Error', 'Failed to update kiosk status.');
+            });
         });
     }
 
