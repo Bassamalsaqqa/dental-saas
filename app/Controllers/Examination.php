@@ -95,6 +95,9 @@ class Examination extends BaseController
         // Get examination date (database field is date, not datetime)
         $examinationDate = $this->request->getPost('examination_date');
 
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $examinationData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_date' => $examinationDate,
@@ -109,7 +112,7 @@ class Examination extends BaseController
             'recommendations' => $this->request->getPost('recommendations'),
             'examination_notes' => $this->request->getPost('examination_notes'),
             'status' => 'pending',
-            'created_by' => 1
+            'created_by' => $currentUserId
         ];
 
         // Log the data being inserted for debugging
@@ -145,8 +148,9 @@ class Examination extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
         }
 
-        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
             ->join('patients', 'patients.id = examinations.patient_id')
+            ->join('users', 'users.id = examinations.created_by', 'left')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId)
             ->where('examinations.id', $id)
@@ -288,6 +292,9 @@ class Examination extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid patient context']);
         }
 
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $conditionData = [
             'clinic_id' => $clinicId,
             'examination_id' => $examinationId,
@@ -296,7 +303,7 @@ class Examination extends BaseController
             'treatment_notes' => $treatmentNotes,
             'treatment_date' => date('Y-m-d'),
             'treatment_status' => 'completed',
-            'created_by' => 1
+            'created_by' => $currentUserId
         ];
 
         if ($this->odontogramModel->updateToothCondition($patientId, $toothNumber, $conditionData)) {
@@ -533,6 +540,9 @@ class Examination extends BaseController
             
             // Create sample examinations
             $sampleExaminations = [];
+            $currentUser = $this->getCurrentUser();
+            $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
             foreach ($patients as $index => $patient) {
                 $sampleExaminations[] = [
                     'patient_id' => $patient['id'],
@@ -541,7 +551,7 @@ class Examination extends BaseController
                     'examination_type' => ['initial', 'periodic', 'emergency'][$index % 3],
                     'chief_complaint' => 'Sample complaint ' . ($index + 1),
                     'status' => ['pending', 'completed', 'in_progress'][$index % 3],
-                    'created_by' => 1,
+                    'created_by' => $currentUserId,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
@@ -570,8 +580,9 @@ class Examination extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
         }
 
-        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
             ->join('patients', 'patients.id = examinations.patient_id')
+            ->join('users', 'users.id = examinations.created_by', 'left')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId)
             ->where('examinations.id', $id)

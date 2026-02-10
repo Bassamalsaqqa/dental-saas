@@ -66,9 +66,10 @@
                         <p class="text-lg font-mono text-gray-900"><?= esc($examination['patient_number']) ?></p>
                     </div>
                     
+                    <?php $doctorName = trim(($examination['doctor_first_name'] ?? '') . ' ' . ($examination['doctor_last_name'] ?? '')); ?>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Created By</label>
-                        <p class="text-lg text-gray-900">Dr. <?= $examination['created_by'] ?? 'Unknown' ?></p>
+                        <p class="text-lg text-gray-900"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
                     </div>
                 </div>
             </div>

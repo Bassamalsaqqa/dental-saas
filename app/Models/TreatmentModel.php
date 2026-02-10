@@ -210,16 +210,18 @@ class TreatmentModel extends TenantAwareModel
 
     public function getTreatmentWithPatientInfo($id)
     {
-        return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+        return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
                     ->join('patients', 'patients.id = treatments.patient_id')
+                    ->join('users', 'users.id = treatments.created_by', 'left')
                     ->where('treatments.id', $id)
                     ->first();
     }
 
     public function getTreatmentWithPatientInfoByClinic($clinicId, $id)
     {
-        return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+        return $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
                     ->join('patients', 'patients.id = treatments.patient_id')
+                    ->join('users', 'users.id = treatments.created_by', 'left')
                     ->where('treatments.clinic_id', $clinicId)
                     ->where('patients.clinic_id', $clinicId)
                     ->where('treatments.id', $id)

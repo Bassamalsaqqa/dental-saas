@@ -413,15 +413,40 @@ class Patient extends BaseController
                 ->findAll();
         }
 
+        $examinations = $this->examinationModel
+            ->select('examinations.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->join('users', 'users.id = examinations.created_by', 'left')
+            ->where('examinations.clinic_id', $clinicId)
+            ->where('examinations.patient_id', $id)
+            ->orderBy('examinations.examination_date', 'DESC')
+            ->findAll();
+
+        $appointments = $this->appointmentModel
+            ->select('appointments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->join('users', 'users.id = appointments.created_by', 'left')
+            ->where('appointments.clinic_id', $clinicId)
+            ->where('appointments.patient_id', $id)
+            ->orderBy('appointments.appointment_date', 'DESC')
+            ->orderBy('appointments.appointment_time', 'ASC')
+            ->findAll();
+
+        $treatments = $this->treatmentModel
+            ->select('treatments.*, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+            ->join('users', 'users.id = treatments.created_by', 'left')
+            ->where('treatments.clinic_id', $clinicId)
+            ->where('treatments.patient_id', $id)
+            ->orderBy('treatments.start_date', 'DESC')
+            ->findAll();
+
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
-            'examinations' => $this->examinationModel->where('patient_id', $id)->findAll(), // TODO: Ensure these models are also scoped if needed, but patient_id + patient ownership implies scope.
-            'appointments' => $this->appointmentModel->getAppointmentsByPatient($id),
+            'examinations' => $examinations,
+            'appointments' => $appointments,
             'finances' => $this->financeModel->getFinanceByPatient($id),
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
-            'treatments' => $this->treatmentModel->getTreatmentsByPatient($id),
+            'treatments' => $treatments,
             'prescriptions' => $this->prescriptionModel->getPrescriptionsByPatient($id),
             'attachments_enabled' => $attachmentsEnabled,
             'attachments' => $attachments,

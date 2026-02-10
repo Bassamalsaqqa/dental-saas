@@ -286,6 +286,7 @@ function getFDINumber($universalNumber) {
                                     
                                     // Add examinations
                                     foreach ($examinations as $exam) {
+                                        $doctorName = trim(($exam['doctor_first_name'] ?? '') . ' ' . ($exam['doctor_last_name'] ?? ''));
                                         $timeline[] = [
                                             'type' => 'examination',
                                             'date' => $exam['examination_date'],
@@ -293,6 +294,7 @@ function getFDINumber($universalNumber) {
                                             'description' => $exam['chief_complaint'] ?? 'No complaint recorded',
                                             'status' => $exam['status'],
                                             'id' => $exam['id'],
+                                            'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-stethoscope',
                                             'color' => 'blue'
                                         ];
@@ -300,6 +302,7 @@ function getFDINumber($universalNumber) {
                                     
                                     // Add appointments
                                     foreach ($appointments as $appt) {
+                                        $doctorName = trim(($appt['doctor_first_name'] ?? '') . ' ' . ($appt['doctor_last_name'] ?? ''));
                                         $timeline[] = [
                                             'type' => 'appointment',
                                             'date' => $appt['appointment_date'],
@@ -307,6 +310,7 @@ function getFDINumber($universalNumber) {
                                             'description' => $appt['notes'] ?? 'No notes',
                                             'status' => $appt['status'],
                                             'id' => $appt['id'],
+                                            'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-calendar',
                                             'color' => 'green'
                                         ];
@@ -314,6 +318,7 @@ function getFDINumber($universalNumber) {
                                     
                                     // Add treatments
                                     foreach ($treatments as $treatment) {
+                                        $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? ''));
                                         $timeline[] = [
                                             'type' => 'treatment',
                                             'date' => $treatment['start_date'],
@@ -321,6 +326,7 @@ function getFDINumber($universalNumber) {
                                             'description' => $treatment['treatment_description'] ?? 'No description',
                                             'status' => $treatment['status'],
                                             'id' => $treatment['id'],
+                                            'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-tooth',
                                             'color' => 'purple'
                                         ];
@@ -398,6 +404,9 @@ function getFDINumber($universalNumber) {
                                                             <span class="text-gray-500">on <?= date('M j, Y', strtotime($item['date'])) ?></span>
                                                         </p>
                                                         <p class="text-sm text-gray-500"><?= $item['description'] ?></p>
+                                                        <?php if (!empty($item['doctor'])): ?>
+                                                            <p class="text-xs text-gray-400 mt-1">Dr. <?= esc($item['doctor']) ?></p>
+                                                        <?php endif; ?>
                                                     </div>
                                                     <div class="text-right text-sm whitespace-nowrap text-gray-500">
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<?= $item['color'] ?>-100 text-<?= $item['color'] ?>-800">
@@ -1295,6 +1304,7 @@ function getFDINumber($universalNumber) {
                 description: '<?= addslashes($item['description']) ?>',
                 status: '<?= $item['status'] ?>',
                 id: '<?= $item['id'] ?>',
+                doctor: '<?= addslashes((string) ($item['doctor'] ?? '')) ?>',
                 icon: '<?= $item['icon'] ?>',
                 color: '<?= $item['color'] ?>'
             },
@@ -1448,7 +1458,8 @@ function getFDINumber($universalNumber) {
             const matchesSearch = !searchTerm || 
                 item.title.toLowerCase().includes(searchTerm) ||
                 item.description.toLowerCase().includes(searchTerm) ||
-                item.status.toLowerCase().includes(searchTerm);
+                item.status.toLowerCase().includes(searchTerm) ||
+                (item.doctor && item.doctor.toLowerCase().includes(searchTerm));
                 
             const itemDate = new Date(item.date);
             const matchesDateRange = (!startDate || itemDate >= new Date(startDate)) &&
@@ -1529,9 +1540,16 @@ function getFDINumber($universalNumber) {
             const pDesc = document.createElement('p');
             pDesc.className = 'text-sm text-gray-500';
             pDesc.textContent = item.description;
-            
+
             divText.appendChild(pTitle);
             divText.appendChild(pDesc);
+            
+            if (item.doctor) {
+                const pDoctor = document.createElement('p');
+                pDoctor.className = 'text-xs text-gray-400 mt-1';
+                pDoctor.textContent = `Dr. ${item.doctor}`;
+                divText.appendChild(pDoctor);
+            }
             
             const divStatus = document.createElement('div');
             divStatus.className = 'text-right text-sm whitespace-nowrap text-gray-500';

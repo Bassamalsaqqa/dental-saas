@@ -7,6 +7,7 @@
         <div class="mb-8">
             <div class="bg-white/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                 <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                    <?php $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? '')); ?>
                     <div class="space-y-3">
                         <div class="flex items-center space-x-3">
                             <div class="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg">
@@ -244,6 +245,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created At</label>
                             <p class="text-gray-800"><?= $treatment['created_at'] ? date('M d, Y H:i', strtotime($treatment['created_at'])) : 'N/A' ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
+                            <p class="text-gray-800"><?= $doctorName !== '' ? 'Dr. ' . htmlspecialchars($doctorName) : 'Unknown' ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Last Updated</label>

@@ -1440,7 +1440,7 @@ function attachFormHandler() {
                         treatment_notes: formData.get('treatment_notes'),
                         treatment_status: formData.get('treatment_status'),
                         treatment_date: new Date().toISOString().split('T')[0],
-                        created_by: 1,
+                        created_by: <?= (int) ($user->id ?? 0) ?>,
                         examination_id: examinationId || null
                     };
 

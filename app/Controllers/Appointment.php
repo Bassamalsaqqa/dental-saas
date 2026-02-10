@@ -216,6 +216,9 @@ class Appointment extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $appointmentData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'appointment_date' => $this->request->getPost('appointment_date'),
@@ -224,7 +227,7 @@ class Appointment extends BaseController
             'appointment_type' => $this->request->getPost('appointment_type'),
             'status' => 'scheduled',
             'notes' => $this->request->getPost('notes'),
-            'created_by' => 1
+            'created_by' => $currentUserId
         ];
 
         // Check if appointment is within working hours

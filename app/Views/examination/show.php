@@ -75,6 +75,7 @@
                     <p class="text-sm text-gray-500">Basic examination details</p>
                 </div>
             </div>
+            <?php $doctorName = trim(($examination['doctor_first_name'] ?? '') . ' ' . ($examination['doctor_last_name'] ?? '')); ?>
             <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -97,6 +98,12 @@
                                     ($examination['status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')) ?>">
                                 <?= ucfirst($examination['status']) ?>
                             </span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Created By</label>
+                        <div class="mt-2">
+                            <span class="text-gray-900 font-semibold"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></span>
                         </div>
                     </div>
                 </div>

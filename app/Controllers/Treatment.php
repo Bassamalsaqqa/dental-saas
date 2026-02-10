@@ -315,6 +315,9 @@ class Treatment extends BaseController
             }
         }
 
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $treatmentData = [
             'clinic_id' => $clinicId,
             'patient_id' => $this->request->getPost('patient_id'),
@@ -327,6 +330,7 @@ class Treatment extends BaseController
             'start_date' => $this->request->getPost('start_date'),
             'estimated_duration' => $this->request->getPost('estimated_duration'),
             'status' => 'active',
+            'created_by' => $currentUserId,
         ];
 
         if ($this->treatmentModel->insert($treatmentData)) {

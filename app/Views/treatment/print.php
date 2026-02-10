@@ -49,6 +49,7 @@
                 </div>
             </div>
 
+            <?php $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? '')); ?>
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-tooth text-teal-600 mr-2"></i>
@@ -87,6 +88,10 @@
                         <p class="font-semibold text-gray-900">
                             <?= !empty($treatment['completion_date']) ? date('M j, Y', strtotime($treatment['completion_date'])) : 'Not completed' ?>
                         </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Created By:</p>
+                        <p class="font-semibold text-gray-900"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
                     </div>
                 </div>
             </div>
