@@ -3,12 +3,8 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
-use App\Models\PlanModel;
 use App\Models\ClinicModel;
-use App\Models\ClinicSubscriptionModel;
-use App\Models\ControlPlaneAuditModel;
 use App\Models\PlanAuditModel;
-use App\Models\NotificationModel;
 use App\Services\ControlPlaneAuditService;
 
 class Operations extends BaseController
@@ -28,37 +24,66 @@ class Operations extends BaseController
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/operations'
         ]);
-        $planModel = new PlanModel();
-        $clinicModel = new ClinicModel();
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $planAuditModel = (new PlanAuditModel())->withoutTenantScope();
+        $healthChecks = [];
+        $dbOk = true;
+        $dbDetail = 'Connected';
+        try {
+            $db = \Config\Database::connect();
+            $db->query('SELECT 1');
+        } catch (\Throwable $e) {
+            $dbOk = false;
+            $dbDetail = 'Error: ' . $e->getMessage();
+        }
+        $healthChecks[] = [
+            'label' => 'Database',
+            'status' => $dbOk,
+            'detail' => $dbDetail,
+        ];
 
-        $plansActive = $planModel->where('status', 'active')->countAllResults();
-        $plansInactive = $planModel->where('status !=', 'active')->countAllResults();
-        $clinicsTotal = $clinicModel->countAllResults();
-        $now = date('Y-m-d H:i:s');
-        $subscriptionsActive = (new ClinicSubscriptionModel())
+        $paths = [
+            'Writable Root' => WRITEPATH,
+            'Uploads' => WRITEPATH . 'uploads',
+            'Sessions' => WRITEPATH . 'session',
+            'Cache' => WRITEPATH . 'cache',
+        ];
+
+        foreach ($paths as $label => $path) {
+            $exists = is_dir($path);
+            $writable = $exists && is_writable($path);
+            $healthChecks[] = [
+                'label' => $label,
+                'status' => $exists && $writable,
+                'detail' => $exists
+                    ? ($writable ? 'Writable' : 'Not writable')
+                    : 'Missing directory',
+            ];
+        }
+
+        $planAudits = (new PlanAuditModel())
             ->withoutTenantScope()
-            ->where('status', 'active')
-            ->groupStart()
-                ->where('start_at IS NULL', null, false)
-                ->orWhere('start_at <=', $now)
-            ->groupEnd()
-            ->groupStart()
-                ->where('end_at IS NULL', null, false)
-                ->orWhere('end_at >', $now)
-            ->groupEnd()
-            ->countAllResults();
+            ->orderBy('id', 'DESC')
+            ->findAll(10);
 
-        $planAudits = $planAuditModel->orderBy('id', 'DESC')->findAll(10);
+        $clinicDirectory = [];
+        if (! empty($planAudits)) {
+            $clinicIds = array_unique(array_filter(array_column($planAudits, 'clinic_id')));
+            if (! empty($clinicIds)) {
+                $clinicRows = (new ClinicModel())
+                    ->whereIn('id', $clinicIds)
+                    ->findAll();
+                foreach ($clinicRows as $clinic) {
+                    $clinicDirectory[$clinic['id']] = $clinic;
+                }
+            }
+        }
 
         return view('control_plane/operations', [
             'title' => 'Operations',
-            'plansActive' => $plansActive,
-            'plansInactive' => $plansInactive,
-            'clinicsTotal' => $clinicsTotal,
-            'subscriptionsActive' => $subscriptionsActive,
+            'healthChecks' => $healthChecks,
+            'environment' => ENVIRONMENT,
+            'phpVersion' => PHP_VERSION,
             'planAudits' => $planAudits,
+            'clinicDirectory' => $clinicDirectory,
         ]);
     }
 }
