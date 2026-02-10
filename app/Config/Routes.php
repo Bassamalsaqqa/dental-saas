@@ -65,6 +65,7 @@ $routes->group('controlplane', function ($routes) {
         // Activity Log (New)
         $routes->get('activity-log', 'ControlPlane\ActivityLog::index');
         $routes->get('activity-log/api', 'ControlPlane\ActivityLog::api');
+        $routes->get('activity-log/export', 'ControlPlane\ActivityLog::export');
 
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19

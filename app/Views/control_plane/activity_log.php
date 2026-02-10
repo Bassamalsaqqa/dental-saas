@@ -26,6 +26,9 @@
                         <button onclick="refreshActivities()" class="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
                             <i class="fas fa-sync-alt mr-2"></i>Refresh
                         </button>
+                        <button onclick="exportActivities()" class="px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
                     </div>
                 </div>
             </div>
@@ -215,7 +218,7 @@ function loadActivities() {
         limit: pageSize,
         offset: (currentPage - 1) * pageSize,
         event_type: eventType,
-        user_id: user
+        user: user
     });
     
     fetch(`<?= base_url('controlplane/activity-log/api') ?>?${params}`)
@@ -388,6 +391,18 @@ function applyFilters() {
 
 function refreshActivities() {
     loadActivities();
+}
+
+function exportActivities() {
+    const eventType = document.getElementById('eventTypeFilter').value;
+    const user = document.getElementById('userFilter').value;
+
+    const params = new URLSearchParams({
+        event_type: eventType,
+        user: user
+    });
+
+    window.location.href = `<?= base_url('controlplane/activity-log/export') ?>?${params.toString()}`;
 }
 
 function updatePagination() {

@@ -45,7 +45,10 @@ class ActivityLog extends BaseController
         if ($offset < 0) $offset = 0;
 
         $eventType = $this->request->getGet('event_type');
-        $userId = $this->request->getGet('user_id');
+        $userId = $this->request->getGet('user');
+        if ($userId === null) {
+            $userId = $this->request->getGet('user_id');
+        }
 
         $activities = $this->getActivities($limit, $offset, $eventType, $userId);
         $total = $this->getTotalCount($eventType, $userId);
@@ -55,6 +58,73 @@ class ActivityLog extends BaseController
             'activities' => $activities,
             'total' => $total
         ]);
+    }
+
+    public function export()
+    {
+        $eventType = $this->request->getGet('event_type');
+        $userFilter = $this->request->getGet('user');
+        $userId = $userFilter !== null ? $userFilter : $this->request->getGet('user_id');
+
+        $builder = $this->auditModel
+            ->select('control_plane_audits.*, users.first_name, users.last_name, users.email')
+            ->join('users', 'users.id = control_plane_audits.actor_user_id', 'left')
+            ->orderBy('control_plane_audits.created_at', 'DESC');
+
+        if ($eventType) {
+            $builder->where('control_plane_audits.event_type', $eventType);
+        }
+        if ($userId) {
+            if (is_numeric($userId)) {
+                $builder->where('control_plane_audits.actor_user_id', $userId);
+            } else {
+                $builder->groupStart()
+                    ->like('users.first_name', $userId)
+                    ->orLike('users.last_name', $userId)
+                    ->orLike('users.email', $userId)
+                    ->groupEnd();
+            }
+        }
+
+        $rows = $builder->get()->getResultArray();
+        $filename = 'control_plane_activity_' . date('Ymd_His') . '.csv';
+
+        $handle = fopen('php://temp', 'w+');
+        fputcsv($handle, [
+            'ID',
+            'Date',
+            'User',
+            'Email',
+            'Event Type',
+            'Method',
+            'Route',
+            'IP Address',
+            'User Agent'
+        ]);
+
+        foreach ($rows as $row) {
+            $userName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+            fputcsv($handle, [
+                $row['id'],
+                $row['created_at'],
+                $userName !== '' ? $userName : 'System',
+                $row['email'] ?? '',
+                $row['event_type'],
+                $row['method'] ?? '',
+                $row['route'] ?? '',
+                $row['ip'] ?? '',
+                $row['user_agent'] ?? ''
+            ]);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setBody($csv);
     }
 
     private function getActivities($limit = 50, $offset = 0, $eventType = null, $userId = null)

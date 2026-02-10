@@ -255,6 +255,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const resultsList = document.getElementById('kioskResultsList');
     if (!input || !keys.length) return;
 
+    const clearNode = (node) => {
+        if (!node) return;
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+    };
+
+    const appendText = (node, text) => {
+        if (!node) return;
+        node.appendChild(document.createTextNode(text || ''));
+    };
+
+    const createElement = (tag, className, text) => {
+        const el = document.createElement(tag);
+        if (className) {
+            el.className = className;
+        }
+        if (text !== undefined && text !== null) {
+            el.textContent = text;
+        }
+        return el;
+    };
+
     const applyKey = (value) => {
         if (value === 'clear') {
             input.value = '';
@@ -315,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 resultsTitle.textContent = `Appointments for ${data.lookup_phone || ''}`;
-                resultsList.textContent = '';
+                clearNode(resultsList);
 
                 if (data.appointments && data.appointments.length) {
                     data.appointments.forEach((appointment) => {
@@ -390,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const phoneUpdate = document.getElementById('kioskPhoneUpdate');
                 const emailUpdate = document.getElementById('kioskEmailUpdate');
                 if (patientDetails && patientSelect) {
-                    patientSelect.innerHTML = '';
+                    clearNode(patientSelect);
                     (data.patients || []).forEach((patient) => {
                         const option = document.createElement('option');
                         option.value = patient.id;
@@ -414,22 +437,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 const contractsWrap = document.getElementById('kioskContracts');
                 const contractsList = document.getElementById('kioskContractList');
                 if (contractsWrap && contractsList) {
-                    contractsList.innerHTML = '';
+                    clearNode(contractsList);
                     (data.contracts || []).forEach((contract) => {
                         const card = document.createElement('div');
                         card.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-5';
-                        card.innerHTML = `
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-900">Plan #${contract.id}</p>
-                                    <p class="text-sm text-slate-500">Total: ${contract.currency} ${Number(contract.total_cost).toFixed(2)}</p>
-                                </div>
-                                <button type="button" class="kiosk-sign-btn px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
-                                    <i class="fas fa-pen-fancy mr-2"></i>Review & Sign
-                                </button>
-                            </div>
-                        `;
-                        card.querySelector('.kiosk-sign-btn').addEventListener('click', () => {
+                        const row = createElement('div', 'flex flex-col md:flex-row md:items-center md:justify-between gap-4');
+                        const info = createElement('div');
+                        const title = createElement('p', 'text-sm font-semibold text-slate-900', `Plan #${contract.id}`);
+                        const totalValue = Number(contract.total_cost || 0).toFixed(2);
+                        const total = createElement('p', 'text-sm text-slate-500', `Total: ${contract.currency} ${totalValue}`);
+                        info.appendChild(title);
+                        info.appendChild(total);
+
+                        const button = createElement('button', 'kiosk-sign-btn px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all');
+                        button.type = 'button';
+                        const icon = createElement('i', 'fas fa-pen-fancy mr-2');
+                        button.appendChild(icon);
+                        appendText(button, 'Review & Sign');
+
+                        row.appendChild(info);
+                        row.appendChild(button);
+                        card.appendChild(row);
+
+                        button.addEventListener('click', () => {
                             openContractModal(contract);
                         });
                         contractsList.appendChild(card);
@@ -507,21 +537,52 @@ const openContractModal = (contract) => {
     kioskContractId.value = contract.id;
     kioskPatientId.value = contract.patient_id;
     kioskMeta.textContent = `Plan #${contract.id} · ${contract.currency} ${Number(contract.total_cost).toFixed(2)}`;
-    kioskSnapshot.innerHTML = contract.snapshot_svg || '<p class="text-sm text-gray-500">No snapshot available.</p>';
-    kioskItems.innerHTML = '';
+    while (kioskSnapshot.firstChild) {
+        kioskSnapshot.removeChild(kioskSnapshot.firstChild);
+    }
+    if (contract.snapshot_svg) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(contract.snapshot_svg, 'image/svg+xml');
+        const svg = doc.querySelector('svg');
+        if (svg) {
+            kioskSnapshot.appendChild(document.importNode(svg, true));
+        }
+    } else {
+        const emptySnapshot = document.createElement('p');
+        emptySnapshot.className = 'text-sm text-gray-500';
+        emptySnapshot.textContent = 'No snapshot available.';
+        kioskSnapshot.appendChild(emptySnapshot);
+    }
+    while (kioskItems.firstChild) {
+        kioskItems.removeChild(kioskItems.firstChild);
+    }
     (contract.items || []).forEach((item) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="py-2 px-3">${item.tooth_no || '-'}</td>
-            <td class="py-2 px-3">${item.description || '-'}</td>
-            <td class="py-2 px-3">${item.qty || 1}</td>
-            <td class="py-2 px-3">${Number(item.price || 0).toFixed(2)}</td>
-        `;
+        const toothCell = document.createElement('td');
+        toothCell.className = 'py-2 px-3';
+        toothCell.textContent = item.tooth_no || '-';
+        const descCell = document.createElement('td');
+        descCell.className = 'py-2 px-3';
+        descCell.textContent = item.description || '-';
+        const qtyCell = document.createElement('td');
+        qtyCell.className = 'py-2 px-3';
+        qtyCell.textContent = item.qty || 1;
+        const priceCell = document.createElement('td');
+        priceCell.className = 'py-2 px-3';
+        priceCell.textContent = Number(item.price || 0).toFixed(2);
+        row.appendChild(toothCell);
+        row.appendChild(descCell);
+        row.appendChild(qtyCell);
+        row.appendChild(priceCell);
         kioskItems.appendChild(row);
     });
     if (!kioskItems.children.length) {
         const empty = document.createElement('tr');
-        empty.innerHTML = '<td colspan="4" class="py-3 text-center text-gray-500">No items listed.</td>';
+        const emptyCell = document.createElement('td');
+        emptyCell.colSpan = 4;
+        emptyCell.className = 'py-3 text-center text-gray-500';
+        emptyCell.textContent = 'No items listed.';
+        empty.appendChild(emptyCell);
         kioskItems.appendChild(empty);
     }
     if (kioskSignatureCanvas) {

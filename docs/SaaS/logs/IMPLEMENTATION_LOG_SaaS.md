@@ -1283,3 +1283,21 @@
     - Updated `app/Views/activity_log/index.php` to send `user` filter, show correct counts, and trigger export.
     - Added icon/badge support for prescription/user/contract entity types.
 - **Verification:** `docs/SaaS/verification/P5-AL-01.md`.
+
+### Task: P5-KIOSK-03 Kiosk DOM Sink Removal
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Removed DOM sink usage in kiosk check-in rendering to satisfy guardrail requirements.
+- **Actions:**
+    - Replaced `innerHTML` usage with DOM-safe element creation in `app/Views/kiosk/check_in.php`.
+    - Added SVG snapshot rendering via `DOMParser` to avoid HTML sinks.
+- **Verification:** `docs/SaaS/verification/P5-KIOSK-03.md`.
+
+### Task: CP-AL-01 Control Plane Activity Export
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Added CSV export for control plane activity log with user/event filters.
+- **Actions:**
+    - Added `controlplane/activity-log/export` route and export handler in `app/Controllers/ControlPlane/ActivityLog.php`.
+    - Wired export button and filter propagation in `app/Views/control_plane/activity_log.php`.
+- **Verification:** `docs/SaaS/verification/CP-AL-01.md`.
