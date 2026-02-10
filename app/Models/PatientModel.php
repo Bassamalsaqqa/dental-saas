@@ -34,6 +34,7 @@ class PatientModel extends TenantAwareModel
         'insurance_number',
         'notes',
         'status',
+        'created_by',
         'created_at',
         'updated_at'
     ];

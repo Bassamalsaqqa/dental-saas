@@ -53,6 +53,9 @@
                 <div class="p-8">
                     <form action="<?= base_url('finance/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-8" data-finance-calc data-base-currency="<?= esc($base_currency ?? 'ILS') ?>">
                         <?= csrf_field() ?>
+                        <?php if (!empty($selected_patient_id)): ?>
+                            <input type="hidden" name="return_to" value="<?= esc(base_url('patient/' . $selected_patient_id)) ?>">
+                        <?php endif; ?>
                         <!-- Patient and Transaction Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">

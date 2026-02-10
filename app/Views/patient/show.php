@@ -143,6 +143,7 @@ function getFDINumber($universalNumber) {
                                         <h3 class="text-lg font-semibold text-gray-800">Personal Information</h3>
                                     </div>
                                     <div class="px-6 py-4">
+                                        <?php $creatorName = trim(($patient['creator_first_name'] ?? '') . ' ' . ($patient['creator_last_name'] ?? '')); ?>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-600 mb-1">Patient ID</label>
@@ -177,6 +178,10 @@ function getFDINumber($universalNumber) {
                                                     ($patient['status'] == 'inactive' ? 'status-inactive' : 'status-pending') ?>">
                                                     <?= ucfirst($patient['status']) ?>
                                                 </span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
+                                                <p class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
                                             </div>
                                         </div>
                                     </div>

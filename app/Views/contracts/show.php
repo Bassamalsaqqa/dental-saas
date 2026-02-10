@@ -51,6 +51,7 @@
         <?php endif; ?>
 
         <div class="space-y-6 w-full max-w-none">
+            <?php $creatorName = trim(($contract['creator_first_name'] ?? '') . ' ' . ($contract['creator_last_name'] ?? '')); ?>
             <div class="space-y-6">
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
@@ -137,6 +138,10 @@
                                 <div><?= nl2br(esc($contract['notes'])) ?></div>
                             </div>
                         <?php endif; ?>
+                        <div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Created By</div>
+                            <div><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></div>
+                        </div>
                         <?php if (empty($contract['terms_conditions']) && empty($contract['payment_terms']) && empty($contract['duration_plan']) && empty($contract['notes'])): ?>
                             <div class="text-sm text-gray-500">No additional contract terms provided.</div>
                         <?php endif; ?>

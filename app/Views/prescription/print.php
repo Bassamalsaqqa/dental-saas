@@ -125,6 +125,7 @@
             </div>
 
             <!-- Prescription Details -->
+            <?php $doctorName = trim(($prescription['creator_first_name'] ?? '') . ' ' . ($prescription['creator_last_name'] ?? '')); ?>
             <div class="p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-info-circle text-blue-600 mr-2 print:hidden"></i>
@@ -138,6 +139,10 @@
                     <div>
                         <p class="text-sm text-gray-600">Expiry Date:</p>
                         <p class="font-semibold text-gray-900"><?= date('M j, Y', strtotime($prescription['expiry_date'])) ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Created By:</p>
+                        <p class="font-semibold text-gray-900"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Status:</p>

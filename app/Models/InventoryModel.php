@@ -27,6 +27,7 @@ class InventoryModel extends TenantAwareModel
         'location',
         'notes',
         'status',
+        'created_by',
         'created_at',
         'updated_at'
     ];

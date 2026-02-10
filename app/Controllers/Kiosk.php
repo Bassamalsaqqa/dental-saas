@@ -430,8 +430,14 @@ class Kiosk extends BaseController
         ]);
 
         $patient = $this->patientModel->findByClinic((int) $clinic['id'], $contract['patient_id']);
+        $contractForPrint = $this->contractModel
+            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
+            ->where('treatment_contracts.clinic_id', (int) $clinic['id'])
+            ->where('treatment_contracts.id', $contractId)
+            ->first();
         $html = view('contracts/print', [
-            'contract' => $this->contractModel->findByClinic((int) $clinic['id'], $contractId),
+            'contract' => $contractForPrint ?? $contract,
             'patient' => $patient,
             'clinic' => $this->clinicModel->find((int) $clinic['id']),
             'items' => $items,

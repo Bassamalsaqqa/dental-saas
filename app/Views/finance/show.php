@@ -12,6 +12,7 @@
     $amountOriginal = $finance['amount_original'] ?? $finance['amount'];
     $exchangeRate = $finance['exchange_rate'] ?? 1;
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
+    $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -122,6 +123,12 @@
                                     </div>
                                 </div>
                                 <?php endif; ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
+                                    <div class="text-gray-800 leading-relaxed font-semibold">
+                                        <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Calculations -->
@@ -197,6 +204,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Recorded By</th>
                                     <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Notes</th>
                                     <?php if (has_permission('finance', 'edit')): ?>
@@ -235,6 +243,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                             <?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>
                                         </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
+                                            <?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : 'Unknown' ?>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right <?= $amountClass ?>">
                                             <?= $prefix . number_format($payment['amount'], 2) ?>
                                         </td>
@@ -254,7 +266,8 @@
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400 font-medium">
+                                        <?php $emptyColspan = has_permission('finance', 'edit') ? 7 : 6; ?>
+                                        <td colspan="<?= $emptyColspan ?>" class="px-6 py-12 text-center text-sm text-gray-400 font-medium">
                                             No payment history found for this invoice.
                                         </td>
                                     </tr>

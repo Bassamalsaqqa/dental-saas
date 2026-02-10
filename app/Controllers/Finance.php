@@ -81,7 +81,8 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT']
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'selected_patient_id' => $patientId
         ];
 
         return $this->view('finance/create', $data);
@@ -205,6 +206,14 @@ class Finance extends BaseController
                 "New {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " created for {$patientName}"
             );
 
+            $returnTo = trim((string) $this->request->getPost('return_to'));
+            if ($returnTo !== '' && !empty($financeData['patient_id'])) {
+                $expectedReturn = rtrim(base_url('patient/' . $financeData['patient_id']), '/');
+                if (rtrim($returnTo, '/') === $expectedReturn) {
+                    return redirect()->to($expectedReturn)->with('success', 'Financial transaction has been created successfully!');
+                }
+            }
+
             return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been created successfully!');
         } else {
             $errors = $this->financeModel->errors();
@@ -221,7 +230,12 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $finance = $this->financeModel->findByClinic($clinicId, $id);
+        $finance = $this->financeModel
+            ->select('finances.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = finances.created_by', 'left')
+            ->where('finances.clinic_id', $clinicId)
+            ->where('finances.id', $id)
+            ->first();
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -233,7 +247,14 @@ class Finance extends BaseController
         $paidTotal = 0;
 
         if ($finance['transaction_type'] === 'invoice') {
-            $payments = $this->financePaymentModel->getPaymentsByInvoice($clinicId, $finance['id']);
+            $payments = $this->financePaymentModel
+                ->select('finance_payments.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+                ->join('users', 'users.id = finance_payments.created_by', 'left')
+                ->where('finance_payments.clinic_id', $clinicId)
+                ->where('finance_payments.finance_id', $finance['id'])
+                ->orderBy('payment_date', 'DESC')
+                ->orderBy('finance_payments.id', 'DESC')
+                ->findAll();
             $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
         }
 
@@ -263,7 +284,12 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to edit transactions.');
         }
 
-        $finance = $this->financeModel->findByClinic($clinicId, $id);
+        $finance = $this->financeModel
+            ->select('finances.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = finances.created_by', 'left')
+            ->where('finances.clinic_id', $clinicId)
+            ->where('finances.id', $id)
+            ->first();
 
         if (!$finance) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
@@ -900,7 +926,14 @@ class Finance extends BaseController
         $payments = [];
         $paidTotal = 0;
         if ($finance['transaction_type'] === 'invoice') {
-            $payments = $this->financePaymentModel->getPaymentsByInvoice($clinicId, $finance['id']);
+            $payments = $this->financePaymentModel
+                ->select('finance_payments.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+                ->join('users', 'users.id = finance_payments.created_by', 'left')
+                ->where('finance_payments.clinic_id', $clinicId)
+                ->where('finance_payments.finance_id', $finance['id'])
+                ->orderBy('payment_date', 'DESC')
+                ->orderBy('finance_payments.id', 'DESC')
+                ->findAll();
             $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
         }
 

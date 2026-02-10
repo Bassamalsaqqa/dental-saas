@@ -98,6 +98,7 @@
             </div>
 
             <!-- Sidebar Information -->
+            <?php $doctorName = trim(($prescription['creator_first_name'] ?? '') . ' ' . ($prescription['creator_last_name'] ?? '')); ?>
             <div class="space-y-6">
                 <!-- Patient Information -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
@@ -143,6 +144,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created At</label>
                             <p class="text-gray-800"><?= date('M d, Y H:i', strtotime($prescription['created_at'])) ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
+                            <p class="text-gray-800"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
                         </div>
                     </div>
                 </div>

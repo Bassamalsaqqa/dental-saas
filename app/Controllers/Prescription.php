@@ -224,6 +224,9 @@ class Prescription extends BaseController
         // Create prescription with medicines as JSON
         $medicinesJson = json_encode($medicines);
         
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $prescriptionData = [
             'clinic_id' => $clinicId,
             'patient_id' => $this->request->getPost('patient_id'),
@@ -235,6 +238,7 @@ class Prescription extends BaseController
             'prescribed_date' => $this->request->getPost('prescribed_date'),
             'expiry_date' => $this->request->getPost('expiry_date') ?: null,
             'status' => 'active',
+            'created_by' => $currentUserId,
         ];
 
         if ($this->prescriptionModel->insert($prescriptionData)) {
@@ -267,8 +271,9 @@ class Prescription extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
         }
 
-        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender, users.first_name as creator_first_name, users.last_name as creator_last_name')
                     ->join('patients', 'patients.id = prescriptions.patient_id')
+                    ->join('users', 'users.id = prescriptions.created_by', 'left')
                     ->where('prescriptions.clinic_id', $clinicId)
                     ->where('patients.clinic_id', $clinicId)
                     ->where('prescriptions.id', $id)
@@ -439,8 +444,9 @@ class Prescription extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
         }
 
-        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender')
+        $prescription = $this->prescriptionModel->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone, patients.email, patients.date_of_birth, patients.gender, users.first_name as creator_first_name, users.last_name as creator_last_name')
                     ->join('patients', 'patients.id = prescriptions.patient_id')
+                    ->join('users', 'users.id = prescriptions.created_by', 'left')
                     ->where('prescriptions.clinic_id', $clinicId)
                     ->where('patients.clinic_id', $clinicId)
                     ->where('prescriptions.id', $id)

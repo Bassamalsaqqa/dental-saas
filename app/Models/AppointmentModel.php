@@ -210,8 +210,9 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAppointmentWithPatient($appointmentId, $clinicId = null)
     {
-        $builder = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        $builder = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email, users.first_name as creator_first_name, users.last_name as creator_last_name')
             ->join('patients', 'patients.id = appointments.patient_id')
+            ->join('users', 'users.id = appointments.created_by', 'left')
             ->where('appointments.id', $appointmentId);
 
         if ($clinicId) {

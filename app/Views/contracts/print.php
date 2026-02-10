@@ -73,6 +73,7 @@
     </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <?php $creatorName = trim(($contract['creator_first_name'] ?? '') . ' ' . ($contract['creator_last_name'] ?? '')); ?>
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm mb-8 print:border-gray-300 print:shadow-none">
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl print:bg-gray-100">
                 <h2 class="text-lg font-semibold text-gray-800">Patient</h2>
@@ -80,6 +81,7 @@
             <div class="p-6">
                 <div class="text-gray-900 font-semibold"><?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?></div>
                 <div class="text-sm text-gray-600">Patient ID: <?= esc($patient['patient_id'] ?? $patient['id']) ?></div>
+                <div class="text-sm text-gray-600">Created By: <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></div>
             </div>
         </div>
 

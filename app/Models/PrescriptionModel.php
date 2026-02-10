@@ -25,6 +25,7 @@ class PrescriptionModel extends TenantAwareModel
         'expiry_date',
         'status',
         'notes',
+        'created_by',
         'created_at',
         'updated_at'
     ];

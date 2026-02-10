@@ -124,6 +124,9 @@ class Inventory extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $currentUser = $this->getCurrentUser();
+        $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
         $inventoryData = [
             'item_name' => $this->request->getPost('item_name'),
             'category' => $this->request->getPost('category'),
@@ -139,6 +142,7 @@ class Inventory extends BaseController
             'notes' => $this->request->getPost('notes'),
             'status' => 'active',
             'created_at' => date('Y-m-d H:i:s'),
+            'created_by' => $currentUserId,
         ];
 
         if ($this->inventoryModel->insert($inventoryData)) {
@@ -167,7 +171,12 @@ class Inventory extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
+        $item = $this->inventoryModel
+            ->select('inventory.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = inventory.created_by', 'left')
+            ->where('inventory.clinic_id', $clinicId)
+            ->where('inventory.id', $id)
+            ->first();
         
         if (!$item) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Item not found');

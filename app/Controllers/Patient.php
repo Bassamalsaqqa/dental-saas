@@ -292,6 +292,9 @@ class Patient extends BaseController
                 $email = null;
             }
 
+            $currentUser = $this->getCurrentUser();
+            $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+
             $patientData = [
                 'first_name' => $this->request->getPost('first_name'),
                 'last_name' => $this->request->getPost('last_name'),
@@ -311,7 +314,8 @@ class Patient extends BaseController
                 'insurance_provider' => $this->request->getPost('insurance_provider'),
                 'insurance_number' => $this->request->getPost('insurance_number'),
                 'notes' => $this->request->getPost('notes'),
-                'status' => 'active'
+                'status' => 'active',
+                'created_by' => $currentUserId
             ];
 
             if ($this->patientModel->insert($patientData)) {
@@ -375,7 +379,12 @@ class Patient extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $patient = $this->patientModel->findByClinic($clinicId, $id);
+        $patient = $this->patientModel
+            ->select('patients.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = patients.created_by', 'left')
+            ->where('patients.clinic_id', $clinicId)
+            ->where('patients.id', $id)
+            ->first();
 
         if (!$patient) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');

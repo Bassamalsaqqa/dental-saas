@@ -12,6 +12,7 @@
     $amountOriginal = $finance['amount_original'] ?? $finance['amount'];
     $exchangeRate = $finance['exchange_rate'] ?? 1;
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
+    $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
 ?>
 <!-- Professional Invoice Document -->
 <div class="min-h-screen bg-gray-100 py-8">
@@ -121,6 +122,7 @@
                         <div class="space-y-2">
                             <p class="text-sm text-gray-600"><span class="font-semibold">Service Type:</span> <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Payment Method:</span> <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold">Created By:</span> <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Currency:</span> <?= esc($baseCurrency) ?></p>
                             <?php if ($isConverted): ?>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Original:</span> <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></p>
@@ -258,6 +260,7 @@
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Date</th>
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Type</th>
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Method</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Recorded By</th>
                                     <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700">Amount</th>
                                     <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Notes</th>
                                 </tr>
@@ -269,6 +272,8 @@
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= formatDate($payment['payment_date']) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst($type) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
+                                    <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : 'Unknown' ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= ($type === 'payment' ? '+' : '-') . formatCurrency($payment['amount']) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
                                 </tr>

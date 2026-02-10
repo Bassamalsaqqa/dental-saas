@@ -60,6 +60,7 @@
                 </div>
 
                 <!-- Content -->
+                <?php $doctorName = trim(($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? '')); ?>
                 <div class="p-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Patient Information -->
@@ -142,6 +143,10 @@
                                             ?>">
                                                 <?= ucfirst(str_replace('_', ' ', $appointment['status'])) ?>
                                             </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 font-medium">Created By:</span>
+                                            <span class="text-gray-900 font-bold"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></span>
                                         </div>
                                     </div>
                                 </div>

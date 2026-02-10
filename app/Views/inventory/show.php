@@ -29,6 +29,7 @@
             </div>
         </div> 
 
+        <?php $creatorName = trim(($item['creator_first_name'] ?? '') . ' ' . ($item['creator_last_name'] ?? '')); ?>
         <!-- Compact Item Overview -->
         <div class="mb-6">
             <div class="backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/30 p-6">
@@ -195,6 +196,10 @@
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-medium text-gray-600">Item ID</span>
                             <span class="text-sm text-gray-900 font-mono">#<?= $item['id'] ?></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-600">Created By</span>
+                            <span class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></span>
                         </div>
                     </div>
                 </div>

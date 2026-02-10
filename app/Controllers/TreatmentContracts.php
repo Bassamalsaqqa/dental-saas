@@ -195,7 +195,12 @@ class TreatmentContracts extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $contract = $this->contractModel->findByClinic($clinicId, $contractId);
+        $contract = $this->contractModel
+            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
+            ->where('treatment_contracts.clinic_id', $clinicId)
+            ->where('treatment_contracts.id', $contractId)
+            ->first();
         if (!$contract) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Contract not found');
         }
@@ -248,7 +253,12 @@ class TreatmentContracts extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
         }
 
-        $contract = $this->contractModel->findByClinic($clinicId, $contractId);
+        $contract = $this->contractModel
+            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
+            ->where('treatment_contracts.clinic_id', $clinicId)
+            ->where('treatment_contracts.id', $contractId)
+            ->first();
         if (!$contract) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Contract not found');
         }
@@ -489,8 +499,14 @@ class TreatmentContracts extends BaseController
         ]);
 
         $patient = $this->patientModel->findByClinic($clinicId, $contract['patient_id']);
+        $contractForPrint = $this->contractModel
+            ->select('treatment_contracts.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = treatment_contracts.created_by', 'left')
+            ->where('treatment_contracts.clinic_id', $clinicId)
+            ->where('treatment_contracts.id', $contractId)
+            ->first();
         $html = view('contracts/print', [
-            'contract' => $this->contractModel->findByClinic($clinicId, $contractId),
+            'contract' => $contractForPrint ?? $contract,
             'patient' => $patient,
             'clinic' => $this->clinicModel->find($clinicId),
             'items' => $items,
