@@ -1,6 +1,11 @@
 <?php
 namespace App\Controllers;
 
+use App\Libraries\ApiRuntimeContext;
+use App\Models\ClinicUserModel;
+use App\Models\ClinicNotificationChannelModel;
+use App\Models\ActivityLogModel;
+
 /**
  * Class Auth
  *
@@ -363,20 +368,24 @@ class Auth extends BaseController
 				return redirect()->to('/auth/forgot_password');
 			}
 
-			// run the forgotten password method to email an activation code to the user
+			// generate reset code (email dispatch handled per clinic SMTP)
 			$forgotten = $this->ionAuth->forgottenPassword($identity->{$this->configIonAuth->identity});
 
-			if ($forgotten)
-			{
-				// if there were no errors
-				$this->session->setFlashdata('message', $this->ionAuth->messages());
-				return redirect()->to('/auth/login'); //we should display a confirmation page here instead of the login page
-			}
-			else
+			if (! $forgotten)
 			{
 				$this->session->setFlashdata('message', $this->ionAuth->errors($this->validationListTemplate));
 				return redirect()->to('/auth/forgot_password');
 			}
+
+			$sendResult = $this->sendForgotPasswordEmail((int) $identity->id, (string) $identity->email, $forgotten);
+			if (! $sendResult['success'])
+			{
+				$this->session->setFlashdata('message', $sendResult['message']);
+				return redirect()->to('/auth/forgot_password');
+			}
+
+			$this->session->setFlashdata('message', $this->ionAuth->messages());
+			return redirect()->to('/auth/login'); //we should display a confirmation page here instead of the login page
 		}
 	}
 
@@ -944,6 +953,115 @@ class Auth extends BaseController
 		];
 
 		return $this->renderPage($this->viewsFolder . DIRECTORY_SEPARATOR . 'edit_group', $this->data);
+	}
+
+	private function sendForgotPasswordEmail(int $userId, string $email, $forgottenData): array
+	{
+		if (!is_array($forgottenData)) {
+			$forgottenData = [
+				'identity' => $email,
+				'forgottenPasswordCode' => (string) $forgottenData
+			];
+		}
+		$clinicUserModel = new ClinicUserModel();
+		$memberships = $clinicUserModel->getMemberships($userId);
+
+		if (empty($memberships)) {
+			return [
+				'success' => false,
+				'message' => 'No active clinic found for this account. Please contact your clinic administrator.'
+			];
+		}
+
+		if (count($memberships) > 1) {
+			foreach ($memberships as $membership) {
+				$this->logPasswordResetIssue((int) $membership['clinic_id'], $userId, 'MULTIPLE_CLINICS');
+			}
+			return [
+				'success' => false,
+				'message' => 'Multiple clinics found for this account. Please contact your clinic administrator to reset your password.'
+			];
+		}
+
+		$clinicId = (int) $memberships[0]['clinic_id'];
+		$channelModel = new ClinicNotificationChannelModel();
+		$config = $channelModel->getConfig($clinicId, 'email');
+		$channel = $channelModel->where('clinic_id', $clinicId)
+			->where('channel_type', 'email')
+			->first();
+
+		$isReady = $config
+			&& ($channel['enabled_by_superadmin'] ?? 0)
+			&& ($channel['configured_by_clinic'] ?? 0)
+			&& ($channel['validated'] ?? 0);
+
+		if (! $isReady) {
+			$this->logPasswordResetIssue($clinicId, $userId, 'SMTP_NOT_CONFIGURED');
+			return [
+				'success' => false,
+				'message' => 'Email delivery is not configured for this clinic. Please contact your clinic administrator.'
+			];
+		}
+
+		$message = view($this->configIonAuth->emailTemplates . $this->configIonAuth->emailForgotPassword, $forgottenData);
+		$emailService = \Config\Services::email();
+		$emailService->initialize([
+			'protocol' => 'smtp',
+			'SMTPHost' => $config['smtp_host'] ?? '',
+			'SMTPUser' => $config['smtp_user'] ?? '',
+			'SMTPPass' => $config['smtp_pass'] ?? '',
+			'SMTPPort' => (int)($config['smtp_port'] ?? 587),
+			'SMTPCrypto' => $config['smtp_crypto'] ?? 'tls',
+			'mailType' => 'html',
+			'charset'  => 'utf-8',
+			'newline'  => "\r\n"
+		]);
+
+		$fromEmail = $config['smtp_from_email'] ?? $config['smtp_user'];
+		$fromName = $config['smtp_from_name'] ?? 'Clinic Notification';
+
+		if (empty($fromEmail)) {
+			$this->logPasswordResetIssue($clinicId, $userId, 'SMTP_FROM_MISSING');
+			return [
+				'success' => false,
+				'message' => 'Email delivery is not configured for this clinic. Please contact your clinic administrator.'
+			];
+		}
+
+		$emailService->setFrom($fromEmail, $fromName);
+		$emailService->setTo($email);
+		$emailService->setSubject($this->configIonAuth->siteTitle . ' - ' . lang('IonAuth.email_forgotten_password_subject'));
+		$emailService->setMessage($message);
+
+		if (! $emailService->send()) {
+			$this->logPasswordResetIssue($clinicId, $userId, 'SMTP_SEND_FAILED');
+			return [
+				'success' => false,
+				'message' => 'We could not send the reset email. Please contact your clinic administrator.'
+			];
+		}
+
+		return ['success' => true];
+	}
+
+	private function logPasswordResetIssue(int $clinicId, int $userId, string $reason): void
+	{
+		try {
+			ApiRuntimeContext::setClinicId($clinicId);
+			$activityLog = new ActivityLogModel();
+			$activityLog->logActivity(
+				$userId,
+				'password_reset_failed',
+				'auth',
+				$userId,
+				'Password reset email blocked: ' . $reason,
+				['reason' => $reason]
+			);
+		} catch (\Throwable $e) {
+			log_message('error', 'Failed to log password reset issue: ' . $e->getMessage());
+		} finally {
+			ApiRuntimeContext::clear();
+		}
 	}
 
 	/**

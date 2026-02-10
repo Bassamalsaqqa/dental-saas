@@ -335,6 +335,9 @@ class ActivityLog extends BaseController
                 'create' => ['title' => 'User Created', 'icon' => 'fas fa-user-plus', 'color' => 'green'],
                 'update' => ['title' => 'User Updated', 'icon' => 'fas fa-user-edit', 'color' => 'blue'],
                 'delete' => ['title' => 'User Deleted', 'icon' => 'fas fa-user-times', 'color' => 'red']
+            ],
+            'auth' => [
+                'password_reset_failed' => ['title' => 'Password Reset Blocked', 'icon' => 'fas fa-unlock-alt', 'color' => 'red']
             ]
         ];
 

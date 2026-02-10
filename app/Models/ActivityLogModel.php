@@ -333,6 +333,13 @@ class ActivityLogModel extends TenantAwareModel
                     'icon' => 'fas fa-edit',
                     'color' => 'blue'
                 ]
+            ],
+            'auth' => [
+                'password_reset_failed' => [
+                    'title' => 'Password Reset Blocked',
+                    'icon' => 'fas fa-unlock-alt',
+                    'color' => 'red'
+                ]
             ]
         ];
 

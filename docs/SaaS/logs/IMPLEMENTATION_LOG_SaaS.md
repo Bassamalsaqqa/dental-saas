@@ -1301,3 +1301,13 @@
     - Added `controlplane/activity-log/export` route and export handler in `app/Controllers/ControlPlane/ActivityLog.php`.
     - Wired export button and filter propagation in `app/Views/control_plane/activity_log.php`.
 - **Verification:** `docs/SaaS/verification/CP-AL-01.md`.
+
+### Task: P5-AUTH-01 Tenant SMTP Forgot Password
+- **Date:** 2026-02-10
+- **Status:** Completed
+- **Description:** Routed forgot-password emails through clinic SMTP configuration and added user-visible error messaging + activity log entries when SMTP is not configured.
+- **Actions:**
+    - Updated `app/Controllers/Auth.php` to resolve clinic membership, send email via clinic SMTP, and log failures to activity log.
+    - Added auth activity mapping for password reset failures.
+    - Corrected reset link route in `app/Views/auth/email/forgot_password.tpl.php`.
+- **Verification:** `docs/SaaS/verification/P5-AUTH-01.md`.
