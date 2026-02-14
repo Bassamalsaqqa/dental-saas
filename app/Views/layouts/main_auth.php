@@ -100,7 +100,7 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col no-transition" id="sidebar">
+        <aside class="w-56 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col no-transition" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
