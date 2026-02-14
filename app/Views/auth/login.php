@@ -108,8 +108,8 @@
                                 <label class="flex items-center group cursor-pointer">
                                     <div class="relative flex items-center">
                                         <input type="checkbox" id="remember" name="remember" value="1" class="sr-only peer">
-                                        <div class="w-5 h-5 bg-white/10 border-2 border-white/20 rounded-lg peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all duration-300 flex items-center justify-center">
-                                            <i class="fas fa-check text-white text-[10px] transform scale-0 peer-checked:scale-100 transition-transform duration-300"></i>
+                                        <div class="w-5 h-5 bg-white/10 border-2 border-white/20 rounded-lg peer-checked:border-blue-500 transition-all duration-300 flex items-center justify-center peer-checked:[&_i]:scale-100">
+                                            <i class="fas fa-check text-blue-500 text-[12px] font-black transform scale-0 transition-transform duration-300"></i>
                                         </div>
                                         <span class="ml-3 text-[11px] font-bold text-white/70 group-hover:text-white transition-colors">Remember</span>
                                     </div>
