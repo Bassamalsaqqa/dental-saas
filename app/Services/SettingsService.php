@@ -374,7 +374,7 @@ class SettingsService
         }
 
         return [
-            'name' => $clinicName !== '' ? $clinicName : 'DentalCare Clinic',
+            'name' => $clinicName !== '' ? $clinicName : 'Denta+ Clinic',
             'address' => $this->get('clinic_address', '123 Dental Street, Medical District, City 12345'),
             'phone' => $this->get('clinic_phone', '+1 (555) 123-4567'),
             'email' => $this->get('clinic_email', 'info@dentalclinic.com'),

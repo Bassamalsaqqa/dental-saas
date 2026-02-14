@@ -92,7 +92,7 @@ if (!function_exists('getClinicName')) {
      */
     function getClinicName()
     {
-        return settings()->get('clinic_name', 'DentalCare Clinic');
+        return settings()->get('clinic_name', 'Denta+ Clinic');
     }
 }
 
