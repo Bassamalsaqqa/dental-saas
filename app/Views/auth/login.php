@@ -6,222 +6,189 @@
     <title><?= $title ?></title>
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="description" content="Professional dental management system login - Secure access to your dental practice management system.">
+    <meta name="description" content="Professional dental management system login - Secure access to your practice.">
     <meta name="theme-color" content="#0284c7">
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 relative flex flex-col overflow-hidden">
-    <!-- Subtle Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-2xl animate-pulse"></div>
-        <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-emerald-200/30 to-cyan-200/30 rounded-full blur-2xl animate-pulse delay-1000"></div>
+<body class="h-screen relative flex flex-col overflow-hidden text-slate-900 antialiased font-sans">
+    
+    <!-- Professional Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="<?= base_url('assets/images/login-background.jpg') ?>" class="w-full h-full object-cover" alt="background">
+        <div class="absolute inset-0 bg-slate-900/50"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-transparent to-slate-900/90"></div>
+        <div class="absolute inset-0 backdrop-blur-[2px]"></div>
     </div>
 
     <!-- Main Content Area -->
-    <div class="relative z-10 flex-grow flex items-center justify-center px-4 py-8">
-        <div class="w-full max-w-sm">
-            <!-- Enhanced Login Card with Glassmorphism -->
+    <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
+        <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
-                <!-- Subtle Background Glow -->
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                
-                <!-- Main Card -->
-                <div class="relative backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl shadow-xl shadow-blue-500/5 group-hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
-                    <!-- Enhanced Header -->
-                    <div class="relative p-6 text-center border-b border-white/30">
-                        <!-- Subtle Background -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-t-2xl"></div>
-                        
-                        <!-- Logo and Branding -->
+                <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+                    
+                    <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
+
+                    <!-- Left Side -->
+                    <div class="relative z-10 hidden md:flex md:w-5/12 bg-white/5 border-r border-white/10 p-10 flex-col justify-between overflow-hidden">
+                        <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 blur-[80px]"></div>
+                        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 blur-[80px]"></div>
+
                         <div class="relative z-10">
-                            <div class="relative group/logo mb-4">
-                                <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover/logo:scale-105 group-hover/logo:rotate-2 transition-all duration-300 mx-auto">
-                                    <i class="fas fa-tooth text-white text-2xl"></i>
+                            <div class="w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8">
+                                <i class="fas fa-tooth text-white text-3xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg">Welcome back to <?= esc($clinic['name']) ?></h2>
+                            <p class="text-sm font-medium text-white/60 leading-relaxed mb-6">Manage your clinic with precision and care.</p>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-3 text-white/70">
+                                    <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center shadow-sm"><i class="fas fa-check text-[10px] text-blue-400"></i></div>
+                                    <span class="text-xs font-bold uppercase tracking-widest">Real-time Scheduling</span>
+                                </div>
+                                <div class="flex items-center space-x-3 text-white/70">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-sm"><i class="fas fa-check text-[10px] text-emerald-400"></i></div>
+                                    <span class="text-xs font-bold uppercase tracking-widest">Digital Records</span>
                                 </div>
                             </div>
-                            
-                            <h1 class="text-2xl font-black text-gray-900 mb-2"><?= esc($clinic['name']) ?></h1>
-                            <div class="flex items-center justify-center space-x-2 mb-3">
-                                <div class="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
-                                <p class="text-xs text-gray-600 font-semibold"><?= esc($clinic['tagline']) ?></p>
+                        </div>
+
+                        <div class="relative z-10 pt-10">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">System Secure & Active</span>
                             </div>
-                            <p class="text-sm text-gray-600 font-medium">Sign in to your account</p>
                         </div>
                     </div>
 
-                    <!-- Enhanced Form Body -->
-                    <div class="p-6">
-                        <!-- Flash Messages -->
-                        <?php if (session()->getFlashdata('success')): ?>
-                            <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-start">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg blur opacity-50"></div>
-                                    <div class="relative w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-check-circle text-white text-xs"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-xs font-bold text-green-800">Success</h3>
-                                    <p class="text-xs text-green-700 mt-1"><?= session()->getFlashdata('success') ?></p>
-                                </div>
+                    <!-- Right Side -->
+                    <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+                        <div class="md:hidden flex flex-col items-center mb-8">
+                             <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
+                                <i class="fas fa-tooth text-white text-2xl"></i>
+                            </div>
+                            <h1 class="text-2xl font-black text-white tracking-tight"><?= esc($clinic['name']) ?></h1>
+                        </div>
+
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md">Sign In</h3>
+                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest">Enter credentials below</p>
+                        </div>
+
+                        <?php if (session()->getFlashdata('success') || session()->getFlashdata('message')): ?>
+                            <div class="mb-6 p-4 <?= session()->getFlashdata('success') ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-rose-500/20 border-rose-500/30' ?> backdrop-blur-md border rounded-2xl flex items-center animate-fadeIn relative z-20 shadow-lg">
+                                <i class="fas <?= session()->getFlashdata('success') ? 'fa-check-circle text-emerald-400' : 'fa-exclamation-circle text-rose-400' ?> mr-3 text-lg"></i>
+                                <p class="text-xs font-bold text-white"><?= session()->getFlashdata('success') ?: session()->getFlashdata('message') ?></p>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (session()->getFlashdata('message')): ?>
-                            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg blur opacity-50"></div>
-                                    <div class="relative w-6 h-6 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-exclamation-circle text-white text-xs"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-xs font-bold text-red-800">Authentication Error</h3>
-                                    <p class="text-xs text-red-700 mt-1"><?= session()->getFlashdata('message') ?></p>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Login Form -->
-                        <?= form_open('auth/login', ['class' => 'space-y-4', 'novalidate' => true]) ?>
-                            <div class="space-y-1">
-                                <label for="identity" class="flex items-center text-xs font-bold text-gray-700">
-                                    <i class="fas fa-user w-3 h-3 mr-2 text-blue-600"></i>
-                                    Email or Username
-                                </label>
-                                <div class="relative group">
-                                    <?= form_input($identity + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm text-sm', 'placeholder' => 'Enter your email or username']) ?>
-                                </div>
-                            </div>
-
-                            <div class="space-y-1">
-                                <label for="password" class="flex items-center text-xs font-bold text-gray-700">
-                                    <i class="fas fa-lock w-3 h-3 mr-2 text-blue-600"></i>
-                                    Password
-                                </label>
-                                <div class="relative group">
-                                    <?= form_input($password + ['class' => 'w-full px-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all duration-200 shadow-sm text-sm', 'placeholder' => 'Enter your password']) ?>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <label class="flex items-center space-x-3 cursor-pointer group">
-                                    <div class="relative">
-                                        <input type="checkbox" id="remember" name="remember" value="1" class="sr-only">
-                                        <div class="w-5 h-5 bg-white border-2 border-gray-300 rounded-lg group-hover:border-blue-400 transition-colors duration-200 flex items-center justify-center">
-                                            <i class="fas fa-check text-white text-xs opacity-0 transition-opacity duration-200" id="checkIcon"></i>
+                        <?= form_open('auth/login', ['class' => 'space-y-6 relative z-20', 'novalidate' => true]) ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2">Identity</label>
+                                    <div class="relative group/input">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-user text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
+                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => 'Username']) ?>
                                     </div>
-                                    <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-200">Remember me</span>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="password" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2">Security</label>
+                                    <div class="relative group/input">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-lock text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
+                                        </div>
+                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => 'Password']) ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between px-2">
+                                <label class="flex items-center group cursor-pointer">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" id="remember" name="remember" value="1" class="sr-only peer">
+                                        <div class="w-5 h-5 bg-white/10 border-2 border-white/20 rounded-lg peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all duration-300 flex items-center justify-center">
+                                            <i class="fas fa-check text-white text-[10px] transform scale-0 peer-checked:scale-100 transition-transform duration-300"></i>
+                                        </div>
+                                        <span class="ml-3 text-[11px] font-bold text-white/70 group-hover:text-white transition-colors">Remember</span>
+                                    </div>
                                 </label>
-                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
-                                    Forgot password?
+                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest">
+                                    Forgot?
                                 </a>
                             </div>
 
-                            <div class="pt-1">
-                                <button type="submit" class="group relative w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-all duration-300">
-                                    <div class="relative flex items-center justify-center space-x-2 text-sm">
-                                        <i class="fas fa-sign-in-alt"></i>
-                                        <span>Sign In to Dashboard</span>
-                                    </div>
-                                </button>
-                            </div>
+                            <button type="submit" class="w-full py-4 backdrop-blur-md bg-blue-500/30 border border-blue-400/30 text-white font-black rounded-2xl shadow-xl hover:bg-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3 group/btn">
+                                <span class="text-sm uppercase tracking-widest drop-shadow-sm">Authorize Session</span>
+                                <i class="fas fa-chevron-right text-[10px] transform group-hover/btn:translate-x-1 transition-transform"></i>
+                            </button>
                         <?= form_close() ?>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Enhanced Global Footer -->
-    <footer class="relative z-10 w-full backdrop-blur-md bg-white/40 border-t border-white/40">
-        <div class="max-w-7xl mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <!-- Branding & Legal -->
-                <div class="col-span-1 md:col-span-1 space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                            <i class="fas fa-tooth text-sm"></i>
+    <!-- Footer -->
+    <footer class="relative z-10 w-full p-4 md:p-6 pb-6 md:pb-8 flex-shrink-0 animate-footer-entry">
+        <div class="max-w-5xl mx-auto">
+            <div class="relative glass-card border border-white/20 rounded-[2rem] p-4 px-8 shadow-2xl shadow-black/20 overflow-hidden">
+                <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-5">
+                        <div class="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+                            <i class="fas fa-tooth text-white text-lg"></i>
                         </div>
-                        <span class="text-lg font-black text-gray-800 tracking-tight">Palsync Dental</span>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-black text-white tracking-widest uppercase">Palsync Dental</span>
+                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-tighter">&copy; <?= date('Y') ?></span>
+                        </div>
                     </div>
-                    <p class="text-xs font-medium text-gray-500 leading-relaxed">
-                        Precision-engineered SaaS for modern dental clinic management. Powered by Palsync technologies.
-                    </p>
-                    <p class="text-[10px] text-gray-400">
-                        &copy; <?= date('Y') ?> <?= esc($clinic['name']) ?>. All rights reserved.
-                    </p>
-                </div>
-
-                <!-- Contact Links -->
-                <div class="col-span-1 space-y-4">
-                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-widest border-l-2 border-blue-500 pl-2">Connectivity</h4>
-                    <ul class="space-y-3">
-                        <li>
-                            <a href="https://palsync.palsync.net" target="_blank" class="inline-flex items-center group">
-                                <span class="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-600 transition-all duration-300">
-                                    <i class="fas fa-globe text-[10px] text-blue-600 group-hover:text-white"></i>
-                                </span>
-                                <span class="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors tracking-tight">palsync.palsync.net</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="mailto:Bassamalsaqqa@hotmail.com" class="inline-flex items-center group">
-                                <span class="w-6 h-6 rounded-md bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-600 transition-all duration-300">
-                                    <i class="fas fa-envelope text-[10px] text-purple-600 group-hover:text-white"></i>
-                                </span>
-                                <span class="text-xs font-bold text-gray-600 group-hover:text-purple-600 transition-colors tracking-tight">Bassamalsaqqa@hotmail.com</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Support Channels -->
-                <div class="col-span-1 md:col-span-2 space-y-4">
-                    <h4 class="text-xs font-bold text-gray-700 uppercase tracking-widest border-l-2 border-green-500 pl-2">24/7 WhatsApp Support</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <a href="https://wa.me/970599350450" target="_blank" class="flex items-center p-3 rounded-xl bg-white/40 border border-white/60 hover:bg-green-50 hover:border-green-200 transition-all duration-300 group">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <i class="fab fa-whatsapp text-green-600"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1 tracking-tighter">Support Line (PS)</p>
-                                <p class="text-xs font-bold text-gray-700 group-hover:text-green-700 transition-colors">+970 599 350 450</p>
-                            </div>
-                        </a>
-                        <a href="https://wa.me/972569885000" target="_blank" class="flex items-center p-3 rounded-xl bg-white/40 border border-white/60 hover:bg-green-50 hover:border-green-200 transition-all duration-300 group">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <i class="fab fa-whatsapp text-green-600"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1 tracking-tighter">Support Line (IL)</p>
-                                <p class="text-xs font-bold text-gray-700 group-hover:text-green-700 transition-colors">+972 569 885 000</p>
-                            </div>
-                        </a>
+                    <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10">
+                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1">Live Concierge</span>
+                        <div class="flex items-center space-x-2">
+                            <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const rememberCheckbox = document.getElementById('remember');
-            const checkIcon = document.getElementById('checkIcon');
-            if (rememberCheckbox && checkIcon) {
-                rememberCheckbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        checkIcon.style.opacity = '1';
-                        checkIcon.parentElement.style.backgroundColor = '#3b82f6';
-                        checkIcon.parentElement.style.borderColor = '#3b82f6';
-                    } else {
-                        checkIcon.style.opacity = '0';
-                        checkIcon.parentElement.style.backgroundColor = 'white';
-                        checkIcon.parentElement.style.borderColor = '#d1d5db';
-                    }
-                });
-            }
-        });
-    </script>
+    <style>
+        :root {
+            --glass-opacity: 0.25;
+            --glass-blur: 40px;
+        }
+        .glass-card {
+            position: relative;
+            isolation: isolate;
+            background-color: rgba(255, 255, 255, var(--glass-opacity)) !important;
+            backdrop-filter: blur(var(--glass-blur)) saturate(120%) !important;
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%) !important;
+        }
+        .glass-card::before {
+            content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none;
+            mix-blend-mode: overlay; filter: blur(12px); transform: scale(1.1);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 12%),
+                radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 15%);
+        }
+        .glass-card::after {
+            content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+            opacity: 0.04; mix-blend-mode: soft-light;
+            background-image: repeating-radial-gradient(#fff 0 0.0001%, transparent 0 0.0004%);
+            background-size: 8px 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-card-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-footer-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
