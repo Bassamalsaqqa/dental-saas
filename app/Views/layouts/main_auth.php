@@ -36,16 +36,85 @@
     <meta name="api-session-token-url" content="<?= base_url('api/session-token') ?>">
     <meta name="google" content="notranslate">
 
+    <style>
+        /* Modern Sidebar Transitions */
+        #sidebar:not(.no-transition) {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .no-transition {
+            transition: none !important;
+        }
+        
+        #sidebar-nav, #sidebar-header, #sidebar-footer {
+            transition: padding 0.3s ease;
+        }
+
+        /* Collapsed State Styles */
+        .sidebar-collapsed {
+            width: 5rem !important; /* 80px */
+        }
+
+        .sidebar-collapsed #sidebar-title,
+        .sidebar-collapsed #sidebar-nav h3,
+        .sidebar-collapsed #sidebar-nav span,
+        .sidebar-collapsed #sidebar-footer .flex-1,
+        .sidebar-collapsed #sidebar-footer i.fa-external-link-alt {
+            display: none !important;
+        }
+
+        .sidebar-collapsed #sidebar-header .flex {
+            justify-content: center !important;
+        }
+
+        .sidebar-collapsed #sidebar-nav ul li a {
+            justify-content: center !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0.5rem !important;
+            margin-right: 0.5rem !important;
+        }
+
+        .sidebar-collapsed #sidebar-nav ul li a i {
+            margin-right: 0 !important;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-collapsed #sidebar-footer .group {
+            padding: 0.75rem !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        .sidebar-collapsed #sidebar-footer .flex-shrink-0 {
+            margin-right: 0 !important;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Toast Notification System -->
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col" id="sidebar">
+        <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col no-transition" id="sidebar">
+        <script>
+            // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
+            (function() {
+                const wasCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+                const isMobile = window.innerWidth < 1024;
+                const sidebar = document.getElementById('sidebar');
+                if (wasCollapsed && !isMobile) {
+                    sidebar.classList.add('sidebar-collapsed');
+                }
+            })();
+        </script>
         <!-- Enhanced Sidebar Header -->
         <div class="px-2 pb-2  pt-3 border-b border-white/30" id="sidebar-header">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center">
                 <a href="<?= base_url('dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
                     <div class="relative group">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -70,10 +139,6 @@
                         </div>
                     </div>
                 </a>
-                <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 lg:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <i class="fas fa-bars relative z-10"></i>
-                </button>
             </div>
         </div>
 
@@ -296,10 +361,9 @@
             </div>
             
             <div class="relative z-10 flex items-center justify-between transition-all duration-300" id="header-content">
-                <!-- Left Section: Mobile Menu + Page Title -->
+                <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1" id="header-left">
-                    <!-- Mobile Menu Toggle -->
-                    <button class="group relative lg:hidden p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()">
+                    <button class="group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
                     </button>
@@ -716,95 +780,49 @@
     // Sidebar toggle functionality
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
-        const headerLeft = document.getElementById('header-left');
-        const sidebarNav = document.getElementById('sidebar-nav');
-        const sidebarFooter = document.getElementById('sidebar-footer');
+        const isMobile = window.innerWidth < 1024;
         
-        const isHidden = sidebar.classList.contains('-translate-x-full');
-        
-        if (isHidden) {
-            // Show sidebar
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.remove('w-0');
-            sidebar.classList.add('w-64');
-            sidebar.style.width = '16rem'; // 256px
-            headerLeft.style.marginLeft = '0';
-            sidebarNav.style.display = 'block';
-            sidebarFooter.style.display = 'block';
+        if (isMobile) {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.remove('sidebar-collapsed');
         } else {
-            // Hide sidebar
-            sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-0');
-            sidebar.style.width = '0';
-            headerLeft.style.marginLeft = '12rem'; // 192px margin
-            sidebarNav.style.display = 'none';
-            sidebarFooter.style.display = 'none';
+            sidebar.classList.toggle('sidebar-collapsed');
+            sidebar.classList.remove('-translate-x-full');
+            
+            // Persist state
+            const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed);
         }
     }
 
     // Initialize sidebar state on page load
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
-        const headerLeft = document.getElementById('header-left');
-        const sidebarNav = document.getElementById('sidebar-nav');
-        const sidebarFooter = document.getElementById('sidebar-footer');
-        const sidebarTitle = document.getElementById('sidebar-title');
-        const isMobile = window.innerWidth < 1024; // lg breakpoint
+        const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            // On mobile, sidebar should be hidden by default but keep title visible
             sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-0');
-            sidebar.style.width = '0';
-            headerLeft.style.marginLeft = '12rem'; // 192px margin
-            sidebarTitle.style.display = 'block'; // Keep title visible
-            sidebarNav.style.display = 'none';
-            sidebarFooter.style.display = 'none';
-        } else {
-            // On desktop, sidebar should be visible by default
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.remove('w-0');
-            sidebar.classList.add('w-64');
-            sidebar.style.width = '16rem';
-            headerLeft.style.marginLeft = '0';
-            sidebarTitle.style.display = 'block';
-            sidebarNav.style.display = 'block';
-            sidebarFooter.style.display = 'block';
+            sidebar.classList.remove('sidebar-collapsed');
         }
+        
+        // Remove no-transition after initial paint to enable smooth toggling
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                sidebar.classList.remove('no-transition');
+            }, 100);
+        });
     });
 
     // Handle window resize
     window.addEventListener('resize', function() {
         const sidebar = document.getElementById('sidebar');
-        const headerLeft = document.getElementById('header-left');
-        const sidebarTitle = document.getElementById('sidebar-title');
-        const sidebarNav = document.getElementById('sidebar-nav');
-        const sidebarFooter = document.getElementById('sidebar-footer');
-        const isMobile = window.innerWidth < 1024; // lg breakpoint
+        const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            // On mobile, hide sidebar but keep title visible
             sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-0');
-            sidebar.style.width = '0';
-            headerLeft.style.marginLeft = '12rem'; // 192px margin
-            sidebarTitle.style.display = 'block'; // Keep title visible
-            sidebarNav.style.display = 'none';
-            sidebarFooter.style.display = 'none';
+            sidebar.classList.remove('sidebar-collapsed');
         } else {
-            // On desktop, show sidebar
             sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.remove('w-0');
-            sidebar.classList.add('w-64');
-            sidebar.style.width = '16rem';
-            headerLeft.style.marginLeft = '0';
-            sidebarTitle.style.display = 'block';
-            sidebarNav.style.display = 'block';
-            sidebarFooter.style.display = 'block';
         }
     });
 
