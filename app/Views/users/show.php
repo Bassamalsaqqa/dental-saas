@@ -56,10 +56,6 @@
                                 <i class="fas fa-envelope text-green-500 w-5"></i>
                                 <span class="text-gray-700"><?= $user->email ?></span>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-map-marker-alt text-red-500 w-5"></i>
-                                <span class="text-gray-700"><?= $user->address ?? 'Not provided' ?></span>
-                            </div>
                         </div>
                     </div>
                 </div>

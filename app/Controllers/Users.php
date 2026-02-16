@@ -217,7 +217,6 @@ class Users extends BaseController
             'password_confirm' => (!$existingUser ? 'required|matches[password]' : 'permit_empty|matches[password]'),
             'role' => 'required|integer',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
-            'address' => 'permit_empty|max_length[500]',
         ];
 
         if (!$this->validate($rules)) {
@@ -236,7 +235,6 @@ class Users extends BaseController
                 'first_name' => $this->request->getPost('first_name'),
                 'last_name' => $this->request->getPost('last_name'),
                 'phone' => $this->request->getPost('phone') ?: null,
-                'address' => $this->request->getPost('address') ?: null,
             ];
 
             $updateData = [
@@ -287,7 +285,6 @@ class Users extends BaseController
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name'),
             'phone' => $this->request->getPost('phone') ?: null,
-            'address' => $this->request->getPost('address') ?: null,
         ];
 
         // Create user using IonAuth (without groups for now)
@@ -447,7 +444,6 @@ class Users extends BaseController
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'required|valid_email',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
-            'address' => 'permit_empty|max_length[500]',
             'role' => 'required|integer',
         ];
 
@@ -475,7 +471,6 @@ class Users extends BaseController
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name'),
             'phone' => $this->request->getPost('phone') ?: null,
-            'address' => $this->request->getPost('address') ?: null,
         ];
 
         // Update user using IonAuth

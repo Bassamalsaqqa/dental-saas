@@ -335,40 +335,6 @@
                             </div>
                         </div>
 
-                        <!-- Address Information -->
-                        <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
-                            <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Address Information</h4>
-                                </div>
-                                
-                                <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                        <i class="fas fa-map-marker-alt text-orange-600"></i>
-                                        <span>Address</span>
-                                    </label>
-                                    <div class="relative">
-                                        <textarea id="address" name="address" rows="3" 
-                                                  class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl resize-none <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('address')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                  placeholder="User's address..."><?= old('address') ?></textarea>
-                                        <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                            <i class="fas fa-edit"></i>
-                                        </div>
-                                    </div>
-                                    <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('address')): ?>
-                                        <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span><?= session()->getFlashdata('validation')->getError('address') ?></span>
-                                        </p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
                             <a href="<?= base_url('users') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
