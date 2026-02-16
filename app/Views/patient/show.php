@@ -86,51 +86,51 @@ function getFDINumber($universalNumber) {
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex flex-col space-y-4">
                             <nav class="flex flex-wrap gap-2" aria-label="Tabs">
-                                <button onclick="showTab('details')" 
+                                <button type="button" onclick="return showTab('details', event)" 
                                         id="details-tab" 
                                         class="tab-button active whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-user mr-2"></i>Details
                                 </button>
-                                <button onclick="showTab('timeline')" 
+                                <button type="button" onclick="return showTab('timeline', event)" 
                                         id="timeline-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-history mr-2"></i>Timeline
                                 </button>
-                                <button onclick="showTab('examinations')" 
+                                <button type="button" onclick="return showTab('examinations', event)" 
                                         id="examinations-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-stethoscope mr-2"></i>Exams (<?= count($examinations) ?>)
                                 </button>
-                                <button onclick="showTab('appointments')" 
+                                <button type="button" onclick="return showTab('appointments', event)" 
                                         id="appointments-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-calendar mr-2"></i>Appts (<?= count($appointments) ?>)
                                 </button>
-                                <button onclick="showTab('treatments')" 
+                                <button type="button" onclick="return showTab('treatments', event)" 
                                         id="treatments-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-tooth mr-2"></i>Treatments (<?= count($treatments) ?>)
                                 </button>
-                                <button onclick="showTab('prescriptions')" 
+                                <button type="button" onclick="return showTab('prescriptions', event)" 
                                         id="prescriptions-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-prescription mr-2"></i>Rx (<?= count($prescriptions) ?>)
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
-                                    <button onclick="showTab('attachments')" 
+                                    <button type="button" onclick="return showTab('attachments', event)" 
                                             id="attachments-tab" 
                                             class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                         <i class="fas fa-paperclip mr-2"></i>Attachments (<?= count($attachments ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
-                                    <button onclick="showTab('contracts')" 
+                                    <button type="button" onclick="return showTab('contracts', event)" 
                                             id="contracts-tab" 
                                             class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                         <i class="fas fa-file-signature mr-2"></i>Contracts (<?= count($contracts ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
-                                <button onclick="showTab('finances')" 
+                                <button type="button" onclick="return showTab('finances', event)" 
                                         id="finances-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-file-invoice mr-2"></i>Invoice (<?= count($finances) ?>)
@@ -1214,14 +1214,15 @@ function getFDINumber($universalNumber) {
         transition: all 0.2s ease;
     }
 
-    .tab-button.active {
+    .tab-button.active,
+    .tab-button.active:hover {
         border-color: #2563eb;
         background: #eff6ff;
         color: #1d4ed8;
         box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
     }
 
-    .tab-button:hover {
+    .tab-button:hover:not(.active) {
         color: #1f2937;
         border-color: #d1d5db;
         background: #f3f4f6;
@@ -1367,7 +1368,12 @@ function getFDINumber($universalNumber) {
         }
     });
 
-    function showTab(tabName) {
+    function showTab(tabName, event = null) {
+        if (event && typeof event.preventDefault === 'function') {
+            event.preventDefault();
+        }
+        const currentX = window.scrollX;
+        const currentY = window.scrollY;
         currentTab = tabName;
         
         // Hide all tab contents
@@ -1390,6 +1396,12 @@ function getFDINumber($universalNumber) {
         } else if (tabName !== 'details') {
             filterTable(tabName);
         }
+
+        window.requestAnimationFrame(() => {
+            window.scrollTo(currentX, currentY);
+        });
+
+        return false;
     }
 
     function filterHistory() {
