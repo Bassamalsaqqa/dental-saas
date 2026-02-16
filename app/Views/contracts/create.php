@@ -321,7 +321,14 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             </div>
                             <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Total</label>
-                                <div class="px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display" id="contractTotal">0.00</div>
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       name="total_cost"
+                                       id="contractTotalInput"
+                                       value="<?= esc(number_format((float) ($contract['total_cost'] ?? 0), 2, '.', '')) ?>"
+                                       class="w-full px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display">
+                                <p class="mt-1 text-[11px] text-gray-500">Auto-calculated from items. You can override it.</p>
                             </div>
                             </div>
                             <div class="contract-input-wrap">
@@ -556,6 +563,8 @@ let activeTooth = null;
 let odontogramData = [];
 let items = [];
 let tooltipEl = null;
+let manualTotalOverride = false;
+let totalOverrideInitialized = false;
 
 function getFdiNumber(universalNumber) {
     const fdiMap = {
@@ -1324,9 +1333,21 @@ function updateTotal() {
         const price = Number(item.price || 0);
         return sum + (qty > 0 ? qty : 1) * price;
     }, 0);
-    const totalEl = document.getElementById('contractTotal');
-    if (totalEl) {
-        totalEl.textContent = total.toFixed(2);
+    const totalInput = document.getElementById('contractTotalInput');
+    if (!totalInput) {
+        return;
+    }
+
+    if (!totalOverrideInitialized) {
+        const existingValue = Number(totalInput.value);
+        if (Number.isFinite(existingValue) && Math.abs(existingValue - total) > 0.009) {
+            manualTotalOverride = true;
+        }
+        totalOverrideInitialized = true;
+    }
+
+    if (!manualTotalOverride) {
+        totalInput.value = total.toFixed(2);
     }
 }
 
@@ -1377,6 +1398,11 @@ function attachFormHandlers() {
 
     document.getElementById('contractForm')?.addEventListener('submit', () => {
         captureOdontogramSnapshot();
+    });
+
+    const totalInput = document.getElementById('contractTotalInput');
+    totalInput?.addEventListener('input', () => {
+        manualTotalOverride = true;
     });
 
     const termsToggleBtn = document.getElementById('contractTermsToggleBtn');

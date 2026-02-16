@@ -132,13 +132,17 @@ class TreatmentContracts extends BaseController
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
+        $totalInput = $this->request->getPost('total_cost');
 
-        $total = 0.0;
+        $calculatedTotal = 0.0;
         foreach ($items as $item) {
             $qty = isset($item['qty']) ? (int) $item['qty'] : 1;
             $price = isset($item['price']) ? (float) $item['price'] : 0;
-            $total += ($qty > 0 ? $qty : 1) * $price;
+            $calculatedTotal += ($qty > 0 ? $qty : 1) * $price;
         }
+        $manualTotal = is_numeric($totalInput) ? (float) $totalInput : null;
+        $total = ($manualTotal !== null && $manualTotal >= 0) ? $manualTotal : $calculatedTotal;
+        $total = round($total, 2);
 
         $contractId = $this->contractModel->insert([
             'patient_id' => $patientId,
@@ -288,13 +292,17 @@ class TreatmentContracts extends BaseController
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
+        $totalInput = $this->request->getPost('total_cost');
 
-        $total = 0.0;
+        $calculatedTotal = 0.0;
         foreach ($items as $item) {
             $qty = isset($item['qty']) ? (int) $item['qty'] : 1;
             $price = isset($item['price']) ? (float) $item['price'] : 0;
-            $total += ($qty > 0 ? $qty : 1) * $price;
+            $calculatedTotal += ($qty > 0 ? $qty : 1) * $price;
         }
+        $manualTotal = is_numeric($totalInput) ? (float) $totalInput : null;
+        $total = ($manualTotal !== null && $manualTotal >= 0) ? $manualTotal : $calculatedTotal;
+        $total = round($total, 2);
 
         $this->contractModel->update($contractId, [
             'currency' => $currency,
