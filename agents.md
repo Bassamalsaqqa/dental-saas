@@ -9,6 +9,10 @@
 2) `docs/SaaS/TENANT_CONTEXT_CONTRACT.md` governs tenant context mechanics.
 3) `docs/API_CONTRACT.md` governs `/api/v1/*` semantics.
 4) Guardrails: `docs/SaaS/guardrails/*` + repo guardrail scripts.
+5) WhatsApp implementation package (current canonical set):
+   - `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
+   - `docs/SaaS/whatsapp_provider_facts.md`
+   - `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`
 
 `docs/SECURITY_HARDENING_PROGRAM.md` is historical unless explicitly reopened.
 
@@ -23,11 +27,16 @@
 1) Read `docs/SaaS/SAAS_PROGRAM.md` + latest logs:
    - `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md`
    - `docs/SaaS/logs/DECISION_LOG_SaaS.md`
-2) Drift scans:
+2) Read current WhatsApp package and confirm active phase:
+   - `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
+   - `docs/SaaS/whatsapp_provider_facts.md`
+   - `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`
+   - Active phase must be treated as: **Phase 0 - Notifications hardening (pre-WhatsApp implementation)** unless explicitly changed in docs.
+3) Drift scans:
    - `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
    - `php spark routes | findstr /I "controlplane api/v1 api/search"`
    - `bash scripts/ci/saas_guardrails.sh`
-3) Confirm clean tree: `git status -sb`
+4) Confirm clean tree: `git status -sb`
 
 ## E) Environment & Infrastructure
 **Local Path:** `C:\xampp\htdocs\dental-saas`
@@ -65,6 +74,13 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - **Control Plane Defaults**: fixed time format persistence by saving `default_time_format` as string.
 - **Kiosk Settings**: toggle now saves immediately via AJAX; track color toggles; server responds JSON on AJAX errors.
 - **RBAC**: dashboard permission is `dashboard:view`; exam treatment plan button checks `treatments:create`.
+
+## J) Current Improvement Phase (Authoritative)
+- Current phase: **Phase 0 - Notifications Hardening (pre-WhatsApp implementation)**.
+- Execution runbook: `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`.
+- Provider behavior registry: `docs/SaaS/whatsapp_provider_facts.md` (confidence-tiered, update date required).
+- Implementation architecture plan: `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`.
+- Do not start Phase 1+ until Phase 0 exit criteria and verification evidence are complete.
 
 ## I) Known Requirements / Guardrails
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.
