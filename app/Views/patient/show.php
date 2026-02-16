@@ -41,10 +41,42 @@ function getFDINumber($universalNumber) {
             </div>
         </div>
 
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Patient Statistics</h3>
+            </div>
+            <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Examinations</p>
+                    <p class="mt-1 text-xl font-bold text-gray-900"><?= count($examinations) ?></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Appointments</p>
+                    <p class="mt-1 text-xl font-bold text-gray-900"><?= count($appointments) ?></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Treatments</p>
+                    <p class="mt-1 text-xl font-bold text-gray-900"><?= count($treatments) ?></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Prescriptions</p>
+                    <p class="mt-1 text-xl font-bold text-gray-900"><?= count($prescriptions) ?></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Invoices</p>
+                    <p class="mt-1 text-xl font-bold text-gray-900"><?= count($finances) ?></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Member Since</p>
+                    <p class="mt-1 text-sm font-semibold text-gray-900"><?= formatDate($patient['created_at']) ?></p>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content Layout -->
-        <div class="flex flex-row lg:flex-row gap-6">
-            <!-- Left Column - Patient History Tabs -->
-            <div class="lg:w-5/6 lg:flex-shrink-0 w-5/6">
+        <div class="w-full">
+            <!-- Patient History Tabs -->
+            <div class="w-full">
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800">Patient History</h3>
@@ -56,51 +88,51 @@ function getFDINumber($universalNumber) {
                             <nav class="flex flex-wrap gap-2" aria-label="Tabs">
                                 <button onclick="showTab('details')" 
                                         id="details-tab" 
-                                        class="tab-button active whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button active whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-user mr-2"></i>Details
                                 </button>
                                 <button onclick="showTab('timeline')" 
                                         id="timeline-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-history mr-2"></i>Timeline
                                 </button>
                                 <button onclick="showTab('examinations')" 
                                         id="examinations-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-stethoscope mr-2"></i>Exams (<?= count($examinations) ?>)
                                 </button>
                                 <button onclick="showTab('appointments')" 
                                         id="appointments-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-calendar mr-2"></i>Appts (<?= count($appointments) ?>)
                                 </button>
                                 <button onclick="showTab('treatments')" 
                                         id="treatments-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-tooth mr-2"></i>Treatments (<?= count($treatments) ?>)
                                 </button>
                                 <button onclick="showTab('prescriptions')" 
                                         id="prescriptions-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-prescription mr-2"></i>Rx (<?= count($prescriptions) ?>)
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
                                     <button onclick="showTab('attachments')" 
                                             id="attachments-tab" 
-                                            class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                            class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                         <i class="fas fa-paperclip mr-2"></i>Attachments (<?= count($attachments ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
                                     <button onclick="showTab('contracts')" 
                                             id="contracts-tab" 
-                                            class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                            class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                         <i class="fas fa-file-signature mr-2"></i>Contracts (<?= count($contracts ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
                                 <button onclick="showTab('finances')" 
                                         id="finances-tab" 
-                                        class="tab-button whitespace-nowrap py-2 px-3 border-b-2 font-medium text-sm">
+                                        class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
                                     <i class="fas fa-file-invoice mr-2"></i>Invoice (<?= count($finances) ?>)
                                 </button>
                             </nav>
@@ -1169,94 +1201,30 @@ function getFDINumber($universalNumber) {
            </div>
 
 
-        <!-- Right Column - Sidebar -->
-            <div class="lg:w-1/6 lg:flex-shrink-0 space-y-6 w-1/6">
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
-                    </div>
-                    <div class="px-6 py-4">
-                        <div class="space-y-3">
-                            <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors w-full">
-                                <i class="fas fa-stethoscope mr-2"></i>New Examination
-                            </a>
-                            <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
-                               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
-                                <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointment
-                            </a>
-                            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" 
-                               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
-                                <i class="fas fa-tooth mr-2"></i>View Odontogram
-                            </a>
-                            <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
-                               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
-                                <i class="fas fa-prescription mr-2"></i>New Prescription
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistics -->
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Statistics</h3>
-                    </div>
-                    <div class="px-6 py-4">
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Total Examinations</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= count($examinations) ?></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Total Appointments</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= count($appointments) ?></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Total Treatments</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= count($treatments) ?></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Total Prescriptions</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= count($prescriptions) ?></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Invoices</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= count($finances) ?></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Member Since</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= formatDate($patient['created_at']) ?></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-
     </div>
 </div>
 
 
 <style>
     .tab-button {
-        border-bottom-color: transparent;
-        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: #4b5563;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
     }
 
     .tab-button.active {
-        border-bottom-color: #3b82f6;
-        color: #3b82f6;
+        border-color: #2563eb;
+        background: #eff6ff;
+        color: #1d4ed8;
+        box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
     }
 
     .tab-button:hover {
-        color: #374151;
-        border-bottom-color: #d1d5db;
+        color: #1f2937;
+        border-color: #d1d5db;
+        background: #f3f4f6;
     }
 
     .tab-content {
@@ -1267,28 +1235,6 @@ function getFDINumber($universalNumber) {
         display: none;
     }
 
-    /* Ensure proper layout on all screen sizes */
-    @media (min-width: 1024px) {
-        .flex {
-            display: flex !important;
-        }
-        
-        .lg\\:flex-row {
-            flex-direction: row !important;
-        }
-        
-        .lg\\:w-2\\/3 {
-            width: 66.666667% !important;
-            flex-shrink: 0 !important;
-        }
-        
-        .lg\\:w-1\\/3 {
-            width: 33.333333% !important;
-            flex-shrink: 0 !important;
-            min-width: 300px;
-            max-width: 400px;
-        }
-    }
 </style>
 
 <script>
@@ -1880,3 +1826,4 @@ function getFDINumber($universalNumber) {
 </script>
 
 <?= $this->endSection() ?>
+
