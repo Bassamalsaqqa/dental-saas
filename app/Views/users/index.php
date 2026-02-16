@@ -173,7 +173,6 @@
                                     <div>
                                         <h3 class="text-xl font-bold text-gray-800"><?= esc(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?></h3>
                                         <p class="text-sm text-gray-500"><?= esc($user->email) ?></p>
-                                        <p class="text-xs text-gray-400">@<?= esc($user->username ?? $user->email) ?></p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-4">

@@ -41,7 +41,6 @@
                                 <?= ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') ?>
                             </h2>
                             <p class="text-gray-600 text-lg"><?= $user->email ?></p>
-                            <p class="text-gray-500">@<?= $user->username ?? $user->email ?></p>
                         </div>
                     </div>
 

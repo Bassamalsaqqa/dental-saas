@@ -99,7 +99,6 @@ class Search extends Controller
                 ->orLike('last_name', $query)
                 ->orLike('CONCAT(first_name, " ", last_name)', $query)
                 ->orLike('email', $query)
-                ->orLike('username', $query)
                 ->groupEnd();
         }
 

@@ -310,10 +310,6 @@
                                     !empty($user->first_name) and !empty($user->last_name)) {
                                     $displayName = esc(trim($user->first_name . ' ' . $user->last_name));
                                 }
-                                // Fallback to username
-                                elseif (property_exists($user, 'username') and !empty($user->username)) {
-                                    $displayName = esc($user->username);
-                                }
                                 // Fallback to email
                                 elseif (property_exists($user, 'email') and !empty($user->email)) {
                                     $displayName = esc($user->email);
@@ -502,10 +498,6 @@
                                                 if (property_exists($user, 'first_name') and property_exists($user, 'last_name') and 
                                                     !empty($user->first_name) and !empty($user->last_name)) {
                                                     $displayName = htmlspecialchars(trim($user->first_name . ' ' . $user->last_name));
-                                                }
-                                                // Fallback to username
-                                                elseif (property_exists($user, 'username') and !empty($user->username)) {
-                                                    $displayName = htmlspecialchars($user->username);
                                                 }
                                                 // Fallback to email
                                                 elseif (property_exists($user, 'email') and !empty($user->email)) {

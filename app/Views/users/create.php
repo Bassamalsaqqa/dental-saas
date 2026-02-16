@@ -103,7 +103,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="grid grid-cols-1 gap-8">
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-envelope text-purple-600"></i>
@@ -124,27 +124,6 @@
                                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                                     <i class="fas fa-exclamation-circle"></i>
                                                     <span><?= session()->getFlashdata('validation')->getError('email') ?></span>
-                                                </p>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <div class="group/field relative">
-                                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                <i class="fas fa-at text-indigo-600"></i>
-                                                <span>Username *</span>
-                                            </label>
-                                            <div class="relative">
-                                                <input type="text" id="username" name="username" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('username')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                       value="<?= old('username') ?>" placeholder="Enter username" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                    <i class="fas fa-at text-gray-400"></i>
-                                                </div>
-                                            </div>
-                                            <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('username')): ?>
-                                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                    <i class="fas fa-exclamation-circle"></i>
-                                                    <span><?= session()->getFlashdata('validation')->getError('username') ?></span>
                                                 </p>
                                             <?php endif; ?>
                                         </div>
