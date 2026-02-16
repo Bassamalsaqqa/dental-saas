@@ -24,7 +24,7 @@
                 <?php if ($clinic['website']): ?>
                 <p>Website: <?= esc($clinic['website']) ?></p>
                 <?php endif; ?>
-                <p class="mt-2">Generated on <?= date('F j, Y \a\t g:i A') ?></p>
+                <p class="mt-2">Generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
                     
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Examination Date</label>
-                        <p class="text-lg text-gray-900"><?= date('F j, Y', strtotime($examination['examination_date'])) ?></p>
+                        <p class="text-lg text-gray-900"><?= formatDate($examination['examination_date']) ?></p>
                     </div>
                     
                     <div>
@@ -137,7 +137,7 @@
                     Total: <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?>
                 </p>
                 <?php if (!empty($latest_contract['created_at'])): ?>
-                    <p class="text-sm text-gray-600 mt-2">Created: <?= date('M j, Y', strtotime($latest_contract['created_at'])) ?></p>
+                    <p class="text-sm text-gray-600 mt-2">Created: <?= formatDate($latest_contract['created_at']) ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -177,7 +177,7 @@
                 </div>
                 <div class="text-right">
                     <p class="text-sm text-gray-600">Report ID: <?= esc($examination['examination_id']) ?></p>
-                    <p class="text-sm text-gray-600">Generated: <?= date('Y-m-d H:i:s') ?></p>
+                    <p class="text-sm text-gray-600">Generated: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                 </div>
             </div>
         </div>

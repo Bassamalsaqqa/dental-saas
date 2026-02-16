@@ -126,7 +126,7 @@
                                             <div class="text-sm font-bold text-gray-900">$<?= number_format($record['total_cost'], 2) ?></div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900"><?= date('M j, Y', strtotime($record['usage_date'])) ?></div>
+                                            <div class="text-sm text-gray-900"><?= formatDate($record['usage_date']) ?></div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">

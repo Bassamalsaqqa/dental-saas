@@ -62,6 +62,11 @@ class Examination extends BaseController
                 throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
             }
         }
+
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient']);
+        if (!$returnTo && !empty($selectedPatient['id'])) {
+            $returnTo = 'patient/' . (int) $selectedPatient['id'];
+        }
         
         $data = [
             'title' => 'New Examination',
@@ -69,7 +74,8 @@ class Examination extends BaseController
             'selected_patient_id' => $patientId,
             'selected_patient' => $selectedPatient,
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'return_to' => $returnTo
         ];
 
         // Ensure user data is included
@@ -130,6 +136,11 @@ class Examination extends BaseController
                 "New {$examinationData['examination_type']} examination created for {$patientName} - Chief Complaint: " . substr($examinationData['chief_complaint'], 0, 50) . "..."
             );
             
+            $returnTo = $this->resolveCreateReturnTo((int) $examinationData['patient_id'], $this->request->getPost('return_to'));
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Examination created successfully');
+            }
+
             log_message('info', 'Examination created successfully with ID: ' . $examinationId);
             return redirect()->to(base_url('examination/' . $examinationId))->with('success', 'Examination created successfully');
         } else {
@@ -180,10 +191,25 @@ class Examination extends BaseController
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
-            'tooth_positions' => $this->odontogramModel->getToothPositions()
+            'tooth_positions' => $this->odontogramModel->getToothPositions(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination'])
         ];
 
         return $this->view('examination/show', $data);
+    }
+
+    private function resolveCreateReturnTo(int $patientId, $returnToRaw): ?string
+    {
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient']);
+        if (!$returnTo) {
+            return null;
+        }
+
+        if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
+            return ((int) $matches[1] === $patientId) ? $returnTo : null;
+        }
+
+        return null;
     }
 
     public function edit($id)
@@ -208,7 +234,8 @@ class Examination extends BaseController
             'examination' => $examination,
             'patients' => $patient ? [$patient] : [], // Only emit current patient
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination'])
         ];
 
         return $this->view('examination/edit', $data);
@@ -265,6 +292,11 @@ class Examination extends BaseController
                 $id,
                 "Examination updated for {$patientName} - {$examinationData['examination_type']} - Status: {$examinationData['status']}"
             );
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Examination updated successfully');
+            }
             
             return redirect()->to(base_url('examination/' . $id))->with('success', 'Examination updated successfully');
         } else {

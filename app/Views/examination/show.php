@@ -15,10 +15,10 @@
                         <i class="fas fa-user mr-2"></i>Back to Patient
                     </a>
                 <?php endif; ?>
-                <a href="<?= base_url('examination') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Examinations
                 </a>
-                <a href="<?= base_url('examination/' . $examination['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= base_url('examination/' . $examination['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-edit mr-2"></i>Edit Examination
                 </a>
             </div>
@@ -55,7 +55,7 @@
             </div>
             <div class="bg-gray-50 p-4 rounded-lg">
                 <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Examination Date</label>
-                <p class="text-gray-900 font-semibold text-lg"><?= date('M j, Y g:i A', strtotime($examination['examination_date'])) ?></p>
+                <p class="text-gray-900 font-semibold text-lg"><?= formatDateTime($examination['examination_date']) ?></p>
             </div>
         </div>
         </div>
@@ -246,7 +246,7 @@
                                 <p class="text-sm text-gray-600">
                                     <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?>
                                     <?php if (!empty($latest_contract['created_at'])): ?>
-                                        · <?= date('M j, Y', strtotime($latest_contract['created_at'])) ?>
+                                        · <?= formatDate($latest_contract['created_at']) ?>
                                     <?php endif; ?>
                                 </p>
                             </div>
@@ -269,7 +269,7 @@
                     <?php endif; ?>
 
                     <?php if (has_permission('treatments', 'create')): ?>
-                        <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                        <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                             <i class="fas fa-file-signature mr-2"></i><?= !empty($latest_contract) ? 'Add New Plan' : 'Add Treatment Plan' ?>
                         </a>
                     <?php endif; ?>
@@ -350,8 +350,8 @@
                             <i class="fas fa-calendar text-blue-600"></i>
                             <div>
                                 <p class="text-gray-900 font-semibold">
-                                    <?= date('M j, Y', strtotime($next_appointment['appointment_date'])) ?>
-                                    <?= date('g:i A', strtotime($next_appointment['appointment_time'])) ?>
+                                    <?= formatDate($next_appointment['appointment_date']) ?>
+                                    <?= formatTime($next_appointment['appointment_time']) ?>
                                 </p>
                                 <p class="text-xs text-gray-500">
                                     <?= ucfirst(str_replace('_', ' ', $next_appointment['appointment_type'] ?? 'follow_up')) ?>
@@ -375,7 +375,7 @@
 
             <?php if (has_permission('appointments', 'create')): ?>
                 <div class="mt-6">
-                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id']) ?>"
+                    <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>"
                        class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                         <i class="fas fa-plus mr-2"></i>Schedule Follow-Up
                     </a>
@@ -457,7 +457,7 @@
                     <p class="text-sm text-gray-500">Treatment procedures and interventions</p>
                 </div>
             </div>
-            <a href="<?= base_url('treatment/create?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+            <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                 <i class="fas fa-plus mr-2"></i>Add Treatment
             </a>
         </div>
@@ -488,7 +488,7 @@
                     <i class="fas fa-procedures text-gray-400 text-2xl"></i>
                 </div>
                 <p class="text-gray-600 mb-4">No treatments recorded for this examination.</p>
-                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-plus mr-2"></i>Add Treatment
                 </a>
             </div>
@@ -498,10 +498,10 @@
 
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-3">
-        <a href="<?= base_url('examination') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
             <i class="fas fa-arrow-left mr-2"></i>Back to List
         </a>
-        <a href="<?= base_url('examination/' . $examination['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+        <a href="<?= base_url('examination/' . $examination['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
             <i class="fas fa-edit mr-2"></i>Edit Examination
         </a>
         <?php if ($examination['status'] != 'completed'): ?>

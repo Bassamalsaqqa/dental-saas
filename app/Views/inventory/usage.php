@@ -61,7 +61,7 @@
                             </div>
                             <div class="flex flex-col h-full">
                                 <label for="usage_date" class="block text-sm font-medium text-gray-700 mb-2">Usage Date *</label>
-                                <input type="date" name="usage_date" id="usage_date" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" required>
+                                <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" required>
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-3">Link this usage to a specific treatment, or leave blank for general usage.</p>

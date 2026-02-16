@@ -178,12 +178,18 @@ class Prescription extends BaseController
             }
         }
 
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient']);
+        if (!$returnTo && !empty($selectedPatient['id'])) {
+            $returnTo = 'patient/' . (int) $selectedPatient['id'];
+        }
+
         $data = [
             'title' => 'Create New Prescription',
             'patients' => [], // S4-02f: No bulk preload
             'medications' => $this->getMedications(),
             'loadSelect2' => true,  // Load Select2 for patient selection dropdowns
-            'selected_patient' => $selectedPatient
+            'selected_patient' => $selectedPatient,
+            'return_to' => $returnTo
         ];
 
         return $this->view('prescription/create', $data);
@@ -257,6 +263,11 @@ class Prescription extends BaseController
                 $prescriptionId,
                 "New prescription created for {$patientName} with {$medicineCount} medication(s)"
             );
+
+            $returnTo = $this->resolveCreateReturnTo((int) $prescriptionData['patient_id'], $this->request->getPost('return_to'));
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been created successfully!');
+            }
             
             return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been created successfully!');
         } else {
@@ -286,9 +297,24 @@ class Prescription extends BaseController
         $data = [
             'title' => 'Prescription Details',
             'prescription' => $prescription,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'prescription']),
         ];
 
         return $this->view('prescription/show', $data);
+    }
+
+    private function resolveCreateReturnTo(int $patientId, $returnToRaw): ?string
+    {
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient']);
+        if (!$returnTo) {
+            return null;
+        }
+
+        if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
+            return ((int) $matches[1] === $patientId) ? $returnTo : null;
+        }
+
+        return null;
     }
 
     public function edit($id)
@@ -311,7 +337,8 @@ class Prescription extends BaseController
             'prescription' => $prescription,
             'patients' => $patient ? [$patient] : [],
             'medications' => $this->getMedications(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'prescription'])
         ];
 
         return $this->view('prescription/edit', $data);
@@ -385,6 +412,11 @@ class Prescription extends BaseController
                 $id,
                 "Prescription updated for {$patientName} with {$medicineCount} medication(s) - Status: {$prescriptionData['status']}"
             );
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'prescription']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been updated successfully!');
+            }
             
             return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been updated successfully!');
         } else {
@@ -422,6 +454,14 @@ class Prescription extends BaseController
             
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => true, 'message' => 'Prescription deleted successfully']);
+            }
+
+            $returnTo = $this->sanitizeInternalReturnTo(
+                (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
+                ['patient', 'prescription']
+            );
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been deleted successfully!');
             }
             return redirect()->to(base_url('prescription'))->with('success', 'Prescription has been deleted successfully!');
         } else {

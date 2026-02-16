@@ -14,8 +14,8 @@
                         </p>
                     </div>
                     <div class="text-right text-sm">
-                        <p>Date: <?= date('M j, Y', strtotime($appointment['appointment_date'])) ?></p>
-                        <p>Time: <?= date('g:i A', strtotime($appointment['appointment_time'])) ?></p>
+                        <p>Date: <?= formatDate($appointment['appointment_date']) ?></p>
+                        <p>Time: <?= formatTime($appointment['appointment_time']) ?></p>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Created At:</p>
-                        <p class="font-semibold text-gray-900"><?= date('M j, Y', strtotime($appointment['created_at'] ?? 'now')) ?></p>
+                        <p class="font-semibold text-gray-900"><?= formatDate($appointment['created_at'] ?? date('Y-m-d H:i:s')) ?></p>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
             <div class="bg-gray-50 p-6">
                 <div class="flex justify-between items-center">
                     <div class="text-sm text-gray-600">
-                        <p>Generated on: <?= date('M j, Y g:i A') ?></p>
+                        <p>Generated on: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                         <p>Appointment ID: <?= esc($appointment['appointment_id'] ?? 'N/A') ?></p>
                     </div>
                     <div class="text-sm text-gray-600 text-right">

@@ -123,7 +123,7 @@
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Select Date</label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <input type="date" id="dateFilter" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 font-medium">
+                                    <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 font-medium">
                             </div>
                         </div>
 
@@ -253,7 +253,7 @@
                                     <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                         All Appointments
                                     <?php else: ?>
-                                        Appointments for <?= date('M j, Y', strtotime($selected_date)) ?>
+                                        Appointments for <?= formatDate($selected_date) ?>
                                     <?php endif; ?>
                                 </h3>
                             </div>
@@ -308,14 +308,14 @@
                                             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
                                             <div class="relative bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 rounded-xl border border-amber-200">
                                                 <p class="text-2xl font-black text-amber-900">
-                                                    <?= date('g:i A', strtotime($appointment['appointment_time'])) ?>
+                                                    <?= formatTime($appointment['appointment_time']) ?>
                                                 </p>
                                                 <p class="text-sm text-amber-700 font-bold">
                                                     <?= $appointment['duration'] ?> min
                                                 </p>
                                                 <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                                     <p class="text-xs text-amber-600 font-semibold mt-1">
-                                                        <?= date('M j, Y', strtotime($appointment['appointment_date'])) ?>
+                                                        <?= formatDate($appointment['appointment_date']) ?>
                                                     </p>
                                                 <?php endif; ?>
                                             </div>
@@ -600,7 +600,7 @@
                                         Today's Schedule
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium text-sm"><?= date('l, F j, Y') ?></p>
+                                <p class="text-gray-600 font-medium text-sm"><?= formatDate(date('Y-m-d')) ?></p>
                             </div>
                         </div>
                         <div class="space-y-4 p-6 pt-0 flex-1">
@@ -680,12 +680,17 @@ function initializeFilters() {
 }
 
 function filterAppointments() {
-    const date = document.getElementById('dateFilter').value;
+    const rawDate = document.getElementById('dateFilter').value;
+    const date = window.parseClinicDateToIso ? window.parseClinicDateToIso(rawDate) : rawDate;
     const status = document.getElementById('statusFilter').value;
     const search = document.getElementById('searchFilter').value;
     
     const url = new URL(window.location);
-    url.searchParams.set('date', date);
+    if (date) {
+        url.searchParams.set('date', date);
+    } else {
+        url.searchParams.delete('date');
+    }
     if (status) {
         url.searchParams.set('status', status);
     } else {
@@ -1058,19 +1063,18 @@ function createAppointmentElement(appointment) {
     div.className = 'group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] hover:-translate-y-1 animate-slide-in';
     
     // Format appointment date
-    const appointmentDate = new Date(appointment.appointment_date);
-    const formattedDate = appointmentDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-    });
+    const appointmentDateIso = String(appointment.appointment_date || '').split(' ')[0];
+    const formattedDate = window.formatClinicDateFromIso
+        ? window.formatClinicDateFromIso(appointmentDateIso)
+        : appointmentDateIso;
     
     // Format appointment time
+    const clinicTimeFormat = '<?= esc(settings()->get('time_format', '12')) ?>';
     const appointmentTime = new Date('1970-01-01T' + appointment.appointment_time);
-    const formattedTime = appointmentTime.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
+    const formattedTime = appointmentTime.toLocaleTimeString([], {
+        hour: 'numeric',
         minute: '2-digit',
-        hour12: true 
+        hour12: clinicTimeFormat !== '24'
     });
     
     // Status configuration

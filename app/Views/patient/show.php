@@ -115,10 +115,10 @@ function getFDINumber($universalNumber) {
                                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <input type="date" 
+                                    <input type="text" data-clinic-date="1"
                                            id="startDate" 
                                            class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                    <input type="date" 
+                                    <input type="text" data-clinic-date="1"
                                            id="endDate" 
                                            class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 </div>
@@ -406,7 +406,7 @@ function getFDINumber($universalNumber) {
                                                     <div>
                                                         <p class="text-sm text-gray-500">
                                                             <span class="font-medium text-gray-900"><?= $item['title'] ?></span>
-                                                            <span class="text-gray-500">on <?= date('M j, Y', strtotime($item['date'])) ?></span>
+                                                            <span class="text-gray-500">on <?= formatDate($item['date']) ?></span>
                                                         </p>
                                                         <p class="text-sm text-gray-500"><?= $item['description'] ?></p>
                                                         <?php if (!empty($item['doctor'])): ?>
@@ -674,7 +674,7 @@ function getFDINumber($universalNumber) {
                                         <p class="text-xs text-gray-500 mt-1">Clinical examinations for this patient.</p>
                                     </div>
                                     <?php if (has_permission('examinations', 'create')): ?>
-                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>"
+                                        <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i>Create Examination
                                         </a>
@@ -697,7 +697,7 @@ function getFDINumber($universalNumber) {
                                             <?php foreach ($examinations as $examination): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= date('M j, Y', strtotime($examination['examination_date'])) ?>
+                                                        <?= formatDate($examination['examination_date']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         <?= ucfirst($examination['examination_type'] ?? 'General') ?>
@@ -711,7 +711,7 @@ function getFDINumber($universalNumber) {
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('examination/' . $examination['id']) ?>" 
+                                                        <a href="<?= base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id']) ?>" 
                                                            class="text-blue-600 hover:text-blue-900">View</a>
                                                     </td>
                                                 </tr>
@@ -736,7 +736,7 @@ function getFDINumber($universalNumber) {
                                         <p class="text-xs text-gray-500 mt-1">Scheduled visits and appointment history.</p>
                                     </div>
                                     <?php if (has_permission('appointments', 'create')): ?>
-                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>"
+                                        <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i>Schedule Appointment
                                         </a>
@@ -759,7 +759,7 @@ function getFDINumber($universalNumber) {
                                             <?php foreach ($appointments as $appointment): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= date('M j, Y', strtotime($appointment['appointment_date'])) ?> at <?= date('g:i A', strtotime($appointment['appointment_time'])) ?>
+                                                        <?= formatDate($appointment['appointment_date']) ?> at <?= formatTime($appointment['appointment_time']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         <?= ucfirst($appointment['appointment_type'] ?? 'General') ?>
@@ -783,7 +783,7 @@ function getFDINumber($universalNumber) {
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('appointment/' . $appointment['id']) ?>" 
+                                                        <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
                                                            class="text-blue-600 hover:text-blue-900">View</a>
                                                     </td>
                                                 </tr>
@@ -808,7 +808,7 @@ function getFDINumber($universalNumber) {
                                         <p class="text-xs text-gray-500 mt-1">Procedures and treatment plans for this patient.</p>
                                     </div>
                                     <?php if (has_permission('treatments', 'create')): ?>
-                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id']) ?>"
+                                        <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i>Add Treatment
                                         </a>
@@ -858,7 +858,7 @@ function getFDINumber($universalNumber) {
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('treatment/' . $treatment['id']) ?>" 
+                                                        <a href="<?= base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
                                                            class="text-blue-600 hover:text-blue-900">View</a>
                                                     </td>
                                                 </tr>
@@ -883,7 +883,7 @@ function getFDINumber($universalNumber) {
                                         <p class="text-xs text-gray-500 mt-1">Medication plans for this patient.</p>
                                     </div>
                                     <?php if (has_permission('prescriptions', 'create')): ?>
-                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id']) ?>"
+                                        <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i>Create Prescription
                                         </a>
@@ -960,7 +960,7 @@ function getFDINumber($universalNumber) {
                                                         <?= htmlspecialchars($frequency) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= date('M j, Y', strtotime($prescription['prescribed_date'])) ?>
+                                                        <?= formatDate($prescription['prescribed_date']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <?php
@@ -977,7 +977,7 @@ function getFDINumber($universalNumber) {
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('prescription/' . $prescription['id']) ?>" 
+                                                        <a href="<?= base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']) ?>" 
                                                            class="text-blue-600 hover:text-blue-900">View</a>
                                                     </td>
                                                 </tr>
@@ -1002,7 +1002,7 @@ function getFDINumber($universalNumber) {
                                         <p class="text-xs text-gray-500 mt-1">Financial records and invoices for this patient.</p>
                                     </div>
                                     <?php if (has_permission('finance', 'create')): ?>
-                                        <a href="<?= base_url('finance/create?patient_id=' . $patient['id']) ?>"
+                                        <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                             <i class="fas fa-plus mr-2"></i>Create Invoice
                                         </a>
@@ -1026,7 +1026,7 @@ function getFDINumber($universalNumber) {
                                             <?php foreach ($finances as $finance): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= date('M j, Y', strtotime($finance['created_at'])) ?>
+                                                        <?= formatDate($finance['created_at']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         <?= ucfirst($finance['transaction_type'] ?? 'Unknown') ?>
@@ -1056,7 +1056,7 @@ function getFDINumber($universalNumber) {
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('finance/' . $finance['id']) ?>" 
+                                                        <a href="<?= base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']) ?>" 
                                                            class="text-blue-600 hover:text-blue-900">View</a>
                                                     </td>
                                                 </tr>
@@ -1178,11 +1178,11 @@ function getFDINumber($universalNumber) {
                     </div>
                     <div class="px-6 py-4">
                         <div class="space-y-3">
-                            <a href="<?= base_url('examination/create?patient_id=' . $patient['id']) ?>" 
+                            <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors w-full">
                                 <i class="fas fa-stethoscope mr-2"></i>New Examination
                             </a>
-                            <a href="<?= base_url('appointment/create?patient_id=' . $patient['id']) ?>" 
+                            <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
                                class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
                                 <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointment
                             </a>
@@ -1190,7 +1190,7 @@ function getFDINumber($universalNumber) {
                                class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
                                 <i class="fas fa-tooth mr-2"></i>View Odontogram
                             </a>
-                            <a href="<?= base_url('prescription/create?patient_id=' . $patient['id']) ?>" 
+                            <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" 
                                class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors w-full">
                                 <i class="fas fa-prescription mr-2"></i>New Prescription
                             </a>
@@ -1227,7 +1227,7 @@ function getFDINumber($universalNumber) {
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Member Since</span>
-                                <span class="text-sm font-semibold text-gray-900"><?= date('M Y', strtotime($patient['created_at'])) ?></span>
+                                <span class="text-sm font-semibold text-gray-900"><?= formatDate($patient['created_at']) ?></span>
                             </div>
                         </div>
                     </div>
@@ -1456,8 +1456,10 @@ function getFDINumber($universalNumber) {
 
     function filterTimeline() {
         const searchTerm = document.getElementById('historySearch').value.toLowerCase();
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+        const startDateRaw = document.getElementById('startDate').value;
+        const endDateRaw = document.getElementById('endDate').value;
+        const startDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(startDateRaw) : startDateRaw;
+        const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endDateRaw) : endDateRaw;
         
         filteredTimelineData = allTimelineData.filter(item => {
             const matchesSearch = !searchTerm || 
@@ -1538,7 +1540,9 @@ function getFDINumber($universalNumber) {
             spanTitle.textContent = item.title;
             const spanDate = document.createElement('span');
             spanDate.className = 'text-gray-500';
-            spanDate.textContent = ` on ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            const itemIso = String(item.date || '').split(' ')[0];
+            const itemDisplay = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(itemIso) : itemIso;
+            spanDate.textContent = ` on ${itemDisplay}`;
             pTitle.appendChild(spanTitle);
             pTitle.appendChild(spanDate);
             
@@ -1577,8 +1581,10 @@ function getFDINumber($universalNumber) {
 
     function filterTable(tabName) {
         const searchTerm = document.getElementById('historySearch').value.toLowerCase();
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+        const startDateRaw = document.getElementById('startDate').value;
+        const endDateRaw = document.getElementById('endDate').value;
+        const startDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(startDateRaw) : startDateRaw;
+        const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endDateRaw) : endDateRaw;
         
         const table = document.querySelector(`#${tabName}-content table tbody`);
         if (!table) return;

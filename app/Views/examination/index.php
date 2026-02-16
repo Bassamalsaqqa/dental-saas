@@ -504,11 +504,11 @@
                                 <div class="mb-4">
                                     <div class="flex items-center text-sm text-gray-600 mb-2">
                                         <i class="fas fa-calendar-alt mr-2"></i>
-                                        <?= date('M j, Y', strtotime($examination['examination_date'])) ?>
+                                        <?= formatDate($examination['examination_date']) ?>
                                     </div>
                                     <div class="flex items-center text-sm text-gray-600 mb-2">
                                         <i class="fas fa-clock mr-2"></i>
-                                        <?= date('g:i A', strtotime($examination['examination_date'])) ?>
+                                        <?= formatTime($examination['examination_date']) ?>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         <?= $examination['examination_type'] == 'emergency' ? 'bg-red-100 text-red-800' : 
@@ -576,7 +576,7 @@
                             <button onclick="previousMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
-                            <span id="currentMonth" class="text-lg font-semibold text-gray-900"><?= date('F Y') ?></span>
+                            <span id="currentMonth" class="text-lg font-semibold text-gray-900"><?= formatDate(date('Y-m-d')) ?></span>
                             <button onclick="nextMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                                 <i class="fas fa-chevron-right"></i>
                             </button>

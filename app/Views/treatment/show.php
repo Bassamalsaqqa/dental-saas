@@ -27,10 +27,10 @@
                                 <i class="fas fa-user mr-2"></i>Back to Patient
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('treatment') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('treatment') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Treatments
                         </a>
-                        <a href="<?= base_url('treatment/' . $treatment['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= base_url('treatment/' . $treatment['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-edit mr-2"></i>Edit Treatment
                         </a>
                     </div>
@@ -143,7 +143,7 @@
                                     ?>
                                     <tr>
                                         <td class="py-2 px-3 text-gray-700">
-                                            <?= !empty($usage['usage_date']) ? date('M j, Y', strtotime($usage['usage_date'])) : 'N/A' ?>
+                                            <?= !empty($usage['usage_date']) ? formatDate($usage['usage_date']) : 'N/A' ?>
                                         </td>
                                         <td class="py-2 px-3 text-gray-700">
                                             <?= !empty($itemList) ? esc(implode(', ', $itemList)) : '—' ?>
@@ -218,7 +218,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Date of Birth</label>
-                            <p class="text-gray-800"><?= $treatment['date_of_birth'] ? date('M d, Y', strtotime($treatment['date_of_birth'])) : 'N/A' ?></p>
+                            <p class="text-gray-800"><?= $treatment['date_of_birth'] ? formatDate($treatment['date_of_birth']) : 'N/A' ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Gender</label>
@@ -236,15 +236,15 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
-                            <p class="text-gray-800"><?= $treatment['start_date'] ? date('M d, Y', strtotime($treatment['start_date'])) : 'N/A' ?></p>
+                            <p class="text-gray-800"><?= $treatment['start_date'] ? formatDate($treatment['start_date']) : 'N/A' ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Completion Date</label>
-                            <p class="text-gray-800"><?= $treatment['completion_date'] ? date('M d, Y H:i', strtotime($treatment['completion_date'])) : 'Not completed' ?></p>
+                            <p class="text-gray-800"><?= $treatment['completion_date'] ? formatDateTime($treatment['completion_date']) : 'Not completed' ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created At</label>
-                            <p class="text-gray-800"><?= $treatment['created_at'] ? date('M d, Y H:i', strtotime($treatment['created_at'])) : 'N/A' ?></p>
+                            <p class="text-gray-800"><?= $treatment['created_at'] ? formatDateTime($treatment['created_at']) : 'N/A' ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
@@ -252,7 +252,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Last Updated</label>
-                            <p class="text-gray-800"><?= $treatment['updated_at'] ? date('M d, Y H:i', strtotime($treatment['updated_at'])) : 'N/A' ?></p>
+                            <p class="text-gray-800"><?= $treatment['updated_at'] ? formatDateTime($treatment['updated_at']) : 'N/A' ?></p>
                         </div>
                     </div>
                 </div>

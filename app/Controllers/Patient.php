@@ -238,9 +238,15 @@ class Patient extends BaseController
 
     public function create()
     {
+        $returnTo = $this->sanitizeInternalReturnTo(
+            $this->request->getGet('return_to'),
+            ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations']
+        );
+
         $data = [
             'title' => 'Add New Patient',
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'return_to' => $returnTo
         ];
 
         return $this->view('patient/create', $data);
@@ -336,6 +342,14 @@ class Patient extends BaseController
                         'message' => 'Patient added successfully',
                         'patient_id' => $patientId
                     ]);
+                }
+
+                $returnTo = $this->sanitizeInternalReturnTo(
+                    $this->request->getPost('return_to'),
+                    ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations']
+                );
+                if ($returnTo) {
+                    return redirect()->to(base_url($returnTo))->with('success', 'Patient has been added successfully!');
                 }
                 return redirect()->to('/patient')->with('success', 'Patient has been added successfully!');
             } else {
@@ -671,7 +685,11 @@ class Patient extends BaseController
         $data = [
             'title' => 'Edit Patient - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'return_to' => $this->sanitizeInternalReturnTo(
+                $this->request->getGet('return_to'),
+                ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
+            )
         ];
 
         return $this->view('patient/edit', $data);
@@ -747,6 +765,14 @@ class Patient extends BaseController
                 $id,
                 "Patient '{$patientData['first_name']} {$patientData['last_name']}' information updated"
             );
+
+            $returnTo = $this->sanitizeInternalReturnTo(
+                $this->request->getPost('return_to'),
+                ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
+            );
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Patient information has been updated successfully!');
+            }
             
             return redirect()->to('/patient/' . $id)->with('success', 'Patient information has been updated successfully!');
         } else {

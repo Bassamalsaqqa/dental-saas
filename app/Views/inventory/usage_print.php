@@ -230,7 +230,7 @@
     <?php endif; ?>
     
     <div class="footer">
-        <p>This record was generated on <?= date('F j, Y g:i A') ?></p>
+        <p>This record was generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
         <p>Dental Practice Management System - Inventory Usage Report</p>
     </div>
 </body>

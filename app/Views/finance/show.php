@@ -39,10 +39,10 @@
                             <i class="fas fa-user mr-2"></i>Back to Patient
                         </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Finance
                         </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-edit mr-2"></i>Edit Transaction
                         </a>
                     </div>
@@ -233,7 +233,7 @@
                                     ?>
                                     <tr class="hover:bg-slate-50/50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                                            <?= date('M j, Y', strtotime($payment['payment_date'])) ?>
+                                            <?= formatDate($payment['payment_date']) ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $typeClass ?>">
@@ -329,7 +329,7 @@
                                             <span>Date *</span>
                                         </label>
                                         <div class="relative">
-                                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" 
+                                            <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
                                         </div>
                                     </div>
@@ -402,7 +402,7 @@
                                             <span>Date *</span>
                                         </label>
                                         <div class="relative">
-                                            <input type="date" name="payment_date" value="<?= date('Y-m-d') ?>" 
+                                            <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
                                         </div>
                                     </div>
@@ -545,17 +545,17 @@
                         <?php if (!empty($finance['due_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Due Date</label>
-                            <p class="text-rose-600 font-bold"><?= date('M j, Y', strtotime($finance['due_date'])) ?></p>
+                            <p class="text-rose-600 font-bold"><?= formatDate($finance['due_date']) ?></p>
                         </div>
                         <?php endif; ?>
                          <?php if (!empty($finance['paid_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Settlement Date</label>
-                            <p class="text-emerald-600 font-bold"><?= date('M j, Y', strtotime($finance['paid_date'])) ?></p>
+                            <p class="text-emerald-600 font-bold"><?= formatDate($finance['paid_date']) ?></p>
                         </div>
                         <?php endif; ?>
                         <div class="pt-4 border-t border-gray-100">
-                            <p class="text-[10px] text-gray-400">Last Updated: <?= date('M j, g:i a', strtotime($finance['updated_at'])) ?></p>
+                            <p class="text-[10px] text-gray-400">Last Updated: <?= formatDateTime($finance['updated_at']) ?></p>
                         </div>
                     </div>
                 </div>
@@ -573,7 +573,7 @@
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-bold text-gray-800">
-                                <?= date('M j, Y', strtotime($examination['examination_date'])) ?>
+                                <?= formatDate($examination['examination_date']) ?>
                             </div>
                             <div class="text-xs text-gray-500">
                                 Status: <?= ucfirst($examination['status']) ?>

@@ -54,7 +54,7 @@
                                         <div class="flex items-center space-x-4 text-sm text-gray-500">
                                             <span class="flex items-center">
                                                 <i class="fas fa-clock mr-1"></i>
-                                                <?= date('M j, Y g:i A', strtotime($notification['created_at'])) ?>
+                                                <?= formatDateTime($notification['created_at']) ?>
                                             </span>
                                             <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                                                 <?= ucfirst($notification['type']) ?>

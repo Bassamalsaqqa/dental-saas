@@ -66,7 +66,7 @@
                 </div>
                 <div class="text-blue-100 text-sm">
                     <div>Status: <?= esc(ucfirst($contract['status'] ?? 'draft')) ?></div>
-                    <div>Generated on <?= date('Y-m-d H:i') ?></div>
+                    <div>Generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?></div>
                 </div>
             </div>
         </div>
@@ -196,7 +196,7 @@
 
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center print:bg-gray-100 print:border-gray-300">
             <div class="text-sm text-gray-600">
-                <p>This contract was generated on <?= date('F j, Y \a\t g:i A') ?> by <?= esc($clinic['name'] ?? 'Clinic') ?></p>
+                <p>This contract was generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?> by <?= esc($clinic['name'] ?? 'Clinic') ?></p>
                 <?php if (!empty($clinic['phone']) || !empty($clinic['email'])): ?>
                     <p class="mt-2">For questions about this contract, please contact <?= esc($clinic['name'] ?? 'Clinic') ?></p>
                     <p class="mt-1">Phone: <?= esc($clinic['phone'] ?? '-') ?> | Email: <?= esc($clinic['email'] ?? '-') ?></p>

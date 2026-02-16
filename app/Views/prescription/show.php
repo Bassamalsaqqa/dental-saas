@@ -26,11 +26,11 @@
                             <i class="fas fa-user mr-2"></i>Back to Patient
                         </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('prescription') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('prescription') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Prescriptions
                         </a>
                         <?php if (has_permission('prescriptions', 'edit')): ?>
-                        <a href="<?= base_url('prescription/' . $prescription['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="<?= base_url('prescription/' . $prescription['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
                             <i class="fas fa-edit mr-2"></i>Edit Prescription
                         </a>
                         <?php endif; ?>
@@ -135,15 +135,15 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Prescribed Date</label>
-                            <p class="text-gray-800"><?= date('M d, Y', strtotime($prescription['prescribed_date'])) ?></p>
+                            <p class="text-gray-800"><?= formatDate($prescription['prescribed_date']) ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Expiry Date</label>
-                            <p class="text-gray-800"><?= date('M d, Y', strtotime($prescription['expiry_date'])) ?></p>
+                            <p class="text-gray-800"><?= formatDate($prescription['expiry_date']) ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created At</label>
-                            <p class="text-gray-800"><?= date('M d, Y H:i', strtotime($prescription['created_at'])) ?></p>
+                            <p class="text-gray-800"><?= formatDateTime($prescription['created_at']) ?></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>

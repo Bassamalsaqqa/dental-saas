@@ -178,7 +178,7 @@
                                                 <span>Hire Date *</span>
                                             </label>
                                             <div class="relative">
-                                                <input type="date" id="hire_date" name="hire_date" 
+                                            <input type="text" id="hire_date" name="hire_date" data-clinic-date="1"
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('hire_date')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('hire_date', date('Y-m-d')) ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

@@ -235,6 +235,15 @@ class Treatment extends BaseController
             }
         }
 
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination']);
+        if (!$returnTo) {
+            if ($examinationId) {
+                $returnTo = 'examination/' . $examinationId;
+            } elseif (!empty($selectedPatient['id'])) {
+                $returnTo = 'patient/' . (int) $selectedPatient['id'];
+            }
+        }
+
         $inventoryItems = $this->inventoryModel->where('status', 'active')
             ->where('clinic_id', $clinicId)
             ->where('quantity >', 0)
@@ -248,7 +257,8 @@ class Treatment extends BaseController
             'validation' => null, // Initialize validation as null
             'loadSelect2' => true,
             'selected_examination_id' => $examinationId,
-            'inventory_items' => $inventoryItems
+            'inventory_items' => $inventoryItems,
+            'return_to' => $returnTo
         ];
 
         return $this->view('treatment/create', $data);
@@ -301,7 +311,8 @@ class Treatment extends BaseController
                 'validation' => $this->validator,
                 'loadSelect2' => true,
                 'selected_examination_id' => $examId,
-                'inventory_items' => $inventoryItems
+                'inventory_items' => $inventoryItems,
+                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination'])
             ];
             return $this->view('treatment/create', $data);
         }
@@ -354,6 +365,15 @@ class Treatment extends BaseController
                     ->with('error', $usageResult['message']);
             }
 
+            $returnTo = $this->resolveCreateReturnTo(
+                (int) $treatmentData['patient_id'],
+                $examinationId,
+                $this->request->getPost('return_to')
+            );
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been created successfully!');
+            }
+
             if ($examinationId) {
                 return redirect()->to('/examination/' . $examinationId)->with('success', 'Treatment has been created successfully!');
             }
@@ -391,9 +411,31 @@ class Treatment extends BaseController
             'treatment' => $treatment,
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'treatment']),
         ];
 
         return $this->view('treatment/show', $data);
+    }
+
+    private function resolveCreateReturnTo(int $patientId, ?int $examinationId, $returnToRaw): ?string
+    {
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'examination']);
+        if (!$returnTo) {
+            return null;
+        }
+
+        if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
+            return ((int) $matches[1] === $patientId) ? $returnTo : null;
+        }
+
+        if (preg_match('#^examination/(\\d+)$#', $returnTo, $matches)) {
+            if (!$examinationId) {
+                return null;
+            }
+            return ((int) $matches[1] === $examinationId) ? $returnTo : null;
+        }
+
+        return null;
     }
 
     public function edit($id)
@@ -424,7 +466,8 @@ class Treatment extends BaseController
             'treatment_types' => $this->getTreatmentTypes(),
             'validation' => null,
             'loadSelect2' => true,
-            'inventory_items' => $inventoryItems
+            'inventory_items' => $inventoryItems,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'treatment'])
         ];
 
         return $this->view('treatment/edit', $data);
@@ -466,7 +509,8 @@ class Treatment extends BaseController
                 'patients' => $this->patientModel->where('clinic_id', $clinicId)->findAll(),
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
-                'inventory_items' => $inventoryItems
+                'inventory_items' => $inventoryItems,
+                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'treatment'])
             ];
             return $this->view('treatment/edit', $data);
         }
@@ -501,6 +545,11 @@ class Treatment extends BaseController
                     ->back()
                     ->withInput()
                     ->with('error', $usageResult['message']);
+            }
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'treatment']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been updated successfully!');
             }
 
             return redirect()->to('/treatment')->with('success', 'Treatment has been updated successfully!');
@@ -544,6 +593,13 @@ class Treatment extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => true, 'message' => 'Treatment has been deleted successfully!']);
             } else {
+                $returnTo = $this->sanitizeInternalReturnTo(
+                    (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
+                    ['patient', 'examination', 'treatment']
+                );
+                if ($returnTo) {
+                    return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been deleted successfully!');
+                }
                 return redirect()->back()->with('success', 'Treatment has been deleted successfully!');
             }
         } else {

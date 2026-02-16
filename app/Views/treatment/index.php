@@ -350,7 +350,7 @@
                                     <div class="w-5/6 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
                         </div>
                         </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= date('M Y') ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= formatDate(date('Y-m-d')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -549,7 +549,7 @@ $(document).ready(function() {
                     return `
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-calendar text-pink-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${row.created_at_formatted || date.toLocaleDateString()}</span>
+                            <span class="text-sm text-gray-900">${row.start_date_formatted || date.toLocaleDateString()}</span>
                         </div>
                     `;
                 }

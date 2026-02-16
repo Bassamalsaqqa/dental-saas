@@ -33,7 +33,7 @@
                         </div>
                         
                         <div class="flex items-center space-x-3">
-                            <a href="<?= base_url('treatment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('treatment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
                                 <span class="relative z-10">Back to Treatments</span>
@@ -46,6 +46,9 @@
                 <div class="p-8"> 
                     <form action="<?= base_url('treatment/' . $treatment['id'] . '/update') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
+                        <?php if (!empty($return_to)): ?>
+                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                        <?php endif; ?>
                         <!-- Patient Selection -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
@@ -220,7 +223,7 @@
                                 <span>Start Date *</span>
                             </label>
                             <div class="relative">
-                                <input type="date" id="start_date" name="start_date" 
+                                <input type="text" id="start_date" name="start_date" data-clinic-date="1"
                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
                                        value="<?= old('start_date', $treatment['start_date']) ?>" required>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -261,7 +264,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Usage Date *</label>
-                                            <input type="date" name="usage_date" id="usage_date" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
                                         </div>
                                         <div class="flex items-end">
                                             <p class="text-sm text-gray-500">Items must be in stock to record usage.</p>
@@ -322,7 +325,7 @@
 
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end gap-4 sm:gap-12 pt-6 border-t border-white/20">
-                            <a href="<?= base_url('treatment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('treatment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
                                 <span class="relative z-10">Cancel</span>
@@ -345,7 +348,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startDateInput = document.getElementById('start_date');
     if (!startDateInput.value) {
-        startDateInput.value = new Date().toISOString().split('T')[0];
+        const todayIso = new Date().toISOString().split('T')[0];
+        startDateInput.value = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(todayIso) : todayIso;
     }
     
     // Inventory usage toggle

@@ -125,7 +125,7 @@
             <div class="bg-gray-50 p-6">
                 <div class="flex justify-between items-center">
                     <div class="text-sm text-gray-600">
-                        <p>Generated on: <?= date('M j, Y g:i A') ?></p>
+                        <p>Generated on: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                         <p>Treatment ID: <?= esc($treatment['treatment_id'] ?? $treatment['id'] ?? 'N/A') ?></p>
                     </div>
                     <div class="text-sm text-gray-600 text-right">

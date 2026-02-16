@@ -74,6 +74,11 @@ class Finance extends BaseController
             }
         }
 
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance']);
+        if (!$returnTo && $patientId) {
+            $returnTo = 'patient/' . $patientId;
+        }
+
         $data = [
             'title' => 'New Financial Transaction',
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
@@ -82,7 +87,8 @@ class Finance extends BaseController
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
-            'selected_patient_id' => $patientId
+            'selected_patient_id' => $patientId,
+            'return_to' => $returnTo
         ];
 
         return $this->view('finance/create', $data);
@@ -206,12 +212,14 @@ class Finance extends BaseController
                 "New {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " created for {$patientName}"
             );
 
-            $returnTo = trim((string) $this->request->getPost('return_to'));
-            if ($returnTo !== '' && !empty($financeData['patient_id'])) {
-                $expectedReturn = rtrim(base_url('patient/' . $financeData['patient_id']), '/');
-                if (rtrim($returnTo, '/') === $expectedReturn) {
-                    return redirect()->to($expectedReturn)->with('success', 'Financial transaction has been created successfully!');
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'finance']);
+            if ($returnTo !== null && !empty($financeData['patient_id'])) {
+                if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches) && (int) $matches[1] !== (int) $financeData['patient_id']) {
+                    $returnTo = null;
                 }
+            }
+            if ($returnTo !== null) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been created successfully!');
             }
 
             return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been created successfully!');
@@ -271,7 +279,8 @@ class Finance extends BaseController
                 ->where('entity_type', 'finance')
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'check_scan')
-                ->first()
+                ->first(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance'])
         ];
 
         return $this->view('finance/show', $data);
@@ -317,7 +326,8 @@ class Finance extends BaseController
                 ->where('entity_type', 'finance')
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'check_scan')
-                ->first()
+                ->first(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance'])
         ];
 
         return $this->view('finance/edit', $data);
@@ -423,6 +433,11 @@ class Finance extends BaseController
                 "Financial transaction updated for {$patientName} - {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($financeData['amount'], 2)
             );
 
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'finance']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been updated successfully!');
+            }
+
             return redirect()->to(base_url('finance/' . $id))->with('success', 'Financial transaction has been updated successfully!');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to update financial transaction. Please check your input and try again.');
@@ -468,6 +483,13 @@ class Finance extends BaseController
                 if ($this->request->isAJAX()) {
                     return $this->response->setJSON(['success' => true, 'message' => 'Financial transaction has been deleted successfully!']);
                 } else {
+                    $returnTo = $this->sanitizeInternalReturnTo(
+                        (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
+                        ['patient', 'finance']
+                    );
+                    if ($returnTo) {
+                        return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been deleted successfully!');
+                    }
                     return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been deleted successfully!');
                 }
             } else {

@@ -381,4 +381,37 @@ abstract class BaseController extends Controller
         
         return null;
     }
+
+    /**
+     * Sanitize internal return target to avoid open redirects.
+     *
+     * @param string|null $returnTo
+     * @param array<int, string> $allowedPrefixes
+     * @return string|null
+     */
+    protected function sanitizeInternalReturnTo(?string $returnTo, array $allowedPrefixes = ['patient', 'examination', 'appointment', 'treatment', 'prescription', 'finance']): ?string
+    {
+        $target = trim((string) $returnTo);
+        if ($target === '') {
+            return null;
+        }
+
+        $target = ltrim($target, '/');
+
+        if (strpos($target, '://') !== false || strpos($target, '//') === 0) {
+            return null;
+        }
+
+        if (!preg_match('#^[a-zA-Z0-9/_\\-?=&]+$#', $target)) {
+            return null;
+        }
+
+        foreach ($allowedPrefixes as $prefix) {
+            if (preg_match('#^' . preg_quote($prefix, '#') . '(/|$)#', $target)) {
+                return $target;
+            }
+        }
+
+        return null;
+    }
 }

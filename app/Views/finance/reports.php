@@ -59,7 +59,7 @@
                                 <i class="fas fa-calendar-alt w-4 h-4 mr-2 text-blue-600"></i>
                                 Start Date
                             </label>
-                            <input type="date" name="start_date" value="<?= $start_date ?>" 
+                            <input type="text" name="start_date" data-clinic-date="1" value="<?= $start_date ?>" 
                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
                         </div>
                         <div class="flex-1">
@@ -67,7 +67,7 @@
                                 <i class="fas fa-calendar-alt w-4 h-4 mr-2 text-green-600"></i>
                                 End Date
                             </label>
-                            <input type="date" name="end_date" value="<?= $end_date ?>" 
+                            <input type="text" name="end_date" data-clinic-date="1" value="<?= $end_date ?>" 
                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl">
                         </div>
                         <div class="flex space-x-3">
@@ -395,8 +395,10 @@ function exportReport() {
 }
 
 function downloadReport(format) {
-    const startDate = document.querySelector('input[name="start_date"]').value;
-    const endDate = document.querySelector('input[name="end_date"]').value;
+    const startRaw = document.querySelector('input[name="start_date"]').value;
+    const endRaw = document.querySelector('input[name="end_date"]').value;
+    const startDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(startRaw) : startRaw;
+    const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endRaw) : endRaw;
     
     // Implementation for downloading report
     window.location.href = `<?= base_url('finance/export-report') ?>?format=${format}&start_date=${startDate}&end_date=${endDate}`;

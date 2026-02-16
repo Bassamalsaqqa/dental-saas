@@ -139,7 +139,7 @@
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-500">Date of Birth</label>
-                        <p class="text-lg font-semibold text-gray-900"><?= date('M j, Y', strtotime($patient['date_of_birth'])) ?></p>
+                        <p class="text-lg font-semibold text-gray-900"><?= formatDate($patient['date_of_birth']) ?></p>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-500">Age</label>
@@ -363,7 +363,7 @@
                                 <?= $tooth['condition_description'] ?? 'No description' ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <?= date('M j, Y', strtotime($tooth['treatment_date'])) ?>
+                                <?= formatDate($tooth['treatment_date']) ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -376,7 +376,7 @@
         <!-- Footer -->
         <div class="bg-gray-100 border border-gray-300 rounded-lg p-6 text-center">
             <div class="text-sm text-gray-600">
-                <p>This report was generated on <?= date('F j, Y \a\t g:i A') ?> by the <?= esc($clinic['name']) ?></p>
+                <p>This report was generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?> by the <?= esc($clinic['name']) ?></p>
                 <p class="mt-2">For questions about this report, please contact your dental office</p>
             </div>
         </div>

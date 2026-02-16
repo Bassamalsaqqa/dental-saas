@@ -228,7 +228,7 @@
                         <!-- Date of Birth -->
                         <div>
                             <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
-                            <input type="date" id="dateOfBirth" name="date_of_birth" required
+                                <input type="text" id="dateOfBirth" name="date_of_birth" data-clinic-date="1" required
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
                         </div>
                         

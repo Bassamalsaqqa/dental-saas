@@ -108,7 +108,7 @@
                             <label for="usage_date" class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-calendar text-indigo-600 mr-2"></i>Usage Date *
                             </label>
-                            <input type="date" name="usage_date" id="usage_date" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required>
+                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required>
                         </div>
 
                         <!-- Cost Display -->

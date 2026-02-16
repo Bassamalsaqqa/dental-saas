@@ -204,7 +204,7 @@
                         <div class="flex items-center justify-between py-2">
                             <span class="text-gray-600 font-medium">Created:</span>
                             <span class="text-gray-900 font-semibold">
-                                <?= date('M j, Y', strtotime($user->created_on)) ?>
+                                <?= formatDate($user->created_on) ?>
                             </span>
                         </div>
                     </div>

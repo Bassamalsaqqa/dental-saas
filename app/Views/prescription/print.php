@@ -39,8 +39,8 @@
                         <p class="text-teal-100 print:text-gray-600">Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm">Date: <?= date('M j, Y', strtotime($prescription['prescribed_date'])) ?></p>
-                        <p class="text-sm">Expires: <?= date('M j, Y', strtotime($prescription['expiry_date'])) ?></p>
+                        <p class="text-sm">Date: <?= formatDate($prescription['prescribed_date']) ?></p>
+                        <p class="text-sm">Expires: <?= formatDate($prescription['expiry_date']) ?></p>
                     </div>
                 </div>
             </div>
@@ -134,11 +134,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <p class="text-sm text-gray-600">Prescribed Date:</p>
-                        <p class="font-semibold text-gray-900"><?= date('M j, Y', strtotime($prescription['prescribed_date'])) ?></p>
+                        <p class="font-semibold text-gray-900"><?= formatDate($prescription['prescribed_date']) ?></p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Expiry Date:</p>
-                        <p class="font-semibold text-gray-900"><?= date('M j, Y', strtotime($prescription['expiry_date'])) ?></p>
+                        <p class="font-semibold text-gray-900"><?= formatDate($prescription['expiry_date']) ?></p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Created By:</p>
@@ -166,7 +166,7 @@
             <div class="bg-gray-50 p-6 print:bg-white print:border-t print:border-gray-300">
                 <div class="flex justify-between items-center">
                     <div class="text-sm text-gray-600">
-                        <p>Generated on: <?= date('M j, Y g:i A') ?></p>
+                        <p>Generated on: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                         <p>Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
                     </div>
                     <div class="text-sm text-gray-600 text-right">

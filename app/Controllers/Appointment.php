@@ -185,6 +185,15 @@ class Appointment extends BaseController
             $appointmentType = null;
         }
 
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination']);
+        if (!$returnTo) {
+            if ($examinationId) {
+                $returnTo = 'examination/' . $examinationId;
+            } elseif (!empty($selectedPatient['id'])) {
+                $returnTo = 'patient/' . (int) $selectedPatient['id'];
+            }
+        }
+
         $data = [
             'title' => 'New Appointment',
             'patients' => [], // S4-02e-FIX: Do not preload patient list server-side. Autocomplete will handle it.
@@ -192,7 +201,8 @@ class Appointment extends BaseController
             'loadSelect2' => true,
             'selected_patient' => $selectedPatient,
             'examination_id' => $examinationId,
-            'appointment_type_prefill' => $appointmentType
+            'appointment_type_prefill' => $appointmentType,
+            'return_to' => $returnTo
         ];
 
         // Ensure user data is included
@@ -269,14 +279,41 @@ class Appointment extends BaseController
                 "New {$appointmentData['appointment_type']} appointment scheduled for {$patientName} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
             
+            $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Appointment created successfully');
+            }
+
             $examinationId = $this->request->getPost('examination_id');
             if (is_numeric($examinationId)) {
                 return redirect()->to('/examination/' . (int)$examinationId)->with('success', 'Follow-up appointment scheduled successfully');
             }
+
             return redirect()->to('/appointment')->with('success', 'Appointment created successfully');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create appointment');
         }
+    }
+
+    private function resolveCreateReturnTo(int $patientId, $examinationIdRaw, $returnToRaw): ?string
+    {
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'examination']);
+        if (!$returnTo) {
+            return null;
+        }
+
+        if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
+            return ((int) $matches[1] === $patientId) ? $returnTo : null;
+        }
+
+        if (preg_match('#^examination/(\\d+)$#', $returnTo, $matches)) {
+            if (!is_numeric($examinationIdRaw)) {
+                return null;
+            }
+            return ((int) $matches[1] === (int) $examinationIdRaw) ? $returnTo : null;
+        }
+
+        return null;
     }
 
     public function show($id)
@@ -305,7 +342,8 @@ class Appointment extends BaseController
 
         $data = [
             'title' => 'Appointment Details - ' . $appointment['appointment_id'],
-            'appointment' => $appointment
+            'appointment' => $appointment,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'appointment'])
         ];
 
         return $this->view('appointment/show', $data);
@@ -335,7 +373,8 @@ class Appointment extends BaseController
             'appointment' => $appointment,
             'patients' => [$patient], // Only emit the current patient as option
             'validation' => \Config\Services::validation(),
-            'loadSelect2' => true
+            'loadSelect2' => true,
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'appointment'])
         ];
 
         return $this->view('appointment/edit', $data);
@@ -413,6 +452,11 @@ class Appointment extends BaseController
                 $id,
                 "Appointment updated for {$patientName} - {$appointmentData['appointment_type']} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'appointment']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Appointment updated successfully');
+            }
             
             return redirect()->to('/appointment/' . $id)->with('success', 'Appointment updated successfully');
         } else {
@@ -453,6 +497,14 @@ class Appointment extends BaseController
             
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['success' => true, 'message' => 'Appointment deleted successfully']);
+            }
+
+            $returnTo = $this->sanitizeInternalReturnTo(
+                (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
+                ['patient', 'examination', 'appointment']
+            );
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Appointment deleted successfully');
             }
             return redirect()->to(base_url('appointment'))->with('success', 'Appointment deleted successfully');
         } else {

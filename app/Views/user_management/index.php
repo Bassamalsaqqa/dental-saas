@@ -105,8 +105,8 @@
                                 </td>
                                 <td>
                                     <?php if ($user['last_login']): ?>
-                                        <div><?= date('M j, Y', strtotime($user['last_login'])) ?></div>
-                                        <small class="text-muted"><?= date('g:i A', strtotime($user['last_login'])) ?></small>
+                                        <div><?= formatDate($user['last_login']) ?></div>
+                                        <small class="text-muted"><?= formatTime($user['last_login']) ?></small>
                                     <?php else: ?>
                                         <span class="text-muted">Never</span>
                                     <?php endif; ?>
