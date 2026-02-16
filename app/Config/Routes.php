@@ -442,17 +442,6 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     $routes->post('(:num)/adjust', 'Inventory::adjust', ['filter' => 'permission:inventory:edit']);
 });
 
-// Doctors routes
-$routes->group('doctors', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
-    $routes->get('/', 'Doctor::index', ['filter' => 'permission:users:view']);
-    $routes->get('create', 'Doctor::create', ['filter' => 'permission:users:create']);
-    $routes->post('store', 'Doctor::store', ['filter' => 'permission:users:create']);
-    $routes->get('(:num)', 'Doctor::show/$1', ['filter' => 'permission:users:view']);
-    $routes->get('(:num)/edit', 'Doctor::edit/$1', ['filter' => 'permission:users:edit']);
-    $routes->post('(:num)/update', 'Doctor::update/$1', ['filter' => 'permission:users:edit']);
-    $routes->delete('(:num)', 'Doctor::delete/$1', ['filter' => 'permission:users:delete']);
-});
-
 // Users routes
 $routes->get('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);
 $routes->post('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);

@@ -321,29 +321,6 @@ class UserModel extends Model
     }
 
     /**
-     * Get doctors with role details
-     */
-    public function getDoctorsWithDetails($clinicId = null)
-    {
-        $builder = $this->db->table($this->table . ' u')
-                 ->select('u.*, r.name as role_name, r.slug as role_slug')
-                 ->join('user_roles ur', 'ur.user_id = u.id')
-                 ->join('roles r', 'r.id = ur.role_id');
-
-        if ($clinicId) {
-            $builder->join('clinic_users cu', 'cu.user_id = u.id')
-                    ->where('cu.clinic_id', $clinicId);
-        }
-
-        return $builder->where('r.is_medical', 1)
-                 ->where('ur.is_active', 1)
-                 ->where('u.active', 1)
-                 ->orderBy('u.first_name', 'ASC')
-                 ->get()
-                 ->getResultArray();
-    }
-
-    /**
      * Find a user by ID scoped to a clinic
      */
     public function findByClinic($clinicId, $userId)
@@ -355,24 +332,4 @@ class UserModel extends Model
                     ->first();
     }
 
-    /**
-     * Get single doctor with role details
-     */
-    public function getDoctorWithDetails($id, $clinicId = null)
-    {
-        $builder = $this->db->table($this->table . ' u')
-                    ->select('u.*, r.name as role_name, r.slug as role_slug, r.id as role_id')
-                    ->join('user_roles ur', 'ur.user_id = u.id')
-                    ->join('roles r', 'r.id = ur.role_id')
-                    ->where('u.id', $id)
-                    ->where('r.is_medical', 1)
-                    ->where('ur.is_active', 1);
-
-        if ($clinicId) {
-            $builder->join('clinic_users cu', 'cu.user_id = u.id')
-                    ->where('cu.clinic_id', $clinicId);
-        }
-
-        return $builder->get()->getRowArray();
-    }
 }

@@ -209,12 +209,6 @@
                                 'icon' => 'fas fa-boxes',
                                 'color' => 'teal',
                             ],
-                            'doctors' => [
-                                'title' => 'Doctors',
-                                'url' => 'doctors',
-                                'icon' => 'fas fa-user-md',
-                                'color' => 'green',
-                            ],
                             'users' => [
                                 'title' => 'User Management',
                                 'url' => 'users',
@@ -252,7 +246,6 @@
                         'finance' => ['module' => 'finance', 'action' => 'view'],
                         'reports' => ['module' => 'reports', 'action' => 'view'],
                         'inventory' => ['module' => 'inventory', 'action' => 'view'],
-                        'doctors' => ['module' => 'users', 'action' => 'view'], // Doctors are part of user management
                         'users' => ['module' => 'users', 'action' => 'view'],
                         'roles' => ['module' => 'users', 'action' => 'roles'], // Roles are part of user management
                         'activity_log' => ['module' => 'activity_log', 'action' => 'view'],
