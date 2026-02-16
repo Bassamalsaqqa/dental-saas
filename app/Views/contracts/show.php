@@ -182,8 +182,11 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Draw Signature</label>
-                                        <canvas id="signatureCanvas" class="border border-gray-300 rounded-lg w-full" height="150"></canvas>
-                                        <button type="button" id="clearSignatureBtn" class="mt-2 text-xs text-gray-500 hover:text-gray-700">Clear</button>
+                                        <canvas id="signatureCanvas" class="border border-gray-300 rounded-lg w-full" height="150" style="touch-action: none; -ms-touch-action: none;"></canvas>
+                                        <button type="button" id="clearSignatureBtn"
+                                                class="mt-2 inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+                                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i>Clear Signature
+                                        </button>
                                     </div>
                                     <button type="submit" class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">
                                         Sign Contract
@@ -205,6 +208,7 @@
     if (canvas) {
         const ctx = canvas.getContext('2d');
         let drawing = false;
+        canvas.style.touchAction = 'none';
 
         const getScale = () => {
             const rect = canvas.getBoundingClientRect();
@@ -214,14 +218,17 @@
         };
 
         const startDraw = (e) => {
+            if (e.cancelable) e.preventDefault();
             drawing = true;
             ctx.beginPath();
             ctx.moveTo(getX(e), getY(e));
         };
-        const endDraw = () => {
+        const endDraw = (e) => {
+            if (e && e.cancelable) e.preventDefault();
             drawing = false;
         };
         const draw = (e) => {
+            if (e.cancelable) e.preventDefault();
             if (!drawing) return;
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
@@ -244,9 +251,10 @@
         canvas.addEventListener('mouseup', endDraw);
         canvas.addEventListener('mouseleave', endDraw);
         canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('touchstart', startDraw);
-        canvas.addEventListener('touchend', endDraw);
-        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchend', endDraw, { passive: false });
+        canvas.addEventListener('touchcancel', endDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
 
         document.getElementById('clearSignatureBtn')?.addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -234,8 +234,11 @@
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Draw Signature</label>
-                        <canvas id="kioskSignatureCanvas" class="border border-gray-300 rounded-xl w-full" height="160"></canvas>
-                        <button type="button" id="kioskClearSignature" class="mt-2 text-xs text-gray-500 hover:text-gray-700">Clear</button>
+                        <canvas id="kioskSignatureCanvas" class="border border-gray-300 rounded-xl w-full" height="160" style="touch-action: none; -ms-touch-action: none;"></canvas>
+                        <button type="button" id="kioskClearSignature"
+                                class="mt-2 inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i>Clear Signature
+                        </button>
                     </div>
                     <button type="submit" class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
                         <i class="fas fa-signature mr-2"></i>Sign Plan
@@ -612,6 +615,7 @@ kioskClose?.addEventListener('click', () => {
 if (kioskSignatureCanvas) {
     const ctx = kioskSignatureCanvas.getContext('2d');
     let drawing = false;
+    kioskSignatureCanvas.style.touchAction = 'none';
     const getPos = (e) => {
         const rect = kioskSignatureCanvas.getBoundingClientRect();
         const point = e.touches ? e.touches[0] : e;
@@ -623,12 +627,14 @@ if (kioskSignatureCanvas) {
         };
     };
     const start = (e) => {
+        if (e.cancelable) e.preventDefault();
         drawing = true;
         const pos = getPos(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
     };
     const draw = (e) => {
+        if (e.cancelable) e.preventDefault();
         if (!drawing) return;
         const pos = getPos(e);
         ctx.lineWidth = 2;
@@ -637,15 +643,19 @@ if (kioskSignatureCanvas) {
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
     };
-    const end = () => { drawing = false; };
+    const end = (e) => {
+        if (e && e.cancelable) e.preventDefault();
+        drawing = false;
+    };
 
     kioskSignatureCanvas.addEventListener('mousedown', start);
     kioskSignatureCanvas.addEventListener('mousemove', draw);
     kioskSignatureCanvas.addEventListener('mouseup', end);
     kioskSignatureCanvas.addEventListener('mouseleave', end);
-    kioskSignatureCanvas.addEventListener('touchstart', start);
-    kioskSignatureCanvas.addEventListener('touchmove', draw);
-    kioskSignatureCanvas.addEventListener('touchend', end);
+    kioskSignatureCanvas.addEventListener('touchstart', start, { passive: false });
+    kioskSignatureCanvas.addEventListener('touchmove', draw, { passive: false });
+    kioskSignatureCanvas.addEventListener('touchend', end, { passive: false });
+    kioskSignatureCanvas.addEventListener('touchcancel', end, { passive: false });
 
     kioskClearSignature?.addEventListener('click', () => {
         ctx.clearRect(0, 0, kioskSignatureCanvas.width, kioskSignatureCanvas.height);
