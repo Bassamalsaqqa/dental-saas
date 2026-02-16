@@ -84,7 +84,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Estimated Duration</label>
-                            <p class="text-gray-800"><?= $treatment['estimated_duration'] ?? 'N/A' ?> minutes</p>
+                            <p class="text-gray-800"><?= $treatment['estimated_duration'] ?? 'N/A' ?> days</p>
                         </div>
                     </div>
                 </div>

@@ -81,7 +81,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Estimated Duration:</p>
-                        <p class="font-semibold text-gray-900"><?= esc($treatment['estimated_duration'] ?? 'N/A') ?> minutes</p>
+                        <p class="font-semibold text-gray-900"><?= esc($treatment['estimated_duration'] ?? 'N/A') ?> days</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Completion Date:</p>

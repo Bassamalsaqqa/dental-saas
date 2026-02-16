@@ -175,7 +175,7 @@ class Treatment extends BaseController
                     'treatment_name' => $this->getTreatmentName($treatment['treatment_type'] ?? ''),
                     'treatment_type' => $treatment['treatment_type'] ?? '',
                     'tooth_number' => $treatment['tooth_number'] ?? '',
-                    'description' => $treatment['description'] ?? '',
+                    'description' => $treatment['treatment_description'] ?? '',
                     'cost' => $treatment['cost'] ?? '',
                     'status' => $treatment['status'] ?? '',
                     'start_date' => $treatment['start_date'] ?? '',
@@ -337,6 +337,7 @@ class Treatment extends BaseController
             'treatment_type' => $this->request->getPost('treatment_type'),
             'tooth_number' => $this->request->getPost('tooth_number') ?: null,
             'treatment_description' => $this->request->getPost('description'),
+            'treatment_notes' => $this->request->getPost('treatment_notes') ?: null,
             'cost' => $this->request->getPost('cost'),
             'start_date' => $this->request->getPost('start_date'),
             'estimated_duration' => $this->request->getPost('estimated_duration'),
@@ -521,6 +522,7 @@ class Treatment extends BaseController
             'treatment_type' => $this->request->getPost('treatment_type'),
             'tooth_number' => $this->request->getPost('tooth_number') ?: null,
             'treatment_description' => $this->request->getPost('description'),
+            'treatment_notes' => $this->request->getPost('treatment_notes') ?: null,
             'cost' => $this->request->getPost('cost'),
             'start_date' => $this->request->getPost('start_date'),
             'estimated_duration' => $this->request->getPost('estimated_duration'),
@@ -627,6 +629,7 @@ class Treatment extends BaseController
         $updateData = [
             'status' => 'completed',
             'completion_date' => date('Y-m-d H:i:s'),
+            'end_date' => date('Y-m-d'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 

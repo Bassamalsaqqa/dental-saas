@@ -509,7 +509,7 @@ $(document).ready(function() {
                     return data ? `
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-dollar-sign text-pink-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">$${parseFloat(data).toFixed(2)}</span>
+                            <span class="text-sm text-gray-900"><?= settings()->getCurrencySymbol() ?>${parseFloat(data).toFixed(2)}</span>
                         </div>
                     ` : '<span class="text-gray-400 text-sm">No cost</span>';
                 }
@@ -522,13 +522,13 @@ $(document).ready(function() {
                         'active': 'bg-green-100 text-green-800',
                         'completed': 'bg-blue-100 text-blue-800',
                         'cancelled': 'bg-gray-100 text-gray-800',
-                        'pending': 'bg-yellow-100 text-yellow-800'
+                        'on_hold': 'bg-yellow-100 text-yellow-800'
                     };
                     const statusIcons = {
                         'active': 'fas fa-play-circle',
                         'completed': 'fas fa-check-circle',
                         'cancelled': 'fas fa-times-circle',
-                        'pending': 'fas fa-clock'
+                        'on_hold': 'fas fa-pause-circle'
                     };
                     const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';

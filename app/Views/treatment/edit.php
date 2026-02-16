@@ -168,6 +168,18 @@
                             <?php endif; ?>
                         </div>
 
+                        <div class="group/field relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                <i class="fas fa-sticky-note text-amber-600"></i>
+                                <span>Treatment Notes</span>
+                            </label>
+                            <div class="relative">
+                                <textarea id="treatment_notes" name="treatment_notes" rows="3"
+                                          class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl resize-none"
+                                          placeholder="Optional internal notes for this treatment..."><?= old('treatment_notes', $treatment['treatment_notes'] ?? '') ?></textarea>
+                            </div>
+                        </div>
+
                         <!-- Cost and Duration -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
@@ -442,24 +454,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add some basic form validation
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        const cost = parseFloat(document.getElementById('cost').value);
-        const duration = parseInt(document.getElementById('estimated_duration').value);
-        
-        if (cost <= 0) {
-            alert('Please enter a valid cost greater than 0.');
-            e.preventDefault();
-            return false;
-        }
-        
-        if (duration <= 0) {
-            alert('Please enter a valid duration greater than 0 days.');
-            e.preventDefault();
-            return false;
-        }
-    });
 });
 </script>
 <?= $this->endSection() ?>

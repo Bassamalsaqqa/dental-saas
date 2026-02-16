@@ -340,7 +340,7 @@ class TreatmentModel extends TenantAwareModel
         return $this->select('treatments.*, patients.first_name, patients.last_name')
                     ->join('patients', 'patients.id = treatments.patient_id')
                     ->groupStart()
-                        ->like('treatments.description', $searchTerm)
+                        ->like('treatments.treatment_description', $searchTerm)
                         ->orLike('treatments.treatment_type', $searchTerm)
                         ->orLike('patients.first_name', $searchTerm)
                         ->orLike('patients.last_name', $searchTerm)
