@@ -1,6 +1,45 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<style>
+/* Prevent overlap between Select2 clear (x) and dropdown arrow on this page */
+#patientSelect + .select2-container .select2-selection--single .select2-selection__rendered,
+#treatment_type + .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-right: 4.5rem !important;
+}
+
+#patientSelect + .select2-container .select2-selection--single,
+#treatment_type + .select2-container .select2-selection--single {
+    position: relative !important;
+}
+
+#patientSelect + .select2-container .select2-selection--single .select2-selection__clear,
+#treatment_type + .select2-container .select2-selection--single .select2-selection__clear {
+    position: absolute !important;
+    right: 2rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    float: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    line-height: 1 !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #6b7280 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 2 !important;
+}
+
+#patientSelect + .select2-container .select2-selection--single .select2-selection__arrow,
+#treatment_type + .select2-container .select2-selection--single .select2-selection__arrow {
+    right: 0.5rem !important;
+    width: 1.25rem !important;
+}
+</style>
 <!-- Enhanced Treatment Creation with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-orange-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -57,42 +96,39 @@
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
-                        <!-- Patient Selection -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-user text-blue-600"></i>
-                                <span>Select Patient *</span>
-                            </label>
-                                                            <div class="relative">
-                                                                <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
-                                                                        data-searchable-select 
-                                                                        data-minimum-input-length="0"
-                                                                        data-limit="5"
-                                                                        data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                                                        data-placeholder="Search patients by name, phone, or ID..."
-                                                                        required>
-                                                                    <option value="">Select a patient</option>
-                                                                    <?php if (!empty($patients)): ?>
-                                                                        <?php foreach ($patients as $patient): ?>
-                                                                            <option value="<?= $patient['id'] ?>" selected>
-                                                                                <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
-                                                                            </option>
-                                                                        <?php endforeach; ?>
-                                                                    <?php endif; ?>
-                                                                </select>
-                                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                                                </div>
-                                                            </div>                            <?php if ($validation && $validation->hasError('patient_id')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span><?= $validation->getError('patient_id') ?></span>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Treatment Type and Tooth Number -->
+                        <!-- Patient and Treatment Type -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                    <span>Select Patient *</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
+                                            data-searchable-select 
+                                            data-minimum-input-length="0"
+                                            data-limit="5"
+                                            data-search-url="<?= base_url('api/v1/search/patients') ?>"
+                                            data-placeholder="Search patients by name, phone, or ID..."
+                                            required>
+                                        <option value="">Select a patient</option>
+                                        <?php if (!empty($patients)): ?>
+                                            <?php foreach ($patients as $patient): ?>
+                                                <option value="<?= $patient['id'] ?>" selected>
+                                                    <?= $patient['first_name'] . ' ' . $patient['last_name'] ?> (<?= $patient['phone'] ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+                                <?php if ($validation && $validation->hasError('patient_id')): ?>
+                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span><?= $validation->getError('patient_id') ?></span>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-stethoscope text-purple-600"></i>
@@ -116,9 +152,6 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if ($validation && $validation->hasError('treatment_type')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -127,7 +160,10 @@
                                     </p>
                                 <?php endif; ?>
                             </div>
+                        </div>
 
+                        <!-- Tooth Number and Start Date -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-tooth text-cyan-600"></i>
@@ -151,6 +187,24 @@
                                     <i class="fas fa-info-circle"></i>
                                     <span>Leave empty if not applicable</span>
                                 </p>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calendar text-rose-600"></i>
+                                    <span>Start Date *</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="start_date" name="start_date" data-clinic-date="1"
+                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
+                                           value="<?= old('start_date') ?: date('Y-m-d') ?>" required>
+                                </div>
+                                <?php if ($validation && $validation->hasError('start_date')): ?>
+                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span><?= $validation->getError('start_date') ?></span>
+                                    </p>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -190,9 +244,6 @@
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
                                            class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('cost') ?>" placeholder="0.00" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-dollar-sign text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if ($validation && $validation->hasError('cost')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -210,10 +261,7 @@
                                 <div class="relative">
                                     <input type="number" id="estimated_duration" name="estimated_duration" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('estimated_duration') ?>" min="1" placeholder="e.g., 7" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-clock text-gray-400"></i>
-                                    </div>
+                                           value="<?= old('estimated_duration', 1) ?>" min="1" placeholder="e.g., 7" required>
                                 </div>
                                 <?php if ($validation && $validation->hasError('estimated_duration')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -222,28 +270,6 @@
                                     </p>
                                 <?php endif; ?>
                             </div>
-                        </div>
-
-                        <!-- Start Date -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-calendar text-rose-600"></i>
-                                <span>Start Date *</span>
-                            </label>
-                            <div class="relative">
-                                <input type="text" id="start_date" name="start_date" data-clinic-date="1"
-                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
-                                       value="<?= old('start_date') ?: date('Y-m-d') ?>" required>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="fas fa-calendar text-gray-400"></i>
-                                </div>
-                            </div>
-                            <?php if ($validation && $validation->hasError('start_date')): ?>
-                                <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span><?= $validation->getError('start_date') ?></span>
-                                </p>
-                            <?php endif; ?>
                         </div>
 
                         <!-- Inventory Usage (Optional) -->
