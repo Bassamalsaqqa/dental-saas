@@ -291,7 +291,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 </div>
 
                 <div class="space-y-6">
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
                         <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white p-5">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -303,9 +303,9 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                             </div>
                         </div>
-                        <div class="p-6 space-y-4 bg-white/70">
+                        <div class="p-6 space-y-4 bg-white/70 contract-panel-body">
                             <div class="grid grid-cols-2 gap-4">
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Currency</label>
                                 <?php
                                     $baseCurrency = $base_currency ?? 'ILS';
@@ -319,19 +319,19 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Total</label>
-                                <div class="px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700" id="contractTotal">0.00</div>
+                                <div class="px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display" id="contractTotal">0.00</div>
                             </div>
                             </div>
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Details</label>
                                 <textarea name="cost_details" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Additional cost breakdown (optional)"><?= esc($contract['cost_details'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
                         <div class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -348,9 +348,9 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </button>
                             </div>
                         </div>
-                        <div class="p-6 bg-white/70">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-sm">
+                        <div class="p-6 bg-white/70 contract-panel-body">
+                            <div class="overflow-x-auto contract-items-shell">
+                                <table class="min-w-full text-sm contract-items-grid">
                                     <thead class="bg-white/80">
                                     <tr>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
@@ -367,7 +367,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
                     </div>
 
-                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden contract-panel">
                         <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-gray-900 text-white p-5">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -387,20 +387,20 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </button>
                             </div>
                         </div>
-                        <div id="contractTermsContent" class="p-6 space-y-4 bg-white/70 <?= $hasContractTerms ? '' : 'hidden' ?>">
-                            <div>
+                        <div id="contractTermsContent" class="p-6 space-y-4 bg-white/70 contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
                                 <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
                             </div>
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Terms</label>
                                 <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
                             </div>
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Duration Plan</label>
                                 <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
                             </div>
-                            <div>
+                            <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
                                 <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
                             </div>
@@ -1298,7 +1298,7 @@ function buildItemCell(field, value, index, type = 'text') {
     input.type = type;
     input.name = `items[${index}][${field}]`;
     input.value = value ?? '';
-    input.className = 'w-full px-2 py-1 border border-gray-200 rounded text-xs';
+    input.className = 'w-full px-2.5 py-1.5 border border-slate-200 rounded-md text-xs bg-white text-slate-700 focus:outline-none focus:ring-0';
 
     if (field === 'qty' || field === 'price') {
         input.step = '0.01';
@@ -1465,6 +1465,70 @@ document.addEventListener('DOMContentLoaded', () => {
 .contract-full-main {
     width: 100%;
     max-width: none;
+}
+
+.contract-panel {
+    border-color: rgba(148, 163, 184, 0.25);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.contract-panel-body {
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.76) 0%, rgba(255, 255, 255, 0.72) 100%);
+}
+
+.contract-input-wrap {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(203, 213, 225, 0.7);
+    border-radius: 0.75rem;
+    padding: 0.7rem;
+}
+
+.contract-input-wrap label {
+    letter-spacing: 0.01em;
+    color: #475569;
+}
+
+.contract-panel input,
+.contract-panel select,
+.contract-panel textarea {
+    background-color: #fff !important;
+    border: 1px solid #d3dce8 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    color: #0f172a;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+    outline: none !important;
+}
+
+.contract-panel input:hover,
+.contract-panel select:hover,
+.contract-panel textarea:hover {
+    border-color: #c4d0df !important;
+}
+
+.contract-panel input:focus,
+.contract-panel select:focus,
+.contract-panel textarea:focus {
+    outline: none !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+    border-color: #9fb0c7 !important;
+}
+
+.contract-total-display {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.contract-items-shell {
+    border: 1px solid #d6deea;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.contract-items-grid thead {
+    background: #f8fafc;
+}
+
+.contract-items-grid tbody tr:nth-child(even) {
+    background: #fcfdff;
 }
 </style>
 <?= $this->endSection() ?>
