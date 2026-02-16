@@ -528,6 +528,7 @@ const kioskItems = document.getElementById('kioskContractItems');
 const kioskForm = document.getElementById('kioskContractForm');
 const kioskContractId = document.getElementById('kioskContractId');
 const kioskPatientId = document.getElementById('kioskContractPatientId');
+const kioskSignerName = document.getElementById('kioskSignerName');
 const kioskSignatureCanvas = document.getElementById('kioskSignatureCanvas');
 const kioskSignatureData = document.getElementById('kioskSignatureData');
 const kioskClearSignature = document.getElementById('kioskClearSignature');
@@ -588,6 +589,9 @@ const openContractModal = (contract) => {
     if (kioskSignatureCanvas) {
         const ctx = kioskSignatureCanvas.getContext('2d');
         ctx.clearRect(0, 0, kioskSignatureCanvas.width, kioskSignatureCanvas.height);
+    }
+    if (kioskSignerName) {
+        kioskSignerName.value = contract.patient_name || '';
     }
     kioskSignatureData.value = '';
     kioskModal.classList.remove('hidden');

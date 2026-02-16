@@ -172,10 +172,12 @@
                                 <?php if (!empty($return_to)): ?>
                                     <input type="hidden" name="return" value="<?= esc($return_to) ?>">
                                 <?php endif; ?>
+                                <?php $defaultSignerName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')); ?>
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Typed Name</label>
                                         <input type="text" name="signer_name" required
+                                               value="<?= esc($defaultSignerName) ?>"
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Patient full name">
                                     </div>
                                     <div>

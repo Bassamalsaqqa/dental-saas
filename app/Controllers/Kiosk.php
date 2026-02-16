@@ -188,6 +188,7 @@ class Kiosk extends BaseController
                 $contracts[] = [
                     'id' => (int) $contract['id'],
                     'patient_id' => (int) $patientId,
+                    'patient_name' => $patientMap[(int) $patientId]['name'] ?? '',
                     'currency' => $contract['currency'] ?? 'ILS',
                     'total_cost' => $contract['total_cost'] ?? 0,
                     'created_at' => $contract['created_at'] ?? null,
