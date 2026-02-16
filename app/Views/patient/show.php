@@ -506,33 +506,37 @@ function getFDINumber($universalNumber) {
                                     <div class="px-6 py-4">
                                         <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
                                             <?= csrf_field() ?>
-                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                <div class="md:col-span-2">
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
-                                                    <div id="attachmentDropzone" tabindex="0" role="button"
-                                                         class="w-full cursor-pointer rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40 px-4 py-6 text-center transition-all duration-200">
-                                                        <div class="text-sm text-gray-600">
-                                                            Drag & drop files here, or click to browse
-                                                        </div>
-                                                        <div class="mt-2 text-xs text-gray-500">You can select multiple files</div>
-                                                        <div class="mt-4 inline-flex items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700">
-                                                            <i class="fas fa-folder-open"></i>
-                                                            Choose Files
-                                                        </div>
+                                            <div class="space-y-4">
+                                                <div id="attachmentDropzone" tabindex="0" role="button"
+                                                     class="w-full cursor-pointer rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40 px-4 py-6 text-center transition-all duration-200">
+                                                    <div class="text-sm text-gray-600">
+                                                        Drag & drop files here, or click to browse
                                                     </div>
-                                                    <input type="file" name="attachment[]" id="attachmentInput" required multiple
-                                                           accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
-                                                           class="mt-3 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                    <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
+                                                    <div class="mt-2 text-xs text-gray-500">You can select multiple files</div>
+                                                    <div class="mt-4 inline-flex items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700">
+                                                        <i class="fas fa-folder-open"></i>
+                                                        Choose Files
+                                                    </div>
                                                 </div>
+
+                                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
+                                                        <input type="file" name="attachment[]" id="attachmentInput" required multiple
+                                                               accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
+                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                        <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                                        <input type="text" name="category" placeholder="Scan, X-Ray, Lab..."
+                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    </div>
+                                                </div>
+
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                                    <input type="text" name="category" placeholder="Scan, X-Ray, Lab..."
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                </div>
-                                                <div class="md:col-span-3">
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                                                    <textarea name="notes" rows="2" placeholder="Optional notes for this file"
+                                                    <textarea name="notes" rows="4" placeholder="Optional notes for this file"
                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                                                 </div>
                                             </div>
