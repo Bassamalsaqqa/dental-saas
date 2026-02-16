@@ -26,6 +26,10 @@ $items = $items ?? [];
 $contract = $contract ?? null;
 $mode = $mode ?? 'create';
 $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['id'] . '/update') : base_url('contracts/create/' . $patient['id']);
+$hasContractTerms = !empty($contract['terms_conditions'] ?? '')
+    || !empty($contract['payment_terms'] ?? '')
+    || !empty($contract['duration_plan'] ?? '')
+    || !empty($contract['notes'] ?? '');
 ?>
 
 <?= $this->extend('layouts/main_auth') ?>
@@ -262,12 +266,6 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
                                         <p class="text-blue-100 text-sm" id="conditionsSummary"></p>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-3">
-                                    <button type="button" onclick="toggleNumberingSystem()" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors duration-200">
-                                        <i class="fas fa-exchange-alt mr-2"></i>
-                                        <span id="numberingToggleText">Switch to FDI</span>
-                                    </button>
-                                </div>
                             </div>
                         </div>
                         <div class="p-6">
@@ -371,17 +369,25 @@ $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['
 
                     <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-gray-900 text-white p-5">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-pen-fancy text-white"></i>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-pen-fancy text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold">Contract Terms</h3>
+                                        <p class="text-slate-200 text-xs">Optional terms, timeline, and notes</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 class="text-lg font-bold">Contract Terms</h3>
-                                    <p class="text-slate-200 text-xs">Optional terms, timeline, and notes</p>
-                                </div>
+                                <button type="button"
+                                        id="contractTermsToggleBtn"
+                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
+                                    <i id="contractTermsToggleIcon" class="fas <?= $hasContractTerms ? 'fa-chevron-up' : 'fa-chevron-down' ?> mr-2"></i>
+                                    <span id="contractTermsToggleText"><?= $hasContractTerms ? 'Hide' : 'Show' ?></span>
+                                </button>
                             </div>
                         </div>
-                        <div class="p-6 space-y-4 bg-white/70">
+                        <div id="contractTermsContent" class="p-6 space-y-4 bg-white/70 <?= $hasContractTerms ? '' : 'hidden' ?>">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
                                 <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
@@ -845,10 +851,6 @@ function switchNumberingSystem(system, userInitiated = false) {
 function toggleNumberingSystem() {
     const newSystem = currentNumberingSystem === 'universal' ? 'fdi' : 'universal';
     switchNumberingSystem(newSystem, true);
-    const toggleText = document.getElementById('numberingToggleText');
-    if (toggleText) {
-        toggleText.textContent = newSystem === 'universal' ? 'Switch to FDI' : 'Switch to Universal';
-    }
 }
 
 function setElementDisplay(el, show) {
@@ -1375,6 +1377,24 @@ function attachFormHandlers() {
 
     document.getElementById('contractForm')?.addEventListener('submit', () => {
         captureOdontogramSnapshot();
+    });
+
+    const termsToggleBtn = document.getElementById('contractTermsToggleBtn');
+    const termsContent = document.getElementById('contractTermsContent');
+    const termsIcon = document.getElementById('contractTermsToggleIcon');
+    const termsText = document.getElementById('contractTermsToggleText');
+
+    termsToggleBtn?.addEventListener('click', () => {
+        if (!termsContent) return;
+        const willShow = termsContent.classList.contains('hidden');
+        termsContent.classList.toggle('hidden', !willShow);
+        if (termsIcon) {
+            termsIcon.classList.toggle('fa-chevron-down', !willShow);
+            termsIcon.classList.toggle('fa-chevron-up', willShow);
+        }
+        if (termsText) {
+            termsText.textContent = willShow ? 'Hide' : 'Show';
+        }
     });
 }
 
