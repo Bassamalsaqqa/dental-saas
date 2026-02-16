@@ -50,8 +50,8 @@ class FinanceModel extends TenantAwareModel
         'patient_id' => 'required|integer',
         'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
         'amount' => 'required|decimal|greater_than[0]',
-        'currency' => 'in_list[USD,EUR,GBP,BDT,ILS,JOD]',
-        'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
+        'currency' => 'in_list[USD,EUR,GBP,ILS,JOD]',
+        'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
         'payment_status' => 'required|in_list[pending,paid,partial,overdue,cancelled]',
         'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
         'paid_date' => 'permit_empty|valid_date'
@@ -101,8 +101,9 @@ class FinanceModel extends TenantAwareModel
     protected function generateTransactionId(array $data)
     {
         if (!isset($data['data']['transaction_id'])) {
-            $prefix = strtoupper(substr($data['data']['transaction_type'], 0, 3));
-            $data['data']['transaction_id'] = $prefix . date('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $type = (string) ($data['data']['transaction_type'] ?? 'txn');
+            $prefix = strtoupper(substr($type, 0, 3));
+            $data['data']['transaction_id'] = $prefix . date('YmdHis') . str_pad((string) random_int(0, 99), 2, '0', STR_PAD_LEFT);
         }
         return $data;
     }
@@ -544,33 +545,42 @@ class FinanceModel extends TenantAwareModel
         return array_values($merged);
     }
 
-    public function getMonthlyRevenue($year = null)
+    public function getMonthlyRevenue($year = null, $clinicId = null)
     {
         try {
             $year = $year ?? date('Y');
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            $standalone = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+            $standaloneBuilder = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
                 ->where('YEAR(created_at)', $year)
-                ->where('transaction_type', 'payment')
-                ->groupBy('MONTH(created_at)')
+                ->where('transaction_type', 'payment');
+            if ($clinicId) {
+                $standaloneBuilder->where('clinic_id', $clinicId);
+            }
+            $standalone = $standaloneBuilder->groupBy('MONTH(created_at)')
                 ->orderBy('month', 'ASC')
                 ->findAll();
 
-            $invoicePayments = $this->db->table('finance_payments')
+            $invoiceBuilder = $this->db->table('finance_payments')
                 ->select('MONTH(payment_date) as month, SUM(amount) as total_amount')
-                ->where('YEAR(payment_date)', $year)
-                ->groupBy('MONTH(payment_date)')
+                ->where('YEAR(payment_date)', $year);
+            if ($clinicId) {
+                $invoiceBuilder->where('clinic_id', $clinicId);
+            }
+            $invoicePayments = $invoiceBuilder->groupBy('MONTH(payment_date)')
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();
 
-            $refunds = $this->db->table('finances')
+            $refundBuilder = $this->db->table('finances')
                 ->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
                 ->where('YEAR(created_at)', $year)
-                ->where('transaction_type', 'refund')
-                ->groupBy('MONTH(created_at)')
+                ->where('transaction_type', 'refund');
+            if ($clinicId) {
+                $refundBuilder->where('clinic_id', $clinicId);
+            }
+            $refunds = $refundBuilder->groupBy('MONTH(created_at)')
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();

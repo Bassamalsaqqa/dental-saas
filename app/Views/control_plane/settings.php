@@ -171,10 +171,10 @@
                                             <option value="Australia/Darwin" <?= $defaultTimezone === 'Australia/Darwin' ? 'selected' : '' ?>>Darwin (ACST)</option>
                                             <option value="Pacific/Auckland" <?= $defaultTimezone === 'Pacific/Auckland' ? 'selected' : '' ?>>Auckland (NZST/NZDT)</option>
                                             <option value="Pacific/Fiji" <?= $defaultTimezone === 'Pacific/Fiji' ? 'selected' : '' ?>>Fiji (FJT)</option>
-                                            <option value="America/Sao_Paulo" <?= $defaultTimezone === 'America/Sao_Paulo' ? 'selected' : '' ?>>S�o Paulo (BRT)</option>
+                                            <option value="America/Sao_Paulo" <?= $defaultTimezone === 'America/Sao_Paulo' ? 'selected' : '' ?>>S�o Paulo (BRT)</option>
                                             <option value="America/Buenos_Aires" <?= $defaultTimezone === 'America/Buenos_Aires' ? 'selected' : '' ?>>Buenos Aires (ART)</option>
                                             <option value="America/Lima" <?= $defaultTimezone === 'America/Lima' ? 'selected' : '' ?>>Lima (PET)</option>
-                                            <option value="America/Bogota" <?= $defaultTimezone === 'America/Bogota' ? 'selected' : '' ?>>Bogot� (COT)</option>
+                                            <option value="America/Bogota" <?= $defaultTimezone === 'America/Bogota' ? 'selected' : '' ?>>Bogot� (COT)</option>
                                             <option value="America/Mexico_City" <?= $defaultTimezone === 'America/Mexico_City' ? 'selected' : '' ?>>Mexico City (CST/CDT)</option>
                                             <option value="America/Toronto" <?= $defaultTimezone === 'America/Toronto' ? 'selected' : '' ?>>Toronto (EST/EDT)</option>
                                             <option value="America/Vancouver" <?= $defaultTimezone === 'America/Vancouver' ? 'selected' : '' ?>>Vancouver (PST/PDT)</option>
@@ -206,144 +206,11 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Currency</label>
                                         <?php $defaultCurrency = $settings['default_currency'] ?? 'USD'; ?>
                                         <select name="default_currency" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200" required>
-                                            <option value="USD" <?= $defaultCurrency == 'USD' ? 'selected' : '' ?>>USD - US Dollar ($)</option>
-                                            <option value="EUR" <?= $defaultCurrency == 'EUR' ? 'selected' : '' ?>>EUR - Euro (€)</option>
-                                            <option value="GBP" <?= $defaultCurrency == 'GBP' ? 'selected' : '' ?>>GBP - British Pound (£)</option>
-                                            <option value="JPY" <?= $defaultCurrency == 'JPY' ? 'selected' : '' ?>>JPY - Japanese Yen (¥)</option>
-                                            <option value="CAD" <?= $defaultCurrency == 'CAD' ? 'selected' : '' ?>>CAD - Canadian Dollar (C$)</option>
-                                            <option value="AUD" <?= $defaultCurrency == 'AUD' ? 'selected' : '' ?>>AUD - Australian Dollar (A$)</option>
-                                            <option value="CHF" <?= $defaultCurrency == 'CHF' ? 'selected' : '' ?>>CHF - Swiss Franc (CHF)</option>
-                                            <option value="CNY" <?= $defaultCurrency == 'CNY' ? 'selected' : '' ?>>CNY - Chinese Yuan (¥)</option>
-                                            <option value="SEK" <?= $defaultCurrency == 'SEK' ? 'selected' : '' ?>>SEK - Swedish Krona (kr)</option>
-                                            <option value="NOK" <?= $defaultCurrency == 'NOK' ? 'selected' : '' ?>>NOK - Norwegian Krone (kr)</option>
-                                            <option value="DKK" <?= $defaultCurrency == 'DKK' ? 'selected' : '' ?>>DKK - Danish Krone (kr)</option>
-                                            <option value="PLN" <?= $defaultCurrency == 'PLN' ? 'selected' : '' ?>>PLN - Polish Zloty (zł)</option>
-                                            <option value="CZK" <?= $defaultCurrency == 'CZK' ? 'selected' : '' ?>>CZK - Czech Koruna (Kč)</option>
-                                            <option value="HUF" <?= $defaultCurrency == 'HUF' ? 'selected' : '' ?>>HUF - Hungarian Forint (Ft)</option>
-                                            <option value="RUB" <?= $defaultCurrency == 'RUB' ? 'selected' : '' ?>>RUB - Russian Ruble (₽)</option>
-                                            <option value="INR" <?= $defaultCurrency == 'INR' ? 'selected' : '' ?>>INR - Indian Rupee (₹)</option>
-                                            <option value="BRL" <?= $defaultCurrency == 'BRL' ? 'selected' : '' ?>>BRL - Brazilian Real (R$)</option>
-                                            <option value="MXN" <?= $defaultCurrency == 'MXN' ? 'selected' : '' ?>>MXN - Mexican Peso ($)</option>
-                                            <option value="KRW" <?= $defaultCurrency == 'KRW' ? 'selected' : '' ?>>KRW - South Korean Won (₩)</option>
-                                            <option value="SGD" <?= $defaultCurrency == 'SGD' ? 'selected' : '' ?>>SGD - Singapore Dollar (S$)</option>
-                                            <option value="HKD" <?= $defaultCurrency == 'HKD' ? 'selected' : '' ?>>HKD - Hong Kong Dollar (HK$)</option>
-                                            <option value="NZD" <?= $defaultCurrency == 'NZD' ? 'selected' : '' ?>>NZD - New Zealand Dollar (NZ$)</option>
-                                            <option value="TRY" <?= $defaultCurrency == 'TRY' ? 'selected' : '' ?>>TRY - Turkish Lira (₺)</option>
-                                            <option value="ZAR" <?= $defaultCurrency == 'ZAR' ? 'selected' : '' ?>>ZAR - South African Rand (R)</option>
-                                            <option value="AED" <?= $defaultCurrency == 'AED' ? 'selected' : '' ?>>AED - UAE Dirham (د.إ)</option>
-                                            <option value="SAR" <?= $defaultCurrency == 'SAR' ? 'selected' : '' ?>>SAR - Saudi Riyal (ر.س)</option>
-                                            <option value="QAR" <?= $defaultCurrency == 'QAR' ? 'selected' : '' ?>>QAR - Qatari Riyal (ر.ق)</option>
-                                            <option value="KWD" <?= $defaultCurrency == 'KWD' ? 'selected' : '' ?>>KWD - Kuwaiti Dinar (د.ك)</option>
-                                            <option value="BHD" <?= $defaultCurrency == 'BHD' ? 'selected' : '' ?>>BHD - Bahraini Dinar (د.ب)</option>
-                                            <option value="OMR" <?= $defaultCurrency == 'OMR' ? 'selected' : '' ?>>OMR - Omani Rial (ر.ع.)</option>
-                                            <option value="JOD" <?= $defaultCurrency == 'JOD' ? 'selected' : '' ?>>JOD - Jordanian Dinar (د.ا)</option>
-                                            <option value="LBP" <?= $defaultCurrency == 'LBP' ? 'selected' : '' ?>>LBP - Lebanese Pound (ل.ل)</option>
-                                            <option value="EGP" <?= $defaultCurrency == 'EGP' ? 'selected' : '' ?>>EGP - Egyptian Pound (ج.م)</option>
-                                            <option value="ILS" <?= $defaultCurrency == 'ILS' ? 'selected' : '' ?>>ILS - Israeli Shekel (₪)</option>
-                                            <option value="THB" <?= $defaultCurrency == 'THB' ? 'selected' : '' ?>>THB - Thai Baht (฿)</option>
-                                            <option value="MYR" <?= $defaultCurrency == 'MYR' ? 'selected' : '' ?>>MYR - Malaysian Ringgit (RM)</option>
-                                            <option value="IDR" <?= $defaultCurrency == 'IDR' ? 'selected' : '' ?>>IDR - Indonesian Rupiah (Rp)</option>
-                                            <option value="PHP" <?= $defaultCurrency == 'PHP' ? 'selected' : '' ?>>PHP - Philippine Peso (₱)</option>
-                                            <option value="VND" <?= $defaultCurrency == 'VND' ? 'selected' : '' ?>>VND - Vietnamese Dong (₫)</option>
-                                            <option value="PKR" <?= $defaultCurrency == 'PKR' ? 'selected' : '' ?>>PKR - Pakistani Rupee (₨)</option>
-                                            <option value="BDT" <?= $defaultCurrency == 'BDT' ? 'selected' : '' ?>>BDT - Bangladeshi Taka (৳)</option>
-                                            <option value="LKR" <?= $defaultCurrency == 'LKR' ? 'selected' : '' ?>>LKR - Sri Lankan Rupee (₨)</option>
-                                            <option value="NPR" <?= $defaultCurrency == 'NPR' ? 'selected' : '' ?>>NPR - Nepalese Rupee (₨)</option>
-                                            <option value="MMK" <?= $defaultCurrency == 'MMK' ? 'selected' : '' ?>>MMK - Myanmar Kyat (K)</option>
-                                            <option value="KHR" <?= $defaultCurrency == 'KHR' ? 'selected' : '' ?>>KHR - Cambodian Riel (៛)</option>
-                                            <option value="LAK" <?= $defaultCurrency == 'LAK' ? 'selected' : '' ?>>LAK - Lao Kip (₭)</option>
-                                            <option value="BND" <?= $defaultCurrency == 'BND' ? 'selected' : '' ?>>BND - Brunei Dollar (B$)</option>
-                                            <option value="FJD" <?= $defaultCurrency == 'FJD' ? 'selected' : '' ?>>FJD - Fijian Dollar (FJ$)</option>
-                                            <option value="TOP" <?= $defaultCurrency == 'TOP' ? 'selected' : '' ?>>TOP - Tongan Pa'anga (T$)</option>
-                                            <option value="WST" <?= $defaultCurrency == 'WST' ? 'selected' : '' ?>>WST - Samoan Tala (WS$)</option>
-                                            <option value="VUV" <?= $defaultCurrency == 'VUV' ? 'selected' : '' ?>>VUV - Vanuatu Vatu (Vt)</option>
-                                            <option value="SBD" <?= $defaultCurrency == 'SBD' ? 'selected' : '' ?>>SBD - Solomon Islands Dollar (SI$)</option>
-                                            <option value="PGK" <?= $defaultCurrency == 'PGK' ? 'selected' : '' ?>>PGK - Papua New Guinea Kina (K)</option>
-                                            <option value="ARS" <?= $defaultCurrency == 'ARS' ? 'selected' : '' ?>>ARS - Argentine Peso ($)</option>
-                                            <option value="CLP" <?= $defaultCurrency == 'CLP' ? 'selected' : '' ?>>CLP - Chilean Peso ($)</option>
-                                            <option value="COP" <?= $defaultCurrency == 'COP' ? 'selected' : '' ?>>COP - Colombian Peso ($)</option>
-                                            <option value="PEN" <?= $defaultCurrency == 'PEN' ? 'selected' : '' ?>>PEN - Peruvian Sol (S/)</option>
-                                            <option value="UYU" <?= $defaultCurrency == 'UYU' ? 'selected' : '' ?>>UYU - Uruguayan Peso ($U)</option>
-                                            <option value="BOB" <?= $defaultCurrency == 'BOB' ? 'selected' : '' ?>>BOB - Bolivian Boliviano (Bs)</option>
-                                            <option value="PYG" <?= $defaultCurrency == 'PYG' ? 'selected' : '' ?>>PYG - Paraguayan Guarani (₲)</option>
-                                            <option value="VES" <?= $defaultCurrency == 'VES' ? 'selected' : '' ?>>VES - Venezuelan Bolívar (Bs.S)</option>
-                                            <option value="GYD" <?= $defaultCurrency == 'GYD' ? 'selected' : '' ?>>GYD - Guyanese Dollar (G$)</option>
-                                            <option value="SRD" <?= $defaultCurrency == 'SRD' ? 'selected' : '' ?>>SRD - Surinamese Dollar (Sr$)</option>
-                                            <option value="TTD" <?= $defaultCurrency == 'TTD' ? 'selected' : '' ?>>TTD - Trinidad and Tobago Dollar (TT$)</option>
-                                            <option value="JMD" <?= $defaultCurrency == 'JMD' ? 'selected' : '' ?>>JMD - Jamaican Dollar (J$)</option>
-                                            <option value="BBD" <?= $defaultCurrency == 'BBD' ? 'selected' : '' ?>>BBD - Barbadian Dollar (Bds$)</option>
-                                            <option value="BZD" <?= $defaultCurrency == 'BZD' ? 'selected' : '' ?>>BZD - Belize Dollar (BZ$)</option>
-                                            <option value="XCD" <?= $defaultCurrency == 'XCD' ? 'selected' : '' ?>>XCD - East Caribbean Dollar (EC$)</option>
-                                            <option value="DOP" <?= $defaultCurrency == 'DOP' ? 'selected' : '' ?>>DOP - Dominican Peso (RD$)</option>
-                                            <option value="HTG" <?= $defaultCurrency == 'HTG' ? 'selected' : '' ?>>HTG - Haitian Gourde (G)</option>
-                                            <option value="CUP" <?= $defaultCurrency == 'CUP' ? 'selected' : '' ?>>CUP - Cuban Peso ($)</option>
-                                            <option value="CRC" <?= $defaultCurrency == 'CRC' ? 'selected' : '' ?>>CRC - Costa Rican Colón (₡)</option>
-                                            <option value="GTQ" <?= $defaultCurrency == 'GTQ' ? 'selected' : '' ?>>GTQ - Guatemalan Quetzal (Q)</option>
-                                            <option value="HNL" <?= $defaultCurrency == 'HNL' ? 'selected' : '' ?>>HNL - Honduran Lempira (L)</option>
-                                            <option value="NIO" <?= $defaultCurrency == 'NIO' ? 'selected' : '' ?>>NIO - Nicaraguan Córdoba (C$)</option>
-                                            <option value="PAB" <?= $defaultCurrency == 'PAB' ? 'selected' : '' ?>>PAB - Panamanian Balboa (B/.)</option>
-                                            <option value="SVC" <?= $defaultCurrency == 'SVC' ? 'selected' : '' ?>>SVC - Salvadoran Colón (₡)</option>
-                                            <option value="BMD" <?= $defaultCurrency == 'BMD' ? 'selected' : '' ?>>BMD - Bermudian Dollar (BD$)</option>
-                                            <option value="KYD" <?= $defaultCurrency == 'KYD' ? 'selected' : '' ?>>KYD - Cayman Islands Dollar (CI$)</option>
-                                            <option value="AWG" <?= $defaultCurrency == 'AWG' ? 'selected' : '' ?>>AWG - Aruban Florin (ƒ)</option>
-                                            <option value="ANG" <?= $defaultCurrency == 'ANG' ? 'selected' : '' ?>>ANG - Netherlands Antillean Guilder (ƒ)</option>
-                                            <option value="BSD" <?= $defaultCurrency == 'BSD' ? 'selected' : '' ?>>BSD - Bahamian Dollar (B$)</option>
-                                            <option value="RON" <?= $defaultCurrency == 'RON' ? 'selected' : '' ?>>RON - Romanian Leu (lei)</option>
-                                            <option value="BGN" <?= $defaultCurrency == 'BGN' ? 'selected' : '' ?>>BGN - Bulgarian Lev (лв)</option>
-                                            <option value="HRK" <?= $defaultCurrency == 'HRK' ? 'selected' : '' ?>>HRK - Croatian Kuna (kn)</option>
-                                            <option value="RSD" <?= $defaultCurrency == 'RSD' ? 'selected' : '' ?>>RSD - Serbian Dinar (дин)</option>
-                                            <option value="MKD" <?= $defaultCurrency == 'MKD' ? 'selected' : '' ?>>MKD - Macedonian Denar (ден)</option>
-                                            <option value="BAM" <?= $defaultCurrency == 'BAM' ? 'selected' : '' ?>>BAM - Bosnia and Herzegovina Mark (КМ)</option>
-                                            <option value="ALL" <?= $defaultCurrency == 'ALL' ? 'selected' : '' ?>>ALL - Albanian Lek (L)</option>
-                                            <option value="ISK" <?= $defaultCurrency == 'ISK' ? 'selected' : '' ?>>ISK - Icelandic Krona (kr)</option>
-                                            <option value="MDL" <?= $defaultCurrency == 'MDL' ? 'selected' : '' ?>>MDL - Moldovan Leu (L)</option>
-                                            <option value="UAH" <?= $defaultCurrency == 'UAH' ? 'selected' : '' ?>>UAH - Ukrainian Hryvnia (₴)</option>
-                                            <option value="BYN" <?= $defaultCurrency == 'BYN' ? 'selected' : '' ?>>BYN - Belarusian Ruble (Br)</option>
-                                            <option value="GEL" <?= $defaultCurrency == 'GEL' ? 'selected' : '' ?>>GEL - Georgian Lari (₾)</option>
-                                            <option value="AMD" <?= $defaultCurrency == 'AMD' ? 'selected' : '' ?>>AMD - Armenian Dram (֏)</option>
-                                            <option value="AZN" <?= $defaultCurrency == 'AZN' ? 'selected' : '' ?>>AZN - Azerbaijani Manat (₼)</option>
-                                            <option value="KZT" <?= $defaultCurrency == 'KZT' ? 'selected' : '' ?>>KZT - Kazakhstani Tenge (₸)</option>
-                                            <option value="KGS" <?= $defaultCurrency == 'KGS' ? 'selected' : '' ?>>KGS - Kyrgyzstani Som (с)</option>
-                                            <option value="TJS" <?= $defaultCurrency == 'TJS' ? 'selected' : '' ?>>TJS - Tajikistani Somoni (SM)</option>
-                                            <option value="TMT" <?= $defaultCurrency == 'TMT' ? 'selected' : '' ?>>TMT - Turkmenistani Manat (T)</option>
-                                            <option value="UZS" <?= $defaultCurrency == 'UZS' ? 'selected' : '' ?>>UZS - Uzbekistani Som (сўм)</option>
-                                            <option value="MNT" <?= $defaultCurrency == 'MNT' ? 'selected' : '' ?>>MNT - Mongolian Tugrik (₮)</option>
-                                            <option value="AFN" <?= $defaultCurrency == 'AFN' ? 'selected' : '' ?>>AFN - Afghan Afghani (؋)</option>
-                                            <option value="IRR" <?= $defaultCurrency == 'IRR' ? 'selected' : '' ?>>IRR - Iranian Rial (﷼)</option>
-                                            <option value="IQD" <?= $defaultCurrency == 'IQD' ? 'selected' : '' ?>>IQD - Iraqi Dinar (د.ع)</option>
-                                            <option value="SYP" <?= $defaultCurrency == 'SYP' ? 'selected' : '' ?>>SYP - Syrian Pound (ل.س)</option>
-                                            <option value="YER" <?= $defaultCurrency == 'YER' ? 'selected' : '' ?>>YER - Yemeni Rial (﷼)</option>
-                                            <option value="LYD" <?= $defaultCurrency == 'LYD' ? 'selected' : '' ?>>LYD - Libyan Dinar (ل.د)</option>
-                                            <option value="TND" <?= $defaultCurrency == 'TND' ? 'selected' : '' ?>>TND - Tunisian Dinar (د.ت)</option>
-                                            <option value="DZD" <?= $defaultCurrency == 'DZD' ? 'selected' : '' ?>>DZD - Algerian Dinar (د.ج)</option>
-                                            <option value="MAD" <?= $defaultCurrency == 'MAD' ? 'selected' : '' ?>>MAD - Moroccan Dirham (د.م.)</option>
-                                            <option value="ETB" <?= $defaultCurrency == 'ETB' ? 'selected' : '' ?>>ETB - Ethiopian Birr (Br)</option>
-                                            <option value="KES" <?= $defaultCurrency == 'KES' ? 'selected' : '' ?>>KES - Kenyan Shilling (KSh)</option>
-                                            <option value="UGX" <?= $defaultCurrency == 'UGX' ? 'selected' : '' ?>>UGX - Ugandan Shilling (USh)</option>
-                                            <option value="TZS" <?= $defaultCurrency == 'TZS' ? 'selected' : '' ?>>TZS - Tanzanian Shilling (TSh)</option>
-                                            <option value="RWF" <?= $defaultCurrency == 'RWF' ? 'selected' : '' ?>>RWF - Rwandan Franc (RF)</option>
-                                            <option value="MWK" <?= $defaultCurrency == 'MWK' ? 'selected' : '' ?>>MWK - Malawian Kwacha (MK)</option>
-                                            <option value="ZMW" <?= $defaultCurrency == 'ZMW' ? 'selected' : '' ?>>ZMW - Zambian Kwacha (ZK)</option>
-                                            <option value="BWP" <?= $defaultCurrency == 'BWP' ? 'selected' : '' ?>>BWP - Botswanan Pula (P)</option>
-                                            <option value="SZL" <?= $defaultCurrency == 'SZL' ? 'selected' : '' ?>>SZL - Swazi Lilangeni (L)</option>
-                                            <option value="LSL" <?= $defaultCurrency == 'LSL' ? 'selected' : '' ?>>LSL - Lesotho Loti (L)</option>
-                                            <option value="NAD" <?= $defaultCurrency == 'NAD' ? 'selected' : '' ?>>NAD - Namibian Dollar (N$)</option>
-                                            <option value="AOA" <?= $defaultCurrency == 'AOA' ? 'selected' : '' ?>>AOA - Angolan Kwanza (Kz)</option>
-                                            <option value="MZN" <?= $defaultCurrency == 'MZN' ? 'selected' : '' ?>>MZN - Mozambican Metical (MT)</option>
-                                            <option value="MGA" <?= $defaultCurrency == 'MGA' ? 'selected' : '' ?>>MGA - Malagasy Ariary (Ar)</option>
-                                            <option value="MUR" <?= $defaultCurrency == 'MUR' ? 'selected' : '' ?>>MUR - Mauritian Rupee (₨)</option>
-                                            <option value="SCR" <?= $defaultCurrency == 'SCR' ? 'selected' : '' ?>>SCR - Seychellois Rupee (₨)</option>
-                                            <option value="KMF" <?= $defaultCurrency == 'KMF' ? 'selected' : '' ?>>KMF - Comorian Franc (CF)</option>
-                                            <option value="DJF" <?= $defaultCurrency == 'DJF' ? 'selected' : '' ?>>DJF - Djiboutian Franc (Fdj)</option>
-                                            <option value="SOS" <?= $defaultCurrency == 'SOS' ? 'selected' : '' ?>>SOS - Somali Shilling (S)</option>
-                                            <option value="ERN" <?= $defaultCurrency == 'ERN' ? 'selected' : '' ?>>ERN - Eritrean Nakfa (Nfk)</option>
-                                            <option value="STN" <?= $defaultCurrency == 'STN' ? 'selected' : '' ?>>STN - São Tomé and Príncipe Dobra (Db)</option>
-                                            <option value="CVE" <?= $defaultCurrency == 'CVE' ? 'selected' : '' ?>>CVE - Cape Verdean Escudo ($)</option>
-                                            <option value="GMD" <?= $defaultCurrency == 'GMD' ? 'selected' : '' ?>>GMD - Gambian Dalasi (D)</option>
-                                            <option value="GHS" <?= $defaultCurrency == 'GHS' ? 'selected' : '' ?>>GHS - Ghanaian Cedi (₵)</option>
-                                            <option value="NGN" <?= $defaultCurrency == 'NGN' ? 'selected' : '' ?>>NGN - Nigerian Naira (₦)</option>
-                                            <option value="XOF" <?= $defaultCurrency == 'XOF' ? 'selected' : '' ?>>XOF - West African CFA Franc (CFA)</option>
-                                            <option value="XAF" <?= $defaultCurrency == 'XAF' ? 'selected' : '' ?>>XAF - Central African CFA Franc (FCFA)</option>
+                                            <option value="ILS" <?= $defaultCurrency == 'ILS' ? 'selected' : '' ?>>ILS - Israeli Shekel (ILS)</option>
+                                            <option value="USD" <?= $defaultCurrency == 'USD' ? 'selected' : '' ?>>USD - US Dollar (USD)</option>
+                                            <option value="JOD" <?= $defaultCurrency == 'JOD' ? 'selected' : '' ?>>JOD - Jordanian Dinar (JOD)</option>
+                                            <option value="EUR" <?= $defaultCurrency == 'EUR' ? 'selected' : '' ?>>EUR - Euro (EUR)</option>
+                                            <option value="GBP" <?= $defaultCurrency == 'GBP' ? 'selected' : '' ?>>GBP - British Pound (GBP)</option>
                                         </select>
                                     </div>
                                     <div>

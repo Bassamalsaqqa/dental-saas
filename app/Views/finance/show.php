@@ -229,6 +229,10 @@
                                             $typeClass = 'bg-slate-100 text-slate-500 line-through';
                                             $amountClass = 'text-slate-400 line-through';
                                             $prefix = '';
+                                        } elseif ($type === 'adjustment') {
+                                            $typeClass = 'bg-amber-100 text-amber-700';
+                                            $amountClass = 'text-amber-700';
+                                            $prefix = '+';
                                         }
                                     ?>
                                     <tr class="hover:bg-slate-50/50 transition-colors">
@@ -456,6 +460,11 @@
                                 <i class="fas fa-check-circle mr-2 text-white"></i> Mark as Paid
                             </button>
                         <?php endif; ?>
+                        <?php if (($finance['transaction_type'] ?? '') === 'invoice' && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                            <button onclick="closeBalance(<?= (int) $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-xl hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-amber-500">
+                                <i class="fas fa-scale-balanced mr-2 text-white"></i> Close Balance (Credit)
+                            </button>
+                        <?php endif; ?>
                         
                         <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-blue-500">
                             <i class="fas fa-file-invoice mr-2 text-white"></i> Export Invoice
@@ -649,6 +658,43 @@ function deleteFinance(id) {
             alert('An error occurred while deleting the transaction.');
         });
     }
+}
+
+function closeBalance(transactionId) {
+    if (!confirm('Close the remaining balance as write-off/credit?')) {
+        return;
+    }
+
+    const reason = prompt('Reason (optional):') || '';
+    const formData = new FormData();
+    formData.append('reason', reason);
+
+    const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
+    const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
+
+    fetch(`<?= base_url('finance') ?>/${transactionId}/close-balance`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            [csrfHeader]: csrfToken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.csrf_token) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while closing the balance.');
+    });
 }
 
 const invoicePaymentForm = document.getElementById('invoicePaymentForm');

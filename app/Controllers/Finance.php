@@ -86,7 +86,7 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
             'selected_patient_id' => $patientId,
             'return_to' => $returnTo
         ];
@@ -101,8 +101,8 @@ class Finance extends BaseController
             'patient_id' => 'required|integer',
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
             'amount_original' => 'required|decimal|greater_than[0]',
-            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP,BDT]',
-            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
         ];
@@ -129,24 +129,24 @@ class Finance extends BaseController
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
         $transactionType = $this->request->getPost('transaction_type');
-        $paymentStatus = $this->request->getPost('payment_status') ?? 'pending';
-        if ($transactionType === 'invoice' && $paymentStatus === 'partial') {
-            $paymentStatus = 'pending';
-        }
+        $dueDate = $this->request->getPost('due_date');
+        $paidDate = $this->request->getPost('paid_date');
+        $today = date('Y-m-d');
 
         $amountPaid = 0;
         $balanceDue = 0;
+        $paymentStatus = 'pending';
         if ($transactionType === 'invoice') {
             $amountPaid = 0;
             $balanceDue = $totalAmount;
+            $paymentStatus = (!empty($dueDate) && strtotime($dueDate) < strtotime($today)) ? 'overdue' : 'pending';
+            $paidDate = null;
         } else {
-            if ($paymentStatus === 'paid') {
-                $amountPaid = $totalAmount;
-                $balanceDue = 0;
-            } else {
-                $amountPaid = 0;
-                $balanceDue = $totalAmount;
-            }
+            $amountPaid = $totalAmount;
+            $balanceDue = 0;
+            $paymentStatus = 'paid';
+            $paidDate = $paidDate ?: $today;
+            $dueDate = null;
         }
 
         $financeData = [
@@ -167,8 +167,8 @@ class Finance extends BaseController
             'tax_amount' => $taxAmount,
             'amount_paid' => $amountPaid,
             'balance_due' => $balanceDue,
-            'due_date' => $this->request->getPost('due_date'),
-            'paid_date' => $this->request->getPost('paid_date'),
+            'due_date' => $dueDate,
+            'paid_date' => $paidDate,
             'notes' => $this->request->getPost('notes'),
             'created_by' => $this->resolveActorUserId()
         ];
@@ -187,17 +187,6 @@ class Finance extends BaseController
             }
 
             if ($transactionType === 'invoice') {
-                if ($paymentStatus === 'paid') {
-                    $this->financePaymentModel->insert([
-                        'finance_id' => $financeId,
-                        'amount' => $totalAmount,
-                        'type' => 'payment',
-                        'payment_method' => $this->request->getPost('payment_method') ?? 'cash',
-                        'payment_date' => $this->request->getPost('paid_date') ?? date('Y-m-d'),
-                        'notes' => 'Payment recorded on invoice creation',
-                        'created_by' => $this->resolveActorUserId()
-                    ]);
-                }
                 $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
             }
 
@@ -320,7 +309,7 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
                 ->where('entity_type', 'finance')
@@ -350,8 +339,8 @@ class Finance extends BaseController
             'patient_id' => 'required|integer',
             'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
             'amount_original' => 'required|decimal|greater_than[0]',
-            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP,BDT]',
-            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
         ];
@@ -376,26 +365,37 @@ class Finance extends BaseController
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
-
-        $amountPaid = floatval($finance['amount_paid'] ?? 0);
-        if ($this->request->getPost('transaction_type') !== 'invoice') {
-            $amountPaid = ($this->request->getPost('payment_status') === 'paid') ? $totalAmount : 0;
+        $requestedType = (string) $this->request->getPost('transaction_type');
+        $currentType = (string) ($finance['transaction_type'] ?? '');
+        if ($requestedType !== $currentType) {
+            return redirect()->back()->withInput()->with('error', 'Transaction type cannot be changed after creation.');
         }
 
-        if ($this->request->getPost('transaction_type') === 'invoice' && $amountPaid > $totalAmount) {
+        $amountPaid = floatval($finance['amount_paid'] ?? 0);
+        $paymentStatus = (string) ($finance['payment_status'] ?? 'pending');
+        $dueDate = $this->request->getPost('due_date');
+        $paidDate = $this->request->getPost('paid_date');
+        if ($currentType !== 'invoice') {
+            $amountPaid = $totalAmount;
+            $paymentStatus = 'paid';
+            $paidDate = $paidDate ?: date('Y-m-d');
+            $dueDate = null;
+        }
+
+        if ($currentType === 'invoice' && $amountPaid > $totalAmount) {
             return redirect()->back()->withInput()->with('error', 'Invoice total cannot be less than the amount already paid.');
         }
 
         $financeData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_id' => $this->request->getPost('examination_id'),
-            'transaction_type' => $this->request->getPost('transaction_type'),
+            'transaction_type' => $currentType,
             'amount' => $amount,
             'currency' => $currency,
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
-            'payment_status' => $this->request->getPost('payment_status'),
+            'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
             'service_type' => $this->request->getPost('service_type'),
             'service_details' => $this->request->getPost('service_details'),
@@ -404,8 +404,8 @@ class Finance extends BaseController
             'tax_amount' => $taxAmount,
             'amount_paid' => $amountPaid,
             'balance_due' => max(0, $totalAmount - $amountPaid),
-            'due_date' => $this->request->getPost('due_date'),
-            'paid_date' => $this->request->getPost('paid_date'),
+            'due_date' => $dueDate,
+            'paid_date' => $paidDate,
             'notes' => $this->request->getPost('notes')
         ];
 
@@ -566,9 +566,14 @@ class Finance extends BaseController
 
     public function getMonthlyRevenue()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $year = $this->request->getGet('year') ?? date('Y');
 
-        $revenue = $this->financeModel->getMonthlyRevenue($year);
+        $revenue = $this->financeModel->getMonthlyRevenueByClinic($clinicId, $year);
 
         return $this->response->setJSON($revenue);
     }
@@ -896,6 +901,74 @@ class Finance extends BaseController
         }
     }
 
+    public function closeInvoiceBalance($id)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $finance = $this->financeModel->findByClinic($clinicId, $id);
+            if (!$finance || $finance['transaction_type'] !== 'invoice') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invoice not found',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
+            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+            $remaining = max(0, $totalAmount - $paidTotal);
+
+            if ($remaining <= 0) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Invoice is already closed.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $reason = trim((string) $this->request->getPost('reason'));
+            $notes = 'Balance closed via write-off/credit';
+            if ($reason !== '') {
+                $notes .= ': ' . $reason;
+            }
+
+            if (!$this->financePaymentModel->insert([
+                'finance_id' => $finance['id'],
+                'amount' => $remaining,
+                'type' => 'adjustment',
+                'payment_method' => $finance['payment_method'] ?? 'other',
+                'payment_date' => date('Y-m-d'),
+                'notes' => $notes,
+                'created_by' => $this->resolveActorUserId()
+            ])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to close invoice balance.',
+                    'csrf_token' => csrf_hash()
+                ]);
+            }
+
+            $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Invoice balance closed successfully.',
+                'csrf_token' => csrf_hash()
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Invoice close-balance error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash()
+            ]);
+        }
+    }
+
     private function syncInvoicePaymentStatus($invoiceId, $clinicId)
     {
         $finance = $this->financeModel->findByClinic($clinicId, $invoiceId);
@@ -1106,7 +1179,7 @@ class Finance extends BaseController
                 $amount = floatval($finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
                 $data[] = [
                     'id' => intval($finance['id'] ?? 0),
-                    'transaction_id' => 'TXN-' . str_pad($finance['id'], 6, '0', STR_PAD_LEFT),
+                    'transaction_id' => $finance['transaction_id'] ?? ('TXN-' . str_pad($finance['id'], 6, '0', STR_PAD_LEFT)),
                     'patient_name' => trim(($finance['first_name'] ?? '') . ' ' . ($finance['last_name'] ?? '')),
                     'phone' => $finance['phone'] ?? '',
                     'transaction_type' => $finance['transaction_type'] ?? '',
@@ -1299,17 +1372,65 @@ class Finance extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'No transactions selected']);
             }
 
-            $updateData = [
-                'payment_status' => 'paid',
-                'paid_date' => date('Y-m-d'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
+            $finances = $this->financeModel
+                ->where('clinic_id', $clinicId)
+                ->whereIn('id', $ids)
+                ->findAll();
 
-            $this->financeModel->whereIn('id', $ids)->where('clinic_id', $clinicId)->set($updateData)->update();
+            if (empty($finances)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No valid transactions found']);
+            }
+
+            $updated = 0;
+            $skipped = 0;
+            $today = date('Y-m-d');
+
+            foreach ($finances as $finance) {
+                $financeId = (int) ($finance['id'] ?? 0);
+                $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
+
+                if (($finance['transaction_type'] ?? '') === 'invoice') {
+                    $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $financeId);
+                    $remaining = max(0, $totalAmount - $paidTotal);
+
+                    if ($remaining <= 0) {
+                        $skipped++;
+                        continue;
+                    }
+
+                    $this->financePaymentModel->insert([
+                        'finance_id' => $financeId,
+                        'amount' => $remaining,
+                        'type' => 'payment',
+                        'payment_method' => $finance['payment_method'] ?? 'cash',
+                        'payment_date' => $today,
+                        'notes' => 'Bulk mark as paid',
+                        'created_by' => $this->resolveActorUserId()
+                    ]);
+                    $this->syncInvoicePaymentStatus($financeId, $clinicId);
+                    $updated++;
+                    continue;
+                }
+
+                $this->financeModel->setValidationRules([]);
+                if ($this->financeModel->update($financeId, [
+                    'payment_status' => 'paid',
+                    'paid_date' => $today,
+                    'amount_paid' => $totalAmount,
+                    'balance_due' => 0
+                ])) {
+                    $updated++;
+                }
+            }
+
+            $message = $updated . ' transaction(s) marked as paid successfully';
+            if ($skipped > 0) {
+                $message .= ', ' . $skipped . ' already settled';
+            }
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => count($ids) . ' transactions marked as paid successfully'
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Bulk mark as paid error: ' . $e->getMessage());

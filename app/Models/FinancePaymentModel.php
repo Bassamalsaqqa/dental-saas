@@ -42,7 +42,7 @@ class FinancePaymentModel extends TenantAwareModel
 
     public function getPaidTotalByInvoice($clinicId, $financeId)
     {
-        $row = $this->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+        $row = $this->select("SUM(CASE WHEN type IN ('payment','adjustment') THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
             ->where('clinic_id', $clinicId)
             ->where('finance_id', $financeId)
             ->get()

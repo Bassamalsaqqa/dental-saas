@@ -193,7 +193,7 @@ class Settings extends BaseController
             'default_timezone' => 'required',
             'default_date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
             'default_time_format' => 'required|in_list[24,12]',
-            'default_currency' => 'required|max_length[10]',
+            'default_currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'default_currency_position' => 'required|in_list[before,after]',
             'default_appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
             'default_working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',

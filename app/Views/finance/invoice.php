@@ -274,7 +274,13 @@
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
                                     <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : 'Unknown' ?></td>
-                                    <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= ($type === 'payment' ? '+' : '-') . formatCurrency($payment['amount']) ?></td>
+                                    <?php
+                                        $prefix = '+';
+                                        if ($type === 'refund' || $type === 'void') {
+                                            $prefix = '-';
+                                        }
+                                    ?>
+                                    <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900"><?= $prefix . formatCurrency($payment['amount']) ?></td>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600"><?= $payment['notes'] ? nl2br(htmlspecialchars($payment['notes'])) : '-' ?></td>
                                 </tr>
                                 <?php endforeach; ?>

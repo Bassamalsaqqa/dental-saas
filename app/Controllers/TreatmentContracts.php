@@ -83,7 +83,7 @@ class TreatmentContracts extends BaseController
             'items' => [],
             'snapshot' => null,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
         ];
 
         return $this->view('contracts/create', $data);
@@ -111,7 +111,7 @@ class TreatmentContracts extends BaseController
         $paymentTerms = trim((string) $this->request->getPost('payment_terms'));
         $durationPlan = trim((string) $this->request->getPost('duration_plan'));
         $costDetails = trim((string) $this->request->getPost('cost_details'));
-        $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'];
+        $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
         $baseCurrency = settings()->get('currency', 'ILS');
         $currency = trim((string) $this->request->getPost('currency')) ?: $baseCurrency;
         if (!in_array($currency, $currencyOptions, true)) {
@@ -244,7 +244,7 @@ class TreatmentContracts extends BaseController
             'items' => $items,
             'snapshot' => $snapshot,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'],
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
         ];
 
         return $this->view('contracts/create', $data);
@@ -281,7 +281,7 @@ class TreatmentContracts extends BaseController
         $paymentTerms = trim((string) $this->request->getPost('payment_terms'));
         $durationPlan = trim((string) $this->request->getPost('duration_plan'));
         $costDetails = trim((string) $this->request->getPost('cost_details'));
-        $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP', 'BDT'];
+        $currencyOptions = ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
         $baseCurrency = settings()->get('currency', 'ILS');
         $currency = trim((string) $this->request->getPost('currency')) ?: $baseCurrency;
         if (!in_array($currency, $currencyOptions, true)) {

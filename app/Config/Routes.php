@@ -287,6 +287,7 @@ $routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->post('(:num)/payments', 'Finance::addInvoicePayment/$1', ['filter' => 'permission:finance:edit']);
     $routes->post('(:num)/payments/refund', 'Finance::refundInvoicePayment/$1', ['filter' => 'permission:finance:edit']);
     $routes->post('(:num)/payments/(:num)/void', 'Finance::voidInvoicePayment/$1/$2', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/close-balance', 'Finance::closeInvoiceBalance/$1', ['filter' => 'permission:finance:edit']);
     $routes->get('stats', 'Finance::getFinanceStats', ['filter' => 'permission:finance:view']);
     $routes->get('monthly-revenue', 'Finance::getMonthlyRevenue', ['filter' => 'permission:finance:view']);
     $routes->post('getFinancesData', 'Finance::getFinancesData', ['filter' => 'permission:finance:view']);

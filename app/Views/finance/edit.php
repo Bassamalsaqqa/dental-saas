@@ -91,7 +91,7 @@
                                     <span>Transaction Type *</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="transaction_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required disabled>
                                         <option value="">Select type</option>
                                         <option value="payment" <?= (old('transaction_type', $finance['transaction_type']) == 'payment') ? 'selected' : '' ?>>Payment</option>
                                         <option value="invoice" <?= (old('transaction_type', $finance['transaction_type']) == 'invoice') ? 'selected' : '' ?>>Invoice</option>
@@ -110,6 +110,7 @@
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <input type="hidden" name="transaction_type" value="<?= esc(old('transaction_type', $finance['transaction_type'])) ?>">
 
                         <!-- Examination Selection -->
                         <div class="group/field relative">
@@ -232,7 +233,7 @@
                                 </div>
                             </div>
 
-                            <div class="group/field relative">
+                            <div class="group/field relative" id="checkScanField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-file-upload text-rose-600"></i>
                                     <span>Check Scan (optional)</span>
@@ -253,27 +254,8 @@
                             </div>
                         </div>
 
-                        <!-- Status and Payment Date -->
+                        <!-- Dates -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="group/field relative">
-                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                    <i class="fas fa-info-circle text-amber-600"></i>
-                                    <span>Payment Status *</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="payment_status" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="pending" <?= (old('payment_status', $finance['payment_status']) == 'pending') ? 'selected' : '' ?>>Pending</option>
-                                        <option value="paid" <?= (old('payment_status', $finance['payment_status']) == 'paid') ? 'selected' : '' ?>>Paid</option>
-                                        <option value="partial" <?= (old('payment_status', $finance['payment_status']) == 'partial') ? 'selected' : '' ?>>Partial</option>
-                                        <option value="overdue" <?= (old('payment_status', $finance['payment_status']) == 'overdue') ? 'selected' : '' ?>>Overdue</option>
-                                        <option value="cancelled" <?= (old('payment_status', $finance['payment_status']) == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-rose-600"></i>
@@ -286,18 +268,16 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Due Date -->
-                        <div class="group/field relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                <i class="fas fa-calendar-day text-orange-600"></i>
-                                <span>Due Date</span>
-                            </label>
-                            <div class="relative">
-                                <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date', $finance['due_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="fas fa-calendar text-gray-400"></i>
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-calendar-day text-orange-600"></i>
+                                    <span>Due Date</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date', $finance['due_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-calendar text-gray-400"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -380,18 +360,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Live Total -->
-        <div class="group/field relative">
-            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                <i class="fas fa-receipt text-emerald-600"></i>
-                <span>Total (<?= esc($baseCurrency) ?>)</span>
-            </label>
-            <div class="relative">
-                <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-lg text-emerald-700 font-bold" value="0.00">
-            </div>
-            <p class="text-xs text-gray-500 mt-2">Total = Converted Amount - Discount + Tax</p>
         </div>
 
         <!-- Live Total -->

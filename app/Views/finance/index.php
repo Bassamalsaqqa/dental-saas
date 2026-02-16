@@ -919,10 +919,10 @@ function deleteTransaction(transactionId) {
 // Permissions object (you'll need to populate this from your backend)
 var permissions = {
     finance: {
-        view: true,
-        edit: true,
-        delete: true,
-        create: true
+        view: <?= has_permission('finance', 'view') ? 'true' : 'false' ?>,
+        edit: <?= has_permission('finance', 'edit') ? 'true' : 'false' ?>,
+        delete: <?= has_permission('finance', 'delete') ? 'true' : 'false' ?>,
+        create: <?= has_permission('finance', 'create') ? 'true' : 'false' ?>
     }
 };
 </script>

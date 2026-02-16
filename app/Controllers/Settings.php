@@ -206,7 +206,7 @@ class Settings extends BaseController
             'timezone' => 'required',
             'date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
             'time_format' => 'required|in_list[24,12]',
-            'currency' => 'required',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'currency_position' => 'required|in_list[before,after]',
         ];
 

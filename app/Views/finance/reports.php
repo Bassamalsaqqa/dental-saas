@@ -401,7 +401,7 @@ function downloadReport(format) {
     const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endRaw) : endRaw;
     
     // Implementation for downloading report
-    window.location.href = `<?= base_url('finance/export-report') ?>?format=${format}&start_date=${startDate}&end_date=${endDate}`;
+    window.location.href = `<?= base_url('finance/export') ?>?format=${format}&start_date=${startDate}&end_date=${endDate}`;
 }
 
 // Add smooth scrolling and enhanced interactions
