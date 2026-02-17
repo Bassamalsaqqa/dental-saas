@@ -101,8 +101,9 @@ class TreatmentModel extends TenantAwareModel
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    protected function initialize()
+    protected function initialize(): void
     {
+        parent::initialize();
         $this->validationRules['treatment_type'] = TreatmentCatalog::validationRule();
     }
 
