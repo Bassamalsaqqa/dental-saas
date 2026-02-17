@@ -141,9 +141,43 @@ function getStatusText($status) {
                                 </p>
                             </div>
                         </div>
-                        <div class="hidden md:flex items-center space-x-2 text-blue-100">
-                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span class="text-sm font-medium">Live Updates</span>
+                        <div class="flex flex-col items-end gap-3">
+                            <div class="hidden md:flex items-center space-x-2 text-blue-100">
+                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-medium">Live Updates</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button"
+                                        id="legendToggleBtn"
+                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
+                                    <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
+                                    <span id="legendToggleText">Show Legend</span>
+                                </button>
+                                <button id="batchModeToggleBtn"
+                                        onclick="toggleBatchMode()"
+                                        class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
+                                    <i class="fas fa-object-group mr-2"></i>
+                                    <span id="batchModeToggleText">Batch Select</span>
+                                </button>
+                                <div id="batchTopControls" class="hidden items-center gap-2">
+                                    <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
+                                        0 selected
+                                    </span>
+                                    <button type="button" id="batchApplyBtn" onclick="openBatchModal()"
+                                            class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border transition-all duration-200 disabled:cursor-not-allowed"
+                                            disabled>
+                                        <i class="fas fa-layer-group mr-1.5"></i>Apply
+                                    </button>
+                                    <button type="button" id="batchClearBtn" onclick="clearBatchSelection()"
+                                            class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
+                                        Clear
+                                    </button>
+                                    <button type="button" id="batchExitBtn" onclick="toggleBatchMode(false)"
+                                            class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
+                                        Exit
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -159,12 +193,6 @@ function getStatusText($status) {
                         <i class="fas fa-palette mr-3 text-blue-600"></i>
                         Condition Legend
                     </h4>
-                    <button type="button"
-                            id="legendToggleBtn"
-                            class="inline-flex items-center px-3 py-2 bg-white/80 hover:bg-white text-xs font-semibold rounded-lg border border-gray-200 text-gray-700">
-                        <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
-                        <span id="legendToggleText">Show</span>
-                    </button>
                 </div>
                 <div id="legendContent" class="hidden mt-6">
                 <div class="grid grid-cols-6 gap-4">
@@ -575,101 +603,144 @@ function getStatusText($status) {
     </div>
 </div>
 
-<!-- Enhanced Tooth Condition Modal with Chat-Style Interface -->
 <div id="toothModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            <!-- Enhanced Modal Header -->
-            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl relative overflow-hidden">
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
                 <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                <i class="fas fa-tooth text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Tooth <span id="modalToothNumber" class="text-yellow-300"></span> Condition</h3>
-                                <p class="text-blue-100 text-sm">Update dental condition and treatment notes</p>
-                            </div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                            <i class="fas fa-layer-group text-white text-lg"></i>
                         </div>
-                        <button onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                            <i class="fas fa-times text-white"></i>
-                        </button>
+                        <div>
+                            <h3 class="text-lg font-bold leading-tight">Tooth <span id="modalToothNumber"></span></h3>
+                            <p class="text-orange-100 text-xs">Apply condition details</p>
+                        </div>
                     </div>
+                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
+                        <i class="fas fa-times text-white"></i>
+                    </button>
                 </div>
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10"></div>
-                <div class="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
             </div>
-            <!-- Enhanced Form Content -->
-            <div class="p-6">
-                <form id="toothForm" class="space-y-6">
+            <div class="p-4">
+                <form id="toothForm" class="space-y-3.5">
                     <?= csrf_field() ?>
                     <input type="hidden" id="toothNumber" name="tooth_number">
                     <input type="hidden" name="patient_id" value="<?= $patient['id'] ?>">
                     <input type="hidden" name="examination_id" value="<?= esc($examination_id ?? '') ?>">
-                    
-                    <!-- Condition Type Selection -->
-                    <div class="space-y-2">
-                        <label for="condition_type" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-stethoscope mr-2 text-blue-600"></i>Condition Type
-                        </label>
-                        <select id="condition_type" name="condition_type" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm" required>
+
+                    <div>
+                        <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
+                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
                             <option value="">Select a condition type</option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= $key ?>"><?= $label ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
-                    <!-- Condition Description -->
-                    <div class="space-y-2">
-                        <label for="condition_description" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-file-text mr-2 text-green-600"></i>Description
-                        </label>
-                        <textarea id="condition_description" name="condition_description" 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm resize-none" 
-                                  rows="3" placeholder="Describe the condition in detail..."></textarea>
+
+                    <div>
+                        <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional description..."></textarea>
                     </div>
-                    
-                    <!-- Treatment Notes -->
-                    <div class="space-y-2">
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-notes-medical mr-2 text-purple-600"></i>Treatment Notes
-                        </label>
-                        <textarea id="treatment_notes" name="treatment_notes" 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm resize-none" 
-                                  rows="3" placeholder="Treatment performed or planned..."></textarea>
+
+                    <div>
+                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional treatment notes..."></textarea>
                     </div>
-                    
-                    <!-- Treatment Status -->
-                    <div class="space-y-2">
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-tasks mr-2 text-orange-600"></i>Treatment Status
-                        </label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm">
+
+                    <div>
+                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
+                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
                             <option value="completed">Completed</option>
                             <option value="needs_attention">Needs Attention</option>
                         </select>
                     </div>
-                    
-                    <!-- Enhanced Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" onclick="closeToothModal()" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-200">
-                            <i class="fas fa-times mr-2 group-hover:rotate-90 transition-transform"></i>Cancel
-                        </button>
-                        <button type="button" onclick="removeToothCondition()" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 hover:text-red-900 transition-all duration-200">
-                            <i class="fas fa-trash mr-2 group-hover:animate-bounce"></i>Remove Condition
-                        </button>
-                        <button type="submit" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                            <i class="fas fa-save mr-2 group-hover:animate-pulse"></i>Save Changes
+
+                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
+                                Cancel
+                            </button>
+                            <button type="button" onclick="resetTooth()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
+                                Remove Status
+                            </button>
+                        </div>
+                        <button type="submit" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
+                            <i class="fas fa-save mr-2"></i>Apply Changes
                         </button>
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="batchModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="batchModalContent">
+            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-black/10"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                            <i class="fas fa-layer-group text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold leading-tight">Apply to Selected Teeth</h3>
+                            <p class="text-orange-100 text-xs">Selected: <span id="batchModalCount">0</span> teeth</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeBatchModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
+                        <i class="fas fa-times text-white"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <form id="batchForm" class="space-y-3.5">
+                    <div>
+                        <label for="batch_condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
+                        <select id="batch_condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
+                            <option value="">Select a condition type</option>
+                            <?php foreach ($condition_types as $key => $label): ?>
+                                <option value="<?= $key ?>"><?= $label ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="batch_condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                        <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared description..."></textarea>
+                    </div>
+                    <div>
+                        <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
+                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared treatment notes..."></textarea>
+                    </div>
+                    <div>
+                        <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
+                        <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="needs_attention">Needs Attention</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="closeBatchModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
+                                Cancel
+                            </button>
+                            <button type="button" onclick="batchResetSelected()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
+                                Remove Status
+                            </button>
+                        </div>
+                        <button type="submit" id="batchSubmitBtn" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
+                            <i class="fas fa-save mr-2"></i>Apply Changes
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -700,12 +771,16 @@ const toothOutlines = new Map();
 const toothHits = new Map();
 let activeTooth = null;
 let tooltipEl = null;
+let batchModeEnabled = false;
+const batchSelectedTeeth = new Set();
 
 document.addEventListener('DOMContentLoaded', () => {
     setupSvgOdontogram();
     initializeOdontogram();
     attachModalBehavior();
     attachFormHandler();
+    attachBatchHandler();
+    updateBatchUi();
 });
 
 function getFdiNumber(universalNumber) {
@@ -736,6 +811,111 @@ function setOutlineVisible(toothNumber, visible) {
         return;
     }
     outline.style.opacity = visible ? '0.9' : '0';
+}
+
+function isToothBatchSelected(toothNumber) {
+    return batchSelectedTeeth.has(parseInt(toothNumber, 10));
+}
+
+function syncBatchToothVisual(toothNumber) {
+    const tooth = parseInt(toothNumber, 10);
+    const group = toothGroups.get(tooth);
+    if (!group) {
+        return;
+    }
+    const selected = isToothBatchSelected(tooth);
+    group.classList.toggle('is-batch-selected', selected);
+    if (selected) {
+        setOutlineVisible(tooth, true);
+    } else if (!group.classList.contains('is-hover') && !group.classList.contains('is-selected')) {
+        setOutlineVisible(tooth, false);
+    }
+}
+
+function updateBatchUi() {
+    const toggleBtn = document.getElementById('batchModeToggleBtn');
+    const toggleText = document.getElementById('batchModeToggleText');
+    const topControls = document.getElementById('batchTopControls');
+    const countEl = document.getElementById('batchTopCount');
+    const applyBtn = document.getElementById('batchApplyBtn');
+    const count = batchSelectedTeeth.size;
+
+    if (toggleBtn) {
+        toggleBtn.classList.toggle('bg-amber-500', batchModeEnabled);
+        toggleBtn.classList.toggle('hover:bg-amber-600', batchModeEnabled);
+        toggleBtn.classList.toggle('border-amber-300', batchModeEnabled);
+        toggleBtn.classList.toggle('shadow-lg', batchModeEnabled);
+        toggleBtn.classList.toggle('bg-white/20', !batchModeEnabled);
+        toggleBtn.classList.toggle('hover:bg-white/30', !batchModeEnabled);
+        toggleBtn.classList.toggle('border-white/30', !batchModeEnabled);
+        toggleBtn.classList.toggle('shadow-none', !batchModeEnabled);
+    }
+    if (toggleText) {
+        toggleText.textContent = batchModeEnabled ? 'Batch Mode On' : 'Batch Select';
+    }
+    if (topControls) {
+        topControls.classList.toggle('hidden', !batchModeEnabled);
+        topControls.classList.toggle('flex', batchModeEnabled);
+    }
+    if (countEl) {
+        countEl.textContent = `${count} selected`;
+    }
+    if (applyBtn) {
+        const enabled = count > 0;
+        applyBtn.disabled = !enabled;
+        applyBtn.classList.toggle('bg-gradient-to-r', enabled);
+        applyBtn.classList.toggle('from-emerald-500', enabled);
+        applyBtn.classList.toggle('to-green-600', enabled);
+        applyBtn.classList.toggle('hover:from-emerald-600', enabled);
+        applyBtn.classList.toggle('hover:to-green-700', enabled);
+        applyBtn.classList.toggle('border-emerald-300/70', enabled);
+        applyBtn.classList.toggle('shadow-lg', enabled);
+        applyBtn.classList.toggle('text-white', enabled);
+
+        applyBtn.classList.toggle('bg-white/20', !enabled);
+        applyBtn.classList.toggle('hover:bg-white/20', !enabled);
+        applyBtn.classList.toggle('border-white/30', !enabled);
+        applyBtn.classList.toggle('shadow-none', !enabled);
+        applyBtn.classList.toggle('text-white/70', !enabled);
+    }
+}
+
+function clearBatchSelection() {
+    Array.from(batchSelectedTeeth).forEach(tooth => {
+        batchSelectedTeeth.delete(tooth);
+        syncBatchToothVisual(tooth);
+    });
+    updateBatchUi();
+}
+
+function toggleBatchMode(forceState = null) {
+    const shouldEnable = forceState === null ? !batchModeEnabled : !!forceState;
+    if (shouldEnable === batchModeEnabled) {
+        return;
+    }
+
+    batchModeEnabled = shouldEnable;
+    if (batchModeEnabled) {
+        closeToothModal();
+    } else {
+        clearBatchSelection();
+        closeBatchModal();
+    }
+    updateBatchUi();
+}
+
+function toggleBatchTooth(toothNumber) {
+    const tooth = parseInt(toothNumber, 10);
+    if (!batchModeEnabled || !tooth) {
+        return;
+    }
+    if (batchSelectedTeeth.has(tooth)) {
+        batchSelectedTeeth.delete(tooth);
+    } else {
+        batchSelectedTeeth.add(tooth);
+    }
+    syncBatchToothVisual(tooth);
+    updateBatchUi();
 }
 
 function createTooltip() {
@@ -953,7 +1133,9 @@ function cacheToothGroups(svg) {
             hit.addEventListener('mousemove', moveTooltip);
             hit.addEventListener('mouseleave', () => {
                 group.classList.remove('is-hover');
-                setOutlineVisible(toothNumber, false);
+                if (!group.classList.contains('is-selected') && !group.classList.contains('is-batch-selected')) {
+                    setOutlineVisible(toothNumber, false);
+                }
                 hideTooltip();
             });
             hit.addEventListener('focus', event => {
@@ -963,14 +1145,26 @@ function cacheToothGroups(svg) {
             });
             hit.addEventListener('blur', () => {
                 group.classList.remove('is-hover');
-                setOutlineVisible(toothNumber, false);
+                if (!group.classList.contains('is-selected') && !group.classList.contains('is-batch-selected')) {
+                    setOutlineVisible(toothNumber, false);
+                }
                 hideTooltip();
             });
-            hit.addEventListener('click', () => openToothModal(toothNumber));
+            hit.addEventListener('click', () => {
+                if (batchModeEnabled) {
+                    toggleBatchTooth(toothNumber);
+                } else {
+                    openToothModal(toothNumber);
+                }
+            });
             hit.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    openToothModal(toothNumber);
+                    if (batchModeEnabled) {
+                        toggleBatchTooth(toothNumber);
+                    } else {
+                        openToothModal(toothNumber);
+                    }
                 }
             });
         }
@@ -1129,12 +1323,25 @@ function clearSelectedTooth() {
     if (!activeTooth) {
         return;
     }
-    const current = toothGroups.get(parseInt(activeTooth, 10));
-    current?.classList.remove('is-selected');
+    const tooth = parseInt(activeTooth, 10);
+    const current = toothGroups.get(tooth);
+    if (current) {
+        current.classList.remove('is-selected');
+        current.classList.remove('is-hover');
+    }
+    if (!isToothBatchSelected(tooth)) {
+        setOutlineVisible(tooth, false);
+    }
+    hideTooltip();
     activeTooth = null;
 }
 
 function openToothModal(toothNumber) {
+    if (batchModeEnabled) {
+        showNotification('Exit batch mode to edit a single tooth.', 'warning');
+        return;
+    }
+
     const modal = document.getElementById('toothModal');
     const modalContent = document.getElementById('modalContent');
     const conditionTypeEl = document.getElementById('condition_type');
@@ -1191,19 +1398,123 @@ function closeToothModal() {
     clearSelectedTooth();
 }
 
+function openBatchModal() {
+    if (!batchModeEnabled) {
+        showNotification('Enable batch mode first.', 'warning');
+        return;
+    }
+    const selected = batchSelectedTeeth.size;
+    if (selected === 0) {
+        showNotification('Select at least one tooth first.', 'warning');
+        return;
+    }
+
+    const modal = document.getElementById('batchModal');
+    const content = document.getElementById('batchModalContent');
+    const countEl = document.getElementById('batchModalCount');
+    if (!modal || !content) {
+        return;
+    }
+    if (countEl) {
+        countEl.textContent = String(selected);
+    }
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.style.transform = 'scale(1)';
+        content.style.opacity = '1';
+    }, 10);
+}
+
+function closeBatchModal() {
+    const modal = document.getElementById('batchModal');
+    const content = document.getElementById('batchModalContent');
+    if (!modal || !content) {
+        return;
+    }
+    content.style.transform = 'scale(0.95)';
+    content.style.opacity = '0';
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 250);
+}
+
+function upsertToothData(toothNumber, values) {
+    const tooth = parseInt(toothNumber, 10);
+    const existingIndex = odontogramData.findIndex(t => parseInt(t.tooth_number, 10) === tooth);
+    const updated = {
+        tooth_number: tooth,
+        condition_type: values.condition_type,
+        condition_description: values.condition_description || '',
+        treatment_notes: values.treatment_notes || '',
+        treatment_status: values.treatment_status || 'pending',
+        treatment_date: new Date().toISOString().split('T')[0],
+        created_by: <?= (int) ($user->id ?? 0) ?>,
+        examination_id: examinationId || null
+    };
+    if (existingIndex !== -1) {
+        odontogramData[existingIndex] = updated;
+    } else {
+        odontogramData.push(updated);
+    }
+}
+
+async function submitToothUpdate(toothNumber, values) {
+    const form = document.getElementById('toothForm');
+    const payload = form ? new FormData(form) : new FormData();
+    payload.set('patient_id', String(patientId));
+    payload.set('examination_id', examinationId ? String(examinationId) : '');
+    payload.set('tooth_number', String(toothNumber));
+    payload.set('condition_type', values.condition_type);
+    payload.set('condition_description', values.condition_description || '');
+    payload.set('treatment_notes', values.treatment_notes || '');
+    payload.set('treatment_status', values.treatment_status || 'pending');
+
+    const response = await fetch('<?= base_url('odontogram/update-tooth') ?>', {
+        method: 'POST',
+        body: payload
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.csrf_token) {
+        window.refreshCsrfToken(data.csrf_token);
+    }
+    if (!data.success) {
+        throw new Error(data.message || 'Failed to update tooth condition');
+    }
+}
+
 function attachModalBehavior() {
     const modal = document.getElementById('toothModal');
+    const modalContent = document.getElementById('modalContent');
+    const batchModal = document.getElementById('batchModal');
+    const batchModalContent = document.getElementById('batchModalContent');
     if (modal) {
-        modal.addEventListener('click', event => {
-            if (event.target === modal) {
-                closeToothModal();
-            }
+        modal.addEventListener('click', () => {
+            closeToothModal();
+        });
+    }
+    if (modalContent) {
+        modalContent.addEventListener('click', event => {
+            event.stopPropagation();
+        });
+    }
+    if (batchModal) {
+        batchModal.addEventListener('click', () => {
+            closeBatchModal();
+        });
+    }
+    if (batchModalContent) {
+        batchModalContent.addEventListener('click', event => {
+            event.stopPropagation();
         });
     }
 
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             closeToothModal();
+            closeBatchModal();
         }
 
         const modalOpen = modal && !modal.classList.contains('hidden');
@@ -1327,18 +1638,114 @@ function attachFormHandler() {
             legendToggleIcon.classList.toggle('fa-chevron-up', willShow);
         }
         if (legendToggleText) {
-            legendToggleText.textContent = willShow ? 'Hide' : 'Show';
+            legendToggleText.textContent = willShow ? 'Hide Legend' : 'Show Legend';
         }
     });
+}
+
+function attachBatchHandler() {
+    const form = document.getElementById('batchForm');
+    const submitBtn = document.getElementById('batchSubmitBtn');
+    if (!form || !submitBtn) {
+        return;
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const selectedTeeth = Array.from(batchSelectedTeeth);
+        if (!selectedTeeth.length) {
+            showNotification('Select at least one tooth first.', 'warning');
+            return;
+        }
+
+        const values = {
+            condition_type: form.condition_type.value,
+            condition_description: form.condition_description.value,
+            treatment_notes: form.treatment_notes.value,
+            treatment_status: form.treatment_status.value
+        };
+        if (!values.condition_type) {
+            showNotification('Condition type is required.', 'warning');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        const originalHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Applying...';
+
+        let successCount = 0;
+        const failedTeeth = [];
+
+        for (const toothNumber of selectedTeeth) {
+            try {
+                await submitToothUpdate(toothNumber, values);
+                upsertToothData(toothNumber, values);
+                applyToothVisual(toothNumber);
+                successCount++;
+            } catch (error) {
+                failedTeeth.push(toothNumber);
+            }
+        }
+
+        updateStats();
+        clearBatchSelection();
+        closeBatchModal();
+
+        if (successCount > 0) {
+            showNotification(`Updated ${successCount} teeth successfully.`, 'success');
+        }
+        if (failedTeeth.length > 0) {
+            showNotification(`Failed on teeth: ${failedTeeth.join(', ')}`, 'warning');
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml;
+    });
+}
+
+async function batchResetSelected() {
+    const selectedTeeth = Array.from(batchSelectedTeeth);
+    if (!selectedTeeth.length) {
+        showNotification('Select at least one tooth first.', 'warning');
+        return;
+    }
+
+    const resetValues = {
+        condition_type: 'healthy',
+        condition_description: '',
+        treatment_notes: '',
+        treatment_status: 'completed'
+    };
+
+    let successCount = 0;
+    const failedTeeth = [];
+
+    for (const toothNumber of selectedTeeth) {
+        try {
+            await submitToothUpdate(toothNumber, resetValues);
+            upsertToothData(toothNumber, resetValues);
+            applyToothVisual(toothNumber);
+            successCount++;
+        } catch (error) {
+            failedTeeth.push(toothNumber);
+        }
+    }
+
+    updateStats();
+    clearBatchSelection();
+    closeBatchModal();
+
+    if (successCount > 0) {
+        showNotification(`Removed status on ${successCount} teeth.`, 'success');
+    }
+    if (failedTeeth.length > 0) {
+        showNotification(`Failed on teeth: ${failedTeeth.join(', ')}`, 'warning');
+    }
 }
 
 function resetTooth() {
     const toothNumber = document.getElementById('toothNumber').value;
     if (!toothNumber) {
-        return;
-    }
-
-    if (!confirm('Are you sure you want to reset this tooth to healthy status?')) {
         return;
     }
 
@@ -1539,6 +1946,12 @@ function exportData() {
 #odontogramSvgWrapper .tooth-group.is-selected .tooth-outline {
     opacity: 1;
     stroke: #f97316;
+    stroke-width: 2;
+}
+
+#odontogramSvgWrapper .tooth-group.is-batch-selected .tooth-outline {
+    opacity: 1;
+    stroke: #f59e0b;
     stroke-width: 2;
 }
 

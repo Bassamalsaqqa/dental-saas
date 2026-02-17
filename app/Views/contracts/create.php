@@ -411,79 +411,65 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 
 <div id="toothModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-opacity duration-300">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl relative overflow-hidden">
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-xl w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white p-4 rounded-t-2xl relative overflow-hidden">
                 <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                <i class="fas fa-tooth text-white text-xl"></i>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                <i class="fas fa-layer-group text-white text-lg"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold">Tooth <span id="modalToothNumber" class="text-yellow-300"></span> Condition</h3>
-                                <p class="text-blue-100 text-sm">Update dental condition and treatment notes</p>
+                                <h3 class="text-lg font-bold leading-tight">Tooth <span id="modalToothNumber"></span></h3>
+                                <p class="text-orange-100 text-xs">Apply condition details</p>
                             </div>
-                        </div>
-                        <button type="button" onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
-                            <i class="fas fa-times text-white"></i>
-                        </button>
                     </div>
+                    <button type="button" onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
+                        <i class="fas fa-times text-white"></i>
+                    </button>
                 </div>
-                <div class="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10"></div>
-                <div class="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
             </div>
 
-            <div class="p-6">
-                <form id="toothForm" class="space-y-6">
+            <div class="p-4">
+                <form id="toothForm" class="space-y-3.5">
                     <input type="hidden" id="toothNumber" name="tooth_number">
-                    <div class="space-y-2">
-                        <label for="condition_type" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-stethoscope mr-2 text-blue-600"></i>Condition Type
-                        </label>
-                        <select id="condition_type" name="condition_type" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm" required>
+                    <div>
+                        <label for="condition_type" class="block text-sm font-semibold text-gray-700 mb-1.5">Condition Type</label>
+                        <select id="condition_type" name="condition_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70" required>
                             <option value="">Select a condition type</option>
                             <?php foreach ($condition_types as $key => $label): ?>
                                 <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="space-y-2">
-                        <label for="condition_description" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-file-text mr-2 text-green-600"></i>Description
-                        </label>
-                        <textarea id="condition_description" name="condition_description"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm resize-none"
-                                  rows="3" placeholder="Describe the condition in detail..."></textarea>
+                    <div>
+                        <label for="condition_description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                        <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional description..."></textarea>
                     </div>
-                    <div class="space-y-2">
-                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-notes-medical mr-2 text-purple-600"></i>Treatment Notes
-                        </label>
-                        <textarea id="treatment_notes" name="treatment_notes"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm resize-none"
-                                  rows="3" placeholder="Treatment performed or planned..."></textarea>
+                    <div>
+                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional treatment notes..."></textarea>
                     </div>
-                    <div class="space-y-2">
-                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700">
-                            <i class="fas fa-tasks mr-2 text-orange-600"></i>Treatment Status
-                        </label>
-                        <select id="treatment_status" name="treatment_status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200 bg-white/70 backdrop-blur-sm">
+                    <div>
+                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
+                        <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
                             <option value="completed">Completed</option>
                             <option value="needs_attention">Needs Attention</option>
                         </select>
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" onclick="closeToothModal()" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:text-gray-900 transition-all duration-200">
-                            <i class="fas fa-times mr-2 group-hover:rotate-90 transition-transform"></i>Cancel
-                        </button>
-                        <button type="button" onclick="removeToothCondition()" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 hover:text-red-900 transition-all duration-200">
-                            <i class="fas fa-trash mr-2 group-hover:animate-bounce"></i>Remove Condition
-                        </button>
-                        <button type="submit" class="flex-1 group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                            <i class="fas fa-save mr-2 group-hover:animate-pulse"></i>Save Changes
+                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="closeToothModal()" class="inline-flex items-center justify-center h-10 px-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 whitespace-nowrap">
+                                Cancel
+                            </button>
+                            <button type="button" onclick="removeToothCondition()" class="inline-flex items-center justify-center px-4 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 rounded-xl text-sm font-medium text-red-700 whitespace-nowrap">
+                                Remove Status
+                            </button>
+                        </div>
+                        <button type="submit" class="inline-flex items-center justify-center h-10 px-4 min-w-[160px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-sm font-medium shadow-lg whitespace-nowrap">
+                            <i class="fas fa-save mr-2"></i>Apply Changes
                         </button>
                     </div>
                 </form>
