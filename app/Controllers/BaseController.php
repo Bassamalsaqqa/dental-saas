@@ -65,6 +65,7 @@ abstract class BaseController extends Controller
         
         // Load settings helper
         helper('settings');
+        $this->applyRuntimeTimezone();
 
         // Inject clinic info globally for all view() helper calls, unless already set
         $renderer = \Config\Services::renderer();
@@ -413,5 +414,33 @@ abstract class BaseController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Apply timezone at runtime using clinic settings when available.
+     * Falls back to app default timezone to avoid relying on server defaults.
+     */
+    protected function applyRuntimeTimezone(): void
+    {
+        try {
+            $fallbackTimezone = (string) (config('App')->appTimezone ?? 'UTC');
+            $timezone = $fallbackTimezone;
+
+            if (function_exists('settings')) {
+                $settingsTimezone = settings()->getTimezone();
+                if (is_string($settingsTimezone) && $settingsTimezone !== '') {
+                    $timezone = $settingsTimezone;
+                }
+            }
+
+            if (!in_array($timezone, timezone_identifiers_list(), true)) {
+                $timezone = $fallbackTimezone;
+            }
+
+            date_default_timezone_set($timezone);
+        } catch (\Throwable $e) {
+            log_message('error', 'Timezone initialization failed: ' . $e->getMessage());
+            date_default_timezone_set('UTC');
+        }
     }
 }
