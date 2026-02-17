@@ -48,4 +48,16 @@ class Services extends BaseService
         return new \App\Services\StorageService();
     }
 
+    /**
+     * Locale Resolver Service
+     */
+    public static function localeResolver($getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('localeResolver');
+        }
+
+        return new \App\Services\LocaleResolverService();
+    }
+
 }

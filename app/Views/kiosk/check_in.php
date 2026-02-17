@@ -8,6 +8,16 @@
      data-timeout-ms="90000">
     <div class="container mx-auto px-6 py-10">
         <div class="max-w-3xl mx-auto space-y-6">
+            <div class="flex items-center justify-end gap-2">
+                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=ar') ?>"
+                   class="px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all <?= ($locale ?? 'ar') === 'ar' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' ?>">
+                    العربية
+                </a>
+                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in?lang=en') ?>"
+                   class="px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all <?= ($locale ?? 'ar') === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' ?>">
+                    English
+                </a>
+            </div>
             <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-8">
                     <div class="flex items-center space-x-4">
@@ -44,37 +54,37 @@
                 <div class="p-8 space-y-6">
                     <?php if (!($pin_verified ?? false)): ?>
                         <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6">
-                            <h2 class="text-lg font-semibold text-blue-900 mb-2">Enter Clinic PIN</h2>
-                            <p class="text-sm text-blue-700">This kiosk is protected. Please enter the clinic PIN to begin.</p>
+                            <h2 class="text-lg font-semibold text-blue-900 mb-2"><?= esc(lang('Kiosk.enterClinicPin')) ?></h2>
+                            <p class="text-sm text-blue-700"><?= esc(lang('Kiosk.kioskProtected')) ?></p>
                         </div>
                         <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/unlock') ?>" method="POST" class="space-y-4">
                             <?= csrf_field() ?>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic PIN</label>
-                                <input type="password" name="kiosk_pin" inputmode="numeric" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg" placeholder="Enter PIN" required>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.clinicPin')) ?></label>
+                                <input type="password" name="kiosk_pin" inputmode="numeric" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg" placeholder="<?= esc(lang('Kiosk.enterPin')) ?>" required>
                             </div>
                             <button type="submit" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg">
-                                <i class="fas fa-lock-open mr-2"></i>Unlock Kiosk
+                                <i class="fas fa-lock-open mr-2"></i><?= esc(lang('Kiosk.unlockKiosk')) ?>
                             </button>
                         </form>
                     <?php else: ?>
                         <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                            <h2 class="text-lg font-semibold text-slate-900 mb-2">Check In</h2>
-                            <p class="text-sm text-slate-500">Enter your mobile number to find your appointments, update your details, and review treatment plans.</p>
+                            <h2 class="text-lg font-semibold text-slate-900 mb-2"><?= esc(lang('Kiosk.checkIn')) ?></h2>
+                            <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.checkInHint')) ?></p>
                         </div>
                         <form id="kioskLookupForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/lookup') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
                             <?= csrf_field() ?>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Mobile Number</label>
-                                <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg tracking-wider" placeholder="e.g. 0599 000 000" required>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
+                                <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg tracking-wider" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder')) ?>" required>
                             </div>
                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                                 <div class="grid grid-cols-3 gap-3">
                                     <?php foreach (['1','2','3','4','5','6','7','8','9','clear','0','back'] as $key): ?>
                                         <?php if ($key === 'clear'): ?>
-                                            <button type="button" data-key="clear" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">Clear</button>
+                                            <button type="button" data-key="clear" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"><?= esc(lang('Kiosk.clear')) ?></button>
                                         <?php elseif ($key === 'back'): ?>
-                                            <button type="button" data-key="back" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">Back</button>
+                                            <button type="button" data-key="back" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"><?= esc(lang('Kiosk.back')) ?></button>
                                         <?php else: ?>
                                             <button type="button" data-key="<?= $key ?>" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-lg font-bold text-slate-800 hover:bg-slate-100 transition-all"><?= $key ?></button>
                                         <?php endif; ?>
@@ -82,7 +92,7 @@
                                 </div>
                             </div>
                             <button type="submit" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg">
-                                <i class="fas fa-user-check mr-2"></i>Find My Record
+                                <i class="fas fa-user-check mr-2"></i><?= esc(lang('Kiosk.findRecord')) ?>
                             </button>
                         </form>
 
@@ -101,9 +111,9 @@
                         ?>
                         <div id="kioskResults" class="border-t border-gray-100 pt-6 <?= $hasAppointments || $hasPatients || !empty($info_message) ? '' : 'hidden' ?>">
                             <div class="flex items-center justify-between mb-4">
-                                <h3 id="kioskResultsTitle" class="text-lg font-semibold text-slate-900">Results for <?= esc($lookup_phone ?? '') ?></h3>
+                                <h3 id="kioskResultsTitle" class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.resultsFor')) ?> <?= esc($lookup_phone ?? '') ?></h3>
                                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
-                                    Not you? Re-enter phone
+                                    <?= esc(lang('Kiosk.notYouReenter')) ?>
                                 </a>
                             </div>
                             <div id="kioskActionBar"
@@ -117,19 +127,19 @@
                                         data-kiosk-action-btn
                                         data-action="checkin"
                                         class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
-                                    Confirm Visit
+                                    <?= esc(lang('Kiosk.actionConfirmVisit')) ?>
                                 </button>
                                 <button type="button"
                                         data-kiosk-action-btn
                                         data-action="details"
                                         class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
-                                    Update Details
+                                    <?= esc(lang('Kiosk.actionUpdateDetails')) ?>
                                 </button>
                                 <button type="button"
                                         data-kiosk-action-btn
                                         data-action="contracts"
                                         class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
-                                    Review & Sign
+                                    <?= esc(lang('Kiosk.actionReviewSign')) ?>
                                 </button>
                             </div>
                             <div id="kioskResultsList" class="space-y-4">
@@ -138,9 +148,9 @@
                                         <div>
                                             <p class="text-sm font-semibold text-slate-900" dir="auto" style="unicode-bidi: plaintext;"><?= esc($appointment['patient_display'] ?? '') ?></p>
                                             <p class="text-sm text-slate-500">
-                                                <?= esc($appointment['appointment_date'] ?? '') ?> · <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
+                                                <?= esc($appointment['appointment_date'] ?? '') ?> - <?= esc($appointment['appointment_time'] ?? '') ?> - <?= esc($appointment['appointment_type'] ?? '') ?>
                                                 <?php if (!empty($appointment['status'])): ?>
-                                                    · <?= esc(ucfirst($appointment['status'])) ?>
+                                                    - <?= esc($appointment['status_label'] ?? $appointment['status']) ?>
                                                 <?php endif; ?>
                                             </p>
                                         </div>
@@ -148,12 +158,12 @@
                                             <form action="<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>" method="POST">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="appointment_id" value="<?= (int) ($appointment['id'] ?? 0) ?>">
-                                                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg">
-                                                    <i class="fas fa-check-circle mr-2"></i>Confirm Today
+                                                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg">
+                                                    <i class="fas fa-check-circle mr-2"></i><?= esc(lang('Kiosk.confirmToday')) ?>
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <span class="text-xs font-semibold text-slate-500">Confirmation available on appointment day</span>
+                                            <span class="text-xs font-semibold text-slate-500"><?= esc(lang('Kiosk.confirmAvailableOnDay')) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
@@ -166,12 +176,12 @@
 
                             <div id="kioskPatientDetails" class="mt-6 <?= !empty($patients) ? '' : 'hidden' ?>">
                                 <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Update Your Details</h3>
-                                    <p class="text-sm text-slate-500 mb-4">Keep your contact details up to date.</p>
+                                    <h3 class="text-lg font-semibold text-slate-900 mb-2"><?= esc(lang('Kiosk.updateYourDetails')) ?></h3>
+                                    <p class="text-sm text-slate-500 mb-4"><?= esc(lang('Kiosk.detailsHint')) ?></p>
                                     <form id="kioskDetailsForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/update-details') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
                                         <?= csrf_field() ?>
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Select Patient</label>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.selectPatient')) ?></label>
                                             <select name="patient_id" id="kioskPatientSelect" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
                                                 <?php foreach ($patients ?? [] as $patient): ?>
                                                     <option value="<?= (int) $patient['id'] ?>" data-phone="<?= esc($patient['phone'] ?? '') ?>" data-email="<?= esc($patient['email'] ?? '') ?>">
@@ -182,16 +192,16 @@
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Mobile Number</label>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
                                                 <input type="tel" name="phone" id="kioskPhoneUpdate" inputmode="numeric" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.email')) ?></label>
                                                 <input type="email" name="email" id="kioskEmailUpdate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
                                             </div>
                                         </div>
                                         <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg">
-                                            <i class="fas fa-save mr-2"></i>Update Details
+                                            <i class="fas fa-save mr-2"></i><?= esc(lang('Kiosk.updateDetailsButton')) ?>
                                         </button>
                                     </form>
                                 </div>
@@ -199,19 +209,19 @@
 
                             <div id="kioskContracts" class="mt-6 <?= !empty($contracts) ? '' : 'hidden' ?>">
                                 <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Treatment Plan</h3>
-                                    <p class="text-sm text-slate-500 mb-4">Review and sign your treatment plan.</p>
+                                    <h3 class="text-lg font-semibold text-slate-900 mb-2"><?= esc(lang('Kiosk.treatmentPlan')) ?></h3>
+                                    <p class="text-sm text-slate-500 mb-4"><?= esc(lang('Kiosk.treatmentPlanHint')) ?></p>
                                     <div id="kioskContractList" class="space-y-4">
                                         <?php foreach ($contracts ?? [] as $contract): ?>
                                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
                                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                                     <div>
-                                                        <p class="text-sm font-semibold text-slate-900">Plan #<?= (int) $contract['id'] ?></p>
-                                                        <p class="text-sm text-slate-500">Total: <?= esc($contract['currency']) ?> <?= number_format((float) $contract['total_cost'], 2) ?></p>
+                                                        <p class="text-sm font-semibold text-slate-900"><?= esc(lang('Kiosk.planPrefix')) ?><?= (int) $contract['id'] ?></p>
+                                                        <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.total')) ?>: <?= esc($contract['currency']) ?> <?= number_format((float) $contract['total_cost'], 2) ?></p>
                                                     </div>
                                                     <button type="button" class="kiosk-sign-btn px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all"
                                                             data-contract='<?= esc(json_encode($contract), 'attr') ?>'>
-                                                        <i class="fas fa-pen-fancy mr-2"></i>Review &amp; Sign
+                                                        <i class="fas fa-pen-fancy mr-2"></i><?= esc(lang('Kiosk.reviewAndSign')) ?>
                                                     </button>
                                                 </div>
                                             </div>
@@ -225,7 +235,7 @@
             </div>
 
             <div class="text-center text-xs text-slate-500" dir="auto" style="unicode-bidi: plaintext;">
-                <?= esc($settings['kiosk_footer_note'] ?? 'Need help? Please ask the reception desk.') ?>
+                <?= esc($settings['kiosk_footer_note'] ?? lang('Kiosk.needHelp')) ?>
             </div>
         </div>
     </div>
@@ -236,7 +246,7 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-6 text-white flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-semibold">Treatment Plan</h3>
+                    <h3 class="text-xl font-semibold"><?= esc(lang('Kiosk.treatmentPlan')) ?></h3>
                     <p class="text-sm text-blue-100" id="kioskContractMeta"></p>
                 </div>
                 <button type="button" id="kioskCloseContract" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center">
@@ -246,15 +256,15 @@
             <div class="p-6 space-y-6 overflow-y-auto">
                 <div id="kioskContractSnapshot" class="border border-gray-200 rounded-2xl p-4 bg-gray-50"></div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Plan Items</h4>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3"><?= esc(lang('Kiosk.planItems')) ?></h4>
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
                             <thead>
                                 <tr class="border-b border-gray-200 text-gray-500 uppercase text-xs">
-                                    <th class="py-2 px-3 text-left">Tooth</th>
-                                    <th class="py-2 px-3 text-left">Description</th>
-                                    <th class="py-2 px-3 text-left">Qty</th>
-                                    <th class="py-2 px-3 text-left">Price</th>
+                                    <th class="py-2 px-3 text-left"><?= esc(lang('Kiosk.tooth')) ?></th>
+                                    <th class="py-2 px-3 text-left"><?= esc(lang('Kiosk.description')) ?></th>
+                                    <th class="py-2 px-3 text-left"><?= esc(lang('Kiosk.qty')) ?></th>
+                                    <th class="py-2 px-3 text-left"><?= esc(lang('Kiosk.price')) ?></th>
                                 </tr>
                             </thead>
                             <tbody id="kioskContractItems" class="divide-y divide-gray-100"></tbody>
@@ -268,23 +278,23 @@
                     <input type="hidden" name="signature_data" id="kioskSignatureData">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Typed Name</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.typedName')) ?></label>
                             <input type="text" name="signer_name" id="kioskSignerName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" required>
                         </div>
                         <div class="flex items-end text-sm text-gray-500">
-                            Please sign below to confirm your treatment plan.
+                            <?= esc(lang('Kiosk.signHint')) ?>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Draw Signature</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.drawSignature')) ?></label>
                         <canvas id="kioskSignatureCanvas" class="border border-gray-300 rounded-xl w-full" height="160" style="touch-action: none; -ms-touch-action: none;"></canvas>
                         <button type="button" id="kioskClearSignature"
                                 class="mt-2 inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i>Clear Signature
+                            <i class="fas fa-eraser mr-1.5 text-gray-500"></i><?= esc(lang('Kiosk.clearSignature')) ?>
                         </button>
                     </div>
                     <button type="submit" class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
-                        <i class="fas fa-signature mr-2"></i>Sign Plan
+                        <i class="fas fa-signature mr-2"></i><?= esc(lang('Kiosk.signPlan')) ?>
                     </button>
                 </form>
             </div>
@@ -292,6 +302,28 @@
     </div>
 </div>
 <script>
+const kioskI18n = <?= json_encode([
+    'resultsFor' => lang('Kiosk.resultsFor'),
+    'confirmToday' => lang('Kiosk.confirmToday'),
+    'confirmAvailableOnDay' => lang('Kiosk.confirmAvailableOnDay'),
+    'total' => lang('Kiosk.total'),
+    'reviewAndSign' => lang('Kiosk.reviewAndSign'),
+    'planItems' => lang('Kiosk.planItems'),
+    'noSnapshot' => lang('Kiosk.noSnapshot'),
+    'noItems' => lang('Kiosk.noItems'),
+    'lookupFailedTryAgain' => lang('Kiosk.lookupFailedTryAgain'),
+    'lookupFailed' => lang('Kiosk.lookupFailed'),
+    'noUpcomingForMobile' => lang('Kiosk.noUpcomingForMobile'),
+    'pleaseEnterMobile' => lang('Kiosk.pleaseEnterMobile'),
+    'updated' => lang('Kiosk.updated'),
+    'unableUpdateDetails' => lang('Kiosk.unableUpdateDetails'),
+    'unableUpdateDetailsNow' => lang('Kiosk.unableUpdateDetailsNow'),
+    'signed' => lang('Kiosk.signed'),
+    'unableSignPlan' => lang('Kiosk.unableSignPlan'),
+    'unableSignPlanNow' => lang('Kiosk.unableSignPlanNow'),
+    'error' => lang('Kiosk.error'),
+    'planPrefix' => lang('Kiosk.planPrefix'),
+], JSON_UNESCAPED_UNICODE) ?>;
 const kioskActionBar = document.getElementById('kioskActionBar');
 const kioskActionButtons = Array.from(document.querySelectorAll('[data-kiosk-action-btn]'));
 const kioskActionTargets = {
@@ -430,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const phone = input.value.trim();
             if (!phone) {
                 if (window.showToast) {
-                    window.showToast('error', 'Error', 'Please enter a mobile number.');
+                    window.showToast('error', kioskI18n.error, kioskI18n.pleaseEnterMobile);
                 }
                 return;
             }
@@ -454,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
                 if (!data || !data.success) {
                     if (window.showToast) {
-                        window.showToast('error', 'Error', data?.message || 'Lookup failed.');
+                        window.showToast('error', kioskI18n.error, data?.message || kioskI18n.lookupFailed);
                     }
                     return;
                 }
@@ -464,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.dataset.csrfToken = data.csrf_token;
                 }
 
-                resultsTitle.textContent = `Results for ${data.lookup_phone || ''}`;
+                resultsTitle.textContent = `${kioskI18n.resultsFor} ${data.lookup_phone || ''}`;
                 clearNode(resultsList);
 
                 if (data.appointments && data.appointments.length) {
@@ -482,8 +514,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         const meta = document.createElement('p');
                         meta.className = 'text-sm text-slate-500';
-                        const dateLabel = appointment.appointment_date ? `${appointment.appointment_date} · ` : '';
-                        const statusLabel = appointment.status ? ` · ${appointment.status.charAt(0).toUpperCase()}${appointment.status.slice(1)}` : '';
+                        const dateLabel = appointment.appointment_date ? `${appointment.appointment_date} - ` : '';
+                        const statusLabel = appointment.status_label ? ` - ${appointment.status_label}` : '';
                         meta.textContent = `${dateLabel}${appointment.appointment_time || ''} - ${appointment.appointment_type || ''}${statusLabel}`;
 
                         info.appendChild(name);
@@ -515,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             const icon = document.createElement('i');
                             icon.className = 'fas fa-check-circle mr-2';
                             confirmBtn.appendChild(icon);
-                            confirmBtn.appendChild(document.createTextNode('Confirm Today'));
+                            confirmBtn.appendChild(document.createTextNode(kioskI18n.confirmToday));
 
                             confirmForm.appendChild(confirmCsrf);
                             confirmForm.appendChild(appointmentId);
@@ -525,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else {
                             const note = document.createElement('span');
                             note.className = 'text-xs font-semibold text-slate-500';
-                            note.textContent = 'Confirmation available on appointment day';
+                            note.textContent = kioskI18n.confirmAvailableOnDay;
                             row.appendChild(note);
                         }
                         resultsList.appendChild(row);
@@ -533,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     const empty = document.createElement('div');
                     empty.className = 'bg-amber-50 border border-amber-100 rounded-2xl p-5 text-amber-700 text-sm';
-                    empty.textContent = data.info_message || 'No upcoming appointments found for this mobile number.';
+                    empty.textContent = data.info_message || kioskI18n.noUpcomingForMobile;
                     resultsList.appendChild(empty);
                 }
 
@@ -575,9 +607,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         card.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-5';
                         const row = createElement('div', 'flex flex-col md:flex-row md:items-center md:justify-between gap-4');
                         const info = createElement('div');
-                        const title = createElement('p', 'text-sm font-semibold text-slate-900', `Plan #${contract.id}`);
+                        const title = createElement('p', 'text-sm font-semibold text-slate-900', `${kioskI18n.planPrefix}${contract.id}`);
                         const totalValue = Number(contract.total_cost || 0).toFixed(2);
-                        const total = createElement('p', 'text-sm text-slate-500', `Total: ${contract.currency} ${totalValue}`);
+                        const total = createElement('p', 'text-sm text-slate-500', `${kioskI18n.total}: ${contract.currency} ${totalValue}`);
                         info.appendChild(title);
                         info.appendChild(total);
 
@@ -585,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         button.type = 'button';
                         const icon = createElement('i', 'fas fa-pen-fancy mr-2');
                         button.appendChild(icon);
-                        appendText(button, 'Review & Sign');
+                        appendText(button, kioskI18n.reviewAndSign);
 
                         row.appendChild(info);
                         row.appendChild(button);
@@ -614,7 +646,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 results.classList.remove('hidden');
             } catch (error) {
                 if (window.showToast) {
-                    window.showToast('error', 'Error', 'Lookup failed. Please try again.');
+                    window.showToast('error', kioskI18n.error, kioskI18n.lookupFailedTryAgain);
                 }
             }
         });
@@ -678,14 +710,14 @@ if (detailsForm) {
 
             if (window.showToast) {
                 if (response.ok && data?.success) {
-                    window.showToast('success', 'Updated', data.message || 'Details updated.');
+                    window.showToast('success', kioskI18n.updated, data.message || kioskI18n.updated);
                 } else {
-                    window.showToast('error', 'Error', data?.message || 'Unable to update details.');
+                    window.showToast('error', kioskI18n.error, data?.message || kioskI18n.unableUpdateDetails);
                 }
             }
         } catch (error) {
             if (window.showToast) {
-                window.showToast('error', 'Error', 'Unable to update details right now.');
+                window.showToast('error', kioskI18n.error, kioskI18n.unableUpdateDetailsNow);
             }
         }
     });
@@ -708,7 +740,7 @@ const openContractModal = (contract) => {
     if (!kioskModal) return;
     kioskContractId.value = contract.id;
     kioskPatientId.value = contract.patient_id;
-    kioskMeta.textContent = `Plan #${contract.id} · ${contract.currency} ${Number(contract.total_cost).toFixed(2)}`;
+    kioskMeta.textContent = `${kioskI18n.planPrefix}${contract.id} - ${contract.currency} ${Number(contract.total_cost).toFixed(2)}`;
     while (kioskSnapshot.firstChild) {
         kioskSnapshot.removeChild(kioskSnapshot.firstChild);
     }
@@ -722,7 +754,7 @@ const openContractModal = (contract) => {
     } else {
         const emptySnapshot = document.createElement('p');
         emptySnapshot.className = 'text-sm text-gray-500';
-        emptySnapshot.textContent = 'No snapshot available.';
+        emptySnapshot.textContent = kioskI18n.noSnapshot;
         kioskSnapshot.appendChild(emptySnapshot);
     }
     while (kioskItems.firstChild) {
@@ -753,7 +785,7 @@ const openContractModal = (contract) => {
         const emptyCell = document.createElement('td');
         emptyCell.colSpan = 4;
         emptyCell.className = 'py-3 text-center text-gray-500';
-        emptyCell.textContent = 'No items listed.';
+        emptyCell.textContent = kioskI18n.noItems;
         empty.appendChild(emptyCell);
         kioskItems.appendChild(empty);
     }
@@ -862,9 +894,9 @@ if (kioskForm) {
             }
             if (window.showToast) {
                 if (response.ok && data?.success) {
-                    window.showToast('success', 'Signed', data.message || 'Plan signed.');
+                    window.showToast('success', kioskI18n.signed, data.message || kioskI18n.signed);
                 } else {
-                    window.showToast('error', 'Error', data?.message || 'Unable to sign plan.');
+                    window.showToast('error', kioskI18n.error, data?.message || kioskI18n.unableSignPlan);
                 }
             }
             if (response.ok && data?.success) {
@@ -872,7 +904,7 @@ if (kioskForm) {
             }
         } catch (error) {
             if (window.showToast) {
-                window.showToast('error', 'Error', 'Unable to sign plan right now.');
+                window.showToast('error', kioskI18n.error, kioskI18n.unableSignPlanNow);
             }
         }
     });

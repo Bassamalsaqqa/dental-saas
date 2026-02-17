@@ -287,6 +287,7 @@ class Settings extends BaseController
             'kiosk_header' => 'permit_empty|max_length[60]',
             'kiosk_subheader' => 'permit_empty|max_length[120]',
             'kiosk_footer_note' => 'permit_empty|max_length[160]',
+            'kiosk_default_language' => 'permit_empty|in_list[ar,en]',
         ];
 
         if (!$this->validate($rules)) {
@@ -315,6 +316,7 @@ class Settings extends BaseController
             'kiosk_header' => trim((string) $this->request->getPost('kiosk_header')) ?: 'Self Check-In',
             'kiosk_subheader' => trim((string) $this->request->getPost('kiosk_subheader')) ?: 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => trim((string) $this->request->getPost('kiosk_footer_note')) ?: 'Need help? Please ask the reception desk.',
+            'kiosk_default_language' => trim((string) $this->request->getPost('kiosk_default_language')) ?: 'ar',
         ];
 
         if (!$this->saveSettings($settingsData)) {
@@ -808,6 +810,7 @@ class Settings extends BaseController
                 'kiosk_header' => 'Self Check-In',
                 'kiosk_subheader' => 'Confirm your appointment in seconds.',
                 'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
+                'kiosk_default_language' => 'ar',
             ];
             
             return array_merge($defaults, $settings);
@@ -841,6 +844,7 @@ class Settings extends BaseController
             'kiosk_header' => 'Self Check-In',
             'kiosk_subheader' => 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
+            'kiosk_default_language' => 'ar',
         ];
     }
 
@@ -951,6 +955,7 @@ class Settings extends BaseController
             'kiosk_header' => 'Self Check-In',
             'kiosk_subheader' => 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
+            'kiosk_default_language' => 'ar',
         ];
         
         log_message('info', 'Initializing default settings');

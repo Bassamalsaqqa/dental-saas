@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
+<html lang="<?= esc($locale ?? 'ar') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif;">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen" style="font-family: <?= !empty($is_rtl) ? '\'Tajawal\', \'Cairo\', \'Segoe UI\', Tahoma, Arial, sans-serif' : '\'Segoe UI\', Tahoma, Arial, sans-serif' ?>;">
     <?= view('components/toast') ?>
     <?= $this->renderSection('content') ?>
 </body>

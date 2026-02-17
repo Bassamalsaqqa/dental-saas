@@ -332,6 +332,13 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Kiosk Subheader</label>
                                         <input type="text" name="kiosk_subheader" value="<?= esc($settings['kiosk_subheader'] ?? 'Confirm your appointment in seconds.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Default Language</label>
+                                        <select name="kiosk_default_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                            <option value="ar" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'ar') ? 'selected' : '' ?>>Arabic (Default)</option>
+                                            <option value="en" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'en') ? 'selected' : '' ?>>English</option>
+                                        </select>
+                                    </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Footer Note (optional)</label>
                                         <input type="text" name="kiosk_footer_note" value="<?= esc($settings['kiosk_footer_note'] ?? 'Need help? Please ask the reception desk.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>

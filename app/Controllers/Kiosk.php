@@ -11,6 +11,7 @@ use App\Models\TreatmentContractItemModel;
 use App\Models\TreatmentContractModel;
 use App\Models\TreatmentContractOdontogramSnapshotModel;
 use App\Models\TreatmentContractSignatureModel;
+use App\Services\LocaleResolverService;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -27,6 +28,7 @@ class Kiosk extends BaseController
     protected TreatmentContractSignatureModel $contractSignatureModel;
     protected PlanGuard $planGuard;
     protected StorageService $storageService;
+    protected LocaleResolverService $localeResolver;
 
     public function __construct()
     {
@@ -40,6 +42,7 @@ class Kiosk extends BaseController
         $this->contractSignatureModel = new TreatmentContractSignatureModel();
         $this->planGuard = new PlanGuard();
         $this->storageService = new StorageService();
+        $this->localeResolver = service('localeResolver');
     }
 
     public function checkIn(string $clinicUuid)
@@ -49,6 +52,7 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $locale = $this->applyKioskLocale((int) $clinic['id'], $settings);
 
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
@@ -59,9 +63,11 @@ class Kiosk extends BaseController
         }
 
         $data = [
-            'title' => 'Self Check-In',
+            'title' => $this->tr('title'),
             'clinic' => $clinic,
             'settings' => $settings,
+            'locale' => $locale,
+            'is_rtl' => $this->localeResolver->isRtl($locale),
             'pin_required' => true,
             'pin_verified' => $this->isPinVerified((int) $clinic['id']),
             'appointments' => [],
@@ -89,6 +95,7 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $this->applyKioskLocale((int) $clinic['id'], $settings);
 
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
@@ -96,7 +103,7 @@ class Kiosk extends BaseController
 
         $pin = trim((string) $this->request->getPost('kiosk_pin'));
         if ($pin === '' || !$this->verifyPin($settings, $pin)) {
-            return redirect()->back()->withInput()->with('error', 'Invalid kiosk PIN.');
+            return redirect()->back()->withInput()->with('error', $this->tr('msgInvalidPin'));
         }
 
         $this->setPinVerified((int) $clinic['id']);
@@ -111,6 +118,7 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $locale = $this->applyKioskLocale((int) $clinic['id'], $settings);
 
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
@@ -118,28 +126,28 @@ class Kiosk extends BaseController
 
         if (!$this->isPinVerified((int) $clinic['id'])) {
             return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))
-                ->with('error', 'Please enter the kiosk PIN first.');
+                ->with('error', $this->tr('msgEnterPinFirst'));
         }
 
         $rawPhone = trim((string) $this->request->getPost('phone'));
         if ($rawPhone === '' || !preg_match('/^[0-9\s\-()+]{6,20}$/', $rawPhone)) {
-            return redirect()->back()->withInput()->with('error', 'Please enter a valid mobile number.');
+            return redirect()->back()->withInput()->with('error', $this->tr('msgInvalidMobile'));
         }
 
         $normalizedPhone = $this->normalizePhone($rawPhone);
         if ($normalizedPhone === '') {
-            return redirect()->back()->withInput()->with('error', 'Please enter a valid mobile number.');
+            return redirect()->back()->withInput()->with('error', $this->tr('msgInvalidMobile'));
         }
 
         $ipAddress = $this->request->getIPAddress() ?? '0.0.0.0';
         $phoneKey = sha1($normalizedPhone);
 
         if (!$this->rateLimit('kiosk_lookup_ip_' . $clinic['id'] . '_' . $ipAddress, 30, 600)) {
-            return redirect()->back()->withInput()->with('error', 'Too many attempts. Please wait a few minutes.');
+            return redirect()->back()->withInput()->with('error', $this->tr('msgTooManyAttempts'));
         }
 
         if (!$this->rateLimit('kiosk_lookup_phone_' . $clinic['id'] . '_' . $phoneKey, 5, 600)) {
-            return redirect()->back()->withInput()->with('error', 'Too many attempts. Please wait a few minutes.');
+            return redirect()->back()->withInput()->with('error', $this->tr('msgTooManyAttempts'));
         }
 
         $patients = $this->patientModel
@@ -223,9 +231,11 @@ class Kiosk extends BaseController
         ]);
 
         $data = [
-            'title' => 'Self Check-In',
+            'title' => $this->tr('title'),
             'clinic' => $clinic,
             'settings' => $settings,
+            'locale' => $locale,
+            'is_rtl' => $this->localeResolver->isRtl($locale),
             'pin_required' => true,
             'pin_verified' => true,
             'appointments' => $matching,
@@ -237,9 +247,9 @@ class Kiosk extends BaseController
         ];
 
         if (empty($allowedPatients)) {
-            $data['info_message'] = 'No patient record found for this mobile number.';
+            $data['info_message'] = $this->tr('msgNoPatientRecord');
         } elseif (empty($matching)) {
-            $data['info_message'] = 'No upcoming appointments found. You can still update details and review treatment plans.';
+            $data['info_message'] = $this->tr('msgNoUpcomingAppointments');
         }
 
         if ($this->request->isAJAX()) {
@@ -267,6 +277,7 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $this->applyKioskLocale((int) $clinic['id'], $settings);
 
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
@@ -274,23 +285,23 @@ class Kiosk extends BaseController
 
         if (!$this->isPinVerified((int) $clinic['id'])) {
             return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))
-                ->with('error', 'Please enter the kiosk PIN first.');
+                ->with('error', $this->tr('msgEnterPinFirst'));
         }
 
         $appointmentId = (int) $this->request->getPost('appointment_id');
         if (!$appointmentId) {
-            return redirect()->back()->with('error', 'Invalid appointment selection.');
+            return redirect()->back()->with('error', $this->tr('msgInvalidAppointment'));
         }
 
         $allowed = session()->get('kiosk_allowed_appointments') ?? [];
         if (!in_array($appointmentId, $allowed, true)) {
-            return redirect()->back()->with('error', 'This appointment is not available for check-in.');
+            return redirect()->back()->with('error', $this->tr('msgAppointmentUnavailable'));
         }
 
         $normalizedPhone = session()->get('kiosk_last_phone');
         $clinicMatch = session()->get('kiosk_last_clinic');
         if (!$normalizedPhone || (int) $clinicMatch !== (int) $clinic['id']) {
-            return redirect()->back()->with('error', 'Please re-enter your mobile number.');
+            return redirect()->back()->with('error', $this->tr('msgReenterMobile'));
         }
 
         $today = $this->clinicToday($settings);
@@ -304,12 +315,12 @@ class Kiosk extends BaseController
             ->first();
 
         if (!$appointment) {
-            return redirect()->back()->with('error', 'Appointment not found or already confirmed.');
+            return redirect()->back()->with('error', $this->tr('msgAppointmentNotFound'));
         }
 
         $storedPhone = $this->normalizePhone((string) ($appointment['phone'] ?? ''));
         if ($storedPhone === '' || $storedPhone !== $normalizedPhone) {
-            return redirect()->back()->with('error', 'Mobile number mismatch.');
+            return redirect()->back()->with('error', $this->tr('msgMobileMismatch'));
         }
 
         $updated = $this->appointmentModel->update($appointmentId, [
@@ -317,14 +328,14 @@ class Kiosk extends BaseController
         ]);
 
         if (!$updated) {
-            return redirect()->back()->with('error', 'Unable to confirm the appointment.');
+            return redirect()->back()->with('error', $this->tr('msgUnableConfirmAppointment'));
         }
 
         $remaining = array_values(array_filter($allowed, static fn($id) => (int) $id !== $appointmentId));
         session()->set('kiosk_allowed_appointments', $remaining);
 
         return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))
-            ->with('success', 'Appointment confirmed. Please have a seat.');
+            ->with('success', $this->tr('msgAppointmentConfirmed'));
     }
 
     public function updateDetails(string $clinicUuid)
@@ -334,26 +345,27 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $this->applyKioskLocale((int) $clinic['id'], $settings);
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
         }
         if (!$this->isPinVerified((int) $clinic['id'])) {
-            return $this->respondKioskError($clinic, 'Please enter the kiosk PIN first.');
+            return $this->respondKioskError($clinic, $this->tr('msgEnterPinFirst'));
         }
 
         $patientId = (int) $this->request->getPost('patient_id');
         $allowedPatients = session()->get('kiosk_allowed_patients') ?? [];
         if (!$patientId || !in_array($patientId, $allowedPatients, true)) {
-            return $this->respondKioskError($clinic, 'Invalid patient selection.');
+            return $this->respondKioskError($clinic, $this->tr('msgInvalidPatient'));
         }
 
         $phone = trim((string) $this->request->getPost('phone'));
         $email = trim((string) $this->request->getPost('email'));
         if ($phone !== '' && !preg_match('/^[0-9\s\-()+]{6,20}$/', $phone)) {
-            return $this->respondKioskError($clinic, 'Please enter a valid mobile number.');
+            return $this->respondKioskError($clinic, $this->tr('msgInvalidMobile'));
         }
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->respondKioskError($clinic, 'Please enter a valid email address.');
+            return $this->respondKioskError($clinic, $this->tr('msgInvalidEmail'));
         }
 
         $updated = $this->patientModel
@@ -364,10 +376,10 @@ class Kiosk extends BaseController
             ]);
 
         if (!$updated) {
-            return $this->respondKioskError($clinic, 'Unable to update your details right now.');
+            return $this->respondKioskError($clinic, $this->tr('msgUnableUpdateDetailsNow'));
         }
 
-        return $this->respondKioskSuccess($clinic, 'Details updated successfully.');
+        return $this->respondKioskSuccess($clinic, $this->tr('msgDetailsUpdated'));
     }
 
     public function signContract(string $clinicUuid)
@@ -377,11 +389,12 @@ class Kiosk extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
         $settings = $this->getClinicSettings((int) $clinic['id']);
+        $this->applyKioskLocale((int) $clinic['id'], $settings);
         if (!$this->isKioskEnabled($settings)) {
             throw PageNotFoundException::forPageNotFound();
         }
         if (!$this->isPinVerified((int) $clinic['id'])) {
-            return $this->respondKioskError($clinic, 'Please enter the kiosk PIN first.');
+            return $this->respondKioskError($clinic, $this->tr('msgEnterPinFirst'));
         }
 
         $this->planGuard->assertFeature((int) $clinic['id'], 'contracts.enabled');
@@ -393,24 +406,24 @@ class Kiosk extends BaseController
         $allowedPatients = session()->get('kiosk_allowed_patients') ?? [];
 
         if (!$contractId || !in_array($contractId, $allowedContracts, true)) {
-            return $this->respondKioskError($clinic, 'Invalid contract selection.');
+            return $this->respondKioskError($clinic, $this->tr('msgInvalidContract'));
         }
         if (!$patientId || !in_array($patientId, $allowedPatients, true)) {
-            return $this->respondKioskError($clinic, 'Invalid patient selection.');
+            return $this->respondKioskError($clinic, $this->tr('msgInvalidPatient'));
         }
 
         $contract = $this->contractModel->findByClinic((int) $clinic['id'], $contractId);
         if (!$contract || (int) $contract['patient_id'] !== $patientId) {
-            return $this->respondKioskError($clinic, 'Contract not found.');
+            return $this->respondKioskError($clinic, $this->tr('msgContractNotFound'));
         }
         if (($contract['status'] ?? 'draft') !== 'draft') {
-            return $this->respondKioskError($clinic, 'This contract is already signed.');
+            return $this->respondKioskError($clinic, $this->tr('msgContractAlreadySigned'));
         }
 
         $signatureData = trim((string) $this->request->getPost('signature_data'));
         $signerName = trim((string) $this->request->getPost('signer_name'));
         if ($signatureData === '' || $signerName === '') {
-            return $this->respondKioskError($clinic, 'Signature and name are required.');
+            return $this->respondKioskError($clinic, $this->tr('msgSignatureRequired'));
         }
 
         $now = date('Y-m-d H:i:s');
@@ -479,7 +492,7 @@ class Kiosk extends BaseController
             'signed_attachment_id' => $attachment['id']
         ]);
 
-        return $this->respondKioskSuccess($clinic, 'Contract signed successfully.', [
+        return $this->respondKioskSuccess($clinic, $this->tr('msgContractSigned'), [
             'contract_id' => $contractId
         ]);
     }
@@ -521,6 +534,7 @@ class Kiosk extends BaseController
             'kiosk_header' => 'Self Check-In',
             'kiosk_subheader' => 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
+            'kiosk_default_language' => 'ar',
             'timezone' => 'UTC',
             'time_format' => '12',
         ];
@@ -631,18 +645,50 @@ class Kiosk extends BaseController
             'appointment_date' => $displayDate,
             'can_confirm' => $confirmAllowed,
             'status' => $appointment['status'] ?? '',
+            'status_label' => $this->formatAppointmentStatus((string) ($appointment['status'] ?? '')),
         ];
     }
 
     private function formatAppointmentType(string $type): string
     {
-        $type = str_replace('_', ' ', $type);
-        $type = trim($type);
-        if ($type === '') {
-            return 'Appointment';
+        $type = strtolower(trim($type));
+        $map = [
+            'consultation' => 'typeConsultation',
+            'treatment' => 'typeTreatment',
+            'follow_up' => 'typeFollowUp',
+            'follow-up' => 'typeFollowUp',
+            'emergency' => 'typeEmergency',
+            'cleaning' => 'typeCleaning',
+            'checkup' => 'typeCheckup',
+        ];
+        if (isset($map[$type])) {
+            return $this->tr($map[$type]);
         }
 
-        return ucwords($type);
+        $type = str_replace('_', ' ', $type);
+        return $type !== '' ? ucwords($type) : $this->tr('typeAppointment');
+    }
+
+    private function formatAppointmentStatus(string $status): string
+    {
+        $status = strtolower(trim($status));
+        $map = [
+            'scheduled' => 'statusScheduled',
+            'confirmed' => 'statusConfirmed',
+            'completed' => 'statusCompleted',
+            'cancelled' => 'statusCancelled',
+            'no_show' => 'statusNoShow',
+            'no-show' => 'statusNoShow',
+        ];
+        if (isset($map[$status])) {
+            return $this->tr($map[$status]);
+        }
+
+        if ($status === '') {
+            return '';
+        }
+
+        return ucfirst(str_replace('_', ' ', $status));
     }
 
     private function formatTime(string $time, string $format): string
@@ -676,6 +722,24 @@ class Kiosk extends BaseController
         }
 
         return $initial;
+    }
+
+    private function tr(string $key, array $params = []): string
+    {
+        return lang('Kiosk.' . $key, $params);
+    }
+
+    private function applyKioskLocale(int $clinicId, array $settings): string
+    {
+        $locale = $this->localeResolver->resolve($this->request, [
+            'supported' => ['ar', 'en'],
+            'default' => 'ar',
+            'session_key' => 'kiosk_locale_' . $clinicId,
+            'settings_locale' => $settings['kiosk_default_language'] ?? 'ar',
+        ]);
+
+        $this->localeResolver->apply($this->request, $locale);
+        return $locale;
     }
 
     private function clinicToday(array $settings): string
