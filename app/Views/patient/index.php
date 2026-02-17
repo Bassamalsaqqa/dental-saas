@@ -650,12 +650,13 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, row) {
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center space-x-2">';
                     
                     // View button
                     if (permissions.patients.view) {
                         actions += `
-                            <a href="<?= base_url('patient') ?>/${data}" 
+                            <a href="<?= base_url('patient') ?>/${data}?return_to=${returnTo}" 
                                class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="View Patient">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -664,7 +665,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.patients.edit) {
                         actions += `
-                            <a href="<?= base_url('patient') ?>/${data}/edit" 
+                            <a href="<?= base_url('patient') ?>/${data}/edit?return_to=${returnTo}" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Patient">
                                 <i class="fas fa-edit"></i>
                             </a>`;
@@ -672,21 +673,21 @@ $(document).ready(function() {
                     
                     // Odontogram button
                     actions += `
-                        <a href="<?= base_url('odontogram') ?>/${data}" 
+                        <a href="<?= base_url('odontogram') ?>/${data}?return_to=${returnTo}" 
                            class="p-2 text-purple-600 hover:text-purple-700 rounded-md hover:bg-purple-50 transition-colors duration-200" title="Odontogram">
                             <i class="fas fa-tooth"></i>
                         </a>`;
 
                     // New examination button
                     actions += `
-                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}" 
+                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=${returnTo}" 
                            class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="New Examination">
                             <i class="fas fa-stethoscope"></i>
                         </a>`;
 
                     // New treatment button
                     actions += `
-                        <a href="<?= base_url('treatment/create?patient_id=') ?>${data}" 
+                        <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=${returnTo}" 
                            class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="New Treatment">
                             <i class="fas fa-briefcase-medical"></i>
                         </a>`;

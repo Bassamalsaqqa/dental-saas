@@ -235,7 +235,7 @@ class Treatment extends BaseController
             }
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination']);
         if (!$returnTo) {
             if ($examinationId) {
                 $returnTo = 'examination/' . $examinationId;
@@ -312,7 +312,7 @@ class Treatment extends BaseController
                 'loadSelect2' => true,
                 'selected_examination_id' => $examId,
                 'inventory_items' => $inventoryItems,
-                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination'])
+                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination'])
             ];
             return $this->view('treatment/create', $data);
         }
@@ -412,7 +412,7 @@ class Treatment extends BaseController
             'treatment' => $treatment,
             'usage_records' => $usageRecords,
             'usage_total_cost' => $totalUsageCost,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'treatment']),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment']),
         ];
 
         return $this->view('treatment/show', $data);
@@ -420,9 +420,13 @@ class Treatment extends BaseController
 
     private function resolveCreateReturnTo(int $patientId, ?int $examinationId, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'examination']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination']);
         if (!$returnTo) {
             return null;
+        }
+
+        if (preg_match('#^patients(\\?|$)#', $returnTo)) {
+            return $returnTo;
         }
 
         if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
@@ -468,7 +472,7 @@ class Treatment extends BaseController
             'validation' => null,
             'loadSelect2' => true,
             'inventory_items' => $inventoryItems,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'treatment'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'treatment'])
         ];
 
         return $this->view('treatment/edit', $data);
@@ -511,7 +515,7 @@ class Treatment extends BaseController
                 'treatment_types' => $this->getTreatmentTypes(),
                 'validation' => $this->validator,
                 'inventory_items' => $inventoryItems,
-                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'treatment'])
+                'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment'])
             ];
             return $this->view('treatment/edit', $data);
         }
@@ -549,7 +553,7 @@ class Treatment extends BaseController
                     ->with('error', $usageResult['message']);
             }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'treatment']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been updated successfully!');
             }
@@ -597,7 +601,7 @@ class Treatment extends BaseController
             } else {
                 $returnTo = $this->sanitizeInternalReturnTo(
                     (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
-                    ['patient', 'examination', 'treatment']
+                    ['patient', 'patients', 'examination', 'treatment']
                 );
                 if ($returnTo) {
                     return redirect()->to(base_url($returnTo))->with('success', 'Treatment has been deleted successfully!');

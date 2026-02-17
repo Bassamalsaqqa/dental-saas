@@ -148,7 +148,11 @@ class Odontogram extends BaseController
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
             'stats' => $this->odontogramModel->getOdontogramStats($patientId, $examinationId),
-            'examination_id' => $examinationId
+            'examination_id' => $examinationId,
+            'return_to' => $this->sanitizeInternalReturnTo(
+                $this->request->getGet('return_to'),
+                ['patient', 'patients', 'examination', 'odontogram']
+            )
         ];
 
         return $this->view('odontogram/index', $data);

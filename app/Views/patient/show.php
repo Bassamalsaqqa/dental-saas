@@ -28,12 +28,12 @@ function getFDINumber($universalNumber) {
                 <p class="text-gray-600 mt-1">Complete information for <?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
             </div>
             <div class="flex space-x-3">
-                <a href="<?= base_url('patient') ?>" 
+                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" 
                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Patients
                 </a>
                 <?php if (has_permission('patients', 'edit')): ?>
-                    <a href="<?= base_url('patient/' . $patient['id'] . '/edit') ?>" 
+                    <a href="<?= base_url('patient/' . $patient['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" 
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                         <i class="fas fa-edit mr-2"></i>Edit Patient
                     </a>

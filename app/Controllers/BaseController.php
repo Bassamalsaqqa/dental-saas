@@ -407,7 +407,7 @@ abstract class BaseController extends Controller
         }
 
         foreach ($allowedPrefixes as $prefix) {
-            if (preg_match('#^' . preg_quote($prefix, '#') . '(/|$)#', $target)) {
+            if (preg_match('#^' . preg_quote($prefix, '#') . '(/|\\?|$)#', $target)) {
                 return $target;
             }
         }

@@ -189,21 +189,22 @@ $(document).ready(function() {
                 searchable: false,
                 className: 'px-6 py-4 whitespace-nowrap text-sm font-medium',
                 render: function(data, type, row) {
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     return `
                         <div class="flex items-center space-x-2">
-                            <a href="<?= base_url('patient/') ?>${data}" class="group/action relative p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-300 hover:scale-110" title="View Details">
+                            <a href="<?= base_url('patient/') ?>${data}?return_to=${returnTo}" class="group/action relative p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-300 hover:scale-110" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="<?= base_url('patient/') ?>${data}/edit" class="group/action relative p-2 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-300 hover:scale-110" title="Edit Patient">
+                            <a href="<?= base_url('patient/') ?>${data}/edit?return_to=${returnTo}" class="group/action relative p-2 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-300 hover:scale-110" title="Edit Patient">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="<?= base_url('odontogram/') ?>${data}" class="group/action relative p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-all duration-300 hover:scale-110" title="Odontogram">
+                            <a href="<?= base_url('odontogram/') ?>${data}?return_to=${returnTo}" class="group/action relative p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-all duration-300 hover:scale-110" title="Odontogram">
                                 <i class="fas fa-tooth"></i>
                             </a>
-                            <a href="<?= base_url('examination/create?patient_id=') ?>${data}" class="group/action relative p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Examination">
+                            <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=${returnTo}" class="group/action relative p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Examination">
                                 <i class="fas fa-stethoscope"></i>
                             </a>
-                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}" class="group/action relative p-2 text-cyan-600 hover:text-cyan-800 hover:bg-cyan-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Treatment">
+                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=${returnTo}" class="group/action relative p-2 text-cyan-600 hover:text-cyan-800 hover:bg-cyan-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Treatment">
                                 <i class="fas fa-briefcase-medical"></i>
                             </a>
                             <button onclick="confirmDelete(${data})" class="group/action relative p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-110" title="Delete Patient">

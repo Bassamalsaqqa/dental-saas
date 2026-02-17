@@ -477,7 +477,11 @@ class Patient extends BaseController
             'attachments_storage_limit_gb' => $storageLimitGb,
             'attachments_max_file_mb' => $maxAttachmentMb,
             'contracts_enabled' => $contractsEnabled,
-            'contracts' => $contracts
+            'contracts' => $contracts,
+            'return_to' => $this->sanitizeInternalReturnTo(
+                $this->request->getGet('return_to'),
+                ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
+            )
         ];
 
         return $this->view('patient/show', $data);
