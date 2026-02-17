@@ -20,34 +20,43 @@
             </div>
             <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-8">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                            <?php
-                            $logoPath = $settings['clinic_logo_path'] ?? '';
-                            $logoSrc = '';
-                            if (!empty($logoPath)) {
-                                $logoSrc = (strpos($logoPath, 'http://') === 0 || strpos($logoPath, 'https://') === 0)
-                                    ? $logoPath
-                                    : base_url(ltrim($logoPath, '/'));
-                            }
-                            ?>
-                            <?php if ($logoSrc): ?>
-                                <img src="<?= esc($logoSrc) ?>" alt="<?= esc($settings['clinic_name'] ?? $clinic['name']) ?>" class="w-10 h-10 object-contain">
-                            <?php else: ?>
-                                <i class="fas fa-tooth text-white text-2xl"></i>
-                            <?php endif; ?>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-white" dir="auto" style="unicode-bidi: plaintext;">
-                                <?= esc($settings['kiosk_header'] ?? 'Self Check-In') ?>
+                    <?php
+                    $logoPath = $settings['clinic_logo_path'] ?? '';
+                    $logoSrc = '';
+                    if (!empty($logoPath)) {
+                        $logoSrc = (strpos($logoPath, 'http://') === 0 || strpos($logoPath, 'https://') === 0)
+                            ? $logoPath
+                            : base_url(ltrim($logoPath, '/'));
+                    }
+                    ?>
+                    <div class="grid grid-cols-3 items-center gap-4" dir="ltr">
+                        <div class="text-left">
+                            <h1 class="text-xl font-bold text-white">
+                                <?= esc(lang('Kiosk.headerEnglish')) ?>
                             </h1>
-                            <p class="text-blue-100 text-sm" dir="auto" style="unicode-bidi: plaintext;">
-                                <?= esc($settings['kiosk_subheader'] ?? 'Confirm your appointment in seconds.') ?>
-                            </p>
-                            <p class="text-white text-lg font-bold mt-2" dir="auto" style="unicode-bidi: plaintext;">
-                                <?= esc($settings['clinic_name'] ?? $clinic['name']) ?>
-                            </p>
                         </div>
+                        <div class="flex justify-center">
+                            <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                                <?php if ($logoSrc): ?>
+                                    <img src="<?= esc($logoSrc) ?>" alt="<?= esc($settings['clinic_name'] ?? $clinic['name']) ?>" class="w-10 h-10 object-contain">
+                                <?php else: ?>
+                                    <i class="fas fa-tooth text-white text-2xl"></i>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h1 class="text-xl font-bold text-white" dir="rtl">
+                                <?= esc(lang('Kiosk.headerArabic')) ?>
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-white text-lg font-bold" dir="auto" style="unicode-bidi: plaintext;">
+                            <?= esc($settings['clinic_name'] ?? $clinic['name']) ?>
+                        </p>
+                        <p class="text-blue-100 text-sm mt-1" dir="auto" style="unicode-bidi: plaintext;">
+                            <?= esc($settings['kiosk_subheader'] ?? 'Confirm your appointment in seconds.') ?>
+                        </p>
                     </div>
                 </div>
 
@@ -78,8 +87,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2"><?= esc(lang('Kiosk.mobileNumber')) ?></label>
                                 <input id="kioskPhoneInput" type="tel" name="phone" inputmode="numeric" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg tracking-wider" placeholder="<?= esc(lang('Kiosk.mobilePlaceholder')) ?>" required>
                             </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                                <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4" dir="ltr">
+                                <div class="grid grid-cols-3 gap-3" dir="ltr">
                                     <?php foreach (['1','2','3','4','5','6','7','8','9','clear','0','back'] as $key): ?>
                                         <?php if ($key === 'clear'): ?>
                                             <button type="button" data-key="clear" class="kiosk-key bg-white border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all"><?= esc(lang('Kiosk.clear')) ?></button>

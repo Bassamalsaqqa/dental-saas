@@ -2,6 +2,8 @@
 
 return [
     'title' => 'Self Check-In',
+    'headerEnglish' => 'Self Check-In',
+    'headerArabic' => 'تسجيل ذاتي',
     'enterClinicPin' => 'Enter Clinic PIN',
     'kioskProtected' => 'This kiosk is protected. Please enter the clinic PIN to begin.',
     'clinicPin' => 'Clinic PIN',

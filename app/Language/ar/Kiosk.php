@@ -2,6 +2,8 @@
 
 return [
     'title' => 'تسجيل ذاتي',
+    'headerEnglish' => 'Self Check-In',
+    'headerArabic' => 'تسجيل ذاتي',
     'enterClinicPin' => 'أدخل رمز العيادة',
     'kioskProtected' => 'هذا الجهاز محمي. يرجى إدخال رمز العيادة للبدء.',
     'clinicPin' => 'رمز العيادة',
