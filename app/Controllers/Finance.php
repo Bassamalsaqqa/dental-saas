@@ -74,7 +74,7 @@ class Finance extends BaseController
             }
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance']);
         if (!$returnTo && $patientId) {
             $returnTo = 'patient/' . $patientId;
         }
@@ -201,7 +201,7 @@ class Finance extends BaseController
                 "New {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " created for {$patientName}"
             );
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'finance']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
             if ($returnTo !== null && !empty($financeData['patient_id'])) {
                 if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches) && (int) $matches[1] !== (int) $financeData['patient_id']) {
                     $returnTo = null;
@@ -269,7 +269,7 @@ class Finance extends BaseController
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'check_scan')
                 ->first(),
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance'])
         ];
 
         return $this->view('finance/show', $data);
@@ -316,7 +316,7 @@ class Finance extends BaseController
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'check_scan')
                 ->first(),
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'finance'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance'])
         ];
 
         return $this->view('finance/edit', $data);
@@ -433,7 +433,7 @@ class Finance extends BaseController
                 "Financial transaction updated for {$patientName} - {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($financeData['amount'], 2)
             );
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'finance']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been updated successfully!');
             }
@@ -485,7 +485,7 @@ class Finance extends BaseController
                 } else {
                     $returnTo = $this->sanitizeInternalReturnTo(
                         (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
-                        ['patient', 'finance']
+                        ['patient', 'patients', 'finance']
                     );
                     if ($returnTo) {
                         return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been deleted successfully!');

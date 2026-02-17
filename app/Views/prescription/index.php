@@ -1,6 +1,15 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$currentUri = service('request')->getUri();
+$returnToContext = ltrim($currentUri->getPath(), '/');
+$currentQuery = $currentUri->getQuery();
+if ($currentQuery !== '') {
+    $returnToContext .= '?' . $currentQuery;
+}
+$returnToContextEncoded = urlencode($returnToContext);
+?>
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -214,7 +223,7 @@
                             </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('prescriptions', 'create')): ?>
-                            <a href="<?= base_url('prescription/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('prescription/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 New Prescription
                             </a>
@@ -642,12 +651,13 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, row) {
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center space-x-2">';
                     
                     // View button
                     if (permissions.prescriptions.view) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}" 
+                            <a href="<?= base_url('prescription') ?>/${data}?return_to=${returnTo}" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -665,7 +675,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.prescriptions.edit) {
                         actions += `
-                            <a href="<?= base_url('prescription') ?>/${data}/edit" 
+                            <a href="<?= base_url('prescription') ?>/${data}/edit?return_to=${returnTo}" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Prescription">
                                 <i class="fas fa-edit"></i>
                             </a>`;

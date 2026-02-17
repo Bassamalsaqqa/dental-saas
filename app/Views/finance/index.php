@@ -1,6 +1,15 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$currentUri = service('request')->getUri();
+$returnToContext = ltrim($currentUri->getPath(), '/');
+$currentQuery = $currentUri->getQuery();
+if ($currentQuery !== '') {
+    $returnToContext .= '?' . $currentQuery;
+}
+$returnToContextEncoded = urlencode($returnToContext);
+?>
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -214,7 +223,7 @@
                             </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 New Transaction
                             </a>
@@ -714,12 +723,13 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, row) {
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center space-x-2">';
                     
                     // View Transaction button
                     if (permissions.finance.view) {
                         actions += `
-                            <a href="<?= base_url('finance') ?>/${data}" 
+                            <a href="<?= base_url('finance') ?>/${data}?return_to=${returnTo}" 
                                class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="View Transaction">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -728,7 +738,7 @@ $(document).ready(function() {
                     // View Invoice button
                     if (permissions.finance.view) {
                         actions += `
-                            <a href="<?= base_url('finance') ?>/${data}/invoice" 
+                            <a href="<?= base_url('finance') ?>/${data}/invoice?return_to=${returnTo}" 
                                class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="View Invoice">
                                 <i class="fas fa-file-invoice"></i>
                             </a>`;
@@ -737,7 +747,7 @@ $(document).ready(function() {
                     // Add Payment button (invoices only)
                     if (permissions.finance.edit && row.transaction_type === 'invoice') {
                         actions += `
-                            <a href="<?= base_url('finance') ?>/${data}" 
+                            <a href="<?= base_url('finance') ?>/${data}?return_to=${returnTo}" 
                                class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Add Payment">
                                 <i class="fas fa-money-bill-wave"></i>
                             </a>`;
@@ -746,7 +756,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.finance.edit) {
                         actions += `
-                            <a href="<?= base_url('finance') ?>/${data}/edit" 
+                            <a href="<?= base_url('finance') ?>/${data}/edit?return_to=${returnTo}" 
                                class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Transaction">
                                 <i class="fas fa-edit"></i>
                             </a>`;

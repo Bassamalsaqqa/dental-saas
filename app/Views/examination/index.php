@@ -1,6 +1,15 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$currentUri = service('request')->getUri();
+$returnToContext = ltrim($currentUri->getPath(), '/');
+$currentQuery = $currentUri->getQuery();
+if ($currentQuery !== '') {
+    $returnToContext .= '?' . $currentQuery;
+}
+$returnToContextEncoded = urlencode($returnToContext);
+?>
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -247,7 +256,7 @@
                     </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 New Examination
                             </a>
@@ -557,7 +566,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">No examinations found</h3>
                         <p class="text-gray-500 mb-4">Start by creating a new examination.</p>
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                                 <i class="fas fa-plus mr-2"></i>New Examination
                             </a>
                         <?php endif; ?>
@@ -874,12 +883,13 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, row) {
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
                     let actions = '<div class="flex items-center space-x-2">';
                     
                     // View button
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}" 
+                            <a href="<?= base_url('examination') ?>/${data}?return_to=${returnTo}" 
                                class="p-2 text-orange-600 hover:text-orange-700 rounded-md hover:bg-orange-50 transition-colors duration-200" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>`;
@@ -888,7 +898,7 @@ $(document).ready(function() {
                     // Edit button
                     if (permissions.examinations.edit) {
                         actions += `
-                            <a href="<?= base_url('examination') ?>/${data}/edit" 
+                            <a href="<?= base_url('examination') ?>/${data}/edit?return_to=${returnTo}" 
                                class="group/action relative p-2 text-blue-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-110" title="Edit Examination">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-edit relative z-10"></i>
@@ -898,7 +908,7 @@ $(document).ready(function() {
                     // Odontogram button
                     if (permissions.examinations.view) {
                         actions += `
-                            <a href="<?= base_url('odontogram') ?>/${row.patient_id}" 
+                            <a href="<?= base_url('odontogram') ?>/${row.patient_id}?return_to=${returnTo}" 
                                class="group/action relative p-2 text-purple-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 hover:scale-110" title="View Odontogram">
                                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-tooth relative z-10"></i>

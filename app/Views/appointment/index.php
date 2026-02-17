@@ -1,6 +1,15 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$currentUri = service('request')->getUri();
+$returnToContext = ltrim($currentUri->getPath(), '/');
+$currentQuery = $currentUri->getQuery();
+if ($currentQuery !== '') {
+    $returnToContext .= '?' . $currentQuery;
+}
+$returnToContextEncoded = urlencode($returnToContext);
+?>
 <!-- Enhanced Appointment Management with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -34,7 +43,7 @@
                     
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('appointments', 'create')): ?>
-                            <a href="<?= base_url('appointment/create') ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                            <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-plus mr-2 relative z-10"></i>
                                 <span class="relative z-10">New Appointment</span>
@@ -357,13 +366,13 @@
                                     <!-- Action Buttons -->
                                     <div class="flex space-x-2">
                                         <?php if (has_permission('appointments', 'view')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id']) ?>" class="group/action relative inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25">
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=' . $returnToContextEncoded) ?>" class="group/action relative inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-eye text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('appointments', 'edit')): ?>
-                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit') ?>" class="group/action relative inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
+                                            <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit?return_to=' . $returnToContextEncoded) ?>" class="group/action relative inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
                                                 <i class="fas fa-edit text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </a>
@@ -402,7 +411,7 @@
                                 </div>
                                 <h3 class="text-2xl font-black text-gray-900 mb-3">No appointments found</h3>
                                 <p class="text-gray-500 text-lg font-medium mb-6">No appointments scheduled for this date.</p>
-                                <a href="<?= base_url('appointment/create') ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-2xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                                <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-2xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-plus mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10">Schedule Appointment</span>
@@ -529,7 +538,7 @@
                             </div>
                         </div>
                         <div class="space-y-3 p-6 pt-0 flex-1">
-                            <a href="<?= base_url('appointment/create') ?>" class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105">
+                            <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group/action relative flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105">
                                 <div class="relative">
                                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl blur-lg opacity-75 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                     <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover/action:scale-110 group-hover/action:rotate-3 transition-all duration-300">
@@ -1228,8 +1237,9 @@ function createAppointmentElement(appointment) {
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'flex items-center space-x-3';
     
+    const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
     const viewBtn = document.createElement('a');
-    viewBtn.href = `<?= base_url('appointment/show') ?>/${appointment.id}`;
+    viewBtn.href = `<?= base_url('appointment') ?>/${appointment.id}?return_to=${returnTo}`;
     viewBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25';
     
     const viewBg = document.createElement('div');
@@ -1247,7 +1257,7 @@ function createAppointmentElement(appointment) {
     viewBtn.appendChild(viewText);
     
     const editBtn = document.createElement('a');
-    editBtn.href = `<?= base_url('appointment/edit') ?>/${appointment.id}`;
+    editBtn.href = `<?= base_url('appointment') ?>/${appointment.id}/edit?return_to=${returnTo}`;
     editBtn.className = 'group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25';
     
     const editBg = document.createElement('div');

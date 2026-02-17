@@ -185,7 +185,7 @@ class Appointment extends BaseController
             $appointmentType = null;
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
         if (!$returnTo) {
             if ($examinationId) {
                 $returnTo = 'examination/' . $examinationId;
@@ -297,9 +297,13 @@ class Appointment extends BaseController
 
     private function resolveCreateReturnTo(int $patientId, $examinationIdRaw, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'examination']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'appointment', 'appointments']);
         if (!$returnTo) {
             return null;
+        }
+
+        if (preg_match('#^(patients|appointment|appointments)(\\?|$)#', $returnTo)) {
+            return $returnTo;
         }
 
         if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
@@ -343,7 +347,7 @@ class Appointment extends BaseController
         $data = [
             'title' => 'Appointment Details - ' . $appointment['appointment_id'],
             'appointment' => $appointment,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'appointment'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments'])
         ];
 
         return $this->view('appointment/show', $data);
@@ -374,7 +378,7 @@ class Appointment extends BaseController
             'patients' => [$patient], // Only emit the current patient as option
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'examination', 'appointment'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments'])
         ];
 
         return $this->view('appointment/edit', $data);
@@ -453,7 +457,7 @@ class Appointment extends BaseController
                 "Appointment updated for {$patientName} - {$appointmentData['appointment_type']} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'examination', 'appointment']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Appointment updated successfully');
             }
@@ -501,7 +505,7 @@ class Appointment extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo(
                 (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
-                ['patient', 'examination', 'appointment']
+                ['patient', 'patients', 'examination', 'appointment', 'appointments']
             );
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Appointment deleted successfully');

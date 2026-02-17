@@ -178,7 +178,7 @@ class Prescription extends BaseController
             }
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'prescription', 'prescriptions']);
         if (!$returnTo && !empty($selectedPatient['id'])) {
             $returnTo = 'patient/' . (int) $selectedPatient['id'];
         }
@@ -297,7 +297,7 @@ class Prescription extends BaseController
         $data = [
             'title' => 'Prescription Details',
             'prescription' => $prescription,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'prescription']),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'prescription', 'prescriptions']),
         ];
 
         return $this->view('prescription/show', $data);
@@ -305,9 +305,13 @@ class Prescription extends BaseController
 
     private function resolveCreateReturnTo(int $patientId, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'prescription', 'prescriptions']);
         if (!$returnTo) {
             return null;
+        }
+
+        if (preg_match('#^(patients|prescription|prescriptions)(\\?|$)#', $returnTo)) {
+            return $returnTo;
         }
 
         if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches)) {
@@ -338,7 +342,7 @@ class Prescription extends BaseController
             'patients' => $patient ? [$patient] : [],
             'medications' => $this->getMedications(),
             'loadSelect2' => true,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'prescription'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'prescription', 'prescriptions'])
         ];
 
         return $this->view('prescription/edit', $data);
@@ -413,7 +417,7 @@ class Prescription extends BaseController
                 "Prescription updated for {$patientName} with {$medicineCount} medication(s) - Status: {$prescriptionData['status']}"
             );
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'prescription']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'prescription', 'prescriptions']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been updated successfully!');
             }
@@ -458,7 +462,7 @@ class Prescription extends BaseController
 
             $returnTo = $this->sanitizeInternalReturnTo(
                 (string) ($this->request->getPost('return_to') ?: $this->request->getGet('return_to')),
-                ['patient', 'prescription']
+                ['patient', 'patients', 'prescription', 'prescriptions']
             );
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Prescription has been deleted successfully!');

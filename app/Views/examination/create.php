@@ -11,7 +11,10 @@
                         <p class="text-sm text-slate-600 mt-1">Complete the core fields first. Add optional clinical details only if needed.</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <?php if (!empty($selected_patient)): ?>
+                        <?php
+                            $showBackToPatient = !empty($selected_patient) && (empty($return_to) || preg_match('#^patient/\\d+(\\?|$)#', (string) $return_to));
+                        ?>
+                        <?php if ($showBackToPatient): ?>
                             <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="inline-flex items-center px-4 py-2 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 transition-colors">
                                 <i class="fas fa-user mr-2"></i>
                                 Back to Patient

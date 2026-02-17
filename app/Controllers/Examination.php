@@ -63,7 +63,7 @@ class Examination extends BaseController
             }
         }
 
-        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients']);
+        $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations']);
         if (!$returnTo && !empty($selectedPatient['id'])) {
             $returnTo = 'patient/' . (int) $selectedPatient['id'];
         }
@@ -192,7 +192,7 @@ class Examination extends BaseController
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
         ];
 
         return $this->view('examination/show', $data);
@@ -200,12 +200,12 @@ class Examination extends BaseController
 
     private function resolveCreateReturnTo(int $patientId, $returnToRaw): ?string
     {
-        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients']);
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'examinations']);
         if (!$returnTo) {
             return null;
         }
 
-        if (preg_match('#^patients(\\?|$)#', $returnTo)) {
+        if (preg_match('#^(patients|examination|examinations)(\\?|$)#', $returnTo)) {
             return $returnTo;
         }
 
@@ -239,7 +239,7 @@ class Examination extends BaseController
             'patients' => $patient ? [$patient] : [], // Only emit current patient
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
         ];
 
         return $this->view('examination/edit', $data);
@@ -297,7 +297,7 @@ class Examination extends BaseController
                 "Examination updated for {$patientName} - {$examinationData['examination_type']} - Status: {$examinationData['status']}"
             );
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Examination updated successfully');
             }

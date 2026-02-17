@@ -10,7 +10,7 @@
                 <p class="text-sm text-gray-600">Start with essentials. Add optional details only if needed.</p>
             </div>
             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Patients
+                <i class="fas fa-arrow-left mr-2"></i>Back
             </a>
         </div>
 
