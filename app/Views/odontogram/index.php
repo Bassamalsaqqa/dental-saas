@@ -154,32 +154,19 @@ function getStatusText($status) {
         
             <!-- Enhanced Interactive Legend -->
             <div class="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200/50">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between">
                     <h4 class="text-lg font-bold text-gray-800 flex items-center">
                         <i class="fas fa-palette mr-3 text-blue-600"></i>
                         Condition Legend
                     </h4>
-                    <div class="flex items-center space-x-4">
-                        <!-- Numbering System Toggle -->
-                        <div class="flex items-center space-x-3">
-                            <span class="text-sm font-medium text-gray-700">Numbering:</span>
-                            <div class="flex bg-gray-100 rounded-lg p-1">
-                                <button id="universalBtn" onclick="switchNumberingSystem('universal', true)" 
-                                        class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-600 shadow-sm">
-                                    Universal (1-32)
-                                </button>
-                                <button id="fdiBtn" onclick="switchNumberingSystem('fdi', true)" 
-                                        class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 text-gray-600 hover:text-blue-600">
-                                    FDI (Two-digit)
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2 text-sm text-gray-600">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Hover over teeth to see conditions</span>
-                        </div>
-                    </div>
+                    <button type="button"
+                            id="legendToggleBtn"
+                            class="inline-flex items-center px-3 py-2 bg-white/80 hover:bg-white text-xs font-semibold rounded-lg border border-gray-200 text-gray-700">
+                        <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
+                        <span id="legendToggleText">Show</span>
+                    </button>
                 </div>
+                <div id="legendContent" class="hidden mt-6">
                 <div class="grid grid-cols-6 gap-4">
                     <!-- Healthy -->
                     <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-green-200/50">
@@ -302,6 +289,7 @@ function getStatusText($status) {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
 
             <!-- Realistic Jaw Interface -->
@@ -348,12 +336,6 @@ function getStatusText($status) {
                                 Showing <?= $conditionsCount ?> teeth with conditions (out of 32 total)
                             </p>
                         </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <button onclick="toggleNumberingSystem()" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors duration-200">
-                            <i class="fas fa-exchange-alt mr-2"></i>
-                            <span id="numberingToggleText">Switch to FDI</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -431,14 +413,8 @@ function getStatusText($status) {
                                     $status = $toothData ? $toothData['treatment_status'] : 'completed';
                                 ?>
                                 <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-200" data-tooth="<?= $i ?>">
-                                    <td class="py-3 px-4">
-                                        <span class="universal-number font-semibold text-blue-600"><?= $i ?></span>
-                                        <span class="fdi-number hidden font-semibold text-blue-600"><?= getFDINumber($i) ?></span>
-                                    </td>
-                                    <td class="py-3 px-4">
-                                        <span class="universal-number text-gray-600"><?= getFDINumber($i) ?></span>
-                                        <span class="fdi-number hidden text-gray-600"><?= $i ?></span>
-                                    </td>
+                                    <td class="py-3 px-4 font-semibold text-blue-600"><?= $i ?></td>
+                                    <td class="py-3 px-4 text-gray-600"><?= getFDINumber($i) ?></td>
                                     <td class="py-3 px-4 text-gray-600"><?= $position ?></td>
                                     <td class="py-3 px-4">
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <?= getConditionClass($condition) ?>">
@@ -470,38 +446,6 @@ function getStatusText($status) {
             </div>
         </div>
     </div>
-
-                    <!-- Enhanced User Instructions -->
-                    <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl shadow-sm">
-                        <div class="flex items-start space-x-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-info-circle text-white"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-800 mb-3 text-lg">How to use the dental chart</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-mouse-pointer text-blue-600 text-xs"></i>
-                                        </div>
-                                        <span><strong>Click</strong> on any tooth to view or edit its condition</span>
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-eye text-yellow-600 text-xs"></i>
-                                        </div>
-                                        <span><strong>Hover</strong> over teeth to see condition details</span>
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-tools text-purple-600 text-xs"></i>
-                                        </div>
-                                        <span>Use the legend to understand condition colors</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
             </div>
         </div>
@@ -750,13 +694,10 @@ const conditionColors = {
     other: '#6b7280'
 };
 
-const SHOW_SVG_LABELS = false;
 const toothGroups = new Map();
 const toothOverlays = new Map();
 const toothOutlines = new Map();
 const toothHits = new Map();
-let currentNumberingSystem = 'universal';
-let labelsVisible = SHOW_SVG_LABELS;
 let activeTooth = null;
 let tooltipEl = null;
 
@@ -765,20 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeOdontogram();
     attachModalBehavior();
     attachFormHandler();
-    switchNumberingSystem(currentNumberingSystem);
 });
-
-function setElementDisplay(element, show) {
-    if (!element) {
-        return;
-    }
-
-    if (element.namespaceURI === svgNS) {
-        element.style.display = show ? 'inline' : 'none';
-    } else {
-        element.style.display = show ? 'inline-block' : 'none';
-    }
-}
 
 function getFdiNumber(universalNumber) {
     const num = parseInt(universalNumber, 10);
@@ -1094,61 +1022,6 @@ function injectConditionFilters(svg) {
     });
 }
 
-function buildToothLabels(svg) {
-    const existing = svg.querySelector('#toothLabels');
-    if (existing) {
-        existing.remove();
-    }
-
-    const vb = svg.viewBox.baseVal;
-    const view = { x: vb.x, y: vb.y, width: vb.width, height: vb.height };
-    const labelGap = Math.max(view.height * 0.06, 3);
-
-    const labelLayer = document.createElementNS(svgNS, 'g');
-    labelLayer.setAttribute('id', 'toothLabels');
-    labelLayer.setAttribute('pointer-events', 'none');
-    labelLayer.setAttribute('font-size', '8');
-    labelLayer.setAttribute('font-weight', '600');
-    labelLayer.setAttribute('text-anchor', 'middle');
-    labelLayer.setAttribute('dominant-baseline', 'central');
-    labelLayer.setAttribute('fill', '#f8fafc');
-    labelLayer.setAttribute('stroke', '#0f172a');
-    labelLayer.setAttribute('stroke-width', '0.5');
-    labelLayer.setAttribute('paint-order', 'stroke fill');
-
-    toothGroups.forEach((group, toothNumber) => {
-        let bbox;
-        try {
-            bbox = group.getBBox();
-        } catch (e) {
-            return;
-        }
-        const centerX = bbox.x + bbox.width / 2;
-        const isUpper = toothNumber <= 16;
-        const targetY = isUpper
-            ? (bbox.y - labelGap)
-            : (bbox.y + bbox.height + labelGap);
-        const centerY = Math.max(view.y + 2, Math.min(view.y + view.height - 2, targetY));
-
-        const universalLabel = document.createElementNS(svgNS, 'text');
-        universalLabel.setAttribute('class', 'universal-number');
-        universalLabel.setAttribute('x', centerX.toString());
-        universalLabel.setAttribute('y', centerY.toString());
-        universalLabel.textContent = toothNumber;
-        labelLayer.appendChild(universalLabel);
-
-        const fdiLabel = document.createElementNS(svgNS, 'text');
-        fdiLabel.setAttribute('class', 'fdi-number');
-        fdiLabel.setAttribute('x', centerX.toString());
-        fdiLabel.setAttribute('y', centerY.toString());
-        fdiLabel.textContent = getFdiNumber(toothNumber);
-        fdiLabel.style.display = 'none';
-        labelLayer.appendChild(fdiLabel);
-    });
-
-    svg.appendChild(labelLayer);
-}
-
 function setupSvgOdontogram() {
     const wrapper = document.getElementById('odontogramSvgWrapper');
     if (!wrapper) {
@@ -1169,9 +1042,6 @@ function setupSvgOdontogram() {
     svg.style.height = 'auto';
 
     cacheToothGroups(svg);
-    if (labelsVisible) {
-        buildToothLabels(svg);
-    }
 }
 
 function initializeOdontogram() {
@@ -1209,45 +1079,6 @@ function getToothNode(toothNumber) {
     }
 
     return toothGroups.get(parseInt(toothNumber, 10));
-}
-
-function switchNumberingSystem(system, userInitiated = false) {
-    currentNumberingSystem = system;
-    if (userInitiated && !labelsVisible) {
-        labelsVisible = true;
-        const svg = document.getElementById('odontogramSvgWrapper')?.querySelector('svg');
-        if (svg) {
-            buildToothLabels(svg);
-        }
-    }
-
-    const universalBtn = document.getElementById('universalBtn');
-    const fdiBtn = document.getElementById('fdiBtn');
-
-    if (system === 'universal') {
-        universalBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn?.classList.remove('text-gray-600');
-        fdiBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn?.classList.add('text-gray-600');
-    } else {
-        fdiBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn?.classList.remove('text-gray-600');
-        universalBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn?.classList.add('text-gray-600');
-    }
-
-    document.querySelectorAll('.universal-number').forEach(el => setElementDisplay(el, system === 'universal'));
-    document.querySelectorAll('.fdi-number').forEach(el => setElementDisplay(el, system === 'fdi'));
-}
-
-function toggleNumberingSystem() {
-    const newSystem = currentNumberingSystem === 'universal' ? 'fdi' : 'universal';
-    switchNumberingSystem(newSystem, true);
-
-    const toggleText = document.getElementById('numberingToggleText');
-    if (toggleText) {
-        toggleText.textContent = newSystem === 'universal' ? 'Switch to FDI' : 'Switch to Universal';
-    }
 }
 
 function updateStats() {
@@ -1478,6 +1309,26 @@ function attachFormHandler() {
                 submitButton.replaceChildren(...submitButton._originalChildren.map(node => node.cloneNode(true)));
                 submitButton.classList.remove('opacity-75');
             });
+    });
+
+    const legendToggleBtn = document.getElementById('legendToggleBtn');
+    const legendContent = document.getElementById('legendContent');
+    const legendToggleIcon = document.getElementById('legendToggleIcon');
+    const legendToggleText = document.getElementById('legendToggleText');
+
+    legendToggleBtn?.addEventListener('click', () => {
+        if (!legendContent) {
+            return;
+        }
+        const willShow = legendContent.classList.contains('hidden');
+        legendContent.classList.toggle('hidden', !willShow);
+        if (legendToggleIcon) {
+            legendToggleIcon.classList.toggle('fa-chevron-down', !willShow);
+            legendToggleIcon.classList.toggle('fa-chevron-up', willShow);
+        }
+        if (legendToggleText) {
+            legendToggleText.textContent = willShow ? 'Hide' : 'Show';
+        }
     });
 }
 
