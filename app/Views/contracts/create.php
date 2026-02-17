@@ -107,31 +107,19 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         </div>
 
                         <div class="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200/50">
-                            <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center justify-between">
                                 <h4 class="text-lg font-bold text-gray-800 flex items-center">
                                     <i class="fas fa-palette mr-3 text-blue-600"></i>
                                     Condition Legend
                                 </h4>
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex items-center space-x-3">
-                                        <span class="text-sm font-medium text-gray-700">Numbering:</span>
-                                        <div class="flex bg-gray-100 rounded-lg p-1">
-                                            <button id="universalBtn" type="button" onclick="switchNumberingSystem('universal', true)"
-                                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-600 shadow-sm">
-                                                Universal (1-32)
-                                            </button>
-                                            <button id="fdiBtn" type="button" onclick="switchNumberingSystem('fdi', true)"
-                                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 text-gray-600 hover:text-blue-600">
-                                                FDI (Two-digit)
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-2 text-sm text-gray-600">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span>Hover over teeth to see conditions</span>
-                                    </div>
-                                </div>
+                                <button type="button"
+                                        id="legendToggleBtn"
+                                        class="inline-flex items-center px-3 py-2 bg-white/80 hover:bg-white text-xs font-semibold rounded-lg border border-gray-200 text-gray-700">
+                                    <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
+                                    <span id="legendToggleText">Show</span>
+                                </button>
                             </div>
+                            <div id="legendContent" class="hidden mt-6">
                             <div class="grid grid-cols-6 gap-4">
                                 <div class="group flex items-center space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-white/50 hover:border-green-200/50">
                                     <div class="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -299,7 +287,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold">Contract Summary</h3>
-                                    <p class="text-emerald-100 text-xs">Currency, totals, and cost notes</p>
+                                    <p class="text-emerald-100 text-xs">Currency and total</p>
                                 </div>
                             </div>
                         </div>
@@ -330,10 +318,6 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                        class="w-full px-3 py-2 bg-white/90 border border-emerald-200 rounded-lg text-sm font-semibold text-emerald-700 contract-total-display">
                                 <p class="mt-1 text-[11px] text-gray-500">Auto-calculated from items. You can override it.</p>
                             </div>
-                            </div>
-                            <div class="contract-input-wrap">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Cost Details</label>
-                                <textarea name="cost_details" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Additional cost breakdown (optional)"><?= esc($contract['cost_details'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -510,7 +494,6 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 
 <script>
 const svgNS = 'http://www.w3.org/2000/svg';
-const SHOW_SVG_LABELS = false;
 const conditionTypes = <?= json_encode($condition_types) ?>;
 const conditionColors = {
     healthy: '#10b981',
@@ -557,8 +540,7 @@ const toothGroups = new Map();
 const toothOverlays = new Map();
 const toothOutlines = new Map();
 const toothHits = new Map();
-let currentNumberingSystem = 'universal';
-let labelsVisible = SHOW_SVG_LABELS;
+let labelsVisible = false;
 let activeTooth = null;
 let odontogramData = [];
 let items = [];
@@ -826,40 +808,6 @@ function applyToothVisual(toothNumber) {
         overlay.setAttribute('fill', conditionColors[condition] || '#6b7280');
         overlay.setAttribute('opacity', '0.28');
     }
-}
-
-function switchNumberingSystem(system, userInitiated = false) {
-    currentNumberingSystem = system;
-    if (userInitiated && !labelsVisible) {
-        labelsVisible = true;
-        const svg = document.getElementById('odontogramSvgWrapper')?.querySelector('svg');
-        if (svg) {
-            buildToothLabels(svg);
-        }
-    }
-
-    const universalBtn = document.getElementById('universalBtn');
-    const fdiBtn = document.getElementById('fdiBtn');
-
-    if (system === 'universal') {
-        universalBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn?.classList.remove('text-gray-600');
-        fdiBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn?.classList.add('text-gray-600');
-    } else {
-        fdiBtn?.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
-        fdiBtn?.classList.remove('text-gray-600');
-        universalBtn?.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
-        universalBtn?.classList.add('text-gray-600');
-    }
-
-    document.querySelectorAll('.universal-number').forEach(el => setElementDisplay(el, system === 'universal'));
-    document.querySelectorAll('.fdi-number').forEach(el => setElementDisplay(el, system === 'fdi'));
-}
-
-function toggleNumberingSystem() {
-    const newSystem = currentNumberingSystem === 'universal' ? 'fdi' : 'universal';
-    switchNumberingSystem(newSystem, true);
 }
 
 function setElementDisplay(el, show) {
@@ -1186,7 +1134,6 @@ function updateConditionsTable() {
         tableBody.appendChild(row);
     });
 
-    switchNumberingSystem(currentNumberingSystem);
 }
 
 function normalizeOdontogram() {
@@ -1409,6 +1356,10 @@ function attachFormHandlers() {
     const termsContent = document.getElementById('contractTermsContent');
     const termsIcon = document.getElementById('contractTermsToggleIcon');
     const termsText = document.getElementById('contractTermsToggleText');
+    const legendToggleBtn = document.getElementById('legendToggleBtn');
+    const legendContent = document.getElementById('legendContent');
+    const legendToggleIcon = document.getElementById('legendToggleIcon');
+    const legendToggleText = document.getElementById('legendToggleText');
 
     termsToggleBtn?.addEventListener('click', () => {
         if (!termsContent) return;
@@ -1422,6 +1373,19 @@ function attachFormHandlers() {
             termsText.textContent = willShow ? 'Hide' : 'Show';
         }
     });
+
+    legendToggleBtn?.addEventListener('click', () => {
+        if (!legendContent) return;
+        const willShow = legendContent.classList.contains('hidden');
+        legendContent.classList.toggle('hidden', !willShow);
+        if (legendToggleIcon) {
+            legendToggleIcon.classList.toggle('fa-chevron-down', !willShow);
+            legendToggleIcon.classList.toggle('fa-chevron-up', willShow);
+        }
+        if (legendToggleText) {
+            legendToggleText.textContent = willShow ? 'Hide' : 'Show';
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1431,7 +1395,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeOdontogram();
     attachModalBehavior();
     attachFormHandlers();
-    switchNumberingSystem(currentNumberingSystem);
 });
 </script>
 
