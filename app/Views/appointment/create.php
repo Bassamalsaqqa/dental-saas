@@ -243,12 +243,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const durationSelect = document.getElementById('duration');
 
     function loadAvailableTimeSlots() {
-        const date = dateInput.value;
+        const rawDate = (dateInput.value || '').trim();
+        const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
 
-        console.log('Loading time slots for date:', date, 'duration:', duration);
+        console.log('Loading time slots for raw date:', rawDate, 'ISO date:', date, 'duration:', duration);
 
         if (date && duration) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                const invalidOption = document.createElement('option');
+                invalidOption.value = "";
+                invalidOption.textContent = "Enter a valid date first";
+                timeSelect.replaceChildren(invalidOption);
+                timeSelect.disabled = true;
+                return;
+            }
+
             // Show loading state
             const loadingOption = document.createElement('option');
             loadingOption.value = "";
