@@ -1,12 +1,38 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-slate-50">
+<style>
+    .exam-polish input[type="text"],
+    .exam-polish select,
+    .exam-polish textarea {
+        border: 1px solid #cbd5e1;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .exam-polish input:focus,
+    .exam-polish select:focus,
+    .exam-polish textarea:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, .14);
+        background: #fff;
+    }
+
+    .exam-polish details summary::-webkit-details-marker {
+        display: none;
+    }
+</style>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/60 to-cyan-50/60">
     <div class="container mx-auto px-4 py-6 max-w-5xl">
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-200">
+        <div class="bg-white/95 border border-slate-200 rounded-xl shadow-md overflow-hidden">
+            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-white via-emerald-50/60 to-cyan-50/50">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
+                        <div class="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            <i class="fas fa-stethoscope"></i>
+                            Clinical Entry
+                        </div>
                         <h1 class="text-2xl font-bold text-slate-900">New Examination</h1>
                         <p class="text-sm text-slate-600 mt-1">Complete the core fields first. Add optional clinical details only if needed.</p>
                     </div>
@@ -15,12 +41,12 @@
                             $showBackToPatient = !empty($selected_patient) && (empty($return_to) || preg_match('#^patient/\\d+(\\?|$)#', (string) $return_to));
                         ?>
                         <?php if ($showBackToPatient): ?>
-                            <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="inline-flex items-center px-4 py-2 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 transition-colors">
+                            <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="inline-flex items-center px-4 py-2 border border-emerald-200 bg-white text-emerald-700 text-sm font-semibold rounded-lg shadow-sm hover:bg-emerald-50 transition-colors">
                                 <i class="fas fa-user mr-2"></i>
                                 Back to Patient
                             </a>
                         <?php endif; ?>
-                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center px-4 py-2 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center px-4 py-2 border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 text-sm font-semibold rounded-lg shadow-sm hover:from-blue-100 hover:to-cyan-100 transition-colors">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Back
                         </a>
@@ -29,7 +55,7 @@
             </div>
 
             <div class="p-6">
-                <form action="<?= base_url('examination/store') ?>" method="POST" class="space-y-6">
+                <form action="<?= base_url('examination/store') ?>" method="POST" class="exam-polish space-y-6">
                     <?= csrf_field() ?>
                     <?php if (!empty($return_to)): ?>
                         <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
@@ -107,8 +133,8 @@
                         <?php endif; ?>
                     </div>
 
-                    <details class="border border-slate-200 rounded-lg p-4">
-                        <summary class="cursor-pointer text-sm font-semibold text-slate-800">Additional Clinical Details (Optional)</summary>
+                    <details class="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
+                        <summary class="cursor-pointer text-sm font-semibold text-slate-800"><i class="fas fa-notes-medical mr-2 text-emerald-600"></i>Additional Clinical Details (Optional)</summary>
                         <div class="mt-4 space-y-5">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -143,7 +169,7 @@
                             <i class="fas fa-times mr-2"></i>
                             Cancel
                         </a>
-                        <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+                        <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-emerald-700 hover:to-cyan-700 transition-colors">
                             <i class="fas fa-stethoscope mr-2"></i>
                             Create Examination
                         </button>

@@ -1356,6 +1356,7 @@
             field.setAttribute('placeholder', formatHint);
             field.setAttribute('autocomplete', 'off');
             field.inputMode = 'numeric';
+            field.setAttribute('title', `${formatHint} (type manually or press Alt+Down for picker)`);
 
             const switchToPickerMode = () => {
                 const raw = (field.value || '').trim();
@@ -1383,8 +1384,20 @@
                 }
             };
 
-            field.addEventListener('focus', switchToPickerMode);
+            // Keep text mode by default so users can type dates manually with numpad.
+            // Picker remains available via click, Alt+ArrowDown, or double-click.
             field.addEventListener('click', () => {
+                if (field.type !== 'date') {
+                    switchToPickerMode();
+                }
+            });
+            field.addEventListener('keydown', (event) => {
+                if (event.altKey && event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    switchToPickerMode();
+                }
+            });
+            field.addEventListener('dblclick', () => {
                 if (field.type !== 'date') {
                     switchToPickerMode();
                 }

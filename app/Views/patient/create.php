@@ -2,16 +2,46 @@
 
 <?= $this->section('content') ?>
 <?php $validation = $validation ?? null; ?>
-<div class="min-h-screen bg-gray-50">
+<style>
+    .patient-polish input[type="text"],
+    .patient-polish input[type="tel"],
+    .patient-polish input[type="email"],
+    .patient-polish select,
+    .patient-polish textarea {
+        border: 1px solid #cbd5e1;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .patient-polish input:focus,
+    .patient-polish select:focus,
+    .patient-polish textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, .12);
+        background: #fff;
+    }
+
+    .patient-polish details summary::-webkit-details-marker {
+        display: none;
+    }
+</style>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/60 to-cyan-50/60">
     <div class="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Register Patient</h1>
-                <p class="text-sm text-gray-600">Start with essentials. Add optional details only if needed.</p>
+        <div class="mb-6 rounded-xl border border-blue-100 bg-gradient-to-r from-white via-blue-50/60 to-cyan-50/70 p-5 shadow-sm">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                        <i class="fas fa-user-plus"></i>
+                        Patient Registration
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Register Patient</h1>
+                    <p class="text-sm text-gray-600">Start with essentials. Add optional details only if needed.</p>
+                </div>
+                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:from-blue-100 hover:to-cyan-100">
+                    <i class="fas fa-arrow-left mr-2"></i>Back
+                </a>
             </div>
-            <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-                <i class="fas fa-arrow-left mr-2"></i>Back
-            </a>
         </div>
 
         <?php if (session('error')): ?>
@@ -20,14 +50,17 @@
             </div>
         <?php endif; ?>
 
-        <form action="<?= base_url('patient/store') ?>" method="POST" class="space-y-6">
+        <form action="<?= base_url('patient/store') ?>" method="POST" class="patient-polish space-y-6">
             <?= csrf_field() ?>
             <?php if (!empty($return_to)): ?>
                 <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
             <?php endif; ?>
 
-            <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="mb-4 text-base font-semibold text-gray-900">Required Information</h2>
+            <div class="rounded-xl border border-gray-200 bg-white/95 p-5 shadow-md">
+                <h2 class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900">
+                    <i class="fas fa-asterisk text-[10px] text-blue-600"></i>
+                    Required Information
+                </h2>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <label for="first_name" class="mb-1 block text-sm font-medium text-gray-700">First Name *</label>
@@ -76,8 +109,8 @@
                 </div>
             </div>
 
-            <details class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <summary class="cursor-pointer text-sm font-semibold text-gray-900">Optional Contact Details</summary>
+            <details class="rounded-xl border border-gray-200 bg-white/95 p-5 shadow-sm">
+                <summary class="cursor-pointer text-sm font-semibold text-gray-900"><i class="fas fa-address-book mr-2 text-blue-600"></i>Optional Contact Details</summary>
                 <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <label for="email" class="mb-1 block text-sm font-medium text-gray-700">Email</label>
@@ -109,8 +142,8 @@
                 </div>
             </details>
 
-            <details class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <summary class="cursor-pointer text-sm font-semibold text-gray-900">Optional Emergency Contact</summary>
+            <details class="rounded-xl border border-gray-200 bg-white/95 p-5 shadow-sm">
+                <summary class="cursor-pointer text-sm font-semibold text-gray-900"><i class="fas fa-phone-alt mr-2 text-emerald-600"></i>Optional Emergency Contact</summary>
                 <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <label for="emergency_contact_name" class="mb-1 block text-sm font-medium text-gray-700">Contact Name</label>
@@ -123,8 +156,8 @@
                 </div>
             </details>
 
-            <details class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <summary class="cursor-pointer text-sm font-semibold text-gray-900">Optional Clinical and Insurance Notes</summary>
+            <details class="rounded-xl border border-gray-200 bg-white/95 p-5 shadow-sm">
+                <summary class="cursor-pointer text-sm font-semibold text-gray-900"><i class="fas fa-notes-medical mr-2 text-violet-600"></i>Optional Clinical and Insurance Notes</summary>
                 <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div class="md:col-span-2">
                         <label for="medical_history" class="mb-1 block text-sm font-medium text-gray-700">Medical History</label>
@@ -150,10 +183,10 @@
             </details>
 
             <div class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end">
-                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100">
                     Cancel
                 </a>
-                <button type="submit" class="inline-flex items-center justify-center rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:from-blue-700 hover:to-cyan-700">
                     <i class="fas fa-user-plus mr-2"></i>Create Patient
                 </button>
             </div>
