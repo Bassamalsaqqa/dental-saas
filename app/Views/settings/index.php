@@ -421,6 +421,8 @@
                                             <option value="Asia/Kolkata" <?= ($settings['timezone'] ?? '') == 'Asia/Kolkata' ? 'selected' : '' ?>>Kolkata (IST)</option>
                                             <option value="Asia/Dubai" <?= ($settings['timezone'] ?? '') == 'Asia/Dubai' ? 'selected' : '' ?>>Dubai (GST)</option>
                                             <option value="Asia/Riyadh" <?= ($settings['timezone'] ?? '') == 'Asia/Riyadh' ? 'selected' : '' ?>>Riyadh (AST)</option>
+                                            <option value="Asia/Jerusalem" <?= ($settings['timezone'] ?? '') == 'Asia/Jerusalem' ? 'selected' : '' ?>>Jerusalem (IST/IDT)</option>
+                                            <option value="Asia/Gaza" <?= ($settings['timezone'] ?? '') == 'Asia/Gaza' ? 'selected' : '' ?>>Gaza (EET/EEST)</option>
                                             <option value="Asia/Tehran" <?= ($settings['timezone'] ?? '') == 'Asia/Tehran' ? 'selected' : '' ?>>Tehran (IRST)</option>
                                             <option value="Asia/Karachi" <?= ($settings['timezone'] ?? '') == 'Asia/Karachi' ? 'selected' : '' ?>>Karachi (PKT)</option>
                                             <option value="Asia/Dhaka" <?= ($settings['timezone'] ?? '') == 'Asia/Dhaka' ? 'selected' : '' ?>>Dhaka (BST)</option>

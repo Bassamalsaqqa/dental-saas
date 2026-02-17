@@ -160,6 +160,8 @@
                                             <option value="Asia/Kolkata" <?= $defaultTimezone === 'Asia/Kolkata' ? 'selected' : '' ?>>Kolkata (IST)</option>
                                             <option value="Asia/Dubai" <?= $defaultTimezone === 'Asia/Dubai' ? 'selected' : '' ?>>Dubai (GST)</option>
                                             <option value="Asia/Riyadh" <?= $defaultTimezone === 'Asia/Riyadh' ? 'selected' : '' ?>>Riyadh (AST)</option>
+                                            <option value="Asia/Jerusalem" <?= $defaultTimezone === 'Asia/Jerusalem' ? 'selected' : '' ?>>Jerusalem (IST/IDT)</option>
+                                            <option value="Asia/Gaza" <?= $defaultTimezone === 'Asia/Gaza' ? 'selected' : '' ?>>Gaza (EET/EEST)</option>
                                             <option value="Asia/Tehran" <?= $defaultTimezone === 'Asia/Tehran' ? 'selected' : '' ?>>Tehran (IRST)</option>
                                             <option value="Asia/Karachi" <?= $defaultTimezone === 'Asia/Karachi' ? 'selected' : '' ?>>Karachi (PKT)</option>
                                             <option value="Asia/Dhaka" <?= $defaultTimezone === 'Asia/Dhaka' ? 'selected' : '' ?>>Dhaka (BST)</option>
