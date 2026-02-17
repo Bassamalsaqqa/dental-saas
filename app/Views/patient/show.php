@@ -19,7 +19,7 @@ function getFDINumber($universalNumber) {
 ?>
 
 <?= $this->section('content') ?>
-<div class="container mx-auto px-6 py-8">
+<div class="container patient-view mx-auto px-6 py-8">
     <div class="space-y-6">
         <!-- Page Header -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -1210,20 +1210,136 @@ function getFDINumber($universalNumber) {
 
 
 <style>
+    .patient-view {
+        position: relative;
+    }
+
+    .patient-view::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(900px 500px at 8% -12%, rgba(37, 99, 235, 0.12), transparent 60%),
+                    radial-gradient(700px 420px at 92% 0%, rgba(14, 165, 233, 0.12), transparent 55%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .patient-view > .space-y-6 {
+        position: relative;
+        z-index: 1;
+    }
+
+    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm {
+        border-color: #d3dfef;
+        background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+        box-shadow: 0 16px 32px -24px rgba(15, 23, 42, 0.52), 0 1px 0 rgba(15, 23, 42, 0.07);
+    }
+
+    .patient-view .flex.flex-col.md\:flex-row.md\:justify-between.md\:items-center.space-y-4.md\:space-y-0 {
+        border: 1px solid #ccdcf0;
+        border-radius: 0.85rem;
+        padding: 1rem 1.15rem;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.98) 0%, rgba(227, 240, 255, 0.96) 100%);
+        box-shadow: 0 16px 30px -24px rgba(15, 23, 42, 0.45);
+    }
+
+    .patient-view .inline-flex.items-center.px-4.py-2.bg-blue-600.text-white.text-sm.font-medium.rounded-md {
+        background: linear-gradient(90deg, #1d4ed8 0%, #0284c7 100%);
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        box-shadow: 0 10px 22px -12px rgba(29, 78, 216, 0.62);
+    }
+
+    .patient-view .inline-flex.items-center.px-4.py-2.bg-gray-100.text-gray-700.text-sm.font-medium.rounded-md {
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+        border: 1px solid #d2dbe7;
+    }
+
+    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm > .px-6.py-4.border-b.border-gray-200 {
+        background: linear-gradient(90deg, rgba(248, 250, 252, 0.98) 0%, rgba(227, 240, 255, 0.98) 100%);
+        border-bottom-color: #dbe5f0;
+        position: relative;
+    }
+
+    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm > .px-6.py-4.border-b.border-gray-200::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 0 4px 4px 0;
+        background: linear-gradient(180deg, #2563eb 0%, #0891b2 100%);
+        opacity: 1;
+    }
+
+    .patient-view .rounded-lg.border.border-gray-200.bg-gray-50.p-3 {
+        border-color: #cdddf2;
+        background: linear-gradient(180deg, #f6faff 0%, #e9f3ff 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .patient-view .rounded-lg.border.border-gray-200.bg-gray-50.p-3::after {
+        content: "";
+        position: absolute;
+        right: -22px;
+        top: -22px;
+        width: 56px;
+        height: 56px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, rgba(37, 99, 235, 0) 72%);
+        pointer-events: none;
+    }
+
+    .patient-view .rounded-lg.border.border-gray-200.bg-gray-50.p-3 .text-xl.font-bold.text-gray-900,
+    .patient-view .rounded-lg.border.border-gray-200.bg-gray-50.p-3 .text-sm.font-semibold.text-gray-900 {
+        color: #0b3a75;
+    }
+
+    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm.group {
+        transition: transform .22s ease, box-shadow .22s ease;
+    }
+
+    .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm.group:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 34px -24px rgba(15, 23, 42, 0.5), 0 1px 0 rgba(15, 23, 42, 0.08);
+    }
+
+    .patient-view .tab-content .text-sm.text-gray-900 {
+        color: #0f172a;
+    }
+
+    .patient-view .tab-content label.text-sm {
+        color: #475569;
+        font-weight: 600;
+    }
+
+    .patient-view .px-6.py-4.border-b.border-gray-200 + .px-6.py-4 {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 252, 255, 1) 100%);
+    }
+
+    .patient-view nav[aria-label="Tabs"] {
+        background: linear-gradient(180deg, rgba(244, 249, 255, 0.95) 0%, rgba(234, 243, 252, 0.9) 100%);
+        border: 1px solid #d9e6f7;
+        border-radius: 0.8rem;
+        padding: 0.5rem;
+    }
+
     .tab-button {
         border: 1px solid #e5e7eb;
-        background: #f9fafb;
-        color: #4b5563;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #475569;
         border-radius: 0.5rem;
         transition: all 0.2s ease;
     }
 
     .tab-button.active,
     .tab-button.active:hover {
-        border-color: #2563eb;
-        background: #eff6ff;
-        color: #1d4ed8;
-        box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+        border-color: #1d4ed8;
+        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        color: #1e40af;
+        box-shadow: 0 2px 6px rgba(29, 78, 216, 0.18);
     }
 
     .tab-button:hover:not(.active) {
