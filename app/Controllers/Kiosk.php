@@ -142,33 +142,49 @@ class Kiosk extends BaseController
             return redirect()->back()->withInput()->with('error', 'Too many attempts. Please wait a few minutes.');
         }
 
-        $appointments = $this->appointmentModel
-            ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.status, patients.id as patient_id, patients.first_name, patients.last_name, patients.phone, patients.email')
-            ->join('patients', 'patients.id = appointments.patient_id')
-            ->where('patients.clinic_id', (int) $clinic['id'])
-            ->orderBy('appointments.appointment_date', 'ASC')
-            ->orderBy('appointments.appointment_time', 'ASC')
+        $patients = $this->patientModel
+            ->select('id, first_name, last_name, phone, email')
+            ->where('clinic_id', (int) $clinic['id'])
+            ->orderBy('first_name', 'ASC')
+            ->orderBy('last_name', 'ASC')
             ->findAll();
 
-        $matching = [];
         $patientMap = [];
-        foreach ($appointments as $appointment) {
-            $storedPhone = $this->normalizePhone((string) ($appointment['phone'] ?? ''));
+        foreach ($patients as $patient) {
+            $storedPhone = $this->normalizePhone((string) ($patient['phone'] ?? ''));
             if ($storedPhone !== '' && $storedPhone === $normalizedPhone) {
-                $matching[] = $this->formatAppointmentCard($appointment, $settings);
-                if (!empty($appointment['patient_id'])) {
-                    $patientMap[(int) $appointment['patient_id']] = [
-                        'id' => (int) $appointment['patient_id'],
-                        'name' => trim(($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '')),
-                        'phone' => $appointment['phone'] ?? '',
-                        'email' => $appointment['email'] ?? ''
-                    ];
-                }
+                $patientMap[(int) $patient['id']] = [
+                    'id' => (int) $patient['id'],
+                    'name' => trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')),
+                    'phone' => $patient['phone'] ?? '',
+                    'email' => $patient['email'] ?? ''
+                ];
             }
         }
 
-        $allowedIds = array_map(static fn($row) => $row['id'], $matching);
         $allowedPatients = array_keys($patientMap);
+        $matching = [];
+        $allowedIds = [];
+        if (!empty($allowedPatients)) {
+            $today = $this->clinicToday($settings);
+            $appointments = $this->appointmentModel
+                ->select('appointments.id, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.status, patients.id as patient_id, patients.first_name, patients.last_name, patients.phone, patients.email')
+                ->join('patients', 'patients.id = appointments.patient_id')
+                ->where('patients.clinic_id', (int) $clinic['id'])
+                ->whereIn('appointments.patient_id', $allowedPatients)
+                ->where('appointments.appointment_date >=', $today)
+                ->orderBy('appointments.appointment_date', 'ASC')
+                ->orderBy('appointments.appointment_time', 'ASC')
+                ->findAll();
+
+            foreach ($appointments as $appointment) {
+                $formatted = $this->formatAppointmentCard($appointment, $settings);
+                $matching[] = $formatted;
+                if (!empty($formatted['can_confirm'])) {
+                    $allowedIds[] = (int) $formatted['id'];
+                }
+            }
+        }
         $contractsEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.enabled', false);
         $signatureEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.signature.enabled', false);
         $contracts = [];
@@ -220,8 +236,10 @@ class Kiosk extends BaseController
             'signature_enabled' => $signatureEnabled,
         ];
 
-        if (empty($matching)) {
-            $data['info_message'] = 'No appointments found for this mobile number.';
+        if (empty($allowedPatients)) {
+            $data['info_message'] = 'No patient record found for this mobile number.';
+        } elseif (empty($matching)) {
+            $data['info_message'] = 'No upcoming appointments found. You can still update details and review treatment plans.';
         }
 
         if ($this->request->isAJAX()) {
@@ -275,7 +293,7 @@ class Kiosk extends BaseController
             return redirect()->back()->with('error', 'Please re-enter your mobile number.');
         }
 
-        $today = date('Y-m-d');
+        $today = $this->clinicToday($settings);
         $appointment = $this->appointmentModel
             ->select('appointments.id, appointments.status, appointments.appointment_date, patients.phone')
             ->join('patients', 'patients.id = appointments.patient_id')
@@ -503,6 +521,7 @@ class Kiosk extends BaseController
             'kiosk_header' => 'Self Check-In',
             'kiosk_subheader' => 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
+            'timezone' => 'UTC',
             'time_format' => '12',
         ];
 
@@ -553,7 +572,7 @@ class Kiosk extends BaseController
     private function setPinVerified(int $clinicId): void
     {
         session()->set([
-            'kiosk_pin_ok_until' => time() + (2 * 60 * 60),
+            'kiosk_pin_ok_until' => time() + (7 * 24 * 60 * 60),
             'kiosk_pin_clinic_id' => $clinicId,
         ]);
     }
@@ -601,7 +620,7 @@ class Kiosk extends BaseController
         $time = $appointment['appointment_time'] ?? '';
         $displayTime = $this->formatTime((string) $time, $settings['time_format'] ?? '12');
         $displayDate = $date ? date('M j, Y', strtotime($date)) : '';
-        $isToday = $date === date('Y-m-d');
+        $isToday = $date === $this->clinicToday($settings);
         $confirmAllowed = $isToday && ($appointment['status'] ?? '') === 'scheduled';
 
         return [
@@ -657,6 +676,18 @@ class Kiosk extends BaseController
         }
 
         return $initial;
+    }
+
+    private function clinicToday(array $settings): string
+    {
+        $timezone = (string) ($settings['timezone'] ?? 'UTC');
+        try {
+            $now = new \DateTimeImmutable('now', new \DateTimeZone($timezone));
+        } catch (\Throwable $e) {
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        }
+
+        return $now->format('Y-m-d');
     }
 
     private function rateLimit(string $key, int $maxAttempts, int $windowSeconds): bool

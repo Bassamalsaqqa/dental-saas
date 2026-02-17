@@ -1,7 +1,11 @@
 <?= $this->extend('layouts/kiosk') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen">
+<div id="kioskSessionRoot"
+     class="min-h-screen"
+     data-pin-verified="<?= !empty($pin_verified) ? '1' : '0' ?>"
+     data-reset-url="<?= esc(base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset')) ?>"
+     data-timeout-ms="90000">
     <div class="container mx-auto px-6 py-10">
         <div class="max-w-3xl mx-auto space-y-6">
             <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
@@ -56,7 +60,7 @@
                     <?php else: ?>
                         <div class="bg-white border border-slate-200 rounded-2xl p-6">
                             <h2 class="text-lg font-semibold text-slate-900 mb-2">Check In</h2>
-                            <p class="text-sm text-slate-500">Enter your mobile number to confirm today's appointment.</p>
+                            <p class="text-sm text-slate-500">Enter your mobile number to find your appointments, update your details, and review treatment plans.</p>
                         </div>
                         <form id="kioskLookupForm" action="<?= base_url('kiosk/' . $clinic['uuid'] . '/lookup') ?>" method="POST" class="space-y-4" data-csrf-name="<?= csrf_token() ?>" data-csrf-token="<?= csrf_hash() ?>">
                             <?= csrf_field() ?>
@@ -78,16 +82,55 @@
                                 </div>
                             </div>
                             <button type="submit" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg">
-                                <i class="fas fa-search mr-2"></i>Find My Appointment
+                                <i class="fas fa-user-check mr-2"></i>Find My Record
                             </button>
                         </form>
 
-                        <div id="kioskResults" class="border-t border-gray-100 pt-6 <?= !empty($appointments) || !empty($patients) || !empty($info_message) ? '' : 'hidden' ?>">
+                        <?php
+                            $hasConfirmable = false;
+                            foreach (($appointments ?? []) as $appointment) {
+                                if (!empty($appointment['can_confirm'])) {
+                                    $hasConfirmable = true;
+                                    break;
+                                }
+                            }
+                            $hasAppointments = !empty($appointments);
+                            $hasPatients = !empty($patients);
+                            $hasContracts = !empty($contracts);
+                            $primaryAction = $hasConfirmable ? 'checkin' : ($hasPatients ? 'details' : ($hasContracts ? 'contracts' : 'checkin'));
+                        ?>
+                        <div id="kioskResults" class="border-t border-gray-100 pt-6 <?= $hasAppointments || $hasPatients || !empty($info_message) ? '' : 'hidden' ?>">
                             <div class="flex items-center justify-between mb-4">
-                                <h3 id="kioskResultsTitle" class="text-lg font-semibold text-slate-900">Appointments for <?= esc($lookup_phone ?? '') ?></h3>
+                                <h3 id="kioskResultsTitle" class="text-lg font-semibold text-slate-900">Results for <?= esc($lookup_phone ?? '') ?></h3>
                                 <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
                                     Not you? Re-enter phone
                                 </a>
+                            </div>
+                            <div id="kioskActionBar"
+                                 class="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-2"
+                                 data-has-appointments="<?= $hasAppointments ? '1' : '0' ?>"
+                                 data-has-patients="<?= $hasPatients ? '1' : '0' ?>"
+                                 data-has-contracts="<?= $hasContracts ? '1' : '0' ?>"
+                                 data-has-confirmable="<?= $hasConfirmable ? '1' : '0' ?>"
+                                 data-primary-action="<?= esc($primaryAction) ?>">
+                                <button type="button"
+                                        data-kiosk-action-btn
+                                        data-action="checkin"
+                                        class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
+                                    Confirm Visit
+                                </button>
+                                <button type="button"
+                                        data-kiosk-action-btn
+                                        data-action="details"
+                                        class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
+                                    Update Details
+                                </button>
+                                <button type="button"
+                                        data-kiosk-action-btn
+                                        data-action="contracts"
+                                        class="px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-150">
+                                    Review & Sign
+                                </button>
                             </div>
                             <div id="kioskResultsList" class="space-y-4">
                                 <?php foreach ($appointments as $appointment): ?>
@@ -249,7 +292,88 @@
     </div>
 </div>
 <script>
+const kioskActionBar = document.getElementById('kioskActionBar');
+const kioskActionButtons = Array.from(document.querySelectorAll('[data-kiosk-action-btn]'));
+const kioskActionTargets = {
+    checkin: 'kioskResultsList',
+    details: 'kioskPatientDetails',
+    contracts: 'kioskContracts',
+};
+
+const setActionButtonState = (button, active, enabled) => {
+    if (!button) return;
+    button.disabled = !enabled;
+    button.classList.remove(
+        'bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-sm',
+        'bg-white', 'text-slate-700', 'border-slate-200', 'hover:bg-slate-50',
+        'opacity-50', 'cursor-not-allowed'
+    );
+
+    if (!enabled) {
+        button.classList.add('bg-white', 'text-slate-400', 'border-slate-200', 'opacity-50', 'cursor-not-allowed');
+        return;
+    }
+
+    if (active) {
+        button.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-sm');
+        return;
+    }
+
+    button.classList.add('bg-white', 'text-slate-700', 'border-slate-200', 'hover:bg-slate-50');
+};
+
+const choosePrimaryAction = (state) => {
+    if (state.hasConfirmable) return 'checkin';
+    if (state.hasPatients) return 'details';
+    if (state.hasContracts) return 'contracts';
+    return 'checkin';
+};
+
+const refreshKioskActionBar = (state) => {
+    if (!kioskActionBar || !kioskActionButtons.length) return;
+
+    const availability = {
+        checkin: !!state.hasAppointments,
+        details: !!state.hasPatients,
+        contracts: !!state.hasContracts,
+    };
+    const primary = choosePrimaryAction(state);
+
+    kioskActionBar.dataset.primaryAction = primary;
+    kioskActionButtons.forEach((button) => {
+        const action = button.dataset.action || '';
+        const enabled = !!availability[action];
+        const active = enabled && action === primary;
+        setActionButtonState(button, active, enabled);
+    });
+};
+
+kioskActionButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        if (button.disabled) return;
+        const action = button.dataset.action || '';
+        const targetId = kioskActionTargets[action];
+        const target = targetId ? document.getElementById(targetId) : null;
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        kioskActionButtons.forEach((btn) => {
+            const btnAction = btn.dataset.action || '';
+            setActionButtonState(btn, btnAction === action, !btn.disabled);
+        });
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function () {
+    if (kioskActionBar) {
+        refreshKioskActionBar({
+            hasAppointments: kioskActionBar.dataset.hasAppointments === '1',
+            hasPatients: kioskActionBar.dataset.hasPatients === '1',
+            hasContracts: kioskActionBar.dataset.hasContracts === '1',
+            hasConfirmable: kioskActionBar.dataset.hasConfirmable === '1',
+        });
+    }
+
     const input = document.getElementById('kioskPhoneInput');
     const keys = document.querySelectorAll('.kiosk-key');
     const form = document.getElementById('kioskLookupForm');
@@ -340,10 +464,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.dataset.csrfToken = data.csrf_token;
                 }
 
-                resultsTitle.textContent = `Appointments for ${data.lookup_phone || ''}`;
+                resultsTitle.textContent = `Results for ${data.lookup_phone || ''}`;
                 clearNode(resultsList);
 
                 if (data.appointments && data.appointments.length) {
+                    let hasConfirmable = false;
                     data.appointments.forEach((appointment) => {
                         const row = document.createElement('div');
                         row.className = 'flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-5';
@@ -366,6 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         row.appendChild(info);
                         if (appointment.can_confirm) {
+                            hasConfirmable = true;
                             const confirmForm = document.createElement('form');
                             confirmForm.method = 'POST';
                             confirmForm.action = '<?= base_url('kiosk/' . $clinic['uuid'] . '/confirm') ?>';
@@ -407,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     const empty = document.createElement('div');
                     empty.className = 'bg-amber-50 border border-amber-100 rounded-2xl p-5 text-amber-700 text-sm';
-                    empty.textContent = data.info_message || 'No scheduled appointments found for today.';
+                    empty.textContent = data.info_message || 'No upcoming appointments found for this mobile number.';
                     resultsList.appendChild(empty);
                 }
 
@@ -415,6 +541,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const patientSelect = document.getElementById('kioskPatientSelect');
                 const phoneUpdate = document.getElementById('kioskPhoneUpdate');
                 const emailUpdate = document.getElementById('kioskEmailUpdate');
+                let hasPatients = false;
                 if (patientDetails && patientSelect) {
                     clearNode(patientSelect);
                     (data.patients || []).forEach((patient) => {
@@ -426,6 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         patientSelect.appendChild(option);
                     });
                     if ((data.patients || []).length) {
+                        hasPatients = true;
                         patientDetails.classList.remove('hidden');
                         const selected = patientSelect.options[0];
                         if (selected) {
@@ -439,6 +567,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const contractsWrap = document.getElementById('kioskContracts');
                 const contractsList = document.getElementById('kioskContractList');
+                let hasContracts = false;
                 if (contractsWrap && contractsList) {
                     clearNode(contractsList);
                     (data.contracts || []).forEach((contract) => {
@@ -468,11 +597,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         contractsList.appendChild(card);
                     });
                     if ((data.contracts || []).length) {
+                        hasContracts = true;
                         contractsWrap.classList.remove('hidden');
                     } else {
                         contractsWrap.classList.add('hidden');
                     }
                 }
+
+                refreshKioskActionBar({
+                    hasAppointments: !!(data.appointments && data.appointments.length),
+                    hasPatients,
+                    hasContracts,
+                    hasConfirmable: !!(data.appointments || []).some((item) => !!item.can_confirm),
+                });
 
                 results.classList.remove('hidden');
             } catch (error) {
@@ -483,6 +620,28 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+const kioskSessionRoot = document.getElementById('kioskSessionRoot');
+if (kioskSessionRoot?.dataset.pinVerified === '1') {
+    const resetUrl = kioskSessionRoot.dataset.resetUrl || '';
+    const timeoutMs = Number(kioskSessionRoot.dataset.timeoutMs || '90000');
+    let inactivityTimer = null;
+
+    const restartInactivityTimer = () => {
+        if (!resetUrl || !timeoutMs) return;
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+        }
+        inactivityTimer = setTimeout(() => {
+            window.location.href = resetUrl;
+        }, timeoutMs);
+    };
+
+    ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'].forEach((eventName) => {
+        window.addEventListener(eventName, restartInactivityTimer, { passive: true });
+    });
+    restartInactivityTimer();
+}
 
 const patientSelect = document.getElementById('kioskPatientSelect');
 if (patientSelect) {
@@ -497,27 +656,36 @@ const detailsForm = document.getElementById('kioskDetailsForm');
 if (detailsForm) {
     detailsForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const formData = new FormData(detailsForm);
-        const csrfName = detailsForm.dataset.csrfName || '';
-        const csrfToken = detailsForm.dataset.csrfToken || '';
-        if (csrfName && csrfToken) {
-            formData.set(csrfName, csrfToken);
-        }
-        const response = await fetch(detailsForm.action, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: formData
-        });
-        const data = await response.json();
-        if (data.csrf_name && data.csrf_token) {
-            detailsForm.dataset.csrfName = data.csrf_name;
-            detailsForm.dataset.csrfToken = data.csrf_token;
-        }
-        if (window.showToast) {
-            if (data.success) {
-                window.showToast('success', 'Updated', data.message || 'Details updated.');
-            } else {
-                window.showToast('error', 'Error', data.message || 'Unable to update details.');
+        try {
+            const formData = new FormData(detailsForm);
+            const csrfName = detailsForm.dataset.csrfName || '';
+            const csrfToken = detailsForm.dataset.csrfToken || '';
+            if (csrfName && csrfToken) {
+                formData.set(csrfName, csrfToken);
+            }
+
+            const response = await fetch(detailsForm.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json().catch(() => null);
+            if (data?.csrf_name && data?.csrf_token) {
+                detailsForm.dataset.csrfName = data.csrf_name;
+                detailsForm.dataset.csrfToken = data.csrf_token;
+            }
+
+            if (window.showToast) {
+                if (response.ok && data?.success) {
+                    window.showToast('success', 'Updated', data.message || 'Details updated.');
+                } else {
+                    window.showToast('error', 'Error', data?.message || 'Unable to update details.');
+                }
+            }
+        } catch (error) {
+            if (window.showToast) {
+                window.showToast('error', 'Error', 'Unable to update details right now.');
             }
         }
     });
@@ -612,6 +780,12 @@ kioskClose?.addEventListener('click', () => {
     kioskModal?.classList.add('hidden');
 });
 
+kioskModal?.addEventListener('click', (event) => {
+    if (event.target === kioskModal) {
+        kioskModal.classList.add('hidden');
+    }
+});
+
 if (kioskSignatureCanvas) {
     const ctx = kioskSignatureCanvas.getContext('2d');
     let drawing = false;
@@ -665,34 +839,41 @@ if (kioskSignatureCanvas) {
 if (kioskForm) {
     kioskForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (kioskSignatureCanvas) {
-            kioskSignatureData.value = kioskSignatureCanvas.toDataURL('image/png');
-        }
-        const formData = new FormData(kioskForm);
-        const csrfName = kioskForm.dataset.csrfName || '';
-        const csrfToken = kioskForm.dataset.csrfToken || '';
-        if (csrfName && csrfToken) {
-            formData.set(csrfName, csrfToken);
-        }
-        const response = await fetch(kioskForm.action, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: formData
-        });
-        const data = await response.json();
-        if (data.csrf_name && data.csrf_token) {
-            kioskForm.dataset.csrfName = data.csrf_name;
-            kioskForm.dataset.csrfToken = data.csrf_token;
-        }
-        if (window.showToast) {
-            if (data.success) {
-                window.showToast('success', 'Signed', data.message || 'Plan signed.');
-            } else {
-                window.showToast('error', 'Error', data.message || 'Unable to sign plan.');
+        try {
+            if (kioskSignatureCanvas) {
+                kioskSignatureData.value = kioskSignatureCanvas.toDataURL('image/png');
             }
-        }
-        if (data.success) {
-            kioskModal?.classList.add('hidden');
+            const formData = new FormData(kioskForm);
+            const csrfName = kioskForm.dataset.csrfName || '';
+            const csrfToken = kioskForm.dataset.csrfToken || '';
+            if (csrfName && csrfToken) {
+                formData.set(csrfName, csrfToken);
+            }
+            const response = await fetch(kioskForm.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json().catch(() => null);
+            if (data?.csrf_name && data?.csrf_token) {
+                kioskForm.dataset.csrfName = data.csrf_name;
+                kioskForm.dataset.csrfToken = data.csrf_token;
+            }
+            if (window.showToast) {
+                if (response.ok && data?.success) {
+                    window.showToast('success', 'Signed', data.message || 'Plan signed.');
+                } else {
+                    window.showToast('error', 'Error', data?.message || 'Unable to sign plan.');
+                }
+            }
+            if (response.ok && data?.success) {
+                kioskModal?.classList.add('hidden');
+            }
+        } catch (error) {
+            if (window.showToast) {
+                window.showToast('error', 'Error', 'Unable to sign plan right now.');
+            }
         }
     });
 }
