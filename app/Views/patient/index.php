@@ -676,6 +676,20 @@ $(document).ready(function() {
                            class="p-2 text-purple-600 hover:text-purple-700 rounded-md hover:bg-purple-50 transition-colors duration-200" title="Odontogram">
                             <i class="fas fa-tooth"></i>
                         </a>`;
+
+                    // New examination button
+                    actions += `
+                        <a href="<?= base_url('examination/create?patient_id=') ?>${data}" 
+                           class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="New Examination">
+                            <i class="fas fa-stethoscope"></i>
+                        </a>`;
+
+                    // New treatment button
+                    actions += `
+                        <a href="<?= base_url('treatment/create?patient_id=') ?>${data}" 
+                           class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="New Treatment">
+                            <i class="fas fa-briefcase-medical"></i>
+                        </a>`;
                     
                     // Delete button
                     if (permissions.patients.delete) {

@@ -203,6 +203,9 @@ $(document).ready(function() {
                             <a href="<?= base_url('examination/create?patient_id=') ?>${data}" class="group/action relative p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Examination">
                                 <i class="fas fa-stethoscope"></i>
                             </a>
+                            <a href="<?= base_url('treatment/create?patient_id=') ?>${data}" class="group/action relative p-2 text-cyan-600 hover:text-cyan-800 hover:bg-cyan-50 rounded-lg transition-all duration-300 hover:scale-110" title="New Treatment">
+                                <i class="fas fa-briefcase-medical"></i>
+                            </a>
                             <button onclick="confirmDelete(${data})" class="group/action relative p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-110" title="Delete Patient">
                                 <i class="fas fa-trash"></i>
                             </button>
