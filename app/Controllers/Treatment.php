@@ -6,6 +6,7 @@ use App\Models\TreatmentModel;
 use App\Models\PatientModel;
 use App\Models\InventoryModel;
 use App\Models\InventoryUsageModel;
+use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\StorageService;
 
@@ -273,7 +274,7 @@ class Treatment extends BaseController
 
         $rules = [
             'patient_id' => 'required|integer',
-            'treatment_type' => 'required|in_list[cleaning,extraction,filling,crown,root_canal,orthodontic,implant,other]',
+            'treatment_type' => TreatmentCatalog::validationRule(),
             'tooth_number' => 'permit_empty|string|max_length[10]',
             'description' => 'required|min_length[10]',
             'cost' => 'required|decimal|greater_than[0]',
@@ -468,7 +469,7 @@ class Treatment extends BaseController
             'title' => 'Edit Treatment',
             'treatment' => $treatment,
             'patients' => $patient ? [$patient] : [], // Only emit current patient
-            'treatment_types' => $this->getTreatmentTypes(),
+            'treatment_types' => $this->getTreatmentTypes($treatment['treatment_type'] ?? null),
             'validation' => null,
             'loadSelect2' => true,
             'inventory_items' => $inventoryItems,
@@ -493,7 +494,7 @@ class Treatment extends BaseController
 
         $rules = [
             'patient_id' => 'required|integer',
-            'treatment_type' => 'required|in_list[cleaning,extraction,filling,crown,root_canal,orthodontic,implant,other]',
+            'treatment_type' => TreatmentCatalog::validationRule(),
             'tooth_number' => 'permit_empty|string|max_length[10]',
             'description' => 'required|min_length[10]',
             'cost' => 'required|decimal|greater_than[0]',
@@ -512,7 +513,7 @@ class Treatment extends BaseController
                 'title' => 'Edit Treatment',
                 'treatment' => $treatment,
                 'patients' => $this->patientModel->where('clinic_id', $clinicId)->findAll(),
-                'treatment_types' => $this->getTreatmentTypes(),
+                'treatment_types' => $this->getTreatmentTypes($treatment['treatment_type'] ?? null),
                 'validation' => $this->validator,
                 'inventory_items' => $inventoryItems,
                 'return_to' => $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'treatment', 'treatments'])
@@ -793,23 +794,22 @@ class Treatment extends BaseController
         return ['success' => true, 'message' => 'Inventory usage recorded.'];
     }
 
-    private function getTreatmentTypes()
+    private function getTreatmentTypes(?string $currentType = null)
     {
-        return [
-            'cleaning' => 'Teeth Cleaning',
-            'extraction' => 'Tooth Extraction',
-            'filling' => 'Dental Filling',
-            'crown' => 'Dental Crown',
-            'root_canal' => 'Root Canal Treatment',
-            'orthodontic' => 'Orthodontic Treatment',
-            'implant' => 'Dental Implant',
-            'other' => 'Other Treatment',
-        ];
+        $types = TreatmentCatalog::forSelection();
+
+        if ($currentType !== null && $currentType !== '' && !isset($types[$currentType])) {
+            $allTypes = TreatmentCatalog::all();
+            if (isset($allTypes[$currentType])) {
+                $types[$currentType] = $allTypes[$currentType];
+            }
+        }
+
+        return $types;
     }
 
     private function getTreatmentName($treatmentType)
     {
-        $treatmentTypes = $this->getTreatmentTypes();
-        return $treatmentTypes[$treatmentType] ?? 'Treatment';
+        return TreatmentCatalog::nameFor((string) $treatmentType);
     }
 }

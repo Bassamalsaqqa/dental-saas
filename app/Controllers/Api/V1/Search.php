@@ -9,6 +9,7 @@ use App\Models\ExaminationModel;
 use App\Models\TreatmentModel;
 use App\Models\InventoryModel;
 use App\Models\RoleModel;
+use App\Libraries\TreatmentCatalog;
 
 class Search extends Controller
 {
@@ -293,21 +294,7 @@ class Search extends Controller
 
         $query = $this->request->getGet('q');
 
-        $treatmentTypes = [
-            'cleaning' => 'Teeth Cleaning',
-            'extraction' => 'Tooth Extraction',
-            'filling' => 'Dental Filling',
-            'crown' => 'Dental Crown',
-            'root_canal' => 'Root Canal Treatment',
-            'orthodontic' => 'Orthodontic Treatment',
-            'implant' => 'Dental Implant',
-            'bridge' => 'Dental Bridge',
-            'veneers' => 'Dental Veneers',
-            'whitening' => 'Teeth Whitening',
-            'gum_treatment' => 'Gum Treatment',
-            'oral_surgery' => 'Oral Surgery',
-            'other' => 'Other Treatment'
-        ];
+        $treatmentTypes = TreatmentCatalog::forSelection();
 
         $results = [];
         foreach ($treatmentTypes as $key => $type) {

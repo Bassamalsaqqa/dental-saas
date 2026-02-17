@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\TreatmentCatalog;
 use CodeIgniter\Model;
 
 class TreatmentModel extends TenantAwareModel
@@ -45,7 +46,7 @@ class TreatmentModel extends TenantAwareModel
     // Validation
     protected $validationRules = [
         'patient_id' => 'required|integer',
-        'treatment_type' => 'required|in_list[cleaning,extraction,filling,crown,root_canal,orthodontic,implant,other]',
+        'treatment_type' => 'required',
         'tooth_number' => 'permit_empty|string|max_length[10]',
         'treatment_description' => 'required|min_length[10]',
         'cost' => 'required|decimal|greater_than[0]',
@@ -99,6 +100,11 @@ class TreatmentModel extends TenantAwareModel
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
+
+    protected function initialize()
+    {
+        $this->validationRules['treatment_type'] = TreatmentCatalog::validationRule();
+    }
 
     public function countTreatmentsByClinic($clinicId, $searchValue = null, $status = null, $type = null)
     {
