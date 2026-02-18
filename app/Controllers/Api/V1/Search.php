@@ -363,19 +363,16 @@ class Search extends Controller
 
         $query = $this->request->getGet('q');
         $limit = (int)($this->request->getGet('limit') ?? 50);
-
-        $builder = $this->roleModel->where('is_active', 1);
-
+        $roles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
         if (!empty($query) && strlen($query) >= 1) {
-            $builder->groupStart()
-                ->like('name', $query)
-                ->orLike('description', $query)
-                ->groupEnd();
+            $queryLower = mb_strtolower($query);
+            $roles = array_values(array_filter($roles, static function ($role) use ($queryLower) {
+                $name = mb_strtolower((string) ($role['name'] ?? ''));
+                $description = mb_strtolower((string) ($role['description'] ?? ''));
+                return str_contains($name, $queryLower) || str_contains($description, $queryLower);
+            }));
         }
-
-        $roles = $builder->orderBy('name', 'ASC')
-            ->limit($limit)
-            ->find();
+        $roles = array_slice($roles, 0, $limit);
 
         $results = [];
         foreach ($roles as $role) {

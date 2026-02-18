@@ -131,6 +131,53 @@ class RoleModel extends Model
     }
 
     /**
+     * Get roles assignable in tenant user flows.
+     * Super admin is excluded by default to prevent tenant-side privilege escalation.
+     */
+    public function getAssignableRolesForClinic($clinicId = null, $excludeSuperAdmin = true)
+    {
+        $roles = $this->getActiveRoles($clinicId, true);
+
+        if (!$excludeSuperAdmin) {
+            return $roles;
+        }
+
+        return array_values(array_filter($roles, static function ($role) {
+            return ($role['slug'] ?? '') !== 'super_admin';
+        }));
+    }
+
+    /**
+     * Find a single assignable role by ID for a clinic scope.
+     */
+    public function findAssignableRoleById($roleId, $clinicId = null, $excludeSuperAdmin = true)
+    {
+        $role = $this->builder()
+            ->where('id', $roleId)
+            ->where('is_active', 1)
+            ->get()
+            ->getRowArray();
+
+        if (!$role) {
+            return null;
+        }
+
+        // Tenant scope: role must be global or belong to the active clinic.
+        if ($clinicId !== null) {
+            $roleClinicId = $role['clinic_id'] ?? null;
+            if ($roleClinicId !== null && (int) $roleClinicId !== (int) $clinicId) {
+                return null;
+            }
+        }
+
+        if ($excludeSuperAdmin && ($role['slug'] ?? '') === 'super_admin') {
+            return null;
+        }
+
+        return $role;
+    }
+
+    /**
      * Check if a slug already exists within the same clinic scope
      */
     public function slugExists($slug, $clinicId, $ignoreId = null)

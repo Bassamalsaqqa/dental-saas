@@ -145,6 +145,17 @@ class UserManagementController extends BaseController
         if (empty($roles) || $primaryRoleId <= 0) {
             return redirect()->back()->withInput()->with('error', 'At least one valid role is required.');
         }
+        $clinicId = session()->get('active_clinic_id');
+        $primaryRole = $this->roleModel->findAssignableRoleById($primaryRoleId, $clinicId, true);
+        if (!$primaryRole) {
+            return redirect()->back()->withInput()->with('error', 'Invalid role selected for this clinic.');
+        }
+        $roles = array_values(array_filter(array_map('intval', (array) $roles), function ($roleId) use ($clinicId) {
+            return (bool) $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
+        }));
+        if (empty($roles)) {
+            return redirect()->back()->withInput()->with('error', 'No assignable roles were provided.');
+        }
 
         $userData = [
             'first_name' => $this->request->getPost('first_name'),
@@ -164,12 +175,11 @@ class UserManagementController extends BaseController
             }
 
             // Assign to clinic with primary role
-            $clinicId = session()->get('active_clinic_id');
             if ($clinicId) {
                 $this->clinicUserModel->insert([
                     'clinic_id' => $clinicId,
                     'user_id' => $userId,
-                    'role_id' => $primaryRoleId,
+                    'role_id' => (int) $primaryRole['id'],
                     'status' => 'active'
                 ]);
             }
@@ -259,7 +269,11 @@ class UserManagementController extends BaseController
         $success = $this->userModel->update($id, $userData);
 
         if ($success) {
+            $clinicId = session()->get('active_clinic_id');
             $roles = $this->request->getPost('roles') ?? [];
+            $roles = array_values(array_filter(array_map('intval', (array) $roles), function ($roleId) use ($clinicId) {
+                return (bool) $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
+            }));
             $this->userRoleModel->assignRoles($id, $roles, $this->getCurrentUser()->id);
 
             $permissions = $this->request->getPost('permissions') ?? [];
@@ -381,7 +395,7 @@ class UserManagementController extends BaseController
     protected function getAvailableRoles()
     {
         $clinicId = session()->get('active_clinic_id');
-        $roles = $this->roleModel->getSelectableRoles($clinicId);
+        $roles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
         foreach ($roles as &$role) {
             $role['is_clinic_role'] = !empty($role['clinic_id']);
         }
@@ -397,6 +411,11 @@ class UserManagementController extends BaseController
         }
         $userId = $this->request->getPost('user_id');
         $roleId = $this->request->getPost('role_id');
+        $clinicId = session()->get('active_clinic_id');
+        $role = $this->roleModel->findAssignableRoleById((int) $roleId, $clinicId, true);
+        if (!$role) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid role selected for this clinic']);
+        }
         $expiresAt = $this->request->getPost('expires_at');
         $success = $this->userRoleModel->assignRole($userId, $roleId, $this->getCurrentUser()->id, $expiresAt);
         return $this->response->setJSON($success ? ['success' => true, 'message' => 'Role assigned successfully'] : ['error' => 'Failed to assign role']);

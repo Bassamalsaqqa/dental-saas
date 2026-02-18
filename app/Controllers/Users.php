@@ -136,7 +136,8 @@ class Users extends BaseController
             ];
             
             try {
-                $roles = $this->roleModel->getActiveRoles();
+                $clinicId = session()->get('active_clinic_id');
+                $roles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
                 $permissions = $this->permissionModel->getGroupedByModule();
                 
                 // Check RBAC system status
@@ -186,7 +187,7 @@ class Users extends BaseController
         // Get all available roles from roles table
         $clinicId = session()->get('active_clinic_id');
         $roleModel = new \App\Models\RoleModel();
-        $rolesData = $roleModel->getActiveRoles($clinicId, true);
+        $rolesData = $roleModel->getAssignableRolesForClinic($clinicId, true);
         
         // Convert roles to format for the view
         $roles = [];
@@ -223,7 +224,8 @@ class Users extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
         $roleModel = new \App\Models\RoleModel();
-        $role = $roleModel->where('id', $roleId)->where('is_active', 1)->first();
+        $clinicId = session()->get('active_clinic_id');
+        $role = $roleModel->findAssignableRoleById($roleId, $clinicId, true);
         if (!$role) {
             return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
         }
@@ -257,7 +259,6 @@ class Users extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Failed to assign role to existing user.');
             }
 
-            $clinicId = session()->get('active_clinic_id');
             if ($clinicId) {
                 $membershipPayload = [
                     'clinic_id' => $clinicId,
@@ -394,7 +395,7 @@ class Users extends BaseController
         // Get all available roles from roles table
         $clinicId = session()->get('active_clinic_id');
         $roleModel = new \App\Models\RoleModel();
-        $rolesData = $roleModel->getActiveRoles($clinicId, true);
+        $rolesData = $roleModel->getAssignableRolesForClinic($clinicId, true);
         
         // Convert roles to format for the view
         $roles = [];
@@ -461,7 +462,7 @@ class Users extends BaseController
         
         // Validate that the role exists and is active
         $roleModel = new \App\Models\RoleModel();
-        $role = $roleModel->where('id', $roleId)->where('is_active', 1)->first();
+        $role = $roleModel->findAssignableRoleById((int) $roleId, $clinicId, true);
         
         if (!$role) {
             return redirect()->back()->withInput()->with('error', 'Invalid role selected.');
@@ -762,6 +763,10 @@ class Users extends BaseController
         }
 
         $roleId = $this->request->getPost('role_id');
+        $role = $this->roleModel->findAssignableRoleById((int) $roleId, $clinicId, true);
+        if (!$role) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Invalid role selected for this clinic']);
+        }
         $expiresAt = $this->request->getPost('expires_at');
 
         // Prevent role changes for admin user (ID: 1)
