@@ -367,7 +367,7 @@ class AppointmentModel extends TenantAwareModel
     {
         $clinicId = session()->get('active_clinic_id');
         $cleanChairName = trim((string) $chairName);
-        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
+        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
         $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
         return $overlapCount < $chairCount;
     }
@@ -376,7 +376,7 @@ class AppointmentModel extends TenantAwareModel
     {
         $clinicId = session()->get('active_clinic_id');
         $cleanChairName = trim((string) $chairName);
-        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
+        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
         $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
 
         return max(0, $chairCount - $overlapCount);

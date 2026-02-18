@@ -625,7 +625,7 @@ class Appointment extends BaseController
         $startTime = strtotime($workingHours['start']);
         $endTime = strtotime($workingHours['end']);
         $slotDuration = $duration * 60; // Convert to seconds
-        $chairCount = ($chairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
+        $chairCount = ($chairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
 
         for ($time = $startTime; $time < $endTime; $time += $slotDuration) {
             $timeSlot = date('H:i', $time);

@@ -270,6 +270,11 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Duration (minutes)</label>
                                         <input type="number" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>" min="15" max="480" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Max Chairs</label>
+                                        <input type="number" name="default_booking_chair_max" value="<?= esc((int) ($settings['default_booking_chair_max'] ?? 3)) ?>" min="1" max="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
+                                        <p class="mt-2 text-xs text-gray-500">Global cap for tenant chair count. Maximum allowed value is 3.</p>
+                                    </div>
                                 </div>
 
                                 <div class="mt-8 flex justify-end">

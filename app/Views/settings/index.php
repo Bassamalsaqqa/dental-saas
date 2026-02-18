@@ -547,19 +547,28 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label>
-                                        <input type="number" name="booking_chair_count" value="<?= max(1, (int)($settings['booking_chair_count'] ?? 1)) ?>" min="1" max="20" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
-                                        <p class="mt-2 text-xs text-gray-500">Allows parallel bookings up to this chair capacity.</p>
+                                        <?php $maxChairCount = max(1, min(3, (int) ($max_booking_chair_count ?? 3))); ?>
+                                        <input type="number" name="booking_chair_count" id="bookingChairCount" value="<?= min($maxChairCount, max(1, (int)($settings['booking_chair_count'] ?? 1))) ?>" min="1" max="<?= $maxChairCount ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
+                                        <p class="mt-2 text-xs text-gray-500">Allows parallel bookings up to this chair capacity (max <?= esc((string) $maxChairCount) ?>).</p>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Chair / Room Names (one per line)</label>
-                                        <textarea name="booking_chair_names" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" placeholder="Chair 1&#10;Chair 2"><?php
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Chair / Room Names</label>
+                                        <?php
                                             $chairNames = $settings['booking_chair_names'] ?? ['Chair 1'];
                                             if (!is_array($chairNames)) {
                                                 $chairNames = ['Chair 1'];
                                             }
-                                            echo esc(implode(PHP_EOL, $chairNames));
-                                        ?></textarea>
-                                        <p class="mt-2 text-xs text-gray-500">Example: Dr. Bassam Room. If fewer names are provided, missing names are auto-filled.</p>
+                                        ?>
+                                        <div id="chairNameFields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <?php for ($i = 0; $i < $maxChairCount; $i++): ?>
+                                                <?php $defaultName = $chairNames[$i] ?? ('Chair ' . ($i + 1)); ?>
+                                                <div class="chair-name-field" data-chair-index="<?= $i + 1 ?>">
+                                                    <label class="block text-xs font-semibold text-gray-600 mb-2">Chair <?= $i + 1 ?> Name</label>
+                                                    <input type="text" name="booking_chair_names[]" value="<?= esc($defaultName) ?>" maxlength="100" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" placeholder="Chair <?= $i + 1 ?>">
+                                                </div>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <p class="mt-2 text-xs text-gray-500">Example: Dr. Bassam Room. Only active chair fields are saved.</p>
                                     </div>
                                 </div>
 
@@ -1248,6 +1257,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    const chairCountInput = document.getElementById('bookingChairCount');
+    const chairFields = document.querySelectorAll('.chair-name-field');
+    const syncChairFields = () => {
+        if (!chairCountInput || chairFields.length === 0) return;
+
+        const max = Number.parseInt(chairCountInput.max || '3', 10);
+        const min = Number.parseInt(chairCountInput.min || '1', 10);
+        let value = Number.parseInt(chairCountInput.value || String(min), 10);
+        if (Number.isNaN(value)) value = min;
+        value = Math.min(max, Math.max(min, value));
+        chairCountInput.value = String(value);
+
+        chairFields.forEach((field, idx) => {
+            const enabled = idx < value;
+            const input = field.querySelector('input');
+            field.classList.toggle('hidden', !enabled);
+            if (input) {
+                input.disabled = !enabled;
+                if (enabled && input.value.trim() === '') {
+                    input.value = `Chair ${idx + 1}`;
+                }
+            }
+        });
+    };
+
+    if (chairCountInput) {
+        chairCountInput.addEventListener('input', syncChairFields);
+        chairCountInput.addEventListener('change', syncChairFields);
+        syncChairFields();
+    }
 });
 </script>
 

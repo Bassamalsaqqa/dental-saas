@@ -57,11 +57,13 @@ class Settings extends BaseController
         $appConfig = config('App');
         
         $settings = $this->getSettings();
+        $maxBookingChairCount = $this->getMaxBookingChairs();
         $kioskPinSet = !empty($settings['kiosk_pin_hash'] ?? '');
         $kioskFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'kiosk.enabled', false);
         $data = [
             'title' => 'System Settings',
             'settings' => $settings,
+            'max_booking_chair_count' => $maxBookingChairCount,
             'backups' => $backups,
             'demo' => $appConfig->demo,
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
@@ -236,10 +238,10 @@ class Settings extends BaseController
 
     public function updateWorkingHours()
     {
+        $maxChairCount = $this->getMaxBookingChairs();
         $rules = [
             'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
-            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[20]',
-            'booking_chair_names' => 'permit_empty|max_length[2000]',
+            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[' . $maxChairCount . ']',
             'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_days' => 'permit_empty',
@@ -249,15 +251,15 @@ class Settings extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $chairCount = (int) $this->request->getPost('booking_chair_count');
-        [$chairNames, $chairError] = $this->normalizeChairNames((string) $this->request->getPost('booking_chair_names'), $chairCount);
+        $chairCount = min($maxChairCount, max(1, (int) $this->request->getPost('booking_chair_count')));
+        [$chairNames, $chairError] = $this->normalizeChairNames($this->request->getPost('booking_chair_names'), $chairCount);
         if ($chairError !== null) {
             return redirect()->back()->withInput()->with('error', $chairError);
         }
 
         $settingsData = [
             'appointment_duration' => $this->request->getPost('appointment_duration'),
-            'booking_chair_count' => $this->request->getPost('booking_chair_count'),
+            'booking_chair_count' => $chairCount,
             'booking_chair_names' => $chairNames,
             'working_hours_start' => $this->request->getPost('working_hours_start'),
             'working_hours_end' => $this->request->getPost('working_hours_end'),
@@ -380,6 +382,7 @@ class Settings extends BaseController
             $this->initializeDefaultSettings();
         }
         
+        $maxChairCount = $this->getMaxBookingChairs();
         $rules = [
             'clinic_name' => 'required|min_length[2]|max_length[100]',
             'clinic_address' => 'required|min_length[10]|max_length[500]',
@@ -391,8 +394,7 @@ class Settings extends BaseController
             'time_format' => 'required|in_list[24,12]',
             'currency' => 'required',
             'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
-            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[20]',
-            'booking_chair_names' => 'permit_empty|max_length[2000]',
+            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[' . $maxChairCount . ']',
             'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_days' => 'permit_empty',
@@ -402,8 +404,8 @@ class Settings extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $chairCount = (int) $this->request->getPost('booking_chair_count');
-        [$chairNames, $chairError] = $this->normalizeChairNames((string) $this->request->getPost('booking_chair_names'), $chairCount);
+        $chairCount = min($maxChairCount, max(1, (int) $this->request->getPost('booking_chair_count')));
+        [$chairNames, $chairError] = $this->normalizeChairNames($this->request->getPost('booking_chair_names'), $chairCount);
         if ($chairError !== null) {
             return redirect()->back()->withInput()->with('error', $chairError);
         }
@@ -419,7 +421,7 @@ class Settings extends BaseController
             'time_format' => $this->request->getPost('time_format'),
             'currency' => $this->request->getPost('currency'),
             'appointment_duration' => $this->request->getPost('appointment_duration'),
-            'booking_chair_count' => $this->request->getPost('booking_chair_count'),
+            'booking_chair_count' => $chairCount,
             'booking_chair_names' => $chairNames,
             'working_hours_start' => $this->request->getPost('working_hours_start'),
             'working_hours_end' => $this->request->getPost('working_hours_end'),
@@ -835,7 +837,11 @@ class Settings extends BaseController
                 'kiosk_default_language' => 'ar',
             ];
             
-            return array_merge($defaults, $settings);
+            $merged = array_merge($defaults, $settings);
+            $maxChairCount = $this->getMaxBookingChairs();
+            $merged['booking_chair_count'] = min($maxChairCount, max(1, (int) ($merged['booking_chair_count'] ?? 1)));
+
+            return $merged;
         } catch (\Exception $e) {
             log_message('error', 'Error getting settings: ' . $e->getMessage());
             return $this->getDefaultSettings();
@@ -998,21 +1004,29 @@ class Settings extends BaseController
         }
     }
 
-    private function normalizeChairNames(string $rawNames, int $chairCount): array
+    private function normalizeChairNames($rawNames, int $chairCount): array
     {
         if ($chairCount < 1) {
             return [[], 'Number of chairs must be at least 1.'];
         }
 
-        $rows = preg_split('/\r\n|\r|\n/', $rawNames);
-        if (!is_array($rows)) {
-            $rows = [];
+        $rows = [];
+        if (is_array($rawNames)) {
+            $rows = $rawNames;
+        } elseif (is_string($rawNames) && $rawNames !== '') {
+            $split = preg_split('/\r\n|\r|\n/', $rawNames);
+            if (is_array($split)) {
+                $rows = $split;
+            }
         }
 
         $names = [];
         foreach ($rows as $row) {
             $clean = trim((string) $row);
             if ($clean !== '') {
+                if (mb_strlen($clean, 'UTF-8') > 100) {
+                    return [[], 'Each chair/room name must be 100 characters or fewer.'];
+                }
                 $names[] = $clean;
             }
         }
@@ -1031,6 +1045,12 @@ class Settings extends BaseController
         }
 
         return [array_slice($names, 0, $chairCount), null];
+    }
+
+    private function getMaxBookingChairs(): int
+    {
+        $globalMax = (int) $this->settingsModel->withoutTenantScope()->getGlobalSetting('default_booking_chair_max', 3);
+        return max(1, min(3, $globalMax));
     }
 
     private function saveSecuritySettings($data)

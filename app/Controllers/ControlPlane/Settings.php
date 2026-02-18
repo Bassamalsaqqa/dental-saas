@@ -196,6 +196,7 @@ class Settings extends BaseController
             'default_currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'default_currency_position' => 'required|in_list[before,after]',
             'default_appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
+            'default_booking_chair_max' => 'required|integer|greater_than[0]|less_than_equal_to[3]',
             'default_working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'default_working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
         ];
@@ -219,6 +220,7 @@ class Settings extends BaseController
             'default_currency' => $this->request->getPost('default_currency'),
             'default_currency_position' => $this->request->getPost('default_currency_position'),
             'default_appointment_duration' => (int) $this->request->getPost('default_appointment_duration'),
+            'default_booking_chair_max' => min(3, max(1, (int) $this->request->getPost('default_booking_chair_max'))),
             'default_working_hours_start' => $this->request->getPost('default_working_hours_start'),
             'default_working_hours_end' => $this->request->getPost('default_working_hours_end'),
             'default_working_days' => $workingDays,
@@ -311,6 +313,7 @@ class Settings extends BaseController
             'default_currency' => 'USD',
             'default_currency_position' => 'before',
             'default_appointment_duration' => 30,
+            'default_booking_chair_max' => 3,
             'default_working_hours_start' => '09:00',
             'default_working_hours_end' => '17:00',
             'default_working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],

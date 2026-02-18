@@ -355,7 +355,8 @@ class SettingsService
      */
     public function getBookingChairCount()
     {
-        return max(1, (int) $this->get('booking_chair_count', 1));
+        $configured = max(1, (int) $this->get('booking_chair_count', 1));
+        return min($configured, $this->getMaxBookingChairCount());
     }
 
     /**
@@ -384,6 +385,15 @@ class SettingsService
         }
 
         return array_slice($normalized, 0, $count);
+    }
+
+    /**
+     * Get global cap for tenant booking chairs.
+     */
+    public function getMaxBookingChairCount(): int
+    {
+        $max = (int) $this->settingsModel->withoutTenantScope()->getGlobalSetting('default_booking_chair_max', 3);
+        return max(1, min(3, $max));
     }
 
     /**
