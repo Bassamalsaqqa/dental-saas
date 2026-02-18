@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.hostinger.example
 environment.env
 
 # Dependencies
