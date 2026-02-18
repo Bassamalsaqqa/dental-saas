@@ -71,7 +71,28 @@ class ApiV1AuthFilter implements FilterInterface
                                       ->where('status', 'active')
                                       ->first();
 
+        // Match web TenantFilter behavior: allow superadmin impersonation to access tenant APIs
         if (!$membership) {
+            $session = service('session');
+            $isImpersonating = $session->get('is_impersonating') === true;
+            $impersonatedClinicId = (int) ($session->get('impersonated_clinic_id') ?? 0);
+
+            if ($isImpersonating && $impersonatedClinicId === $clinicId) {
+                $permissionService = service('permission');
+                if (!$permissionService) {
+                    $permissionService = new \App\Services\PermissionService();
+                }
+                if ($permissionService->isSuperAdmin($userId)) {
+                    $membership = ['user_id' => $userId, 'clinic_id' => $clinicId, 'status' => 'active'];
+                }
+            }
+        }
+
+        if (!$membership) {
+            log_message('warning', 'ApiV1AuthFilter membership denied: user_id={userId}, clinic_id={clinicId}', [
+                'userId' => $userId,
+                'clinicId' => $clinicId,
+            ]);
             return api_error(403, 'tenant_context_forbidden', 'Access denied to this clinic.');
         }
 

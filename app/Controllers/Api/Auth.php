@@ -9,8 +9,8 @@ class Auth extends BaseController
 {
     public function sessionToken()
     {
-        $session = session();
-        $userId = (int)($session->get('user_id') ?? 0);
+        $ionAuth = new \App\Libraries\IonAuth();
+        $userId = (int) ($ionAuth->getUserId() ?? 0);
         if ($userId <= 0) {
             return $this->response
                 ->setStatusCode(401)
