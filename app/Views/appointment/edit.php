@@ -50,7 +50,7 @@
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
                         <!-- Patient Selection -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
@@ -108,6 +108,34 @@
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('appointment_type') ?></span>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-door-open text-indigo-600"></i>
+                                    <span>Chair / Room *</span>
+                                </label>
+                                <div class="relative">
+                                    <?php $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chair_options[0] ?? '')); ?>
+                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                        <option value="">Select chair / room</option>
+                                        <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
+                                            <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                                        <?php endif; ?>
+                                        <?php foreach (($chair_options ?? []) as $chairOption): ?>
+                                            <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
+                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
                                     </p>
                                 <?php endif; ?>
                             </div>
@@ -247,15 +275,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointmentDate');
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
+    const chairSelect = document.getElementById('chairName');
     const currentTime = '<?= $appointment['appointment_time'] ?>';
     const appointmentId = '<?= $appointment['id'] ?>';
 
     function loadAvailableTimeSlots() {
-        const date = dateInput.value;
+        const rawDate = (dateInput.value || '').trim();
+        const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
+        const chairName = (chairSelect?.value || '').trim();
 
-        if (date && duration) {
-            fetch(`<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&exclude_id=${appointmentId}`)
+        if (date && duration && chairName) {
+            fetch(`<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&exclude_id=${appointmentId}&chair_name=${encodeURIComponent(chairName)}`)
                 .then(response => response.json())
                 .then(data => {
                     const defaultOption = document.createElement('option');
@@ -336,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     dateInput.addEventListener('change', loadAvailableTimeSlots);
     durationSelect.addEventListener('change', loadAvailableTimeSlots);
+    chairSelect.addEventListener('change', loadAvailableTimeSlots);
 
     // Load initial time slots (this will also set the current time)
     loadAvailableTimeSlots();

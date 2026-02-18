@@ -107,6 +107,10 @@
                                             <span class="text-gray-900 font-bold capitalize"><?= str_replace('_', ' ', $appointment['appointment_type']) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 font-medium">Chair / Room:</span>
+                                            <span class="text-gray-900 font-bold"><?= esc($appointment['chair_name'] ?? 'N/A') ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
                                             <span class="text-gray-600 font-medium">Date:</span>
                                             <span class="text-gray-900 font-bold"><?= formatDate($appointment['appointment_date']) ?></span>
                                         </div>

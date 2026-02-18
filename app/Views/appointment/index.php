@@ -339,6 +339,9 @@ $returnToContextEncoded = urlencode($returnToContext);
                                                 <p class="text-lg font-bold text-emerald-900">
                                                     <?= ucfirst(str_replace('_', ' ', $appointment['appointment_type'])) ?>
                                                 </p>
+                                                <p class="text-xs text-emerald-700 font-medium">
+                                                    <?= esc($appointment['chair_name'] ?? 'Chair 1') ?>
+                                                </p>
                                                 <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Type</p>
                                             </div>
                                         </div>
@@ -1193,12 +1196,17 @@ function createAppointmentElement(appointment) {
     const typeP = document.createElement('p');
     typeP.className = 'text-lg font-bold text-emerald-900';
     typeP.textContent = appointment.appointment_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    const chairP = document.createElement('p');
+    chairP.className = 'text-xs text-emerald-700 font-medium';
+    chairP.textContent = appointment.chair_name || 'Chair 1';
     
     const typeLabel = document.createElement('p');
     typeLabel.className = 'text-xs text-emerald-700 font-semibold uppercase tracking-wider';
     typeLabel.textContent = 'Type';
 
     typeContent.appendChild(typeP);
+    typeContent.appendChild(chairP);
     typeContent.appendChild(typeLabel);
     typeRelative.appendChild(typeBg);
     typeRelative.appendChild(typeContent);

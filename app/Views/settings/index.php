@@ -545,6 +545,22 @@
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Duration (minutes)</label>
                                             <input type="number" name="appointment_duration" value="<?= $settings['appointment_duration'] ?? 30 ?>" min="15" max="480" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label>
+                                        <input type="number" name="booking_chair_count" value="<?= max(1, (int)($settings['booking_chair_count'] ?? 1)) ?>" min="1" max="20" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
+                                        <p class="mt-2 text-xs text-gray-500">Allows parallel bookings up to this chair capacity.</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Chair / Room Names (one per line)</label>
+                                        <textarea name="booking_chair_names" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" placeholder="Chair 1&#10;Chair 2"><?php
+                                            $chairNames = $settings['booking_chair_names'] ?? ['Chair 1'];
+                                            if (!is_array($chairNames)) {
+                                                $chairNames = ['Chair 1'];
+                                            }
+                                            echo esc(implode(PHP_EOL, $chairNames));
+                                        ?></textarea>
+                                        <p class="mt-2 text-xs text-gray-500">Example: Dr. Bassam Room. If fewer names are provided, missing names are auto-filled.</p>
+                                    </div>
                                 </div>
 
                                 <div class="mt-8 flex justify-end">

@@ -351,6 +351,42 @@ class SettingsService
     }
 
     /**
+     * Get concurrent booking chair capacity for this clinic.
+     */
+    public function getBookingChairCount()
+    {
+        return max(1, (int) $this->get('booking_chair_count', 1));
+    }
+
+    /**
+     * Get chair/room labels used by the booking UI.
+     *
+     * @return string[]
+     */
+    public function getBookingChairNames()
+    {
+        $count = $this->getBookingChairCount();
+        $names = $this->get('booking_chair_names', []);
+        if (!is_array($names)) {
+            $names = [];
+        }
+
+        $normalized = [];
+        foreach ($names as $name) {
+            $clean = trim((string) $name);
+            if ($clean !== '') {
+                $normalized[] = $clean;
+            }
+        }
+
+        for ($i = count($normalized); $i < $count; $i++) {
+            $normalized[] = 'Chair ' . ($i + 1);
+        }
+
+        return array_slice($normalized, 0, $count);
+    }
+
+    /**
      * Check if a day is a working day
      */
     public function isWorkingDay($day)

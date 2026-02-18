@@ -71,7 +71,7 @@
                             <input type="hidden" name="examination_id" value="<?= (int)$examination_id ?>">
                         <?php endif; ?>
                         <!-- Patient Selection -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
@@ -128,6 +128,34 @@
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                         <i class="fas fa-exclamation-circle"></i>
                                         <span><?= session()->getFlashdata('validation')->getError('appointment_type') ?></span>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-door-open text-indigo-600"></i>
+                                    <span>Chair / Room *</span>
+                                </label>
+                                <div class="relative">
+                                    <?php $selectedChair = old('chair_name', $chair_options[0] ?? ''); ?>
+                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                        <option value="">Select chair / room</option>
+                                        <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
+                                            <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
+                                        <?php endif; ?>
+                                        <?php foreach (($chair_options ?? []) as $chairOption): ?>
+                                            <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
+                                    <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span><?= session()->getFlashdata('validation')->getError('chair_name') ?></span>
                                     </p>
                                 <?php endif; ?>
                             </div>
@@ -241,15 +269,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointmentDate');
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
+    const chairSelect = document.getElementById('chairName');
 
     function loadAvailableTimeSlots() {
         const rawDate = (dateInput.value || '').trim();
         const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
+        const chairName = (chairSelect?.value || '').trim();
 
-        console.log('Loading time slots for raw date:', rawDate, 'ISO date:', date, 'duration:', duration);
+        console.log('Loading time slots for raw date:', rawDate, 'ISO date:', date, 'duration:', duration, 'chair:', chairName);
 
-        if (date && duration) {
+        if (date && duration && chairName) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
                 const invalidOption = document.createElement('option');
                 invalidOption.value = "";
@@ -266,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeSelect.replaceChildren(loadingOption);
             timeSelect.disabled = true;
 
-            const url = `<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}`;
+            const url = `<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&chair_name=${encodeURIComponent(chairName)}`;
             console.log('Fetching URL:', url);
 
             fetch(url)
@@ -350,16 +380,17 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             const promptOption = document.createElement('option');
             promptOption.value = "";
-            promptOption.textContent = "Select date and duration first";
+            promptOption.textContent = "Select chair, date, and duration first";
             timeSelect.replaceChildren(promptOption);
             
             timeSelect.disabled = true;
-            console.log('Date or duration missing - date:', date, 'duration:', duration);
+            console.log('Chair/date/duration missing - chair:', chairName, 'date:', date, 'duration:', duration);
         }
     }
 
     dateInput.addEventListener('change', loadAvailableTimeSlots);
     durationSelect.addEventListener('change', loadAvailableTimeSlots);
+    chairSelect.addEventListener('change', loadAvailableTimeSlots);
 
     // Load initial time slots if date is already set
     setTimeout(() => {

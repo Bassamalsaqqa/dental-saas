@@ -202,6 +202,7 @@ class Appointment extends BaseController
             'selected_patient' => $selectedPatient,
             'examination_id' => $examinationId,
             'appointment_type_prefill' => $appointmentType,
+            'chair_options' => $this->getChairOptions(),
             'return_to' => $returnTo
         ];
 
@@ -219,7 +220,8 @@ class Appointment extends BaseController
             'appointment_date' => 'required|valid_date',
             'appointment_time' => 'required',
             'duration' => 'required|integer|greater_than[0]',
-            'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]'
+            'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
+            'chair_name' => 'required|max_length[100]',
         ];
 
         if (!$this->validate($rules)) {
@@ -235,6 +237,7 @@ class Appointment extends BaseController
             'appointment_time' => $this->request->getPost('appointment_time'),
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
+            'chair_name' => trim((string) $this->request->getPost('chair_name')),
             'status' => 'scheduled',
             'notes' => $this->request->getPost('notes'),
             'created_by' => $currentUserId
@@ -260,9 +263,11 @@ class Appointment extends BaseController
         if (!$this->appointmentModel->checkTimeSlotAvailability(
             $appointmentData['appointment_date'],
             $appointmentData['appointment_time'],
-            $appointmentData['duration']
+            $appointmentData['duration'],
+            null,
+            $appointmentData['chair_name']
         )) {
-            return redirect()->back()->withInput()->with('error', 'Time slot is not available');
+            return redirect()->back()->withInput()->with('error', 'No chair is available for the selected time slot');
         }
 
         if ($this->appointmentModel->insert($appointmentData)) {
@@ -378,6 +383,7 @@ class Appointment extends BaseController
             'patients' => [$patient], // Only emit the current patient as option
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
+            'chair_options' => $this->getChairOptions(),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments'])
         ];
 
@@ -402,7 +408,8 @@ class Appointment extends BaseController
             'appointment_date' => 'required|valid_date',
             'appointment_time' => 'required',
             'duration' => 'required|integer|greater_than[0]',
-            'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]'
+            'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
+            'chair_name' => 'required|max_length[100]',
         ];
 
         if (!$this->validate($rules)) {
@@ -415,6 +422,7 @@ class Appointment extends BaseController
             'appointment_time' => $this->request->getPost('appointment_time'),
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
+            'chair_name' => trim((string) $this->request->getPost('chair_name')),
             'status' => $this->request->getPost('status'),
             'notes' => $this->request->getPost('notes')
         ];
@@ -440,9 +448,10 @@ class Appointment extends BaseController
             $appointmentData['appointment_date'],
             $appointmentData['appointment_time'],
             $appointmentData['duration'],
-            $id
+            $id,
+            $appointmentData['chair_name']
         )) {
-            return redirect()->back()->withInput()->with('error', 'Time slot is not available');
+            return redirect()->back()->withInput()->with('error', 'No chair is available for the selected time slot');
         }
 
         if ($this->appointmentModel->update($id, $appointmentData)) {
@@ -590,9 +599,14 @@ class Appointment extends BaseController
         $date = $this->request->getGet('date');
         $duration = $this->request->getGet('duration') ?? getAppointmentDuration();
         $excludeId = $this->request->getGet('exclude_id'); // For editing appointments
+        $chairName = trim((string) $this->request->getGet('chair_name'));
 
         if (empty($date)) {
             return $this->response->setJSON(['error' => 'Date is required']);
+        }
+
+        if ($chairName === '') {
+            return $this->response->setJSON(['error' => 'Chair/room is required']);
         }
 
         // Get working hours from settings
@@ -611,14 +625,19 @@ class Appointment extends BaseController
         $startTime = strtotime($workingHours['start']);
         $endTime = strtotime($workingHours['end']);
         $slotDuration = $duration * 60; // Convert to seconds
+        $chairCount = ($chairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
 
         for ($time = $startTime; $time < $endTime; $time += $slotDuration) {
             $timeSlot = date('H:i', $time);
-            
-            if ($this->appointmentModel->checkTimeSlotAvailability($date, $timeSlot, $duration, $excludeId)) {
+
+            $remainingCapacity = $this->appointmentModel->getSlotRemainingCapacity($date, $timeSlot, $duration, $excludeId, $chairName);
+            if ($remainingCapacity > 0) {
                 $timeSlots[] = [
                     'value' => $timeSlot,
-                    'display' => formatTime($timeSlot)
+                    'display' => formatTime($timeSlot) . " ({$remainingCapacity}/{$chairCount} available)",
+                    'remaining_capacity' => $remainingCapacity,
+                    'chair_capacity' => $chairCount,
+                    'chair_name' => $chairName
                 ];
             }
         }
@@ -744,5 +763,10 @@ class Appointment extends BaseController
                 'events' => []
             ]);
         }
+    }
+
+    private function getChairOptions(): array
+    {
+        return service('settings')->getBookingChairNames();
     }
 }

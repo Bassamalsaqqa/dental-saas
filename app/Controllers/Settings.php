@@ -238,6 +238,8 @@ class Settings extends BaseController
     {
         $rules = [
             'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
+            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[20]',
+            'booking_chair_names' => 'permit_empty|max_length[2000]',
             'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_days' => 'permit_empty',
@@ -247,8 +249,16 @@ class Settings extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $chairCount = (int) $this->request->getPost('booking_chair_count');
+        [$chairNames, $chairError] = $this->normalizeChairNames((string) $this->request->getPost('booking_chair_names'), $chairCount);
+        if ($chairError !== null) {
+            return redirect()->back()->withInput()->with('error', $chairError);
+        }
+
         $settingsData = [
             'appointment_duration' => $this->request->getPost('appointment_duration'),
+            'booking_chair_count' => $this->request->getPost('booking_chair_count'),
+            'booking_chair_names' => $chairNames,
             'working_hours_start' => $this->request->getPost('working_hours_start'),
             'working_hours_end' => $this->request->getPost('working_hours_end'),
             'working_days' => $this->request->getPost('working_days'),
@@ -381,6 +391,8 @@ class Settings extends BaseController
             'time_format' => 'required|in_list[24,12]',
             'currency' => 'required',
             'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
+            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[20]',
+            'booking_chair_names' => 'permit_empty|max_length[2000]',
             'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'working_days' => 'permit_empty',
@@ -388,6 +400,12 @@ class Settings extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $chairCount = (int) $this->request->getPost('booking_chair_count');
+        [$chairNames, $chairError] = $this->normalizeChairNames((string) $this->request->getPost('booking_chair_names'), $chairCount);
+        if ($chairError !== null) {
+            return redirect()->back()->withInput()->with('error', $chairError);
         }
 
         $settingsData = [
@@ -401,6 +419,8 @@ class Settings extends BaseController
             'time_format' => $this->request->getPost('time_format'),
             'currency' => $this->request->getPost('currency'),
             'appointment_duration' => $this->request->getPost('appointment_duration'),
+            'booking_chair_count' => $this->request->getPost('booking_chair_count'),
+            'booking_chair_names' => $chairNames,
             'working_hours_start' => $this->request->getPost('working_hours_start'),
             'working_hours_end' => $this->request->getPost('working_hours_end'),
             'working_days' => $this->request->getPost('working_days'),
@@ -802,6 +822,8 @@ class Settings extends BaseController
                 'currency' => 'USD',
                 'currency_position' => 'before',
                 'appointment_duration' => 30,
+                'booking_chair_count' => 1,
+                'booking_chair_names' => ['Chair 1'],
                 'working_hours_start' => '09:00',
                 'working_hours_end' => '17:00',
                 'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
@@ -836,6 +858,8 @@ class Settings extends BaseController
             'currency' => 'USD',
             'currency_position' => 'before',
             'appointment_duration' => 30,
+            'booking_chair_count' => 1,
+            'booking_chair_names' => ['Chair 1'],
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
@@ -947,6 +971,8 @@ class Settings extends BaseController
             'currency' => 'USD',
             'currency_position' => 'before',
             'appointment_duration' => 30,
+            'booking_chair_count' => 1,
+            'booking_chair_names' => ['Chair 1'],
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
@@ -970,6 +996,41 @@ class Settings extends BaseController
             log_message('error', 'Error saving settings: ' . $e->getMessage());
             return false;
         }
+    }
+
+    private function normalizeChairNames(string $rawNames, int $chairCount): array
+    {
+        if ($chairCount < 1) {
+            return [[], 'Number of chairs must be at least 1.'];
+        }
+
+        $rows = preg_split('/\r\n|\r|\n/', $rawNames);
+        if (!is_array($rows)) {
+            $rows = [];
+        }
+
+        $names = [];
+        foreach ($rows as $row) {
+            $clean = trim((string) $row);
+            if ($clean !== '') {
+                $names[] = $clean;
+            }
+        }
+
+        $unique = [];
+        foreach ($names as $name) {
+            $key = mb_strtolower($name, 'UTF-8');
+            if (isset($unique[$key])) {
+                return [[], 'Chair/room names must be unique.'];
+            }
+            $unique[$key] = true;
+        }
+
+        for ($i = count($names); $i < $chairCount; $i++) {
+            $names[] = 'Chair ' . ($i + 1);
+        }
+
+        return [array_slice($names, 0, $chairCount), null];
     }
 
     private function saveSecuritySettings($data)

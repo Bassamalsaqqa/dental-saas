@@ -20,6 +20,7 @@ class AppointmentModel extends TenantAwareModel
         'appointment_time',
         'duration',
         'appointment_type',
+        'chair_name',
         'status',
         'notes',
         'created_by',
@@ -38,6 +39,7 @@ class AppointmentModel extends TenantAwareModel
         'appointment_time' => 'required',
         'duration' => 'required|integer|greater_than[0]',
         'appointment_type' => 'required|in_list[consultation,treatment,follow_up,emergency,cleaning,checkup]',
+        'chair_name' => 'required|max_length[100]',
         'status' => 'required|in_list[scheduled,confirmed,completed,cancelled,no_show]'
     ];
 
@@ -61,6 +63,10 @@ class AppointmentModel extends TenantAwareModel
         'appointment_type' => [
             'required' => 'Appointment type is required',
             'in_list' => 'Please select a valid appointment type'
+        ],
+        'chair_name' => [
+            'required' => 'Chair/room is required',
+            'max_length' => 'Chair/room name is too long'
         ],
         'status' => [
             'required' => 'Status is required',
@@ -357,32 +363,58 @@ class AppointmentModel extends TenantAwareModel
         }
     }
 
-    public function checkTimeSlotAvailability($date, $time, $duration, $excludeId = null)
+    public function checkTimeSlotAvailability($date, $time, $duration, $excludeId = null, $chairName = null)
     {
         $clinicId = session()->get('active_clinic_id');
+        $cleanChairName = trim((string) $chairName);
+        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
+        $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
+        return $overlapCount < $chairCount;
+    }
+
+    public function getSlotRemainingCapacity($date, $time, $duration, $excludeId = null, $chairName = null)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        $cleanChairName = trim((string) $chairName);
+        $chairCount = ($cleanChairName !== '') ? 1 : max(1, (int) service('settings')->get('booking_chair_count', 1));
+        $overlapCount = $this->countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId, $cleanChairName);
+
+        return max(0, $chairCount - $overlapCount);
+    }
+
+    private function countOverlappingAppointments($clinicId, $date, $time, $duration, $excludeId = null, $chairName = '')
+    {
+        if (!$clinicId) {
+            return PHP_INT_MAX;
+        }
+
         $builder = $this->db->table('appointments');
         $builder->where('clinic_id', $clinicId);
         $builder->where('DATE(appointment_date)', $date);
         $builder->where('status !=', 'cancelled');
-        
+        if ($chairName !== '') {
+            $builder->where('chair_name', $chairName);
+        }
+
         if ($excludeId) {
             $builder->where('id !=', $excludeId);
         }
 
         $appointments = $builder->get()->getResultArray();
-        
+
         $requestedStart = strtotime($time);
         $requestedEnd = $requestedStart + ($duration * 60);
-        
+        $overlapCount = 0;
+
         foreach ($appointments as $appointment) {
             $appointmentStart = strtotime($appointment['appointment_time']);
-            $appointmentEnd = $appointmentStart + ($appointment['duration'] * 60);
-            
+            $appointmentEnd = $appointmentStart + ((int) $appointment['duration'] * 60);
+
             if (($requestedStart < $appointmentEnd) && ($requestedEnd > $appointmentStart)) {
-                return false;
+                $overlapCount++;
             }
         }
-        
-        return true;
+
+        return $overlapCount;
     }
 }
