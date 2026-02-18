@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\UserModel;
 use App\Models\RoleModel;
 use App\Models\ClinicUserModel;
+use App\Models\ClinicModel;
 use App\Services\ControlPlaneAuditService;
 use App\Libraries\IonAuth;
 
@@ -13,11 +14,13 @@ class Users extends BaseController
 {
     protected $auditService;
     protected $ionAuth;
+    protected $roleModel;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
         $this->ionAuth = new IonAuth();
+        $this->roleModel = new RoleModel();
     }
 
     /**
@@ -210,22 +213,243 @@ class Users extends BaseController
         
         // Fetch Global Roles
         $userRoleModel = new \App\Models\UserRoleModel();
-        $roleModel = new \App\Models\RoleModel();
         $userRoles = $userRoleModel->getUserRoles($id);
         $globalRoles = [];
         foreach ($userRoles as $ur) {
-            $role = $roleModel->find($ur['role_id']);
+            $role = $this->roleModel->find($ur['role_id']);
             if ($role) {
                 $globalRoles[] = $role;
             }
         }
+
+        $clinics = (new ClinicModel())
+            ->where('status', 'active')
+            ->orderBy('name', 'ASC')
+            ->findAll();
+
+        // Build per-clinic role options once for both current and new memberships.
+        $rolesByClinic = [];
+        foreach ($clinics as $clinic) {
+            $clinicId = (int) ($clinic['id'] ?? 0);
+            if ($clinicId > 0) {
+                $rolesByClinic[$clinicId] = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
+            }
+        }
+
+        // Attach role labels for membership table.
+        foreach ($memberships as &$membership) {
+            $clinicId = (int) ($membership['clinic_id'] ?? 0);
+            $currentRole = $this->roleModel->find((int) ($membership['role_id'] ?? 0));
+            $membership['role_name'] = $currentRole['name'] ?? 'Unknown';
+            $membership['role_slug'] = $currentRole['slug'] ?? null;
+        }
+        unset($membership);
+
+        // Best-practice UX: add flow only shows clinics where user is not already an active member.
+        $activeMembershipClinicIds = array_map(static function ($membership) {
+            return (int) ($membership['clinic_id'] ?? 0);
+        }, $memberships);
+        $activeMembershipClinicIds = array_values(array_unique(array_filter($activeMembershipClinicIds)));
+        $assignableClinics = array_values(array_filter($clinics, static function ($clinic) use ($activeMembershipClinicIds) {
+            return !in_array((int) ($clinic['id'] ?? 0), $activeMembershipClinicIds, true);
+        }));
 
         return view('control_plane/users/show', [
             'title' => 'User Profile',
             'userProfile' => $user,
             'memberships' => $memberships,
             'globalRoles' => $globalRoles,
+            'clinics' => $clinics,
+            'assignableClinics' => $assignableClinics,
+            'rolesByClinic' => $rolesByClinic,
         ]);
+    }
+
+    /**
+     * POST /controlplane/users/{id}/memberships/add
+     */
+    public function addMembership(int $id)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->find($id);
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $clinicId = (int) $this->request->getPost('clinic_id');
+        $roleId = (int) $this->request->getPost('role_id');
+        if ($clinicId <= 0 || $roleId <= 0) {
+            return redirect()->back()->with('error', 'Clinic and role are required.');
+        }
+
+        $clinic = (new ClinicModel())->find($clinicId);
+        if (!$clinic || ($clinic['status'] ?? '') !== 'active') {
+            return redirect()->back()->with('error', 'Invalid clinic selected.');
+        }
+
+        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
+        if (!$role) {
+            return redirect()->back()->with('error', 'Invalid role selected for this clinic.');
+        }
+
+        $clinicUserModel = new ClinicUserModel();
+        $existing = $clinicUserModel
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $id)
+            ->first();
+
+        if ($existing && ($existing['status'] ?? '') === 'active') {
+            return redirect()->to(base_url('controlplane/users/' . $id))->with('error', 'User is already an active member of this clinic.');
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'user_id' => $id,
+            'role_id' => $roleId,
+            'status' => 'active',
+        ];
+
+        if ($existing) {
+            $clinicUserModel->update($existing['id'], $payload);
+            $action = 'membership_update';
+        } else {
+            $clinicUserModel->insert($payload);
+            $action = 'membership_add';
+        }
+
+        $this->auditService->logEvent($action, [
+            'route' => '/controlplane/users/' . $id . '/memberships/add',
+            'method' => 'POST',
+            'metadata' => [
+                'target_user_id' => $id,
+                'clinic_id' => $clinicId,
+                'role_id' => $roleId,
+                'role_slug' => $role['slug'] ?? null,
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership saved successfully.');
+    }
+
+    /**
+     * POST /controlplane/users/{id}/memberships/{membershipId}/update-role
+     */
+    public function updateMembershipRole(int $id, int $membershipId)
+    {
+        $clinicUserModel = new ClinicUserModel();
+        $membership = $clinicUserModel->find($membershipId);
+        if (!$membership || (int) $membership['user_id'] !== $id) {
+            return redirect()->back()->with('error', 'Membership not found.');
+        }
+
+        $roleId = (int) $this->request->getPost('role_id');
+        if ($roleId <= 0) {
+            return redirect()->back()->with('error', 'Role is required.');
+        }
+
+        $clinicId = (int) $membership['clinic_id'];
+        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
+        if (!$role) {
+            return redirect()->back()->with('error', 'Invalid role selected for this clinic.');
+        }
+
+        $currentRoleId = (int) ($membership['role_id'] ?? 0);
+        if ($currentRoleId !== $roleId
+            && $this->isClinicManagerRole($currentRoleId)
+            && !$this->isClinicManagerRole($roleId)
+            && $this->countActiveClinicManagers($clinicId) <= 1) {
+            return redirect()->back()->with('error', 'Cannot demote the last clinic manager.');
+        }
+
+        $clinicUserModel->update($membershipId, [
+            'role_id' => $roleId,
+            'status' => 'active',
+        ]);
+
+        $this->auditService->logEvent('membership_role_update', [
+            'route' => '/controlplane/users/' . $id . '/memberships/' . $membershipId . '/update-role',
+            'method' => 'POST',
+            'metadata' => [
+                'target_user_id' => $id,
+                'membership_id' => $membershipId,
+                'clinic_id' => $clinicId,
+                'role_id' => $roleId,
+                'role_slug' => $role['slug'] ?? null,
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership role updated.');
+    }
+
+    /**
+     * POST /controlplane/users/{id}/memberships/{membershipId}/remove
+     */
+    public function removeMembership(int $id, int $membershipId)
+    {
+        $clinicUserModel = new ClinicUserModel();
+        $membership = $clinicUserModel->find($membershipId);
+        if (!$membership || (int) $membership['user_id'] !== $id) {
+            return redirect()->back()->with('error', 'Membership not found.');
+        }
+
+        $clinicId = (int) ($membership['clinic_id'] ?? 0);
+        $activeCount = $clinicUserModel
+            ->where('clinic_id', $clinicId)
+            ->where('status', 'active')
+            ->countAllResults();
+
+        // Guardrail: prevent orphaning a clinic with zero active users.
+        if ($activeCount <= 1) {
+            return redirect()->back()->with('error', 'Cannot remove the last active user from this clinic.');
+        }
+
+        $currentRoleId = (int) ($membership['role_id'] ?? 0);
+        if ($this->isClinicManagerRole($currentRoleId) && $this->countActiveClinicManagers($clinicId) <= 1) {
+            return redirect()->back()->with('error', 'Cannot remove the last clinic manager.');
+        }
+
+        $clinicUserModel->update($membershipId, ['status' => 'inactive']);
+
+        $this->auditService->logEvent('membership_remove', [
+            'route' => '/controlplane/users/' . $id . '/memberships/' . $membershipId . '/remove',
+            'method' => 'POST',
+            'metadata' => [
+                'target_user_id' => $id,
+                'membership_id' => $membershipId,
+                'clinic_id' => $clinicId,
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/users/' . $id))->with('success', 'Membership removed.');
+    }
+
+    private function isClinicManagerRole(int $roleId): bool
+    {
+        if ($roleId <= 0) {
+            return false;
+        }
+
+        return $this->roleModel->hasPermission($roleId, 'users', 'create')
+            || $this->roleModel->hasPermission($roleId, 'users', 'edit')
+            || $this->roleModel->hasPermission($roleId, 'users', 'delete')
+            || $this->roleModel->hasPermission($roleId, 'users', 'roles');
+    }
+
+    private function countActiveClinicManagers(int $clinicId): int
+    {
+        $memberships = (new ClinicUserModel())
+            ->where('clinic_id', $clinicId)
+            ->where('status', 'active')
+            ->findAll();
+
+        $count = 0;
+        foreach ($memberships as $membership) {
+            if ($this->isClinicManagerRole((int) ($membership['role_id'] ?? 0))) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     /**

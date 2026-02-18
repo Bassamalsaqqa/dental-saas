@@ -59,6 +59,9 @@ $routes->group('controlplane', function ($routes) {
             $routes->get('/', 'ControlPlane\Users::index');
             $routes->post('/', 'ControlPlane\Users::index'); // DataTables
             $routes->get('(:num)', 'ControlPlane\Users::show/$1');
+            $routes->post('(:num)/memberships/add', 'ControlPlane\Users::addMembership/$1');
+            $routes->post('(:num)/memberships/(:num)/update-role', 'ControlPlane\Users::updateMembershipRole/$1/$2');
+            $routes->post('(:num)/memberships/(:num)/remove', 'ControlPlane\Users::removeMembership/$1/$2');
             $routes->post('(:num)/reset-password', 'ControlPlane\Users::resetPassword/$1');
             $routes->post('(:num)/toggle-status', 'ControlPlane\Users::toggleStatus/$1');
             $routes->post('(:num)/delete', 'ControlPlane\Users::delete/$1');

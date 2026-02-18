@@ -144,7 +144,8 @@
                                     <tr>
                                         <th class="px-4 py-3">Clinic Name</th>
                                         <th class="px-4 py-3">Joined</th>
-                                        <th class="px-4 py-3">Role Info</th>
+                                        <th class="px-4 py-3">Clinic Role</th>
+                                        <th class="px-4 py-3">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -155,9 +156,28 @@
                                             </td>
                                             <td class="px-4 py-3"><?= date('M j, Y', strtotime($membership['created_at'])) ?></td>
                                             <td class="px-4 py-3">
-                                                <span class="px-2 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                                                    Role ID: <?= esc($membership['role_id']) ?>
-                                                </span>
+                                                <form action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/memberships/' . $membership['id'] . '/update-role') ?>" method="post" class="flex items-center gap-2">
+                                                    <?= csrf_field() ?>
+                                                    <?php $clinicRoles = $rolesByClinic[(int) $membership['clinic_id']] ?? []; ?>
+                                                    <select name="role_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white min-w-[180px]">
+                                                        <?php foreach ($clinicRoles as $role): ?>
+                                                            <option value="<?= (int) $role['id'] ?>" <?= ((int) $membership['role_id'] === (int) $role['id']) ? 'selected' : '' ?>>
+                                                                <?= esc($role['name']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <button type="submit" class="px-3 py-2 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold hover:bg-indigo-200 transition-colors">
+                                                        Update
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <form action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/memberships/' . $membership['id'] . '/remove') ?>" method="post" onsubmit="return confirm('Remove this user from this clinic?');">
+                                                    <?= csrf_field() ?>
+                                                    <button type="submit" class="px-3 py-2 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold hover:bg-rose-200 transition-colors">
+                                                        Remove
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -165,6 +185,37 @@
                             </table>
                         </div>
                     <?php endif; ?>
+
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <h4 class="text-sm font-bold text-gray-700 mb-3">Add To Another Clinic</h4>
+                        <form action="<?= base_url('controlplane/users/' . $userProfile['id'] . '/memberships/add') ?>" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                            <?= csrf_field() ?>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Clinic</label>
+                                <select id="addMembershipClinic" name="clinic_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" required>
+                                    <?php if (!empty($assignableClinics)): ?>
+                                        <option value="">Select clinic</option>
+                                        <?php foreach ($assignableClinics as $clinic): ?>
+                                            <option value="<?= (int) $clinic['id'] ?>"><?= esc($clinic['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No additional clinics available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Role</label>
+                                <select id="addMembershipRole" name="role_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" required disabled>
+                                    <option value="">Select role</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full md:w-auto px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" <?= empty($assignableClinics) ? 'disabled' : '' ?>>
+                                    Add Membership
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -286,6 +337,35 @@
 </div>
 
 <script>
+    const rolesByClinic = <?= json_encode($rolesByClinic ?? [], JSON_UNESCAPED_UNICODE) ?>;
+
+    function hydrateAddMembershipRoles(clinicId) {
+        const roleSelect = document.getElementById('addMembershipRole');
+        if (!roleSelect) return;
+
+        roleSelect.innerHTML = '<option value="">Select role</option>';
+        if (!clinicId || !rolesByClinic[clinicId] || !rolesByClinic[clinicId].length) {
+            roleSelect.disabled = true;
+            return;
+        }
+
+        rolesByClinic[clinicId].forEach((role) => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.name;
+            roleSelect.appendChild(option);
+        });
+        roleSelect.disabled = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const clinicSelect = document.getElementById('addMembershipClinic');
+        if (!clinicSelect) return;
+        clinicSelect.addEventListener('change', function () {
+            hydrateAddMembershipRoles(this.value);
+        });
+    });
+
     function openPasswordResetModal() {
         document.getElementById('passwordResetModal').classList.remove('hidden');
         document.getElementById('passwordResetModal').classList.add('flex');
