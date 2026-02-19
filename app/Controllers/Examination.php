@@ -237,6 +237,8 @@ class Examination extends BaseController
             'title' => 'Edit Examination - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
             'patients' => $patient ? [$patient] : [], // Only emit current patient
+            'selected_patient_id' => $patient['id'] ?? null,
+            'selected_patient' => $patient,
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'examinations'])
