@@ -224,12 +224,21 @@ function displayActivities(activities) {
     
     activities.forEach(activity => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 transition-colors duration-200 cursor-pointer';
-        tr.onclick = () => navigateToEntity(activity.entity_type, activity.entity_id || 'null');
+        tr.className = 'hover:bg-gray-50 transition-colors duration-200';
 
         // Activity Cell
         const tdActivity = document.createElement('td');
-        tdActivity.className = 'px-6 py-4 whitespace-nowrap';
+        tdActivity.className = 'px-6 py-4 whitespace-nowrap cursor-pointer';
+        tdActivity.setAttribute('role', 'button');
+        tdActivity.setAttribute('tabindex', '0');
+        tdActivity.title = 'Open activity details';
+        tdActivity.addEventListener('click', () => navigateToEntity(activity.entity_type, activity.entity_id || 'null'));
+        tdActivity.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigateToEntity(activity.entity_type, activity.entity_id || 'null');
+            }
+        });
         
         const divFlex = document.createElement('div');
         divFlex.className = 'flex items-center space-x-3';

@@ -103,15 +103,17 @@
                                 <?php foreach ($usage_records as $record): ?>
                                     <tr class="hover:bg-gray-50 transition-colors duration-200">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                                                    <?= strtoupper(substr($record['item_name'], 0, 2)) ?>
+                                            <a href="<?= base_url('inventory-usage/' . $record['id']) ?>" class="group block rounded-md hover:bg-blue-50/60 transition-colors duration-200">
+                                                <div class="flex items-center">
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                                                        <?= strtoupper(substr($record['item_name'], 0, 2)) ?>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors"><?= $record['item_name'] ?></div>
+                                                        <div class="text-sm text-gray-500"><?= ucfirst($record['category']) ?></div>
+                                                    </div>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900"><?= $record['item_name'] ?></div>
-                                                    <div class="text-sm text-gray-500"><?= ucfirst($record['category']) ?></div>
-                                                </div>
-                                            </div>
+                                            </a>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900"><?= $record['first_name'] . ' ' . $record['last_name'] ?></div>

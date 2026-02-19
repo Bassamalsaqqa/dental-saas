@@ -797,7 +797,8 @@ $(document).ready(function() {
                 data: 'examination_id',
                 name: 'examination_id',
                 render: function(data, type, row) {
-                    return `
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    const identityHtml = `
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-stethoscope text-orange-600 text-sm"></i>
@@ -808,6 +809,14 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `;
+                    if (permissions.examinations.view) {
+                        return `
+                            <a href="<?= base_url('examination') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-orange-50/60 transition-colors duration-200 cursor-pointer">
+                                ${identityHtml}
+                            </a>
+                        `;
+                    }
+                    return identityHtml;
                 }
             },
             { 

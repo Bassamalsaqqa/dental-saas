@@ -553,7 +553,8 @@ $(document).ready(function() {
                 data: 'patient_id',
                 name: 'patient_id',
                 render: function(data, type, row) {
-                    return `
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    const identityHtml = `
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-id-card text-emerald-600 text-sm"></i>
@@ -564,6 +565,14 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `;
+                    if (permissions.patients.view) {
+                        return `
+                            <a href="<?= base_url('patient') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-emerald-50/60 transition-colors duration-200 cursor-pointer">
+                                ${identityHtml}
+                            </a>
+                        `;
+                    }
+                    return identityHtml;
                 }
             },
             { 

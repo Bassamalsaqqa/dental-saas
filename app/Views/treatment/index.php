@@ -481,7 +481,8 @@ $(document).ready(function() {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
-                    return `
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    const identityHtml = `
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-user text-pink-600 text-sm"></i>
@@ -492,6 +493,14 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `;
+                    if (permissions.treatments.view) {
+                        return `
+                            <a href="<?= base_url('treatment') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-pink-50/60 transition-colors duration-200 cursor-pointer">
+                                ${identityHtml}
+                            </a>
+                        `;
+                    }
+                    return identityHtml;
                 }
             },
             {

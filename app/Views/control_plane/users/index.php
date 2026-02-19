@@ -484,16 +484,21 @@ $(document).ready(function() {
                 data: 'name',
                 render: function(data, type, row) {
                     const initials = row.avatar || data.substring(0,2).toUpperCase();
+                    const identityHtml = `
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-700 shadow-sm">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${data}</div>
+                                    <div class="text-xs text-gray-500">${row.email}</div>
+                                </div>
+                            </div>
+                        `;
                     return `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-700 shadow-sm">
-                                ${initials}
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.email}</div>
-                            </div>
-                        </div>
+                        <a href="${baseUrl}controlplane/users/${row.id}" class="block rounded-md hover:bg-indigo-50/70 transition-colors duration-200 cursor-pointer">
+                            ${identityHtml}
+                        </a>
                     `;
                 }
             },

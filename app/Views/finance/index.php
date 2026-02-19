@@ -603,8 +603,9 @@ $(document).ready(function() {
                 data: 'transaction_id',
                 name: 'transaction_id',
                 render: function(data, type, row) {
-                    return `
-        <div class="flex items-center space-x-3">
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    const identityHtml = `
+                        <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-receipt text-green-600 text-sm"></i>
                             </div>
@@ -612,8 +613,16 @@ $(document).ready(function() {
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
                                 <div class="text-xs text-gray-500">Transaction ID</div>
                             </div>
-        </div>
-    `;
+                        </div>
+                    `;
+                    if (permissions.finance.view) {
+                        return `
+                            <a href="<?= base_url('finance') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
+                                ${identityHtml}
+                            </a>
+                        `;
+                    }
+                    return identityHtml;
                 }
             },
             { 
