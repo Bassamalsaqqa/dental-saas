@@ -442,8 +442,8 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     $routes->get('(:num)', 'Inventory::show/$1', ['filter' => 'permission:inventory:view']);
     $routes->get('(:num)/edit', 'Inventory::edit/$1', ['filter' => 'permission:inventory:edit']);
     $routes->post('(:num)/update', 'Inventory::update/$1', ['filter' => 'permission:inventory:edit']);
-    $routes->delete('(:num)', 'Inventory::delete', ['filter' => 'permission:inventory:delete']);
-    $routes->post('(:num)/adjust', 'Inventory::adjust', ['filter' => 'permission:inventory:edit']);
+    $routes->delete('(:num)', 'Inventory::delete/$1', ['filter' => 'permission:inventory:delete']);
+    $routes->post('(:num)/adjust', 'Inventory::adjust/$1', ['filter' => 'permission:inventory:edit']);
 });
 
 // Users routes
