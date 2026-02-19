@@ -33,10 +33,10 @@ foreach ($optionalFieldKeys as $fieldKey) {
 </style>
 
 <div class="min-h-screen bg-slate-50">
-    <div class="container mx-auto px-4 py-6 max-w-5xl">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
         <div class="group relative">
-            <div class="relative bg-white rounded-2xl shadow-md transition-all duration-300 overflow-hidden">
-                <div class="p-8">
+            <div class="relative bg-white rounded-2xl shadow-2xl shadow-cyan-500/10 group-hover:shadow-cyan-500/20 transition-all duration-500 overflow-hidden">
+                <div class="p-8 border-b border-slate-100">
                     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                         <div class="flex items-center space-x-4">
                             <div class="relative">
@@ -71,14 +71,14 @@ foreach ($optionalFieldKeys as $fieldKey) {
                     </div>
                 </div>
 
-                <div class="px-6 pb-6">
-                    <form action="<?= base_url('examination/' . $examination['id'] . '/update') ?>" method="POST" class="space-y-6">
+                <div class="p-8">
+                    <form action="<?= base_url('examination/' . $examination['id'] . '/update') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
                         <?php if (!empty($return_to)): ?>
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
 
-                        <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <section class="rounded-xl border border-slate-200 bg-slate-50/60 p-6 md:p-7">
                             <h4 class="text-lg font-bold text-gray-900 mb-5 flex items-center space-x-2">
                                 <i class="fas fa-asterisk text-xs text-blue-600"></i>
                                 <span>Required Information</span>
@@ -90,7 +90,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     <select
                                         name="patient_id"
                                         id="patientSelect"
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
                                         data-searchable-select
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -114,7 +114,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
 
                                 <div>
                                     <label for="examination_type" class="block text-sm font-semibold text-slate-700 mb-2">Examination Type *</label>
-                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
+                                    <select name="examination_type" id="examination_type" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
                                         <option value="">Select type</option>
                                         <option value="initial" <?= old('examination_type', $examination['examination_type']) == 'initial' ? 'selected' : '' ?>>Initial</option>
                                         <option value="periodic" <?= old('examination_type', $examination['examination_type']) == 'periodic' ? 'selected' : '' ?>>Periodic</option>
@@ -136,7 +136,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                         id="examination_date"
                                         data-clinic-date="1"
                                         value="<?= old('examination_date', $examination['examination_date']) ?>"
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                                        class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
                                         required
                                     >
                                     <?php if ($validation && $validation->hasError('examination_date')): ?>
@@ -146,7 +146,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
 
                                 <div>
                                     <label for="status" class="block text-sm font-semibold text-slate-700 mb-2">Status</label>
-                                    <select name="status" id="status" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
+                                    <select name="status" id="status" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
                                         <option value="pending" <?= old('status', $examination['status']) == 'pending' ? 'selected' : '' ?>>Pending</option>
                                         <option value="in_progress" <?= old('status', $examination['status']) == 'in_progress' ? 'selected' : '' ?>>In Progress</option>
                                         <option value="completed" <?= old('status', $examination['status']) == 'completed' ? 'selected' : '' ?>>Completed</option>
@@ -161,7 +161,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     name="chief_complaint"
                                     id="chief_complaint"
                                     rows="3"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
+                                    class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
                                     placeholder="Describe the patient's main complaint..."
                                     required
                                 ><?= old('chief_complaint', $examination['chief_complaint']) ?></textarea>
@@ -169,9 +169,9 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     <p class="text-red-600 text-sm mt-2"><?= $validation->getError('chief_complaint') ?></p>
                                 <?php endif; ?>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <section class="rounded-xl border border-slate-200 bg-slate-50/60 p-6 md:p-7">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-white">
@@ -194,49 +194,49 @@ foreach ($optionalFieldKeys as $fieldKey) {
                             <div id="optionalSection" class="hidden space-y-5">
                                 <div>
                                     <label for="history_of_present_illness" class="block text-sm font-semibold text-slate-700 mb-2">History of Present Illness</label>
-                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Detailed history of the current condition..."><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
+                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Detailed history of the current condition..."><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="medical_history" class="block text-sm font-semibold text-slate-700 mb-2">Medical History</label>
-                                        <textarea name="medical_history" id="medical_history" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Medications, allergies, relevant conditions..."><?= old('medical_history', $examination['medical_history']) ?></textarea>
+                                        <textarea name="medical_history" id="medical_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Medications, allergies, relevant conditions..."><?= old('medical_history', $examination['medical_history']) ?></textarea>
                                     </div>
                                     <div>
                                         <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2">Dental History</label>
-                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Previous dental treatments and oral history..."><?= old('dental_history', $examination['dental_history']) ?></textarea>
+                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Previous dental treatments and oral history..."><?= old('dental_history', $examination['dental_history']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2">Clinical Findings</label>
-                                    <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Objective findings from the examination..."><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
+                                    <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Objective findings from the examination..."><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="diagnosis" class="block text-sm font-semibold text-slate-700 mb-2">Diagnosis</label>
-                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Diagnosis based on findings..."><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
+                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Diagnosis based on findings..."><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
                                     </div>
                                     <div>
                                         <label for="prognosis" class="block text-sm font-semibold text-slate-700 mb-2">Prognosis</label>
-                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Expected outcome and prognosis..."><?= old('prognosis', $examination['prognosis']) ?></textarea>
+                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Expected outcome and prognosis..."><?= old('prognosis', $examination['prognosis']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label for="recommendations" class="block text-sm font-semibold text-slate-700 mb-2">Recommendations</label>
-                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Patient care recommendations..."><?= old('recommendations', $examination['recommendations']) ?></textarea>
+                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Patient care recommendations..."><?= old('recommendations', $examination['recommendations']) ?></textarea>
                                 </div>
 
                                 <div>
                                     <label for="examination_notes" class="block text-sm font-semibold text-slate-700 mb-2">Examination Notes</label>
-                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Additional notes and observations..."><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
+                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Additional notes and observations..."><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination/' . $examination['id']) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
                                 <i class="fas fa-times mr-2"></i>
                                 Cancel
