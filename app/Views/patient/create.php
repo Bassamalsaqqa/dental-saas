@@ -28,7 +28,6 @@ foreach ($optionalFieldKeys as $fieldKey) {
 ?>
 
 <style>
-/* Keep patient form behavior consistent with treatment create toggle pattern */
 .toggle-track {
     transition: background-color 0.2s ease;
 }
@@ -38,17 +37,11 @@ foreach ($optionalFieldKeys as $fieldKey) {
 }
 </style>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-100 relative overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
-    <div class="container mx-auto relative z-10 px-4 py-6">
+<div class="min-h-screen bg-slate-50">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
         <div class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
-                <div class="p-6">
+            <div class="relative bg-white rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
+                <div class="p-8 border-b border-slate-100">
                     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                         <div class="flex items-center space-x-4">
                             <div class="relative">
@@ -69,7 +62,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                     </div>
                 </div>
 
-                <div class="px-6 pb-6">
+                <div class="p-8">
                     <?php if (session('error')): ?>
                         <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             <?= esc(session('error')) ?>
@@ -82,7 +75,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                             <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
                         <?php endif; ?>
 
-                        <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <section class="rounded-xl border border-slate-200 bg-slate-50/60 p-6 md:p-7">
                             <h4 class="text-lg font-bold text-gray-900 mb-5 flex items-center space-x-2">
                                 <i class="fas fa-asterisk text-xs text-blue-600"></i>
                                 <span>Required Information</span>
@@ -104,7 +97,9 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                         <p class="text-red-500 text-sm mt-2"><?= esc($validation->getError('last_name')) ?></p>
                                     <?php endif; ?>
                                 </div>
+                            </div>
 
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
                                     <label for="phone" class="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
                                     <input id="phone" name="phone" type="tel" required value="<?= old('phone') ?>" class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('phone')) ? 'border-red-500' : 'border-gray-300' ?>">
@@ -121,7 +116,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     <?php endif; ?>
                                 </div>
 
-                                <div class="md:col-span-2">
+                                <div>
                                     <label for="gender" class="block text-sm font-bold text-gray-700 mb-2">Gender *</label>
                                     <select id="gender" name="gender" required class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('gender')) ? 'border-red-500' : 'border-gray-300' ?>">
                                         <option value="">Select</option>
@@ -134,9 +129,9 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     <?php endif; ?>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <section class="rounded-xl border border-slate-200 bg-slate-50/60 p-6 md:p-7">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center text-white">
@@ -230,9 +225,9 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+                        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-slate-200">
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
                                 Cancel
                             </a>
