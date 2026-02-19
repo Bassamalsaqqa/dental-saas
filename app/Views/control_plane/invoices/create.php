@@ -19,13 +19,8 @@
     $lineItemsJson = json_encode($lineItemsOld, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
     $taxDefault = old('tax_percentage') ?? 0;
 ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+<div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
     <div class="container mx-auto relative z-10 px-4 py-6">
         <!-- Page Header -->
         <div class="mb-8">
@@ -329,3 +324,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <?= $this->endSection() ?>
+

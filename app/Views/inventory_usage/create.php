@@ -21,7 +21,7 @@
 
         <!-- Form -->
         <div class="max-w-4xl mx-auto">
-            <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-gray-500/10 border border-white/30 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-xl shadow-gray-500/10 border border-white/30 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
                     <div class="flex items-center space-x-3">
                         <div class="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -231,3 +231,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?= $this->endSection() ?>
+
