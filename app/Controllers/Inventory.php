@@ -280,17 +280,26 @@ class Inventory extends BaseController
     public function delete($id)
     {
         try {
-            $this->response->setContentType('application/json');
+            $acceptHeader = (string) $this->request->getHeaderLine('Accept');
+            $expectsJson = $this->request->isAJAX() || stripos($acceptHeader, 'application/json') !== false;
             
             $clinicId = session()->get('active_clinic_id');
             if (!$clinicId) {
-                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+                if ($expectsJson) {
+                    return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+                }
+
+                return redirect()->to(base_url('inventory'))->with('error', 'Clinic context is required.');
             }
 
             $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
             
             if (!$item) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
+                if ($expectsJson) {
+                    return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
+                }
+
+                return redirect()->to(base_url('inventory'))->with('error', 'Item not found.');
             }
 
             if ($this->inventoryModel->delete($id)) {
@@ -302,14 +311,27 @@ class Inventory extends BaseController
                 );
                 
                 log_message('info', "Inventory item {$id} deleted successfully");
-                return $this->response->setJSON(['success' => true, 'message' => 'Item deleted successfully']);
+
+                if ($expectsJson) {
+                    return $this->response->setJSON(['success' => true, 'message' => 'Item deleted successfully']);
+                }
+
+                return redirect()->to(base_url('inventory'))->with('success', 'Item deleted successfully.');
             } else {
                 log_message('error', "Failed to delete inventory item {$id}");
-                return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete item']);
+                if ($expectsJson) {
+                    return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete item']);
+                }
+
+                return redirect()->to(base_url('inventory'))->with('error', 'Failed to delete item.');
             }
         } catch (\Exception $e) {
             log_message('error', 'Inventory delete error: ' . $e->getMessage());
-            return $this->response->setJSON(['success' => false, 'message' => 'An error occurred while deleting the item']);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'An error occurred while deleting the item']);
+            }
+
+            return redirect()->to(base_url('inventory'))->with('error', 'An error occurred while deleting the item.');
         }
     }
 

@@ -1003,6 +1003,11 @@ $(document).ready(function() {
                 createdCell: function(td, cellData, rowData, row, col) {
                     td.replaceChildren(); // Clear content
                     
+                    const itemId = rowData[0];
+                    const link = document.createElement('a');
+                    link.href = '<?= base_url('inventory') ?>/' + itemId;
+                    link.className = 'group block rounded-md hover:bg-blue-50/60 transition-colors duration-200 cursor-pointer';
+
                     const container = document.createElement('div');
                     container.className = 'flex items-center space-x-3';
                     
@@ -1016,7 +1021,7 @@ $(document).ready(function() {
                     const textBox = document.createElement('div');
                     
                     const nameDiv = document.createElement('div');
-                    nameDiv.className = 'text-sm font-medium text-gray-900';
+                    nameDiv.className = 'text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors duration-200';
                     nameDiv.textContent = cellData;
                     
                     const idDiv = document.createElement('div');
@@ -1028,8 +1033,8 @@ $(document).ready(function() {
                     
                     container.appendChild(iconBox);
                     container.appendChild(textBox);
-                    
-                    td.appendChild(container);
+                    link.appendChild(container);
+                    td.appendChild(link);
                 }
             },
             { 

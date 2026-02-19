@@ -498,17 +498,20 @@ $(document).ready(function() {
                     const id = escapeHtml(row.id || '');
                     const initials = escapeHtml(getAvatarInitials(nameRaw));
                     const avatarColor = getAvatarColor(initials || name.charAt(0));
+                    const detailUrl = `${baseUrl}controlplane/clinics/${id}`;
                     return `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-slate-900"
-                                 style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
-                                ${initials}
+                        <a href="${detailUrl}" class="block rounded-md hover:bg-emerald-50/70 transition-colors duration-200 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-slate-900"
+                                     style="background: ${avatarColor}; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-slate-900">${name}</div>
+                                    <div class="text-xs text-slate-500">ID ${id} · ${slug}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-sm font-medium text-slate-900">${name}</div>
-                                <div class="text-xs text-slate-500">ID ${id} · ${slug}</div>
-                            </div>
-                        </div>
+                        </a>
                     `;
                 }
             },
