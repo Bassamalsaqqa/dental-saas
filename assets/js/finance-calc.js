@@ -43,8 +43,8 @@
 
     const toggleCheck = () => {
       if (!checkField) return;
-      const method = methodSelect?.value || '';
-      checkField.style.display = method === 'check' ? 'block' : 'none';
+      // Keep check upload visible at all times; backend still treats it as optional.
+      checkField.style.display = 'block';
     };
 
     const toggleCurrencyFields = () => {
