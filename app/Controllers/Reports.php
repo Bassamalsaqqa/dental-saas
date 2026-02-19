@@ -6,6 +6,7 @@ use App\Models\PatientModel;
 use App\Models\ExaminationModel;
 use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
+use App\Models\ProviderPayoutModel;
 use App\Models\TreatmentModel;
 
 class Reports extends BaseController
@@ -14,6 +15,7 @@ class Reports extends BaseController
     protected $examinationModel;
     protected $appointmentModel;
     protected $financeModel;
+    protected $providerPayoutModel;
     protected $treatmentModel;
     protected $storageService;
 
@@ -23,6 +25,7 @@ class Reports extends BaseController
         $this->examinationModel = new ExaminationModel();
         $this->appointmentModel = new AppointmentModel();
         $this->financeModel = new FinanceModel();
+        $this->providerPayoutModel = new ProviderPayoutModel();
         $this->treatmentModel = new TreatmentModel();
         $this->storageService = new \App\Services\StorageService();
     }
@@ -320,14 +323,41 @@ class Reports extends BaseController
                 'monthly_revenue' => [],
                 'payment_methods' => [],
                 'outstanding_payments' => [],
+                'summary' => [],
             ];
         }
 
+        $startDateTime = $startDate . ' 00:00:00';
+        $endDateTime = $endDate . ' 23:59:59';
+        $financeStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
+        $providerStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $startDate, $endDate);
+
+        $grossCollections = floatval($financeStats['total_revenue'] ?? 0);
+        $providerShareAccrual = floatval($providerStats['total_provider_share'] ?? 0);
+        $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0);
+        $providerPayableOutstanding = floatval($providerStats['total_provider_balance'] ?? 0);
+        $pendingInvoiceAmount = floatval($financeStats['pending_payments'] ?? 0);
+
         return [
-            'transactions' => $this->financeModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->findAll(),
-            'monthly_revenue' => $this->getMonthlyRevenueData(),
-            'payment_methods' => $this->getPaymentMethodsData(),
-            'outstanding_payments' => $this->getOutstandingPaymentsData(),
+            'transactions' => $this->financeModel
+                ->where('clinic_id', $clinicId)
+                ->where('created_at >=', $startDateTime)
+                ->where('created_at <=', $endDateTime)
+                ->findAll(),
+            'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
+            'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
+            'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
+            'summary' => [
+                'gross_collections' => $grossCollections,
+                'provider_share_accrual' => $providerShareAccrual,
+                'provider_paid_cash' => $providerPaidCash,
+                'provider_payable_outstanding' => $providerPayableOutstanding,
+                'net_clinic_revenue_cash' => $grossCollections - $providerPaidCash,
+                'net_clinic_revenue_accrual' => $grossCollections - $providerShareAccrual,
+                'pending_invoice_amount' => $pendingInvoiceAmount,
+                'outstanding_invoices_count' => intval($financeStats['outstanding_invoices'] ?? 0),
+                'total_transactions' => intval($financeStats['total_transactions'] ?? 0),
+            ],
         ];
     }
 
@@ -374,11 +404,15 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getMonthlyRevenueData()
+    private function getMonthlyRevenueData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
             return [];
+        }
+
+        if ($startDate && $endDate) {
+            return $this->financeModel->getMonthlyRevenueByClinicRange((int) $clinicId, $startDate, $endDate);
         }
 
         $year = date('Y');
@@ -550,14 +584,14 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getPaymentMethodsData()
+    private function getPaymentMethodsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
             return [];
         }
 
-        $rows = $this->financeModel->getPaymentMethodsStats(null, null, $clinicId);
+        $rows = $this->financeModel->getPaymentMethodsStats($startDate, $endDate, $clinicId);
         return array_map(function ($row) {
             return [
                 'payment_method' => $row['payment_method'] ?? 'unknown',
@@ -567,17 +601,25 @@ class Reports extends BaseController
         }, $rows);
     }
 
-    private function getOutstandingPaymentsData()
+    private function getOutstandingPaymentsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
             return [];
         }
 
-        return $this->financeModel->where('clinic_id', $clinicId)
+        $query = $this->financeModel->where('clinic_id', $clinicId)
             ->where('transaction_type', 'invoice')
-            ->where('balance_due >', 0)
-            ->findAll();
+            ->where('balance_due >', 0);
+
+        if ($startDate) {
+            $query->where('created_at >=', $startDate . ' 00:00:00');
+        }
+        if ($endDate) {
+            $query->where('created_at <=', $endDate . ' 23:59:59');
+        }
+
+        return $query->findAll();
     }
 
     private function getTreatmentTypesData()

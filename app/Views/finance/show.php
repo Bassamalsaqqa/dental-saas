@@ -184,6 +184,93 @@
                     </div>
                 </div>
 
+                <?php if (!empty($provider_payout)): ?>
+                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-white flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                                <i class="fas fa-hand-holding-dollar"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Provider Split</h2>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            <?= ($provider_payout['status'] ?? 'unpaid') === 'paid' ? 'bg-emerald-100 text-emerald-700' : (($provider_payout['status'] ?? 'unpaid') === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') ?>">
+                            <?= ucfirst($provider_payout['status'] ?? 'unpaid') ?>
+                        </span>
+                    </div>
+                    <div class="p-6 space-y-5">
+                        <?php
+                            $providerDisplayName = trim(($provider_payout['provider_first_name'] ?? '') . ' ' . ($provider_payout['provider_last_name'] ?? ''));
+                            if ($providerDisplayName === '') {
+                                $providerDisplayName = $provider_payout['provider_name_snapshot'] ?? 'Guest Provider';
+                            }
+                        ?>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider</p>
+                                <p class="mt-1 font-bold text-gray-900"><?= esc($providerDisplayName) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Gross</p>
+                                <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout['gross_amount'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Share</p>
+                                <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout['provider_share_amount'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Clinic Net</p>
+                                <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout['clinic_share_amount'] ?? 0) ?></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-emerald-700 font-semibold">Paid to Provider</p>
+                                <p class="mt-1 font-bold text-emerald-800"><?= formatCurrency($provider_payout['provider_paid_amount'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-rose-700 font-semibold">Balance Due</p>
+                                <p class="mt-1 font-bold text-rose-800"><?= formatCurrency($provider_payout['provider_balance_due'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Split Rule</p>
+                                <p class="mt-1 font-bold text-gray-900">
+                                    <?= ucfirst($provider_payout['split_mode'] ?? 'percent') ?>:
+                                    <?= esc($provider_payout['split_value'] ?? 0) ?><?= ($provider_payout['split_mode'] ?? '') === 'percent' ? '%' : '' ?>
+                                </p>
+                            </div>
+                        </div>
+
+                        <?php if (floatval($provider_payout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
+                        <form id="providerPayoutPaymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount</label>
+                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($provider_payout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Method</label>
+                                <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option value="cash">Cash</option>
+                                    <option value="card">Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="check">Check</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            </div>
+                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                <i class="fas fa-plus mr-2"></i>Record Payout
+                            </button>
+                        </form>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($finance['transaction_type'] === 'invoice'): ?>
                 <!-- Invoice Payments Ledger -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
@@ -816,6 +903,40 @@ function voidPayment(paymentId) {
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while voiding the payment.');
+    });
+}
+
+const providerPayoutPaymentForm = document.getElementById('providerPayoutPaymentForm');
+if (providerPayoutPaymentForm) {
+    providerPayoutPaymentForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(providerPayoutPaymentForm);
+        const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
+        const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
+
+        fetch(`<?= base_url('finance/payouts/' . (int)($provider_payout['id'] ?? 0) . '/payments') ?>`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                [csrfHeader]: csrfToken
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while recording provider payout.');
+        });
     });
 }
 </script>

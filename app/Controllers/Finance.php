@@ -7,6 +7,9 @@ use App\Models\FinancePaymentModel;
 use App\Models\FileAttachmentModel;
 use App\Models\PatientModel;
 use App\Models\ExaminationModel;
+use App\Models\ClinicUserModel;
+use App\Models\ProviderPayoutModel;
+use App\Models\ProviderPayoutPaymentModel;
 use App\Services\ActivityLogger;
 use App\Libraries\ApiRuntimeContext;
 
@@ -17,6 +20,9 @@ class Finance extends BaseController
     protected $attachmentModel;
     protected $patientModel;
     protected $examinationModel;
+    protected $clinicUserModel;
+    protected $providerPayoutModel;
+    protected $providerPayoutPaymentModel;
     protected $activityLogger;
     protected $storageService;
     protected $db;
@@ -28,6 +34,9 @@ class Finance extends BaseController
         $this->attachmentModel = new FileAttachmentModel();
         $this->patientModel = new PatientModel();
         $this->examinationModel = new ExaminationModel();
+        $this->clinicUserModel = new ClinicUserModel();
+        $this->providerPayoutModel = new ProviderPayoutModel();
+        $this->providerPayoutPaymentModel = new ProviderPayoutPaymentModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
@@ -40,6 +49,211 @@ class Finance extends BaseController
             return (int) $apiUserId;
         }
         return (int) (session()->get('user_id') ?? 0);
+    }
+
+    private function getClinicProviders(int $clinicId): array
+    {
+        return $this->db->table('clinic_users')
+            ->select('users.id, users.first_name, users.last_name, users.email')
+            ->join('users', 'users.id = clinic_users.user_id', 'inner')
+            ->where('clinic_users.clinic_id', $clinicId)
+            ->where('clinic_users.status', 'active')
+            ->groupStart()
+                ->where('users.active', 1)
+                ->orWhere('users.active IS NULL', null, false)
+            ->groupEnd()
+            ->orderBy('users.first_name', 'ASC')
+            ->orderBy('users.last_name', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    private function normalizeProviderSplitPayload(int $clinicId, float $grossAmount): ?array
+    {
+        $enabled = filter_var($this->request->getPost('provider_split_enabled'), FILTER_VALIDATE_BOOLEAN);
+        if (!$enabled) {
+            return null;
+        }
+
+        $providerType = strtolower((string) $this->request->getPost('provider_type'));
+        if (!in_array($providerType, ['user', 'guest'], true)) {
+            throw new \RuntimeException('Please select a valid provider type.');
+        }
+
+        $providerUserId = null;
+        $providerNameSnapshot = null;
+        if ($providerType === 'user') {
+            $providerUserId = intval($this->request->getPost('provider_user_id') ?? 0);
+            if ($providerUserId <= 0) {
+                throw new \RuntimeException('Please select a provider user.');
+            }
+
+            $membership = $this->clinicUserModel
+                ->where('clinic_id', $clinicId)
+                ->where('user_id', $providerUserId)
+                ->where('status', 'active')
+                ->first();
+            if (!$membership) {
+                throw new \RuntimeException('Selected provider user is not active in this clinic.');
+            }
+        } else {
+            $providerNameSnapshot = trim((string) $this->request->getPost('provider_name_snapshot'));
+            if ($providerNameSnapshot === '') {
+                throw new \RuntimeException('Please enter guest provider name.');
+            }
+        }
+
+        $splitMode = strtolower((string) $this->request->getPost('provider_split_mode'));
+        if (!in_array($splitMode, ['percent', 'fixed'], true)) {
+            throw new \RuntimeException('Please select a valid split mode.');
+        }
+
+        $splitValue = floatval($this->request->getPost('provider_split_value') ?? 0);
+        if ($splitValue < 0) {
+            throw new \RuntimeException('Provider split value must be 0 or greater.');
+        }
+
+        if ($splitMode === 'percent' && $splitValue > 100) {
+            throw new \RuntimeException('Provider split percentage cannot exceed 100.');
+        }
+
+        $providerShareAmount = $splitMode === 'percent'
+            ? round($grossAmount * ($splitValue / 100), 2)
+            : min(round($splitValue, 2), round($grossAmount, 2));
+
+        $providerShareAmount = max(0, min($providerShareAmount, round($grossAmount, 2)));
+        $clinicShareAmount = round($grossAmount - $providerShareAmount, 2);
+
+        $markPaidNow = filter_var($this->request->getPost('provider_mark_paid_now'), FILTER_VALIDATE_BOOLEAN);
+        $providerPaidAmount = 0.0;
+        $providerPaymentMethod = null;
+        $providerPaidDate = null;
+        $providerPaymentNotes = null;
+
+        if ($markPaidNow && $providerShareAmount > 0) {
+            $providerPaidAmount = floatval($this->request->getPost('provider_paid_amount') ?? $providerShareAmount);
+            $providerPaidAmount = max(0, min(round($providerPaidAmount, 2), $providerShareAmount));
+            if ($providerPaidAmount > 0) {
+                $providerPaymentMethod = (string) ($this->request->getPost('provider_paid_method') ?: 'cash');
+                if (!in_array($providerPaymentMethod, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
+                    $providerPaymentMethod = 'cash';
+                }
+                $providerPaidDate = (string) ($this->request->getPost('provider_paid_date') ?: date('Y-m-d'));
+                $providerPaymentNotes = trim((string) $this->request->getPost('provider_paid_notes'));
+            }
+        }
+
+        return [
+            'provider_type' => $providerType,
+            'provider_user_id' => $providerUserId ?: null,
+            'provider_name_snapshot' => $providerNameSnapshot,
+            'split_mode' => $splitMode,
+            'split_value' => $splitValue,
+            'gross_amount' => round($grossAmount, 2),
+            'provider_share_amount' => round($providerShareAmount, 2),
+            'clinic_share_amount' => round($clinicShareAmount, 2),
+            'provider_paid_amount' => round($providerPaidAmount, 2),
+            'provider_balance_due' => round(max(0, $providerShareAmount - $providerPaidAmount), 2),
+            'status' => $providerShareAmount <= 0 ? 'paid' : (($providerPaidAmount >= $providerShareAmount) ? 'paid' : ($providerPaidAmount > 0 ? 'partial' : 'unpaid')),
+            'currency' => settings()->get('currency', 'ILS'),
+            'notes' => trim((string) $this->request->getPost('provider_split_notes')),
+            'provider_payment_method' => $providerPaymentMethod,
+            'provider_paid_date' => $providerPaidDate,
+            'provider_payment_notes' => $providerPaymentNotes,
+        ];
+    }
+
+    private function upsertProviderPayout(int $clinicId, int $financeId, int $patientId, float $grossAmount): void
+    {
+        $payload = $this->normalizeProviderSplitPayload($clinicId, $grossAmount);
+        $existing = $this->providerPayoutModel->getByFinanceId($clinicId, $financeId);
+
+        if ($payload === null) {
+            if ($existing) {
+                $paidTotal = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, (int) $existing['id']);
+                if ($paidTotal > 0) {
+                    throw new \RuntimeException('Cannot disable provider split after payout payments are recorded.');
+                }
+                $this->providerPayoutModel->delete($existing['id']);
+            }
+            return;
+        }
+
+        $payoutData = [
+            'finance_id' => $financeId,
+            'patient_id' => $patientId,
+            'provider_type' => $payload['provider_type'],
+            'provider_user_id' => $payload['provider_user_id'],
+            'provider_name_snapshot' => $payload['provider_name_snapshot'],
+            'split_mode' => $payload['split_mode'],
+            'split_value' => $payload['split_value'],
+            'gross_amount' => $payload['gross_amount'],
+            'provider_share_amount' => $payload['provider_share_amount'],
+            'clinic_share_amount' => $payload['clinic_share_amount'],
+            'provider_paid_amount' => $payload['provider_paid_amount'],
+            'provider_balance_due' => $payload['provider_balance_due'],
+            'status' => $payload['status'],
+            'currency' => $payload['currency'],
+            'notes' => $payload['notes'],
+            'created_by' => $this->resolveActorUserId(),
+        ];
+
+        if ($existing) {
+            $paidTotal = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, (int) $existing['id']);
+            if ($paidTotal > $payload['provider_share_amount']) {
+                throw new \RuntimeException('Provider share cannot be lower than payout already recorded.');
+            }
+            $payoutData['provider_paid_amount'] = round($paidTotal, 2);
+            $payoutData['provider_balance_due'] = round(max(0, $payload['provider_share_amount'] - $paidTotal), 2);
+            $payoutData['status'] = $payoutData['provider_balance_due'] <= 0 ? 'paid' : ($paidTotal > 0 ? 'partial' : 'unpaid');
+            $this->providerPayoutModel->update((int) $existing['id'], $payoutData);
+            $payoutId = (int) $existing['id'];
+        } else {
+            $this->providerPayoutModel->insert($payoutData);
+            $payoutId = (int) $this->providerPayoutModel->getInsertID();
+        }
+
+        if ($payload['provider_paid_amount'] > 0) {
+            $alreadyPaid = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, $payoutId);
+            if ($alreadyPaid <= 0) {
+                $this->providerPayoutPaymentModel->insert([
+                    'provider_payout_id' => $payoutId,
+                    'amount' => $payload['provider_paid_amount'],
+                    'payment_method' => $payload['provider_payment_method'] ?? 'cash',
+                    'paid_date' => $payload['provider_paid_date'] ?? date('Y-m-d'),
+                    'notes' => $payload['provider_payment_notes'] ?: 'Paid at transaction creation',
+                    'created_by' => $this->resolveActorUserId(),
+                ]);
+            }
+        }
+
+        $this->syncProviderPayoutStatus($clinicId, $payoutId);
+    }
+
+    private function syncProviderPayoutStatus(int $clinicId, int $payoutId): void
+    {
+        $payout = $this->providerPayoutModel->findByClinic($clinicId, $payoutId);
+        if (!$payout) {
+            return;
+        }
+
+        $totalPaid = $this->providerPayoutPaymentModel->getPaidTotal($clinicId, $payoutId);
+        $share = floatval($payout['provider_share_amount'] ?? 0);
+        $balance = max(0, round($share - $totalPaid, 2));
+
+        $status = 'unpaid';
+        if ($share <= 0 || $balance <= 0) {
+            $status = 'paid';
+        } elseif ($totalPaid > 0) {
+            $status = 'partial';
+        }
+
+        $this->providerPayoutModel->setValidationRules([]);
+        $this->providerPayoutModel->update($payoutId, [
+            'provider_paid_amount' => round($totalPaid, 2),
+            'provider_balance_due' => $balance,
+            'status' => $status,
+        ]);
     }
 
     public function index()
@@ -83,6 +297,7 @@ class Finance extends BaseController
             'title' => 'New Financial Transaction',
             'patients' => $selectedPatient ? [$selectedPatient] : [], // S4-02f: No bulk preload
             'examinations' => [], // S4-02f: No bulk preload
+            'clinic_providers' => $this->getClinicProviders((int) $clinicId),
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
@@ -173,7 +388,10 @@ class Finance extends BaseController
             'created_by' => $this->resolveActorUserId()
         ];
 
-        if ($this->financeModel->insert($financeData)) {
+        try {
+            $this->db->transBegin();
+
+            if ($this->financeModel->insert($financeData)) {
             $financeId = $this->financeModel->getInsertID();
 
             $checkFile = $this->request->getFile('check_scan');
@@ -190,6 +408,13 @@ class Finance extends BaseController
                 $this->syncInvoicePaymentStatus($financeId, session()->get('active_clinic_id'));
             }
 
+            $this->upsertProviderPayout(
+                (int) $clinicId,
+                (int) $financeId,
+                (int) $financeData['patient_id'],
+                (float) $totalAmount
+            );
+
             // Get patient name for the activity log
             $patient = $this->patientModel->find($financeData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
@@ -201,6 +426,12 @@ class Finance extends BaseController
                 "New {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " created for {$patientName}"
             );
 
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction.');
+            }
+            $this->db->transCommit();
+
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
             if ($returnTo !== null && !empty($financeData['patient_id'])) {
                 if (preg_match('#^patient/(\\d+)$#', $returnTo, $matches) && (int) $matches[1] !== (int) $financeData['patient_id']) {
@@ -211,12 +442,18 @@ class Finance extends BaseController
                 return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been created successfully!');
             }
 
-            return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been created successfully!');
-        } else {
-            $errors = $this->financeModel->errors();
-            log_message('error', 'Finance creation failed: ' . json_encode($errors));
-            log_message('error', 'Finance data that failed: ' . json_encode($financeData));
-            return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction. Please check your input and try again.');
+                return redirect()->to(base_url('finance'))->with('success', 'Financial transaction has been created successfully!');
+            } else {
+                $this->db->transRollback();
+                $errors = $this->financeModel->errors();
+                log_message('error', 'Finance creation failed: ' . json_encode($errors));
+                log_message('error', 'Finance data that failed: ' . json_encode($financeData));
+                return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction. Please check your input and try again.');
+            }
+        } catch (\Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Finance create failed with provider split: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -242,6 +479,27 @@ class Finance extends BaseController
         $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
         $payments = [];
         $paidTotal = 0;
+        $providerPayout = $this->providerPayoutModel->getByFinanceId((int) $clinicId, (int) $id);
+        $providerPayoutPayments = [];
+        if (!empty($providerPayout)) {
+            if (!empty($providerPayout['provider_user_id'])) {
+                $providerUser = $this->db->table('users')
+                    ->select('first_name, last_name')
+                    ->where('id', (int) $providerPayout['provider_user_id'])
+                    ->get()
+                    ->getRowArray();
+                if ($providerUser) {
+                    $providerPayout['provider_first_name'] = $providerUser['first_name'] ?? '';
+                    $providerPayout['provider_last_name'] = $providerUser['last_name'] ?? '';
+                }
+            }
+            $providerPayoutPayments = $this->providerPayoutPaymentModel
+                ->where('clinic_id', $clinicId)
+                ->where('provider_payout_id', $providerPayout['id'])
+                ->orderBy('paid_date', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->findAll();
+        }
 
         if ($finance['transaction_type'] === 'invoice') {
             $payments = $this->financePaymentModel
@@ -262,6 +520,8 @@ class Finance extends BaseController
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
+            'provider_payout' => $providerPayout,
+            'provider_payout_payments' => $providerPayoutPayments,
             'base_currency' => settings()->get('currency', 'ILS'),
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
@@ -306,6 +566,8 @@ class Finance extends BaseController
             'finance' => $finance,
             'patients' => $patient ? [$patient] : [],
             'examinations' => $examination ? [$examination] : [],
+            'clinic_providers' => $this->getClinicProviders((int) $clinicId),
+            'provider_payout' => $this->providerPayoutModel->getByFinanceId((int) $clinicId, (int) $id),
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
@@ -409,38 +671,62 @@ class Finance extends BaseController
             'notes' => $this->request->getPost('notes')
         ];
 
-        if ($this->financeModel->update($id, $financeData)) {
-            $checkFile = $this->request->getFile('check_scan');
-            if ($checkFile && $checkFile->isValid() && ($this->request->getPost('payment_method') === 'check')) {
-                $validation = $this->validateCheckScan($checkFile);
-                if ($validation !== null) {
-                    return redirect()->back()->withInput()->with('error', $validation);
+        try {
+            $this->db->transBegin();
+
+            if ($this->financeModel->update($id, $financeData)) {
+                $checkFile = $this->request->getFile('check_scan');
+                if ($checkFile && $checkFile->isValid() && ($this->request->getPost('payment_method') === 'check')) {
+                    $validation = $this->validateCheckScan($checkFile);
+                    if ($validation !== null) {
+                        return redirect()->back()->withInput()->with('error', $validation);
+                    }
+                    $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'check_scan');
+                    $this->storageService->store($checkFile, $clinicId, 'finance', $id, 'check_scan');
                 }
-                $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'check_scan');
-                $this->storageService->store($checkFile, $clinicId, 'finance', $id, 'check_scan');
-            }
-            if ($financeData['transaction_type'] === 'invoice') {
-                $this->syncInvoicePaymentStatus($id, $clinicId);
-            }
-            // Get patient name for the activity log (scoped)
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($financeData['patient_id']);
-            $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
 
-            // Log the finance update activity
-            $this->activityLogger->logFinanceActivity(
-                'update',
-                $id,
-                "Financial transaction updated for {$patientName} - {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($financeData['amount'], 2)
-            );
+                if ($financeData['transaction_type'] === 'invoice') {
+                    $this->syncInvoicePaymentStatus($id, $clinicId);
+                }
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
-            if ($returnTo) {
-                return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been updated successfully!');
+                $this->upsertProviderPayout(
+                    (int) $clinicId,
+                    (int) $id,
+                    (int) $financeData['patient_id'],
+                    (float) $totalAmount
+                );
+
+                // Get patient name for the activity log (scoped)
+                $patient = $this->patientModel->where('clinic_id', $clinicId)->find($financeData['patient_id']);
+                $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
+
+                // Log the finance update activity
+                $this->activityLogger->logFinanceActivity(
+                    'update',
+                    $id,
+                    "Financial transaction updated for {$patientName} - {$financeData['transaction_type']} of " . settings()->getCurrencySymbol() . number_format($financeData['amount'], 2)
+                );
+
+                if ($this->db->transStatus() === false) {
+                    $this->db->transRollback();
+                    return redirect()->back()->withInput()->with('error', 'Failed to update financial transaction.');
+                }
+                $this->db->transCommit();
+
+                $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
+                if ($returnTo) {
+                    return redirect()->to(base_url($returnTo))->with('success', 'Financial transaction has been updated successfully!');
+                }
+
+                return redirect()->to(base_url('finance/' . $id))->with('success', 'Financial transaction has been updated successfully!');
             }
 
-            return redirect()->to(base_url('finance/' . $id))->with('success', 'Financial transaction has been updated successfully!');
-        } else {
+            $this->db->transRollback();
             return redirect()->back()->withInput()->with('error', 'Failed to update financial transaction. Please check your input and try again.');
+        } catch (\Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Finance update failed with provider split: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -519,11 +805,25 @@ class Finance extends BaseController
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
 
+        $stats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
+        $providerStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $startDate, $endDate);
+        $grossCollections = floatval($stats['total_revenue'] ?? 0);
+        $providerShare = floatval($providerStats['total_provider_share'] ?? 0); // accrual
+        $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0); // cash basis
+        $providerPayable = floatval($providerStats['total_provider_balance'] ?? 0);
+        $stats['gross_collections'] = $grossCollections;
+        $stats['provider_share_total'] = $providerShare;
+        $stats['provider_paid_cash_total'] = $providerPaidCash;
+        $stats['provider_payable_outstanding'] = $providerPayable;
+        $stats['net_clinic_revenue'] = $grossCollections - $providerPaidCash;
+        $stats['net_clinic_revenue_accrual'] = $grossCollections - $providerShare;
+
         $data = [
             'title' => 'Financial Reports',
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'stats' => $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate),
+            'stats' => $stats,
+            'provider_payout_stats' => $providerStats,
             'monthly_revenue' => $this->financeModel->getMonthlyRevenueByClinic($clinicId),
             'payment_methods' => $this->financeModel->getPaymentMethodsStats($startDate, $endDate, $clinicId),
             'service_types' => $this->financeModel->getServiceTypeStats($startDate, $endDate, $clinicId),
@@ -546,6 +846,21 @@ class Finance extends BaseController
         $endDate = $this->request->getGet('end_date');
 
         $stats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
+        $providerStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $startDate, $endDate);
+
+        $grossCollections = floatval($stats['total_revenue'] ?? 0);
+        $providerShare = floatval($providerStats['total_provider_share'] ?? 0); // accrual
+        $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0); // cash basis
+        $providerBalance = floatval($providerStats['total_provider_balance'] ?? 0);
+        $netClinicRevenue = $grossCollections - $providerPaidCash;
+        $netClinicRevenueAccrual = $grossCollections - $providerShare;
+
+        $stats['gross_collections'] = $grossCollections;
+        $stats['provider_share_total'] = $providerShare;
+        $stats['provider_paid_cash_total'] = $providerPaidCash;
+        $stats['provider_payable_outstanding'] = $providerBalance;
+        $stats['net_clinic_revenue'] = $netClinicRevenue;
+        $stats['net_clinic_revenue_accrual'] = $netClinicRevenueAccrual;
 
         // Format currency values
         if (isset($stats['total_revenue'])) {
@@ -557,6 +872,12 @@ class Finance extends BaseController
         if (isset($stats['monthly_revenue'])) {
             $stats['monthly_revenue_formatted'] = formatCurrency($stats['monthly_revenue']);
         }
+        $stats['gross_collections_formatted'] = formatCurrency($grossCollections);
+        $stats['provider_share_total_formatted'] = formatCurrency($providerShare);
+        $stats['provider_paid_cash_total_formatted'] = formatCurrency($providerPaidCash);
+        $stats['provider_payable_outstanding_formatted'] = formatCurrency($providerBalance);
+        $stats['net_clinic_revenue_formatted'] = formatCurrency($netClinicRevenue);
+        $stats['net_clinic_revenue_accrual_formatted'] = formatCurrency($netClinicRevenueAccrual);
         if (isset($stats['total_transactions'])) {
             $stats['total_transactions_formatted'] = formatCurrency($stats['total_transactions']);
         }
@@ -576,6 +897,226 @@ class Finance extends BaseController
         $revenue = $this->financeModel->getMonthlyRevenueByClinic($clinicId, $year);
 
         return $this->response->setJSON($revenue);
+    }
+
+    public function providerPayouts()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $payoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId);
+        $data = [
+            'title' => 'Provider Payouts',
+            'stats' => $payoutStats,
+            'currency_symbol' => settings()->getCurrencySymbol(),
+            'currency_position' => settings()->get('currency_position', 'before'),
+        ];
+
+        return $this->view('finance/payouts', $data);
+    }
+
+    public function getProviderPayoutsData()
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $draw = intval($this->request->getPost('draw') ?? 1);
+            $start = intval($this->request->getPost('start') ?? 0);
+            $length = intval($this->request->getPost('length') ?? 10);
+            $search = trim((string) (($this->request->getPost('search')['value'] ?? '')));
+            $statusFilter = trim((string) ($this->request->getPost('status') ?? ''));
+
+            $base = $this->db->table('provider_payouts pp')
+                ->select('
+                    pp.*,
+                    f.transaction_id,
+                    p.first_name AS patient_first_name,
+                    p.last_name AS patient_last_name,
+                    u.first_name AS provider_first_name,
+                    u.last_name AS provider_last_name
+                ')
+                ->join('finances f', 'f.id = pp.finance_id', 'left')
+                ->join('patients p', 'p.id = pp.patient_id', 'left')
+                ->join('users u', 'u.id = pp.provider_user_id', 'left')
+                ->where('pp.clinic_id', $clinicId);
+
+            if ($statusFilter !== '' && in_array($statusFilter, ['unpaid', 'partial', 'paid', 'void'], true)) {
+                $base->where('pp.status', $statusFilter);
+            }
+
+            if ($search !== '') {
+                $base->groupStart()
+                    ->like('f.transaction_id', $search)
+                    ->orLike('pp.provider_name_snapshot', $search)
+                    ->orLike('p.first_name', $search)
+                    ->orLike('p.last_name', $search)
+                    ->orLike('u.first_name', $search)
+                    ->orLike('u.last_name', $search)
+                    ->groupEnd();
+            }
+
+            $totalBuilder = $this->db->table('provider_payouts')->where('clinic_id', $clinicId);
+            $recordsTotal = (int) $totalBuilder->countAllResults();
+            $recordsFiltered = (int) (clone $base)->countAllResults(false);
+
+            $rows = $base
+                ->orderBy('pp.id', 'DESC')
+                ->limit($length, $start)
+                ->get()
+                ->getResultArray();
+
+            $data = [];
+            foreach ($rows as $row) {
+                $providerName = trim((string) ($row['provider_first_name'] ?? '') . ' ' . (string) ($row['provider_last_name'] ?? ''));
+                if ($providerName === '') {
+                    $providerName = (string) ($row['provider_name_snapshot'] ?? 'Guest Provider');
+                }
+                $patientName = trim((string) ($row['patient_first_name'] ?? '') . ' ' . (string) ($row['patient_last_name'] ?? ''));
+
+                $data[] = [
+                    'id' => (int) $row['id'],
+                    'finance_id' => (int) ($row['finance_id'] ?? 0),
+                    'transaction_id' => $row['transaction_id'] ?? '-',
+                    'patient_name' => $patientName,
+                    'provider_name' => $providerName,
+                    'provider_type' => $row['provider_type'],
+                    'gross_amount' => floatval($row['gross_amount'] ?? 0),
+                    'provider_share_amount' => floatval($row['provider_share_amount'] ?? 0),
+                    'clinic_share_amount' => floatval($row['clinic_share_amount'] ?? 0),
+                    'provider_paid_amount' => floatval($row['provider_paid_amount'] ?? 0),
+                    'provider_balance_due' => floatval($row['provider_balance_due'] ?? 0),
+                    'status' => $row['status'] ?? 'unpaid',
+                    'created_at' => $row['created_at'] ?? null,
+                    'created_at_formatted' => !empty($row['created_at']) ? formatDateTime($row['created_at']) : '-',
+                ];
+            }
+
+            return $this->response->setJSON([
+                'draw' => $draw,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Provider payouts data error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'draw' => 1,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function addProviderPayoutPayment($id)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $payout = $this->providerPayoutModel->findByClinic((int) $clinicId, (int) $id);
+            if (!$payout || ($payout['status'] ?? '') === 'void') {
+                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.']);
+            }
+
+            $amount = floatval($this->request->getPost('amount') ?? 0);
+            $method = (string) ($this->request->getPost('payment_method') ?? 'cash');
+            $paidDate = (string) ($this->request->getPost('paid_date') ?? date('Y-m-d'));
+            $notes = trim((string) ($this->request->getPost('notes') ?? ''));
+
+            if ($amount <= 0) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Payment amount must be greater than 0.']);
+            }
+            if (!in_array($method, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
+                $method = 'cash';
+            }
+
+            $remaining = floatval($payout['provider_balance_due'] ?? 0);
+            if ($amount > $remaining) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Payment exceeds provider balance due.']);
+            }
+
+            $this->providerPayoutPaymentModel->insert([
+                'provider_payout_id' => (int) $id,
+                'amount' => round($amount, 2),
+                'payment_method' => $method,
+                'paid_date' => $paidDate,
+                'notes' => $notes,
+                'created_by' => $this->resolveActorUserId(),
+            ]);
+
+            $this->syncProviderPayoutStatus((int) $clinicId, (int) $id);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Provider payout payment recorded successfully.',
+                'csrf_token' => csrf_hash(),
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Provider payout payment error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
+    }
+
+    public function markProviderPayoutPaid($id)
+    {
+        try {
+            $clinicId = session()->get('active_clinic_id');
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $payout = $this->providerPayoutModel->findByClinic((int) $clinicId, (int) $id);
+            if (!$payout || ($payout['status'] ?? '') === 'void') {
+                return $this->response->setJSON(['success' => false, 'message' => 'Provider payout not found.']);
+            }
+
+            $remaining = floatval($payout['provider_balance_due'] ?? 0);
+            if ($remaining <= 0) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Provider payout is already fully paid.', 'csrf_token' => csrf_hash()]);
+            }
+
+            $method = (string) ($this->request->getPost('payment_method') ?? 'cash');
+            if (!in_array($method, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
+                $method = 'cash';
+            }
+
+            $this->providerPayoutPaymentModel->insert([
+                'provider_payout_id' => (int) $id,
+                'amount' => round($remaining, 2),
+                'payment_method' => $method,
+                'paid_date' => date('Y-m-d'),
+                'notes' => 'Marked fully paid',
+                'created_by' => $this->resolveActorUserId(),
+            ]);
+
+            $this->syncProviderPayoutStatus((int) $clinicId, (int) $id);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Provider payout marked as paid.',
+                'csrf_token' => csrf_hash(),
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Mark provider payout paid error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
     }
 
     public function markAsPaid($id)

@@ -232,6 +232,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-chart-bar mr-2"></i>
                             Reports
                         </a>
+                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
+                            <i class="fas fa-hand-holding-dollar mr-2"></i>
+                            Provider Payouts
+                        </a>
                         </div>
                     </div>
                                         </div>
@@ -240,7 +244,7 @@ $returnToContextEncoded = urlencode($returnToContext);
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                <!-- Total Revenue Card -->
+                <!-- Gross Collections Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -258,7 +262,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Revenue</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Gross Collections</p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-green-900" id="totalRevenue">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -267,12 +271,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium">Patient-side collections</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pending Payments Card -->
+                <!-- Provider Payable Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-yellow-500/10 group-hover:shadow-yellow-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -290,7 +294,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Pending Payments</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Provider Payable</p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-yellow-900" id="pendingPayments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -299,12 +303,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-3/4 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Awaiting payment</p>
+                            <p class="text-xs text-gray-500 font-medium">Outstanding to providers</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Monthly Income Card -->
+                <!-- Net Clinic Revenue Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -322,7 +326,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Monthly Income</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Net Clinic Revenue</p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-blue-900" id="monthlyIncome">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -331,7 +335,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= formatDate(date('Y-m-d')) ?></p>
+                            <p class="text-xs text-gray-500 font-medium">After provider split</p>
                         </div>
                     </div>
                 </div>
@@ -897,9 +901,9 @@ function loadFinanceStatistics() {
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            $('#totalRevenue').text(data.total_revenue_formatted ? formatCurrencyAbbreviated(data.total_revenue) : formatCurrencyAbbreviated(0));
-            $('#pendingPayments').text(data.pending_payments_formatted ? formatCurrencyAbbreviated(data.pending_payments) : formatCurrencyAbbreviated(0));
-            $('#monthlyIncome').text(data.monthly_revenue_formatted ? formatCurrencyAbbreviated(data.monthly_revenue) : formatCurrencyAbbreviated(0));
+            $('#totalRevenue').text(data.gross_collections_formatted ? formatCurrencyAbbreviated(data.gross_collections) : formatCurrencyAbbreviated(0));
+            $('#pendingPayments').text(data.provider_payable_outstanding_formatted ? formatCurrencyAbbreviated(data.provider_payable_outstanding) : formatCurrencyAbbreviated(0));
+            $('#monthlyIncome').text(data.net_clinic_revenue_formatted ? formatCurrencyAbbreviated(data.net_clinic_revenue) : formatCurrencyAbbreviated(0));
             $('#outstandingInvoices').text(data.outstanding_invoices || 0);
         },
         error: function() {

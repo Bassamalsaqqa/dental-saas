@@ -181,13 +181,16 @@ class FinanceModel extends TenantAwareModel
     public function getFinanceStatsByClinic($clinicId, $startDate = null, $endDate = null)
     {
         try {
+            $startDateTime = $startDate ? ($startDate . ' 00:00:00') : null;
+            $endDateTime = $endDate ? ($endDate . ' 23:59:59') : null;
+
             $builder = $this->db->table('finances')->where('clinic_id', $clinicId);
 
-            if ($startDate) {
-                $builder->where('created_at >=', $startDate);
+            if ($startDateTime) {
+                $builder->where('created_at >=', $startDateTime);
             }
-            if ($endDate) {
-                $builder->where('created_at <=', $endDate);
+            if ($endDateTime) {
+                $builder->where('created_at <=', $endDateTime);
             }
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
@@ -256,11 +259,11 @@ class FinanceModel extends TenantAwareModel
             $summaryBuilder = $this->db->table('finances')
                 ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount')
                 ->where('clinic_id', $clinicId);
-            if ($startDate) {
-                $summaryBuilder->where('created_at >=', $startDate);
+            if ($startDateTime) {
+                $summaryBuilder->where('created_at >=', $startDateTime);
             }
-            if ($endDate) {
-                $summaryBuilder->where('created_at <=', $endDate);
+            if ($endDateTime) {
+                $summaryBuilder->where('created_at <=', $endDateTime);
             }
             $summaryRows = $summaryBuilder->groupBy('transaction_type')->get()->getResultArray();
             $transactionSummary = [];
@@ -369,6 +372,87 @@ class FinanceModel extends TenantAwareModel
             return $result;
         } catch (\Exception $e) {
             log_message('error', 'Monthly revenue error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getMonthlyRevenueByClinicRange(int $clinicId, string $startDate, string $endDate): array
+    {
+        try {
+            $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
+            $startDateTime = $startDate . ' 00:00:00';
+            $endDateTime = $endDate . ' 23:59:59';
+
+            $standalone = $this->db->table('finances')
+                ->select("DATE_FORMAT(created_at, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
+                ->where('clinic_id', $clinicId)
+                ->where('transaction_type', 'payment')
+                ->where('created_at >=', $startDateTime)
+                ->where('created_at <=', $endDateTime)
+                ->groupBy("DATE_FORMAT(created_at, '%Y-%m')", false)
+                ->get()
+                ->getResultArray();
+
+            $invoicePayments = $this->db->table('finance_payments')
+                ->select("DATE_FORMAT(payment_date, '%Y-%m') AS month_key, SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
+                ->where('clinic_id', $clinicId)
+                ->where('payment_date >=', $startDate)
+                ->where('payment_date <=', $endDate)
+                ->groupBy("DATE_FORMAT(payment_date, '%Y-%m')", false)
+                ->get()
+                ->getResultArray();
+
+            $refunds = $this->db->table('finances')
+                ->select("DATE_FORMAT(created_at, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
+                ->where('clinic_id', $clinicId)
+                ->where('transaction_type', 'refund')
+                ->where('created_at >=', $startDateTime)
+                ->where('created_at <=', $endDateTime)
+                ->groupBy("DATE_FORMAT(created_at, '%Y-%m')", false)
+                ->get()
+                ->getResultArray();
+
+            $merged = [];
+            foreach ($standalone as $row) {
+                $key = (string) ($row['month_key'] ?? '');
+                if ($key === '') {
+                    continue;
+                }
+                $merged[$key] = ($merged[$key] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($invoicePayments as $row) {
+                $key = (string) ($row['month_key'] ?? '');
+                if ($key === '') {
+                    continue;
+                }
+                $merged[$key] = ($merged[$key] ?? 0) + floatval($row['total_amount'] ?? 0);
+            }
+            foreach ($refunds as $row) {
+                $key = (string) ($row['month_key'] ?? '');
+                if ($key === '') {
+                    continue;
+                }
+                $merged[$key] = ($merged[$key] ?? 0) - floatval($row['total_amount'] ?? 0);
+            }
+
+            $start = new \DateTime(date('Y-m-01', strtotime($startDate)));
+            $end = new \DateTime(date('Y-m-01', strtotime($endDate)));
+            $end->modify('first day of next month');
+            $period = new \DatePeriod($start, new \DateInterval('P1M'), $end);
+
+            $result = [];
+            foreach ($period as $month) {
+                $key = $month->format('Y-m');
+                $result[] = [
+                    'month_key' => $key,
+                    'month' => $month->format('M Y'),
+                    'total_amount' => round(floatval($merged[$key] ?? 0), 2),
+                ];
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            log_message('error', 'Monthly revenue range error: ' . $e->getMessage());
             return [];
         }
     }

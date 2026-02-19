@@ -360,59 +360,67 @@
                     <?php elseif ($report_type === 'finance'): ?>
                         <!-- Finance Report -->
                         <div class="space-y-6">
-                            <?php
-                            $totalRevenue = 0.0;
-                            if (!empty($reports['monthly_revenue'])) {
-                                foreach ($reports['monthly_revenue'] as $row) {
-                                    $totalRevenue += (float)($row['total_amount'] ?? ($row['amount'] ?? 0));
-                                }
-                            }
-                            ?>
+                            <?php $summary = $reports['summary'] ?? []; ?>
                             <!-- Financial Statistics -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-dollar-sign"></i>
+                                            <i class="fas fa-wallet"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Revenue</p>
-                                            <p class="text-xl font-bold text-green-900"><?= formatCurrency($totalRevenue) ?></p>
+                                            <p class="text-sm font-semibold text-gray-900">Gross Collections</p>
+                                            <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['gross_collections'] ?? 0) ?></p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-file-invoice"></i>
+                                            <i class="fas fa-user-md"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Transactions</p>
-                                            <p class="text-xl font-bold text-blue-900"><?= count($reports['transactions'] ?? []) ?></p>
+                                            <p class="text-sm font-semibold text-gray-900">Provider Share (Accrual)</p>
+                                            <p class="text-xl font-bold text-blue-900"><?= formatCurrency($summary['provider_share_accrual'] ?? 0) ?></p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="bg-gradient-to-r from-yellow-50/80 to-amber-50/80 rounded-lg p-4 border border-yellow-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-clock"></i>
+                                            <i class="fas fa-money-bill-transfer"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Pending Payments</p>
-                                            <p class="text-xl font-bold text-yellow-900"><?= count($reports['outstanding_payments'] ?? []) ?></p>
+                                            <p class="text-sm font-semibold text-gray-900">Provider Paid (Cash)</p>
+                                            <p class="text-xl font-bold text-yellow-900"><?= formatCurrency($summary['provider_paid_cash'] ?? 0) ?></p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 rounded-lg p-4 border border-purple-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-credit-card"></i>
+                                            <i class="fas fa-chart-line"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Payment Methods</p>
-                                            <p class="text-xl font-bold text-purple-900"><?= count($reports['payment_methods'] ?? []) ?></p>
+                                            <p class="text-sm font-semibold text-gray-900">Net Clinic (Cash)</p>
+                                            <p class="text-xl font-bold text-purple-900"><?= formatCurrency($summary['net_clinic_revenue_cash'] ?? 0) ?></p>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Payable Outstanding</p>
+                                    <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['provider_payable_outstanding'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Outstanding Invoices (Amount)</p>
+                                    <p class="mt-1 text-lg font-bold text-amber-700"><?= formatCurrency($summary['pending_invoice_amount'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Transactions (Period)</p>
+                                    <p class="mt-1 text-lg font-bold text-slate-800"><?= (int) ($summary['total_transactions'] ?? 0) ?></p>
                                 </div>
                             </div>
                             
@@ -711,13 +719,16 @@ function formatCurrency(value) {
     if (typeof value !== 'number') {
         value = parseFloat(value) || 0;
     }
-    
-    // Format as currency with 2 decimal places
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
+
+    const currencySymbol = '<?= settings()->getCurrencySymbol() ?>';
+    const currencyPosition = '<?= settings()->get('currency_position', 'before') ?>';
+    const formatted = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 2
     }).format(value);
+
+    return currencyPosition === 'after'
+        ? `${formatted} ${currencySymbol}`
+        : `${currencySymbol}${formatted}`;
 }
 </script>

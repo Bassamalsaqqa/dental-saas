@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Models;
+
+class ProviderPayoutModel extends TenantAwareModel
+{
+    protected $table = 'provider_payouts';
+    protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $protectFields = true;
+    protected $allowedFields = [
+        'clinic_id',
+        'finance_id',
+        'patient_id',
+        'provider_type',
+        'provider_user_id',
+        'provider_name_snapshot',
+        'split_mode',
+        'split_value',
+        'gross_amount',
+        'provider_share_amount',
+        'clinic_share_amount',
+        'provider_paid_amount',
+        'provider_balance_due',
+        'status',
+        'currency',
+        'notes',
+        'created_by',
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $useTimestamps = true;
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+
+    protected $validationRules = [
+        'finance_id' => 'required|integer',
+        'patient_id' => 'required|integer',
+        'provider_type' => 'required|in_list[user,guest]',
+        'split_mode' => 'required|in_list[percent,fixed]',
+        'split_value' => 'required|decimal|greater_than_equal_to[0]',
+        'gross_amount' => 'required|decimal|greater_than_equal_to[0]',
+        'provider_share_amount' => 'required|decimal|greater_than_equal_to[0]',
+        'clinic_share_amount' => 'required|decimal|greater_than_equal_to[0]',
+        'provider_paid_amount' => 'permit_empty|decimal|greater_than_equal_to[0]',
+        'provider_balance_due' => 'permit_empty|decimal|greater_than_equal_to[0]',
+        'status' => 'required|in_list[unpaid,partial,paid,void]',
+    ];
+
+    public function getByFinanceId(int $clinicId, int $financeId): ?array
+    {
+        return $this->where('clinic_id', $clinicId)
+            ->where('finance_id', $financeId)
+            ->first();
+    }
+
+    public function getStatsByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null): array
+    {
+        $startDateTime = !empty($startDate) ? ($startDate . ' 00:00:00') : null;
+        $endDateTime = !empty($endDate) ? ($endDate . ' 23:59:59') : null;
+
+        // Accrual view: filter by underlying finance transaction date.
+        $accrualBuilder = $this->db->table('provider_payouts pp')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        if ($startDateTime !== null) {
+            $accrualBuilder->where('f.created_at >=', $startDateTime);
+        }
+        if ($endDateTime !== null) {
+            $accrualBuilder->where('f.created_at <=', $endDateTime);
+        }
+
+        $row = $accrualBuilder
+            ->select('
+                SUM(pp.provider_share_amount) AS total_provider_share,
+                SUM(pp.provider_paid_amount) AS total_provider_paid,
+                SUM(pp.provider_balance_due) AS total_provider_balance,
+                SUM(pp.clinic_share_amount) AS total_clinic_share,
+                SUM(pp.gross_amount) AS total_gross_amount
+            ')
+            ->get()
+            ->getRowArray();
+
+        // Cash view: filter by payout payment date.
+        $paidCashBuilder = $this->db->table('provider_payout_payments ppp')
+            ->join('provider_payouts pp', 'pp.id = ppp.provider_payout_id', 'inner')
+            ->where('pp.clinic_id', $clinicId);
+
+        if (!empty($startDate)) {
+            $paidCashBuilder->where('ppp.paid_date >=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $paidCashBuilder->where('ppp.paid_date <=', $endDate);
+        }
+
+        $paidCash = $paidCashBuilder
+            ->selectSum('ppp.amount', 'total_paid_cash')
+            ->get()
+            ->getRowArray();
+
+        return [
+            'total_provider_share' => floatval($row['total_provider_share'] ?? 0),
+            'total_provider_paid' => floatval($row['total_provider_paid'] ?? 0),
+            'total_provider_paid_cash' => floatval($paidCash['total_paid_cash'] ?? 0),
+            'total_provider_balance' => floatval($row['total_provider_balance'] ?? 0),
+            'total_clinic_share' => floatval($row['total_clinic_share'] ?? 0),
+            'total_gross_amount' => floatval($row['total_gross_amount'] ?? 0),
+        ];
+    }
+}
