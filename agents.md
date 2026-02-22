@@ -74,6 +74,15 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - **Control Plane Defaults**: fixed time format persistence by saving `default_time_format` as string.
 - **Kiosk Settings**: toggle now saves immediately via AJAX; track color toggles; server responds JSON on AJAX errors.
 - **RBAC**: dashboard permission is `dashboard:view`; exam treatment plan button checks `treatments:create`.
+- **Finance Provider Split / Payouts**: implemented `provider_payouts` + `provider_payout_payments`, finance create/edit split controls, payout ledger page (`/finance/payouts`), and payout payment actions.
+- **Finance Stats Accounting Basis**: `/finance/stats` now exposes both accrual and cash-aware payout metrics:
+  - `provider_share_total` (accrual)
+  - `provider_paid_cash_total` (cash paid out)
+  - `provider_payable_outstanding`
+  - `net_clinic_revenue` (cash view)
+  - `net_clinic_revenue_accrual`
+- **Finance Reports Consistency**: `/reports?report_type=finance` now uses consistent start/end date filtering across transactions, payment methods, outstanding invoices, and monthly revenue; report cards use payout-aware values.
+- **Finance Create UX**: check-scan upload section is now always visible and optional; backend still only processes file if uploaded/valid.
 
 ## J) Current Improvement Phase (Authoritative)
 - Current phase: **Phase 0 - Notifications Hardening (pre-WhatsApp implementation)**.
@@ -86,3 +95,5 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.
 - Ensure IonAuth default group `members` exists in dumps to avoid "Invalid default group name" errors.
 - No DOM sinks in `app/Views` (guardrails enforce this).
+- After pulling latest finance changes, run migrations to ensure payout tables exist:
+  - `php spark migrate`
