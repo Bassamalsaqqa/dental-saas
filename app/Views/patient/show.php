@@ -275,22 +275,111 @@ function getFDINumber($universalNumber) {
                                 <?php endif; ?>
 
                                 <!-- Medical Information -->
-                                <?php if ($patient['medical_history'] || $patient['allergies']): ?>
+                                <?php
+                                $medicalAlerts = [
+                                    [
+                                        'enabled' => !empty($patient['alert_has_allergies'] ?? 0),
+                                        'icon' => 'fas fa-allergies',
+                                        'icon_class' => 'text-red-600',
+                                        'label' => 'Allergies',
+                                        'details' => $patient['alert_allergies_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_taking_medications'] ?? 0),
+                                        'icon' => 'fas fa-pills',
+                                        'icon_class' => 'text-blue-600',
+                                        'label' => 'Taking medications',
+                                        'details' => $patient['alert_medications_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_blood_thinners'] ?? 0),
+                                        'icon' => 'fas fa-tint',
+                                        'icon_class' => 'text-rose-600',
+                                        'label' => 'Blood thinners',
+                                        'details' => $patient['alert_blood_thinners_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_diabetes'] ?? 0),
+                                        'icon' => 'fas fa-syringe',
+                                        'icon_class' => 'text-amber-600',
+                                        'label' => 'Diabetes',
+                                        'details' => $patient['alert_diabetes_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_high_blood_pressure'] ?? 0),
+                                        'icon' => 'fas fa-heartbeat',
+                                        'icon_class' => 'text-pink-600',
+                                        'label' => 'High blood pressure',
+                                        'details' => $patient['alert_blood_pressure_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_heart_condition'] ?? 0),
+                                        'icon' => 'fas fa-heart',
+                                        'icon_class' => 'text-red-700',
+                                        'label' => 'Heart condition / surgery history',
+                                        'details' => $patient['alert_heart_condition_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_pregnant'] ?? 0),
+                                        'icon' => 'fas fa-baby',
+                                        'icon_class' => 'text-fuchsia-600',
+                                        'label' => 'Pregnant / possibly pregnant',
+                                        'details' => $patient['alert_pregnancy_details'] ?? null,
+                                    ],
+                                    [
+                                        'enabled' => !empty($patient['alert_anesthesia_problem'] ?? 0),
+                                        'icon' => 'fas fa-mask-face',
+                                        'icon_class' => 'text-indigo-600',
+                                        'label' => 'Anesthesia / sedation issue',
+                                        'details' => $patient['alert_anesthesia_problem_details'] ?? null,
+                                    ],
+                                ];
+                                $hasStructuredMedicalAlerts = false;
+                                foreach ($medicalAlerts as $medicalAlertRow) {
+                                    if (!empty($medicalAlertRow['enabled'])) {
+                                        $hasStructuredMedicalAlerts = true;
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <?php if ($hasStructuredMedicalAlerts || $patient['medical_history'] || $patient['allergies']): ?>
                                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
                                         <div class="px-6 py-4 border-b border-gray-200">
                                             <h3 class="text-lg font-semibold text-gray-800">Medical Information</h3>
                                         </div>
                                         <div class="px-6 py-4">
                                             <div class="space-y-4">
+                                                <?php if ($hasStructuredMedicalAlerts): ?>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-2">Medical Alerts (Quick Check)</label>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <?php foreach ($medicalAlerts as $medicalAlertRow): ?>
+                                                                <?php if (empty($medicalAlertRow['enabled'])) continue; ?>
+                                                                <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                                                                    <div class="flex items-start justify-between gap-2">
+                                                                        <span class="text-sm font-semibold text-amber-900 inline-flex items-start gap-2">
+                                                                            <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'text-amber-700') ?> mt-0.5 w-4 text-center"></i>
+                                                                            <span><?= esc($medicalAlertRow['label']) ?></span>
+                                                                        </span>
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900">Yes</span>
+                                                                    </div>
+                                                                    <?php if (!empty($medicalAlertRow['details'])): ?>
+                                                                        <p class="text-xs text-amber-800 mt-1"><?= nl2br(esc($medicalAlertRow['details'])) ?></p>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <?php if ($patient['medical_history']): ?>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-600 mb-1">Medical History</label>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= $hasStructuredMedicalAlerts ? 'Legacy Medical History' : 'Medical History' ?></label>
                                                         <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($patient['medical_history'])) ?></p>
                                                     </div>
                                                 <?php endif; ?>
                                                 <?php if ($patient['allergies']): ?>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-600 mb-1">Allergies</label>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= $hasStructuredMedicalAlerts ? 'Legacy Allergies' : 'Allergies' ?></label>
                                                         <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($patient['allergies'])) ?></p>
                                                     </div>
                                                 <?php endif; ?>

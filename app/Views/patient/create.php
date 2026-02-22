@@ -12,11 +12,25 @@ $optionalFieldKeys = [
     'zip_code',
     'emergency_contact_name',
     'emergency_contact_phone',
-    'medical_history',
-    'allergies',
     'insurance_provider',
     'insurance_number',
     'notes',
+    'alert_has_allergies',
+    'alert_allergies_details',
+    'alert_taking_medications',
+    'alert_medications_details',
+    'alert_blood_thinners',
+    'alert_blood_thinners_details',
+    'alert_diabetes',
+    'alert_diabetes_details',
+    'alert_high_blood_pressure',
+    'alert_blood_pressure_details',
+    'alert_heart_condition',
+    'alert_heart_condition_details',
+    'alert_pregnant',
+    'alert_pregnancy_details',
+    'alert_anesthesia_problem',
+    'alert_anesthesia_problem_details',
 ];
 $optionalEnabledByOld = false;
 foreach ($optionalFieldKeys as $fieldKey) {
@@ -25,6 +39,10 @@ foreach ($optionalFieldKeys as $fieldKey) {
         break;
     }
 }
+$alertBoolChecked = static function (string $key): bool {
+    $value = old($key);
+    return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true);
+};
 ?>
 
 <style>
@@ -200,16 +218,161 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                 </div>
 
                                 <div>
-                                    <h5 class="text-sm font-semibold text-gray-700 mb-3">Clinical and Insurance</h5>
+                                    <h5 class="text-sm font-semibold text-gray-700 mb-3">Medical Alerts (Quick Check)</h5>
+                                    <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+                                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                                            <?php
+                                            $medicalAlertItems = [
+                                                [
+                                                    'key' => 'alert_has_allergies',
+                                                    'icon' => 'fas fa-allergies',
+                                                    'icon_class' => 'text-red-500',
+                                                    'label' => 'Any allergies (medications / latex)?',
+                                                    'detail_name' => 'alert_allergies_details',
+                                                    'detail_label' => 'Allergy Details',
+                                                    'detail_type' => 'textarea',
+                                                ],
+                                                [
+                                                    'key' => 'alert_taking_medications',
+                                                    'icon' => 'fas fa-pills',
+                                                    'icon_class' => 'text-blue-500',
+                                                    'label' => 'Taking any medications now?',
+                                                    'detail_name' => 'alert_medications_details',
+                                                    'detail_label' => 'Medication Details',
+                                                    'detail_type' => 'textarea',
+                                                ],
+                                                [
+                                                    'key' => 'alert_blood_thinners',
+                                                    'icon' => 'fas fa-tint',
+                                                    'icon_class' => 'text-rose-500',
+                                                    'label' => 'Taking blood thinners?',
+                                                    'detail_name' => 'alert_blood_thinners_details',
+                                                    'detail_label' => 'Blood Thinner Details',
+                                                    'detail_type' => 'input',
+                                                ],
+                                                [
+                                                    'key' => 'alert_diabetes',
+                                                    'icon' => 'fas fa-syringe',
+                                                    'icon_class' => 'text-amber-500',
+                                                    'label' => 'Diabetes?',
+                                                    'detail_name' => 'alert_diabetes_details',
+                                                    'detail_label' => 'Diabetes Details',
+                                                    'detail_type' => 'input',
+                                                ],
+                                                [
+                                                    'key' => 'alert_high_blood_pressure',
+                                                    'icon' => 'fas fa-heartbeat',
+                                                    'icon_class' => 'text-pink-500',
+                                                    'label' => 'High blood pressure?',
+                                                    'detail_name' => 'alert_blood_pressure_details',
+                                                    'detail_label' => 'Blood Pressure Details',
+                                                    'detail_type' => 'input',
+                                                ],
+                                                [
+                                                    'key' => 'alert_heart_condition',
+                                                    'icon' => 'fas fa-heart',
+                                                    'icon_class' => 'text-red-600',
+                                                    'label' => 'Heart condition / heart surgery history?',
+                                                    'detail_name' => 'alert_heart_condition_details',
+                                                    'detail_label' => 'Heart Condition Details',
+                                                    'detail_type' => 'textarea',
+                                                ],
+                                                [
+                                                    'key' => 'alert_pregnant',
+                                                    'icon' => 'fas fa-baby',
+                                                    'icon_class' => 'text-fuchsia-500',
+                                                    'label' => 'Pregnant / possibly pregnant?',
+                                                    'detail_name' => 'alert_pregnancy_details',
+                                                    'detail_label' => 'Pregnancy Details',
+                                                    'detail_type' => 'input',
+                                                    'pregnancy_only' => true,
+                                                ],
+                                                [
+                                                    'key' => 'alert_anesthesia_problem',
+                                                    'icon' => 'fas fa-mask-face',
+                                                    'icon_class' => 'text-indigo-500',
+                                                    'label' => 'Problem with local anesthesia / sedation before?',
+                                                    'detail_name' => 'alert_anesthesia_problem_details',
+                                                    'detail_label' => 'Anesthesia Reaction Details',
+                                                    'detail_type' => 'textarea',
+                                                ],
+                                            ];
+                                            ?>
+                                            <?php foreach ($medicalAlertItems as $item): ?>
+                                                <?php
+                                                $isChecked = $alertBoolChecked($item['key']);
+                                                $detailVisible = $isChecked;
+                                                $isPregnancyOnly = !empty($item['pregnancy_only']);
+                                                ?>
+                                                <div
+                                                    class="rounded-lg border border-slate-200 bg-slate-50/70 p-3"
+                                                    data-medical-alert-item
+                                                    <?= $isPregnancyOnly ? 'data-pregnancy-only="1"' : '' ?>
+                                                >
+                                                    <div class="flex items-center justify-between gap-3">
+                                                        <label for="<?= esc($item['key']) ?>" class="text-sm font-medium text-gray-700 leading-snug pr-2 flex items-start gap-2">
+                                                            <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class'] ?? 'text-slate-500') ?> mt-0.5 w-4 text-center"></i>
+                                                            <span><?= esc($item['label']) ?></span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2 shrink-0">
+                                                            <span class="text-xs font-semibold text-gray-500">No</span>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    id="<?= esc($item['key']) ?>"
+                                                                    name="<?= esc($item['key']) ?>"
+                                                                    value="1"
+                                                                    class="sr-only medical-alert-toggle"
+                                                                    data-track-id="<?= esc($item['key']) ?>_track"
+                                                                    data-dot-id="<?= esc($item['key']) ?>_dot"
+                                                                    data-detail-target="<?= esc($item['detail_name']) ?>_wrap"
+                                                                    <?= $isChecked ? 'checked' : '' ?>
+                                                                >
+                                                                <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
+                                                                    <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? 'translateX(20px)' : 'translateX(0)' ?>;"></div>
+                                                                </div>
+                                                            </label>
+                                                            <span class="text-xs font-semibold text-blue-700">Yes</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        id="<?= esc($item['detail_name']) ?>_wrap"
+                                                        class="mt-3 <?= $detailVisible ? '' : 'hidden' ?>"
+                                                        data-medical-alert-detail-wrap
+                                                    >
+                                                        <label for="<?= esc($item['detail_name']) ?>" class="block text-xs font-semibold text-gray-600 mb-2">
+                                                            <?= esc($item['detail_label']) ?>
+                                                        </label>
+                                                        <?php if ($item['detail_type'] === 'textarea'): ?>
+                                                            <textarea
+                                                                id="<?= esc($item['detail_name']) ?>"
+                                                                name="<?= esc($item['detail_name']) ?>"
+                                                                rows="2"
+                                                                class="w-full px-3 py-2.5 text-sm bg-white border border-gray-300 rounded-xl"
+                                                                <?= $detailVisible ? '' : 'disabled' ?>
+                                                            ><?= esc(old($item['detail_name'])) ?></textarea>
+                                                        <?php else: ?>
+                                                            <input
+                                                                id="<?= esc($item['detail_name']) ?>"
+                                                                name="<?= esc($item['detail_name']) ?>"
+                                                                type="text"
+                                                                value="<?= esc(old($item['detail_name'])) ?>"
+                                                                class="w-full px-3 py-2.5 text-sm bg-white border border-gray-300 rounded-xl"
+                                                                <?= $detailVisible ? '' : 'disabled' ?>
+                                                            >
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h5 class="text-sm font-semibold text-gray-700 mb-3">Insurance & Notes</h5>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="md:col-span-2">
-                                            <label for="medical_history" class="block text-sm font-medium text-gray-700 mb-2">Medical History</label>
-                                            <textarea id="medical_history" name="medical_history" rows="3" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl"><?= old('medical_history') ?></textarea>
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label for="allergies" class="block text-sm font-medium text-gray-700 mb-2">Allergies</label>
-                                            <textarea id="allergies" name="allergies" rows="2" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl"><?= old('allergies') ?></textarea>
-                                        </div>
                                         <div>
                                             <label for="insurance_provider" class="block text-sm font-medium text-gray-700 mb-2">Insurance Provider</label>
                                             <input id="insurance_provider" name="insurance_provider" type="text" value="<?= old('insurance_provider') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
@@ -249,6 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const optionalSection = document.getElementById('optionalSection');
     const optionalTrack = document.getElementById('optionalTrack');
     const optionalDot = document.getElementById('optionalDot');
+    const genderSelect = document.getElementById('gender');
 
     function syncOptionalState() {
         if (!optionalToggle || !optionalSection) {
@@ -276,6 +440,87 @@ document.addEventListener('DOMContentLoaded', function () {
         optionalToggle.addEventListener('change', syncOptionalState);
         syncOptionalState();
     }
+
+    function syncMedicalAlertToggle(toggle) {
+        if (!toggle) {
+            return;
+        }
+
+        const track = document.getElementById(toggle.dataset.trackId || '');
+        const dot = document.getElementById(toggle.dataset.dotId || '');
+        const detailWrap = document.getElementById(toggle.dataset.detailTarget || '');
+
+        if (toggle.checked) {
+            track?.classList.remove('bg-gray-200');
+            track?.classList.add('bg-blue-500');
+            if (dot) {
+                dot.style.transform = 'translateX(20px)';
+            }
+            if (detailWrap) {
+                detailWrap.classList.remove('hidden');
+                detailWrap.querySelectorAll('input, textarea, select').forEach(function (field) {
+                    field.disabled = false;
+                });
+            }
+        } else {
+            track?.classList.remove('bg-blue-500');
+            track?.classList.add('bg-gray-200');
+            if (dot) {
+                dot.style.transform = 'translateX(0)';
+            }
+            if (detailWrap) {
+                detailWrap.classList.add('hidden');
+                detailWrap.querySelectorAll('input, textarea, select').forEach(function (field) {
+                    field.disabled = true;
+                    field.value = '';
+                });
+            }
+        }
+    }
+
+    function syncPregnancyVisibility() {
+        const pregnancyItems = document.querySelectorAll('[data-pregnancy-only="1"]');
+        const gender = (genderSelect?.value || '').toLowerCase();
+        const showPregnancy = gender === '' || gender === 'female';
+
+        pregnancyItems.forEach(function (item) {
+            const toggle = item.querySelector('.medical-alert-toggle');
+            const hiddenInputs = item.querySelectorAll('input[type="hidden"]');
+            const detailInputs = item.querySelectorAll('[data-medical-alert-detail-wrap] input, [data-medical-alert-detail-wrap] textarea');
+
+            if (showPregnancy) {
+                item.classList.remove('hidden');
+                if (toggle) {
+                    toggle.disabled = false;
+                }
+                hiddenInputs.forEach(function (input) { input.disabled = false; });
+                syncMedicalAlertToggle(toggle);
+                return;
+            }
+
+            item.classList.add('hidden');
+            if (toggle) {
+                toggle.checked = false;
+                toggle.disabled = true;
+                syncMedicalAlertToggle(toggle);
+            }
+            hiddenInputs.forEach(function (input) { input.disabled = true; });
+            detailInputs.forEach(function (input) {
+                input.disabled = true;
+                input.value = '';
+            });
+        });
+    }
+
+    document.querySelectorAll('.medical-alert-toggle').forEach(function (toggle) {
+        toggle.addEventListener('change', function () {
+            syncMedicalAlertToggle(toggle);
+        });
+        syncMedicalAlertToggle(toggle);
+    });
+
+    genderSelect?.addEventListener('change', syncPregnancyVisibility);
+    syncPregnancyVisibility();
 });
 </script>
 <?= $this->endSection() ?>

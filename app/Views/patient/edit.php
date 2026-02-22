@@ -1,6 +1,20 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php
+$alertBoolValue = static function (string $key, array $patient): bool {
+    $oldValue = old($key);
+    if ($oldValue !== null) {
+        return in_array($oldValue, ['1', 1, true, 'true', 'on', 'yes'], true);
+    }
+
+    return !empty($patient[$key]);
+};
+?>
+<style>
+.toggle-track { transition: background-color 0.2s ease; }
+.toggle-dot { transition: transform 0.2s ease; }
+</style>
 <!-- Enhanced Patient Edit with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
@@ -374,7 +388,7 @@
                             </div>
                         </div>
 
-                        <!-- Medical Information -->
+                        <!-- Medical Alerts -->
                         <div class="group/section relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
                             <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
@@ -382,52 +396,67 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-heartbeat text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Medical Information</h4>
+                                    <h4 class="text-xl font-bold text-gray-800">Medical Alerts (Quick Check)</h4>
                                 </div>
                                 
-                                 <div class="space-y-8">
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-heartbeat text-purple-600"></i>
-                                             <span>Medical History</span>
-                                         </label>
-                                         <div class="relative">
-                                             <textarea id="medical_history" name="medical_history" rows="4" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none <?= $validation->hasError('medical_history') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="Any relevant medical conditions, medications, etc."><?= old('medical_history', $patient['medical_history']) ?></textarea>
-                                             <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                                 <i class="fas fa-edit"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('medical_history')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('medical_history') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-exclamation-triangle text-red-600"></i>
-                                             <span>Allergies</span>
-                                         </label>
-                                         <div class="relative">
-                                             <textarea id="allergies" name="allergies" rows="2" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl resize-none <?= $validation->hasError('allergies') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="List any known allergies"><?= old('allergies', $patient['allergies']) ?></textarea>
-                                             <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                                 <i class="fas fa-edit"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('allergies')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('allergies') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-                                 </div>
+                                <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+                                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                                        <?php
+                                        $medicalAlertItems = [
+                                            ['key' => 'alert_has_allergies', 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500', 'label' => 'Any allergies (medications / latex)?', 'detail_name' => 'alert_allergies_details', 'detail_label' => 'Allergy Details', 'detail_type' => 'textarea'],
+                                            ['key' => 'alert_taking_medications', 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500', 'label' => 'Taking any medications now?', 'detail_name' => 'alert_medications_details', 'detail_label' => 'Medication Details', 'detail_type' => 'textarea'],
+                                            ['key' => 'alert_blood_thinners', 'icon' => 'fas fa-tint', 'icon_class' => 'text-rose-500', 'label' => 'Taking blood thinners?', 'detail_name' => 'alert_blood_thinners_details', 'detail_label' => 'Blood Thinner Details', 'detail_type' => 'input'],
+                                            ['key' => 'alert_diabetes', 'icon' => 'fas fa-syringe', 'icon_class' => 'text-amber-500', 'label' => 'Diabetes?', 'detail_name' => 'alert_diabetes_details', 'detail_label' => 'Diabetes Details', 'detail_type' => 'input'],
+                                            ['key' => 'alert_high_blood_pressure', 'icon' => 'fas fa-heartbeat', 'icon_class' => 'text-pink-500', 'label' => 'High blood pressure?', 'detail_name' => 'alert_blood_pressure_details', 'detail_label' => 'Blood Pressure Details', 'detail_type' => 'input'],
+                                            ['key' => 'alert_heart_condition', 'icon' => 'fas fa-heart', 'icon_class' => 'text-red-600', 'label' => 'Heart condition / heart surgery history?', 'detail_name' => 'alert_heart_condition_details', 'detail_label' => 'Heart Condition Details', 'detail_type' => 'textarea'],
+                                            ['key' => 'alert_pregnant', 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'label' => 'Pregnant / possibly pregnant?', 'detail_name' => 'alert_pregnancy_details', 'detail_label' => 'Pregnancy Details', 'detail_type' => 'input', 'pregnancy_only' => true],
+                                            ['key' => 'alert_anesthesia_problem', 'icon' => 'fas fa-mask-face', 'icon_class' => 'text-indigo-500', 'label' => 'Problem with local anesthesia / sedation before?', 'detail_name' => 'alert_anesthesia_problem_details', 'detail_label' => 'Anesthesia Reaction Details', 'detail_type' => 'textarea'],
+                                        ];
+                                        ?>
+                                        <?php foreach ($medicalAlertItems as $item): ?>
+                                            <?php
+                                            $isChecked = $alertBoolValue($item['key'], $patient);
+                                            $detailVisible = $isChecked;
+                                            $detailValue = old($item['detail_name'], $patient[$item['detail_name']] ?? '');
+                                            ?>
+                                            <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-medical-alert-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <label for="<?= esc($item['key']) ?>" class="text-sm font-medium text-gray-700 leading-snug pr-2 flex items-start gap-2">
+                                                        <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class'] ?? 'text-slate-500') ?> mt-0.5 w-4 text-center"></i>
+                                                        <span><?= esc($item['label']) ?></span>
+                                                    </label>
+                                                    <div class="flex items-center gap-2 shrink-0">
+                                                        <span class="text-xs font-semibold text-gray-500">No</span>
+                                                        <label class="inline-flex items-center cursor-pointer">
+                                                            <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
+                                                            <input type="checkbox"
+                                                                   id="<?= esc($item['key']) ?>"
+                                                                   name="<?= esc($item['key']) ?>"
+                                                                   value="1"
+                                                                   class="sr-only medical-alert-toggle"
+                                                                   data-track-id="<?= esc($item['key']) ?>_track"
+                                                                   data-dot-id="<?= esc($item['key']) ?>_dot"
+                                                                   data-detail-target="<?= esc($item['detail_name']) ?>_wrap"
+                                                                   <?= $isChecked ? 'checked' : '' ?>>
+                                                            <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
+                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? 'translateX(20px)' : 'translateX(0)' ?>;"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="text-xs font-semibold text-blue-700">Yes</span>
+                                                    </div>
+                                                </div>
+                                                <div id="<?= esc($item['detail_name']) ?>_wrap" class="mt-3 <?= $detailVisible ? '' : 'hidden' ?>" data-medical-alert-detail-wrap>
+                                                    <label for="<?= esc($item['detail_name']) ?>" class="block text-xs font-semibold text-gray-600 mb-2"><?= esc($item['detail_label']) ?></label>
+                                                    <?php if ($item['detail_type'] === 'textarea'): ?>
+                                                        <textarea id="<?= esc($item['detail_name']) ?>" name="<?= esc($item['detail_name']) ?>" rows="2" class="w-full px-3 py-2.5 text-sm bg-white border border-gray-300 rounded-xl" <?= $detailVisible ? '' : 'disabled' ?>><?= esc($detailValue) ?></textarea>
+                                                    <?php else: ?>
+                                                        <input id="<?= esc($item['detail_name']) ?>" name="<?= esc($item['detail_name']) ?>" type="text" value="<?= esc($detailValue) ?>" class="w-full px-3 py-2.5 text-sm bg-white border border-gray-300 rounded-xl" <?= $detailVisible ? '' : 'disabled' ?>>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -485,5 +514,74 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const genderSelect = document.getElementById('gender');
+
+    function syncMedicalAlertToggle(toggle) {
+        if (!toggle) return;
+        const track = document.getElementById(toggle.dataset.trackId || '');
+        const dot = document.getElementById(toggle.dataset.dotId || '');
+        const detailWrap = document.getElementById(toggle.dataset.detailTarget || '');
+
+        if (toggle.checked) {
+            track?.classList.remove('bg-gray-200');
+            track?.classList.add('bg-blue-500');
+            if (dot) dot.style.transform = 'translateX(20px)';
+            if (detailWrap) {
+                detailWrap.classList.remove('hidden');
+                detailWrap.querySelectorAll('input, textarea, select').forEach((field) => { field.disabled = false; });
+            }
+        } else {
+            track?.classList.remove('bg-blue-500');
+            track?.classList.add('bg-gray-200');
+            if (dot) dot.style.transform = 'translateX(0)';
+            if (detailWrap) {
+                detailWrap.classList.add('hidden');
+                detailWrap.querySelectorAll('input, textarea, select').forEach((field) => {
+                    field.disabled = true;
+                    field.value = '';
+                });
+            }
+        }
+    }
+
+    function syncPregnancyVisibility() {
+        const gender = (genderSelect?.value || '').toLowerCase();
+        const showPregnancy = gender === '' || gender === 'female';
+
+        document.querySelectorAll('[data-pregnancy-only="1"]').forEach(function (item) {
+            const toggle = item.querySelector('.medical-alert-toggle');
+            const hiddenInputs = item.querySelectorAll('input[type="hidden"]');
+            const detailInputs = item.querySelectorAll('[data-medical-alert-detail-wrap] input, [data-medical-alert-detail-wrap] textarea');
+
+            if (showPregnancy) {
+                item.classList.remove('hidden');
+                if (toggle) toggle.disabled = false;
+                hiddenInputs.forEach((input) => { input.disabled = false; });
+                syncMedicalAlertToggle(toggle);
+                return;
+            }
+
+            item.classList.add('hidden');
+            if (toggle) {
+                toggle.checked = false;
+                toggle.disabled = true;
+                syncMedicalAlertToggle(toggle);
+            }
+            hiddenInputs.forEach((input) => { input.disabled = true; });
+            detailInputs.forEach((input) => { input.disabled = true; input.value = ''; });
+        });
+    }
+
+    document.querySelectorAll('.medical-alert-toggle').forEach(function (toggle) {
+        toggle.addEventListener('change', function () { syncMedicalAlertToggle(toggle); });
+        syncMedicalAlertToggle(toggle);
+    });
+
+    genderSelect?.addEventListener('change', syncPregnancyVisibility);
+    syncPregnancyVisibility();
+});
+</script>
 <?= $this->endSection() ?>
 

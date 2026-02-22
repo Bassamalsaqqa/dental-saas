@@ -301,6 +301,59 @@ class Patient extends BaseController
             $currentUser = $this->getCurrentUser();
             $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
 
+            $boolField = static function ($value): int {
+                return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true) ? 1 : 0;
+            };
+            $textField = static function ($value): ?string {
+                $value = trim((string) $value);
+                return $value === '' ? null : $value;
+            };
+
+            $alertHasAllergies = $boolField($this->request->getPost('alert_has_allergies'));
+            $alertTakingMeds = $boolField($this->request->getPost('alert_taking_medications'));
+            $alertBloodThinners = $boolField($this->request->getPost('alert_blood_thinners'));
+            $alertDiabetes = $boolField($this->request->getPost('alert_diabetes'));
+            $alertHighBloodPressure = $boolField($this->request->getPost('alert_high_blood_pressure'));
+            $alertHeartCondition = $boolField($this->request->getPost('alert_heart_condition'));
+            $alertPregnant = $boolField($this->request->getPost('alert_pregnant'));
+            $alertAnesthesiaProblem = $boolField($this->request->getPost('alert_anesthesia_problem'));
+
+            $alertAllergiesDetails = $alertHasAllergies ? $textField($this->request->getPost('alert_allergies_details')) : null;
+            $alertMedicationsDetails = $alertTakingMeds ? $textField($this->request->getPost('alert_medications_details')) : null;
+            $alertBloodThinnersDetails = $alertBloodThinners ? $textField($this->request->getPost('alert_blood_thinners_details')) : null;
+            $alertDiabetesDetails = $alertDiabetes ? $textField($this->request->getPost('alert_diabetes_details')) : null;
+            $alertBloodPressureDetails = $alertHighBloodPressure ? $textField($this->request->getPost('alert_blood_pressure_details')) : null;
+            $alertHeartConditionDetails = $alertHeartCondition ? $textField($this->request->getPost('alert_heart_condition_details')) : null;
+            $alertPregnancyDetails = $alertPregnant ? $textField($this->request->getPost('alert_pregnancy_details')) : null;
+            $alertAnesthesiaProblemDetails = $alertAnesthesiaProblem ? $textField($this->request->getPost('alert_anesthesia_problem_details')) : null;
+
+            // Backward-compatible summary text for legacy views that still render medical_history/allergies.
+            $legacyMedicalHistoryLines = [];
+            if ($alertTakingMeds) {
+                $legacyMedicalHistoryLines[] = 'Taking medications' . ($alertMedicationsDetails ? ': ' . $alertMedicationsDetails : '');
+            }
+            if ($alertBloodThinners) {
+                $legacyMedicalHistoryLines[] = 'Taking blood thinners' . ($alertBloodThinnersDetails ? ': ' . $alertBloodThinnersDetails : '');
+            }
+            if ($alertDiabetes) {
+                $legacyMedicalHistoryLines[] = 'Diabetes' . ($alertDiabetesDetails ? ': ' . $alertDiabetesDetails : '');
+            }
+            if ($alertHighBloodPressure) {
+                $legacyMedicalHistoryLines[] = 'High blood pressure' . ($alertBloodPressureDetails ? ': ' . $alertBloodPressureDetails : '');
+            }
+            if ($alertHeartCondition) {
+                $legacyMedicalHistoryLines[] = 'Heart condition / surgery history' . ($alertHeartConditionDetails ? ': ' . $alertHeartConditionDetails : '');
+            }
+            if ($alertPregnant) {
+                $legacyMedicalHistoryLines[] = 'Pregnant / possibly pregnant' . ($alertPregnancyDetails ? ': ' . $alertPregnancyDetails : '');
+            }
+            if ($alertAnesthesiaProblem) {
+                $legacyMedicalHistoryLines[] = 'Local anesthesia / sedation issue' . ($alertAnesthesiaProblemDetails ? ': ' . $alertAnesthesiaProblemDetails : '');
+            }
+
+            $legacyMedicalHistory = !empty($legacyMedicalHistoryLines) ? implode("\n", $legacyMedicalHistoryLines) : null;
+            $legacyAllergies = $alertHasAllergies ? ($alertAllergiesDetails ?? 'Yes') : null;
+
             $patientData = [
                 'first_name' => $this->request->getPost('first_name'),
                 'last_name' => $this->request->getPost('last_name'),
@@ -315,8 +368,24 @@ class Patient extends BaseController
                 'country' => $this->request->getPost('country'),
                 'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
                 'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
-                'medical_history' => $this->request->getPost('medical_history'),
-                'allergies' => $this->request->getPost('allergies'),
+                'medical_history' => $legacyMedicalHistory,
+                'allergies' => $legacyAllergies,
+                'alert_has_allergies' => $alertHasAllergies,
+                'alert_allergies_details' => $alertAllergiesDetails,
+                'alert_taking_medications' => $alertTakingMeds,
+                'alert_medications_details' => $alertMedicationsDetails,
+                'alert_blood_thinners' => $alertBloodThinners,
+                'alert_blood_thinners_details' => $alertBloodThinnersDetails,
+                'alert_diabetes' => $alertDiabetes,
+                'alert_diabetes_details' => $alertDiabetesDetails,
+                'alert_high_blood_pressure' => $alertHighBloodPressure,
+                'alert_blood_pressure_details' => $alertBloodPressureDetails,
+                'alert_heart_condition' => $alertHeartCondition,
+                'alert_heart_condition_details' => $alertHeartConditionDetails,
+                'alert_pregnant' => $alertPregnant,
+                'alert_pregnancy_details' => $alertPregnancyDetails,
+                'alert_anesthesia_problem' => $alertAnesthesiaProblem,
+                'alert_anesthesia_problem_details' => $alertAnesthesiaProblemDetails,
                 'insurance_provider' => $this->request->getPost('insurance_provider'),
                 'insurance_number' => $this->request->getPost('insurance_number'),
                 'notes' => $this->request->getPost('notes'),
@@ -741,6 +810,58 @@ class Patient extends BaseController
             $email = null;
         }
 
+        $boolField = static function ($value): int {
+            return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true) ? 1 : 0;
+        };
+        $textField = static function ($value): ?string {
+            $value = trim((string) $value);
+            return $value === '' ? null : $value;
+        };
+
+        $alertHasAllergies = $boolField($this->request->getPost('alert_has_allergies'));
+        $alertTakingMeds = $boolField($this->request->getPost('alert_taking_medications'));
+        $alertBloodThinners = $boolField($this->request->getPost('alert_blood_thinners'));
+        $alertDiabetes = $boolField($this->request->getPost('alert_diabetes'));
+        $alertHighBloodPressure = $boolField($this->request->getPost('alert_high_blood_pressure'));
+        $alertHeartCondition = $boolField($this->request->getPost('alert_heart_condition'));
+        $alertPregnant = $boolField($this->request->getPost('alert_pregnant'));
+        $alertAnesthesiaProblem = $boolField($this->request->getPost('alert_anesthesia_problem'));
+
+        $alertAllergiesDetails = $alertHasAllergies ? $textField($this->request->getPost('alert_allergies_details')) : null;
+        $alertMedicationsDetails = $alertTakingMeds ? $textField($this->request->getPost('alert_medications_details')) : null;
+        $alertBloodThinnersDetails = $alertBloodThinners ? $textField($this->request->getPost('alert_blood_thinners_details')) : null;
+        $alertDiabetesDetails = $alertDiabetes ? $textField($this->request->getPost('alert_diabetes_details')) : null;
+        $alertBloodPressureDetails = $alertHighBloodPressure ? $textField($this->request->getPost('alert_blood_pressure_details')) : null;
+        $alertHeartConditionDetails = $alertHeartCondition ? $textField($this->request->getPost('alert_heart_condition_details')) : null;
+        $alertPregnancyDetails = $alertPregnant ? $textField($this->request->getPost('alert_pregnancy_details')) : null;
+        $alertAnesthesiaProblemDetails = $alertAnesthesiaProblem ? $textField($this->request->getPost('alert_anesthesia_problem_details')) : null;
+
+        $legacyMedicalHistoryLines = [];
+        if ($alertTakingMeds) {
+            $legacyMedicalHistoryLines[] = 'Taking medications' . ($alertMedicationsDetails ? ': ' . $alertMedicationsDetails : '');
+        }
+        if ($alertBloodThinners) {
+            $legacyMedicalHistoryLines[] = 'Taking blood thinners' . ($alertBloodThinnersDetails ? ': ' . $alertBloodThinnersDetails : '');
+        }
+        if ($alertDiabetes) {
+            $legacyMedicalHistoryLines[] = 'Diabetes' . ($alertDiabetesDetails ? ': ' . $alertDiabetesDetails : '');
+        }
+        if ($alertHighBloodPressure) {
+            $legacyMedicalHistoryLines[] = 'High blood pressure' . ($alertBloodPressureDetails ? ': ' . $alertBloodPressureDetails : '');
+        }
+        if ($alertHeartCondition) {
+            $legacyMedicalHistoryLines[] = 'Heart condition / surgery history' . ($alertHeartConditionDetails ? ': ' . $alertHeartConditionDetails : '');
+        }
+        if ($alertPregnant) {
+            $legacyMedicalHistoryLines[] = 'Pregnant / possibly pregnant' . ($alertPregnancyDetails ? ': ' . $alertPregnancyDetails : '');
+        }
+        if ($alertAnesthesiaProblem) {
+            $legacyMedicalHistoryLines[] = 'Local anesthesia / sedation issue' . ($alertAnesthesiaProblemDetails ? ': ' . $alertAnesthesiaProblemDetails : '');
+        }
+
+        $legacyMedicalHistory = !empty($legacyMedicalHistoryLines) ? implode("\n", $legacyMedicalHistoryLines) : null;
+        $legacyAllergies = $alertHasAllergies ? ($alertAllergiesDetails ?? 'Yes') : null;
+
         $patientData = [
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name'),
@@ -755,8 +876,24 @@ class Patient extends BaseController
             'country' => $this->request->getPost('country'),
             'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
             'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
-            'medical_history' => $this->request->getPost('medical_history'),
-            'allergies' => $this->request->getPost('allergies'),
+            'medical_history' => $legacyMedicalHistory,
+            'allergies' => $legacyAllergies,
+            'alert_has_allergies' => $alertHasAllergies,
+            'alert_allergies_details' => $alertAllergiesDetails,
+            'alert_taking_medications' => $alertTakingMeds,
+            'alert_medications_details' => $alertMedicationsDetails,
+            'alert_blood_thinners' => $alertBloodThinners,
+            'alert_blood_thinners_details' => $alertBloodThinnersDetails,
+            'alert_diabetes' => $alertDiabetes,
+            'alert_diabetes_details' => $alertDiabetesDetails,
+            'alert_high_blood_pressure' => $alertHighBloodPressure,
+            'alert_blood_pressure_details' => $alertBloodPressureDetails,
+            'alert_heart_condition' => $alertHeartCondition,
+            'alert_heart_condition_details' => $alertHeartConditionDetails,
+            'alert_pregnant' => $alertPregnant,
+            'alert_pregnancy_details' => $alertPregnancyDetails,
+            'alert_anesthesia_problem' => $alertAnesthesiaProblem,
+            'alert_anesthesia_problem_details' => $alertAnesthesiaProblemDetails,
             'notes' => $this->request->getPost('notes')
         ];
 
