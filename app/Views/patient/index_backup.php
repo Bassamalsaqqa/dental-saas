@@ -96,7 +96,7 @@
                                 <div class="relative">
                                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div class="relative w-14 h-14 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                        <span class="text-white font-bold text-lg"><?= strtoupper(substr($patient['first_name'], 0, 1) . substr($patient['last_name'], 0, 1)) ?></span>
+                                        <span class="text-white font-bold text-lg"><?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?></span>
                                     </div>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -222,7 +222,7 @@
                                                     <div class="relative">
                                                         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl blur-lg opacity-75 group-hover/row:opacity-100 transition-opacity duration-300"></div>
                                                         <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg group-hover/row:scale-110 group-hover/row:rotate-3 transition-all duration-300">
-                                                            <span class="text-white font-bold text-sm"><?= strtoupper(substr($patient['first_name'], 0, 1) . substr($patient['last_name'], 0, 1)) ?></span>
+                                                            <span class="text-white font-bold text-sm"><?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?></span>
                                                         </div>
                                                     </div>
                                                     <div>

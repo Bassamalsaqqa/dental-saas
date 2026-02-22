@@ -467,7 +467,7 @@
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
                                             <div class="relative w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-200">
-                                                <span class="text-white font-bold text-xs"><?= strtoupper(substr($clinic['name'], 0, 2)) ?></span>
+                                                <span class="text-white font-bold text-xs"><?= esc(ui_badge_text($clinic['name'] ?? '', 2, 'CL')) ?></span>
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0 space-y-1">

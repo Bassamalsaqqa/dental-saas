@@ -222,7 +222,7 @@
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg blur opacity-40 group-hover:opacity-100 transition-opacity duration-200"></div>
                                 <div class="relative w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <span class="text-xs font-bold text-white"><?= strtoupper(substr($userEmail ?? 'SA', 0, 2)) ?></span>
+                                    <span class="text-xs font-bold text-white"><?= esc(ui_badge_text($userEmail ?? '', 2, 'SA')) ?></span>
                                 </div>
                             </div>
                             <div class="flex-1 min-w-0">

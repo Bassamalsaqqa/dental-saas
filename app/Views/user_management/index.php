@@ -71,7 +71,7 @@
                                     <a href="<?= base_url('user-management/' . $user['id']) ?>" class="text-decoration-none text-reset d-block rounded py-1 px-1">
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                                                <?= strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) ?>
+                                                <?= esc(ui_initials($user['first_name'] ?? '', $user['last_name'] ?? '', 'U')) ?>
                                             </div>
                                             <div>
                                                 <div class="fw-bold"><?= esc($user['first_name'] . ' ' . $user['last_name']) ?></div>

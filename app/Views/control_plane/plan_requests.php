@@ -243,7 +243,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
                                             <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
-                                                <?= strtoupper(substr($request['clinic_name'] ?? 'CL', 0, 2)) ?>
+                                                <?= esc(ui_badge_text($request['clinic_name'] ?? '', 2, 'CL')) ?>
                                             </div>
                                             <span class="text-sm font-medium text-slate-900"><?= esc($request['clinic_name'] ?? 'Clinic') ?></span>
                                         </div>

@@ -38,7 +38,7 @@
                         <div class="relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75"></div>
                             <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl">
-                                <?= strtoupper(substr($item['item_name'], 0, 2)) ?>
+                                <?= esc(ui_badge_text($item['item_name'] ?? '', 2, 'IT')) ?>
                             </div>
                         </div>
                         <div>

@@ -251,7 +251,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center space-x-3">
                                             <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
-                                                <?= strtoupper(substr($plan['name'] ?? 'PL', 0, 2)) ?>
+                                                <?= esc(ui_badge_text($plan['name'] ?? '', 2, 'PL')) ?>
                                             </div>
                                             <div>
                                                 <span class="block text-sm font-medium text-slate-900"><?= esc($plan['name'] ?? 'Plan') ?></span>

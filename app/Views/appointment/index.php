@@ -291,7 +291,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
                                             <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300">
-                                                <?= strtoupper(substr($appointment['first_name'], 0, 1) . substr($appointment['last_name'], 0, 1)) ?>
+                                                <?= esc(ui_initials($appointment['first_name'] ?? '', $appointment['last_name'] ?? '', 'P')) ?>
                                             </div>
                                         </div>
                                         <div class="space-y-2">
@@ -1069,6 +1069,23 @@ function appendAppointments(appointments) {
     });
 }
 
+function getSafeInitials(firstName, lastName, fallback = 'P') {
+    const firstChars = Array.from(String(firstName || '').trim());
+    const lastChars = Array.from(String(lastName || '').trim());
+    const initials = ((firstChars[0] || '') + (lastChars[0] || '')).trim();
+
+    if (initials) {
+        return initials.toLocaleUpperCase();
+    }
+
+    const fallbackChars = Array.from(String(firstName || '').trim());
+    if (fallbackChars.length > 0) {
+        return fallbackChars.slice(0, 2).join('').toLocaleUpperCase();
+    }
+
+    return fallback;
+}
+
 // Create appointment element HTML
 function createAppointmentElement(appointment) {
     const div = document.createElement('div');
@@ -1110,7 +1127,7 @@ function createAppointmentElement(appointment) {
     avatarBg.className = 'absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
     const avatarContent = document.createElement('div');
     avatarContent.className = 'relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300';
-    avatarContent.textContent = appointment.first_name.charAt(0).toUpperCase() + appointment.last_name.charAt(0).toUpperCase();
+    avatarContent.textContent = getSafeInitials(appointment.first_name, appointment.last_name, 'P');
     avatarContainer.appendChild(avatarBg);
     avatarContainer.appendChild(avatarContent);
     patientInfoDiv.appendChild(avatarContainer);

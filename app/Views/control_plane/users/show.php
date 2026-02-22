@@ -58,7 +58,7 @@
                 <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-white">
                     <div class="text-center">
                         <?php 
-                            $initials = strtoupper(substr($userProfile['first_name'] ?? '', 0, 1) . substr($userProfile['last_name'] ?? '', 0, 1)) ?: 'U';
+                            $initials = ui_initials($userProfile['first_name'] ?? '', $userProfile['last_name'] ?? '', 'U');
                         ?>
                         <div class="w-24 h-24 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm mx-auto mb-4 shadow-inner">
                             <span class="text-white text-4xl font-bold"><?= $initials ?></span>

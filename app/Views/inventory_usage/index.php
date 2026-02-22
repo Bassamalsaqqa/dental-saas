@@ -106,7 +106,7 @@
                                             <a href="<?= base_url('inventory-usage/' . $record['id']) ?>" class="group block rounded-md hover:bg-blue-50/60 transition-colors duration-200">
                                                 <div class="flex items-center">
                                                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                                                        <?= strtoupper(substr($record['item_name'], 0, 2)) ?>
+                                                        <?= esc(ui_badge_text($record['item_name'] ?? '', 2, 'IT')) ?>
                                                     </div>
                                                     <div class="ml-4">
                                                         <div class="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors"><?= $record['item_name'] ?></div>

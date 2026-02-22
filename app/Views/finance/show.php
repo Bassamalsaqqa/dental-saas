@@ -574,7 +574,7 @@
                     </h2>
                     <div class="flex flex-col items-center text-center mb-6">
                         <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-xl group-hover:scale-110 transition-transform mb-4">
-                            <?= substr($patient['first_name'], 0, 1) . substr($patient['last_name'], 0, 1) ?>
+                            <?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?>
                         </div>
                         <div class="min-w-0">
                             <div class="text-lg font-bold text-gray-800">

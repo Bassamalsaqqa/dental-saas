@@ -61,7 +61,7 @@
                                 
                                 <div class="flex items-center space-x-6">
                                     <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                                        <?= strtoupper(substr($user->first_name ?? '', 0, 1) . substr($user->last_name ?? '', 0, 1)) ?>
+                                        <?= esc(ui_initials($user->first_name ?? '', $user->last_name ?? '', 'U')) ?>
                                     </div>
                                     <div>
                                         <h5 class="text-lg font-bold text-gray-900">

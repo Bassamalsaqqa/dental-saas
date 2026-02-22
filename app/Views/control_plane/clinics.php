@@ -365,11 +365,14 @@ function getAvatarInitials(name) {
     if (!name) {
         return 'CL';
     }
-    const words = name.trim().split(/\s+/).filter(Boolean);
+    const words = String(name).trim().split(/\s+/).filter(Boolean);
+    const getFirstChar = (value) => Array.from(String(value || '').trim())[0] || '';
+    const getFirstChars = (value, count = 2) => Array.from(String(value || '').trim()).slice(0, count).join('');
+
     if (words.length === 1) {
-        return words[0].substring(0, 2).toUpperCase();
+        return getFirstChars(words[0], 2).toLocaleUpperCase() || 'CL';
     }
-    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    return (getFirstChar(words[0]) + getFirstChar(words[1])).toLocaleUpperCase() || 'CL';
 }
 
 function getAvatarColor(seed) {
@@ -497,7 +500,7 @@ $(document).ready(function() {
                     const slug = escapeHtml(row.slug || 'no-slug');
                     const id = escapeHtml(row.id || '');
                     const initials = escapeHtml(getAvatarInitials(nameRaw));
-                    const avatarColor = getAvatarColor(initials || name.charAt(0));
+                    const avatarColor = getAvatarColor(initials || (Array.from(nameRaw)[0] || 'C'));
                     const detailUrl = `${baseUrl}controlplane/clinics/${id}`;
                     return `
                         <a href="${detailUrl}" class="block rounded-md hover:bg-emerald-50/70 transition-colors duration-200 cursor-pointer">

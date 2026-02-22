@@ -34,7 +34,7 @@
                     <!-- Profile Picture and Basic Info -->
                     <div class="flex items-center space-x-6">
                         <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                            <?= strtoupper(substr($user->first_name ?? '', 0, 1) . substr($user->last_name ?? '', 0, 1)) ?>
+                            <?= esc(ui_initials($user->first_name ?? '', $user->last_name ?? '', 'U')) ?>
                         </div>
                         <div>
                             <h2 class="text-2xl font-bold text-gray-900">
