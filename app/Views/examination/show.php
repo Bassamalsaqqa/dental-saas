@@ -138,9 +138,77 @@
                 </div>
             </div>
             <div class="space-y-6">
+                <?php
+                $healthUpdateRows = [
+                    [
+                        'enabled' => !empty($examination['health_update_medical_changes'] ?? 0),
+                        'label' => 'Medical changes since last visit',
+                        'icon' => 'fas fa-notes-medical',
+                        'icon_class' => 'text-emerald-600',
+                    ],
+                    [
+                        'enabled' => !empty($examination['health_update_medication_changes'] ?? 0),
+                        'label' => 'Started or stopped medications',
+                        'icon' => 'fas fa-pills',
+                        'icon_class' => 'text-blue-600',
+                    ],
+                    [
+                        'enabled' => !empty($examination['health_update_allergies_reactions'] ?? 0),
+                        'label' => 'New allergies or reactions',
+                        'icon' => 'fas fa-allergies',
+                        'icon_class' => 'text-red-600',
+                    ],
+                    [
+                        'enabled' => !empty($examination['health_update_pregnancy'] ?? 0),
+                        'label' => 'Pregnant / possibly pregnant',
+                        'icon' => 'fas fa-baby',
+                        'icon_class' => 'text-fuchsia-600',
+                    ],
+                    [
+                        'enabled' => !empty($examination['health_update_current_symptoms'] ?? 0),
+                        'label' => 'Current pain / swelling / bleeding',
+                        'icon' => 'fas fa-triangle-exclamation',
+                        'icon_class' => 'text-amber-600',
+                    ],
+                ];
+                $hasStructuredHealthUpdate = false;
+                foreach ($healthUpdateRows as $healthUpdateRow) {
+                    if (!empty($healthUpdateRow['enabled'])) {
+                        $hasStructuredHealthUpdate = true;
+                        break;
+                    }
+                }
+                ?>
+                <?php if ($hasStructuredHealthUpdate || !empty($examination['health_update_details'])): ?>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Health Update Since Last Visit</label>
+                    <div class="mt-2 p-4 bg-gray-50 rounded-lg space-y-3">
+                        <?php if ($hasStructuredHealthUpdate): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <?php foreach ($healthUpdateRows as $healthUpdateRow): ?>
+                                    <?php if (empty($healthUpdateRow['enabled'])) continue; ?>
+                                    <div class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 flex items-center justify-between gap-2">
+                                        <span class="text-sm font-medium text-amber-900 inline-flex items-center gap-2">
+                                            <i class="<?= esc($healthUpdateRow['icon']) ?> <?= esc($healthUpdateRow['icon_class']) ?> w-4 text-center"></i>
+                                            <span><?= esc($healthUpdateRow['label']) ?></span>
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900">Yes</span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($examination['health_update_details'])): ?>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Health Update Details</label>
+                                <p class="text-gray-900 text-sm"><?= nl2br(esc($examination['health_update_details'])) ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <?php if (!empty($examination['medical_history'])): ?>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600">Medical History</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 text-gray-600"><?= ($hasStructuredHealthUpdate || !empty($examination['health_update_details'])) ? 'Legacy Medical History' : 'Medical History' ?></label>
                     <div class="mt-2 p-4 bg-gray-50 rounded-lg">
                         <p class="text-gray-900"><?= $examination['medical_history'] ?></p>
                     </div>
@@ -154,7 +222,7 @@
                     </div>
                 </div>
                 <?php endif; ?>
-                <?php if (empty($examination['medical_history']) && empty($examination['dental_history'])): ?>
+                <?php if (empty($examination['medical_history']) && empty($examination['dental_history']) && !$hasStructuredHealthUpdate && empty($examination['health_update_details'])): ?>
                 <div class="text-center py-8">
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-history text-gray-400 text-2xl"></i>

@@ -104,13 +104,57 @@ class Examination extends BaseController
         $currentUser = $this->getCurrentUser();
         $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
 
+        $boolField = static function ($value): int {
+            return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true) ? 1 : 0;
+        };
+        $textField = static function ($value): ?string {
+            $value = trim((string) $value);
+            return $value === '' ? null : $value;
+        };
+
+        $healthMedicalChanges = $boolField($this->request->getPost('health_update_medical_changes'));
+        $healthMedicationChanges = $boolField($this->request->getPost('health_update_medication_changes'));
+        $healthAllergiesReactions = $boolField($this->request->getPost('health_update_allergies_reactions'));
+        $healthPregnancy = $boolField($this->request->getPost('health_update_pregnancy'));
+        $healthCurrentSymptoms = $boolField($this->request->getPost('health_update_current_symptoms'));
+        $healthUpdateDetails = ($healthMedicalChanges || $healthMedicationChanges || $healthAllergiesReactions || $healthPregnancy || $healthCurrentSymptoms)
+            ? $textField($this->request->getPost('health_update_details'))
+            : null;
+
+        $legacyMedicalHistoryLines = [];
+        if ($healthMedicalChanges) {
+            $legacyMedicalHistoryLines[] = 'Medical changes since last visit';
+        }
+        if ($healthMedicationChanges) {
+            $legacyMedicalHistoryLines[] = 'Started or stopped medications';
+        }
+        if ($healthAllergiesReactions) {
+            $legacyMedicalHistoryLines[] = 'New allergies or reactions';
+        }
+        if ($healthPregnancy) {
+            $legacyMedicalHistoryLines[] = 'Pregnant / possibly pregnant';
+        }
+        if ($healthCurrentSymptoms) {
+            $legacyMedicalHistoryLines[] = 'Current pain / swelling / bleeding';
+        }
+        if ($healthUpdateDetails) {
+            $legacyMedicalHistoryLines[] = 'Details: ' . $healthUpdateDetails;
+        }
+        $legacyMedicalHistory = !empty($legacyMedicalHistoryLines) ? implode("\n", $legacyMedicalHistoryLines) : null;
+
         $examinationData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_date' => $examinationDate,
             'examination_type' => $this->request->getPost('examination_type'),
             'chief_complaint' => $this->request->getPost('chief_complaint'),
             'history_of_present_illness' => $this->request->getPost('history_of_present_illness'),
-            'medical_history' => $this->request->getPost('medical_history'),
+            'medical_history' => $legacyMedicalHistory,
+            'health_update_medical_changes' => $healthMedicalChanges,
+            'health_update_medication_changes' => $healthMedicationChanges,
+            'health_update_allergies_reactions' => $healthAllergiesReactions,
+            'health_update_pregnancy' => $healthPregnancy,
+            'health_update_current_symptoms' => $healthCurrentSymptoms,
+            'health_update_details' => $healthUpdateDetails,
             'dental_history' => $this->request->getPost('dental_history'),
             'clinical_findings' => $this->request->getPost('clinical_findings'),
             'diagnosis' => $this->request->getPost('diagnosis'),
@@ -271,13 +315,45 @@ class Examination extends BaseController
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
+        $boolField = static function ($value): int {
+            return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true) ? 1 : 0;
+        };
+        $textField = static function ($value): ?string {
+            $value = trim((string) $value);
+            return $value === '' ? null : $value;
+        };
+
+        $healthMedicalChanges = $boolField($this->request->getPost('health_update_medical_changes'));
+        $healthMedicationChanges = $boolField($this->request->getPost('health_update_medication_changes'));
+        $healthAllergiesReactions = $boolField($this->request->getPost('health_update_allergies_reactions'));
+        $healthPregnancy = $boolField($this->request->getPost('health_update_pregnancy'));
+        $healthCurrentSymptoms = $boolField($this->request->getPost('health_update_current_symptoms'));
+        $healthUpdateDetails = ($healthMedicalChanges || $healthMedicationChanges || $healthAllergiesReactions || $healthPregnancy || $healthCurrentSymptoms)
+            ? $textField($this->request->getPost('health_update_details'))
+            : null;
+
+        $legacyMedicalHistoryLines = [];
+        if ($healthMedicalChanges) $legacyMedicalHistoryLines[] = 'Medical changes since last visit';
+        if ($healthMedicationChanges) $legacyMedicalHistoryLines[] = 'Started or stopped medications';
+        if ($healthAllergiesReactions) $legacyMedicalHistoryLines[] = 'New allergies or reactions';
+        if ($healthPregnancy) $legacyMedicalHistoryLines[] = 'Pregnant / possibly pregnant';
+        if ($healthCurrentSymptoms) $legacyMedicalHistoryLines[] = 'Current pain / swelling / bleeding';
+        if ($healthUpdateDetails) $legacyMedicalHistoryLines[] = 'Details: ' . $healthUpdateDetails;
+        $legacyMedicalHistory = !empty($legacyMedicalHistoryLines) ? implode("\n", $legacyMedicalHistoryLines) : null;
+
         $examinationData = [
             'patient_id' => $this->request->getPost('patient_id'),
             'examination_date' => $this->request->getPost('examination_date'),
             'examination_type' => $this->request->getPost('examination_type'),
             'chief_complaint' => $this->request->getPost('chief_complaint'),
             'history_of_present_illness' => $this->request->getPost('history_of_present_illness'),
-            'medical_history' => $this->request->getPost('medical_history'),
+            'medical_history' => $legacyMedicalHistory,
+            'health_update_medical_changes' => $healthMedicalChanges,
+            'health_update_medication_changes' => $healthMedicationChanges,
+            'health_update_allergies_reactions' => $healthAllergiesReactions,
+            'health_update_pregnancy' => $healthPregnancy,
+            'health_update_current_symptoms' => $healthCurrentSymptoms,
+            'health_update_details' => $healthUpdateDetails,
             'dental_history' => $this->request->getPost('dental_history'),
             'clinical_findings' => $this->request->getPost('clinical_findings'),
             'diagnosis' => $this->request->getPost('diagnosis'),

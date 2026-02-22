@@ -4,11 +4,16 @@
 <?php
 $validation = session()->getFlashdata('validation');
 $optionalFieldKeys = [
-    'medical_history',
     'dental_history',
     'clinical_findings',
     'diagnosis',
     'examination_notes',
+    'health_update_medical_changes',
+    'health_update_medication_changes',
+    'health_update_allergies_reactions',
+    'health_update_pregnancy',
+    'health_update_current_symptoms',
+    'health_update_details',
 ];
 $optionalEnabledByOld = false;
 foreach ($optionalFieldKeys as $fieldKey) {
@@ -17,6 +22,11 @@ foreach ($optionalFieldKeys as $fieldKey) {
         break;
     }
 }
+$healthToggleChecked = static function (string $key): bool {
+    $value = old($key);
+    return in_array($value, ['1', 1, true, 'true', 'on', 'yes'], true);
+};
+$selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? ''));
 ?>
 
 <style>
@@ -97,7 +107,7 @@ foreach ($optionalFieldKeys as $fieldKey) {
                                     >
                                         <option value="">Select a patient</option>
                                         <?php if (!empty($selected_patient)): ?>
-                                            <option value="<?= $selected_patient['id'] ?>" selected>
+                                            <option value="<?= $selected_patient['id'] ?>" data-gender="<?= esc($selected_patient['gender'] ?? '') ?>" selected>
                                                 <?= esc($selected_patient['first_name'] . ' ' . $selected_patient['last_name']) ?> (<?= esc($selected_patient['phone'] ?? $selected_patient['patient_id'] ?? 'N/A') ?>)
                                             </option>
                                         <?php endif; ?>
@@ -175,20 +185,80 @@ foreach ($optionalFieldKeys as $fieldKey) {
                             </div>
 
                             <div id="optionalSection" class="hidden space-y-5">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="medical_history" class="block text-sm font-semibold text-slate-700 mb-2">Medical History</label>
-                                        <textarea name="medical_history" id="medical_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Medications, allergies, relevant conditions..."><?= old('medical_history') ?></textarea>
+                                <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
+                                    <div class="flex items-center justify-between gap-3 mb-3">
+                                        <h5 class="text-sm font-semibold text-slate-800">Health Update Since Last Visit</h5>
+                                        <span class="text-xs text-slate-500">Quick check</span>
                                     </div>
+                                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                                        <?php
+                                        $healthUpdateItems = [
+                                            ['key' => 'health_update_medical_changes', 'label' => 'Any medical changes since last visit?', 'icon' => 'fas fa-notes-medical', 'icon_class' => 'text-emerald-500'],
+                                            ['key' => 'health_update_medication_changes', 'label' => 'Started or stopped medications?', 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500'],
+                                            ['key' => 'health_update_allergies_reactions', 'label' => 'New allergies or reactions?', 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500'],
+                                            ['key' => 'health_update_pregnancy', 'label' => 'Pregnant / possibly pregnant?', 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'pregnancy_only' => true],
+                                            ['key' => 'health_update_current_symptoms', 'label' => 'Current pain / swelling / bleeding?', 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'text-amber-500'],
+                                        ];
+                                        ?>
+                                        <?php foreach ($healthUpdateItems as $item): ?>
+                                            <?php $isChecked = $healthToggleChecked($item['key']); ?>
+                                            <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-health-update-item <?= !empty($item['pregnancy_only']) ? 'data-pregnancy-only="1"' : '' ?>>
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <label for="<?= esc($item['key']) ?>" class="text-sm font-medium text-gray-700 leading-snug pr-2 flex items-start gap-2">
+                                                        <i class="<?= esc($item['icon']) ?> <?= esc($item['icon_class']) ?> mt-0.5 w-4 text-center"></i>
+                                                        <span><?= esc($item['label']) ?></span>
+                                                    </label>
+                                                    <div class="flex items-center gap-2 shrink-0">
+                                                        <span class="text-xs font-semibold text-gray-500">No</span>
+                                                        <label class="inline-flex items-center cursor-pointer">
+                                                            <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
+                                                            <input type="checkbox"
+                                                                   id="<?= esc($item['key']) ?>"
+                                                                   name="<?= esc($item['key']) ?>"
+                                                                   value="1"
+                                                                   class="sr-only health-update-toggle"
+                                                                   data-track-id="<?= esc($item['key']) ?>_track"
+                                                                   data-dot-id="<?= esc($item['key']) ?>_dot"
+                                                                   <?= $isChecked ? 'checked' : '' ?>>
+                                                            <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
+                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? 'translateX(20px)' : 'translateX(0)' ?>;"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="text-xs font-semibold text-blue-700">Yes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php
+                                    $showHealthUpdateDetails = $healthToggleChecked('health_update_medical_changes')
+                                        || $healthToggleChecked('health_update_medication_changes')
+                                        || $healthToggleChecked('health_update_allergies_reactions')
+                                        || $healthToggleChecked('health_update_pregnancy')
+                                        || $healthToggleChecked('health_update_current_symptoms');
+                                    ?>
+                                    <div id="healthUpdateDetailsWrap" class="mt-4 <?= $showHealthUpdateDetails ? '' : 'hidden' ?>">
+                                        <label for="health_update_details" class="block text-sm font-semibold text-slate-700 mb-2">Health Update Details</label>
+                                        <textarea
+                                            name="health_update_details"
+                                            id="health_update_details"
+                                            rows="3"
+                                            class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
+                                            placeholder="Add short details about changes, medications, allergies, symptoms..."
+                                            <?= $showHealthUpdateDetails ? '' : 'disabled' ?>
+                                        ><?= old('health_update_details') ?></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2">Dental History</label>
                                         <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Previous dental treatments and oral history..."><?= old('dental_history') ?></textarea>
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2">Clinical Findings</label>
-                                    <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Objective findings from examination..."><?= old('clinical_findings') ?></textarea>
+                                    <div>
+                                        <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2">Clinical Findings</label>
+                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Objective findings from examination..."><?= old('clinical_findings') ?></textarea>
+                                    </div>
                                 </div>
 
                                 <div>
@@ -226,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const optionalSection = document.getElementById('optionalSection');
     const optionalTrack = document.getElementById('optionalTrack');
     const optionalDot = document.getElementById('optionalDot');
+    const patientSelect = document.getElementById('patientSelect');
+    const healthDetailsWrap = document.getElementById('healthUpdateDetailsWrap');
+    const healthDetailsInput = document.getElementById('health_update_details');
 
     function syncOptionalState() {
         if (!optionalToggle || !optionalSection) {
@@ -253,6 +326,72 @@ document.addEventListener('DOMContentLoaded', function () {
         optionalToggle.addEventListener('change', syncOptionalState);
         syncOptionalState();
     }
+
+    function syncHealthToggleVisual(toggle) {
+        if (!toggle) return;
+        const track = document.getElementById(toggle.dataset.trackId || '');
+        const dot = document.getElementById(toggle.dataset.dotId || '');
+        if (toggle.checked) {
+            track?.classList.remove('bg-gray-200');
+            track?.classList.add('bg-blue-500');
+            if (dot) dot.style.transform = 'translateX(20px)';
+        } else {
+            track?.classList.remove('bg-blue-500');
+            track?.classList.add('bg-gray-200');
+            if (dot) dot.style.transform = 'translateX(0)';
+        }
+    }
+
+    function syncHealthUpdateDetailsVisibility() {
+        const toggles = Array.from(document.querySelectorAll('.health-update-toggle')).filter((toggle) => !toggle.disabled);
+        const anyYes = toggles.some((toggle) => toggle.checked);
+        if (!healthDetailsWrap || !healthDetailsInput) return;
+
+        if (anyYes) {
+            healthDetailsWrap.classList.remove('hidden');
+            healthDetailsInput.disabled = false;
+        } else {
+            healthDetailsWrap.classList.add('hidden');
+            healthDetailsInput.disabled = true;
+            healthDetailsInput.value = '';
+        }
+    }
+
+    function syncPregnancyQuestionVisibility() {
+        const selectedGender = (patientSelect?.selectedOptions?.[0]?.dataset?.gender || '<?= esc($selectedPatientGender) ?>').toLowerCase();
+        const showPregnancy = selectedGender === '' || selectedGender === 'female';
+
+        document.querySelectorAll('[data-pregnancy-only="1"]').forEach(function (item) {
+            const toggle = item.querySelector('.health-update-toggle');
+            const hiddenInput = item.querySelector('input[type="hidden"]');
+            if (showPregnancy) {
+                item.classList.remove('hidden');
+                if (toggle) toggle.disabled = false;
+                if (hiddenInput) hiddenInput.disabled = false;
+            } else {
+                item.classList.add('hidden');
+                if (toggle) {
+                    toggle.checked = false;
+                    toggle.disabled = true;
+                    syncHealthToggleVisual(toggle);
+                }
+                if (hiddenInput) hiddenInput.disabled = true;
+            }
+        });
+        syncHealthUpdateDetailsVisibility();
+    }
+
+    document.querySelectorAll('.health-update-toggle').forEach(function (toggle) {
+        toggle.addEventListener('change', function () {
+            syncHealthToggleVisual(toggle);
+            syncHealthUpdateDetailsVisibility();
+        });
+        syncHealthToggleVisual(toggle);
+    });
+
+    patientSelect?.addEventListener('change', syncPregnancyQuestionVisibility);
+    syncPregnancyQuestionVisibility();
+    syncHealthUpdateDetailsVisibility();
 });
 </script>
 <?= $this->endSection() ?>
