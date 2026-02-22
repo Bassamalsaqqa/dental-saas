@@ -190,7 +190,7 @@ class SettingsService
      */
     public function getCurrencySymbol()
     {
-        $currency = $this->get('currency', 'USD');
+        $currency = $this->get('currency', 'ILS');
         return $this->currencySymbols[$currency] ?? '$';
     }
 
@@ -201,7 +201,7 @@ class SettingsService
     {
         $symbol = $showSymbol ? $this->getCurrencySymbol() : '';
         $formattedAmount = number_format($amount, 2);
-        $position = $this->get('currency_position', 'before');
+        $position = $this->get('currency_position', 'after');
         
         // Apply user's currency position preference
         if ($position === 'after') {
@@ -220,7 +220,7 @@ class SettingsService
             return '';
         }
 
-        $format = $format ?? $this->get('date_format', 'Y-m-d');
+        $format = $format ?? $this->get('date_format', 'd/m/Y');
         
         try {
             // Handle Unix timestamp (integer)
@@ -302,7 +302,7 @@ class SettingsService
      */
     public function getTimezone()
     {
-        return $this->get('timezone', 'UTC');
+        return $this->get('timezone', 'Asia/Jerusalem');
     }
 
     /**

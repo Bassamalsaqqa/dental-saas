@@ -535,7 +535,7 @@ class Kiosk extends BaseController
             'kiosk_subheader' => 'Confirm your appointment in seconds.',
             'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
             'kiosk_default_language' => 'ar',
-            'timezone' => 'UTC',
+            'timezone' => 'Asia/Jerusalem',
             'time_format' => '12',
         ];
 

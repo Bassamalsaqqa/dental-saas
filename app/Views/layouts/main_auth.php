@@ -1278,7 +1278,8 @@
         navigateToEntityFromNotification('patient', 1);
     }
 
-    const clinicDateFormat = '<?= esc(settings()->get('date_format', 'Y-m-d')) ?>';
+    const clinicDateFormat = '<?= esc(settings()->get('date_format', 'd/m/Y')) ?>';
+    const clinicTimeFormat = '<?= esc(settings()->get('time_format', '12')) ?>';
 
     function clinicDateFormatLabel(format) {
         return format.replace('Y', 'YYYY').replace('m', 'MM').replace('d', 'DD');
@@ -1338,6 +1339,56 @@
             const year = match[3];
             if (!isValidCalendarDate(year, month, day)) return null;
             return `${year}-${month}-${day}`;
+        }
+
+        return null;
+    }
+
+    function formatClinicTimeFrom24(rawTime) {
+        if (!rawTime) return '';
+        const match = String(rawTime).trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+        if (!match) return rawTime;
+
+        const hour24 = Number(match[1]);
+        const minute = match[2];
+        if (!Number.isInteger(hour24) || hour24 < 0 || hour24 > 23) return rawTime;
+
+        if (clinicTimeFormat === '24') {
+            return `${String(hour24).padStart(2, '0')}:${minute}`;
+        }
+
+        const period = hour24 >= 12 ? 'PM' : 'AM';
+        const hour12 = hour24 % 12 || 12;
+        return `${hour12}:${minute} ${period}`;
+    }
+
+    function parseClinicTimeTo24(rawValue) {
+        if (!rawValue) return '';
+        const value = String(rawValue).trim();
+
+        let match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+        if (match) {
+            const hour = Number(match[1]);
+            const minute = Number(match[2]);
+            if (Number.isInteger(hour) && Number.isInteger(minute) && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            }
+        }
+
+        match = value.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+        if (match) {
+            let hour = Number(match[1]);
+            const minute = Number(match[2]);
+            const period = match[3].toUpperCase();
+            if (!Number.isInteger(hour) || hour < 1 || hour > 12 || !Number.isInteger(minute) || minute < 0 || minute > 59) {
+                return null;
+            }
+            if (period === 'AM') {
+                hour = hour === 12 ? 0 : hour;
+            } else {
+                hour = hour === 12 ? 12 : hour + 12;
+            }
+            return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
         }
 
         return null;
@@ -1430,12 +1481,103 @@
         });
     }
 
+    function initializeClinicTimeInputs() {
+        const fields = document.querySelectorAll('input[data-clinic-time="1"]');
+        if (!fields.length) {
+            return;
+        }
+
+        const formatHint = clinicTimeFormat === '24' ? 'HH:MM' : 'h:mm AM/PM';
+
+        fields.forEach((field) => {
+            if (clinicTimeFormat === '24') {
+                field.type = 'time';
+                field.setAttribute('title', 'Use 24-hour format (HH:MM)');
+                return;
+            }
+
+            const current = (field.value || '').trim();
+            if (current) {
+                field.value = formatClinicTimeFrom24(current);
+            }
+
+            field.type = 'text';
+            field.setAttribute('placeholder', formatHint);
+            field.setAttribute('autocomplete', 'off');
+            field.inputMode = 'numeric';
+            field.setAttribute('title', `${formatHint} (type manually or press Alt+Down for picker)`);
+
+            const switchToPickerMode = () => {
+                const raw = (field.value || '').trim();
+                const time24 = parseClinicTimeTo24(raw);
+                field.type = 'time';
+                field.value = time24 || '';
+                if (typeof field.showPicker === 'function') {
+                    try {
+                        field.showPicker();
+                    } catch (e) {
+                        // browser may block without direct interaction
+                    }
+                }
+            };
+
+            const switchToDisplayMode = () => {
+                if (field.type === 'time') {
+                    const time24 = (field.value || '').trim();
+                    field.type = 'text';
+                    field.value = time24 ? formatClinicTimeFrom24(time24) : '';
+                }
+            };
+
+            field.addEventListener('click', () => {
+                if (field.type !== 'time') switchToPickerMode();
+            });
+            field.addEventListener('dblclick', () => {
+                if (field.type !== 'time') switchToPickerMode();
+            });
+            field.addEventListener('keydown', (event) => {
+                if (event.altKey && event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    switchToPickerMode();
+                }
+            });
+            field.addEventListener('blur', switchToDisplayMode);
+        });
+
+        document.querySelectorAll('form').forEach((form) => {
+            form.addEventListener('submit', function (event) {
+                const timeInputs = form.querySelectorAll('input[data-clinic-time="1"]');
+                for (const input of timeInputs) {
+                    const raw = (input.value || '').trim();
+                    if (raw === '') {
+                        input.setCustomValidity('');
+                        continue;
+                    }
+
+                    const time24 = parseClinicTimeTo24(raw);
+                    if (!time24) {
+                        input.setCustomValidity(`Use time format ${formatHint}`);
+                        input.reportValidity();
+                        event.preventDefault();
+                        return;
+                    }
+
+                    input.setCustomValidity('');
+                    input.value = time24;
+                }
+            }, true);
+        });
+    }
+
     window.formatClinicDateFromIso = formatClinicDateFromIso;
     window.parseClinicDateToIso = parseClinicDateToIso;
+    window.formatClinicTimeFrom24 = formatClinicTimeFrom24;
+    window.parseClinicTimeTo24 = parseClinicTimeTo24;
 
     // Load notifications on page load
     document.addEventListener('DOMContentLoaded', function() {
         initializeClinicDateInputs();
+        initializeClinicTimeInputs();
         console.log('Loading notifications on page load...');
         loadNotifications();
         loadNotificationCount();

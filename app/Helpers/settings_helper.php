@@ -27,7 +27,7 @@ if (!function_exists('formatCurrencyAbbreviated')) {
     function formatCurrencyAbbreviated($amount, $showSymbol = true)
     {
         $symbol = $showSymbol ? settings()->getCurrencySymbol() : '';
-        $position = settings()->get('currency_position', 'before');
+        $position = settings()->get('currency_position', 'after');
         
         if ($amount >= 1000000) {
             $formattedAmount = number_format($amount / 1000000, 1) . 'M';

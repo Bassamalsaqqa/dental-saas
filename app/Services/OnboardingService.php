@@ -185,11 +185,11 @@ class OnboardingService
 
         $defaults = [
             'clinic_name' => $clinicName,
-            'timezone' => $this->settingsModel->getGlobalSetting('default_timezone', 'America/New_York'),
-            'date_format' => $this->settingsModel->getGlobalSetting('default_date_format', 'Y-m-d'),
+            'timezone' => $this->settingsModel->getGlobalSetting('default_timezone', 'Asia/Jerusalem'),
+            'date_format' => $this->settingsModel->getGlobalSetting('default_date_format', 'd/m/Y'),
             'time_format' => $this->settingsModel->getGlobalSetting('default_time_format', '12'),
-            'currency' => $this->settingsModel->getGlobalSetting('default_currency', 'USD'),
-            'currency_position' => $this->settingsModel->getGlobalSetting('default_currency_position', 'before'),
+            'currency' => $this->settingsModel->getGlobalSetting('default_currency', 'ILS'),
+            'currency_position' => $this->settingsModel->getGlobalSetting('default_currency_position', 'after'),
             'appointment_duration' => (int) $this->settingsModel->getGlobalSetting('default_appointment_duration', 30),
             'working_hours_start' => $this->settingsModel->getGlobalSetting('default_working_hours_start', '09:00'),
             'working_hours_end' => $this->settingsModel->getGlobalSetting('default_working_hours_end', '17:00'),

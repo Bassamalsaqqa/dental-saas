@@ -520,11 +520,11 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label>
-                                        <input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
+                                        <input type="time" name="working_hours_start" data-clinic-time="1" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
                                             </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label>
-                                        <input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
+                                        <input type="time" name="working_hours_end" data-clinic-time="1" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
                                         </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Working Days</label>
