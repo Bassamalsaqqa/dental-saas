@@ -1336,3 +1336,19 @@
     - Added clinic admin lookup and platform support email helper in `app/Controllers/Auth.php`.
     - Added clinic admin email display in `app/Views/auth/forgot_password.php`.
 - **Verification:** `docs/SaaS/verification/P5-AUTH-04.md`.
+
+### Task: WHATSAPP-DISPATCH-01 Unified Dispatcher Integration + Guardrail Remediation
+- **Date:** 2026-02-24
+- **Status:** Completed
+- **Description:** Integrated a unified notification dispatcher command/job/service/driver layer on top of completed Phase 0/Phase 1 schema work, fixed dispatcher stale-lock/exception safety issues, and remediated SaaS guardrail violations surfaced after making the Windows Git Bash guardrail script trustworthy.
+- **Actions:**
+    - **Dispatcher:** Added `notifications:dispatch` command, `DispatchNotificationsJob`, `DispatchService`, `EmailDriver`, and fail-closed `WhatsAppDriver` stub; delegated `NotificationService::dispatchPendingEmails` to unified dispatcher and marked legacy email job path as deprecated.
+    - **Correctness Fixes:** Added stale `processing` lock recovery and catch/finalize behavior so unexpected dispatch exceptions cannot leave notifications stuck with locks; added `external` recipient support via `recipient_address` in `EmailDriver`.
+    - **Guardrail Script:** Fixed `scripts/ci/saas_guardrails.sh` for Windows Git Bash/MSYS `rg --path-separator` argument handling to eliminate false-green results.
+    - **Guardrail Remediation:** Removed DOM sink usage in `app/Views/control_plane/users/show.php` and `app/Views/odontogram/index.php`; moved raw controller queries from `Auth`, `ControlPlane\Operations`, and `Finance` into model methods (`ClinicUserModel`, `ProviderPayoutModel`).
+    - **Validation:** Ran CLI command registration/help checks, PHP lint, safe no-op dispatcher/job smoke tests, and a controlled local DB fixture test verifying stale-lock recovery and lock cleanup; reran SaaS guardrails successfully in Git Bash.
+- **Verification:** `docs/SaaS/verification/WHATSAPP-DISPATCH-UNIFIED-INTEGRATION.md`.
+- **Commits:**
+    - `523e352` `fix(ci): support saas guardrails on Windows Git Bash`
+    - `ffc0f66` `refactor: remove saas guardrail violations`
+    - `08ae484` `feat(dispatch): add unified notification dispatcher`
