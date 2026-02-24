@@ -7,6 +7,7 @@ use App\Models\NotificationModel;
 use App\Models\ClinicUserModel;
 use App\Models\PatientModel;
 use App\Services\PlanGuard;
+use App\Services\DispatchService;
 
 class NotificationService
 {
@@ -218,163 +219,14 @@ class NotificationService
      */
     public function dispatchPendingEmails(int $clinicId): array
     {
-        if (!$clinicId) {
-            throw new \InvalidArgumentException("NotificationService: clinicId is required for dispatch.");
-        }
+        $dispatcher = new DispatchService();
+        $summary = $dispatcher->dispatchPendingForClinic($clinicId, 'email');
 
-        $result = [
-            'processed' => 0,
-            'sent' => 0,
-            'failed' => 0,
-            'blocked' => 0
+        return [
+            'processed' => $summary['processed'],
+            'sent' => $summary['sent'],
+            'failed' => $summary['failed'],
+            'blocked' => $summary['blocked'],
         ];
-
-        // 1. Load & Validate Channel Config
-        $config = $this->channelModel->getConfig($clinicId, 'email');
-        $channel = $this->channelModel->where('clinic_id', $clinicId)
-                                      ->where('channel_type', 'email')
-                                      ->first();
-        
-        $pending = []; // Initialize pending to avoid scope issues in catch block
-
-        // Re-check Plan Feature (in case it was disabled since enqueue)
-        try {
-            $this->planGuard->assertFeature($clinicId, 'notifications.email.enabled');
-        } catch (\Exception $e) {
-            // If feature disabled now, fail all pending
-             // We need to fetch pending first to fail them
-            $pending = $this->notificationModel->where('clinic_id', $clinicId)
-                                               ->where('channel_type', 'email')
-                                               ->where('status', 'pending')
-                                               ->findAll();
-
-             foreach ($pending as $note) {
-                $this->notificationModel->update($note['id'], [
-                    'status' => 'blocked',
-                    'failure_reason' => 'PLAN_FEATURE_DISABLED_AT_DISPATCH'
-                ]);
-                $result['blocked']++;
-            }
-            return $result;
-        }
-
-        $isReady = $config && 
-                   ($channel['enabled_by_superadmin'] ?? 0) && 
-                   ($channel['configured_by_clinic'] ?? 0) && 
-                   ($channel['validated'] ?? 0);
-
-        // 2. Fetch Pending Notifications
-        $pending = $this->notificationModel->where('clinic_id', $clinicId)
-                                           ->where('channel_type', 'email')
-                                           ->where('status', 'pending')
-                                           ->findAll();
-
-        if (empty($pending)) {
-            return $result;
-        }
-
-        // If channel not ready, fail-close all pending
-        if (!$isReady) {
-            foreach ($pending as $note) {
-                $this->notificationModel->update($note['id'], [
-                    'status' => 'failed',
-                    'failure_reason' => 'CHANNEL_NOT_READY_AT_DISPATCH'
-                ]);
-                $result['failed']++;
-            }
-            return $result;
-        }
-
-        // 3. Process Each Notification
-        foreach ($pending as $note) {
-            $result['processed']++;
-            $recipientEmail = null;
-            $payload = json_decode($note['payload_json'], true);
-
-            // Resolve Recipient Email
-            if ($note['recipient_type'] === 'user') {
-                // Get user email
-                $user = model('UserModel')->find($note['recipient_id']);
-                // Verify user is still in clinic (double check safety)
-                if ($user && $this->clinicUserModel->isUserInClinic($clinicId, $user['id'])) {
-                    $recipientEmail = $user['email'];
-                }
-            } elseif ($note['recipient_type'] === 'patient') {
-                // Get patient email
-                $patient = $this->patientModel->findByClinic($clinicId, $note['recipient_id']);
-                if ($patient) {
-                    $recipientEmail = $patient['email'];
-                }
-            }
-
-            // Block if email missing
-            if (empty($recipientEmail)) {
-                $this->notificationModel->update($note['id'], [
-                    'status' => 'blocked',
-                    'failure_reason' => ($note['recipient_type'] === 'patient' ? 'PATIENT_EMAIL_MISSING' : 'USER_EMAIL_MISSING')
-                ]);
-                $result['blocked']++;
-                continue;
-            }
-
-            // Prepare Email
-            $emailService = \Config\Services::email();
-            $emailService->initialize([
-                'protocol' => 'smtp',
-                'SMTPHost' => $config['smtp_host'] ?? '',
-                'SMTPUser' => $config['smtp_user'] ?? '',
-                'SMTPPass' => $config['smtp_pass'] ?? '',
-                'SMTPPort' => (int)($config['smtp_port'] ?? 587),
-                'SMTPCrypto' => $config['smtp_crypto'] ?? 'tls',
-                'mailType' => 'html',
-                'charset'  => 'utf-8',
-                'newline'  => "\r\n"
-            ]);
-
-            $fromEmail = $config['smtp_from_email'] ?? $config['smtp_user']; // Fallback to user if from not set
-            $fromName = $config['smtp_from_name'] ?? 'Clinic Notification';
-
-            if (empty($fromEmail)) {
-                 $this->notificationModel->update($note['id'], [
-                    'status' => 'failed',
-                    'failure_reason' => 'SMTP_FROM_ADDRESS_MISSING'
-                ]);
-                $result['failed']++;
-                continue;
-            }
-
-            $emailService->setFrom($fromEmail, $fromName);
-            $emailService->setTo($recipientEmail);
-            $emailService->setSubject($payload['subject'] ?? 'Notification');
-            $emailService->setMessage($payload['body'] ?? ($payload['message'] ?? ''));
-
-            // Send
-            try {
-                if ($emailService->send()) {
-                    $this->notificationModel->update($note['id'], [
-                        'status' => 'sent'
-                    ]);
-                    $result['sent']++;
-                } else {
-                    $debugger = $emailService->printDebugger(['headers']);
-                    // Sanitize debugger output slightly
-                    $errorMsg = substr(strip_tags($debugger), 0, 255); 
-                    
-                    $this->notificationModel->update($note['id'], [
-                        'status' => 'failed',
-                        'failure_reason' => 'SMTP_SEND_FAILED: ' . $errorMsg
-                    ]);
-                    $result['failed']++;
-                }
-            } catch (\Exception $e) {
-                $this->notificationModel->update($note['id'], [
-                    'status' => 'failed',
-                    'failure_reason' => 'SMTP_EXCEPTION: ' . substr($e->getMessage(), 0, 200)
-                ]);
-                $result['failed']++;
-            }
-        }
-
-        return $result;
     }
 }

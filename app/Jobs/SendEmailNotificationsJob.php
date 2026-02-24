@@ -11,6 +11,7 @@ class SendEmailNotificationsJob extends TenantJob
     public function run(array $params = [])
     {
         CLI::write("Starting Email Dispatch for Clinic: " . $this->clinicId, 'yellow');
+        CLI::write("DEPRECATED: Use notifications:dispatch --clinic-id {$this->clinicId} --channel email (Phase 2 unified dispatcher).", 'light_red');
 
         $service = new NotificationService();
         
