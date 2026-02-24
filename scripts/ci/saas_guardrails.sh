@@ -13,6 +13,17 @@ fi
 cd "$REPO_ROOT"
 
 failures=0
+RG_PATH_SEPARATOR="/"
+case "${OSTYPE:-}" in
+  msys*|cygwin*|win32*)
+    # Git Bash/MSYS rewrites `/` option values; `//` preserves a literal slash for rg.
+    RG_PATH_SEPARATOR="//"
+    ;;
+esac
+
+run_rg() {
+  rg --path-separator "$RG_PATH_SEPARATOR" "$@"
+}
 
 normalize_lines() {
   local input="$1"
@@ -79,7 +90,7 @@ compare_with_allowlist() {
 
 run_dom_guard() {
   local matches
-  matches=$(rg -n --path-separator / --no-heading -- 'innerHTML|outerHTML|insertAdjacentHTML|\.html\(' app/Views || true)
+  matches=$(run_rg -n --no-heading -- 'innerHTML|outerHTML|insertAdjacentHTML|\.html\(' app/Views || true)
   compare_with_allowlist "dom-sinks" "DOM sinks in app/Views" "$matches"
 }
 
@@ -87,8 +98,8 @@ run_group_guard() {
   local matches
   matches=$(
     {
-      rg -F -n --path-separator / --no-heading --glob '!app/Helpers/**' -- 'in_group(' app || true
-      rg -F -n --path-separator / --no-heading --glob '!app/Helpers/**' -- 'is_admin(' app || true
+      run_rg -F -n --no-heading --glob '!app/Helpers/**' -- 'in_group(' app || true
+      run_rg -F -n --no-heading --glob '!app/Helpers/**' -- 'is_admin(' app || true
     } | sort -u
   )
   compare_with_allowlist "group-auth" "Group-based auth helpers" "$matches"
@@ -98,8 +109,8 @@ run_raw_queries_guard() {
   local matches
   matches=$(
     {
-      rg -F -n --path-separator / --no-heading -- '->table(' app/Controllers || true
-      rg -F -n --path-separator / --no-heading -- 'db->query' app/Controllers || true
+      run_rg -F -n --no-heading -- '->table(' app/Controllers || true
+      run_rg -F -n --no-heading -- 'db->query' app/Controllers || true
     } | sort -u
   )
   compare_with_allowlist "raw-tenant-queries" "Raw tenant queries in controllers" "$matches"
