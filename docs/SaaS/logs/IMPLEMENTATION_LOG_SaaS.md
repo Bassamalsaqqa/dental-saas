@@ -1352,3 +1352,15 @@
     - `523e352` `fix(ci): support saas guardrails on Windows Git Bash`
     - `ffc0f66` `refactor: remove saas guardrail violations`
     - `08ae484` `feat(dispatch): add unified notification dispatcher`
+
+### Task: WHATSAPP-PHASE3-01 Outbound Client + Driver Classification
+- **Date:** 2026-02-24
+- **Status:** Completed
+- **Description:** Implemented Phase 3 WhatsApp outbound transport client and upgraded the WhatsApp dispatcher driver from stub to real transport integration with provider-facts-based error classification and fail-closed recipient/config checks.
+- **Actions:**
+    - **Client:** Added `app/Services/WhatsAppClient.php` using CodeIgniter `curlrequest()` for Meta Cloud API text sends and platform secret lookup via `PlatformSecretModel`.
+    - **Secrets Separation:** Outbound auth reads `wa_access_token`; `wa_app_secret` remains a separate platform secret and is explicitly treated as a webhook (Phase 4) prerequisite.
+    - **Provider Error Mapping:** Implemented retry classification for `131056` with minimum 60s backoff and terminal ambiguous mapping for `131026` (no auto-retry).
+    - **Driver Upgrade:** Replaced `WhatsAppDriver` stub with recipient resolution (`external` + `patient_whatsapp`), tenant policy suspension checks, opt-out checks, payload validation, and dispatcher-compatible result mapping.
+    - **Validation:** Ran PHP lint, no-op `notifications:dispatch` WhatsApp smoke command, and SaaS guardrails (Git Bash) with no regressions.
+- **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE3-OUTBOUND-CLIENT.md`.
