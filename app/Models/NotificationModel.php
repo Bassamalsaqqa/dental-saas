@@ -21,6 +21,8 @@ class NotificationModel extends TenantAwareModel
         'payload_json',
         'status',
         'failure_reason',
+        'locked_at',
+        'locked_by',
         'initiated_by_user_id',
         'job_audit_id',
         'parent_notification_id',
