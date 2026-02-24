@@ -133,6 +133,14 @@ $routes->post('logout', 'Auth::logout');
 $routes->get('/', 'Home::index');
 
 // --------------------------------------------------------------------
+// Public Webhooks (Outside /api/v1; no apiv1 auth filter)
+// --------------------------------------------------------------------
+$routes->group('webhooks', function ($routes) {
+    $routes->get('whatsapp', 'Webhooks\WhatsAppWebhook::challenge');
+    $routes->post('whatsapp', 'Webhooks\WhatsAppWebhook::events');
+});
+
+// --------------------------------------------------------------------
 // Kiosk Check-In (Public)
 // --------------------------------------------------------------------
 $routes->group('kiosk', function ($routes) {

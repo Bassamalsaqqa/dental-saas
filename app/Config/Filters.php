@@ -79,13 +79,13 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'csrf' => ['except' => ['api/*', 'api/v1/*']],
+            'csrf' => ['except' => ['api/*', 'api/v1/*', 'webhooks/*']],
             'forcehttps' => ['except' => ['api/*', 'api/v1/*']],
         ],
         'after' => [
             'toolbar' => ['except' => ['api/v1/*']],
             'secureheaders',
-            'csrfjson' => ['except' => ['api/v1/*']],
+            'csrfjson' => ['except' => ['api/v1/*', 'webhooks/*']],
             // 'honeypot',
         ],
     ];

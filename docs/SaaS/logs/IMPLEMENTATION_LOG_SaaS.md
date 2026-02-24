@@ -1364,3 +1364,17 @@
     - **Driver Upgrade:** Replaced `WhatsAppDriver` stub with recipient resolution (`external` + `patient_whatsapp`), tenant policy suspension checks, opt-out checks, payload validation, and dispatcher-compatible result mapping.
     - **Validation:** Ran PHP lint, no-op `notifications:dispatch` WhatsApp smoke command, and SaaS guardrails (Git Bash) with no regressions.
 - **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE3-OUTBOUND-CLIENT.md`.
+
+### Task: WHATSAPP-PHASE4-01 Webhooks (Challenge + Signed Events)
+- **Date:** 2026-02-24
+- **Status:** Completed
+- **Description:** Implemented public WhatsApp webhook routes and controller with raw-body HMAC signature verification (app secret), Meta challenge handling, idempotent event journaling, webhook-driven notification status transitions, and STOP/UNSUBSCRIBE opt-out ingestion.
+- **Actions:**
+    - **Routes:** Added `GET/POST /webhooks/whatsapp` outside `/api/v1` in `app/Config/Routes.php`.
+    - **Security:** Implemented raw-body signature verification in `app/Controllers/Webhooks/WhatsAppWebhook.php` using `X-Hub-Signature-256`, `hash_hmac('sha256', $rawBody, $appSecret)`, and `hash_equals()`, with JSON parsing only after signature validation.
+    - **Challenge:** Added verify-token challenge endpoint using `platform_secrets.wa_verify_token`.
+    - **Idempotency:** Added per-event journaling flow into `whatsapp_delivery_events` honoring unique `(provider_event_id, event_type)` semantics.
+    - **State Updates:** Mapped webhook status events to `notification_attempts` and promoted parent `notifications` lifecycle states (`sent`, `delivered`, `read`) with fail-safe handling for delivery failures.
+    - **Inbound STOP Handling:** Added webhook STOP/UNSUBSCRIBE processing into `whatsapp_optouts` using clinic resolution from webhook `metadata.phone_number_id`.
+    - **Filters:** Excluded `webhooks/*` from global `csrf` and `csrfjson` filters in `app/Config/Filters.php` so Meta POST callbacks are not blocked.
+- **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE4-WEBHOOKS.md`.
