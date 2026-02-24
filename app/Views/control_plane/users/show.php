@@ -343,7 +343,11 @@
         const roleSelect = document.getElementById('addMembershipRole');
         if (!roleSelect) return;
 
-        roleSelect.innerHTML = '<option value="">Select role</option>';
+        roleSelect.replaceChildren();
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Select role';
+        roleSelect.appendChild(placeholderOption);
         if (!clinicId || !rolesByClinic[clinicId] || !rolesByClinic[clinicId].length) {
             roleSelect.disabled = true;
             return;

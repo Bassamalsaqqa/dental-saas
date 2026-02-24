@@ -57,4 +57,31 @@ class ClinicUserModel extends Model
                           ->where('status', 'active')
                           ->countAllResults();
     }
+
+    public function findClinicAdminEmailForClinic(int $clinicId): ?array
+    {
+        return $this->select('users.email')
+            ->join('users', 'users.id = clinic_users.user_id', 'left')
+            ->join('roles', 'roles.id = clinic_users.role_id', 'left')
+            ->where('clinic_users.clinic_id', $clinicId)
+            ->where('clinic_users.status', 'active')
+            ->where('roles.slug', 'clinic_admin')
+            ->orderBy('clinic_users.id', 'ASC')
+            ->first();
+    }
+
+    public function getActiveUserDirectoryByClinic(int $clinicId): array
+    {
+        return $this->select('users.id, users.first_name, users.last_name, users.email')
+            ->join('users', 'users.id = clinic_users.user_id', 'inner')
+            ->where('clinic_users.clinic_id', $clinicId)
+            ->where('clinic_users.status', 'active')
+            ->groupStart()
+                ->where('users.active', 1)
+                ->orWhere('users.active IS NULL', null, false)
+            ->groupEnd()
+            ->orderBy('users.first_name', 'ASC')
+            ->orderBy('users.last_name', 'ASC')
+            ->findAll();
+    }
 }

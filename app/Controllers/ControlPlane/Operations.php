@@ -28,8 +28,12 @@ class Operations extends BaseController
         $dbOk = true;
         $dbDetail = 'Connected';
         try {
-            $db = \Config\Database::connect();
-            $db->query('SELECT 1');
+            // Simple read to confirm DB connectivity without raw controller query.
+            (new ClinicModel())
+                ->withoutTenantScope()
+                ->select('id')
+                ->orderBy('id', 'ASC')
+                ->first();
         } catch (\Throwable $e) {
             $dbOk = false;
             $dbDetail = 'Error: ' . $e->getMessage();

@@ -1670,8 +1670,12 @@ function attachBatchHandler() {
         }
 
         submitBtn.disabled = true;
-        const originalHtml = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Applying...';
+        const originalNodes = Array.from(submitBtn.childNodes).map((node) => node.cloneNode(true));
+        submitBtn.replaceChildren();
+        const spinnerIcon = document.createElement('i');
+        spinnerIcon.className = 'fas fa-spinner fa-spin mr-2';
+        submitBtn.appendChild(spinnerIcon);
+        submitBtn.appendChild(document.createTextNode('Applying...'));
 
         let successCount = 0;
         const failedTeeth = [];
@@ -1699,7 +1703,7 @@ function attachBatchHandler() {
         }
 
         submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHtml;
+        submitBtn.replaceChildren(...originalNodes);
     });
 }
 

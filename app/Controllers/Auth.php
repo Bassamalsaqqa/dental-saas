@@ -1056,17 +1056,7 @@ class Auth extends BaseController
 
 	private function getClinicAdminEmail(int $clinicId): ?string
 	{
-		$db = \Config\Database::connect();
-		$admin = $db->table('clinic_users cu')
-			->select('u.email')
-			->join('users u', 'u.id = cu.user_id', 'left')
-			->join('roles r', 'r.id = cu.role_id', 'left')
-			->where('cu.clinic_id', $clinicId)
-			->where('cu.status', 'active')
-			->where('r.slug', 'clinic_admin')
-			->orderBy('cu.id', 'ASC')
-			->get()
-			->getRowArray();
+		$admin = (new ClinicUserModel())->findClinicAdminEmailForClinic($clinicId);
 
 		if (!empty($admin['email'])) {
 			return $admin['email'];

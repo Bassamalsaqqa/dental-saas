@@ -112,4 +112,54 @@ class ProviderPayoutModel extends TenantAwareModel
             'total_gross_amount' => floatval($row['total_gross_amount'] ?? 0),
         ];
     }
+
+    public function getDataTableByClinic(int $clinicId, int $start, int $length, string $search = '', string $statusFilter = ''): array
+    {
+        $start = max(0, $start);
+        $length = max(1, min($length, 200));
+
+        $base = $this->db->table('provider_payouts pp')
+            ->select('
+                pp.*,
+                f.transaction_id,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                u.first_name AS provider_first_name,
+                u.last_name AS provider_last_name
+            ')
+            ->join('finances f', 'f.id = pp.finance_id', 'left')
+            ->join('patients p', 'p.id = pp.patient_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        if ($statusFilter !== '' && in_array($statusFilter, ['unpaid', 'partial', 'paid', 'void'], true)) {
+            $base->where('pp.status', $statusFilter);
+        }
+
+        if ($search !== '') {
+            $base->groupStart()
+                ->like('f.transaction_id', $search)
+                ->orLike('pp.provider_name_snapshot', $search)
+                ->orLike('p.first_name', $search)
+                ->orLike('p.last_name', $search)
+                ->orLike('u.first_name', $search)
+                ->orLike('u.last_name', $search)
+                ->groupEnd();
+        }
+
+        $recordsTotal = (int) $this->where('clinic_id', $clinicId)->countAllResults();
+        $recordsFiltered = (int) (clone $base)->countAllResults(false);
+
+        $rows = $base
+            ->orderBy('pp.id', 'DESC')
+            ->limit($length, $start)
+            ->get()
+            ->getResultArray();
+
+        return [
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'rows' => $rows,
+        ];
+    }
 }

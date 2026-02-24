@@ -10,6 +10,7 @@ use App\Models\ExaminationModel;
 use App\Models\ClinicUserModel;
 use App\Models\ProviderPayoutModel;
 use App\Models\ProviderPayoutPaymentModel;
+use App\Models\UserModel;
 use App\Services\ActivityLogger;
 use App\Libraries\ApiRuntimeContext;
 
@@ -23,6 +24,7 @@ class Finance extends BaseController
     protected $clinicUserModel;
     protected $providerPayoutModel;
     protected $providerPayoutPaymentModel;
+    protected $userModel;
     protected $activityLogger;
     protected $storageService;
     protected $db;
@@ -37,6 +39,7 @@ class Finance extends BaseController
         $this->clinicUserModel = new ClinicUserModel();
         $this->providerPayoutModel = new ProviderPayoutModel();
         $this->providerPayoutPaymentModel = new ProviderPayoutPaymentModel();
+        $this->userModel = new UserModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
@@ -53,19 +56,7 @@ class Finance extends BaseController
 
     private function getClinicProviders(int $clinicId): array
     {
-        return $this->db->table('clinic_users')
-            ->select('users.id, users.first_name, users.last_name, users.email')
-            ->join('users', 'users.id = clinic_users.user_id', 'inner')
-            ->where('clinic_users.clinic_id', $clinicId)
-            ->where('clinic_users.status', 'active')
-            ->groupStart()
-                ->where('users.active', 1)
-                ->orWhere('users.active IS NULL', null, false)
-            ->groupEnd()
-            ->orderBy('users.first_name', 'ASC')
-            ->orderBy('users.last_name', 'ASC')
-            ->get()
-            ->getResultArray();
+        return $this->clinicUserModel->getActiveUserDirectoryByClinic($clinicId);
     }
 
     private function normalizeProviderSplitPayload(int $clinicId, float $grossAmount): ?array
@@ -483,11 +474,9 @@ class Finance extends BaseController
         $providerPayoutPayments = [];
         if (!empty($providerPayout)) {
             if (!empty($providerPayout['provider_user_id'])) {
-                $providerUser = $this->db->table('users')
+                $providerUser = $this->userModel
                     ->select('first_name, last_name')
-                    ->where('id', (int) $providerPayout['provider_user_id'])
-                    ->get()
-                    ->getRowArray();
+                    ->find((int) $providerPayout['provider_user_id']);
                 if ($providerUser) {
                     $providerPayout['provider_first_name'] = $providerUser['first_name'] ?? '';
                     $providerPayout['provider_last_name'] = $providerUser['last_name'] ?? '';
@@ -931,44 +920,16 @@ class Finance extends BaseController
             $search = trim((string) (($this->request->getPost('search')['value'] ?? '')));
             $statusFilter = trim((string) ($this->request->getPost('status') ?? ''));
 
-            $base = $this->db->table('provider_payouts pp')
-                ->select('
-                    pp.*,
-                    f.transaction_id,
-                    p.first_name AS patient_first_name,
-                    p.last_name AS patient_last_name,
-                    u.first_name AS provider_first_name,
-                    u.last_name AS provider_last_name
-                ')
-                ->join('finances f', 'f.id = pp.finance_id', 'left')
-                ->join('patients p', 'p.id = pp.patient_id', 'left')
-                ->join('users u', 'u.id = pp.provider_user_id', 'left')
-                ->where('pp.clinic_id', $clinicId);
-
-            if ($statusFilter !== '' && in_array($statusFilter, ['unpaid', 'partial', 'paid', 'void'], true)) {
-                $base->where('pp.status', $statusFilter);
-            }
-
-            if ($search !== '') {
-                $base->groupStart()
-                    ->like('f.transaction_id', $search)
-                    ->orLike('pp.provider_name_snapshot', $search)
-                    ->orLike('p.first_name', $search)
-                    ->orLike('p.last_name', $search)
-                    ->orLike('u.first_name', $search)
-                    ->orLike('u.last_name', $search)
-                    ->groupEnd();
-            }
-
-            $totalBuilder = $this->db->table('provider_payouts')->where('clinic_id', $clinicId);
-            $recordsTotal = (int) $totalBuilder->countAllResults();
-            $recordsFiltered = (int) (clone $base)->countAllResults(false);
-
-            $rows = $base
-                ->orderBy('pp.id', 'DESC')
-                ->limit($length, $start)
-                ->get()
-                ->getResultArray();
+            $resultSet = $this->providerPayoutModel->getDataTableByClinic(
+                (int) $clinicId,
+                $start,
+                $length,
+                $search,
+                $statusFilter
+            );
+            $recordsTotal = (int) ($resultSet['recordsTotal'] ?? 0);
+            $recordsFiltered = (int) ($resultSet['recordsFiltered'] ?? 0);
+            $rows = $resultSet['rows'] ?? [];
 
             $data = [];
             foreach ($rows as $row) {
