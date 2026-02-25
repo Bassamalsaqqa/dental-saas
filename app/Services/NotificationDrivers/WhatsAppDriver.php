@@ -56,12 +56,7 @@ class WhatsAppDriver
         }
 
         $payload = json_decode((string) ($notification['payload_json'] ?? '{}'), true) ?? [];
-        $messageBody = trim((string) ($payload['message'] ?? $payload['body'] ?? ''));
-        if ($messageBody === '') {
-            return $this->failedPermanent('WA_MESSAGE_BODY_MISSING', 'WhatsApp payload requires message/body text.');
-        }
-
-        $transport = $this->client->sendText($clinicId, $channelConfig, (string) $recipient['to'], $messageBody);
+        $transport = $this->sendPayload($clinicId, $channelConfig, (string) $recipient['to'], $payload);
 
         $attemptStatus = (string) ($transport['attempt_status'] ?? 'failed_permanent');
         $notificationStatus = !empty($transport['retryable']) ? 'failed' : ($attemptStatus === 'sent' ? 'sent' : 'failed');
@@ -79,6 +74,23 @@ class WhatsAppDriver
             'retryable' => (bool) ($transport['retryable'] ?? false),
             'next_retry_at' => $transport['next_retry_at'] ?? null,
         ];
+    }
+
+    private function sendPayload(int $clinicId, array $channelConfig, string $to, array $payload): array
+    {
+        $templateName = trim((string) ($payload['template_name'] ?? ''));
+        if ($templateName !== '') {
+            $languageCode = trim((string) ($payload['template_language'] ?? 'en_US'));
+            $components = is_array($payload['template_components'] ?? null) ? $payload['template_components'] : [];
+            return $this->client->sendTemplate($clinicId, $channelConfig, $to, $templateName, $languageCode, $components);
+        }
+
+        $messageBody = trim((string) ($payload['message'] ?? $payload['body'] ?? ''));
+        if ($messageBody === '') {
+            return $this->failedPermanent('WA_MESSAGE_BODY_MISSING', 'WhatsApp payload requires message/body text or template_name.');
+        }
+
+        return $this->client->sendText($clinicId, $channelConfig, $to, $messageBody);
     }
 
     private function resolveRecipient(array $notification, int $clinicId): array

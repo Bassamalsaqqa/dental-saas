@@ -32,32 +32,6 @@ class WhatsAppClient
      */
     public function sendText(int $clinicId, array $channelConfig, string $to, string $messageBody): array
     {
-        $phoneNumberId = trim((string) ($this->firstNonEmpty($channelConfig, [
-            'phone_number_id',
-            'wa_phone_number_id',
-            'whatsapp_phone_number_id',
-        ]) ?? ''));
-
-        if ($phoneNumberId === '') {
-            return $this->terminalFailure('WA_PHONE_NUMBER_ID_MISSING', 'WhatsApp phone number ID is not configured for this clinic.');
-        }
-
-        $accessToken = $this->platformSecretModel->getSecret('wa_access_token');
-        if ($accessToken === null || trim($accessToken) === '') {
-            return $this->terminalFailure('WA_ACCESS_TOKEN_MISSING', 'Platform secret wa_access_token is missing.');
-        }
-
-        // Separate secret is required later for webhook signature verification (Phase 4).
-        if ($this->platformSecretModel->getSecret('wa_app_secret') === null) {
-            log_message('warning', 'WhatsAppClient send for clinic_id={clinic_id} without wa_app_secret present in platform_secrets. Phase 4 webhook verification will require it.', [
-                'clinic_id' => $clinicId,
-            ]);
-        }
-
-        $apiVersion = trim((string) ($this->firstNonEmpty($channelConfig, ['graph_api_version', 'api_version']) ?? $this->defaultApiVersion));
-        $timeout = max(3, min((int) ($channelConfig['timeout_seconds'] ?? 15), 60));
-        $endpoint = $this->baseUrl . '/' . $apiVersion . '/' . rawurlencode($phoneNumberId) . '/messages';
-
         $requestBody = [
             'messaging_product' => 'whatsapp',
             'recipient_type' => 'individual',
@@ -69,26 +43,36 @@ class WhatsAppClient
             ],
         ];
 
-        try {
-            $response = $this->http->request('POST', $endpoint, [
-                'http_errors' => false,
-                'timeout' => $timeout,
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $requestBody,
-            ]);
-        } catch (\Throwable $e) {
-            return $this->retryableFailure(
-                'WA_NETWORK_EXCEPTION',
-                substr($e->getMessage(), 0, 255),
-                $this->defaultRetryDelaySeconds,
-                'failed'
-            );
+        return $this->sendRequest($clinicId, $channelConfig, $requestBody);
+    }
+
+    public function sendTemplate(int $clinicId, array $channelConfig, string $to, string $templateName, string $languageCode = 'en_US', array $components = []): array
+    {
+        $templateName = trim($templateName);
+        if ($templateName === '') {
+            return $this->terminalFailure('WA_TEMPLATE_NAME_MISSING', 'WhatsApp template name is required.');
         }
 
-        return $this->classifyResponse($response);
+        $languageCode = trim($languageCode) !== '' ? trim($languageCode) : 'en_US';
+
+        $requestBody = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $to,
+            'type' => 'template',
+            'template' => [
+                'name' => $templateName,
+                'language' => [
+                    'code' => $languageCode,
+                ],
+            ],
+        ];
+
+        if (!empty($components)) {
+            $requestBody['template']['components'] = $components;
+        }
+
+        return $this->sendRequest($clinicId, $channelConfig, $requestBody);
     }
 
     private function classifyResponse(ResponseInterface $response): array
@@ -148,6 +132,55 @@ class WhatsAppClient
             'error_message' => substr($providerMessage, 0, 255),
             'retryable' => false,
         ];
+    }
+
+    private function sendRequest(int $clinicId, array $channelConfig, array $requestBody): array
+    {
+        $phoneNumberId = trim((string) ($this->firstNonEmpty($channelConfig, [
+            'phone_number_id',
+            'wa_phone_number_id',
+            'whatsapp_phone_number_id',
+        ]) ?? ''));
+
+        if ($phoneNumberId === '') {
+            return $this->terminalFailure('WA_PHONE_NUMBER_ID_MISSING', 'WhatsApp phone number ID is not configured for this clinic.');
+        }
+
+        $accessToken = $this->platformSecretModel->getSecret('wa_access_token');
+        if ($accessToken === null || trim($accessToken) === '') {
+            return $this->terminalFailure('WA_ACCESS_TOKEN_MISSING', 'Platform secret wa_access_token is missing.');
+        }
+
+        if ($this->platformSecretModel->getSecret('wa_app_secret') === null) {
+            log_message('warning', 'WhatsAppClient send for clinic_id={clinic_id} without wa_app_secret present in platform_secrets. Phase 4 webhook verification will require it.', [
+                'clinic_id' => $clinicId,
+            ]);
+        }
+
+        $apiVersion = trim((string) ($this->firstNonEmpty($channelConfig, ['graph_api_version', 'api_version']) ?? $this->defaultApiVersion));
+        $timeout = max(3, min((int) ($channelConfig['timeout_seconds'] ?? 15), 60));
+        $endpoint = $this->baseUrl . '/' . $apiVersion . '/' . rawurlencode($phoneNumberId) . '/messages';
+
+        try {
+            $response = $this->http->request('POST', $endpoint, [
+                'http_errors' => false,
+                'timeout' => $timeout,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $requestBody,
+            ]);
+        } catch (\Throwable $e) {
+            return $this->retryableFailure(
+                'WA_NETWORK_EXCEPTION',
+                substr($e->getMessage(), 0, 255),
+                $this->defaultRetryDelaySeconds,
+                'failed'
+            );
+        }
+
+        return $this->classifyResponse($response);
     }
 
     private function extractProviderErrorCode($json): ?string
@@ -223,4 +256,3 @@ class WhatsAppClient
         ];
     }
 }
-

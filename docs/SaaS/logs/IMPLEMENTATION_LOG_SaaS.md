@@ -1395,3 +1395,14 @@
       - active plan (`Plan ID: 26`) has WhatsApp notifications feature enabled
     - Added local/dev + deployed webhook exposure/testing runbook guidance (Cloudflare Tunnel/ngrok + Meta callback registration).
 - **Verification:** `docs/SaaS/verification/WHATSAPP-E2E-LOCAL-SETUP.md`.
+
+### Task: WHATSAPP-PHASE3-01b Live E2E Retest + Template Support Follow-up
+- **Date:** 2026-02-25
+- **Status:** Completed
+- **Description:** Performed live outbound/webhook retesting against a real mobile device via Cloudflare Tunnel, fixed a WhatsApp dispatcher context bug (`WA_CHANNEL_CONFIG_MISSING`), confirmed conversation-window behavior (`131047` before window, success after window), and added template-message send support for business-initiated messaging.
+- **Actions:**
+    - **Dispatcher Fix:** Updated `DispatchService::loadChannelContext()` to decrypt channel config for the actual channel type (including `whatsapp`), not only `email`.
+    - **Live Verification:** Inserted/updated `patient_whatsapp` for clinic `19` test patient and queued WhatsApp notifications to verify real dispatch + webhook processing.
+    - **Observed Meta Behavior:** Captured `131047` ("Re-engagement message") when sending freeform text outside the user-initiated window; after manually opening a conversation window, confirmed successful send and webhook progression to `read`.
+    - **Template Support:** Added `WhatsAppClient::sendTemplate(...)` and driver payload routing (`template_name`, `template_language`, `template_components`) so business-initiated sends can use approved templates.
+- **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE3-OUTBOUND-CLIENT.md` (updated with live E2E evidence).

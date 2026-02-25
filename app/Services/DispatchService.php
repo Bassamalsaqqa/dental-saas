@@ -230,10 +230,7 @@ class DispatchService
             ->where('channel_type', $channelType)
             ->first();
 
-        $config = null;
-        if ($channelType === 'email') {
-            $config = $this->channelModel->getConfig($clinicId, 'email');
-        }
+        $config = $this->channelModel->getConfig($clinicId, $channelType);
 
         $channelReady = false;
         if ($channelRow) {
@@ -244,7 +241,7 @@ class DispatchService
             );
         }
 
-        if ($channelType === 'email') {
+        if (in_array($channelType, ['email', 'whatsapp'], true)) {
             $channelReady = $channelReady && is_array($config);
         }
 
