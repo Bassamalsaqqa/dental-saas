@@ -92,8 +92,7 @@ class WhatsAppWebhook extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['error' => 'MISSING_SIGNATURE']);
         }
 
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $rawBody, (string) $appSecret);
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (!$this->isValidWebhookSignature($rawBody, $signature, (string) $appSecret)) {
             return $this->response->setStatusCode(403)->setJSON(['error' => 'INVALID_SIGNATURE']);
         }
 
@@ -235,6 +234,17 @@ class WhatsAppWebhook extends BaseController
 
             throw $e;
         }
+    }
+
+    private function isValidWebhookSignature(string $rawBody, string $signature, string $appSecret): bool
+    {
+        if ($signature === '' || $appSecret === '') {
+            return false;
+        }
+
+        $expectedSignature = 'sha256=' . hash_hmac('sha256', $rawBody, $appSecret);
+
+        return hash_equals($expectedSignature, trim($signature));
     }
 
     private function processEvent(array $event, array &$summary): void
@@ -462,4 +472,3 @@ class WhatsAppWebhook extends BaseController
         return 0;
     }
 }
-
