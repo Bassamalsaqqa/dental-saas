@@ -108,6 +108,10 @@
                             <i class="fas fa-database w-5 h-5 mr-3"></i>
                             DB Backup
                         </button>
+                        <a href="<?= base_url('settings/channels') ?>" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            <i class="fas fa-broadcast-tower w-5 h-5 mr-3"></i>
+                            Notification Channels
+                        </a>
                         <?php if (session()->get('global_mode')): ?>
                         <button onclick="showSettingsTab('retention')" id="tab-retention" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                             <i class="fas fa-history w-5 h-5 mr-3"></i>
