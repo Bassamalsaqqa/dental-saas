@@ -19,6 +19,7 @@ environment.env
 *.cache
 .phpunit.result.cache
 /coverage/
+/build/
 /tmp/
 /cache/
 /logs/
