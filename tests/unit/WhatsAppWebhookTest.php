@@ -5,11 +5,15 @@ namespace Tests\Unit;
 use App\Controllers\Webhooks\WhatsAppWebhook;
 use App\Models\NotificationAttemptModel;
 use App\Models\NotificationModel;
+use App\Models\PlatformSecretModel;
 use App\Models\WhatsAppDeliveryEventModel;
 use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\FeatureTestTrait;
 
 final class WhatsAppWebhookTest extends CIUnitTestCase
 {
+    use FeatureTestTrait;
+
     public function testWebhookSignatureValidationAcceptsMatchingHmac(): void
     {
         $controller = new WhatsAppWebhook();
@@ -17,7 +21,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         $secret = 'test-app-secret';
         $signature = 'sha256=' . hash_hmac('sha256', $rawBody, $secret);
 
-        $result = $this->invokePrivateMethod($controller, 'isValidWebhookSignature', [$rawBody, $signature, $secret]);
+        $result = $this->invokePrivateMethodLocal($controller, 'isValidWebhookSignature', [$rawBody, $signature, $secret]);
 
         $this->assertTrue($result);
     }
@@ -28,7 +32,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         $rawBody = '{"object":"whatsapp_business_account"}';
         $secret = 'test-app-secret';
 
-        $result = $this->invokePrivateMethod($controller, 'isValidWebhookSignature', [$rawBody, 'sha256=deadbeef', $secret]);
+        $result = $this->invokePrivateMethodLocal($controller, 'isValidWebhookSignature', [$rawBody, 'sha256=deadbeef', $secret]);
 
         $this->assertFalse($result);
     }
@@ -36,7 +40,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
     public function testJournalEventReturnsFalseForDuplicateDelivery(): void
     {
         $controller = new WhatsAppWebhook();
-        $this->setPrivateProperty($controller, 'eventModel', new class extends WhatsAppDeliveryEventModel {
+        $this->setPrivatePropertyLocal($controller, 'eventModel', new class extends WhatsAppDeliveryEventModel {
             public function insert($row = null, bool $returnID = true)
             {
                 throw new \RuntimeException("Duplicate entry 'wamid-123' for key 'provider_event_id'");
@@ -49,7 +53,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             'payload' => ['status' => ['id' => 'wamid-123', 'status' => 'delivered']],
         ];
 
-        $result = $this->invokePrivateMethod($controller, 'journalEvent', [$event]);
+        $result = $this->invokePrivateMethodLocal($controller, 'journalEvent', [$event]);
 
         $this->assertFalse($result);
     }
@@ -57,7 +61,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
     public function testJournalEventRethrowsNonDuplicateInsertError(): void
     {
         $controller = new WhatsAppWebhook();
-        $this->setPrivateProperty($controller, 'eventModel', new class extends WhatsAppDeliveryEventModel {
+        $this->setPrivatePropertyLocal($controller, 'eventModel', new class extends WhatsAppDeliveryEventModel {
             public function insert($row = null, bool $returnID = true)
             {
                 throw new \RuntimeException('Database connection lost');
@@ -73,7 +77,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Database connection lost');
 
-        $this->invokePrivateMethod($controller, 'journalEvent', [$event]);
+        $this->invokePrivateMethodLocal($controller, 'journalEvent', [$event]);
     }
 
     public function testProcessStatusEventMapsDeliveredAndPromotesParentNotification(): void
@@ -147,8 +151,8 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             }
         };
 
-        $this->setPrivateProperty($controller, 'attemptModel', $attemptModel);
-        $this->setPrivateProperty($controller, 'notificationModel', $notificationModel);
+        $this->setPrivatePropertyLocal($controller, 'attemptModel', $attemptModel);
+        $this->setPrivatePropertyLocal($controller, 'notificationModel', $notificationModel);
 
         $event = [
             'payload' => [
@@ -159,7 +163,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             ],
         ];
 
-        $result = $this->invokePrivateMethod($controller, 'processStatusEvent', [$event]);
+        $result = $this->invokePrivateMethodLocal($controller, 'processStatusEvent', [$event]);
 
         $this->assertTrue($result);
         $this->assertSame('delivered', $attemptModel->updated[0]['row']['status']);
@@ -237,8 +241,8 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             }
         };
 
-        $this->setPrivateProperty($controller, 'attemptModel', $attemptModel);
-        $this->setPrivateProperty($controller, 'notificationModel', $notificationModel);
+        $this->setPrivatePropertyLocal($controller, 'attemptModel', $attemptModel);
+        $this->setPrivatePropertyLocal($controller, 'notificationModel', $notificationModel);
 
         $event = [
             'payload' => [
@@ -255,7 +259,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             ],
         ];
 
-        $result = $this->invokePrivateMethod($controller, 'processStatusEvent', [$event]);
+        $result = $this->invokePrivateMethodLocal($controller, 'processStatusEvent', [$event]);
 
         $this->assertTrue($result);
         $this->assertSame('failed_permanent', $attemptModel->updated[0]['row']['status']);
@@ -299,9 +303,9 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             }
         };
 
-        $this->setPrivateProperty($controller, 'notificationModel', $notificationModel);
+        $this->setPrivatePropertyLocal($controller, 'notificationModel', $notificationModel);
 
-        $this->invokePrivateMethod($controller, 'applyParentNotificationWebhookStatus', [19, 10, 'read', null]);
+        $this->invokePrivateMethodLocal($controller, 'applyParentNotificationWebhookStatus', [19, 10, 'read', null]);
 
         $this->assertCount(1, $notificationModel->updated);
         $this->assertSame('read', $notificationModel->updated[0]['row']['status']);
@@ -341,14 +345,155 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
             }
         };
 
-        $this->setPrivateProperty($controller, 'notificationModel', $notificationModel);
+        $this->setPrivatePropertyLocal($controller, 'notificationModel', $notificationModel);
 
-        $this->invokePrivateMethod($controller, 'applyParentNotificationWebhookStatus', [19, 11, 'failed', '131047']);
+        $this->invokePrivateMethodLocal($controller, 'applyParentNotificationWebhookStatus', [19, 11, 'failed', '131047']);
 
         $this->assertCount(0, $notificationModel->updated);
     }
 
-    private function invokePrivateMethod(object $object, string $method, array $args = [])
+    public function testWebhookChallengeEndpointReturnsChallengeWhenVerifyTokenMatches(): void
+    {
+        $secretModel = new PlatformSecretModel();
+        $originalVerifyToken = $secretModel->getSecret('wa_verify_token');
+        $testVerifyToken = 'unit-test-verify-token';
+
+        $secretModel->setSecret('wa_verify_token', $testVerifyToken, null, 'phpunit challenge test');
+
+        try {
+            $response = $this->get('/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=' . rawurlencode($testVerifyToken) . '&hub.challenge=123456789');
+
+            $response->assertStatus(200);
+            $this->assertSame('123456789', (string) $response->response()->getBody());
+        } finally {
+            if (is_string($originalVerifyToken) && $originalVerifyToken !== '') {
+                $secretModel->setSecret('wa_verify_token', $originalVerifyToken, null, 'phpunit restore');
+            }
+        }
+    }
+
+    public function testWebhookEventsEndpointRejectsMissingSignature(): void
+    {
+        $this->ensureWebhookAppSecretForTests();
+
+        $response = $this
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->withBody('{"object":"whatsapp_business_account","entry":[]}')
+            ->post('/webhooks/whatsapp');
+
+        $response->assertStatus(403);
+        $response->assertJSONFragment(['error' => 'MISSING_SIGNATURE']);
+    }
+
+    public function testWebhookEventsEndpointRejectsInvalidSignature(): void
+    {
+        $this->ensureWebhookAppSecretForTests();
+
+        $response = $this
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Hub-Signature-256' => 'sha256=deadbeef',
+            ])
+            ->withBody('{"object":"whatsapp_business_account","entry":[]}')
+            ->post('/webhooks/whatsapp');
+
+        $response->assertStatus(403);
+        $response->assertJSONFragment(['error' => 'INVALID_SIGNATURE']);
+    }
+
+    public function testWebhookEventsEndpointAcceptsValidSignedNoopPayload(): void
+    {
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $payload = '{"object":"whatsapp_business_account","entry":[]}';
+        $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+        $response = $this
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Hub-Signature-256' => $signature,
+            ])
+            ->withBody($payload)
+            ->post('/webhooks/whatsapp');
+
+        $response->assertStatus(200);
+        $response->assertJSONFragment(['success' => true]);
+        $json = json_decode((string) $response->getJSON(), true);
+        $this->assertIsArray($json);
+        $this->assertSame(0, $json['summary']['journaled'] ?? null);
+        $this->assertSame(0, $json['summary']['duplicates'] ?? null);
+    }
+
+    public function testWebhookEventsEndpointIsIdempotentForDuplicateDelivery(): void
+    {
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $providerEventId = 'phpunit-webhook-' . date('YmdHis') . '-' . substr(bin2hex(random_bytes(4)), 0, 8);
+        $payloadArray = [
+            'object' => 'whatsapp_business_account',
+            'entry' => [
+                [
+                    'id' => 'entry-1',
+                    'changes' => [
+                        [
+                            'field' => 'messages',
+                            'value' => [
+                                'metadata' => ['phone_number_id' => 'does-not-resolve'],
+                                'statuses' => [
+                                    [
+                                        'id' => $providerEventId,
+                                        'status' => 'delivered',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $payload = json_encode($payloadArray);
+        $this->assertIsString($payload);
+        $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+        $eventModel = new WhatsAppDeliveryEventModel();
+
+        try {
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+
+            $first = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $first->assertStatus(200);
+            $firstJson = json_decode((string) $first->getJSON(), true);
+            $this->assertIsArray($firstJson);
+            $this->assertSame(1, $firstJson['summary']['journaled'] ?? null);
+            $this->assertSame(0, $firstJson['summary']['duplicates'] ?? null);
+
+            $second = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $second->assertStatus(200);
+            $secondJson = json_decode((string) $second->getJSON(), true);
+            $this->assertIsArray($secondJson);
+            $this->assertSame(0, $secondJson['summary']['journaled'] ?? null);
+            $this->assertSame(1, $secondJson['summary']['duplicates'] ?? null);
+
+            $rows = $eventModel->where('provider_event_id', $providerEventId)->findAll();
+            $this->assertCount(1, $rows);
+        } finally {
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+        }
+    }
+
+    private function invokePrivateMethodLocal(object $object, string $method, array $args = [])
     {
         $reflection = new \ReflectionClass($object);
         $target = $reflection->getMethod($method);
@@ -357,11 +502,24 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         return $target->invokeArgs($object, $args);
     }
 
-    private function setPrivateProperty(object $object, string $property, $value): void
+    private function setPrivatePropertyLocal(object $object, string $property, $value): void
     {
         $reflection = new \ReflectionClass($object);
         $target = $reflection->getProperty($property);
         $target->setAccessible(true);
         $target->setValue($object, $value);
+    }
+
+    private function ensureWebhookAppSecretForTests(): string
+    {
+        $secretModel = new PlatformSecretModel();
+        $secret = $secretModel->getSecret('wa_app_secret');
+
+        if (!is_string($secret) || $secret === '') {
+            $secret = 'phpunit-fallback-wa-app-secret';
+            $secretModel->setSecret('wa_app_secret', $secret, null, 'phpunit webhook tests');
+        }
+
+        return $secret;
     }
 }

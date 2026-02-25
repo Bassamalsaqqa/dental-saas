@@ -51,6 +51,39 @@ class Database extends Config
         ],
     ];
 
+    /**
+     * PHPUnit / automated test connection group.
+     * Defaults to local dev DB if dedicated test env vars are not provided.
+     *
+     * @var array<string, mixed>
+     */
+    public array $tests = [
+        'DSN'          => '',
+        'hostname'     => 'localhost',
+        'username'     => '',
+        'password'     => '',
+        'database'     => '',
+        'DBDriver'     => 'MySQLi',
+        'DBPrefix'     => '',
+        'pConnect'     => false,
+        'DBDebug'      => true,
+        'charset'      => 'utf8mb4',
+        'DBCollat'     => 'utf8mb4_unicode_ci',
+        'swapPre'      => '',
+        'encrypt'      => false,
+        'compress'     => false,
+        'strictOn'     => false,
+        'failover'     => [],
+        'port'         => 3306,
+        'numberNative' => false,
+        'foundRows'    => false,
+        'dateFormat'   => [
+            'date'     => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time'     => 'H:i:s',
+        ],
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -69,5 +102,13 @@ class Database extends Config
         $this->default['password'] = (string) env('database.default.password', '');
         $this->default['DBDriver'] = (string) env('database.default.DBDriver', 'MySQLi');
         $this->default['port']     = (int) env('database.default.port', 3306);
+
+        // Test group can be overridden independently; otherwise inherit local defaults.
+        $this->tests['hostname'] = (string) env('database.tests.hostname', $this->default['hostname']);
+        $this->tests['database'] = (string) env('database.tests.database', $this->default['database']);
+        $this->tests['username'] = (string) env('database.tests.username', $this->default['username']);
+        $this->tests['password'] = (string) env('database.tests.password', $this->default['password']);
+        $this->tests['DBDriver'] = (string) env('database.tests.DBDriver', $this->default['DBDriver']);
+        $this->tests['port']     = (int) env('database.tests.port', (int) $this->default['port']);
     }
 } 
