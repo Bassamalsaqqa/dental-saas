@@ -1378,3 +1378,20 @@
     - **Inbound STOP Handling:** Added webhook STOP/UNSUBSCRIBE processing into `whatsapp_optouts` using clinic resolution from webhook `metadata.phone_number_id`.
     - **Filters:** Excluded `webhooks/*` from global `csrf` and `csrfjson` filters in `app/Config/Filters.php` so Meta POST callbacks are not blocked.
 - **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE4-WEBHOOKS.md`.
+
+### Task: WHATSAPP-E2E-SETUP-01 Local Test Prerequisites Automation
+- **Date:** 2026-02-25
+- **Status:** Completed
+- **Description:** Added a reusable local setup CLI command for WhatsApp end-to-end testing and executed it for local clinic `19` to seed encrypted platform secrets, clinic WhatsApp channel config, and plan feature enablement without storing secret values in the repository.
+- **Actions:**
+    - Added `whatsapp:seed-local-test` CLI command (`app/Commands/WhatsAppSeedLocalTest.php`) to:
+      - store `wa_access_token`, `wa_app_secret`, `wa_verify_token`, `wa_phone_number_id` via `PlatformSecretModel::setSecret()`
+      - configure clinic WhatsApp channel encrypted config with `phone_number_id`
+      - mark channel enabled/configured/validated
+      - patch current clinic plan `features_json` to enable `notifications.whatsapp.enabled`
+    - Executed local setup for clinic `19` (`Denta+`) and verified:
+      - platform secret keys present (encrypted values only)
+      - clinic WhatsApp channel row enabled/configured/validated
+      - active plan (`Plan ID: 26`) has WhatsApp notifications feature enabled
+    - Added local/dev + deployed webhook exposure/testing runbook guidance (Cloudflare Tunnel/ngrok + Meta callback registration).
+- **Verification:** `docs/SaaS/verification/WHATSAPP-E2E-LOCAL-SETUP.md`.
