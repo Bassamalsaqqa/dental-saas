@@ -3,10 +3,12 @@
 namespace Tests\Unit;
 
 use App\Controllers\Webhooks\WhatsAppWebhook;
+use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationAttemptModel;
 use App\Models\NotificationModel;
 use App\Models\PlatformSecretModel;
 use App\Models\WhatsAppDeliveryEventModel;
+use App\Models\WhatsAppOptoutModel;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\FeatureTestTrait;
 
@@ -493,6 +495,180 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         }
     }
 
+    public function testWebhookEventsEndpointCreatesOptoutOnInboundStop(): void
+    {
+        [$clinicId, $phoneNumberId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0 || $phoneNumberId === '') {
+            $this->markTestSkipped('No resolvable WhatsApp channel config with phone_number_id found for webhook STOP test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $waNumberDigits = '9725' . substr((string) time(), -6) . random_int(10, 99);
+        $providerEventId = 'phpunit-stop-' . substr(bin2hex(random_bytes(6)), 0, 12);
+
+        $payloadArray = [
+            'object' => 'whatsapp_business_account',
+            'entry' => [[
+                'id' => 'entry-stop',
+                'changes' => [[
+                    'field' => 'messages',
+                    'value' => [
+                        'metadata' => ['phone_number_id' => $phoneNumberId],
+                        'contacts' => [[
+                            'wa_id' => $waNumberDigits,
+                            'profile' => ['name' => 'PHPUnit Stop'],
+                        ]],
+                        'messages' => [[
+                            'id' => $providerEventId,
+                            'from' => $waNumberDigits,
+                            'type' => 'text',
+                            'text' => ['body' => 'STOP'],
+                        ]],
+                    ],
+                ]],
+            ]],
+        ];
+        $payload = json_encode($payloadArray);
+        $this->assertIsString($payload);
+        $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+        $eventModel = new WhatsAppDeliveryEventModel();
+        $optoutModel = new WhatsAppOptoutModel();
+
+        try {
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+            $optoutModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('wa_number', $waNumberDigits)->delete();
+
+            $response = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $response->assertStatus(200);
+            $json = json_decode((string) $response->getJSON(), true);
+            $this->assertIsArray($json);
+            $this->assertSame(1, $json['summary']['journaled'] ?? null);
+            $this->assertSame(1, $json['summary']['processed'] ?? null);
+            $this->assertSame(1, $json['summary']['optouts_created'] ?? null);
+
+            $optout = $optoutModel->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->where('wa_number', $waNumberDigits)
+                ->first();
+
+            $this->assertIsArray($optout);
+            $this->assertSame('webhook', $optout['source']);
+        } finally {
+            $optoutModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('wa_number', $waNumberDigits)->delete();
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+        }
+    }
+
+    public function testWebhookEventsEndpointUpdatesAttemptAndNotificationFromStatusCallback(): void
+    {
+        [$clinicId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No WhatsApp-enabled clinic found for status callback endpoint test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $providerMessageId = 'wamid.phpunit.' . substr(bin2hex(random_bytes(8)), 0, 16);
+
+        $notificationModel = new NotificationModel();
+        $attemptModel = new NotificationAttemptModel();
+        $eventModel = new WhatsAppDeliveryEventModel();
+
+        $notificationId = 0;
+        $attemptId = 0;
+
+        try {
+            $notificationId = (int) $notificationModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'channel_type' => 'whatsapp',
+                'recipient_type' => 'external',
+                'recipient_address' => '+10000000000',
+                'payload_json' => json_encode(['message' => 'PHPUnit status webhook test']),
+                'status' => 'processing',
+                'locked_at' => null,
+                'locked_by' => null,
+                'initiated_by_user_id' => null,
+                'job_audit_id' => null,
+                'parent_notification_id' => null,
+            ]);
+            $this->assertGreaterThan(0, $notificationId);
+
+            $attemptId = (int) $attemptModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'notification_id' => $notificationId,
+                'channel_type' => 'whatsapp',
+                'status' => 'sent',
+                'provider_message_id' => $providerMessageId,
+                'idempotency_key' => 'phpunit-' . substr(bin2hex(random_bytes(6)), 0, 12),
+                'retry_count' => 0,
+                'max_retries' => 3,
+                'next_retry_at' => null,
+            ]);
+            $this->assertGreaterThan(0, $attemptId);
+
+            $payloadArray = [
+                'object' => 'whatsapp_business_account',
+                'entry' => [[
+                    'id' => 'entry-status',
+                    'changes' => [[
+                        'field' => 'messages',
+                        'value' => [
+                            'statuses' => [[
+                                'id' => $providerMessageId,
+                                'status' => 'delivered',
+                            ]],
+                        ],
+                    ]],
+                ]],
+            ];
+            $payload = json_encode($payloadArray);
+            $this->assertIsString($payload);
+            $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+            $response = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $response->assertStatus(200);
+            $json = json_decode((string) $response->getJSON(), true);
+            $this->assertIsArray($json);
+            $this->assertSame(1, $json['summary']['journaled'] ?? null);
+            $this->assertSame(1, $json['summary']['processed'] ?? null);
+            $this->assertSame(1, $json['summary']['status_updates'] ?? null);
+
+            $attempt = $attemptModel->withoutTenantScope()->where('id', $attemptId)->first();
+            $notification = $notificationModel->withoutTenantScope()->where('id', $notificationId)->first();
+
+            $this->assertIsArray($attempt);
+            $this->assertIsArray($notification);
+            $this->assertSame('delivered', $attempt['status']);
+            $this->assertSame('delivered', $notification['status']);
+
+            $eventRows = $eventModel->where('provider_event_id', $providerMessageId)->findAll();
+            $this->assertCount(1, $eventRows);
+            $this->assertNotNull($eventRows[0]['processed_at']);
+        } finally {
+            if ($attemptId > 0) {
+                $attemptModel->withoutTenantScope()->where('id', $attemptId)->delete();
+            }
+            if ($notificationId > 0) {
+                $notificationModel->withoutTenantScope()->where('id', $notificationId)->delete();
+            }
+            $eventModel->where('provider_event_id', $providerMessageId)->delete();
+        }
+    }
+
     private function invokePrivateMethodLocal(object $object, string $method, array $args = [])
     {
         $reflection = new \ReflectionClass($object);
@@ -521,5 +697,52 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         }
 
         return $secret;
+    }
+
+    /**
+     * @return array{0:int,1:string}
+     */
+    private function findResolvableWhatsAppChannelForWebhookTest(): array
+    {
+        $channelModel = new ClinicNotificationChannelModel();
+        $rows = $channelModel->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->findAll();
+
+        $encrypter = \Config\Services::encrypter();
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $clinicId = (int) ($row['clinic_id'] ?? 0);
+            $configEncrypted = (string) ($row['config_encrypted'] ?? '');
+            if ($clinicId <= 0 || $configEncrypted === '') {
+                continue;
+            }
+
+            try {
+                $decoded = base64_decode($configEncrypted, true);
+                if ($decoded === false) {
+                    continue;
+                }
+                $json = (string) $encrypter->decrypt($decoded);
+                $config = json_decode($json, true);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            if (!is_array($config)) {
+                continue;
+            }
+
+            $phoneNumberId = trim((string) ($config['phone_number_id'] ?? $config['wa_phone_number_id'] ?? $config['whatsapp_phone_number_id'] ?? ''));
+            if ($phoneNumberId !== '') {
+                return [$clinicId, $phoneNumberId];
+            }
+        }
+
+        return [0, ''];
     }
 }
