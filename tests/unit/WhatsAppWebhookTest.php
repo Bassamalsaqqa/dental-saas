@@ -669,6 +669,187 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         }
     }
 
+    public function testWebhookEventsEndpointDoesNotCreateDuplicateOptoutOnRepeatedStop(): void
+    {
+        [$clinicId, $phoneNumberId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0 || $phoneNumberId === '') {
+            $this->markTestSkipped('No resolvable WhatsApp channel config with phone_number_id found for duplicate STOP test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $waNumberDigits = '9725' . substr((string) time(), -6) . random_int(10, 99);
+        $providerEventId = 'phpunit-stop-dup-' . substr(bin2hex(random_bytes(6)), 0, 12);
+
+        $payloadArray = [
+            'object' => 'whatsapp_business_account',
+            'entry' => [[
+                'id' => 'entry-stop-dup',
+                'changes' => [[
+                    'field' => 'messages',
+                    'value' => [
+                        'metadata' => ['phone_number_id' => $phoneNumberId],
+                        'messages' => [[
+                            'id' => $providerEventId,
+                            'from' => $waNumberDigits,
+                            'type' => 'text',
+                            'text' => ['body' => 'STOP'],
+                        ]],
+                    ],
+                ]],
+            ]],
+        ];
+        $payload = json_encode($payloadArray);
+        $this->assertIsString($payload);
+        $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+        $eventModel = new WhatsAppDeliveryEventModel();
+        $optoutModel = new WhatsAppOptoutModel();
+
+        try {
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+            $optoutModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('wa_number', $waNumberDigits)->delete();
+
+            $first = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $first->assertStatus(200);
+            $firstJson = json_decode((string) $first->getJSON(), true);
+            $this->assertIsArray($firstJson);
+            $this->assertSame(1, $firstJson['summary']['optouts_created'] ?? null);
+
+            $second = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $second->assertStatus(200);
+            $secondJson = json_decode((string) $second->getJSON(), true);
+            $this->assertIsArray($secondJson);
+            $this->assertSame(1, $secondJson['summary']['duplicates'] ?? null);
+            $this->assertSame(0, $secondJson['summary']['optouts_created'] ?? null);
+
+            $rows = $optoutModel->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->where('wa_number', $waNumberDigits)
+                ->findAll();
+            $this->assertCount(1, $rows);
+        } finally {
+            $optoutModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('wa_number', $waNumberDigits)->delete();
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+        }
+    }
+
+    public function testWebhookEventsEndpointUpdatesFailureCodeAndReasonFromFailedStatusCallback(): void
+    {
+        [$clinicId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No WhatsApp-enabled clinic found for failed status callback endpoint test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $providerMessageId = 'wamid.phpunit.fail.' . substr(bin2hex(random_bytes(8)), 0, 16);
+
+        $notificationModel = new NotificationModel();
+        $attemptModel = new NotificationAttemptModel();
+        $eventModel = new WhatsAppDeliveryEventModel();
+
+        $notificationId = 0;
+        $attemptId = 0;
+
+        try {
+            $notificationId = (int) $notificationModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'channel_type' => 'whatsapp',
+                'recipient_type' => 'external',
+                'recipient_address' => '+10000000001',
+                'payload_json' => json_encode(['message' => 'PHPUnit failed webhook test']),
+                'status' => 'processing',
+                'locked_at' => null,
+                'locked_by' => null,
+                'initiated_by_user_id' => null,
+                'job_audit_id' => null,
+                'parent_notification_id' => null,
+            ]);
+            $this->assertGreaterThan(0, $notificationId);
+
+            $attemptId = (int) $attemptModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'notification_id' => $notificationId,
+                'channel_type' => 'whatsapp',
+                'status' => 'sent',
+                'provider_message_id' => $providerMessageId,
+                'idempotency_key' => 'phpunit-fail-' . substr(bin2hex(random_bytes(6)), 0, 12),
+                'retry_count' => 0,
+                'max_retries' => 3,
+                'next_retry_at' => null,
+            ]);
+            $this->assertGreaterThan(0, $attemptId);
+
+            $payloadArray = [
+                'object' => 'whatsapp_business_account',
+                'entry' => [[
+                    'id' => 'entry-status-failed',
+                    'changes' => [[
+                        'field' => 'messages',
+                        'value' => [
+                            'statuses' => [[
+                                'id' => $providerMessageId,
+                                'status' => 'failed',
+                                'errors' => [[
+                                    'code' => '131047',
+                                    'title' => 'Re-engagement message',
+                                ]],
+                            ]],
+                        ],
+                    ]],
+                ]],
+            ];
+            $payload = json_encode($payloadArray);
+            $this->assertIsString($payload);
+            $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+            $response = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $response->assertStatus(200);
+            $json = json_decode((string) $response->getJSON(), true);
+            $this->assertIsArray($json);
+            $this->assertSame(1, $json['summary']['status_updates'] ?? null);
+
+            $attempt = $attemptModel->withoutTenantScope()->where('id', $attemptId)->first();
+            $notification = $notificationModel->withoutTenantScope()->where('id', $notificationId)->first();
+
+            $this->assertIsArray($attempt);
+            $this->assertIsArray($notification);
+            $this->assertSame('failed_permanent', $attempt['status']);
+            $this->assertSame('131047', (string) ($attempt['error_code'] ?? ''));
+            $this->assertSame('Re-engagement message', (string) ($attempt['error_message'] ?? ''));
+            $this->assertSame('failed', $notification['status']);
+            $this->assertStringContainsString('WA_WEBHOOK_FAILED:131047', (string) ($notification['failure_reason'] ?? ''));
+        } finally {
+            if ($attemptId > 0) {
+                $attemptModel->withoutTenantScope()->where('id', $attemptId)->delete();
+            }
+            if ($notificationId > 0) {
+                $notificationModel->withoutTenantScope()->where('id', $notificationId)->delete();
+            }
+            $eventModel->where('provider_event_id', $providerMessageId)->delete();
+        }
+    }
+
     private function invokePrivateMethodLocal(object $object, string $method, array $args = [])
     {
         $reflection = new \ReflectionClass($object);
