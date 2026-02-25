@@ -78,4 +78,15 @@ class PlatformSecretModel extends Model
             return null;
         }
     }
+
+    public function listMetadata(array $secretKeys = []): array
+    {
+        $builder = $this->select('id, secret_key, rotated_at, rotated_by, rotation_note, created_at, updated_at');
+
+        if (!empty($secretKeys)) {
+            $builder->whereIn('secret_key', $secretKeys);
+        }
+
+        return $builder->orderBy('secret_key', 'ASC')->findAll();
+    }
 }

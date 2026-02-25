@@ -20,4 +20,18 @@ class WhatsAppDeliveryEventModel extends Model
     ];
 
     protected $useTimestamps = false;
+
+    public function getRecentEvents(int $limit = 50): array
+    {
+        $limit = max(1, min($limit, 200));
+
+        return $this->orderBy('id', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+
+    public function countSinceProcessed(string $since): int
+    {
+        return (int) $this->where('processed_at >=', $since)->countAllResults();
+    }
 }

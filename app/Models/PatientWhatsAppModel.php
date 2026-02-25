@@ -28,4 +28,26 @@ class PatientWhatsAppModel extends TenantAwareModel
     protected $updatedField = 'updated_at';
 
     protected $beforeInsert = ['setClinicId'];
+
+    public function findByPatient(int $clinicId, int $patientId): ?array
+    {
+        return $this->where('clinic_id', $clinicId)
+            ->where('patient_id', $patientId)
+            ->first();
+    }
+
+    public function upsertForPatient(int $clinicId, int $patientId, array $data)
+    {
+        $existing = $this->findByPatient($clinicId, $patientId);
+
+        $payload = array_intersect_key($data, array_flip($this->allowedFields));
+        $payload['clinic_id'] = $clinicId;
+        $payload['patient_id'] = $patientId;
+
+        if ($existing) {
+            return $this->update($existing['id'], $payload);
+        }
+
+        return $this->insert($payload);
+    }
 }

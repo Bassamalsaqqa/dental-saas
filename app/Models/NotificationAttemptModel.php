@@ -31,4 +31,43 @@ class NotificationAttemptModel extends TenantAwareModel
     protected $updatedField = '';
 
     protected $beforeInsert = ['setClinicId'];
+
+    public function getControlPlaneRecentWhatsAppAttempts(int $limit = 50): array
+    {
+        $limit = max(1, min($limit, 200));
+
+        return $this->withoutTenantScope()
+            ->select('notification_attempts.*, clinics.name AS clinic_name')
+            ->join('clinics', 'clinics.id = notification_attempts.clinic_id', 'left')
+            ->where('notification_attempts.channel_type', 'whatsapp')
+            ->orderBy('notification_attempts.id', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+
+    public function getControlPlaneWhatsAppCountsSince(string $since): array
+    {
+        $total = $this->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->where('created_at >=', $since)
+            ->countAllResults();
+
+        $failed = $this->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->where('created_at >=', $since)
+            ->whereIn('status', ['failed', 'failed_permanent', 'rate_limited'])
+            ->countAllResults();
+
+        $sent = $this->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->where('created_at >=', $since)
+            ->whereIn('status', ['sent', 'delivered', 'read'])
+            ->countAllResults();
+
+        return [
+            'total' => (int) $total,
+            'failed' => (int) $failed,
+            'sentish' => (int) $sent,
+        ];
+    }
 }

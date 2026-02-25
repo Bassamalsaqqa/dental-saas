@@ -253,6 +253,12 @@ function getFDINumber($universalNumber) {
                                     </div>
                                 </div>
 
+                                <?= view('patient/partials/whatsapp_identity', [
+                                    'patient' => $patient,
+                                    'patient_whatsapp' => $patient_whatsapp ?? null,
+                                    'patient_whatsapp_optout' => $patient_whatsapp_optout ?? null,
+                                ]) ?>
+
                                 <!-- Emergency Contact -->
                                 <?php if ($patient['emergency_contact_name'] || $patient['emergency_contact_phone']): ?>
                                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">

@@ -73,6 +73,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('activity-log/export', 'ControlPlane\ActivityLog::export');
 
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
+        $routes->get('whatsapp', 'ControlPlane\WhatsApp::index');
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
         $routes->get('email-templates', 'ControlPlane\Settings::emailTemplates'); // CP-UX-25-MODULAR
         $routes->post('exit', 'ControlPlane::exit');
@@ -84,6 +85,9 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('settings/audit-retention', 'ControlPlane\Settings::updateAuditRetention');
         $routes->post('settings/audit-retention/prune', 'ControlPlane\Settings::pruneAuditLogs');
         $routes->post('settings/tenant-defaults', 'ControlPlane\Settings::updateTenantDefaults');
+        $routes->post('whatsapp/rotate-secret', 'ControlPlane\WhatsApp::rotateSecret');
+        $routes->post('whatsapp/policy', 'ControlPlane\WhatsApp::updatePolicy');
+        $routes->post('whatsapp/emergency-pause', 'ControlPlane\WhatsApp::setEmergencyPause');
 
         // Legacy onboarding alias to avoid 404 on /controlplane/clinic/create
         $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic'); // CP-UX-02b
@@ -182,6 +186,7 @@ $routes->group('patient', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
     $routes->get('search', 'Patient::search', ['filter' => 'permission:patients:view']);
     $routes->get('(:num)', 'Patient::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1', ['filter' => 'permission:patients:edit']);
     $routes->get('(:num)/edit', 'Patient::edit/$1', ['filter' => 'permission:patients:edit']);
     $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
     $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
@@ -201,6 +206,7 @@ $routes->group('patients', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
     $routes->get('search', 'Patient::search', ['filter' => 'permission:patients:view']);
     $routes->get('(:num)', 'Patient::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1', ['filter' => 'permission:patients:edit']);
     $routes->get('(:num)/edit', 'Patient::edit/$1', ['filter' => 'permission:patients:edit']);
     $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
     $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
@@ -565,6 +571,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);
     $routes->post('updateChannelStatus', 'Settings::updateChannelStatus', ['filter' => 'permission:settings:edit']); // Gated by global_mode inside
     $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
+    $routes->post('testWhatsAppChannel', 'Settings::testWhatsAppChannel', ['filter' => 'permission:settings:edit']);
 });
 
 // --------------------------------------------------------------------

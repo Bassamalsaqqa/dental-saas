@@ -30,4 +30,37 @@ class WhatsAppTenantPolicyModel extends TenantAwareModel
     protected $updatedField = 'updated_at';
 
     protected $beforeInsert = ['setClinicId'];
+
+    public function getByClinicForControlPlane(int $clinicId): ?array
+    {
+        return $this->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->first();
+    }
+
+    public function upsertForControlPlane(int $clinicId, array $data)
+    {
+        $existing = $this->getByClinicForControlPlane($clinicId);
+
+        $payload = array_intersect_key($data, array_flip($this->allowedFields));
+        $payload['clinic_id'] = $clinicId;
+
+        if ($existing) {
+            return $this->withoutTenantScope()->update($existing['id'], $payload);
+        }
+
+        return $this->withoutTenantScope()->insert($payload);
+    }
+
+    public function getControlPlanePoliciesWithClinic(int $limit = 100): array
+    {
+        $limit = max(1, min($limit, 500));
+
+        return $this->withoutTenantScope()
+            ->select('whatsapp_tenant_policies.*, clinics.name AS clinic_name')
+            ->join('clinics', 'clinics.id = whatsapp_tenant_policies.clinic_id', 'left')
+            ->orderBy('whatsapp_tenant_policies.updated_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClinicModel;
 use App\Models\ClinicSubscriptionModel;
+use App\Models\PlatformSecretModel;
 use App\Models\PlanAuditModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
@@ -797,6 +798,77 @@ class Settings extends BaseController
         }
 
         return $this->response->setJSON(['success' => false, 'message' => 'Invalid action']);
+    }
+
+    public function testWhatsAppChannel()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Invalid request.',
+            ]);
+        }
+
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON([
+                'success' => false,
+                'message' => 'TENANT_CONTEXT_REQUIRED',
+            ]);
+        }
+
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        $channel = $channelModel->where('clinic_id', $clinicId)
+            ->where('channel_type', 'whatsapp')
+            ->first();
+
+        if (!$channel || empty($channel['configured_by_clinic'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'WhatsApp channel is not configured for this clinic.',
+            ]);
+        }
+
+        $config = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
+        $missing = [];
+
+        $phoneNumberId = trim((string) ($config['phone_number_id'] ?? $config['wa_phone_number_id'] ?? ''));
+        if ($phoneNumberId === '') {
+            $missing[] = 'phone_number_id';
+        }
+
+        $secretModel = new PlatformSecretModel();
+        foreach (['wa_access_token', 'wa_app_secret', 'wa_verify_token'] as $key) {
+            $value = $secretModel->getSecret($key);
+            if ($value === null || trim($value) === '') {
+                $missing[] = $key;
+            }
+        }
+
+        $planGuard = new PlanGuard();
+        $featureEnabled = $planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false);
+        if (!$featureEnabled) {
+            $missing[] = 'plan_feature.notifications.whatsapp.enabled';
+        }
+
+        $isReady = empty($missing);
+        $message = $isReady
+            ? 'WhatsApp config is structurally valid and platform prerequisites are present.'
+            : 'WhatsApp channel is not ready. Missing prerequisites: ' . implode(', ', $missing);
+
+        return $this->response->setJSON([
+            'success' => $isReady,
+            'message' => $message,
+            'ready' => $isReady,
+            'checks' => [
+                'enabled_by_superadmin' => !empty($channel['enabled_by_superadmin']),
+                'configured_by_clinic' => !empty($channel['configured_by_clinic']),
+                'validated' => !empty($channel['validated']),
+                'phone_number_id_present' => $phoneNumberId !== '',
+                'plan_feature_enabled' => $featureEnabled,
+            ],
+            'missing' => $missing,
+        ]);
     }
 
     private function getSettings()

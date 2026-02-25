@@ -83,6 +83,11 @@
                             <i class="fas fa-cog mr-2"></i> Configure
                         </button>
                         <?php if (!empty($chan['configured_by_clinic'])): ?>
+                            <?php if ($chan['channel_type'] === 'whatsapp'): ?>
+                                <button onclick="testWhatsAppChannel()" class="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg text-green-700 hover:bg-green-100 transition-colors">
+                                    <i class="fas fa-shield-check mr-2"></i> Validate WhatsApp Config
+                                </button>
+                            <?php endif; ?>
                             <button onclick="validateChannel('<?= $chan['channel_type'] ?>')" class="w-full px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors">
                                 <i class="fas fa-check-double mr-2"></i> Mark Validated
                             </button>
@@ -140,16 +145,8 @@ function openConfigModal(type) {
     
     // Switch UI based on type
     toggleFormMode(type); // Defined in smtp_form component
-    
-    // Clear inputs
-    if(type === 'email') {
-        document.getElementById('smtp_host').value = '';
-        document.getElementById('smtp_user').value = '';
-        document.getElementById('smtp_pass').value = '';
-        // leave defaults for port/crypto/from
-    } else {
-        document.getElementById('configJson').value = '';
-    }
+
+    clearChannelConfigForm(type); // Defined in smtp_form component
 
     document.getElementById('configModal').classList.remove('hidden');
     document.getElementById('configModal').classList.add('flex');
@@ -165,6 +162,8 @@ function saveConfig() {
     
     if (currentChannel === 'email') {
         json = serializeSmtpForm(); // Defined in smtp_form component
+    } else if (currentChannel === 'whatsapp') {
+        json = serializeWhatsAppForm(); // Defined in smtp_form component
     } else {
         json = document.getElementById('configJson').value;
         try {
@@ -206,6 +205,23 @@ function validateChannel(type) {
           if(data.success) location.reload();
           else alert(data.message);
       });
+}
+
+function testWhatsAppChannel() {
+    fetch('<?= base_url('settings/testWhatsAppChannel') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            [csrfHeader]: csrfToken
+        },
+        body: ''
+    }).then(res => res.json())
+      .then(data => {
+          const checks = data.checks ? Object.entries(data.checks).map(([k, v]) => `${k}: ${v ? 'OK' : 'Missing'}`).join('\n') : '';
+          alert(`${data.message}${checks ? '\n\n' + checks : ''}`);
+      })
+      .catch(() => alert('Failed to validate WhatsApp configuration.'));
 }
 <?php endif; ?>
 </script>

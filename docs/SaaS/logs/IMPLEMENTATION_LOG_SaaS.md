@@ -1406,3 +1406,16 @@
     - **Observed Meta Behavior:** Captured `131047` ("Re-engagement message") when sending freeform text outside the user-initiated window; after manually opening a conversation window, confirmed successful send and webhook progression to `read`.
     - **Template Support:** Added `WhatsAppClient::sendTemplate(...)` and driver payload routing (`template_name`, `template_language`, `template_components`) so business-initiated sends can use approved templates.
 - **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE3-OUTBOUND-CLIENT.md` (updated with live E2E evidence).
+
+### Task: WHATSAPP-PHASE5-01 Tenant UX + Control Plane Ops Surfaces
+- **Date:** 2026-02-25
+- **Status:** Completed
+- **Description:** Implemented Phase 5 WhatsApp UI/ops surfaces across tenant settings, patient profile identity management, and a dedicated control-plane operations page with secret rotation and emergency pause/policy controls.
+- **Actions:**
+    - **Tenant Channel UX:** Extended `/settings/channels` config modal with structured WhatsApp fields (`phone_number_id`, optional `api_version`) and added `Settings::testWhatsAppChannel` AJAX readiness validation (channel config + platform secrets + plan feature checks).
+    - **Patient Identity UI:** Added patient WhatsApp identity card to `patient/show` with AJAX save/update endpoint (`Patient::saveWhatsAppIdentity`), server-side number normalization, tenant ownership enforcement, and `patient_whatsapp` upsert/reset-to-pending behavior.
+    - **Control Plane WhatsApp Ops:** Added `ControlPlane\WhatsApp` controller + `/controlplane/whatsapp` page for 24h metrics, recent attempts/events/opt-outs, and tenant policy snapshot using model helper methods.
+    - **Secret Rotation / Emergency Controls:** Added allowlisted WhatsApp platform secret rotation and per-clinic WhatsApp tenant policy + emergency pause controls with `ControlPlaneAuditService::logEvent(...)` audit entries.
+    - **Navigation / Routes:** Registered tenant and control-plane routes and added a Control Plane sidebar link for WhatsApp Ops.
+    - **Validation:** Ran PHP lint for touched controllers/models/views, `php spark routes` route registration checks, and sandbox-safe guardrail regex scans (no DOM sinks / no raw controller DB queries).
+- **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`.

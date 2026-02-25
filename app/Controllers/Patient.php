@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\PatientModel;
+use App\Models\PatientWhatsAppModel;
+use App\Models\WhatsAppOptoutModel;
 use App\Models\ExaminationModel;
 use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
@@ -28,6 +30,8 @@ class Patient extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $planGuard;
+    protected $patientWhatsAppModel;
+    protected $whatsAppOptoutModel;
 
     public function __construct()
     {
@@ -43,6 +47,8 @@ class Patient extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = service('storage');
         $this->planGuard = new PlanGuard();
+        $this->patientWhatsAppModel = new PatientWhatsAppModel();
+        $this->whatsAppOptoutModel = new WhatsAppOptoutModel();
     }
 
     public function index()
@@ -547,6 +553,12 @@ class Patient extends BaseController
             'attachments_max_file_mb' => $maxAttachmentMb,
             'contracts_enabled' => $contractsEnabled,
             'contracts' => $contracts,
+            'patient_whatsapp' => $this->patientWhatsAppModel->findByPatient((int) $clinicId, (int) $id),
+            'patient_whatsapp_optout' => $this->whatsAppOptoutModel
+                ->where('clinic_id', $clinicId)
+                ->where('patient_id', $id)
+                ->orderBy('id', 'DESC')
+                ->first(),
             'return_to' => $this->sanitizeInternalReturnTo(
                 $this->request->getGet('return_to'),
                 ['patient', 'patients', 'dashboard', 'appointment', 'appointments', 'examination', 'examinations']
@@ -554,6 +566,81 @@ class Patient extends BaseController
         ];
 
         return $this->view('patient/show', $data);
+    }
+
+    public function saveWhatsAppIdentity($patientId)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Invalid request.',
+            ]);
+        }
+
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON([
+                'success' => false,
+                'message' => 'TENANT_CONTEXT_REQUIRED',
+            ]);
+        }
+
+        $patientId = (int) $patientId;
+        $patient = $this->patientModel->findByClinic($clinicId, $patientId);
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $waNumberRaw = trim((string) $this->request->getPost('wa_number'));
+        $waNumber = $this->normalizeWhatsAppNumber($waNumberRaw);
+
+        if ($waNumber === null) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Enter a valid WhatsApp number in international format (example: +970599999999).',
+            ]);
+        }
+
+        $ok = $this->patientWhatsAppModel->upsertForPatient($clinicId, $patientId, [
+            'wa_number' => $waNumber,
+            'resolution_status' => 'pending',
+            'verified_at' => null,
+            'last_error_code' => null,
+        ]);
+
+        if (!$ok) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to save WhatsApp number.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'WhatsApp number saved. Verification status reset to pending.',
+            'wa_number' => $waNumber,
+        ]);
+    }
+
+    private function normalizeWhatsAppNumber(string $raw): ?string
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        $hasPlus = str_starts_with($raw, '+');
+        $digits = preg_replace('/\D+/', '', $raw);
+        if (!is_string($digits) || $digits === '') {
+            return null;
+        }
+
+        if (strlen($digits) < 8 || strlen($digits) > 15) {
+            return null;
+        }
+
+        // Keep a consistent E.164-like representation in UI/storage.
+        return ($hasPlus ? '+' : '+') . $digits;
     }
 
     public function uploadAttachment($patientId)
