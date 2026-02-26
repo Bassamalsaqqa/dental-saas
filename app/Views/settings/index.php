@@ -491,6 +491,34 @@
                                             <option value="after" <?= ($settings['currency_position'] ?? 'before') == 'after' ? 'selected' : '' ?>>After Amount (e.g., 100$)</option>
                                             </select>
                                         </div>
+                                    <div class="md:col-span-2">
+                                        <div class="rounded-2xl border-2 border-emerald-100 bg-emerald-50/60 p-5">
+                                            <div class="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <label for="financeAutoPostInventoryCogs" class="block text-sm font-semibold text-gray-800">Auto-post Inventory Usage to Finance (COGS)</label>
+                                                    <p class="mt-1 text-xs text-gray-600">
+                                                        When enabled, recording inventory usage automatically creates an expense entry in Finance with category <span class="font-semibold">Inventory COGS</span>. Disable this if your clinic records inventory costs manually.
+                                                    </p>
+                                                </div>
+                                                <div class="shrink-0 pt-1">
+                                                    <input type="hidden" name="finance_auto_post_inventory_cogs" value="0">
+                                                    <label class="inline-flex items-center cursor-pointer">
+                                                        <input
+                                                            id="financeAutoPostInventoryCogs"
+                                                            type="checkbox"
+                                                            name="finance_auto_post_inventory_cogs"
+                                                            value="1"
+                                                            class="sr-only peer"
+                                                            <?= (int) ($settings['finance_auto_post_inventory_cogs'] ?? 1) === 1 ? 'checked' : '' ?>
+                                                        >
+                                                        <span class="relative h-7 w-12 rounded-full bg-slate-300 transition-colors peer-checked:bg-emerald-500">
+                                                            <span class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     </div>
                                     
                                 <div class="mt-8 flex justify-end">

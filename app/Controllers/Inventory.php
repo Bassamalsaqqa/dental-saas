@@ -586,6 +586,8 @@ class Inventory extends BaseController
             log_message('info', 'Usage record inserted successfully with ID: ' . $usageId);
 
             // Auto-post inventory usage as COGS expense in the finance ledger (idempotent by usage ID).
+            $autoPostInventoryCogs = (int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1;
+            if ($autoPostInventoryCogs) {
             try {
                 $treatmentPatientId = null;
                 $patientName = null;
@@ -625,6 +627,7 @@ class Inventory extends BaseController
                 );
             } catch (\Throwable $financePostError) {
                 log_message('error', 'Inventory usage finance posting failed: ' . $financePostError->getMessage());
+            }
             }
             
             // Log the inventory usage activity

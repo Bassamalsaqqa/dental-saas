@@ -211,6 +211,7 @@ class Settings extends BaseController
             'time_format' => 'required|in_list[24,12]',
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'currency_position' => 'required|in_list[before,after]',
+            'finance_auto_post_inventory_cogs' => 'permit_empty|in_list[0,1]',
         ];
 
         if (!$this->validate($rules)) {
@@ -223,6 +224,7 @@ class Settings extends BaseController
             'time_format' => $this->request->getPost('time_format'),
             'currency' => $this->request->getPost('currency'),
             'currency_position' => $this->request->getPost('currency_position'),
+            'finance_auto_post_inventory_cogs' => $this->request->getPost('finance_auto_post_inventory_cogs') ? 1 : 0,
         ];
 
         log_message('info', 'Saving system settings: ' . json_encode($settingsData));
@@ -394,6 +396,7 @@ class Settings extends BaseController
             'date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
             'time_format' => 'required|in_list[24,12]',
             'currency' => 'required',
+            'finance_auto_post_inventory_cogs' => 'permit_empty|in_list[0,1]',
             'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
             'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[' . $maxChairCount . ']',
             'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
@@ -421,6 +424,7 @@ class Settings extends BaseController
             'date_format' => $this->request->getPost('date_format'),
             'time_format' => $this->request->getPost('time_format'),
             'currency' => $this->request->getPost('currency'),
+            'finance_auto_post_inventory_cogs' => $this->request->getPost('finance_auto_post_inventory_cogs') ? 1 : 0,
             'appointment_duration' => $this->request->getPost('appointment_duration'),
             'booking_chair_count' => $chairCount,
             'booking_chair_names' => $chairNames,
@@ -895,6 +899,7 @@ class Settings extends BaseController
                 'time_format' => '12',
                 'currency' => 'ILS',
                 'currency_position' => 'after',
+                'finance_auto_post_inventory_cogs' => 1,
                 'appointment_duration' => 30,
                 'booking_chair_count' => 1,
                 'booking_chair_names' => ['Chair 1'],
@@ -935,6 +940,7 @@ class Settings extends BaseController
             'time_format' => '12',
             'currency' => 'ILS',
             'currency_position' => 'after',
+            'finance_auto_post_inventory_cogs' => 1,
             'appointment_duration' => 30,
             'booking_chair_count' => 1,
             'booking_chair_names' => ['Chair 1'],
@@ -1048,6 +1054,7 @@ class Settings extends BaseController
             'time_format' => '12',
             'currency' => 'ILS',
             'currency_position' => 'after',
+            'finance_auto_post_inventory_cogs' => 1,
             'appointment_duration' => 30,
             'booking_chair_count' => 1,
             'booking_chair_names' => ['Chair 1'],

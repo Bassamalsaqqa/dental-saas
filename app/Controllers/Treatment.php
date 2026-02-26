@@ -781,6 +781,8 @@ class Treatment extends BaseController
             return ['success' => false, 'message' => 'Failed to record inventory usage.'];
         }
 
+        $autoPostInventoryCogs = (int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1;
+        if ($autoPostInventoryCogs) {
         try {
             $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($treatmentId);
             $patientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
@@ -815,6 +817,7 @@ class Treatment extends BaseController
             );
         } catch (\Throwable $financePostError) {
             log_message('error', 'Treatment inventory usage finance posting failed: ' . $financePostError->getMessage());
+        }
         }
 
         foreach ($usageData as $usage) {
