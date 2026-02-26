@@ -53,6 +53,14 @@
                     </select>
                 </div>
                 <div class="flex-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Period Mode</label>
+                        <select id="dateMode" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                            <option value="relative" <?= (($filters['date_mode'] ?? 'relative') === 'relative') ? 'selected' : '' ?>>Relative</option>
+                            <option value="custom" <?= (($filters['date_mode'] ?? '') === 'custom') ? 'selected' : '' ?>>Custom Range</option>
+                            <option value="as_of" <?= (($filters['date_mode'] ?? '') === 'as_of') ? 'selected' : '' ?>>As Of Date</option>
+                        </select>
+                </div>
+                <div class="flex-1">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
                         <select id="dateRange" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
                         <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>>Last 7 days</option>
@@ -61,12 +69,35 @@
                         <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>>Last year</option>
                     </select>
                 </div>
+                <div id="customDateControls" class="flex-[1.6] hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Custom Range</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input id="customFrom" type="date" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                        <input id="customTo" type="date" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                    </div>
+                </div>
+                <div id="asOfControls" class="flex-1 hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">As Of Date</label>
+                    <input id="asOfDate" type="date" value="<?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                </div>
                 <div class="lg:pt-6">
                         <button onclick="generateReport()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-chart-bar mr-2"></i>
                             Generate Report
                     </button>
                 </div>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                    <i class="fas fa-calendar-range mr-2"></i>
+                    <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
+                </span>
+                <?php if (($filters['date_mode'] ?? 'relative') === 'as_of'): ?>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-semibold">
+                    <i class="fas fa-hourglass-end mr-2"></i>
+                    A/R aging evaluated as of <?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>
+                </span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -193,7 +224,7 @@
                 <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-2"><?= ucfirst($report_type ?? 'Report') ?> Report</h3>
-                        <p class="text-sm text-gray-600">Detailed analysis for the selected period (<?= $date_range ?? '30' ?> days)</p>
+                        <p class="text-sm text-gray-600">Detailed analysis for <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?></p>
                     </div>
                     
                     <?php if ($report_type === 'patients'): ?>
@@ -660,17 +691,108 @@
                 </div>
             </div>
         <?php endif; ?>
+
+        <?php if (!empty($detail_tables ?? [])): ?>
+        <div class="mb-8">
+            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Rows Behind This Report</h3>
+                        <p class="text-sm text-gray-600">Audit the exact rows included in the currently selected report and period.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
+                        <button
+                            type="button"
+                            class="report-detail-tab inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border transition-all <?= $idx === 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300' ?>"
+                            data-target="<?= esc($table['id']) ?>"
+                        >
+                            <?= esc($table['title']) ?>
+                            <span class="ml-2 text-xs <?= $idx === 0 ? 'text-blue-100' : 'text-gray-400' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
+                        </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
+                <div class="report-detail-panel <?= $idx === 0 ? '' : 'hidden' ?>" data-panel="<?= esc($table['id']) ?>">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800"><?= esc($table['title']) ?></h4>
+                        <div class="relative">
+                            <input type="text" class="report-detail-search w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search rows in this table...">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                        <table class="min-w-full text-sm report-detail-table">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <?php foreach (($table['columns'] ?? []) as $column): ?>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap"><?= esc($column['label'] ?? $column['key']) ?></th>
+                                    <?php endforeach; ?>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <?php if (empty($table['rows'])): ?>
+                                <tr>
+                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-4 py-8 text-center text-gray-500">No rows available for this period.</td>
+                                </tr>
+                                <?php else: ?>
+                                <?php foreach ($table['rows'] as $row): ?>
+                                <tr class="report-detail-row hover:bg-blue-50/30 transition-colors">
+                                    <?php foreach (($table['columns'] ?? []) as $column): ?>
+                                    <?php $key = $column['key'] ?? ''; $value = $row[$key] ?? ''; ?>
+                                    <td class="px-4 py-3 text-gray-700 whitespace-nowrap">
+                                        <?php if (is_numeric($value) && preg_match('/amount|balance|total|share|paid/i', (string) $key)): ?>
+                                            <span class="font-semibold"><?= formatCurrency($value) ?></span>
+                                        <?php else: ?>
+                                            <?= esc((string) $value) ?>
+                                        <?php endif; ?>
+                                    </td>
+                                    <?php endforeach; ?>
+                                </tr>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
         </div>
 </div>
 
 <script>
+function syncDateModeControls() {
+    const mode = document.getElementById('dateMode')?.value || 'relative';
+    const customWrap = document.getElementById('customDateControls');
+    const asOfWrap = document.getElementById('asOfControls');
+    const dateRange = document.getElementById('dateRange');
+
+    if (customWrap) customWrap.classList.toggle('hidden', mode !== 'custom');
+    if (asOfWrap) asOfWrap.classList.toggle('hidden', mode !== 'as_of');
+    if (dateRange) {
+        dateRange.disabled = (mode === 'custom');
+        dateRange.classList.toggle('opacity-60', mode === 'custom');
+    }
+}
+
 function generateReport() {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
+    const dateMode = document.getElementById('dateMode').value;
+    const customFrom = document.getElementById('customFrom')?.value || '';
+    const customTo = document.getElementById('customTo')?.value || '';
+    const asOfDate = document.getElementById('asOfDate')?.value || '';
     
     const url = new URL(window.location);
     url.searchParams.set('report_type', reportType);
     url.searchParams.set('date_range', dateRange);
+    url.searchParams.set('date_mode', dateMode);
+    if (customFrom) url.searchParams.set('custom_from', customFrom); else url.searchParams.delete('custom_from');
+    if (customTo) url.searchParams.set('custom_to', customTo); else url.searchParams.delete('custom_to');
+    if (asOfDate) url.searchParams.set('as_of_date', asOfDate); else url.searchParams.delete('as_of_date');
     
     window.location.href = url.toString();
 }
@@ -678,6 +800,10 @@ function generateReport() {
 function exportReport(format) {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
+    const dateMode = document.getElementById('dateMode').value;
+    const customFrom = document.getElementById('customFrom')?.value || '';
+    const customTo = document.getElementById('customTo')?.value || '';
+    const asOfDate = document.getElementById('asOfDate')?.value || '';
 
     const form = document.createElement('form');
     form.method = 'POST';
@@ -688,8 +814,12 @@ function exportReport(format) {
     const fields = {
         '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
         format: format,
-        type: reportType,
+        report_type: reportType,
         date_range: dateRange,
+        date_mode: dateMode,
+        custom_from: customFrom,
+        custom_to: customTo,
+        as_of_date: asOfDate,
     };
 
     Object.entries(fields).forEach(([name, value]) => {
@@ -704,6 +834,38 @@ function exportReport(format) {
     form.submit();
     form.remove();
 }
+
+document.getElementById('dateMode')?.addEventListener('change', syncDateModeControls);
+syncDateModeControls();
+
+document.querySelectorAll('.report-detail-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        document.querySelectorAll('.report-detail-tab').forEach((b) => {
+            const active = b === btn;
+            b.classList.toggle('bg-blue-600', active);
+            b.classList.toggle('text-white', active);
+            b.classList.toggle('border-blue-600', active);
+            b.classList.toggle('bg-white', !active);
+            b.classList.toggle('text-gray-700', !active);
+            b.classList.toggle('border-gray-200', !active);
+        });
+        document.querySelectorAll('.report-detail-panel').forEach((panel) => {
+            panel.classList.toggle('hidden', panel.dataset.panel !== target);
+        });
+    });
+});
+
+document.querySelectorAll('.report-detail-panel').forEach((panel) => {
+    const search = panel.querySelector('.report-detail-search');
+    if (!search) return;
+    search.addEventListener('input', () => {
+        const q = search.value.trim().toLowerCase();
+        panel.querySelectorAll('.report-detail-row').forEach((row) => {
+            row.classList.toggle('hidden', q !== '' && !row.innerText.toLowerCase().includes(q));
+        });
+    });
+});
 
 // Revenue Chart
 const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');

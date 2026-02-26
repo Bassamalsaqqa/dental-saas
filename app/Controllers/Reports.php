@@ -14,6 +14,7 @@ class Reports extends BaseController
     private const ALLOWED_REPORT_TYPES = ['overview', 'patients', 'examinations', 'appointments', 'finance', 'treatments'];
     private const ALLOWED_DATE_RANGES = ['7', '30', '90', '365'];
     private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
+    private const ALLOWED_DATE_MODES = ['relative', 'custom', 'as_of'];
 
     protected $patientModel;
     protected $examinationModel;
@@ -58,12 +59,181 @@ class Reports extends BaseController
         return in_array($value, self::ALLOWED_EXPORT_FORMATS, true) ? $value : 'csv';
     }
 
+    private function sanitizeDateMode(?string $value): string
+    {
+        $value = strtolower((string) ($value ?? 'relative'));
+        return in_array($value, self::ALLOWED_DATE_MODES, true) ? $value : 'relative';
+    }
+
+    private function sanitizeDateInput(?string $value): ?string
+    {
+        $value = trim((string) ($value ?? ''));
+        if ($value === '') {
+            return null;
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return null;
+        }
+        return $value;
+    }
+
     private function getReportWindow(string $dateRange): array
     {
         $days = (int) $dateRange;
         $end = date('Y-m-d');
         $start = date('Y-m-d', strtotime("-{$days} days"));
         return [$start, $end];
+    }
+
+    private function getReportWindowAnchored(string $dateRange, string $endDate): array
+    {
+        $days = (int) $dateRange;
+        $start = date('Y-m-d', strtotime($endDate . " -{$days} days"));
+        return [$start, $endDate];
+    }
+
+    private function parseReportFilters(string $source = 'get'): array
+    {
+        $input = strtolower($source) === 'post' ? 'getPost' : 'getGet';
+        $reportType = $this->sanitizeReportType($this->request->{$input}('report_type') ?? $this->request->{$input}('type'));
+        $dateRange = $this->sanitizeDateRange($this->request->{$input}('date_range'));
+        $dateMode = $this->sanitizeDateMode($this->request->{$input}('date_mode'));
+        $customFrom = $this->sanitizeDateInput($this->request->{$input}('custom_from'));
+        $customTo = $this->sanitizeDateInput($this->request->{$input}('custom_to'));
+        $asOfDate = $this->sanitizeDateInput($this->request->{$input}('as_of_date')) ?: date('Y-m-d');
+
+        if ($dateMode === 'custom') {
+            if (!$customFrom || !$customTo) {
+                $dateMode = 'relative';
+            } elseif ($customFrom > $customTo) {
+                [$customFrom, $customTo] = [$customTo, $customFrom];
+            }
+        }
+
+        if ($dateMode === 'custom' && $customFrom && $customTo) {
+            [$startDate, $endDate] = [$customFrom, $customTo];
+        } elseif ($dateMode === 'as_of') {
+            [$startDate, $endDate] = $this->getReportWindowAnchored($dateRange, $asOfDate);
+        } else {
+            [$startDate, $endDate] = $this->getReportWindow($dateRange);
+            $dateMode = 'relative';
+        }
+
+        return [
+            'report_type' => $reportType,
+            'date_mode' => $dateMode,
+            'date_range' => $dateRange,
+            'custom_from' => $customFrom,
+            'custom_to' => $customTo,
+            'as_of_date' => $asOfDate,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'period_label' => $dateMode === 'custom'
+                ? ($startDate . ' to ' . $endDate)
+                : ($dateMode === 'as_of'
+                    ? ('As of ' . $asOfDate . ' (window: ' . $startDate . ' to ' . $endDate . ')')
+                    : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')')),
+        ];
+    }
+
+    private function makeDetailTable(string $id, string $title, array $columns, array $rows): array
+    {
+        return [
+            'id' => $id,
+            'title' => $title,
+            'columns' => $columns,
+            'rows' => $rows,
+            'row_count' => count($rows),
+        ];
+    }
+
+    private function buildDetailTables(string $reportType, array $reports): array
+    {
+        switch ($reportType) {
+            case 'patients':
+                return [
+                    $this->makeDetailTable('patients', 'Patients Included', [
+                        ['key' => 'patient_id', 'label' => 'Patient ID'],
+                        ['key' => 'full_name', 'label' => 'Name'],
+                        ['key' => 'phone', 'label' => 'Phone'],
+                        ['key' => 'email', 'label' => 'Email'],
+                        ['key' => 'created_at', 'label' => 'Created'],
+                    ], array_map(static function ($row) {
+                        return [
+                            'patient_id' => $row['patient_id'] ?? $row['id'] ?? '',
+                            'full_name' => trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))),
+                            'phone' => $row['phone'] ?? '',
+                            'email' => $row['email'] ?? '',
+                            'created_at' => $row['created_at'] ?? '',
+                        ];
+                    }, $reports['patients'] ?? [])),
+                ];
+            case 'examinations':
+                return [
+                    $this->makeDetailTable('examinations', 'Examinations Included', [
+                        ['key' => 'id', 'label' => 'ID'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'examination_type', 'label' => 'Type'],
+                        ['key' => 'examination_date', 'label' => 'Date'],
+                        ['key' => 'notes', 'label' => 'Notes'],
+                    ], $reports['examinations'] ?? []),
+                ];
+            case 'appointments':
+                return [
+                    $this->makeDetailTable('appointments', 'Appointments Included', [
+                        ['key' => 'id', 'label' => 'ID'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'appointment_date', 'label' => 'Date'],
+                        ['key' => 'appointment_type', 'label' => 'Type'],
+                        ['key' => 'status', 'label' => 'Status'],
+                    ], $reports['appointments'] ?? []),
+                ];
+            case 'treatments':
+                return [
+                    $this->makeDetailTable('treatments', 'Treatments Included', [
+                        ['key' => 'id', 'label' => 'ID'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'treatment_type', 'label' => 'Type'],
+                        ['key' => 'start_date', 'label' => 'Start'],
+                        ['key' => 'status', 'label' => 'Status'],
+                    ], $reports['treatments'] ?? []),
+                ];
+            case 'finance':
+                return [
+                    $this->makeDetailTable('transactions', 'Financial Transactions', [
+                        ['key' => 'transaction_id', 'label' => 'Transaction'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'transaction_type', 'label' => 'Type'],
+                        ['key' => 'payment_method', 'label' => 'Payment Method'],
+                        ['key' => 'payment_status', 'label' => 'Status'],
+                        ['key' => 'total_amount', 'label' => 'Amount'],
+                        ['key' => 'created_at', 'label' => 'Created'],
+                    ], $reports['transactions'] ?? []),
+                    $this->makeDetailTable('ar_aging_detail', 'A/R Aging Detail', [
+                        ['key' => 'transaction_id', 'label' => 'Invoice'],
+                        ['key' => 'patient_number', 'label' => 'Patient #'],
+                        ['key' => 'full_name', 'label' => 'Patient'],
+                        ['key' => 'due_date', 'label' => 'Due Date'],
+                        ['key' => 'days_past_due', 'label' => 'Days Past Due'],
+                        ['key' => 'aging_bucket', 'label' => 'Bucket'],
+                        ['key' => 'balance_due', 'label' => 'Balance Due'],
+                    ], array_map(static function ($row) {
+                        $row['full_name'] = trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')));
+                        return $row;
+                    }, $reports['ar_aging_detail'] ?? [])),
+                    $this->makeDetailTable('provider_payout_breakdown', 'Provider Payout Breakdown', [
+                        ['key' => 'provider_label', 'label' => 'Provider'],
+                        ['key' => 'payout_count', 'label' => 'Payouts'],
+                        ['key' => 'gross_amount_total', 'label' => 'Gross'],
+                        ['key' => 'provider_share_total', 'label' => 'Provider Share'],
+                        ['key' => 'provider_paid_total', 'label' => 'Paid'],
+                        ['key' => 'provider_balance_total', 'label' => 'Balance'],
+                    ], $reports['provider_payout_breakdown'] ?? []),
+                ];
+            case 'overview':
+            default:
+                return [];
+        }
     }
 
     private function html(string $value): string
@@ -104,15 +274,19 @@ class Reports extends BaseController
                 return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view reports.');
             }
 
-            $dateRange = $this->sanitizeDateRange($this->request->getGet('date_range'));
-            $reportType = $this->sanitizeReportType($this->request->getGet('report_type'));
+            $filters = $this->parseReportFilters('get');
+            $dateRange = $filters['date_range'];
+            $reportType = $filters['report_type'];
             $data = [
                 'title' => 'Reports & Analytics',
                 'date_range' => $dateRange,
                 'report_type' => $reportType,
+                'filters' => $filters,
             ];
 
-            [$startDate, $endDate] = $this->getReportWindow($dateRange);
+            $startDate = $filters['start_date'];
+            $endDate = $filters['end_date'];
+            $asOfDate = $filters['as_of_date'];
 
             // Generate reports based on type
             switch ($reportType) {
@@ -126,7 +300,7 @@ class Reports extends BaseController
                     $data['reports'] = $this->getAppointmentReports($startDate, $endDate);
                     break;
                 case 'finance':
-                    $data['reports'] = $this->getFinanceReports($startDate, $endDate);
+                    $data['reports'] = $this->getFinanceReports($startDate, $endDate, $asOfDate);
                     break;
                 case 'treatments':
                     $data['reports'] = $this->getTreatmentReports($startDate, $endDate);
@@ -134,6 +308,8 @@ class Reports extends BaseController
                 default:
                     $data['reports'] = $this->getOverviewReports($startDate, $endDate);
             }
+
+            $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
             // Explicitly add user data to ensure it's available
             $userData = $this->getUserDataForView();
@@ -149,7 +325,19 @@ class Reports extends BaseController
                 'title' => 'Reports & Analytics',
                 'date_range' => '30',
                 'report_type' => 'overview',
-                'reports' => $this->getBasicReports()
+                'reports' => $this->getBasicReports(),
+                'filters' => [
+                    'report_type' => 'overview',
+                    'date_mode' => 'relative',
+                    'date_range' => '30',
+                    'custom_from' => null,
+                    'custom_to' => null,
+                    'as_of_date' => date('Y-m-d'),
+                    'start_date' => date('Y-m-d', strtotime('-30 days')),
+                    'end_date' => date('Y-m-d'),
+                    'period_label' => 'Last 30 days',
+                ],
+                'detail_tables' => [],
             ];
 
             // Ensure user data is still available in error state
@@ -168,9 +356,11 @@ class Reports extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $reportType = $this->sanitizeReportType($this->request->getGet('report_type'));
-            $dateRange = $this->sanitizeDateRange($this->request->getGet('date_range'));
-            [$startDate, $endDate] = $this->getReportWindow($dateRange);
+            $filters = $this->parseReportFilters('get');
+            $reportType = $filters['report_type'];
+            $startDate = $filters['start_date'];
+            $endDate = $filters['end_date'];
+            $asOfDate = $filters['as_of_date'];
             
             $data = [];
             
@@ -185,7 +375,7 @@ class Reports extends BaseController
                     $data = $this->getAppointmentReports($startDate, $endDate);
                     break;
                 case 'finance':
-                    $data = $this->getFinanceReports($startDate, $endDate);
+                    $data = $this->getFinanceReports($startDate, $endDate, $asOfDate);
                     break;
                 case 'treatments':
                     $data = $this->getTreatmentReports($startDate, $endDate);
@@ -194,6 +384,8 @@ class Reports extends BaseController
                     $data = $this->getOverviewReports($startDate, $endDate);
             }
             
+            $data['_detail_tables'] = $this->buildDetailTables($reportType, $data);
+            $data['_filters'] = $filters;
             return $this->response->setJSON($data);
         } catch (\Exception $e) {
             log_message('error', 'Chart data error: ' . $e->getMessage());
@@ -215,15 +407,20 @@ class Reports extends BaseController
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
+            $filters = $this->parseReportFilters('post');
             $format = $this->sanitizeExportFormat($this->request->getPost('format'));
-            $reportType = $this->sanitizeReportType($this->request->getPost('type'));
-            $dateRange = $this->sanitizeDateRange($this->request->getPost('date_range'));
-            [$startDate, $endDate] = $this->getReportWindow($dateRange);
+            $reportType = $filters['report_type'];
+            $dateRange = $filters['date_range'];
+            $startDate = $filters['start_date'];
+            $endDate = $filters['end_date'];
+            $asOfDate = $filters['as_of_date'];
 
             $data = [
                 'title' => 'Export Report',
                 'report_type' => $reportType,
                 'date_range' => $dateRange,
+                'date_mode' => $filters['date_mode'],
+                'as_of_date' => $asOfDate,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ];
@@ -239,7 +436,7 @@ class Reports extends BaseController
                     $data['reports'] = $this->getAppointmentReports($startDate, $endDate);
                     break;
                 case 'finance':
-                    $data['reports'] = $this->getFinanceReports($startDate, $endDate);
+                    $data['reports'] = $this->getFinanceReports($startDate, $endDate, $asOfDate);
                     break;
                 case 'treatments':
                     $data['reports'] = $this->getTreatmentReports($startDate, $endDate);
@@ -247,6 +444,8 @@ class Reports extends BaseController
                 default:
                     $data['reports'] = $this->getOverviewReports($startDate, $endDate);
             }
+
+            $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
             if ($format === 'pdf') {
                 $attachment = $this->generatePDF($data);
@@ -371,7 +570,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getFinanceReports($startDate, $endDate)
+    private function getFinanceReports($startDate, $endDate, ?string $asOfDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -404,8 +603,8 @@ class Reports extends BaseController
             'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
             'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
             'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
-            'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $endDate),
-            'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $endDate, 100),
+            'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $asOfDate ?: $endDate),
+            'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $asOfDate ?: $endDate, 100),
             'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
             'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
             'summary' => [
