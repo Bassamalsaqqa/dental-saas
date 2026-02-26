@@ -86,7 +86,9 @@ class ClinicUserModel extends TenantAwareModel
 
     public function getActiveUserDirectoryByClinic(int $clinicId): array
     {
-        return $this->withoutTenantScope()
+        // Use an explicit query builder path to avoid any tenant callback ambiguity when
+        // this method is used from mixed contexts (tenant pages and control-plane code).
+        return $this->db->table('clinic_users')
             ->distinct()
             ->select('users.id, users.first_name, users.last_name, users.email')
             ->join('users', 'users.id = clinic_users.user_id', 'inner')
@@ -98,6 +100,7 @@ class ClinicUserModel extends TenantAwareModel
             ->groupEnd()
             ->orderBy('users.first_name', 'ASC')
             ->orderBy('users.last_name', 'ASC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
     }
 }

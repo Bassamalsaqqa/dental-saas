@@ -118,7 +118,7 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
 
         $planRows = $planModel->findAll();
         $planMap = [];
@@ -239,7 +239,7 @@ class Clinics extends BaseController
         $clinicModel = new ClinicModel();
         $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
         $planModel = new PlanModel();
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
 
         $clinic = $clinicModel->find($id);
         if (!$clinic) {
@@ -590,7 +590,7 @@ class Clinics extends BaseController
             $subscriptionModel->where('clinic_id', $id)->delete();
 
             // 2. Delete Memberships (Users remain, but clinic association is gone)
-            $clinicUserModel = new ClinicUserModel();
+            $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
             $clinicUserModel->where('clinic_id', $id)->delete();
 
             // 3. Delete Clinic
@@ -631,7 +631,7 @@ class Clinics extends BaseController
         }
 
         // Find Admin User
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = (new ClinicUserModel())->withoutTenantScope();
         $adminUser = $clinicUserModel->select('users.id, users.email')
             ->join('users', 'users.id = clinic_users.user_id')
             ->where('clinic_users.clinic_id', $id)
