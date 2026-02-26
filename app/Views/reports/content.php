@@ -57,7 +57,6 @@
                         <select id="dateMode" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
                             <option value="relative" <?= (($filters['date_mode'] ?? 'relative') === 'relative') ? 'selected' : '' ?>>Relative</option>
                             <option value="custom" <?= (($filters['date_mode'] ?? '') === 'custom') ? 'selected' : '' ?>>Custom Range</option>
-                            <option value="as_of" <?= (($filters['date_mode'] ?? '') === 'as_of') ? 'selected' : '' ?>>As Of Date</option>
                         </select>
                 </div>
                 <div class="flex-1">
@@ -83,10 +82,6 @@
                         <input id="customTo" type="date" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
                     </div>
                 </div>
-                <div id="asOfControls" class="flex-1 hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">As Of Date</label>
-                    <input id="asOfDate" type="date" value="<?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                </div>
                 <div class="lg:pt-6">
                         <button onclick="generateReport()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-chart-bar mr-2"></i>
@@ -100,12 +95,6 @@
                         <i class="fas fa-calendar-range mr-2"></i>
                         <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
                     </span>
-                    <?php if (($filters['date_mode'] ?? 'relative') === 'as_of'): ?>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-semibold">
-                        <i class="fas fa-hourglass-end mr-2"></i>
-                        A/R aging evaluated as of <?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>
-                    </span>
-                    <?php endif; ?>
                     <?php if (($filters['compare_mode'] ?? 'none') === 'previous_period' && !empty($filters['compare_start_date'])): ?>
                     <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
                         <i class="fas fa-code-compare mr-2"></i>
@@ -630,7 +619,7 @@
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
                                     <div>
                                         <h4 class="text-lg font-semibold text-gray-800">Accounts Receivable Aging</h4>
-                                        <p class="text-sm text-gray-500">Outstanding invoice balances bucketed by days past due (as of <?= esc($ar['as_of_date'] ?? date('Y-m-d')) ?>)</p>
+                                        <p class="text-sm text-gray-500">Outstanding invoice balances bucketed by days past due (through <?= esc($filters['end_date'] ?? date('Y-m-d')) ?>)</p>
                                     </div>
                                     <div class="text-sm font-semibold text-rose-700">Total: <?= formatCurrency($ar['total_balance_due'] ?? 0) ?></div>
                                 </div>
@@ -956,11 +945,9 @@ function escapeHtml(value) {
 function syncDateModeControls() {
     const mode = document.getElementById('dateMode')?.value || 'relative';
     const customWrap = document.getElementById('customDateControls');
-    const asOfWrap = document.getElementById('asOfControls');
     const dateRange = document.getElementById('dateRange');
 
     if (customWrap) customWrap.classList.toggle('hidden', mode !== 'custom');
-    if (asOfWrap) asOfWrap.classList.toggle('hidden', mode !== 'as_of');
     if (dateRange) {
         dateRange.disabled = (mode === 'custom');
         dateRange.classList.toggle('opacity-60', mode === 'custom');
@@ -974,7 +961,6 @@ function generateReport() {
     const compareMode = document.getElementById('compareMode')?.value || 'none';
     const customFrom = document.getElementById('customFrom')?.value || '';
     const customTo = document.getElementById('customTo')?.value || '';
-    const asOfDate = document.getElementById('asOfDate')?.value || '';
     
     const url = new URL(window.location);
     url.searchParams.set('report_type', reportType);
@@ -983,7 +969,6 @@ function generateReport() {
     url.searchParams.set('compare_mode', compareMode);
     if (customFrom) url.searchParams.set('custom_from', customFrom); else url.searchParams.delete('custom_from');
     if (customTo) url.searchParams.set('custom_to', customTo); else url.searchParams.delete('custom_to');
-    if (asOfDate) url.searchParams.set('as_of_date', asOfDate); else url.searchParams.delete('as_of_date');
     
     window.location.href = url.toString();
 }
@@ -995,7 +980,6 @@ function exportReport(format) {
     const compareMode = document.getElementById('compareMode')?.value || 'none';
     const customFrom = document.getElementById('customFrom')?.value || '';
     const customTo = document.getElementById('customTo')?.value || '';
-    const asOfDate = document.getElementById('asOfDate')?.value || '';
 
     const form = document.createElement('form');
     form.method = 'POST';
@@ -1012,7 +996,6 @@ function exportReport(format) {
         compare_mode: compareMode,
         custom_from: customFrom,
         custom_to: customTo,
-        as_of_date: asOfDate,
     };
 
     Object.entries(fields).forEach(([name, value]) => {
@@ -1064,7 +1047,6 @@ function getCurrentFilterState() {
         compare_mode: document.getElementById('compareMode')?.value || 'none',
         custom_from: document.getElementById('customFrom')?.value || '',
         custom_to: document.getElementById('customTo')?.value || '',
-        as_of_date: document.getElementById('asOfDate')?.value || '',
     };
 }
 
@@ -1104,7 +1086,6 @@ function applyPresetToForm(preset) {
     if (document.getElementById('compareMode')) document.getElementById('compareMode').value = f.compare_mode || 'none';
     if (document.getElementById('customFrom')) document.getElementById('customFrom').value = f.custom_from || '';
     if (document.getElementById('customTo')) document.getElementById('customTo').value = f.custom_to || '';
-    if (document.getElementById('asOfDate')) document.getElementById('asOfDate').value = f.as_of_date || '';
     syncDateModeControls();
 }
 
@@ -1329,7 +1310,6 @@ async function loadDetailPanel(panelId, page = 1) {
     params.set('compare_mode', reportWorkspace.filters.compare_mode || 'none');
     if (reportWorkspace.filters.custom_from) params.set('custom_from', reportWorkspace.filters.custom_from);
     if (reportWorkspace.filters.custom_to) params.set('custom_to', reportWorkspace.filters.custom_to);
-    if (reportWorkspace.filters.as_of_date) params.set('as_of_date', reportWorkspace.filters.as_of_date);
     params.set('table_id', panelId);
     params.set('page', String(page));
     params.set('per_page', String(perPage));

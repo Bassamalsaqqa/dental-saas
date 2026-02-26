@@ -14,7 +14,7 @@ class Reports extends BaseController
     private const ALLOWED_REPORT_TYPES = ['overview', 'patients', 'examinations', 'appointments', 'finance', 'treatments'];
     private const ALLOWED_DATE_RANGES = ['7', '30', '90', '365'];
     private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
-    private const ALLOWED_DATE_MODES = ['relative', 'custom', 'as_of'];
+    private const ALLOWED_DATE_MODES = ['relative', 'custom'];
     private const ALLOWED_COMPARE_MODES = ['none', 'previous_period'];
 
     protected $patientModel;
@@ -92,13 +92,6 @@ class Reports extends BaseController
         return [$start, $end];
     }
 
-    private function getReportWindowAnchored(string $dateRange, string $endDate): array
-    {
-        $days = (int) $dateRange;
-        $start = date('Y-m-d', strtotime($endDate . " -{$days} days"));
-        return [$start, $endDate];
-    }
-
     private function getPreviousPeriodWindow(string $startDate, string $endDate): array
     {
         $startTs = strtotime($startDate . ' 00:00:00');
@@ -118,7 +111,6 @@ class Reports extends BaseController
         $compareMode = $this->sanitizeCompareMode($this->request->{$input}('compare_mode'));
         $customFrom = $this->sanitizeDateInput($this->request->{$input}('custom_from'));
         $customTo = $this->sanitizeDateInput($this->request->{$input}('custom_to'));
-        $asOfDate = $this->sanitizeDateInput($this->request->{$input}('as_of_date')) ?: date('Y-m-d');
 
         if ($dateMode === 'custom') {
             if (!$customFrom || !$customTo) {
@@ -130,8 +122,6 @@ class Reports extends BaseController
 
         if ($dateMode === 'custom' && $customFrom && $customTo) {
             [$startDate, $endDate] = [$customFrom, $customTo];
-        } elseif ($dateMode === 'as_of') {
-            [$startDate, $endDate] = $this->getReportWindowAnchored($dateRange, $asOfDate);
         } else {
             [$startDate, $endDate] = $this->getReportWindow($dateRange);
             $dateMode = 'relative';
@@ -149,16 +139,13 @@ class Reports extends BaseController
             'date_range' => $dateRange,
             'custom_from' => $customFrom,
             'custom_to' => $customTo,
-            'as_of_date' => $asOfDate,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'compare_start_date' => $compareStartDate,
             'compare_end_date' => $compareEndDate,
             'period_label' => $dateMode === 'custom'
                 ? ($startDate . ' to ' . $endDate)
-                : ($dateMode === 'as_of'
-                    ? ('As of ' . $asOfDate . ' (window: ' . $startDate . ' to ' . $endDate . ')')
-                    : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')')),
+                : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')'),
         ];
     }
 
@@ -297,7 +284,7 @@ class Reports extends BaseController
         }
     }
 
-    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?string $asOfDate = null, ?array $compareWindow = null): array
+    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?array $compareWindow = null): array
     {
         switch ($reportType) {
             case 'patients':
@@ -307,7 +294,7 @@ class Reports extends BaseController
             case 'appointments':
                 return $this->getAppointmentReports($startDate, $endDate);
             case 'finance':
-                return $this->getFinanceReports($startDate, $endDate, $asOfDate, $compareWindow);
+                return $this->getFinanceReports($startDate, $endDate, $compareWindow);
             case 'treatments':
                 return $this->getTreatmentReports($startDate, $endDate);
             case 'overview':
@@ -420,12 +407,11 @@ class Reports extends BaseController
 
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
-            $asOfDate = $filters['as_of_date'];
             $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
 
-            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -451,7 +437,6 @@ class Reports extends BaseController
                     'date_range' => '30',
                     'custom_from' => null,
                     'custom_to' => null,
-                    'as_of_date' => date('Y-m-d'),
                     'start_date' => date('Y-m-d', strtotime('-30 days')),
                     'end_date' => date('Y-m-d'),
                     'compare_start_date' => null,
@@ -481,11 +466,10 @@ class Reports extends BaseController
             $reportType = $filters['report_type'];
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
-            $asOfDate = $filters['as_of_date'];
             $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
-            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
+            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
             
             $data['_detail_tables'] = $this->buildDetailTables($reportType, $data);
             $data['_filters'] = $filters;
@@ -508,8 +492,6 @@ class Reports extends BaseController
             $reportType = $filters['report_type'];
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
-            $asOfDate = $filters['as_of_date'];
-
             $tableId = trim((string) $this->request->getGet('table_id'));
             $page = max(1, (int) ($this->request->getGet('page') ?? 1));
             $perPage = (int) ($this->request->getGet('per_page') ?? 25);
@@ -522,7 +504,7 @@ class Reports extends BaseController
             $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
-            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
+            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
             $detailTables = $this->buildDetailTables($reportType, $reports);
 
             $table = null;
@@ -586,19 +568,16 @@ class Reports extends BaseController
             $dateRange = $filters['date_range'];
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
-            $asOfDate = $filters['as_of_date'];
-
             $data = [
                 'title' => 'Export Report',
                 'report_type' => $reportType,
                 'date_range' => $dateRange,
                 'date_mode' => $filters['date_mode'],
-                'as_of_date' => $asOfDate,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ];
 
-            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -774,7 +753,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getFinanceReports($startDate, $endDate, ?string $asOfDate = null, ?array $compareWindow = null)
+    private function getFinanceReports($startDate, $endDate, ?array $compareWindow = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -824,8 +803,8 @@ class Reports extends BaseController
             'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
             'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
             'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
-            'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $asOfDate ?: $endDate),
-            'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $asOfDate ?: $endDate, 100),
+            'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $endDate),
+            'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $endDate, 100),
             'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
             'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
             'provider_payout_rows' => $this->providerPayoutModel->getReportRowsByClinic((int) $clinicId, $startDate, $endDate, 250),
