@@ -769,6 +769,7 @@ class Reports extends BaseController
         $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0);
         $providerPayableOutstanding = floatval($providerStats['total_provider_balance'] ?? 0);
         $pendingInvoiceAmount = floatval($financeStats['pending_payments'] ?? 0);
+        $totalExpenses = floatval($financeStats['total_expenses'] ?? 0);
 
         $transactions = $this->financeModel
             ->where('clinic_id', $clinicId)
@@ -809,6 +810,8 @@ class Reports extends BaseController
                 'provider_share_accrual' => $providerShareAccrual,
                 'provider_paid_cash' => $providerPaidCash,
                 'provider_payable_outstanding' => $providerPayableOutstanding,
+                'total_expenses' => $totalExpenses,
+                'operating_result_cash' => $grossCollections - $providerPaidCash - $totalExpenses,
                 'net_clinic_revenue_cash' => $grossCollections - $providerPaidCash,
                 'net_clinic_revenue_accrual' => $grossCollections - $providerShareAccrual,
                 'pending_invoice_amount' => $pendingInvoiceAmount,
@@ -831,6 +834,7 @@ class Reports extends BaseController
                     'gross_collections' => (float) ($compareFinanceStats['total_revenue'] ?? 0),
                     'provider_share_accrual' => (float) ($compareProviderStats['total_provider_share'] ?? 0),
                     'provider_paid_cash' => (float) ($compareProviderStats['total_provider_paid_cash'] ?? 0),
+                    'total_expenses' => (float) ($compareFinanceStats['total_expenses'] ?? 0),
                     'pending_invoice_amount' => (float) ($compareFinanceStats['pending_payments'] ?? 0),
                     'total_transactions' => (int) ($compareFinanceStats['total_transactions'] ?? 0),
                 ],

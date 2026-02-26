@@ -24,6 +24,8 @@ class FinanceModel extends TenantAwareModel
         'payment_status',
         'description',
         'service_type',
+        'expense_category',
+        'counterparty_name',
         'service_details',
         'discount_amount',
         'tax_percentage',
@@ -47,13 +49,15 @@ class FinanceModel extends TenantAwareModel
     protected $updatedField = 'updated_at';
 
     protected $validationRules = [
-        'patient_id' => 'required|integer',
-        'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment]',
+        'patient_id' => 'permit_empty|integer',
+        'transaction_type' => 'required|in_list[payment,invoice,refund,adjustment,expense]',
         'amount' => 'required|decimal|greater_than[0]',
         'currency' => 'in_list[USD,EUR,GBP,ILS,JOD]',
         'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
         'payment_status' => 'required|in_list[pending,paid,partial,overdue,cancelled]',
-        'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
+        'service_type' => 'permit_empty|in_list[consultation,treatment,medication,procedure,other]',
+        'expense_category' => 'permit_empty|in_list[rent,utilities,salaries,laboratory,supplies,equipment,maintenance,software,marketing,taxes,fees,inventory_purchase,miscellaneous]',
+        'counterparty_name' => 'permit_empty|max_length[150]',
         'paid_date' => 'permit_empty|valid_date'
     ];
 
@@ -86,6 +90,9 @@ class FinanceModel extends TenantAwareModel
         'service_type' => [
             'required' => 'Service type is required',
             'in_list' => 'Please select a valid service type'
+        ],
+        'expense_category' => [
+            'in_list' => 'Please select a valid expense category',
         ],
         'paid_date' => [
             'valid_date' => 'Please enter a valid date'
@@ -278,8 +285,10 @@ class FinanceModel extends TenantAwareModel
                 ];
             }
 
+            $expenses = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'expense')->get()->getRow()->total_amount ?? 0;
             $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
-            $averageTransaction = $totalTransactions > 0 ? ($totalRevenue / $totalTransactions) : 0;
+            $netIncome = $totalRevenue - floatval($expenses);
+            $averageTransaction = $totalTransactions > 0 ? ($netIncome / $totalTransactions) : 0;
 
             return [
                 'total_revenue' => $totalRevenue,
@@ -290,7 +299,8 @@ class FinanceModel extends TenantAwareModel
                 'overdue_payments' => floatval($overduePayments),
                 'monthly_revenue' => floatval($monthlyRevenue) + floatval($monthlyInvoicePayments),
                 'outstanding_invoices' => intval($outstandingInvoices),
-                'net_income' => $totalRevenue,
+                'total_expenses' => floatval($expenses),
+                'net_income' => $netIncome,
                 'total_transactions' => intval($totalTransactions),
                 'average_transaction' => $averageTransaction,
                 'transaction_summary' => $transactionSummary
@@ -305,6 +315,7 @@ class FinanceModel extends TenantAwareModel
                 'overdue_payments' => 0,
                 'monthly_revenue' => 0,
                 'outstanding_invoices' => 0,
+                'total_expenses' => 0,
                 'net_income' => 0,
                 'total_transactions' => 0,
                 'average_transaction' => 0,
@@ -543,8 +554,10 @@ class FinanceModel extends TenantAwareModel
                 ];
             }
 
+            $expenses = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'expense')->get()->getRow()->total_amount ?? 0;
             $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
-            $averageTransaction = $totalTransactions > 0 ? ($totalRevenue / $totalTransactions) : 0;
+            $netIncome = $totalRevenue - floatval($expenses);
+            $averageTransaction = $totalTransactions > 0 ? ($netIncome / $totalTransactions) : 0;
 
             return [
                 'total_revenue' => $totalRevenue,
@@ -552,7 +565,8 @@ class FinanceModel extends TenantAwareModel
                 'pending_payments' => floatval($pendingPayments),
                 'pending_amount' => floatval($pendingPayments),
                 'overdue_payments' => floatval($overduePayments),
-                'net_income' => $totalRevenue,
+                'total_expenses' => floatval($expenses),
+                'net_income' => $netIncome,
                 'total_transactions' => intval($totalTransactions),
                 'average_transaction' => $averageTransaction,
                 'transaction_summary' => $transactionSummary
@@ -565,6 +579,7 @@ class FinanceModel extends TenantAwareModel
                 'pending_payments' => 0,
                 'pending_amount' => 0,
                 'overdue_payments' => 0,
+                'total_expenses' => 0,
                 'net_income' => 0,
                 'total_transactions' => 0,
                 'average_transaction' => 0,

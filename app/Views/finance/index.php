@@ -223,9 +223,13 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i>
-                                New Transaction
+                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-circle-plus mr-2"></i>
+                                Add Income
+                            </a>
+                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-receipt mr-2"></i>
+                                Add Expense
                             </a>
                         <?php endif; ?>
                         <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">

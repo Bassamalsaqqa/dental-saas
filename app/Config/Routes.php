@@ -292,8 +292,11 @@ $routes->group('odontogram', ['filter' => ['auth', 'tenant', 'subscription']], f
 // Finance routes
 $routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('/', 'Finance::index', ['filter' => 'permission:finance:view']);
+    $routes->get('income/create', 'Finance::create', ['filter' => 'permission:finance:create']);
     $routes->get('create', 'Finance::create', ['filter' => 'permission:finance:create']);
     $routes->post('store', 'Finance::store', ['filter' => 'permission:finance:create']);
+    $routes->get('expenses/create', 'Finance::createExpense', ['filter' => 'permission:finance:create']);
+    $routes->post('expenses/store', 'Finance::storeExpense', ['filter' => 'permission:finance:create']);
     $routes->get('reports', 'Finance::reports', ['filter' => 'permission:finance:reports']);
     $routes->get('(:num)/invoice', 'Finance::generateInvoice/$1', ['filter' => 'permission:finance:view']);
     $routes->get('(:num)', 'Finance::show/$1', ['filter' => 'permission:finance:view']);

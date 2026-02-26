@@ -59,6 +59,57 @@ class Finance extends BaseController
         return $this->clinicUserModel->getActiveUserDirectoryByClinic($clinicId);
     }
 
+    private function getExpenseCategoryOptions(): array
+    {
+        return [
+            'rent' => 'Rent',
+            'utilities' => 'Utilities',
+            'salaries' => 'Salaries',
+            'laboratory' => 'Laboratory',
+            'supplies' => 'Supplies',
+            'equipment' => 'Equipment',
+            'maintenance' => 'Maintenance',
+            'software' => 'Software',
+            'marketing' => 'Marketing',
+            'taxes' => 'Taxes',
+            'fees' => 'Fees',
+            'inventory_purchase' => 'Inventory Purchase',
+            'miscellaneous' => 'Miscellaneous',
+        ];
+    }
+
+    private function validateOwnedFinanceReferences(int $clinicId, ?int $patientId, ?int $examinationId): ?string
+    {
+        if ($patientId !== null && $patientId > 0) {
+            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+            if (!$patient) {
+                return 'Selected patient does not belong to the active clinic.';
+            }
+        }
+
+        if ($examinationId !== null && $examinationId > 0) {
+            $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam) {
+                return 'Selected examination does not belong to the active clinic.';
+            }
+        }
+
+        return null;
+    }
+
+    private function buildExpenseViewData(array $finance = null): array
+    {
+        return [
+            'title' => $finance ? ('Edit Expense - ' . ($finance['transaction_id'] ?? '')) : 'New Expense',
+            'finance' => $finance,
+            'validation' => \Config\Services::validation(),
+            'base_currency' => settings()->get('currency', 'ILS'),
+            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'expense_category_options' => $this->getExpenseCategoryOptions(),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance']),
+        ];
+    }
+
     private function normalizeProviderSplitPayload(int $clinicId, float $grossAmount): ?array
     {
         $enabled = filter_var($this->request->getPost('provider_split_enabled'), FILTER_VALIDATE_BOOLEAN);
@@ -296,6 +347,108 @@ class Finance extends BaseController
         return $this->view('finance/create', $data);
     }
 
+    public function createExpense()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to create an expense.');
+        }
+
+        return $this->view('finance/expense_create', $this->buildExpenseViewData());
+    }
+
+    public function storeExpense()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $rules = [
+            'counterparty_name' => 'required|max_length[150]',
+            'expense_category' => 'required|in_list[' . implode(',', array_keys($this->getExpenseCategoryOptions())) . ']',
+            'amount_original' => 'required|decimal|greater_than[0]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'paid_date' => 'permit_empty|valid_date',
+        ];
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $amountOriginal = floatval($this->request->getPost('amount_original'));
+        $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
+        $baseCurrency = settings()->get('currency', 'ILS');
+        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        if ($currency === $baseCurrency) {
+            $exchangeRate = $exchangeRate > 0 ? $exchangeRate : 1.0;
+        } elseif ($exchangeRate <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
+        }
+
+        $amount = $amountOriginal * $exchangeRate;
+        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
+        $taxableBase = max(0, $amount - $discountAmount);
+        $taxAmount = $taxableBase * ($taxPercentage / 100);
+        $totalAmount = $amount - $discountAmount + $taxAmount;
+        $paidDate = $this->normalizePostedDateOnly('paid_date') ?: date('Y-m-d');
+
+        $financeData = [
+            'patient_id' => null,
+            'examination_id' => null,
+            'transaction_type' => 'expense',
+            'amount' => $amount,
+            'currency' => $currency,
+            'amount_original' => $amountOriginal,
+            'exchange_rate' => $exchangeRate,
+            'payment_method' => $this->request->getPost('payment_method'),
+            'payment_status' => 'paid',
+            'description' => $this->request->getPost('description'),
+            'service_type' => 'other',
+            'expense_category' => $this->request->getPost('expense_category'),
+            'counterparty_name' => $this->request->getPost('counterparty_name'),
+            'service_details' => $this->request->getPost('service_details'),
+            'discount_amount' => $discountAmount,
+            'tax_percentage' => $taxPercentage,
+            'tax_amount' => $taxAmount,
+            'amount_paid' => $totalAmount,
+            'balance_due' => 0,
+            'due_date' => null,
+            'paid_date' => $paidDate,
+            'notes' => $this->request->getPost('notes'),
+            'created_by' => $this->resolveActorUserId(),
+        ];
+
+        try {
+            $this->db->transBegin();
+            if (!$this->financeModel->insert($financeData)) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
+            }
+
+            $financeId = (int) $this->financeModel->getInsertID();
+            $this->activityLogger->logFinanceActivity(
+                'create',
+                $financeId,
+                "New expense of " . settings()->getCurrencySymbol() . number_format($totalAmount, 2) . " recorded for " . ($financeData['counterparty_name'] ?: 'counterparty')
+            );
+
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'Failed to create expense.');
+            }
+            $this->db->transCommit();
+
+            return redirect()->to(base_url('finance/' . $financeId))->with('success', 'Expense has been recorded successfully.');
+        } catch (\Throwable $e) {
+            $this->db->transRollback();
+            log_message('error', 'Expense create failed: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
     public function store()
     {
         $clinicId = session()->get('active_clinic_id');
@@ -311,6 +464,13 @@ class Finance extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $patientId = intval($this->request->getPost('patient_id') ?? 0);
+        $examId = intval($this->request->getPost('examination_id') ?? 0);
+        $ownershipError = $this->validateOwnedFinanceReferences((int) $clinicId, $patientId ?: null, $examId ?: null);
+        if ($ownershipError !== null) {
+            return redirect()->back()->withInput()->with('error', $ownershipError);
         }
 
         // Calculate total amount
@@ -462,8 +622,12 @@ class Finance extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found');
         }
 
-        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
-        $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
+        $patient = !empty($finance['patient_id'])
+            ? $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id'])
+            : null;
+        $examination = !empty($finance['examination_id'])
+            ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id'])
+            : null;
         $payments = [];
         $paidTotal = 0;
         $providerPayout = $this->providerPayoutModel->getByFinanceId((int) $clinicId, (int) $id);
@@ -543,6 +707,12 @@ class Finance extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Financial transaction not found in current clinic');
         }
 
+        if (($finance['transaction_type'] ?? '') === 'expense') {
+            $data = $this->buildExpenseViewData($finance);
+            $data['return_to'] = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['finance']);
+            return $this->view('finance/expense_edit', $data);
+        }
+
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id']);
         $examination = $finance['examination_id'] ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id']) : null;
 
@@ -592,8 +762,19 @@ class Finance extends BaseController
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
         ];
 
+        if (($finance['transaction_type'] ?? '') === 'expense') {
+            return $this->updateExpense($id, $finance, (int) $clinicId);
+        }
+
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $patientId = intval($this->request->getPost('patient_id') ?? 0);
+        $examId = intval($this->request->getPost('examination_id') ?? 0);
+        $ownershipError = $this->validateOwnedFinanceReferences((int) $clinicId, $patientId ?: null, $examId ?: null);
+        if ($ownershipError !== null) {
+            return redirect()->back()->withInput()->with('error', $ownershipError);
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
@@ -711,6 +892,84 @@ class Finance extends BaseController
         } catch (\Throwable $e) {
             $this->db->transRollback();
             log_message('error', 'Finance update failed with provider split: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    private function updateExpense(int $id, array $finance, int $clinicId)
+    {
+        $rules = [
+            'counterparty_name' => 'required|max_length[150]',
+            'expense_category' => 'required|in_list[' . implode(',', array_keys($this->getExpenseCategoryOptions())) . ']',
+            'amount_original' => 'required|decimal|greater_than[0]',
+            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
+            'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'paid_date' => 'permit_empty|valid_date',
+        ];
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $amountOriginal = floatval($this->request->getPost('amount_original'));
+        $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
+        $baseCurrency = settings()->get('currency', 'ILS');
+        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        if ($currency === $baseCurrency) {
+            $exchangeRate = $exchangeRate > 0 ? $exchangeRate : 1.0;
+        } elseif ($exchangeRate <= 0) {
+            return redirect()->back()->withInput()->with('error', 'Exchange rate is required for non-default currency.');
+        }
+
+        $amount = $amountOriginal * $exchangeRate;
+        $discountAmount = floatval($this->request->getPost('discount_amount') ?? 0);
+        $taxPercentage = floatval($this->request->getPost('tax_percentage') ?? 0);
+        $taxableBase = max(0, $amount - $discountAmount);
+        $taxAmount = $taxableBase * ($taxPercentage / 100);
+        $totalAmount = $amount - $discountAmount + $taxAmount;
+        $paidDate = $this->normalizePostedDateOnly('paid_date') ?: ($finance['paid_date'] ?? date('Y-m-d'));
+
+        $update = [
+            'patient_id' => null,
+            'examination_id' => null,
+            'transaction_type' => 'expense',
+            'amount' => $amount,
+            'currency' => $currency,
+            'amount_original' => $amountOriginal,
+            'exchange_rate' => $exchangeRate,
+            'payment_method' => $this->request->getPost('payment_method'),
+            'payment_status' => 'paid',
+            'description' => $this->request->getPost('description'),
+            'service_type' => 'other',
+            'expense_category' => $this->request->getPost('expense_category'),
+            'counterparty_name' => $this->request->getPost('counterparty_name'),
+            'service_details' => $this->request->getPost('service_details'),
+            'discount_amount' => $discountAmount,
+            'tax_percentage' => $taxPercentage,
+            'tax_amount' => $taxAmount,
+            'amount_paid' => $totalAmount,
+            'balance_due' => 0,
+            'due_date' => null,
+            'paid_date' => $paidDate,
+            'notes' => $this->request->getPost('notes'),
+        ];
+
+        try {
+            if (!$this->financeModel->update($id, $update)) {
+                return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
+            }
+
+            $this->activityLogger->logFinanceActivity(
+                'update',
+                $id,
+                "Expense transaction updated for " . ($update['counterparty_name'] ?: 'counterparty')
+            );
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance']);
+            return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $id))
+                ->with('success', 'Expense updated successfully.');
+        } catch (\Throwable $e) {
+            log_message('error', 'Expense update failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -1784,7 +2043,9 @@ class Finance extends BaseController
             'ID',
             'Transaction ID',
             'Patient Name',
+            'Counterparty',
             'Transaction Type',
+            'Expense Category',
             'Original Amount',
             'Original Currency',
             'Exchange Rate',
@@ -1803,7 +2064,9 @@ class Finance extends BaseController
                 $row['id'],
                 $row['transaction_id'] ?? $row['id'],
                 ($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''),
+                $row['counterparty_name'] ?? '',
                 $row['transaction_type'],
+                $row['expense_category'] ?? '',
                 $row['amount_original'] ?? $row['amount'],
                 $row['currency'] ?? $baseCurrency,
                 $row['exchange_rate'] ?? 1,

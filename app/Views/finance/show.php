@@ -13,6 +13,7 @@
     $exchangeRate = $finance['exchange_rate'] ?? 1;
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
     $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
+    $isExpense = (($finance['transaction_type'] ?? '') === 'expense');
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -27,7 +28,7 @@
                             </div>
                             <div>
                                 <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                    Financial Transaction
+                                    <?= $isExpense ? 'Expense Transaction' : 'Financial Transaction' ?>
                                 </h1>
                                 <p class="text-gray-600">Transaction ID: <?= $finance['transaction_id'] ?></p>
                             </div>
@@ -102,7 +103,7 @@
                             <h2 class="text-xl font-bold text-gray-800">Details & Breakdown</h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?>
+                            <?= $isExpense ? ucfirst(str_replace('_', ' ', (string)($finance['expense_category'] ?? 'miscellaneous'))) : ucfirst(str_replace('_', ' ', $finance['service_type'])) ?>
                         </span>
                     </div>
                     <div class="p-6">
@@ -110,11 +111,19 @@
                             <!-- Description -->
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1">Service Description</label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= $isExpense ? 'Expense Description' : 'Service Description' ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">No description provided</span>' ?>
                                     </div>
                                 </div>
+                                <?php if ($isExpense && !empty($finance['counterparty_name'])): ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Payee / Vendor</label>
+                                    <div class="text-gray-800 leading-relaxed font-semibold">
+                                        <?= esc($finance['counterparty_name']) ?>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
                                 <?php if (!empty($finance['service_details'])): ?>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 mb-1">Technical Details</label>

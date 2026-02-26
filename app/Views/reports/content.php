@@ -454,7 +454,7 @@
                                 </div>
                             </div>
                             <!-- Financial Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                 <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
@@ -499,9 +499,20 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900">Expenses (Period)</p>
+                                            <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['total_expenses'] ?? 0) ?></p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Payable Outstanding</p>
                                     <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['provider_payable_outstanding'] ?? 0) ?></p>
@@ -513,6 +524,10 @@
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Transactions (Period)</p>
                                     <p class="mt-1 text-lg font-bold text-slate-800"><?= (int) ($summary['total_transactions'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Operating Result (Cash)</p>
+                                    <p class="mt-1 text-lg font-bold <?= ((float)($summary['operating_result_cash'] ?? 0)) >= 0 ? 'text-emerald-700' : 'text-rose-700' ?>"><?= formatCurrency($summary['operating_result_cash'] ?? 0) ?></p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -536,12 +551,13 @@
                                     <h4 class="text-lg font-semibold text-gray-800">Previous Period Comparison</h4>
                                     <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                                     <?php
                                     $financeCompareCards = [
                                         ['label'=>'Gross Collections','current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
                                         ['label'=>'Provider Share','current'=>(float)($summary['provider_share_accrual']??0),'previous'=>(float)($fcmp['provider_share_accrual']??0),'count'=>false],
                                         ['label'=>'Provider Paid Cash','current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
+                                        ['label'=>'Expenses','current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
                                         ['label'=>'Pending Invoices','current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
                                         ['label'=>'Transactions','current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
                                     ];

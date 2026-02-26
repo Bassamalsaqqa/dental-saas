@@ -4,6 +4,8 @@ namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\FinanceModel;
+use App\Models\PatientModel;
+use App\Models\ExaminationModel;
 
 class Finance extends ResourceController
 {
@@ -19,6 +21,35 @@ class Finance extends ResourceController
         return (int) $clinicId;
     }
 
+    private function validateOwnedReferences(int $clinicId, array $payload)
+    {
+        $errors = [];
+
+        $patientId = isset($payload['patient_id']) && $payload['patient_id'] !== '' ? (int) $payload['patient_id'] : null;
+        $examinationId = isset($payload['examination_id']) && $payload['examination_id'] !== '' ? (int) $payload['examination_id'] : null;
+        $transactionType = (string) ($payload['transaction_type'] ?? '');
+
+        if ($transactionType !== 'expense') {
+            if (!$patientId || $patientId <= 0) {
+                $errors['patient_id'] = 'Patient is required.';
+            } else {
+                $patient = (new PatientModel())->where('clinic_id', $clinicId)->find($patientId);
+                if (!$patient) {
+                    $errors['patient_id'] = 'Patient does not belong to the active clinic.';
+                }
+            }
+        }
+
+        if ($examinationId && $examinationId > 0) {
+            $exam = (new ExaminationModel())->where('clinic_id', $clinicId)->find($examinationId);
+            if (!$exam) {
+                $errors['examination_id'] = 'Examination does not belong to the active clinic.';
+            }
+        }
+
+        return $errors;
+    }
+
     public function index()
     {
         $clinicId = \App\Libraries\ApiRuntimeContext::getClinicId();
@@ -27,7 +58,7 @@ class Finance extends ResourceController
         }
 
         // Minimal financial data list (scoped)
-        $data = $this->model->select('id, patient_id, transaction_id, transaction_type, amount, total_amount, currency, payment_status, amount_paid, balance_due, due_date, created_at')
+        $data = $this->model->select('id, patient_id, examination_id, transaction_id, transaction_type, amount, total_amount, currency, payment_method, payment_status, amount_paid, balance_due, due_date, paid_date, expense_category, counterparty_name, created_at')
                             ->where('clinic_id', $clinicId)
                             ->orderBy('created_at', 'DESC')
                             ->findAll(100);
@@ -41,7 +72,7 @@ class Finance extends ResourceController
             return $this->failForbidden('TENANT_CONTEXT_REQUIRED');
         }
 
-        $data = $this->model->select('id, patient_id, transaction_id, transaction_type, amount, total_amount, currency, payment_status, amount_paid, balance_due, due_date, created_at')
+        $data = $this->model->select('id, patient_id, examination_id, transaction_id, transaction_type, amount, total_amount, currency, payment_method, payment_status, amount_paid, balance_due, due_date, paid_date, expense_category, counterparty_name, description, notes, created_at')
                             ->where('clinic_id', $clinicId)
                             ->find($id);
         
@@ -82,6 +113,11 @@ class Finance extends ResourceController
             $payload['balance_due'] = 0;
         }
 
+        $ownershipErrors = $this->validateOwnedReferences($clinicId, $payload);
+        if ($ownershipErrors !== []) {
+            return $this->failValidationErrors($ownershipErrors);
+        }
+
         if (!$this->model->insert($payload)) {
             return $this->failValidationErrors($this->model->errors());
         }
@@ -111,6 +147,12 @@ class Finance extends ResourceController
         unset($payload['clinic_id']);
         if (empty($payload)) {
             return $this->failValidationErrors(['payload' => 'No data provided']);
+        }
+
+        $candidate = array_merge($existing, $payload);
+        $ownershipErrors = $this->validateOwnedReferences($clinicId, $candidate);
+        if ($ownershipErrors !== []) {
+            return $this->failValidationErrors($ownershipErrors);
         }
 
         if (!$this->model->update($id, $payload)) {
