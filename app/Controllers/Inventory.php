@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\InventoryModel;
+use App\Models\InventoryItemTemplateModel;
+use App\Models\InventoryStockMovementModel;
 use App\Models\SupplierModel;
 use App\Services\ActivityLogger;
 use App\Services\FinanceLedgerService;
@@ -95,6 +97,106 @@ class Inventory extends BaseController
 
             return $this->view('inventory/index', $data);
         }
+    }
+
+    public function templates()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $category = trim((string) $this->request->getGet('category'));
+        $q = trim((string) $this->request->getGet('q'));
+        $templateModel = new InventoryItemTemplateModel();
+
+        $templates = $templateModel->getCatalog($category !== '' ? $category : null, $q !== '' ? $q : null);
+
+        return $this->view('inventory/templates', [
+            'title' => 'Inventory Starter Templates',
+            'templates' => $templates,
+            'categories' => $this->getCategories(),
+            'selected_category' => $category,
+            'search_query' => $q,
+        ]);
+    }
+
+    public function importTemplates()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $templateIds = $this->request->getPost('template_ids');
+        if (!is_array($templateIds) || empty($templateIds)) {
+            return redirect()->back()->with('error', 'Select at least one template to import.');
+        }
+
+        $ids = array_values(array_unique(array_filter(array_map(static function ($v) {
+            return is_numeric($v) ? (int) $v : 0;
+        }, $templateIds))));
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'No valid templates selected.');
+        }
+
+        $templateModel = new InventoryItemTemplateModel();
+        $templates = $templateModel->whereIn('id', $ids)->where('is_active', 1)->findAll();
+        if (empty($templates)) {
+            return redirect()->back()->with('error', 'Selected templates were not found.');
+        }
+
+        $currentUserId = (int) (session()->get('user_id') ?? 0);
+        $imported = 0;
+        $skipped = 0;
+
+        foreach ($templates as $tpl) {
+            $exists = $this->inventoryModel
+                ->where('clinic_id', $clinicId)
+                ->where('item_name', $tpl['name'])
+                ->where('category', $tpl['category'])
+                ->first();
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
+
+            $payload = [
+                'clinic_id' => $clinicId,
+                'item_name' => $tpl['name'],
+                'category' => $tpl['category'],
+                'description' => $tpl['description'] ?? null,
+                'quantity' => 0,
+                'min_quantity' => (int) ($tpl['default_min_quantity'] ?? 0),
+                'unit_price' => (float) ($tpl['default_unit_price'] ?? 0),
+                'unit' => $tpl['unit'] ?: 'pieces',
+                'supplier' => null,
+                'supplier_id' => null,
+                'purchase_date' => null,
+                'expiry_date' => null,
+                'location' => null,
+                'notes' => 'Imported from starter template catalog.',
+                'status' => 'active',
+                'created_by' => $currentUserId ?: null,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if ($this->inventoryModel->insert($payload)) {
+                $inventoryId = (int) $this->inventoryModel->getInsertID();
+                $imported++;
+                $this->activityLogger->logInventoryActivity(
+                    'create',
+                    $inventoryId,
+                    "Inventory item '{$payload['item_name']}' imported from starter template catalog."
+                );
+            }
+        }
+
+        return redirect()->to(base_url('inventory'))->with(
+            'success',
+            "Template import complete. Imported: {$imported}" . ($skipped > 0 ? ", skipped duplicates: {$skipped}" : '')
+        );
     }
 
     public function create()
@@ -212,6 +314,7 @@ class Inventory extends BaseController
         $data = [
             'title' => 'Item Details',
             'item' => $item,
+            'movements' => (new InventoryStockMovementModel())->getRecentByInventory((int) $clinicId, (int) $id, 100),
         ];
 
         return $this->view('inventory/show', $data);

@@ -242,6 +242,10 @@
                                 <i class="fas fa-plus mr-2"></i>
                                 Add New Item
                         </a>
+                            <a href="<?= base_url('inventory/templates') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-layer-group mr-2"></i>
+                                Starter Templates
+                            </a>
                     <?php endif; ?>
                         <a href="<?= base_url('inventory/suppliers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-truck mr-2 text-indigo-600"></i>

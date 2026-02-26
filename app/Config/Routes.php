@@ -439,6 +439,8 @@ $routes->group('reports', ['filter' => ['auth', 'tenant', 'subscription']], func
 $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     // Specific routes first (before generic (:num) routes)
     $routes->get('usage', 'Inventory::usage', ['filter' => 'permission:inventory:view']);
+    $routes->get('templates', 'Inventory::templates', ['filter' => 'permission:inventory:view']);
+    $routes->post('templates/import', 'Inventory::importTemplates', ['filter' => 'permission:inventory:create']);
     $routes->post('record-usage', 'Inventory::recordUsage', ['filter' => 'permission:inventory:edit']);
     $routes->get('suppliers', 'Inventory::suppliers', ['filter' => 'permission:inventory:view']);
     $routes->post('suppliers/store', 'Inventory::storeSupplier', ['filter' => 'permission:inventory:edit']);

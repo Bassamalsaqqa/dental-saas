@@ -39,5 +39,15 @@ class InventoryStockMovementModel extends TenantAwareModel
         'reference_id' => 'permit_empty|integer',
         'notes' => 'permit_empty|max_length[255]',
     ];
-}
 
+    public function getRecentByInventory(int $clinicId, int $inventoryId, int $limit = 50): array
+    {
+        return $this->select('inventory_stock_movements.*, users.first_name as actor_first_name, users.last_name as actor_last_name')
+            ->join('users', 'users.id = inventory_stock_movements.created_by', 'left')
+            ->where('inventory_stock_movements.clinic_id', $clinicId)
+            ->where('inventory_stock_movements.inventory_id', $inventoryId)
+            ->orderBy('inventory_stock_movements.created_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+}

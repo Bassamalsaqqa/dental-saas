@@ -237,6 +237,92 @@
             </div>
         </div>
 
+        <!-- Stock Movement Ledger -->
+        <div class="mb-6">
+            <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/10 border border-white/30 p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-arrows-rotate text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900">Stock Movement Ledger</h3>
+                            <p class="text-xs text-gray-500">Recent receive, usage, and adjustment events for this item</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700"><?= count($movements ?? []) ?> movement(s)</span>
+                </div>
+
+                <?php if (!empty($movements)): ?>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="text-left text-xs font-semibold text-slate-600 uppercase border-b border-slate-200">
+                                    <th class="px-3 py-2">Date</th>
+                                    <th class="px-3 py-2">Type</th>
+                                    <th class="px-3 py-2">Change</th>
+                                    <th class="px-3 py-2">Before → After</th>
+                                    <th class="px-3 py-2">Cost</th>
+                                    <th class="px-3 py-2">Reference</th>
+                                    <th class="px-3 py-2">Actor</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php foreach (($movements ?? []) as $movement): ?>
+                                    <?php
+                                        $qtyChange = (int) ($movement['quantity_change'] ?? 0);
+                                        $changeClass = $qtyChange >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50';
+                                        $type = (string) ($movement['movement_type'] ?? 'unknown');
+                                        $typeLabel = ucwords(str_replace('_', ' ', $type));
+                                        $actorName = trim((string) (($movement['actor_first_name'] ?? '') . ' ' . ($movement['actor_last_name'] ?? '')));
+                                        $refType = (string) ($movement['reference_type'] ?? '');
+                                        $refId = (int) ($movement['reference_id'] ?? 0);
+                                        $refText = $refType !== '' ? ucwords(str_replace('_', ' ', $refType)) . ($refId ? (' #' . $refId) : '') : '-';
+                                    ?>
+                                    <tr class="hover:bg-slate-50/80">
+                                        <td class="px-3 py-3 text-sm text-gray-700">
+                                            <div><?= !empty($movement['created_at']) ? formatDateTime($movement['created_at']) : '-' ?></div>
+                                            <?php if (!empty($movement['notes'])): ?><div class="text-xs text-gray-500 mt-1"><?= esc($movement['notes']) ?></div><?php endif; ?>
+                                        </td>
+                                        <td class="px-3 py-3">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"><?= esc($typeLabel) ?></span>
+                                        </td>
+                                        <td class="px-3 py-3">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold <?= $changeClass ?>">
+                                                <i class="fas <?= $qtyChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' ?> mr-1"></i>
+                                                <?= $qtyChange >= 0 ? '+' : '' ?><?= $qtyChange ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-3 text-sm text-gray-700">
+                                            <?= (int) ($movement['quantity_before'] ?? 0) ?> → <span class="font-semibold text-gray-900"><?= (int) ($movement['quantity_after'] ?? 0) ?></span>
+                                        </td>
+                                        <td class="px-3 py-3 text-sm text-gray-700">
+                                            <?php if ($movement['unit_cost'] !== null): ?>
+                                                <div><?= formatCurrency((float) $movement['unit_cost']) ?>/unit</div>
+                                                <?php if ($movement['total_cost'] !== null): ?><div class="text-xs text-gray-500">Total: <?= formatCurrency((float) $movement['total_cost']) ?></div><?php endif; ?>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="px-3 py-3 text-sm text-gray-700">
+                                            <?= esc($refText) ?>
+                                        </td>
+                                        <td class="px-3 py-3 text-sm text-gray-700">
+                                            <?= esc($actorName !== '' ? $actorName : '-') ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-600">
+                        No stock movements recorded yet for this item.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Compact Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <button onclick="receiveStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
