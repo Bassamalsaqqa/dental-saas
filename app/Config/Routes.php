@@ -440,6 +440,9 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     // Specific routes first (before generic (:num) routes)
     $routes->get('usage', 'Inventory::usage', ['filter' => 'permission:inventory:view']);
     $routes->post('record-usage', 'Inventory::recordUsage', ['filter' => 'permission:inventory:edit']);
+    $routes->get('suppliers', 'Inventory::suppliers', ['filter' => 'permission:inventory:view']);
+    $routes->post('suppliers/store', 'Inventory::storeSupplier', ['filter' => 'permission:inventory:edit']);
+    $routes->post('suppliers/quick-create', 'Inventory::quickCreateSupplier', ['filter' => 'permission:inventory:edit']);
     $routes->get('usage-history', 'Inventory::usageHistory', ['filter' => 'permission:inventory:view']);
     $routes->get('usage-details/(:num)', 'Inventory::usageDetails/$1', ['filter' => 'permission:inventory:view']);
     $routes->get('usage-print/(:num)', 'Inventory::usagePrint/$1', ['filter' => 'permission:inventory:view']);
@@ -467,6 +470,7 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     $routes->post('(:num)/update', 'Inventory::update/$1', ['filter' => 'permission:inventory:edit']);
     $routes->delete('(:num)', 'Inventory::delete/$1', ['filter' => 'permission:inventory:delete']);
     $routes->post('(:num)/adjust', 'Inventory::adjust/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('(:num)/receive', 'Inventory::receiveStock/$1', ['filter' => 'permission:inventory:edit']);
 });
 
 // Users routes

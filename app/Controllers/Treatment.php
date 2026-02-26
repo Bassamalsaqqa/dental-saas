@@ -9,6 +9,7 @@ use App\Models\InventoryUsageModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\FinanceLedgerService;
+use App\Services\InventoryMovementService;
 use App\Services\StorageService;
 
 class Treatment extends BaseController
@@ -823,11 +824,29 @@ class Treatment extends BaseController
         foreach ($usageData as $usage) {
             $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($usage['item_id']);
             if ($inventoryItem) {
-                $newQuantity = (int) $inventoryItem['quantity'] - (int) $usage['quantity_used'];
+                $beforeQty = (int) $inventoryItem['quantity'];
+                $newQuantity = $beforeQty - (int) $usage['quantity_used'];
                 $this->inventoryModel->update($usage['item_id'], [
                     'quantity' => $newQuantity,
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
+                try {
+                    (new InventoryMovementService())->record(
+                        (int) $clinicId,
+                        (int) $usage['item_id'],
+                        'usage_consume',
+                        (int) -$usage['quantity_used'],
+                        $beforeQty,
+                        (int) $newQuantity,
+                        isset($usage['unit_cost']) ? (float) $usage['unit_cost'] : null,
+                        'inventory_usage',
+                        (int) $usageId,
+                        'Treatment-linked inventory usage',
+                        (int) (session()->get('user_id') ?? 0)
+                    );
+                } catch (\Throwable $movementError) {
+                    log_message('error', 'Treatment inventory movement logging failed: ' . $movementError->getMessage());
+                }
             }
         }
 

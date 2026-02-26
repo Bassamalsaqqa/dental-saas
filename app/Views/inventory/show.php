@@ -239,6 +239,9 @@
 
         <!-- Compact Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+            <button onclick="receiveStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <i class="fas fa-box-open mr-2"></i>Receive Stock
+            </button>
             <button onclick="adjustStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <i class="fas fa-plus-minus mr-2"></i>Adjust Stock
             </button>
@@ -255,6 +258,50 @@
 </div>
 
 <script>
+function receiveStock(id) {
+    const quantity = prompt('Enter received quantity:');
+    if (quantity === null) return;
+    if (isNaN(quantity) || parseInt(quantity, 10) <= 0) {
+        showToast('error', 'Error!', 'Please enter a valid received quantity.');
+        return;
+    }
+
+    const unitCost = prompt('Enter unit cost for this receipt (leave blank to keep current unit price):', '<?= esc((string) $item['unit_price']) ?>');
+    if (unitCost !== null && unitCost !== '' && (isNaN(unitCost) || parseFloat(unitCost) < 0)) {
+        showToast('error', 'Error!', 'Please enter a valid unit cost.');
+        return;
+    }
+
+    const reason = prompt('Reference / note for this stock receipt (optional):') || 'Stock received';
+
+    fetch(`<?= base_url('inventory') ?>/${id}/receive`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        },
+        body: JSON.stringify({
+            quantity: parseInt(quantity, 10),
+            unit_cost: unitCost ?? '',
+            reason: reason
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', 'Success!', data.message || 'Stock received successfully!');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast('error', 'Error!', data.message || 'Failed to receive stock.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Error!', 'An error occurred while receiving stock.');
+    });
+}
+
 function adjustStock(id) {
     const adjustment = prompt('Enter adjustment amount (positive to add, negative to subtract):');
     if (adjustment !== null && !isNaN(adjustment)) {

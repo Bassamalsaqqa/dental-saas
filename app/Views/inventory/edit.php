@@ -147,15 +147,41 @@
                         
                         <div>
                             <label for="supplier" class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
-                            <select id="supplier" name="supplier" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Select Supplier</option>
-                                <?php foreach ($suppliers as $key => $label): ?>
-                                    <option value="<?= $key ?>" <?= old('supplier', $item['supplier']) == $key ? 'selected' : '' ?>>
-                                        <?= $label ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Supplier Directory</span>
+                                    <div class="flex items-center gap-2">
+                                        <a href="<?= base_url('inventory/suppliers') ?>" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Manage Suppliers</a>
+                                        <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Quick Add</button>
+                                    </div>
+                                </div>
+                                <select id="supplier_id" name="supplier_id"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">No linked supplier</option>
+                                    <?php foreach (($supplier_directory ?? []) as $supplier): ?>
+                                        <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id', $item['supplier_id'] ?? '') === (string) $supplier['id'] ? 'selected' : '' ?>>
+                                            <?= esc($supplier['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="text" id="supplier_text" name="supplier" value="<?= old('supplier', $item['supplier']) ?>"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Custom supplier name (optional)">
+                                <div id="quickSupplierCreatePanel" class="hidden p-3 rounded-lg border border-indigo-100 bg-indigo-50/60 space-y-3">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <input type="text" id="quickSupplierName" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Supplier name *">
+                                        <input type="text" id="quickSupplierContact" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Contact person">
+                                        <input type="text" id="quickSupplierPhone" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Phone">
+                                        <input type="email" id="quickSupplierEmail" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Email">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <p id="quickSupplierStatus" class="text-xs text-gray-600"></p>
+                                        <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">
+                                            <i class="fas fa-plus mr-2"></i>Create Supplier
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -268,6 +294,75 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     });
+
+    const toggleBtn = document.getElementById('toggleQuickSupplierCreate');
+    const panel = document.getElementById('quickSupplierCreatePanel');
+    const createBtn = document.getElementById('createQuickSupplierBtn');
+    const statusEl = document.getElementById('quickSupplierStatus');
+    const supplierSelect = document.getElementById('supplier_id');
+    const supplierText = document.getElementById('supplier_text');
+
+    if (toggleBtn && panel) {
+        toggleBtn.addEventListener('click', () => panel.classList.toggle('hidden'));
+    }
+
+    if (supplierSelect && supplierText) {
+        supplierSelect.addEventListener('change', function() {
+            const selected = supplierSelect.options[supplierSelect.selectedIndex];
+            if (selected && supplierSelect.value) {
+                supplierText.value = selected.textContent.trim();
+            }
+        });
+    }
+
+    if (createBtn) {
+        createBtn.addEventListener('click', async function() {
+            const name = (document.getElementById('quickSupplierName')?.value || '').trim();
+            if (!name) {
+                statusEl.textContent = 'Supplier name is required.';
+                statusEl.className = 'text-xs text-red-600';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+            formData.append('name', name);
+            formData.append('contact_person', document.getElementById('quickSupplierContact')?.value || '');
+            formData.append('phone', document.getElementById('quickSupplierPhone')?.value || '');
+            formData.append('email', document.getElementById('quickSupplierEmail')?.value || '');
+
+            createBtn.disabled = true;
+            statusEl.textContent = 'Creating supplier...';
+            statusEl.className = 'text-xs text-indigo-700';
+
+            try {
+                const response = await fetch('<?= base_url('inventory/suppliers/quick-create') ?>', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success || !data.supplier) {
+                    throw new Error(data.message || 'Failed to create supplier');
+                }
+
+                const option = document.createElement('option');
+                option.value = String(data.supplier.id);
+                option.textContent = data.supplier.name;
+                supplierSelect.appendChild(option);
+                supplierSelect.value = String(data.supplier.id);
+                supplierText.value = data.supplier.name;
+                statusEl.textContent = data.duplicate ? 'Supplier already existed and was selected.' : 'Supplier created and selected.';
+                statusEl.className = 'text-xs text-emerald-700';
+                panel.classList.add('hidden');
+            } catch (error) {
+                statusEl.textContent = error.message || 'Failed to create supplier.';
+                statusEl.className = 'text-xs text-red-600';
+            } finally {
+                createBtn.disabled = false;
+            }
+        });
+    }
 });
 </script>
 <?= $this->endSection() ?>

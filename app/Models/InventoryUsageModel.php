@@ -32,7 +32,7 @@ class InventoryUsageModel extends TenantAwareModel
 
     // Validation
     protected $validationRules = [
-        'treatment_id' => 'required|integer',
+        'treatment_id' => 'permit_empty|integer',
         'usage_date' => 'required|valid_date',
         'items_used' => 'required',
         'total_cost' => 'required|decimal|greater_than_equal_to[0]',
@@ -62,8 +62,7 @@ class InventoryUsageModel extends TenantAwareModel
         ]
     ];
 
-    // Skip validation for now to get basic functionality working
-    protected $skipValidation = true;
+    protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
     // Callbacks

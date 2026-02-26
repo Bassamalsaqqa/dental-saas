@@ -3,8 +3,10 @@
 namespace App\Controllers;
 
 use App\Models\InventoryModel;
+use App\Models\SupplierModel;
 use App\Services\ActivityLogger;
 use App\Services\FinanceLedgerService;
+use App\Services\InventoryMovementService;
 
 class Inventory extends BaseController
 {
@@ -12,6 +14,7 @@ class Inventory extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $db;
+    protected $supplierModel;
 
     public function __construct()
     {
@@ -19,6 +22,7 @@ class Inventory extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
+        $this->supplierModel = new SupplierModel();
     }
 
     public function index()
@@ -95,10 +99,12 @@ class Inventory extends BaseController
 
     public function create()
     {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
         $data = [
             'title' => 'Add New Item',
             'categories' => $this->getCategories(),
             'suppliers' => $this->getSuppliers(),
+            'supplier_directory' => $clinicId ? $this->supplierModel->getActiveOptionsByClinic($clinicId) : [],
         ];
 
         return $this->view('inventory/create', $data);
@@ -115,6 +121,7 @@ class Inventory extends BaseController
             'unit_price' => 'required|decimal|greater_than_equal_to[0]',
             'unit' => 'permit_empty|in_list[pieces,boxes,bottles,tubes,packs,sets]',
             'supplier' => 'permit_empty|max_length[100]',
+            'supplier_id' => 'permit_empty|integer',
             'purchase_date' => 'permit_empty|valid_date',
             'expiry_date' => 'permit_empty|valid_date',
             'location' => 'permit_empty|max_length[100]',
@@ -127,6 +134,8 @@ class Inventory extends BaseController
 
         $currentUser = $this->getCurrentUser();
         $currentUserId = $currentUser ? (int) $currentUser->id : (session()->get('user_id') ? (int) session()->get('user_id') : null);
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        [$supplierId, $supplierName] = $this->resolveSupplierSelection($clinicId);
 
         $inventoryData = [
             'item_name' => $this->request->getPost('item_name'),
@@ -136,7 +145,8 @@ class Inventory extends BaseController
             'min_quantity' => $this->request->getPost('min_quantity'),
             'unit_price' => $this->request->getPost('unit_price'),
             'unit' => $this->request->getPost('unit') ?: 'pieces',
-            'supplier' => $this->request->getPost('supplier'),
+            'supplier' => $supplierName,
+            'supplier_id' => $supplierId,
             'purchase_date' => $this->request->getPost('purchase_date') ?: null,
             'expiry_date' => $this->request->getPost('expiry_date') ?: null,
             'location' => $this->request->getPost('location'),
@@ -148,6 +158,22 @@ class Inventory extends BaseController
 
         if ($this->inventoryModel->insert($inventoryData)) {
             $inventoryId = $this->inventoryModel->getInsertID();
+            $initialQty = (int) ($inventoryData['quantity'] ?? 0);
+            if ($initialQty > 0) {
+                $this->recordStockMovementSafe(
+                    $clinicId,
+                    (int) $inventoryId,
+                    'initial_stock',
+                    $initialQty,
+                    0,
+                    $initialQty,
+                    (float) ($inventoryData['unit_price'] ?? 0),
+                    'inventory_item',
+                    (int) $inventoryId,
+                    'Initial quantity on item creation',
+                    $currentUserId
+                );
+            }
             
             // Log the inventory creation activity
             $this->activityLogger->logInventoryActivity(
@@ -209,6 +235,7 @@ class Inventory extends BaseController
             'item' => $item,
             'categories' => $this->getCategories(),
             'suppliers' => $this->getSuppliers(),
+            'supplier_directory' => $this->supplierModel->getActiveOptionsByClinic((int) $clinicId),
         ];
 
         return $this->view('inventory/edit', $data);
@@ -236,6 +263,7 @@ class Inventory extends BaseController
             'unit_price' => 'required|decimal|greater_than_equal_to[0]',
             'unit' => 'permit_empty|in_list[pieces,boxes,bottles,tubes,packs,sets]',
             'supplier' => 'permit_empty|max_length[100]',
+            'supplier_id' => 'permit_empty|integer',
             'purchase_date' => 'permit_empty|valid_date',
             'expiry_date' => 'permit_empty|valid_date',
             'location' => 'permit_empty|max_length[100]',
@@ -247,6 +275,8 @@ class Inventory extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        [$supplierId, $supplierName] = $this->resolveSupplierSelection((int) $clinicId);
+
         $inventoryData = [
             'item_name' => $this->request->getPost('item_name'),
             'category' => $this->request->getPost('category'),
@@ -255,7 +285,8 @@ class Inventory extends BaseController
             'min_quantity' => $this->request->getPost('min_quantity'),
             'unit_price' => $this->request->getPost('unit_price'),
             'unit' => $this->request->getPost('unit') ?: 'pieces',
-            'supplier' => $this->request->getPost('supplier'),
+            'supplier' => $supplierName,
+            'supplier_id' => $supplierId,
             'purchase_date' => $this->request->getPost('purchase_date') ?: null,
             'expiry_date' => $this->request->getPost('expiry_date') ?: null,
             'location' => $this->request->getPost('location'),
@@ -377,6 +408,20 @@ class Inventory extends BaseController
         if ($this->inventoryModel->update($id, $updateData)) {
             // Log the adjustment
             $this->logAdjustment($id, $adjustment, $type, $reason);
+            $quantityChange = $type === 'add' ? (int) $adjustment : (int) -$adjustment;
+            $this->recordStockMovementSafe(
+                (int) $clinicId,
+                (int) $id,
+                $type === 'add' ? 'manual_adjust_in' : 'manual_adjust_out',
+                $quantityChange,
+                (int) $item['quantity'],
+                (int) $newQuantity,
+                isset($item['unit_price']) ? (float) $item['unit_price'] : null,
+                'inventory_adjustment',
+                (int) $id,
+                $reason,
+                (int) ($this->getCurrentUser()->id ?? 0)
+            );
             
             return $this->response->setJSON([
                 'success' => true, 
@@ -465,6 +510,183 @@ class Inventory extends BaseController
         ];
     }
 
+    public function suppliers()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $suppliers = $this->supplierModel
+            ->where('clinic_id', $clinicId)
+            ->orderBy('is_active', 'DESC')
+            ->orderBy('name', 'ASC')
+            ->findAll();
+
+        return $this->view('inventory/suppliers', [
+            'title' => 'Suppliers',
+            'suppliers_list' => $suppliers,
+        ]);
+    }
+
+    public function storeSupplier()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $rules = [
+            'name' => 'required|min_length[2]|max_length[150]',
+            'contact_person' => 'permit_empty|max_length[150]',
+            'phone' => 'permit_empty|max_length[50]',
+            'email' => 'permit_empty|valid_email|max_length[150]',
+            'whatsapp' => 'permit_empty|max_length[50]',
+            'address' => 'permit_empty|max_length[255]',
+            'notes' => 'permit_empty',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $name = trim((string) $this->request->getPost('name'));
+        if ($this->supplierModel->findByClinicAndName($clinicId, $name)) {
+            return redirect()->back()->withInput()->with('error', 'A supplier with this name already exists.');
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'name' => $name,
+            'contact_person' => trim((string) $this->request->getPost('contact_person')) ?: null,
+            'phone' => trim((string) $this->request->getPost('phone')) ?: null,
+            'email' => trim((string) $this->request->getPost('email')) ?: null,
+            'whatsapp' => trim((string) $this->request->getPost('whatsapp')) ?: null,
+            'address' => trim((string) $this->request->getPost('address')) ?: null,
+            'notes' => trim((string) $this->request->getPost('notes')) ?: null,
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+            'created_by' => (int) (session()->get('user_id') ?? 0),
+        ];
+
+        if (!$this->supplierModel->insert($payload)) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create supplier: ' . implode(', ', $this->supplierModel->errors()));
+        }
+
+        return redirect()->back()->with('success', 'Supplier added successfully.');
+    }
+
+    public function quickCreateSupplier()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $name = trim((string) $this->request->getPost('name'));
+        if ($name === '' || mb_strlen($name) < 2) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Supplier name is required.']);
+        }
+
+        $existing = $this->supplierModel->findByClinicAndName($clinicId, $name);
+        if ($existing) {
+            return $this->response->setJSON([
+                'success' => true,
+                'supplier' => [
+                    'id' => (int) $existing['id'],
+                    'name' => (string) $existing['name'],
+                ],
+                'duplicate' => true,
+            ]);
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'name' => $name,
+            'contact_person' => trim((string) $this->request->getPost('contact_person')) ?: null,
+            'phone' => trim((string) $this->request->getPost('phone')) ?: null,
+            'email' => trim((string) $this->request->getPost('email')) ?: null,
+            'whatsapp' => trim((string) $this->request->getPost('whatsapp')) ?: null,
+            'is_active' => 1,
+            'created_by' => (int) (session()->get('user_id') ?? 0),
+        ];
+
+        if (!$this->supplierModel->insert($payload)) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => implode(', ', $this->supplierModel->errors())]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'supplier' => [
+                'id' => (int) $this->supplierModel->getInsertID(),
+                'name' => $name,
+            ],
+        ]);
+    }
+
+    public function receiveStock($id)
+    {
+        $this->response->setContentType('application/json');
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($id);
+        if (!$item) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Item not found']);
+        }
+
+        $input = json_decode($this->request->getBody(), true);
+        $quantity = (int) ($input['quantity'] ?? 0);
+        $unitCost = isset($input['unit_cost']) && $input['unit_cost'] !== '' ? (float) $input['unit_cost'] : (float) ($item['unit_price'] ?? 0);
+        $reason = trim((string) ($input['reason'] ?? 'Stock received'));
+
+        if ($quantity <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Quantity must be greater than 0']);
+        }
+        if ($unitCost < 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unit cost cannot be negative']);
+        }
+
+        $beforeQty = (int) ($item['quantity'] ?? 0);
+        $afterQty = $beforeQty + $quantity;
+        $updateData = [
+            'quantity' => $afterQty,
+            'unit_price' => $unitCost, // latest cost snapshot
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if (!$this->inventoryModel->update($id, $updateData)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to receive stock']);
+        }
+
+        $this->activityLogger->logInventoryActivity(
+            'receive_stock',
+            (int) $id,
+            "Stock received for '{$item['item_name']}' - Qty: {$quantity}, Unit Cost: " . settings()->getCurrencySymbol() . number_format($unitCost, 2) . ($reason !== '' ? ", Ref: {$reason}" : '')
+        );
+
+        $this->recordStockMovementSafe(
+            $clinicId,
+            (int) $id,
+            'receive_stock',
+            $quantity,
+            $beforeQty,
+            $afterQty,
+            $unitCost,
+            'inventory_receive',
+            (int) $id,
+            $reason,
+            (int) (session()->get('user_id') ?? 0)
+        );
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Stock received successfully',
+            'new_quantity' => $afterQty,
+        ]);
+    }
+
     public function usage()
     {
         $clinicId = session()->get('active_clinic_id');
@@ -538,7 +760,7 @@ class Inventory extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Please provide valid quantities for all selected items.');
             }
 
-            $inventoryItem = $this->inventoryModel->find($item['item_id']);
+            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($item['item_id']);
             if (!$inventoryItem) {
                 return redirect()->back()->withInput()->with('error', 'Invalid inventory item selected.');
             }
@@ -668,11 +890,29 @@ class Inventory extends BaseController
 
         // Update inventory quantities
         foreach ($usageData as $usage) {
-            $newQuantity = $this->inventoryModel->find($usage['item_id'])['quantity'] - $usage['quantity_used'];
+            $inventoryRow = $this->inventoryModel->where('clinic_id', $clinicId)->find($usage['item_id']);
+            if (!$inventoryRow) {
+                continue;
+            }
+            $beforeQty = (int) ($inventoryRow['quantity'] ?? 0);
+            $newQuantity = $beforeQty - (int) $usage['quantity_used'];
             $this->inventoryModel->update($usage['item_id'], [
                 'quantity' => $newQuantity,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
+            $this->recordStockMovementSafe(
+                (int) $clinicId,
+                (int) $usage['item_id'],
+                'usage_consume',
+                (int) -$usage['quantity_used'],
+                $beforeQty,
+                (int) $newQuantity,
+                isset($usage['unit_cost']) ? (float) $usage['unit_cost'] : null,
+                'inventory_usage',
+                (int) $usageId,
+                'Inventory usage recorded',
+                (int) ($this->getCurrentUser()->id ?? 0)
+            );
         }
 
         return redirect()->to(base_url('inventory/usage-history'))->with('success', 'Inventory usage recorded successfully!');
@@ -681,9 +921,9 @@ class Inventory extends BaseController
     public function usageHistory()
     {
         $usageModel = new \App\Models\InventoryUsageModel();
-        $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id')
-            ->join('patients', 'patients.id = treatments.patient_id')
-            ->join('users', 'users.id = inventory_usage.recorded_by')
+        $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
+            ->join('patients', 'patients.id = treatments.patient_id', 'left')
+            ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
             ->join(
                 'finances f',
                 "f.clinic_id = inventory_usage.clinic_id
@@ -1298,5 +1538,57 @@ class Inventory extends BaseController
         
         // Fallback to a default user ID if no session
         return (object)['id' => 1];
+    }
+
+    private function resolveSupplierSelection(int $clinicId): array
+    {
+        $supplierIdRaw = $this->request->getPost('supplier_id');
+        $supplierId = is_numeric($supplierIdRaw) && (int) $supplierIdRaw > 0 ? (int) $supplierIdRaw : null;
+        $supplierText = trim((string) $this->request->getPost('supplier'));
+        if ($supplierText === 'other') {
+            $supplierText = '';
+        }
+
+        if ($supplierId) {
+            $supplier = $this->supplierModel->where('clinic_id', $clinicId)->find($supplierId);
+            if ($supplier) {
+                return [$supplierId, (string) $supplier['name']];
+            }
+            return [null, $supplierText !== '' ? $supplierText : null];
+        }
+
+        return [null, $supplierText !== '' ? $supplierText : null];
+    }
+
+    private function recordStockMovementSafe(
+        int $clinicId,
+        int $inventoryId,
+        string $movementType,
+        int $quantityChange,
+        int $quantityBefore,
+        int $quantityAfter,
+        ?float $unitCost = null,
+        ?string $referenceType = null,
+        ?int $referenceId = null,
+        ?string $notes = null,
+        ?int $createdBy = null
+    ): void {
+        try {
+            (new InventoryMovementService())->record(
+                $clinicId,
+                $inventoryId,
+                $movementType,
+                $quantityChange,
+                $quantityBefore,
+                $quantityAfter,
+                $unitCost,
+                $referenceType,
+                $referenceId,
+                $notes,
+                $createdBy
+            );
+        } catch (\Throwable $e) {
+            log_message('error', 'Inventory movement logging failed: ' . $e->getMessage());
+        }
     }
 }
