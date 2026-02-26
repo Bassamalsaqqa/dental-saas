@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\InventoryModel;
 use App\Services\ActivityLogger;
+use App\Services\FinanceLedgerService;
 
 class Inventory extends BaseController
 {
@@ -583,6 +584,48 @@ class Inventory extends BaseController
             
             $usageId = $usageModel->getInsertID();
             log_message('info', 'Usage record inserted successfully with ID: ' . $usageId);
+
+            // Auto-post inventory usage as COGS expense in the finance ledger (idempotent by usage ID).
+            try {
+                $treatmentPatientId = null;
+                $patientName = null;
+                $treatmentLabel = null;
+                if ($treatmentId) {
+                    $treatmentModel = new \App\Models\TreatmentModel();
+                    $treatment = $treatmentModel->where('clinic_id', session()->get('active_clinic_id'))->find((int) $treatmentId);
+                    if ($treatment) {
+                        $treatmentPatientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
+                        $treatmentLabel = (string) ($treatment['treatment_id'] ?? ('#' . $treatment['id']));
+                        if ($treatmentPatientId) {
+                            $patientModel = new \App\Models\PatientModel();
+                            $patient = $patientModel->where('clinic_id', session()->get('active_clinic_id'))->find($treatmentPatientId);
+                            if ($patient) {
+                                $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+                            }
+                        }
+                    }
+                }
+
+                (new FinanceLedgerService())->upsertInventoryUsageCogsExpense(
+                    (int) session()->get('active_clinic_id'),
+                    (int) $usageId,
+                    [
+                        'treatment_id' => $treatmentId,
+                        'usage_date' => $usageDate,
+                        'items_used' => json_encode($usageData),
+                        'total_cost' => $totalCost,
+                        'notes' => $notes,
+                    ],
+                    $treatmentPatientId,
+                    (int) ($this->getCurrentUser()->id ?? 0),
+                    [
+                        'patient_name' => $patientName,
+                        'treatment_label' => $treatmentLabel,
+                    ]
+                );
+            } catch (\Throwable $financePostError) {
+                log_message('error', 'Inventory usage finance posting failed: ' . $financePostError->getMessage());
+            }
             
             // Log the inventory usage activity
             $itemNames = array_column($usageData, 'item_name');

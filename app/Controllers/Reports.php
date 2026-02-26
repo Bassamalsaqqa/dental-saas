@@ -802,7 +802,8 @@ class Reports extends BaseController
         foreach ($transactions as $txn) {
             $type = (string) ($txn['transaction_type'] ?? 'unknown');
             $amount = (float) ($txn['total_amount'] ?? 0);
-            $transactionTypeMix[$type] = ($transactionTypeMix[$type] ?? 0.0) + $amount;
+            $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amount : $amount;
+            $transactionTypeMix[$type] = ($transactionTypeMix[$type] ?? 0.0) + $signedAmount;
             if ($type === 'refund') {
                 $refundCount++;
                 $refundTotal += $amount;

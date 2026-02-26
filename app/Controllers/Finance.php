@@ -74,6 +74,7 @@ class Finance extends BaseController
             'taxes' => 'Taxes',
             'fees' => 'Fees',
             'inventory_purchase' => 'Inventory Purchase',
+            'inventory_cogs' => 'Inventory COGS',
             'miscellaneous' => 'Miscellaneous',
         ];
     }

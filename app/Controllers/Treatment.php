@@ -8,6 +8,7 @@ use App\Models\InventoryModel;
 use App\Models\InventoryUsageModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
+use App\Services\FinanceLedgerService;
 use App\Services\StorageService;
 
 class Treatment extends BaseController
@@ -778,6 +779,42 @@ class Treatment extends BaseController
 
         if (!$usageId) {
             return ['success' => false, 'message' => 'Failed to record inventory usage.'];
+        }
+
+        try {
+            $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($treatmentId);
+            $patientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
+            $patientName = null;
+            $treatmentLabel = null;
+            if ($treatment) {
+                $treatmentLabel = (string) ($treatment['treatment_id'] ?? ('#' . $treatment['id']));
+                if ($patientId) {
+                    $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+                    if ($patient) {
+                        $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+                    }
+                }
+            }
+
+            (new FinanceLedgerService())->upsertInventoryUsageCogsExpense(
+                $clinicId,
+                (int) $usageId,
+                [
+                    'treatment_id' => $treatmentId,
+                    'usage_date' => $usageDate,
+                    'items_used' => json_encode($usageData),
+                    'total_cost' => $totalCost,
+                    'notes' => $notes,
+                ],
+                $patientId,
+                (int) (session()->get('user_id') ?? 0),
+                [
+                    'patient_name' => $patientName,
+                    'treatment_label' => $treatmentLabel,
+                ]
+            );
+        } catch (\Throwable $financePostError) {
+            log_message('error', 'Treatment inventory usage finance posting failed: ' . $financePostError->getMessage());
         }
 
         foreach ($usageData as $usage) {

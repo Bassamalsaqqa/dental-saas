@@ -26,6 +26,8 @@ class FinanceModel extends TenantAwareModel
         'service_type',
         'expense_category',
         'counterparty_name',
+        'source_entity_type',
+        'source_entity_id',
         'service_details',
         'discount_amount',
         'tax_percentage',
@@ -56,8 +58,10 @@ class FinanceModel extends TenantAwareModel
         'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
         'payment_status' => 'required|in_list[pending,paid,partial,overdue,cancelled]',
         'service_type' => 'permit_empty|in_list[consultation,treatment,medication,procedure,other]',
-        'expense_category' => 'permit_empty|in_list[rent,utilities,salaries,laboratory,supplies,equipment,maintenance,software,marketing,taxes,fees,inventory_purchase,miscellaneous]',
+        'expense_category' => 'permit_empty|in_list[rent,utilities,salaries,laboratory,supplies,equipment,maintenance,software,marketing,taxes,fees,inventory_purchase,inventory_cogs,miscellaneous]',
         'counterparty_name' => 'permit_empty|max_length[150]',
+        'source_entity_type' => 'permit_empty|max_length[50]',
+        'source_entity_id' => 'permit_empty|integer',
         'paid_date' => 'permit_empty|valid_date'
     ];
 
