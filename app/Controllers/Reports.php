@@ -15,6 +15,7 @@ class Reports extends BaseController
     private const ALLOWED_DATE_RANGES = ['7', '30', '90', '365'];
     private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
     private const ALLOWED_DATE_MODES = ['relative', 'custom', 'as_of'];
+    private const ALLOWED_COMPARE_MODES = ['none', 'previous_period'];
 
     protected $patientModel;
     protected $examinationModel;
@@ -77,6 +78,12 @@ class Reports extends BaseController
         return $value;
     }
 
+    private function sanitizeCompareMode(?string $value): string
+    {
+        $value = strtolower((string) ($value ?? 'none'));
+        return in_array($value, self::ALLOWED_COMPARE_MODES, true) ? $value : 'none';
+    }
+
     private function getReportWindow(string $dateRange): array
     {
         $days = (int) $dateRange;
@@ -92,12 +99,23 @@ class Reports extends BaseController
         return [$start, $endDate];
     }
 
+    private function getPreviousPeriodWindow(string $startDate, string $endDate): array
+    {
+        $startTs = strtotime($startDate . ' 00:00:00');
+        $endTs = strtotime($endDate . ' 00:00:00');
+        $days = (int) floor(($endTs - $startTs) / 86400) + 1;
+        $prevEnd = date('Y-m-d', strtotime($startDate . ' -1 day'));
+        $prevStart = date('Y-m-d', strtotime($prevEnd . ' -' . max(0, $days - 1) . ' days'));
+        return [$prevStart, $prevEnd];
+    }
+
     private function parseReportFilters(string $source = 'get'): array
     {
         $input = strtolower($source) === 'post' ? 'getPost' : 'getGet';
         $reportType = $this->sanitizeReportType($this->request->{$input}('report_type') ?? $this->request->{$input}('type'));
         $dateRange = $this->sanitizeDateRange($this->request->{$input}('date_range'));
         $dateMode = $this->sanitizeDateMode($this->request->{$input}('date_mode'));
+        $compareMode = $this->sanitizeCompareMode($this->request->{$input}('compare_mode'));
         $customFrom = $this->sanitizeDateInput($this->request->{$input}('custom_from'));
         $customTo = $this->sanitizeDateInput($this->request->{$input}('custom_to'));
         $asOfDate = $this->sanitizeDateInput($this->request->{$input}('as_of_date')) ?: date('Y-m-d');
@@ -119,15 +137,23 @@ class Reports extends BaseController
             $dateMode = 'relative';
         }
 
+        [$compareStartDate, $compareEndDate] = [null, null];
+        if ($compareMode === 'previous_period') {
+            [$compareStartDate, $compareEndDate] = $this->getPreviousPeriodWindow($startDate, $endDate);
+        }
+
         return [
             'report_type' => $reportType,
             'date_mode' => $dateMode,
+            'compare_mode' => $compareMode,
             'date_range' => $dateRange,
             'custom_from' => $customFrom,
             'custom_to' => $customTo,
             'as_of_date' => $asOfDate,
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'compare_start_date' => $compareStartDate,
+            'compare_end_date' => $compareEndDate,
             'period_label' => $dateMode === 'custom'
                 ? ($startDate . ' to ' . $endDate)
                 : ($dateMode === 'as_of'
@@ -271,7 +297,7 @@ class Reports extends BaseController
         }
     }
 
-    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?string $asOfDate = null): array
+    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?string $asOfDate = null, ?array $compareWindow = null): array
     {
         switch ($reportType) {
             case 'patients':
@@ -281,16 +307,16 @@ class Reports extends BaseController
             case 'appointments':
                 return $this->getAppointmentReports($startDate, $endDate);
             case 'finance':
-                return $this->getFinanceReports($startDate, $endDate, $asOfDate);
+                return $this->getFinanceReports($startDate, $endDate, $asOfDate, $compareWindow);
             case 'treatments':
                 return $this->getTreatmentReports($startDate, $endDate);
             case 'overview':
             default:
-                return $this->getOverviewReports($startDate, $endDate);
+                return $this->getOverviewReports($startDate, $endDate, $compareWindow);
         }
     }
 
-    private function paginateDetailRows(array $rows, int $page, int $perPage, string $search = '', ?string $drillQuery = null): array
+    private function paginateDetailRows(array $rows, int $page, int $perPage, string $search = '', ?string $drillQuery = null, ?string $sortBy = null, string $sortDir = 'asc'): array
     {
         $search = trim($search);
         $drillQuery = trim((string) ($drillQuery ?? ''));
@@ -302,6 +328,22 @@ class Reports extends BaseController
                 $drillMatch = ($drillQuery === '') || str_contains($blob, strtolower($drillQuery));
                 return $searchMatch && $drillMatch;
             }));
+        }
+
+        $sortBy = trim((string) ($sortBy ?? ''));
+        $sortDir = strtolower($sortDir) === 'desc' ? 'desc' : 'asc';
+        if ($sortBy !== '') {
+            usort($rows, static function ($a, $b) use ($sortBy, $sortDir) {
+                $va = $a[$sortBy] ?? null;
+                $vb = $b[$sortBy] ?? null;
+                $cmp = 0;
+                if (is_numeric($va) && is_numeric($vb)) {
+                    $cmp = (float) $va <=> (float) $vb;
+                } else {
+                    $cmp = strcasecmp((string) $va, (string) $vb);
+                }
+                return $sortDir === 'desc' ? -$cmp : $cmp;
+            });
         }
 
         $total = count($rows);
@@ -320,6 +362,10 @@ class Reports extends BaseController
                 'last_page' => $lastPage,
                 'from' => $total > 0 ? ($offset + 1) : 0,
                 'to' => min($offset + $perPage, $total),
+            ],
+            'sorting' => [
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
         ];
     }
@@ -375,27 +421,11 @@ class Reports extends BaseController
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
             $asOfDate = $filters['as_of_date'];
+            $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
+                ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
+                : null;
 
-            // Generate reports based on type
-            switch ($reportType) {
-                case 'patients':
-                    $data['reports'] = $this->getPatientReports($startDate, $endDate);
-                    break;
-                case 'examinations':
-                    $data['reports'] = $this->getExaminationReports($startDate, $endDate);
-                    break;
-                case 'appointments':
-                    $data['reports'] = $this->getAppointmentReports($startDate, $endDate);
-                    break;
-                case 'finance':
-                    $data['reports'] = $this->getFinanceReports($startDate, $endDate, $asOfDate);
-                    break;
-                case 'treatments':
-                    $data['reports'] = $this->getTreatmentReports($startDate, $endDate);
-                    break;
-                default:
-                    $data['reports'] = $this->getOverviewReports($startDate, $endDate);
-            }
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -417,12 +447,15 @@ class Reports extends BaseController
                 'filters' => [
                     'report_type' => 'overview',
                     'date_mode' => 'relative',
+                    'compare_mode' => 'none',
                     'date_range' => '30',
                     'custom_from' => null,
                     'custom_to' => null,
                     'as_of_date' => date('Y-m-d'),
                     'start_date' => date('Y-m-d', strtotime('-30 days')),
                     'end_date' => date('Y-m-d'),
+                    'compare_start_date' => null,
+                    'compare_end_date' => null,
                     'period_label' => 'Last 30 days',
                 ],
                 'detail_tables' => [],
@@ -449,8 +482,10 @@ class Reports extends BaseController
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
             $asOfDate = $filters['as_of_date'];
-            
-            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate);
+            $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
+                ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
+                : null;
+            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
             
             $data['_detail_tables'] = $this->buildDetailTables($reportType, $data);
             $data['_filters'] = $filters;
@@ -479,10 +514,15 @@ class Reports extends BaseController
             $page = max(1, (int) ($this->request->getGet('page') ?? 1));
             $perPage = (int) ($this->request->getGet('per_page') ?? 25);
             $search = (string) ($this->request->getGet('q') ?? '');
+            $sortBy = trim((string) ($this->request->getGet('sort_by') ?? ''));
+            $sortDir = strtolower((string) ($this->request->getGet('sort_dir') ?? 'asc'));
             $drillTable = trim((string) ($this->request->getGet('drill_table') ?? ''));
             $drillQuery = (string) ($this->request->getGet('drill_query') ?? '');
 
-            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate);
+            $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
+                ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
+                : null;
+            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
             $detailTables = $this->buildDetailTables($reportType, $reports);
 
             $table = null;
@@ -498,7 +538,11 @@ class Reports extends BaseController
             }
 
             $appliedDrillQuery = ($drillTable !== '' && $drillTable === $tableId) ? $drillQuery : '';
-            $paged = $this->paginateDetailRows($table['rows'] ?? [], $page, $perPage, $search, $appliedDrillQuery);
+            $allowedSortKeys = array_map(static fn($c) => (string) ($c['key'] ?? ''), $table['columns'] ?? []);
+            if (!in_array($sortBy, $allowedSortKeys, true)) {
+                $sortBy = '';
+            }
+            $paged = $this->paginateDetailRows($table['rows'] ?? [], $page, $perPage, $search, $appliedDrillQuery, $sortBy, $sortDir);
 
             return $this->response->setJSON([
                 'table' => [
@@ -510,6 +554,7 @@ class Reports extends BaseController
                 'pagination' => $paged['pagination'],
                 'filters' => $filters,
                 'search' => $search,
+                'sorting' => $paged['sorting'],
                 'drill' => [
                     'table' => $drillTable,
                     'query' => $appliedDrillQuery,
@@ -553,25 +598,7 @@ class Reports extends BaseController
                 'end_date' => $endDate,
             ];
 
-            switch ($reportType) {
-                case 'patients':
-                    $data['reports'] = $this->getPatientReports($startDate, $endDate);
-                    break;
-                case 'examinations':
-                    $data['reports'] = $this->getExaminationReports($startDate, $endDate);
-                    break;
-                case 'appointments':
-                    $data['reports'] = $this->getAppointmentReports($startDate, $endDate);
-                    break;
-                case 'finance':
-                    $data['reports'] = $this->getFinanceReports($startDate, $endDate, $asOfDate);
-                    break;
-                case 'treatments':
-                    $data['reports'] = $this->getTreatmentReports($startDate, $endDate);
-                    break;
-                default:
-                    $data['reports'] = $this->getOverviewReports($startDate, $endDate);
-            }
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate, $compareWindow);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -604,7 +631,7 @@ class Reports extends BaseController
         ]);
     }
 
-    private function getOverviewReports($startDate, $endDate)
+    private function getOverviewReports($startDate, $endDate, ?array $compareWindow = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -645,7 +672,7 @@ class Reports extends BaseController
             ->orderBy('appointment_date', 'DESC')
             ->findAll(250);
 
-        return [
+        $result = [
             'summary' => [
                 'total_patients' => $this->patientModel->where('clinic_id', $clinicId)->countAllResults(),
                 'new_patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate . ' 00:00:00')->where('created_at <=', $endDate . ' 23:59:59')->countAllResults(),
@@ -668,6 +695,23 @@ class Reports extends BaseController
                 'appointments' => $overviewAppointments,
             ],
         ];
+
+        if ($compareWindow && !empty($compareWindow['start_date']) && !empty($compareWindow['end_date'])) {
+            $compareStart = (string) $compareWindow['start_date'];
+            $compareEnd = (string) $compareWindow['end_date'];
+            $compareRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $compareStart, $compareEnd);
+            $result['comparison'] = [
+                'label' => $compareStart . ' to ' . $compareEnd,
+                'summary' => [
+                    'new_patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $compareStart . ' 00:00:00')->where('created_at <=', $compareEnd . ' 23:59:59')->countAllResults(),
+                    'examinations_this_period' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $compareStart)->where('examination_date <=', $compareEnd)->countAllResults(),
+                    'appointments_this_period' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $compareStart)->where('appointment_date <=', $compareEnd)->countAllResults(),
+                    'revenue_this_period' => $compareRevenueStats['total_revenue'] ?? 0,
+                ],
+            ];
+        }
+
+        return $result;
     }
 
     private function getPatientReports($startDate, $endDate)
@@ -730,7 +774,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getFinanceReports($startDate, $endDate, ?string $asOfDate = null)
+    private function getFinanceReports($startDate, $endDate, ?string $asOfDate = null, ?array $compareWindow = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -754,12 +798,29 @@ class Reports extends BaseController
         $providerPayableOutstanding = floatval($providerStats['total_provider_balance'] ?? 0);
         $pendingInvoiceAmount = floatval($financeStats['pending_payments'] ?? 0);
 
-        return [
-            'transactions' => $this->financeModel
-                ->where('clinic_id', $clinicId)
-                ->where('created_at >=', $startDateTime)
-                ->where('created_at <=', $endDateTime)
-                ->findAll(),
+        $transactions = $this->financeModel
+            ->where('clinic_id', $clinicId)
+            ->where('created_at >=', $startDateTime)
+            ->where('created_at <=', $endDateTime)
+            ->findAll();
+
+        $refundCount = 0;
+        $refundTotal = 0.0;
+        $discountTotal = 0.0;
+        $transactionTypeMix = [];
+        foreach ($transactions as $txn) {
+            $type = (string) ($txn['transaction_type'] ?? 'unknown');
+            $amount = (float) ($txn['total_amount'] ?? 0);
+            $transactionTypeMix[$type] = ($transactionTypeMix[$type] ?? 0.0) + $amount;
+            if ($type === 'refund') {
+                $refundCount++;
+                $refundTotal += $amount;
+            }
+            $discountTotal += (float) ($txn['discount_amount'] ?? 0);
+        }
+
+        $result = [
+            'transactions' => $transactions,
             'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
             'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
             'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
@@ -768,6 +829,9 @@ class Reports extends BaseController
             'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
             'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
             'provider_payout_rows' => $this->providerPayoutModel->getReportRowsByClinic((int) $clinicId, $startDate, $endDate, 250),
+            'transaction_type_mix' => array_map(static function ($type, $amount) {
+                return ['transaction_type' => $type, 'total_amount' => $amount];
+            }, array_keys($transactionTypeMix), array_values($transactionTypeMix)),
             'summary' => [
                 'gross_collections' => $grossCollections,
                 'provider_share_accrual' => $providerShareAccrual,
@@ -778,8 +842,30 @@ class Reports extends BaseController
                 'pending_invoice_amount' => $pendingInvoiceAmount,
                 'outstanding_invoices_count' => intval($financeStats['outstanding_invoices'] ?? 0),
                 'total_transactions' => intval($financeStats['total_transactions'] ?? 0),
+                'refund_count' => $refundCount,
+                'refund_total' => $refundTotal,
+                'discount_total' => $discountTotal,
             ],
         ];
+
+        if ($compareWindow && !empty($compareWindow['start_date']) && !empty($compareWindow['end_date'])) {
+            $cStart = (string) $compareWindow['start_date'];
+            $cEnd = (string) $compareWindow['end_date'];
+            $compareFinanceStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $cStart, $cEnd);
+            $compareProviderStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $cStart, $cEnd);
+            $result['comparison'] = [
+                'label' => $cStart . ' to ' . $cEnd,
+                'summary' => [
+                    'gross_collections' => (float) ($compareFinanceStats['total_revenue'] ?? 0),
+                    'provider_share_accrual' => (float) ($compareProviderStats['total_provider_share'] ?? 0),
+                    'provider_paid_cash' => (float) ($compareProviderStats['total_provider_paid_cash'] ?? 0),
+                    'pending_invoice_amount' => (float) ($compareFinanceStats['pending_payments'] ?? 0),
+                    'total_transactions' => (int) ($compareFinanceStats['total_transactions'] ?? 0),
+                ],
+            ];
+        }
+
+        return $result;
     }
 
     private function getTreatmentReports($startDate, $endDate)

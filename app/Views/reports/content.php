@@ -69,6 +69,13 @@
                         <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>>Last year</option>
                     </select>
                 </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Compare</label>
+                    <select id="compareMode" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                        <option value="none" <?= (($filters['compare_mode'] ?? 'none') === 'none') ? 'selected' : '' ?>>No comparison</option>
+                        <option value="previous_period" <?= (($filters['compare_mode'] ?? '') === 'previous_period') ? 'selected' : '' ?>>Previous period</option>
+                    </select>
+                </div>
                 <div id="customDateControls" class="flex-[1.6] hidden">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Custom Range</label>
                     <div class="grid grid-cols-2 gap-3">
@@ -87,17 +94,39 @@
                     </button>
                 </div>
             </div>
-            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
-                    <i class="fas fa-calendar-range mr-2"></i>
-                    <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
-                </span>
-                <?php if (($filters['date_mode'] ?? 'relative') === 'as_of'): ?>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-semibold">
-                    <i class="fas fa-hourglass-end mr-2"></i>
-                    A/R aging evaluated as of <?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>
-                </span>
-                <?php endif; ?>
+            <div class="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 text-sm">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                        <i class="fas fa-calendar-range mr-2"></i>
+                        <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
+                    </span>
+                    <?php if (($filters['date_mode'] ?? 'relative') === 'as_of'): ?>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-semibold">
+                        <i class="fas fa-hourglass-end mr-2"></i>
+                        A/R aging evaluated as of <?= esc($filters['as_of_date'] ?? date('Y-m-d')) ?>
+                    </span>
+                    <?php endif; ?>
+                    <?php if (($filters['compare_mode'] ?? 'none') === 'previous_period' && !empty($filters['compare_start_date'])): ?>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
+                        <i class="fas fa-code-compare mr-2"></i>
+                        vs <?= esc(($filters['compare_start_date'] ?? '') . ' to ' . ($filters['compare_end_date'] ?? '')) ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 lg:ml-auto">
+                    <select id="reportPresetSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/90 min-w-[220px]">
+                        <option value="">Saved presets...</option>
+                    </select>
+                    <button type="button" id="loadPresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-gray-200 bg-white text-gray-700 hover:border-blue-300">
+                        <i class="fas fa-folder-open mr-2"></i>Load
+                    </button>
+                    <button type="button" id="savePresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                        <i class="fas fa-floppy-disk mr-2"></i>Save Preset
+                    </button>
+                    <button type="button" id="deletePresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -216,6 +245,38 @@
                 </div>
             </div>
         </div>
+        <?php if (!empty($reports['comparison']['summary'] ?? [])): ?>
+        <?php $cmp = $reports['comparison']['summary']; ?>
+        <div class="mb-8">
+            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Previous Period Comparison</h3>
+                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <?php
+                    $comparisonCards = [
+                        ['label' => 'New Patients', 'current' => (float)($reports['summary']['new_patients'] ?? 0), 'previous' => (float)($cmp['new_patients'] ?? 0), 'currency' => false],
+                        ['label' => 'Examinations', 'current' => (float)($reports['summary']['examinations_this_period'] ?? 0), 'previous' => (float)($cmp['examinations_this_period'] ?? 0), 'currency' => false],
+                        ['label' => 'Appointments', 'current' => (float)($reports['summary']['appointments_this_period'] ?? 0), 'previous' => (float)($cmp['appointments_this_period'] ?? 0), 'currency' => false],
+                        ['label' => 'Revenue', 'current' => (float)($reports['summary']['revenue_this_period'] ?? 0), 'previous' => (float)($cmp['revenue_this_period'] ?? 0), 'currency' => true],
+                    ];
+                    foreach ($comparisonCards as $card):
+                        $delta = $card['current'] - $card['previous'];
+                        $up = $delta >= 0;
+                    ?>
+                    <div class="rounded-lg border border-gray-200 bg-white p-4">
+                        <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($card['label']) ?></p>
+                        <p class="mt-1 text-lg font-bold text-gray-900"><?= $card['currency'] ? formatCurrency($card['current']) : number_format($card['current']) ?></p>
+                        <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold">
+                            <?= $up ? '▲' : '▼' ?> <?= $card['currency'] ? formatCurrency(abs($delta)) : number_format(abs($delta)) ?>
+                        </p>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- Other Report Types -->
@@ -465,6 +526,49 @@
                                     <p class="mt-1 text-lg font-bold text-slate-800"><?= (int) ($summary['total_transactions'] ?? 0) ?></p>
                                 </div>
                             </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Refund Count</p>
+                                    <p class="mt-1 text-lg font-bold text-rose-700"><?= (int) ($summary['refund_count'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Refund Total</p>
+                                    <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['refund_total'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Discounts (Period)</p>
+                                    <p class="mt-1 text-lg font-bold text-sky-700"><?= formatCurrency($summary['discount_total'] ?? 0) ?></p>
+                                </div>
+                            </div>
+                            <?php if (!empty($reports['comparison']['summary'] ?? [])): ?>
+                            <?php $fcmp = $reports['comparison']['summary']; ?>
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800">Previous Period Comparison</h4>
+                                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                    <?php
+                                    $financeCompareCards = [
+                                        ['label'=>'Gross Collections','current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
+                                        ['label'=>'Provider Share','current'=>(float)($summary['provider_share_accrual']??0),'previous'=>(float)($fcmp['provider_share_accrual']??0),'count'=>false],
+                                        ['label'=>'Provider Paid Cash','current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
+                                        ['label'=>'Pending Invoices','current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
+                                        ['label'=>'Transactions','current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
+                                    ];
+                                    foreach ($financeCompareCards as $card):
+                                        $delta = $card['current'] - $card['previous'];
+                                        $up = $delta >= 0;
+                                    ?>
+                                    <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($card['label']) ?></p>
+                                        <p class="mt-1 font-bold text-gray-900"><?= $card['count'] ? number_format($card['current']) : formatCurrency($card['current']) ?></p>
+                                        <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold"><?= $up ? '▲' : '▼' ?> <?= $card['count'] ? number_format(abs($delta)) : formatCurrency(abs($delta)) ?></p>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                             
                             <!-- Payment Methods -->
                             <?php if (!empty($reports['payment_methods'])): ?>
@@ -507,6 +611,15 @@
                                     </div>
                                     <div class="relative h-64">
                                         <canvas id="financeProviderStatusChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm xl:col-span-3">
+                                    <div class="mb-4">
+                                        <h4 class="text-lg font-semibold text-gray-800">Transaction Type Mix</h4>
+                                        <p class="text-sm text-gray-500">Click a bar to drill into transactions by type.</p>
+                                    </div>
+                                    <div class="relative h-64">
+                                        <canvas id="financeTransactionTypeChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -858,6 +971,7 @@ function generateReport() {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
     const dateMode = document.getElementById('dateMode').value;
+    const compareMode = document.getElementById('compareMode')?.value || 'none';
     const customFrom = document.getElementById('customFrom')?.value || '';
     const customTo = document.getElementById('customTo')?.value || '';
     const asOfDate = document.getElementById('asOfDate')?.value || '';
@@ -866,6 +980,7 @@ function generateReport() {
     url.searchParams.set('report_type', reportType);
     url.searchParams.set('date_range', dateRange);
     url.searchParams.set('date_mode', dateMode);
+    url.searchParams.set('compare_mode', compareMode);
     if (customFrom) url.searchParams.set('custom_from', customFrom); else url.searchParams.delete('custom_from');
     if (customTo) url.searchParams.set('custom_to', customTo); else url.searchParams.delete('custom_to');
     if (asOfDate) url.searchParams.set('as_of_date', asOfDate); else url.searchParams.delete('as_of_date');
@@ -877,6 +992,7 @@ function exportReport(format) {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
     const dateMode = document.getElementById('dateMode').value;
+    const compareMode = document.getElementById('compareMode')?.value || 'none';
     const customFrom = document.getElementById('customFrom')?.value || '';
     const customTo = document.getElementById('customTo')?.value || '';
     const asOfDate = document.getElementById('asOfDate')?.value || '';
@@ -893,6 +1009,7 @@ function exportReport(format) {
         report_type: reportType,
         date_range: dateRange,
         date_mode: dateMode,
+        compare_mode: compareMode,
         custom_from: customFrom,
         custom_to: customTo,
         as_of_date: asOfDate,
@@ -936,6 +1053,90 @@ function setActiveDetailTab(target) {
         panel.classList.toggle('hidden', panel.dataset.panel !== target);
     });
 }
+
+const REPORT_PRESETS_KEY = 'dental_saas_reports_presets_v1';
+
+function getCurrentFilterState() {
+    return {
+        report_type: document.getElementById('reportType')?.value || 'overview',
+        date_range: document.getElementById('dateRange')?.value || '30',
+        date_mode: document.getElementById('dateMode')?.value || 'relative',
+        compare_mode: document.getElementById('compareMode')?.value || 'none',
+        custom_from: document.getElementById('customFrom')?.value || '',
+        custom_to: document.getElementById('customTo')?.value || '',
+        as_of_date: document.getElementById('asOfDate')?.value || '',
+    };
+}
+
+function readReportPresets() {
+    try {
+        const raw = localStorage.getItem(REPORT_PRESETS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function writeReportPresets(presets) {
+    localStorage.setItem(REPORT_PRESETS_KEY, JSON.stringify(presets));
+}
+
+function renderPresetOptions() {
+    const select = document.getElementById('reportPresetSelect');
+    if (!select) return;
+    const presets = readReportPresets();
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Saved presets...</option>' + presets.map((p, idx) =>
+        `<option value="${idx}">${escapeHtml(p.name || `Preset ${idx + 1}`)}</option>`
+    ).join('');
+    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+        select.value = currentValue;
+    }
+}
+
+function applyPresetToForm(preset) {
+    if (!preset || !preset.filters) return;
+    const f = preset.filters;
+    if (document.getElementById('reportType')) document.getElementById('reportType').value = f.report_type || 'overview';
+    if (document.getElementById('dateRange')) document.getElementById('dateRange').value = f.date_range || '30';
+    if (document.getElementById('dateMode')) document.getElementById('dateMode').value = f.date_mode || 'relative';
+    if (document.getElementById('compareMode')) document.getElementById('compareMode').value = f.compare_mode || 'none';
+    if (document.getElementById('customFrom')) document.getElementById('customFrom').value = f.custom_from || '';
+    if (document.getElementById('customTo')) document.getElementById('customTo').value = f.custom_to || '';
+    if (document.getElementById('asOfDate')) document.getElementById('asOfDate').value = f.as_of_date || '';
+    syncDateModeControls();
+}
+
+document.getElementById('savePresetBtn')?.addEventListener('click', () => {
+    const name = window.prompt('Preset name');
+    if (!name) return;
+    const presets = readReportPresets();
+    presets.push({ name: name.trim(), filters: getCurrentFilterState(), created_at: new Date().toISOString() });
+    writeReportPresets(presets);
+    renderPresetOptions();
+});
+
+document.getElementById('loadPresetBtn')?.addEventListener('click', () => {
+    const idx = parseInt(document.getElementById('reportPresetSelect')?.value || '', 10);
+    if (Number.isNaN(idx)) return;
+    const preset = readReportPresets()[idx];
+    if (!preset) return;
+    applyPresetToForm(preset);
+});
+
+document.getElementById('deletePresetBtn')?.addEventListener('click', () => {
+    const select = document.getElementById('reportPresetSelect');
+    const idx = parseInt(select?.value || '', 10);
+    if (Number.isNaN(idx)) return;
+    const presets = readReportPresets();
+    if (!presets[idx]) return;
+    presets.splice(idx, 1);
+    writeReportPresets(presets);
+    renderPresetOptions();
+});
+
+renderPresetOptions();
 
 function getPanelSearchQuery(panel) {
     const search = panel.querySelector('.report-detail-search');
@@ -1020,7 +1221,7 @@ document.querySelectorAll('.report-detail-panel').forEach((panel) => {
     const prevBtn = panel.querySelector('.report-detail-prev');
     const nextBtn = panel.querySelector('.report-detail-next');
     const panelId = panel.dataset.panel;
-    reportDetailState[panelId] = { page: 1 };
+    reportDetailState[panelId] = { page: 1, sortBy: '', sortDir: 'asc' };
     if (search) {
         search.addEventListener('input', () => {
             reportDetailState[panelId].page = 1;
@@ -1041,6 +1242,23 @@ document.querySelectorAll('.report-detail-panel').forEach((panel) => {
         const currentPage = reportDetailState[panelId]?.page || 1;
         loadDetailPanel(panelId, currentPage + 1);
     });
+    panel.querySelectorAll('thead th[data-key]').forEach((th) => {
+        th.classList.add('cursor-pointer', 'select-none', 'hover:text-blue-700');
+        th.addEventListener('click', () => {
+            const key = th.dataset.key || '';
+            if (!key) return;
+            const state = reportDetailState[panelId] || { page: 1, sortBy: '', sortDir: 'asc' };
+            if (state.sortBy === key) {
+                state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                state.sortBy = key;
+                state.sortDir = 'asc';
+            }
+            state.page = 1;
+            reportDetailState[panelId] = state;
+            loadDetailPanel(panelId, 1);
+        });
+    });
 });
 
 function renderDetailRows(panel, payload) {
@@ -1054,6 +1272,23 @@ function renderDetailRows(panel, payload) {
     const columns = payload.table.columns || [];
     const rows = payload.rows || [];
     const pagination = payload.pagination || {};
+    const sorting = payload.sorting || {};
+    const panelId = panel.dataset.panel;
+
+    const state = reportDetailState[panelId] || { page: 1, sortBy: '', sortDir: 'asc' };
+    state.sortBy = sorting.sort_by || state.sortBy || '';
+    state.sortDir = sorting.sort_dir || state.sortDir || 'asc';
+    reportDetailState[panelId] = state;
+
+    panel.querySelectorAll('thead th[data-key]').forEach((th) => {
+        const key = th.dataset.key || '';
+        const active = key && key === state.sortBy;
+        th.classList.toggle('text-blue-700', active);
+        th.classList.toggle('font-bold', active);
+        const baseLabel = th.dataset.baseLabel || th.textContent.replace(/\s[▲▼]$/, '');
+        th.dataset.baseLabel = baseLabel;
+        th.textContent = active ? `${baseLabel} ${state.sortDir === 'desc' ? '▼' : '▲'}` : baseLabel;
+    });
 
     if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="${columns.length}" class="px-4 py-8 text-center text-gray-500">No rows match the current filters.</td></tr>`;
@@ -1091,12 +1326,18 @@ async function loadDetailPanel(panelId, page = 1) {
     params.set('report_type', reportWorkspace.filters.report_type || 'overview');
     params.set('date_mode', reportWorkspace.filters.date_mode || 'relative');
     params.set('date_range', reportWorkspace.filters.date_range || '30');
+    params.set('compare_mode', reportWorkspace.filters.compare_mode || 'none');
     if (reportWorkspace.filters.custom_from) params.set('custom_from', reportWorkspace.filters.custom_from);
     if (reportWorkspace.filters.custom_to) params.set('custom_to', reportWorkspace.filters.custom_to);
     if (reportWorkspace.filters.as_of_date) params.set('as_of_date', reportWorkspace.filters.as_of_date);
     params.set('table_id', panelId);
     params.set('page', String(page));
     params.set('per_page', String(perPage));
+    const sortState = reportDetailState[panelId] || {};
+    if (sortState.sortBy) {
+        params.set('sort_by', sortState.sortBy);
+        params.set('sort_dir', sortState.sortDir || 'asc');
+    }
     if (search) params.set('q', search);
     if (reportDrillState.active) {
         params.set('drill_table', reportDrillState.tableId || '');
@@ -1380,7 +1621,7 @@ if (financeProviderStatusCtx) {
     };
     const colors = labels.map(l => statusColorMap[l.toLowerCase()] || '#0284c7');
 
-    new Chart(financeProviderStatusCtx, {
+new Chart(financeProviderStatusCtx, {
         type: 'pie',
         data: { labels, datasets: [{ data, backgroundColor: colors }] },
         options: {
@@ -1392,6 +1633,50 @@ if (financeProviderStatusCtx) {
                 const status = labels[elements[0].index];
                 if (!status) return;
                 applyDrillthrough('provider_payout_rows', status.toLowerCase(), `Provider payout status -> ${status}`);
+            }
+        }
+    });
+}
+
+// Finance: Transaction Type Mix
+const financeTxnTypeCtx = document.getElementById('financeTransactionTypeChart')?.getContext('2d');
+if (financeTxnTypeCtx) {
+    const rows = <?= json_encode($reports['transaction_type_mix'] ?? []) ?>;
+    const labels = rows.map(r => (r.transaction_type || 'unknown').toString());
+    const data = rows.map(r => parseFloat(r.total_amount || 0));
+    const colors = labels.map((type) => ({
+        payment: '#10b981',
+        invoice: '#0284c7',
+        refund: '#ef4444',
+        adjustment: '#f59e0b',
+    }[(type || '').toLowerCase()] || '#64748b'));
+
+    new Chart(financeTxnTypeCtx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Total Amount',
+                data,
+                backgroundColor: colors,
+                borderRadius: 6,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: (v) => formatCurrency(v) }
+                }
+            },
+            onClick: function(event, elements) {
+                if (!elements?.length) return;
+                const type = labels[elements[0].index];
+                if (!type) return;
+                applyDrillthrough('transactions', type.toLowerCase(), `Transaction type -> ${type}`);
             }
         }
     });
