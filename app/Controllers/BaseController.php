@@ -259,6 +259,52 @@ abstract class BaseController extends Controller
     }
 
     /**
+     * Normalize a date-only value to ISO (Y-m-d) using clinic/global date format settings.
+     * Returns null when the input is empty or invalid.
+     */
+    protected function normalizeDateOnly(?string $value): ?string
+    {
+        $raw = trim((string) ($value ?? ''));
+        if ($raw === '') {
+            return null;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+            return $raw;
+        }
+
+        $format = (string) settings()->get('date_format', 'd/m/Y');
+        if (in_array($format, ['d/m/Y', 'm/d/Y'], true)) {
+            $pattern = '/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/';
+            if (preg_match($pattern, $raw, $m)) {
+                if ($format === 'd/m/Y') {
+                    [$day, $month, $year] = [$m[1], $m[2], $m[3]];
+                } else {
+                    [$month, $day, $year] = [$m[1], $m[2], $m[3]];
+                }
+                $month = str_pad($month, 2, '0', STR_PAD_LEFT);
+                $day = str_pad($day, 2, '0', STR_PAD_LEFT);
+                if (checkdate((int) $month, (int) $day, (int) $year)) {
+                    return "{$year}-{$month}-{$day}";
+                }
+                return null;
+            }
+        }
+
+        $ts = strtotime($raw);
+        return $ts === false ? null : date('Y-m-d', $ts);
+    }
+
+    /**
+     * Normalize one POST field containing a date-only value to ISO Y-m-d.
+     * Returns null for empty values, and null for invalid values.
+     */
+    protected function normalizePostedDateOnly(string $field): ?string
+    {
+        return $this->normalizeDateOnly((string) $this->request->getPost($field));
+    }
+
+    /**
      * Get user permissions
      *
      * @param int|null $userId

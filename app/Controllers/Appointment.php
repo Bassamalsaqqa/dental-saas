@@ -233,7 +233,7 @@ class Appointment extends BaseController
 
         $appointmentData = [
             'patient_id' => $this->request->getPost('patient_id'),
-            'appointment_date' => $this->request->getPost('appointment_date'),
+            'appointment_date' => $this->normalizePostedDateOnly('appointment_date'),
             'appointment_time' => $this->request->getPost('appointment_time'),
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),
@@ -418,7 +418,7 @@ class Appointment extends BaseController
 
         $appointmentData = [
             'patient_id' => $this->request->getPost('patient_id'),
-            'appointment_date' => $this->request->getPost('appointment_date'),
+            'appointment_date' => $this->normalizePostedDateOnly('appointment_date'),
             'appointment_time' => $this->request->getPost('appointment_time'),
             'duration' => $this->request->getPost('duration'),
             'appointment_type' => $this->request->getPost('appointment_type'),

@@ -31,8 +31,8 @@ class Invoices extends BaseController
         $filters = [];
         $status = trim((string) ($this->request->getGet('status') ?? ''));
         $clinicId = (int) ($this->request->getGet('clinic_id') ?? 0);
-        $from = $this->request->getGet('from');
-        $to = $this->request->getGet('to');
+        $from = $this->normalizeDateOnly((string) $this->request->getGet('from'));
+        $to = $this->normalizeDateOnly((string) $this->request->getGet('to'));
 
         if ($status !== '') {
             $filters['status'] = $status;
@@ -122,8 +122,8 @@ class Invoices extends BaseController
             'clinic_id' => (int) $this->request->getPost('clinic_id'),
             'invoice_number' => $this->invoiceModel->generateInvoiceNumber(),
             'status' => 'sent',
-            'issue_date' => $this->request->getPost('issue_date') ?: date('Y-m-d'),
-            'due_date' => $this->request->getPost('due_date') ?: date('Y-m-d'),
+            'issue_date' => $this->normalizePostedDateOnly('issue_date') ?: date('Y-m-d'),
+            'due_date' => $this->normalizePostedDateOnly('due_date') ?: date('Y-m-d'),
             'currency' => $this->request->getPost('currency') ?: 'USD',
             'subtotal' => $totals['subtotal'],
             'tax_percentage' => $taxPercentage,

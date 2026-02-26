@@ -73,11 +73,11 @@
                             
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Issue Date</label>
-                                <input type="date" id="issue_date" name="issue_date" value="<?= esc(old('issue_date') ?: date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm hover:shadow-md" required>
+                                <input type="text" data-clinic-date="1" id="issue_date" name="issue_date" value="<?= esc(old('issue_date') ?: date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm hover:shadow-md" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Due Date</label>
-                                <input type="date" id="due_date" name="due_date" value="<?= esc(old('due_date') ?: date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm hover:shadow-md" required>
+                                <input type="text" data-clinic-date="1" id="due_date" name="due_date" value="<?= esc(old('due_date') ?: date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm hover:shadow-md" required>
                             </div>
                         </div>
                     </div>

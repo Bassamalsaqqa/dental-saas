@@ -68,14 +68,7 @@ class Reports extends BaseController
 
     private function sanitizeDateInput(?string $value): ?string
     {
-        $value = trim((string) ($value ?? ''));
-        if ($value === '') {
-            return null;
-        }
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-            return null;
-        }
-        return $value;
+        return $this->normalizeDateOnly($value);
     }
 
     private function sanitizeCompareMode(?string $value): string

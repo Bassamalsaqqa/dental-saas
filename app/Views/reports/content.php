@@ -78,8 +78,8 @@
                 <div id="customDateControls" class="flex-[1.6] hidden">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Custom Range</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <input id="customFrom" type="date" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                        <input id="customTo" type="date" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                        <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                        <input id="customTo" type="text" data-clinic-date="1" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
                     </div>
                 </div>
                 <div class="lg:pt-6">
@@ -959,8 +959,10 @@ function generateReport() {
     const dateRange = document.getElementById('dateRange').value;
     const dateMode = document.getElementById('dateMode').value;
     const compareMode = document.getElementById('compareMode')?.value || 'none';
-    const customFrom = document.getElementById('customFrom')?.value || '';
-    const customTo = document.getElementById('customTo')?.value || '';
+    const customFromRaw = document.getElementById('customFrom')?.value || '';
+    const customToRaw = document.getElementById('customTo')?.value || '';
+    const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
+    const customTo = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customToRaw) || '') : customToRaw;
     
     const url = new URL(window.location);
     url.searchParams.set('report_type', reportType);
@@ -978,8 +980,10 @@ function exportReport(format) {
     const dateRange = document.getElementById('dateRange').value;
     const dateMode = document.getElementById('dateMode').value;
     const compareMode = document.getElementById('compareMode')?.value || 'none';
-    const customFrom = document.getElementById('customFrom')?.value || '';
-    const customTo = document.getElementById('customTo')?.value || '';
+    const customFromRaw = document.getElementById('customFrom')?.value || '';
+    const customToRaw = document.getElementById('customTo')?.value || '';
+    const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
+    const customTo = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customToRaw) || '') : customToRaw;
 
     const form = document.createElement('form');
     form.method = 'POST';
@@ -1045,8 +1049,14 @@ function getCurrentFilterState() {
         date_range: document.getElementById('dateRange')?.value || '30',
         date_mode: document.getElementById('dateMode')?.value || 'relative',
         compare_mode: document.getElementById('compareMode')?.value || 'none',
-        custom_from: document.getElementById('customFrom')?.value || '',
-        custom_to: document.getElementById('customTo')?.value || '',
+        custom_from: (() => {
+            const raw = document.getElementById('customFrom')?.value || '';
+            return window.parseClinicDateToIso ? (window.parseClinicDateToIso(raw) || '') : raw;
+        })(),
+        custom_to: (() => {
+            const raw = document.getElementById('customTo')?.value || '';
+            return window.parseClinicDateToIso ? (window.parseClinicDateToIso(raw) || '') : raw;
+        })(),
     };
 }
 

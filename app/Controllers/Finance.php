@@ -125,7 +125,7 @@ class Finance extends BaseController
                 if (!in_array($providerPaymentMethod, ['cash', 'card', 'bank_transfer', 'check', 'other'], true)) {
                     $providerPaymentMethod = 'cash';
                 }
-                $providerPaidDate = (string) ($this->request->getPost('provider_paid_date') ?: date('Y-m-d'));
+                $providerPaidDate = (string) ($this->normalizePostedDateOnly('provider_paid_date') ?: date('Y-m-d'));
                 $providerPaymentNotes = trim((string) $this->request->getPost('provider_paid_notes'));
             }
         }
@@ -331,8 +331,8 @@ class Finance extends BaseController
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
         $transactionType = $this->request->getPost('transaction_type');
-        $dueDate = $this->request->getPost('due_date');
-        $paidDate = $this->request->getPost('paid_date');
+        $dueDate = $this->normalizePostedDateOnly('due_date');
+        $paidDate = $this->normalizePostedDateOnly('paid_date');
         $today = date('Y-m-d');
 
         $amountPaid = 0;
@@ -620,8 +620,8 @@ class Finance extends BaseController
 
         $amountPaid = floatval($finance['amount_paid'] ?? 0);
         $paymentStatus = (string) ($finance['payment_status'] ?? 'pending');
-        $dueDate = $this->request->getPost('due_date');
-        $paidDate = $this->request->getPost('paid_date');
+        $dueDate = $this->normalizePostedDateOnly('due_date');
+        $paidDate = $this->normalizePostedDateOnly('paid_date');
         if ($currentType !== 'invoice') {
             $amountPaid = $totalAmount;
             $paymentStatus = 'paid';
@@ -986,7 +986,7 @@ class Finance extends BaseController
 
             $amount = floatval($this->request->getPost('amount') ?? 0);
             $method = (string) ($this->request->getPost('payment_method') ?? 'cash');
-            $paidDate = (string) ($this->request->getPost('paid_date') ?? date('Y-m-d'));
+            $paidDate = (string) ($this->normalizePostedDateOnly('paid_date') ?: date('Y-m-d'));
             $notes = trim((string) ($this->request->getPost('notes') ?? ''));
 
             if ($amount <= 0) {

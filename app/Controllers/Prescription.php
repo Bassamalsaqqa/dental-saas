@@ -241,8 +241,8 @@ class Prescription extends BaseController
             'frequency' => '', // Not used in new structure
             'duration' => '', // Not used in new structure
             'instructions' => $this->request->getPost('instructions') ?: '',
-            'prescribed_date' => $this->request->getPost('prescribed_date'),
-            'expiry_date' => $this->request->getPost('expiry_date') ?: null,
+            'prescribed_date' => $this->normalizePostedDateOnly('prescribed_date'),
+            'expiry_date' => $this->normalizePostedDateOnly('expiry_date'),
             'status' => 'active',
             'created_by' => $currentUserId,
         ];
@@ -397,8 +397,8 @@ class Prescription extends BaseController
             'frequency' => '', // Not used in new structure
             'duration' => '', // Not used in new structure
             'instructions' => $this->request->getPost('instructions'),
-            'prescribed_date' => $this->request->getPost('prescribed_date'),
-            'expiry_date' => $this->request->getPost('expiry_date'),
+            'prescribed_date' => $this->normalizePostedDateOnly('prescribed_date'),
+            'expiry_date' => $this->normalizePostedDateOnly('expiry_date'),
             'status' => $this->request->getPost('status'),
         ];
 

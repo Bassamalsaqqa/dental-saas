@@ -675,6 +675,120 @@
         });
     </script>
 
+    <script>
+        (function () {
+            const clinicDateFormat = '<?= esc(settings()->get('date_format', 'd/m/Y')) ?>';
+
+            function clinicDateFormatLabel(format) {
+                return String(format || 'd/m/Y').replace('Y', 'YYYY').replace('m', 'MM').replace('d', 'DD');
+            }
+
+            function formatClinicDateFromIso(isoDate) {
+                if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return isoDate || '';
+                const [year, month, day] = isoDate.split('-');
+                if (clinicDateFormat === 'm/d/Y') return `${month}/${day}/${year}`;
+                if (clinicDateFormat === 'd/m/Y') return `${day}/${month}/${year}`;
+                return isoDate;
+            }
+
+            function parseClinicDateToIso(rawValue) {
+                if (!rawValue) return '';
+                const value = String(rawValue).trim();
+                if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+                const isValidCalendarDate = (year, month, day) => {
+                    const y = Number(year), m = Number(month), d = Number(day);
+                    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return false;
+                    const probe = new Date(Date.UTC(y, m - 1, d));
+                    return probe.getUTCFullYear() === y && (probe.getUTCMonth() + 1) === m && probe.getUTCDate() === d;
+                };
+
+                const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                if (!match) return null;
+
+                let day = match[1], month = match[2], year = match[3];
+                if (clinicDateFormat === 'm/d/Y') {
+                    [month, day] = [match[1], match[2]];
+                }
+                month = String(month).padStart(2, '0');
+                day = String(day).padStart(2, '0');
+                if (!isValidCalendarDate(year, month, day)) return null;
+                return `${year}-${month}-${day}`;
+            }
+
+            function initializeClinicDateInputs() {
+                const fields = document.querySelectorAll('input[data-clinic-date="1"]');
+                if (!fields.length) return;
+                const formatHint = clinicDateFormatLabel(clinicDateFormat);
+
+                fields.forEach((field) => {
+                    const current = (field.value || '').trim();
+                    if (current && /^\d{4}-\d{2}-\d{2}$/.test(current)) {
+                        field.value = formatClinicDateFromIso(current);
+                    }
+
+                    field.type = 'text';
+                    field.setAttribute('placeholder', formatHint);
+                    field.setAttribute('autocomplete', 'off');
+                    field.inputMode = 'numeric';
+                    field.setAttribute('title', `${formatHint} (type manually or press Alt+Down for picker)`);
+
+                    const switchToPickerMode = () => {
+                        const raw = (field.value || '').trim();
+                        const iso = parseClinicDateToIso(raw);
+                        field.type = 'date';
+                        if (iso) field.value = iso;
+                        if (raw === '') field.value = '';
+                        if (typeof field.showPicker === 'function') {
+                            try { field.showPicker(); } catch (e) {}
+                        }
+                    };
+
+                    const switchToDisplayMode = () => {
+                        if (field.type !== 'date') return;
+                        const iso = (field.value || '').trim();
+                        field.type = 'text';
+                        field.value = iso ? formatClinicDateFromIso(iso) : '';
+                    };
+
+                    field.addEventListener('click', () => { if (field.type !== 'date') switchToPickerMode(); });
+                    field.addEventListener('dblclick', () => { if (field.type !== 'date') switchToPickerMode(); });
+                    field.addEventListener('keydown', (event) => {
+                        if (event.altKey && event.key === 'ArrowDown') {
+                            event.preventDefault();
+                            switchToPickerMode();
+                        }
+                    });
+                    field.addEventListener('blur', switchToDisplayMode);
+                });
+
+                document.querySelectorAll('form').forEach((form) => {
+                    form.addEventListener('submit', function (event) {
+                        for (const input of form.querySelectorAll('input[data-clinic-date="1"]')) {
+                            const raw = (input.value || '').trim();
+                            if (raw === '') {
+                                input.setCustomValidity('');
+                                continue;
+                            }
+                            const iso = parseClinicDateToIso(raw);
+                            if (!iso) {
+                                input.setCustomValidity(`Use date format ${formatHint}`);
+                                input.reportValidity();
+                                event.preventDefault();
+                                return;
+                            }
+                            input.setCustomValidity('');
+                            input.value = iso;
+                        }
+                    }, true);
+                });
+            }
+
+            window.parseClinicDateToIso = window.parseClinicDateToIso || parseClinicDateToIso;
+            document.addEventListener('DOMContentLoaded', initializeClinicDateInputs);
+        })();
+    </script>
+
     <?php if (isset($loadSelect2) && $loadSelect2): ?>
     <script src="<?= base_url('assets/js/select2-init.js') ?>?v=<?= time() ?>"></script>
     <?php endif; ?>

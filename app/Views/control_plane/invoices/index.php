@@ -175,11 +175,11 @@
                         </label>
                         <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-1 rounded-xl shadow-inner focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all">
                             <div class="relative flex-1">
-                                <input type="date" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
+                                <input type="text" data-clinic-date="1" name="from" value="<?= esc($filters['from'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
                             </div>
                             <span class="text-gray-300 font-bold text-xs uppercase">to</span>
                             <div class="relative flex-1">
-                                <input type="date" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
+                                <input type="text" data-clinic-date="1" name="to" value="<?= esc($filters['to'] ?? '') ?>" class="w-full px-3 py-1.5 bg-transparent border-none text-sm focus:ring-0">
                             </div>
                         </div>
                     </div>
