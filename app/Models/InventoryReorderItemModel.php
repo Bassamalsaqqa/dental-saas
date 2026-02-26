@@ -21,6 +21,9 @@ class InventoryReorderItemModel extends TenantAwareModel
         'notes',
         'created_by',
         'ordered_at',
+        'supplier_contacted_at',
+        'supplier_contact_method',
+        'supplier_contacted_by',
     ];
 
     protected $validationRules = [
@@ -29,13 +32,15 @@ class InventoryReorderItemModel extends TenantAwareModel
         'requested_qty' => 'required|integer|greater_than[0]',
         'status' => 'required|in_list[draft,ordered,received,cancelled]',
         'notes' => 'permit_empty|max_length[255]',
+        'supplier_contact_method' => 'permit_empty|in_list[phone,email,whatsapp,other]',
     ];
 
     public function getOpenByClinic(int $clinicId): array
     {
-        return $this->select('inventory_reorder_items.*, inventory.item_name, inventory.category, inventory.quantity as current_qty, inventory.min_quantity, inventory.unit, suppliers.name as supplier_name, suppliers.phone as supplier_phone, suppliers.email as supplier_email, suppliers.whatsapp as supplier_whatsapp, suppliers.contact_person as supplier_contact')
+        return $this->select('inventory_reorder_items.*, inventory.item_name, inventory.category, inventory.quantity as current_qty, inventory.min_quantity, inventory.unit, suppliers.name as supplier_name, suppliers.phone as supplier_phone, suppliers.email as supplier_email, suppliers.whatsapp as supplier_whatsapp, suppliers.contact_person as supplier_contact, isl.supplier_sku as preferred_supplier_sku, isl.pack_size_label as preferred_pack_size_label')
             ->join('inventory', 'inventory.id = inventory_reorder_items.inventory_id AND inventory.clinic_id = inventory_reorder_items.clinic_id', 'left')
             ->join('suppliers', 'suppliers.id = inventory_reorder_items.supplier_id AND suppliers.clinic_id = inventory_reorder_items.clinic_id', 'left')
+            ->join('inventory_supplier_links isl', 'isl.clinic_id = inventory_reorder_items.clinic_id AND isl.inventory_id = inventory_reorder_items.inventory_id AND isl.supplier_id = inventory_reorder_items.supplier_id', 'left')
             ->where('inventory_reorder_items.clinic_id', $clinicId)
             ->whereIn('inventory_reorder_items.status', ['draft', 'ordered'])
             ->orderBy('inventory_reorder_items.status', 'ASC')

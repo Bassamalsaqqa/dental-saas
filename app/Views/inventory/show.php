@@ -432,6 +432,62 @@
             </div>
         </div>
 
+        <!-- Batch / Lot Foundation -->
+        <div class="mb-6">
+            <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-cyan-500/10 border border-white/30 p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-tags text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900">Batches / Lots (Foundation)</h3>
+                            <p class="text-xs text-gray-500">Optional receive-time lot and expiry capture for FEFO-ready inventory controls</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-cyan-100 text-cyan-800"><?= count($batches ?? []) ?> batch(es)</span>
+                </div>
+                <?php if (!empty($batches)): ?>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="text-left text-xs font-semibold text-slate-600 uppercase border-b border-slate-200">
+                                    <th class="px-3 py-2">Lot</th>
+                                    <th class="px-3 py-2">Expiry</th>
+                                    <th class="px-3 py-2">Received</th>
+                                    <th class="px-3 py-2">Remaining</th>
+                                    <th class="px-3 py-2">Cost</th>
+                                    <th class="px-3 py-2">Created</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php foreach (($batches ?? []) as $batch): ?>
+                                    <tr class="hover:bg-slate-50/80">
+                                        <td class="px-3 py-2 text-sm text-slate-800"><?= esc((string) ($batch['lot_number'] ?? '—')) ?></td>
+                                        <td class="px-3 py-2 text-sm text-slate-700"><?= !empty($batch['expiry_date']) ? esc(formatDate((string) $batch['expiry_date'])) : 'No expiry' ?></td>
+                                        <td class="px-3 py-2 text-sm text-slate-700"><?= (int) ($batch['received_qty'] ?? 0) ?></td>
+                                        <td class="px-3 py-2 text-sm font-semibold text-slate-900"><?= (int) ($batch['remaining_qty'] ?? 0) ?></td>
+                                        <td class="px-3 py-2 text-sm text-slate-700">
+                                            <?php if ($batch['unit_cost'] !== null): ?>
+                                                <?= esc((string) ($batch['currency'] ?? 'ILS')) ?> <?= number_format((float) $batch['unit_cost'], 2) ?>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="px-3 py-2 text-xs text-slate-500"><?= !empty($batch['created_at']) ? esc(formatDateTime((string) $batch['created_at'])) : '-' ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-600">
+                        No batches recorded yet. Use “Receive Stock” and optionally enter lot number / expiry to start tracking batches.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Compact Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
@@ -501,6 +557,8 @@ function receiveStock(id) {
     }
 
     const reason = prompt('Reference / note for this stock receipt (optional):') || 'Stock received';
+    const lotNumber = prompt('Lot/Batch number (optional):') || '';
+    const batchExpiryDate = prompt('Batch expiry date (optional, YYYY-MM-DD or clinic format):') || '';
 
     fetch(`<?= base_url('inventory') ?>/${id}/receive`, {
         method: 'POST',
@@ -512,7 +570,10 @@ function receiveStock(id) {
         body: JSON.stringify({
             quantity: parseInt(quantity, 10),
             unit_cost: unitCost ?? '',
-            reason: reason
+            reason: reason,
+            lot_number: lotNumber,
+            batch_expiry_date: batchExpiryDate,
+            batch_currency: 'ILS'
         })
     })
     .then(response => response.json())

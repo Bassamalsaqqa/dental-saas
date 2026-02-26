@@ -235,6 +235,10 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 bg-emerald-50 text-emerald-800 text-sm font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-all duration-200">
+                            <i class="fas fa-arrows-rotate mr-2"></i>
+                            Movements
+                        </a>
                         <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200">
                             <i class="fas fa-cart-shopping mr-2"></i>
                             Reorder List

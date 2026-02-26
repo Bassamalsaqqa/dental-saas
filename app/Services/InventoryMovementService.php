@@ -24,7 +24,8 @@ class InventoryMovementService
         ?string $referenceType = null,
         ?int $referenceId = null,
         ?string $notes = null,
-        ?int $createdBy = null
+        ?int $createdBy = null,
+        ?int $batchId = null
     ): int {
         $unitCost = $unitCost !== null ? round($unitCost, 2) : null;
         $totalCost = $unitCost !== null ? round(abs($quantityChange) * $unitCost, 2) : null;
@@ -32,6 +33,7 @@ class InventoryMovementService
         $payload = [
             'clinic_id' => $clinicId,
             'inventory_id' => $inventoryId,
+            'batch_id' => $batchId,
             'movement_type' => $movementType,
             'quantity_change' => $quantityChange,
             'quantity_before' => $quantityBefore,
@@ -51,4 +53,3 @@ class InventoryMovementService
         return (int) $this->movementModel->getInsertID();
     }
 }
-

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\InventoryModel;
 use App\Models\InventoryItemTemplateModel;
+use App\Models\InventoryBatchModel;
 use App\Models\InventoryReorderItemModel;
 use App\Models\InventorySupplierLinkModel;
 use App\Models\InventoryStockMovementModel;
@@ -21,6 +22,7 @@ class Inventory extends BaseController
     protected $supplierModel;
     protected $supplierLinkModel;
     protected $reorderItemModel;
+    protected $batchModel;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class Inventory extends BaseController
         $this->supplierModel = new SupplierModel();
         $this->supplierLinkModel = new InventorySupplierLinkModel();
         $this->reorderItemModel = new InventoryReorderItemModel();
+        $this->batchModel = new InventoryBatchModel();
     }
 
     public function index()
@@ -329,6 +332,7 @@ class Inventory extends BaseController
             'supplier_links' => $this->supplierLinkModel->getByInventory((int) $clinicId, (int) $id),
             'supplier_directory' => $this->supplierModel->getActiveOptionsByClinic((int) $clinicId),
             'reorder_items' => $this->reorderItemModel->where('clinic_id', (int) $clinicId)->where('inventory_id', (int) $id)->orderBy('created_at', 'DESC')->findAll(),
+            'batches' => $this->batchModel->getByInventory((int) $clinicId, (int) $id, 50),
             'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
         ];
 
@@ -838,6 +842,32 @@ class Inventory extends BaseController
         ]);
     }
 
+    public function markReorderSupplierContacted($id)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $row = $this->reorderItemModel->where('clinic_id', $clinicId)->find((int) $id);
+        if (!$row) {
+            return redirect()->back()->with('error', 'Reorder item not found.');
+        }
+
+        $method = strtolower(trim((string) $this->request->getPost('method')));
+        if (!in_array($method, ['phone', 'email', 'whatsapp', 'other'], true)) {
+            $method = 'other';
+        }
+
+        $this->reorderItemModel->update((int) $id, [
+            'supplier_contacted_at' => date('Y-m-d H:i:s'),
+            'supplier_contact_method' => $method,
+            'supplier_contacted_by' => (int) (session()->get('user_id') ?? 0) ?: null,
+        ]);
+
+        return redirect()->back()->with('success', 'Supplier contact logged.');
+    }
+
     public function addToReorder()
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
@@ -953,6 +983,40 @@ class Inventory extends BaseController
         return redirect()->back()->with('success', 'Reorder line removed.');
     }
 
+    public function movements()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $filters = [
+            'movement_type' => trim((string) $this->request->getGet('movement_type')),
+            'inventory_id' => (int) ($this->request->getGet('inventory_id') ?? 0),
+            'date_from' => $this->normalizeDateOnly((string) $this->request->getGet('date_from')),
+            'date_to' => $this->normalizeDateOnly((string) $this->request->getGet('date_to')),
+            'q' => trim((string) $this->request->getGet('q')),
+            'limit' => (int) ($this->request->getGet('limit') ?? 100),
+        ];
+
+        $movements = (new InventoryStockMovementModel())->getLedgerByClinic($clinicId, $filters);
+
+        return $this->view('inventory/movements', [
+            'title' => 'Inventory Movement Ledger',
+            'movements' => $movements,
+            'filters' => $filters,
+            'inventory_options' => $this->inventoryModel->where('clinic_id', $clinicId)->orderBy('item_name', 'ASC')->findAll(),
+            'movement_types' => [
+                '' => 'All Types',
+                'initial_stock' => 'Initial Stock',
+                'receive_stock' => 'Receive Stock',
+                'manual_adjust_in' => 'Manual Adjust In',
+                'manual_adjust_out' => 'Manual Adjust Out',
+                'usage_consume' => 'Usage Consume',
+            ],
+        ]);
+    }
+
     public function receiveStock($id)
     {
         $this->response->setContentType('application/json');
@@ -970,12 +1034,18 @@ class Inventory extends BaseController
         $quantity = (int) ($input['quantity'] ?? 0);
         $unitCost = isset($input['unit_cost']) && $input['unit_cost'] !== '' ? (float) $input['unit_cost'] : (float) ($item['unit_price'] ?? 0);
         $reason = trim((string) ($input['reason'] ?? 'Stock received'));
+        $lotNumber = trim((string) ($input['lot_number'] ?? ''));
+        $batchExpiry = $this->normalizeDateOnly((string) ($input['batch_expiry_date'] ?? ''));
+        $batchCurrency = $this->sanitizeSupplierLinkCurrency((string) ($input['batch_currency'] ?? 'ILS'));
 
         if ($quantity <= 0) {
             return $this->response->setJSON(['success' => false, 'message' => 'Quantity must be greater than 0']);
         }
         if ($unitCost < 0) {
             return $this->response->setJSON(['success' => false, 'message' => 'Unit cost cannot be negative']);
+        }
+        if (($input['batch_expiry_date'] ?? '') !== '' && !$batchExpiry) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid batch expiry date']);
         }
 
         $beforeQty = (int) ($item['quantity'] ?? 0);
@@ -996,7 +1066,7 @@ class Inventory extends BaseController
             "Stock received for '{$item['item_name']}' - Qty: {$quantity}, Unit Cost: " . settings()->getCurrencySymbol() . number_format($unitCost, 2) . ($reason !== '' ? ", Ref: {$reason}" : '')
         );
 
-        $this->recordStockMovementSafe(
+        $movementId = $this->recordStockMovementSafe(
             $clinicId,
             (int) $id,
             'receive_stock',
@@ -1009,11 +1079,36 @@ class Inventory extends BaseController
             $reason,
             (int) (session()->get('user_id') ?? 0)
         );
+        $movementId = (int) ($movementId ?? 0);
+
+        $batchId = null;
+        if ($lotNumber !== '' || $batchExpiry) {
+            $batchPayload = [
+                'clinic_id' => $clinicId,
+                'inventory_id' => (int) $id,
+                'lot_number' => $lotNumber !== '' ? $lotNumber : null,
+                'expiry_date' => $batchExpiry ?: null,
+                'received_qty' => $quantity,
+                'remaining_qty' => $quantity,
+                'unit_cost' => $unitCost,
+                'currency' => $batchCurrency,
+                'source_movement_id' => $movementId ?: null,
+                'notes' => $reason !== '' ? $reason : null,
+                'created_by' => (int) (session()->get('user_id') ?? 0) ?: null,
+            ];
+            if ($this->batchModel->insert($batchPayload)) {
+                $batchId = (int) $this->batchModel->getInsertID();
+                if ($movementId > 0) {
+                    (new InventoryStockMovementModel())->update($movementId, ['batch_id' => $batchId]);
+                }
+            }
+        }
 
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Stock received successfully',
             'new_quantity' => $afterQty,
+            'batch_id' => $batchId,
         ]);
     }
 
@@ -1649,21 +1744,21 @@ class Inventory extends BaseController
         
             // Column mapping for ordering
             $columns = [
-                'id',
-                'item_name',
-                'category',
-                'quantity',
-                'min_quantity',
-                'unit_price',
-                'supplier',
-                'expiry_date'
+                'inventory.id',
+                'inventory.item_name',
+                'inventory.category',
+                'inventory.quantity',
+                'inventory.min_quantity',
+                'inventory.unit_price',
+                'supplier_display_name',
+                'inventory.expiry_date'
             ];
             
             $orderColumnName = $columns[$orderColumn] ?? 'id';
             
             // Get total records count for low stock items (scoped)
             // Use model builder to avoid raw query
-            $totalRecords = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->countAllResults();
+            $totalRecords = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->countAllResults();
             
             // If no low stock items exist, return empty result
             if ($totalRecords == 0) {
@@ -1676,7 +1771,12 @@ class Inventory extends BaseController
             }
             
             // Build query for low stock items
-            $builder = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity');
+            $builder = $this->inventoryModel->builder();
+            $builder->select('inventory.*, COALESCE(ps.name, inventory.supplier) as supplier_display_name, isl.supplier_sku as preferred_supplier_sku, isl.pack_size_label as preferred_pack_size_label, ps.phone as supplier_phone, ps.email as supplier_email, ps.whatsapp as supplier_whatsapp')
+                ->join('inventory_supplier_links isl', 'isl.clinic_id = inventory.clinic_id AND isl.inventory_id = inventory.id AND isl.is_preferred = 1', 'left')
+                ->join('suppliers ps', 'ps.id = isl.supplier_id AND ps.clinic_id = inventory.clinic_id', 'left')
+                ->where('inventory.clinic_id', $clinicId)
+                ->where('inventory.quantity <= inventory.min_quantity', null, false);
             
             // Apply search filter
             if (!empty($searchValue)) {
@@ -1684,6 +1784,8 @@ class Inventory extends BaseController
                     ->like('item_name', $searchValue)
                     ->orLike('category', $searchValue)
                     ->orLike('supplier', $searchValue)
+                    ->orLike('ps.name', $searchValue)
+                    ->orLike('isl.supplier_sku', $searchValue)
                     ->groupEnd();
             }
             
@@ -1693,13 +1795,46 @@ class Inventory extends BaseController
             // Get data with ordering and pagination
             $items = $builder->orderBy($orderColumnName, $orderDir)
                 ->limit($length, $start)
-                ->findAll();
+                ->get()
+                ->getResultArray();
             
             // Format data for DataTables (array format)
             $data = [];
             foreach ($items as $item) {
                 $stockLevel = $this->getStockLevel($item['quantity'], $item['min_quantity']);
                 
+                $supplierParts = [];
+                $supplierName = (string) ($item['supplier_display_name'] ?? '');
+                if ($supplierName !== '') {
+                    $supplierParts[] = '<div class="font-medium text-slate-900">' . esc($supplierName) . '</div>';
+                } else {
+                    $supplierParts[] = '<div class="text-slate-500">N/A</div>';
+                }
+                $meta = [];
+                if (!empty($item['preferred_supplier_sku'])) {
+                    $meta[] = 'SKU: ' . esc((string) $item['preferred_supplier_sku']);
+                }
+                if (!empty($item['preferred_pack_size_label'])) {
+                    $meta[] = 'Pack: ' . esc((string) $item['preferred_pack_size_label']);
+                }
+                if (!empty($meta)) {
+                    $supplierParts[] = '<div class="text-xs text-slate-500">' . implode(' • ', $meta) . '</div>';
+                }
+                $contactButtons = [];
+                if (!empty($item['supplier_phone'])) {
+                    $contactButtons[] = '<a href="tel:' . esc((string) $item['supplier_phone']) . '" class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Call</a>';
+                }
+                if (!empty($item['supplier_email'])) {
+                    $contactButtons[] = '<a href="mailto:' . esc((string) $item['supplier_email']) . '" class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Email</a>';
+                }
+                if (!empty($item['supplier_whatsapp'])) {
+                    $wa = preg_replace('/\D+/', '', (string) $item['supplier_whatsapp']);
+                    $contactButtons[] = '<a href="https://wa.me/' . esc($wa) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[11px]">WhatsApp</a>';
+                }
+                if (!empty($contactButtons)) {
+                    $supplierParts[] = '<div class="flex flex-wrap gap-1 mt-1">' . implode('', $contactButtons) . '</div>';
+                }
+
                 $data[] = [
                     intval($item['id'] ?? 0), // ID (hidden)
                     $item['item_name'] ?? '', // Item Name
@@ -1707,7 +1842,7 @@ class Inventory extends BaseController
                     '<span class="' . $stockLevel['class'] . '">' . $item['quantity'] . '</span>', // Current Stock
                     $item['min_quantity'] ?? 0, // Minimum Required
                     '$' . number_format($item['unit_price'] ?? 0, 2), // Unit Price
-                    $item['supplier'] ?? '', // Supplier
+                    implode('', $supplierParts), // Supplier
                     $item['expiry_date'] ? date('M j, Y', strtotime($item['expiry_date'])) : 'N/A', // Expiry Date
                     $this->getLowStockActionButtons($item['id']) // Actions
                 ];
@@ -1949,10 +2084,11 @@ class Inventory extends BaseController
         ?string $referenceType = null,
         ?int $referenceId = null,
         ?string $notes = null,
-        ?int $createdBy = null
-    ): void {
+        ?int $createdBy = null,
+        ?int $batchId = null
+    ): ?int {
         try {
-            (new InventoryMovementService())->record(
+            return (new InventoryMovementService())->record(
                 $clinicId,
                 $inventoryId,
                 $movementType,
@@ -1963,10 +2099,12 @@ class Inventory extends BaseController
                 $referenceType,
                 $referenceId,
                 $notes,
-                $createdBy
+                $createdBy,
+                $batchId
             );
         } catch (\Throwable $e) {
             log_message('error', 'Inventory movement logging failed: ' . $e->getMessage());
+            return null;
         }
     }
 }

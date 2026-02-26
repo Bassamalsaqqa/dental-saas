@@ -256,6 +256,10 @@
                             Reorder List
                             <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
                         </a>
+                        <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-arrows-rotate mr-2 text-emerald-600"></i>
+                            Movements
+                        </a>
                         <a href="<?= base_url('inventory/usage-history') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-history mr-2"></i>
                             Usage History

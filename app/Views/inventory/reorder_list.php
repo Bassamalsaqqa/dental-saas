@@ -15,6 +15,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
+                    <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-50 text-emerald-800 text-sm font-semibold border border-emerald-200 hover:bg-emerald-100">
+                        <i class="fas fa-arrows-rotate mr-2"></i>Movements
+                    </a>
                     <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700">
                         <i class="fas fa-exclamation-triangle mr-2"></i>Low Stock
                     </a>
@@ -103,6 +106,10 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm">
                                         <div class="font-medium text-slate-900"><?= esc((string) ($row['supplier_name'] ?? 'Unassigned')) ?></div>
+                                        <div class="text-xs text-slate-500 mt-0.5">
+                                            <?php if (!empty($row['preferred_supplier_sku'])): ?>SKU: <?= esc((string) $row['preferred_supplier_sku']) ?><?php endif; ?>
+                                            <?php if (!empty($row['preferred_pack_size_label'])): ?><?= !empty($row['preferred_supplier_sku']) ? ' • ' : '' ?>Pack: <?= esc((string) $row['preferred_pack_size_label']) ?><?php endif; ?>
+                                        </div>
                                         <div class="flex flex-wrap gap-2 mt-1">
                                             <?php if (!empty($row['supplier_phone'])): ?>
                                                 <a href="tel:<?= esc((string) $row['supplier_phone']) ?>" class="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs hover:bg-slate-200"><i class="fas fa-phone mr-1"></i>Call</a>
@@ -141,6 +148,26 @@
                                                     <i class="fas fa-trash mr-1"></i>Remove Line
                                                 </button>
                                             </form>
+                                            <div class="rounded-md border border-slate-200 bg-slate-50 p-2">
+                                                <div class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide mb-1">Supplier Contact</div>
+                                                <?php if (!empty($row['supplier_contacted_at'])): ?>
+                                                    <div class="text-xs text-emerald-700 font-semibold">
+                                                        Logged via <?= esc(ucfirst((string) ($row['supplier_contact_method'] ?? 'other'))) ?>
+                                                    </div>
+                                                    <div class="text-[11px] text-slate-500"><?= esc(formatDateTime($row['supplier_contacted_at'])) ?></div>
+                                                <?php else: ?>
+                                                    <div class="text-xs text-slate-500 mb-2">No contact logged yet</div>
+                                                <?php endif; ?>
+                                                <div class="grid grid-cols-2 gap-1">
+                                                    <?php foreach (['phone' => 'Phone', 'email' => 'Email', 'whatsapp' => 'WA', 'other' => 'Other'] as $methodKey => $label): ?>
+                                                        <form method="post" action="<?= base_url('inventory/reorder-list/' . (int) $row['id'] . '/contacted') ?>">
+                                                            <?= csrf_field() ?>
+                                                            <input type="hidden" name="method" value="<?= esc($methodKey) ?>">
+                                                            <button type="submit" class="w-full px-2 py-1 rounded bg-white border border-slate-200 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"><?= esc($label) ?></button>
+                                                        </form>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
