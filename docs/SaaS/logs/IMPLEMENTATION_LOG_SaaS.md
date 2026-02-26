@@ -1419,3 +1419,24 @@
     - **Navigation / Routes:** Registered tenant and control-plane routes and added a Control Plane sidebar link for WhatsApp Ops.
     - **Validation:** Ran PHP lint for touched controllers/models/views, `php spark routes` route registration checks, and sandbox-safe guardrail regex scans (no DOM sinks / no raw controller DB queries).
 - **Verification:** `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`.
+
+### Task: WHATSAPP-CHECKPOINT-01 Test Hardening + Pause/Resume Snapshot
+- **Date:** 2026-02-26
+- **Status:** Completed
+- **Description:** Hardened automated test coverage for the WhatsApp implementation (webhook, client classification, dispatcher failure safety) and recorded a checkpoint snapshot to support pausing WhatsApp work and resuming later with minimal context loss.
+- **Actions:**
+    - **Webhook Tests:** Added endpoint and side-effect coverage for challenge/signature enforcement, duplicate journaling idempotency, status callback promotions/failure propagation, STOP opt-out creation, and duplicate STOP handling.
+    - **Client Tests:** Added `WhatsAppClient` classification tests covering success response parsing, retryable `131056` with minimum 60s backoff, terminal `131026`, and 5xx retryability; added fail-closed template-name validation test.
+    - **Dispatcher Tests:** Added `DispatchService` tests covering stale `processing` lock reclaim and exception-safe notification finalization/lock cleanup during driver failures.
+    - **Test Infra:** Added missing `tests` DB group to `app/Config/Database.php` (required by CIUnitTestCase in `ENVIRONMENT=testing`); added `composer.lock` and ignored `/build/` PHPUnit artifacts.
+    - **Checkpoint Snapshot:** Recorded implementation status, verification commands/results, recent commit stack, and exact resume checklist in `docs/SaaS/verification/WHATSAPP-CHECKPOINT-2026-02-26.md`.
+- **Verification:**
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php` -> `OK (24 tests, 121 assertions)`
+- **Commits:**
+    - `6149fd8` `test(whatsapp): cover webhook signature and idempotency`
+    - `599ded1` `test(whatsapp): cover webhook status promotion mapping`
+    - `eb0dbb4` `test(whatsapp): add webhook endpoint coverage`
+    - `65f035d` `chore(test): add composer lockfile and ignore build artifacts`
+    - `c1fe2ca` `test(whatsapp): verify webhook stop and status callbacks`
+    - `13455cb` `test(whatsapp): cover failed and duplicate stop webhooks`
+    - `316a788` `test(whatsapp): cover client and dispatcher failures`
