@@ -1440,3 +1440,32 @@
     - `c1fe2ca` `test(whatsapp): verify webhook stop and status callbacks`
     - `13455cb` `test(whatsapp): cover failed and duplicate stop webhooks`
     - `316a788` `test(whatsapp): cover client and dispatcher failures`
+
+### Task: FIN-INV-01 Tenant Expenses + Inventory Finance Integration + Inventory Ops Refinement
+- **Date:** 2026-02-26
+- **Status:** Completed
+- **Description:** Expanded tenant finance to support expenses (`Add Expense` alongside `Add Income`), hardened finance API tenant ownership checks, integrated inventory usage with optional auto-posted COGS expenses, and significantly refined inventory operations with suppliers, starter templates, stock movement auditing, reorder workflows, supplier-item mappings, and batch/lot tracking foundations.
+- **Actions:**
+    - **Finance Expenses:** Added tenant expense support to `finances` (`transaction_type=expense`) with nullable `patient_id`, expense metadata (`expense_category`, `counterparty_name`), tenant expense create/store/edit paths, and expense-aware finance index/show/report/export representation.
+    - **Finance API Hardening:** Patched `App\Controllers\Api\Finance` to validate `patient_id` / `examination_id` ownership against the active tenant clinic to prevent cross-tenant foreign reference leakage.
+    - **Inventory -> Finance COGS:** Added `FinanceLedgerService` and source-linking fields (`source_entity_type`, `source_entity_id`) so inventory usage can auto-post tenant finance `expense` rows (`inventory_cogs`) idempotently.
+    - **COGS Toggle:** Added tenant setting `finance_auto_post_inventory_cogs` and UI toggle in `/settings` plus inventory usage banner status to reduce accidental double-entry and clarify posting behavior.
+    - **Usage/Finance Traceability:** Added finance links in inventory usage history/details to the generated Finance COGS entry.
+    - **Suppliers + Movement Workflow:** Added tenant `suppliers` directory, supplier quick-create from inventory forms, stock movement ledger schema/service, and a dedicated `Receive Stock` flow (instead of quantity edits only).
+    - **Starter Templates:** Added `inventory_item_templates` with seeded starter dental items and tenant import UI `/inventory/templates`.
+    - **Supplier-Item Mappings + Reorder:** Added `inventory_supplier_links`, preferred supplier procurement metadata (SKU/pack/reorder qty/last price/currency), `/inventory/reorder-list` workflow, low-stock/item quick-add to reorder, and supplier contact shortcuts.
+    - **Reorder Contact Tracking:** Added reorder-line supplier contact audit fields (`supplier_contacted_at`, `supplier_contact_method`, `supplier_contacted_by`) and contact logging actions.
+    - **Global Movement Ledger + Batches:** Added `/inventory/movements` cross-item audit page with filters and `inventory_batches` foundation plus optional lot/expiry capture during receive-stock.
+    - **Validation & Evidence:** Ran PHP lint across touched files, route checks, Tailwind rebuilds, migrations (`batch 47-52`), Docker/MySQL schema verification, and SQL dump regeneration after schema changes.
+- **Verification:** `docs/SaaS/verification/INVENTORY-REFINEMENT-CHECKPOINT-2026-02-26.md`.
+- **Commits (selected):**
+    - `9e237fe` `feat(finance): add tenant expenses and harden tenant references`
+    - `ee15540` `fix(finance): improve expense visuals and currency reporting`
+    - `636174c` `feat(finance): auto-post inventory usage cogs expenses`
+    - `4f53196` `feat(finance): add inventory cogs auto-post toggle`
+    - `04b3fe2` `fix(finance): improve inventory cogs toggle UX`
+    - `e7e9d93` `feat(inventory): link usage records to finance cogs entries`
+    - `c6f05f1` `feat(inventory): add suppliers and stock movement workflow`
+    - `535e66b` `feat(inventory): add starter templates and movement ledger UI`
+    - `3394e73` `feat(inventory): add supplier-item mappings and reorder workflow`
+    - `92e5ee4` `feat(inventory): add movement ledger and batch tracking foundation`
