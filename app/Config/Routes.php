@@ -428,6 +428,7 @@ $routes->group('reports', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->get('/', 'Reports::index', ['filter' => 'permission:reports:view']);
     $routes->get('chart-data', 'Reports::getChartData', ['filter' => 'permission:reports:view']);
     $routes->get('export', 'Reports::export', ['filter' => 'permission:reports:export']);
+    $routes->post('export', 'Reports::export', ['filter' => 'permission:reports:export']);
 });
 
 // Inventory routes

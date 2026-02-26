@@ -11,6 +11,10 @@ use App\Models\TreatmentModel;
 
 class Reports extends BaseController
 {
+    private const ALLOWED_REPORT_TYPES = ['overview', 'patients', 'examinations', 'appointments', 'finance', 'treatments'];
+    private const ALLOWED_DATE_RANGES = ['7', '30', '90', '365'];
+    private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
+
     protected $patientModel;
     protected $examinationModel;
     protected $appointmentModel;
@@ -30,6 +34,63 @@ class Reports extends BaseController
         $this->storageService = new \App\Services\StorageService();
     }
 
+    private function requireTenantClinicId()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        return !empty($clinicId) ? (int) $clinicId : null;
+    }
+
+    private function sanitizeReportType(?string $value): string
+    {
+        $value = (string) ($value ?? 'overview');
+        return in_array($value, self::ALLOWED_REPORT_TYPES, true) ? $value : 'overview';
+    }
+
+    private function sanitizeDateRange(?string $value): string
+    {
+        $value = (string) ($value ?? '30');
+        return in_array($value, self::ALLOWED_DATE_RANGES, true) ? $value : '30';
+    }
+
+    private function sanitizeExportFormat(?string $value): string
+    {
+        $value = strtolower((string) ($value ?? 'csv'));
+        return in_array($value, self::ALLOWED_EXPORT_FORMATS, true) ? $value : 'csv';
+    }
+
+    private function getReportWindow(string $dateRange): array
+    {
+        $days = (int) $dateRange;
+        $end = date('Y-m-d');
+        $start = date('Y-m-d', strtotime("-{$days} days"));
+        return [$start, $end];
+    }
+
+    private function html(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    }
+
+    private function csvCell($value): string
+    {
+        $text = (string) ($value ?? '');
+        // Prevent spreadsheet formula injection when exported CSV is opened in Excel/Sheets.
+        if ($text !== '' && preg_match('/^[=\-+@]/', $text) === 1) {
+            $text = "'" . $text;
+        }
+        return $text;
+    }
+
+    private function csvLine(array $cells): string
+    {
+        $fp = fopen('php://temp', 'r+');
+        fputcsv($fp, array_map(fn($cell) => $this->csvCell($cell), $cells));
+        rewind($fp);
+        $line = stream_get_contents($fp) ?: '';
+        fclose($fp);
+        return $line;
+    }
+
     public function index()
     {
         try {
@@ -38,23 +99,23 @@ class Reports extends BaseController
                 return redirect()->to('/auth/login');
             }
 
-            $clinicId = session()->get('active_clinic_id');
+            $clinicId = $this->requireTenantClinicId();
             if (!$clinicId) {
                 return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view reports.');
             }
 
+            $dateRange = $this->sanitizeDateRange($this->request->getGet('date_range'));
+            $reportType = $this->sanitizeReportType($this->request->getGet('report_type'));
             $data = [
                 'title' => 'Reports & Analytics',
-                'date_range' => $this->request->getGet('date_range') ?? '30',
-                'report_type' => $this->request->getGet('report_type') ?? 'overview',
+                'date_range' => $dateRange,
+                'report_type' => $reportType,
             ];
 
-            // Get date range
-            $endDate = date('Y-m-d');
-            $startDate = date('Y-m-d', strtotime("-{$data['date_range']} days"));
+            [$startDate, $endDate] = $this->getReportWindow($dateRange);
 
             // Generate reports based on type
-            switch ($data['report_type']) {
+            switch ($reportType) {
                 case 'patients':
                     $data['reports'] = $this->getPatientReports($startDate, $endDate);
                     break;
@@ -102,16 +163,14 @@ class Reports extends BaseController
     public function getChartData()
     {
         try {
-            $clinicId = session()->get('active_clinic_id');
+            $clinicId = $this->requireTenantClinicId();
             if (!$clinicId) {
                 return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
             }
 
-            $reportType = $this->request->getGet('report_type') ?? 'overview';
-            $dateRange = $this->request->getGet('date_range') ?? '30';
-            
-            $endDate = date('Y-m-d');
-            $startDate = date('Y-m-d', strtotime("-{$dateRange} days"));
+            $reportType = $this->sanitizeReportType($this->request->getGet('report_type'));
+            $dateRange = $this->sanitizeDateRange($this->request->getGet('date_range'));
+            [$startDate, $endDate] = $this->getReportWindow($dateRange);
             
             $data = [];
             
@@ -145,15 +204,21 @@ class Reports extends BaseController
     public function export()
     {
         try {
-            $format = $this->request->getGet('format') ?? 'pdf';
-            $reportType = $this->request->getGet('type') ?? 'overview';
-            $dateRange = $this->request->getGet('date_range') ?? '30';
+            if (strtoupper($this->request->getMethod()) !== 'POST') {
+                return $this->response->setStatusCode(405)->setJSON([
+                    'error' => 'EXPORT_REQUIRES_POST',
+                ]);
+            }
 
-            // Log the request for debugging
-            log_message('info', 'Export request: format=' . $format . ', type=' . $reportType . ', date_range=' . $dateRange);
+            $clinicId = $this->requireTenantClinicId();
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
 
-            $endDate = date('Y-m-d');
-            $startDate = date('Y-m-d', strtotime("-{$dateRange} days"));
+            $format = $this->sanitizeExportFormat($this->request->getPost('format'));
+            $reportType = $this->sanitizeReportType($this->request->getPost('type'));
+            $dateRange = $this->sanitizeDateRange($this->request->getPost('date_range'));
+            [$startDate, $endDate] = $this->getReportWindow($dateRange);
 
             $data = [
                 'title' => 'Export Report',
@@ -219,17 +284,9 @@ class Reports extends BaseController
             return $this->getBasicReports();
         }
 
-        // Debug: Log the date range being used
-        log_message('info', "Reports: Generating overview reports for date range: {$startDate} to {$endDate}");
-        
-        $monthlyRevenueData = $this->getMonthlyRevenueData();
-        $examinationTypesData = $this->getExaminationTypesData();
-        $appointmentStatusData = $this->getAppointmentStatusData();
-        
-        // Debug: Log the chart data
-        log_message('info', 'Reports: Monthly revenue data: ' . json_encode($monthlyRevenueData));
-        log_message('info', 'Reports: Examination types data: ' . json_encode($examinationTypesData));
-        log_message('info', 'Reports: Appointment status data: ' . json_encode($appointmentStatusData));
+        $monthlyRevenueData = $this->getMonthlyRevenueData($startDate, $endDate);
+        $examinationTypesData = $this->getExaminationTypesData($startDate, $endDate);
+        $appointmentStatusData = $this->getAppointmentStatusData($startDate, $endDate);
         
         $totalRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId);
         $periodRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
@@ -237,16 +294,16 @@ class Reports extends BaseController
         return [
             'summary' => [
                 'total_patients' => $this->patientModel->where('clinic_id', $clinicId)->countAllResults(),
-                'new_patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->countAllResults(),
+                'new_patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate . ' 00:00:00')->where('created_at <=', $endDate . ' 23:59:59')->countAllResults(),
                 'total_examinations' => $this->examinationModel->where('clinic_id', $clinicId)->countAllResults(),
-                'examinations_this_period' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->countAllResults(),
+                'examinations_this_period' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->where('examination_date <=', $endDate)->countAllResults(),
                 'total_appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->countAllResults(),
-                'appointments_this_period' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->countAllResults(),
+                'appointments_this_period' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->where('appointment_date <=', $endDate)->countAllResults(),
                 'total_revenue' => $totalRevenueStats['total_revenue'] ?? 0,
                 'revenue_this_period' => $periodRevenueStats['total_revenue'] ?? 0,
             ],
             'charts' => [
-                'monthly_patients' => $this->getMonthlyPatientsData(),
+                'monthly_patients' => $this->getMonthlyPatientsData($startDate, $endDate),
                 'monthly_revenue' => $monthlyRevenueData,
                 'examination_types' => $examinationTypesData,
                 'appointment_status' => $appointmentStatusData,
@@ -267,9 +324,9 @@ class Reports extends BaseController
         }
 
         return [
-            'patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->findAll(),
+            'patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate . ' 00:00:00')->where('created_at <=', $endDate . ' 23:59:59')->findAll(),
             'age_groups' => $this->getAgeGroupData(),
-            'gender_distribution' => $this->getGenderDistributionData(),
+            'gender_distribution' => $this->getGenderDistributionData($startDate, $endDate),
             'new_vs_returning' => $this->getNewVsReturningData($startDate, $endDate),
         ];
     }
@@ -287,9 +344,9 @@ class Reports extends BaseController
         }
 
         return [
-            'examinations' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->findAll(),
-            'examination_types' => $this->getExaminationTypesData(),
-            'monthly_examinations' => $this->getMonthlyExaminationsData(),
+            'examinations' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->where('examination_date <=', $endDate)->findAll(),
+            'examination_types' => $this->getExaminationTypesData($startDate, $endDate),
+            'monthly_examinations' => $this->getMonthlyExaminationsData($startDate, $endDate),
             'tooth_conditions' => $this->getToothConditionsData(),
         ];
     }
@@ -307,10 +364,10 @@ class Reports extends BaseController
         }
 
         return [
-            'appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->findAll(),
-            'appointment_types' => $this->getAppointmentTypesData(),
-            'monthly_appointments' => $this->getMonthlyAppointmentsData(),
-            'status_distribution' => $this->getAppointmentStatusData(),
+            'appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->where('appointment_date <=', $endDate)->findAll(),
+            'appointment_types' => $this->getAppointmentTypesData($startDate, $endDate),
+            'monthly_appointments' => $this->getMonthlyAppointmentsData($startDate, $endDate),
+            'status_distribution' => $this->getAppointmentStatusData($startDate, $endDate),
         ];
     }
 
@@ -347,6 +404,10 @@ class Reports extends BaseController
             'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
             'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
             'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
+            'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $endDate),
+            'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $endDate, 100),
+            'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
+            'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
             'summary' => [
                 'gross_collections' => $grossCollections,
                 'provider_share_accrual' => $providerShareAccrual,
@@ -374,15 +435,34 @@ class Reports extends BaseController
         }
 
         return [
-            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('start_date >=', $startDate)->findAll(),
-            'treatment_types' => $this->getTreatmentTypesData(),
-            'monthly_treatments' => $this->getMonthlyTreatmentsData(),
-            'status_distribution' => $this->getTreatmentStatusData(),
+            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('start_date >=', $startDate)->where('start_date <=', $endDate)->findAll(),
+            'treatment_types' => $this->getTreatmentTypesData($startDate, $endDate),
+            'monthly_treatments' => $this->getMonthlyTreatmentsData($startDate, $endDate),
+            'status_distribution' => $this->getTreatmentStatusData($startDate, $endDate),
         ];
     }
 
     // Helper methods for data generation
-    private function getMonthlyPatientsData()
+    private function getMonthlyBuckets(?string $startDate = null, ?string $endDate = null): array
+    {
+        if (!$startDate || !$endDate) {
+            $startDate = date('Y-m-01', strtotime('-11 months'));
+            $endDate = date('Y-m-d');
+        }
+
+        $cursor = date('Y-m-01', strtotime($startDate));
+        $endCursor = date('Y-m-01', strtotime($endDate));
+        $months = [];
+
+        while (strtotime($cursor) <= strtotime($endCursor)) {
+            $months[] = $cursor;
+            $cursor = date('Y-m-01', strtotime($cursor . ' +1 month'));
+        }
+
+        return $months;
+    }
+
+    private function getMonthlyPatientsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -390,11 +470,12 @@ class Reports extends BaseController
         }
 
         $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = date('Y-m-01', strtotime("-{$i} months"));
+        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
+            $monthStart = date('Y-m-01 00:00:00', strtotime($date));
+            $monthEnd = date('Y-m-t 23:59:59', strtotime($date));
             $count = $this->patientModel->where('clinic_id', $clinicId)
-                                      ->where('MONTH(created_at)', date('n', strtotime($date)))
-                                      ->where('YEAR(created_at)', date('Y', strtotime($date)))
+                                      ->where('created_at >=', $monthStart)
+                                      ->where('created_at <=', $monthEnd)
                                       ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
@@ -436,21 +517,31 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getExaminationTypesData()
+    private function getExaminationTypesData(?string $startDate = null, ?string $endDate = null)
     {
-        $types = $this->examinationModel->select('examination_type, COUNT(*) as count')
-                                       ->where('clinic_id', session()->get('active_clinic_id'))
-                                       ->groupBy('examination_type')
-                                       ->findAll();
+        $query = $this->examinationModel->select('examination_type, COUNT(*) as count')
+                                       ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('examination_date >=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('examination_date <=', $endDate);
+        }
+        $types = $query->groupBy('examination_type')->findAll();
         return $types;
     }
 
-    private function getAppointmentStatusData()
+    private function getAppointmentStatusData(?string $startDate = null, ?string $endDate = null)
     {
-        $statuses = $this->appointmentModel->select('status, COUNT(*) as count')
-                                          ->where('clinic_id', session()->get('active_clinic_id'))
-                                          ->groupBy('status')
-                                          ->findAll();
+        $query = $this->appointmentModel->select('status, COUNT(*) as count')
+                                          ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('appointment_date >=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('appointment_date <=', $endDate);
+        }
+        $statuses = $query->groupBy('status')->findAll();
         return $statuses;
     }
 
@@ -502,12 +593,17 @@ class Reports extends BaseController
         }
     }
 
-    private function getGenderDistributionData()
+    private function getGenderDistributionData(?string $startDate = null, ?string $endDate = null)
     {
-        return $this->patientModel->select('gender, COUNT(*) as count')
-                                 ->where('clinic_id', session()->get('active_clinic_id'))
-                                 ->groupBy('gender')
-                                 ->findAll();
+        $query = $this->patientModel->select('gender, COUNT(*) as count')
+                                 ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('created_at >=', $startDate . ' 00:00:00');
+        }
+        if ($endDate) {
+            $query->where('created_at <=', $endDate . ' 23:59:59');
+        }
+        return $query->groupBy('gender')->findAll();
     }
 
     private function getNewVsReturningData($startDate, $endDate)
@@ -517,7 +613,10 @@ class Reports extends BaseController
             return ['new' => 0, 'returning' => 0];
         }
 
-        $new = $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate)->countAllResults();
+        $new = $this->patientModel->where('clinic_id', $clinicId)
+            ->where('created_at >=', $startDate . ' 00:00:00')
+            ->where('created_at <=', $endDate . ' 23:59:59')
+            ->countAllResults();
         $returning = $this->patientModel->where('clinic_id', $clinicId)->where('created_at <', $startDate)->countAllResults();
         
         return [
@@ -526,7 +625,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getMonthlyExaminationsData()
+    private function getMonthlyExaminationsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -534,11 +633,12 @@ class Reports extends BaseController
         }
 
         $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = date('Y-m-01', strtotime("-{$i} months"));
+        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
+            $monthStart = date('Y-m-01', strtotime($date));
+            $monthEnd = date('Y-m-t', strtotime($date));
             $count = $this->examinationModel->where('clinic_id', $clinicId)
-                                           ->where('MONTH(examination_date)', date('n', strtotime($date)))
-                                           ->where('YEAR(examination_date)', date('Y', strtotime($date)))
+                                           ->where('examination_date >=', $monthStart)
+                                           ->where('examination_date <=', $monthEnd)
                                            ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
@@ -554,15 +654,20 @@ class Reports extends BaseController
         return [];
     }
 
-    private function getAppointmentTypesData()
+    private function getAppointmentTypesData(?string $startDate = null, ?string $endDate = null)
     {
-        return $this->appointmentModel->select('appointment_type, COUNT(*) as count')
-                                     ->where('clinic_id', session()->get('active_clinic_id'))
-                                     ->groupBy('appointment_type')
-                                     ->findAll();
+        $query = $this->appointmentModel->select('appointment_type, COUNT(*) as count')
+                                     ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('appointment_date >=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('appointment_date <=', $endDate);
+        }
+        return $query->groupBy('appointment_type')->findAll();
     }
 
-    private function getMonthlyAppointmentsData()
+    private function getMonthlyAppointmentsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -570,11 +675,12 @@ class Reports extends BaseController
         }
 
         $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = date('Y-m-01', strtotime("-{$i} months"));
+        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
+            $monthStart = date('Y-m-01', strtotime($date));
+            $monthEnd = date('Y-m-t', strtotime($date));
             $count = $this->appointmentModel->where('clinic_id', $clinicId)
-                                           ->where('MONTH(appointment_date)', date('n', strtotime($date)))
-                                           ->where('YEAR(appointment_date)', date('Y', strtotime($date)))
+                                           ->where('appointment_date >=', $monthStart)
+                                           ->where('appointment_date <=', $monthEnd)
                                            ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
@@ -622,15 +728,20 @@ class Reports extends BaseController
         return $query->findAll();
     }
 
-    private function getTreatmentTypesData()
+    private function getTreatmentTypesData(?string $startDate = null, ?string $endDate = null)
     {
-        return $this->treatmentModel->select('treatment_type, COUNT(*) as count')
-                                   ->where('clinic_id', session()->get('active_clinic_id'))
-                                   ->groupBy('treatment_type')
-                                   ->findAll();
+        $query = $this->treatmentModel->select('treatment_type, COUNT(*) as count')
+                                   ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('start_date >=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date <=', $endDate);
+        }
+        return $query->groupBy('treatment_type')->findAll();
     }
 
-    private function getMonthlyTreatmentsData()
+    private function getMonthlyTreatmentsData(?string $startDate = null, ?string $endDate = null)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -638,11 +749,12 @@ class Reports extends BaseController
         }
 
         $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = date('Y-m-01', strtotime("-{$i} months"));
+        foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
+            $monthStart = date('Y-m-01', strtotime($date));
+            $monthEnd = date('Y-m-t', strtotime($date));
             $count = $this->treatmentModel->where('clinic_id', $clinicId)
-                                         ->where('MONTH(start_date)', date('n', strtotime($date)))
-                                         ->where('YEAR(start_date)', date('Y', strtotime($date)))
+                                         ->where('start_date >=', $monthStart)
+                                         ->where('start_date <=', $monthEnd)
                                          ->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
@@ -652,18 +764,23 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getTreatmentStatusData()
+    private function getTreatmentStatusData(?string $startDate = null, ?string $endDate = null)
     {
-        return $this->treatmentModel->select('status, COUNT(*) as count')
-                                   ->where('clinic_id', session()->get('active_clinic_id'))
-                                   ->groupBy('status')
-                                   ->findAll();
+        $query = $this->treatmentModel->select('status, COUNT(*) as count')
+                                   ->where('clinic_id', session()->get('active_clinic_id'));
+        if ($startDate) {
+            $query->where('start_date >=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date <=', $endDate);
+        }
+        return $query->groupBy('status')->findAll();
     }
 
     private function generatePDF($data)
     {
         $clinicId = session()->get('active_clinic_id');
-        // Generate HTML content for PDF
+        // Placeholder: stores HTML until a real PDF renderer is integrated.
         $html = $this->generateReportHTML($data);
         
         // Persist artifact
@@ -675,7 +792,7 @@ class Reports extends BaseController
             $clinicId, 
             'report', 
             0, 
-            'report_pdf'
+            'report_html'
         );
         
         return $attachment;
@@ -684,7 +801,7 @@ class Reports extends BaseController
     private function generateExcel($data)
     {
         $clinicId = session()->get('active_clinic_id');
-        // Generate CSV content (Excel can open CSV files)
+        // CSV-compatible export (Excel-readable) until XLSX support is added.
         $csv = $this->generateReportCSV($data);
         
         // Persist artifact
@@ -728,7 +845,7 @@ class Reports extends BaseController
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Dental Practice Report - ' . date('Y-m-d') . '</title>
+    <title>Dental Practice Report - ' . $this->html(date('Y-m-d')) . '</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
@@ -746,9 +863,9 @@ class Reports extends BaseController
 <body>
     <div class="header">
         <h1>Dental Practice Report</h1>
-        <p>Generated on: ' . date('Y-m-d H:i:s') . '</p>
-        <p>Report Type: ' . ucfirst($data['report_type']) . '</p>
-        <p>Date Range: ' . $data['start_date'] . ' to ' . $data['end_date'] . '</p>
+        <p>Generated on: ' . $this->html(date('Y-m-d H:i:s')) . '</p>
+        <p>Report Type: ' . $this->html(ucfirst((string) ($data['report_type'] ?? 'overview'))) . '</p>
+        <p>Date Range: ' . $this->html((string) ($data['start_date'] ?? '')) . ' to ' . $this->html((string) ($data['end_date'] ?? '')) . '</p>
     </div>';
 
         if (isset($data['reports']['summary'])) {
@@ -757,10 +874,11 @@ class Reports extends BaseController
                 <div class="summary">';
             
             foreach ($data['reports']['summary'] as $key => $value) {
-                $label = ucwords(str_replace('_', ' ', $key));
+                $label = ucwords(str_replace('_', ' ', (string) $key));
+                $displayValue = is_numeric($value) ? number_format((float) $value, 2) : (string) $value;
                 $html .= '<div class="summary-item">
-                    <h3>' . $label . '</h3>
-                    <p>' . number_format($value) . '</p>
+                    <h3>' . $this->html($label) . '</h3>
+                    <p>' . $this->html($displayValue) . '</p>
                 </div>';
             }
             
@@ -785,11 +903,11 @@ class Reports extends BaseController
             
             foreach ($data['reports']['patients'] as $patient) {
                 $html .= '<tr>
-                    <td>' . ($patient['id'] ?? '') . '</td>
-                    <td>' . ($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '') . '</td>
-                    <td>' . ($patient['phone'] ?? '') . '</td>
-                    <td>' . ($patient['email'] ?? '') . '</td>
-                    <td>' . ($patient['created_at'] ?? '') . '</td>
+                    <td>' . $this->html((string) ($patient['id'] ?? '')) . '</td>
+                    <td>' . $this->html(trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')))) . '</td>
+                    <td>' . $this->html((string) ($patient['phone'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($patient['email'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($patient['created_at'] ?? '')) . '</td>
                 </tr>';
             }
             
@@ -813,11 +931,11 @@ class Reports extends BaseController
             
             foreach ($data['reports']['examinations'] as $exam) {
                 $html .= '<tr>
-                    <td>' . ($exam['id'] ?? '') . '</td>
-                    <td>' . ($exam['patient_id'] ?? '') . '</td>
-                    <td>' . ($exam['examination_type'] ?? '') . '</td>
-                    <td>' . ($exam['examination_date'] ?? '') . '</td>
-                    <td>' . ($exam['notes'] ?? '') . '</td>
+                    <td>' . $this->html((string) ($exam['id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($exam['patient_id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($exam['examination_type'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($exam['examination_date'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($exam['notes'] ?? '')) . '</td>
                 </tr>';
             }
             
@@ -842,12 +960,12 @@ class Reports extends BaseController
             
             foreach ($data['reports']['appointments'] as $appointment) {
                 $html .= '<tr>
-                    <td>' . ($appointment['id'] ?? '') . '</td>
-                    <td>' . ($appointment['patient_id'] ?? '') . '</td>
-                    <td>' . ($appointment['appointment_date'] ?? '') . '</td>
-                    <td>' . ($appointment['appointment_type'] ?? '') . '</td>
-                    <td>' . ($appointment['status'] ?? '') . '</td>
-                    <td>' . ($appointment['notes'] ?? '') . '</td>
+                    <td>' . $this->html((string) ($appointment['id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($appointment['patient_id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($appointment['appointment_date'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($appointment['appointment_type'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($appointment['status'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($appointment['notes'] ?? '')) . '</td>
                 </tr>';
             }
             
@@ -873,13 +991,13 @@ class Reports extends BaseController
             
             foreach ($data['reports']['transactions'] as $transaction) {
                 $html .= '<tr>
-                    <td>' . ($transaction['id'] ?? '') . '</td>
-                    <td>' . ($transaction['patient_id'] ?? '') . '</td>
-                    <td>' . ($transaction['transaction_type'] ?? '') . '</td>
-                    <td>' . number_format($transaction['total_amount'] ?? 0, 2) . '</td>
-                    <td>' . ($transaction['payment_method'] ?? '') . '</td>
-                    <td>' . ($transaction['payment_status'] ?? '') . '</td>
-                    <td>' . ($transaction['created_at'] ?? '') . '</td>
+                    <td>' . $this->html((string) ($transaction['id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($transaction['patient_id'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($transaction['transaction_type'] ?? '')) . '</td>
+                    <td>' . $this->html(number_format((float) ($transaction['total_amount'] ?? 0), 2)) . '</td>
+                    <td>' . $this->html((string) ($transaction['payment_method'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($transaction['payment_status'] ?? '')) . '</td>
+                    <td>' . $this->html((string) ($transaction['created_at'] ?? '')) . '</td>
                 </tr>';
             }
             
@@ -893,76 +1011,132 @@ class Reports extends BaseController
 
     private function generateReportCSV($data)
     {
-        $csv = "Dental Practice Report\n";
-        $csv .= "Generated on: " . date('Y-m-d H:i:s') . "\n";
-        $csv .= "Report Type: " . ucfirst($data['report_type']) . "\n";
-        $csv .= "Date Range: " . $data['start_date'] . " to " . $data['end_date'] . "\n\n";
+        $csv = '';
+        $csv .= $this->csvLine(['Dental Practice Report']);
+        $csv .= $this->csvLine(['Generated on', date('Y-m-d H:i:s')]);
+        $csv .= $this->csvLine(['Report Type', ucfirst((string) ($data['report_type'] ?? 'overview'))]);
+        $csv .= $this->csvLine(['Date Range', (string) ($data['start_date'] ?? ''), (string) ($data['end_date'] ?? '')]);
+        $csv .= "\n";
 
         if (isset($data['reports']['summary'])) {
-            $csv .= "SUMMARY\n";
-            $csv .= "Metric,Value\n";
+            $csv .= $this->csvLine(['SUMMARY']);
+            $csv .= $this->csvLine(['Metric', 'Value']);
             
             foreach ($data['reports']['summary'] as $key => $value) {
                 $label = ucwords(str_replace('_', ' ', $key));
-                $csv .= '"' . $label . '",' . number_format($value) . "\n";
+                $csv .= $this->csvLine([$label, is_numeric($value) ? number_format((float) $value, 2, '.', '') : (string) $value]);
             }
             $csv .= "\n";
         }
 
         // Add detailed data based on report type
         if (isset($data['reports']['patients']) && is_array($data['reports']['patients'])) {
-            $csv .= "PATIENTS\n";
-            $csv .= "ID,First Name,Last Name,Phone,Email,Created Date\n";
+            $csv .= $this->csvLine(['PATIENTS']);
+            $csv .= $this->csvLine(['ID', 'First Name', 'Last Name', 'Phone', 'Email', 'Created Date']);
             
             foreach ($data['reports']['patients'] as $patient) {
-                $csv .= '"' . ($patient['id'] ?? '') . '",';
-                $csv .= '"' . ($patient['first_name'] ?? '') . '",';
-                $csv .= '"' . ($patient['last_name'] ?? '') . '",';
-                $csv .= '"' . ($patient['phone'] ?? '') . '",';
-                $csv .= '"' . ($patient['email'] ?? '') . '",';
-                $csv .= '"' . ($patient['created_at'] ?? '') . '"' . "\n";
+                $csv .= $this->csvLine([
+                    $patient['id'] ?? '',
+                    $patient['first_name'] ?? '',
+                    $patient['last_name'] ?? '',
+                    $patient['phone'] ?? '',
+                    $patient['email'] ?? '',
+                    $patient['created_at'] ?? '',
+                ]);
             }
         }
 
         if (isset($data['reports']['examinations']) && is_array($data['reports']['examinations'])) {
-            $csv .= "\nEXAMINATIONS\n";
-            $csv .= "ID,Patient ID,Examination Type,Examination Date,Notes\n";
+            $csv .= "\n" . $this->csvLine(['EXAMINATIONS']);
+            $csv .= $this->csvLine(['ID', 'Patient ID', 'Examination Type', 'Examination Date', 'Notes']);
             
             foreach ($data['reports']['examinations'] as $exam) {
-                $csv .= '"' . ($exam['id'] ?? '') . '",';
-                $csv .= '"' . ($exam['patient_id'] ?? '') . '",';
-                $csv .= '"' . ($exam['examination_type'] ?? '') . '",';
-                $csv .= '"' . ($exam['examination_date'] ?? '') . '",';
-                $csv .= '"' . ($exam['notes'] ?? '') . '"' . "\n";
+                $csv .= $this->csvLine([
+                    $exam['id'] ?? '',
+                    $exam['patient_id'] ?? '',
+                    $exam['examination_type'] ?? '',
+                    $exam['examination_date'] ?? '',
+                    $exam['notes'] ?? '',
+                ]);
             }
         }
 
         if (isset($data['reports']['appointments']) && is_array($data['reports']['appointments'])) {
-            $csv .= "\nAPPOINTMENTS\n";
-            $csv .= "ID,Patient ID,Appointment Date,Appointment Type,Status,Notes\n";
+            $csv .= "\n" . $this->csvLine(['APPOINTMENTS']);
+            $csv .= $this->csvLine(['ID', 'Patient ID', 'Appointment Date', 'Appointment Type', 'Status', 'Notes']);
             
             foreach ($data['reports']['appointments'] as $appointment) {
-                $csv .= '"' . ($appointment['id'] ?? '') . '",';
-                $csv .= '"' . ($appointment['patient_id'] ?? '') . '",';
-                $csv .= '"' . ($appointment['appointment_date'] ?? '') . '",';
-                $csv .= '"' . ($appointment['appointment_type'] ?? '') . '",';
-                $csv .= '"' . ($appointment['status'] ?? '') . '",';
-                $csv .= '"' . ($appointment['notes'] ?? '') . '"' . "\n";
+                $csv .= $this->csvLine([
+                    $appointment['id'] ?? '',
+                    $appointment['patient_id'] ?? '',
+                    $appointment['appointment_date'] ?? '',
+                    $appointment['appointment_type'] ?? '',
+                    $appointment['status'] ?? '',
+                    $appointment['notes'] ?? '',
+                ]);
             }
         }
 
         if (isset($data['reports']['transactions']) && is_array($data['reports']['transactions'])) {
-            $csv .= "\nFINANCIAL TRANSACTIONS\n";
-            $csv .= "ID,Patient ID,Transaction Type,Amount,Payment Method,Payment Status,Date\n";
+            $csv .= "\n" . $this->csvLine(['FINANCIAL TRANSACTIONS']);
+            $csv .= $this->csvLine(['ID', 'Patient ID', 'Transaction Type', 'Amount', 'Payment Method', 'Payment Status', 'Date']);
             
             foreach ($data['reports']['transactions'] as $transaction) {
-                $csv .= '"' . ($transaction['id'] ?? '') . '",';
-                $csv .= '"' . ($transaction['patient_id'] ?? '') . '",';
-                $csv .= '"' . ($transaction['transaction_type'] ?? '') . '",';
-                $csv .= '"' . ($transaction['total_amount'] ?? '') . '",';
-                $csv .= '"' . ($transaction['payment_method'] ?? '') . '",';
-                $csv .= '"' . ($transaction['payment_status'] ?? '') . '",';
-                $csv .= '"' . ($transaction['created_at'] ?? '') . '"' . "\n";
+                $csv .= $this->csvLine([
+                    $transaction['id'] ?? '',
+                    $transaction['patient_id'] ?? '',
+                    $transaction['transaction_type'] ?? '',
+                    $transaction['total_amount'] ?? '',
+                    $transaction['payment_method'] ?? '',
+                    $transaction['payment_status'] ?? '',
+                    $transaction['created_at'] ?? '',
+                ]);
+            }
+        }
+
+        if (isset($data['reports']['ar_aging_summary']) && is_array($data['reports']['ar_aging_summary'])) {
+            $s = $data['reports']['ar_aging_summary'];
+            $csv .= "\n" . $this->csvLine(['AR AGING SUMMARY']);
+            $csv .= $this->csvLine(['Bucket', 'Amount']);
+            foreach ([
+                'current' => 'Current',
+                'days_1_30' => '1-30 Days',
+                'days_31_60' => '31-60 Days',
+                'days_61_90' => '61-90 Days',
+                'days_91_plus' => '91+ Days',
+                'total_balance_due' => 'Total',
+            ] as $key => $label) {
+                $csv .= $this->csvLine([$label, (float) ($s[$key] ?? 0)]);
+            }
+        }
+
+        if (isset($data['reports']['ar_aging_detail']) && is_array($data['reports']['ar_aging_detail'])) {
+            $csv .= "\n" . $this->csvLine(['AR AGING DETAIL']);
+            $csv .= $this->csvLine(['Invoice', 'Patient', 'Due Date', 'Days Past Due', 'Bucket', 'Balance Due']);
+            foreach ($data['reports']['ar_aging_detail'] as $row) {
+                $csv .= $this->csvLine([
+                    $row['transaction_id'] ?? ('#' . ($row['id'] ?? '')),
+                    trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))),
+                    $row['due_date'] ?? '',
+                    $row['days_past_due'] ?? 0,
+                    $row['aging_bucket'] ?? 'current',
+                    $row['balance_due'] ?? 0,
+                ]);
+            }
+        }
+
+        if (isset($data['reports']['provider_payout_breakdown']) && is_array($data['reports']['provider_payout_breakdown'])) {
+            $csv .= "\n" . $this->csvLine(['PROVIDER PAYOUT BREAKDOWN']);
+            $csv .= $this->csvLine(['Provider', 'Payout Count', 'Gross', 'Provider Share', 'Provider Paid', 'Provider Balance']);
+            foreach ($data['reports']['provider_payout_breakdown'] as $row) {
+                $csv .= $this->csvLine([
+                    $row['provider_label'] ?? 'Unknown',
+                    $row['payout_count'] ?? 0,
+                    $row['gross_amount_total'] ?? 0,
+                    $row['provider_share_total'] ?? 0,
+                    $row['provider_paid_total'] ?? 0,
+                    $row['provider_balance_total'] ?? 0,
+                ]);
             }
         }
 

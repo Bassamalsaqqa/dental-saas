@@ -162,4 +162,57 @@ class ProviderPayoutModel extends TenantAwareModel
             'rows' => $rows,
         ];
     }
+
+    public function getStatusSummaryByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null): array
+    {
+        $builder = $this->db->table('provider_payouts pp')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        if (!empty($startDate)) {
+            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+        }
+        if (!empty($endDate)) {
+            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        $rows = $builder
+            ->select('pp.status, COUNT(*) AS payout_count, SUM(pp.provider_share_amount) AS provider_share_total, SUM(pp.provider_balance_due) AS balance_due_total')
+            ->groupBy('pp.status')
+            ->get()
+            ->getResultArray();
+
+        return array_map(static function (array $row): array {
+            return [
+                'status' => (string) ($row['status'] ?? 'unknown'),
+                'payout_count' => (int) ($row['payout_count'] ?? 0),
+                'provider_share_total' => (float) ($row['provider_share_total'] ?? 0),
+                'balance_due_total' => (float) ($row['balance_due_total'] ?? 0),
+            ];
+        }, $rows);
+    }
+
+    public function getProviderBreakdownByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null, int $limit = 10): array
+    {
+        $limit = max(1, min($limit, 100));
+
+        $builder = $this->db->table('provider_payouts pp')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        if (!empty($startDate)) {
+            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+        }
+        if (!empty($endDate)) {
+            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        return $builder
+            ->select('COALESCE(NULLIF(pp.provider_name_snapshot, \'\'), CONCAT(\'User #\', COALESCE(pp.provider_user_id, 0))) AS provider_label, COUNT(*) AS payout_count, SUM(pp.gross_amount) AS gross_amount_total, SUM(pp.provider_share_amount) AS provider_share_total, SUM(pp.provider_paid_amount) AS provider_paid_total, SUM(pp.provider_balance_due) AS provider_balance_total', false)
+            ->groupBy('pp.provider_name_snapshot, pp.provider_user_id')
+            ->orderBy('provider_share_total', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+    }
 }

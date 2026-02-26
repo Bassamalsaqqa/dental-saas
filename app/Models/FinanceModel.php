@@ -584,10 +584,10 @@ class FinanceModel extends TenantAwareModel
             $standaloneBuilder->where('clinic_id', $clinicId);
         }
         if ($startDate) {
-            $standaloneBuilder->where('created_at >=', $startDate);
+            $standaloneBuilder->where('created_at >=', $startDate . ' 00:00:00');
         }
         if ($endDate) {
-            $standaloneBuilder->where('created_at <=', $endDate);
+            $standaloneBuilder->where('created_at <=', $endDate . ' 23:59:59');
         }
         $standalone = $standaloneBuilder->groupBy('payment_method')->get()->getResultArray();
 
@@ -627,6 +627,81 @@ class FinanceModel extends TenantAwareModel
         }
 
         return array_values($merged);
+    }
+
+    public function getAccountsReceivableAgingSummaryByClinic(int $clinicId, ?string $asOfDate = null): array
+    {
+        $asOfDate = $asOfDate ?: date('Y-m-d');
+        $rows = $this->getAccountsReceivableAgingDetailByClinic($clinicId, $asOfDate, 10000);
+
+        $summary = [
+            'current' => 0.0,
+            'days_1_30' => 0.0,
+            'days_31_60' => 0.0,
+            'days_61_90' => 0.0,
+            'days_91_plus' => 0.0,
+            'total_balance_due' => 0.0,
+            'invoice_count' => 0,
+            'as_of_date' => $asOfDate,
+        ];
+
+        foreach ($rows as $row) {
+            $balance = (float) ($row['balance_due'] ?? 0);
+            $bucket = (string) ($row['aging_bucket'] ?? 'current');
+            if (!isset($summary[$bucket])) {
+                $bucket = 'current';
+            }
+            $summary[$bucket] += $balance;
+            $summary['total_balance_due'] += $balance;
+            $summary['invoice_count']++;
+        }
+
+        return $summary;
+    }
+
+    public function getAccountsReceivableAgingDetailByClinic(int $clinicId, ?string $asOfDate = null, int $limit = 100): array
+    {
+        $asOfDate = $asOfDate ?: date('Y-m-d');
+        $limit = max(1, min($limit, 10000));
+
+        $rows = $this->db->table('finances')
+            ->select('finances.id, finances.patient_id, finances.transaction_id, finances.total_amount, finances.balance_due, finances.payment_status, finances.due_date, finances.created_at, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+            ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left')
+            ->where('finances.clinic_id', $clinicId)
+            ->where('finances.transaction_type', 'invoice')
+            ->where('finances.balance_due >', 0)
+            ->whereNotIn('finances.payment_status', ['cancelled'])
+            ->orderBy('finances.due_date', 'ASC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10);
+            $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
+            $row['days_past_due'] = max(0, $daysPastDue);
+            $row['aging_bucket'] = $this->mapAgingBucket($daysPastDue);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    private function mapAgingBucket(int $daysPastDue): string
+    {
+        if ($daysPastDue <= 0) {
+            return 'current';
+        }
+        if ($daysPastDue <= 30) {
+            return 'days_1_30';
+        }
+        if ($daysPastDue <= 60) {
+            return 'days_31_60';
+        }
+        if ($daysPastDue <= 90) {
+            return 'days_61_90';
+        }
+        return 'days_91_plus';
     }
 
     public function getMonthlyRevenue($year = null, $clinicId = null)

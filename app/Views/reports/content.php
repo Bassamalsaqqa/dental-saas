@@ -26,11 +26,11 @@
                     <div class="flex items-center space-x-3">
                         <button onclick="exportReport('pdf')" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-file-pdf mr-2"></i>
-                            Export PDF
+                            Export HTML
             </button>
                         <button onclick="exportReport('excel')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-file-excel mr-2"></i>
-                            Export Excel
+                            Export Excel (CSV)
             </button>
                     </div>
                 </div>
@@ -361,6 +361,17 @@
                         <!-- Finance Report -->
                         <div class="space-y-6">
                             <?php $summary = $reports['summary'] ?? []; ?>
+                            <div class="bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-100 rounded-lg p-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-blue-500 text-white flex items-center justify-center shrink-0">
+                                        <i class="fas fa-circle-info"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-800">Finance report basis</p>
+                                        <p class="text-sm text-slate-600">This report mixes cash collections and provider payout metrics. Cards are labeled as <span class="font-semibold">Cash</span> or <span class="font-semibold">Accrual</span> to avoid ambiguity.</p>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Financial Statistics -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
@@ -438,6 +449,142 @@
                                 </div>
                             </div>
                             <?php endif; ?>
+
+                            <?php if (!empty($reports['ar_aging_summary'])): ?>
+                            <?php $ar = $reports['ar_aging_summary']; ?>
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800">Accounts Receivable Aging</h4>
+                                        <p class="text-sm text-gray-500">Outstanding invoice balances bucketed by days past due (as of <?= esc($ar['as_of_date'] ?? date('Y-m-d')) ?>)</p>
+                                    </div>
+                                    <div class="text-sm font-semibold text-rose-700">Total: <?= formatCurrency($ar['total_balance_due'] ?? 0) ?></div>
+                                </div>
+                                <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+                                    <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-slate-500">Current</p>
+                                        <p class="text-lg font-bold text-slate-900"><?= formatCurrency($ar['current'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-amber-700">1-30</p>
+                                        <p class="text-lg font-bold text-amber-900"><?= formatCurrency($ar['days_1_30'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-orange-50 border border-orange-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-orange-700">31-60</p>
+                                        <p class="text-lg font-bold text-orange-900"><?= formatCurrency($ar['days_31_60'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-rose-50 border border-rose-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-rose-700">61-90</p>
+                                        <p class="text-lg font-bold text-rose-900"><?= formatCurrency($ar['days_61_90'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-red-50 border border-red-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-red-700">91+</p>
+                                        <p class="text-lg font-bold text-red-900"><?= formatCurrency($ar['days_91_plus'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-indigo-700">Invoices</p>
+                                        <p class="text-lg font-bold text-indigo-900"><?= (int) ($ar['invoice_count'] ?? 0) ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($reports['ar_aging_detail'])): ?>
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800">A/R Aging Detail</h4>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Top <?= count($reports['ar_aging_detail']) ?> open invoices</span>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-sm">
+                                        <thead>
+                                            <tr class="text-left text-gray-500 border-b">
+                                                <th class="py-2 pr-3">Invoice</th>
+                                                <th class="py-2 pr-3">Patient</th>
+                                                <th class="py-2 pr-3">Due Date</th>
+                                                <th class="py-2 pr-3">Days</th>
+                                                <th class="py-2 pr-3">Bucket</th>
+                                                <th class="py-2 pr-3 text-right">Balance Due</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <?php foreach ($reports['ar_aging_detail'] as $row): ?>
+                                            <tr>
+                                                <td class="py-2 pr-3 font-medium text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
+                                                <td class="py-2 pr-3 text-gray-700">
+                                                    <?= esc(trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))) ?>
+                                                    <?php if (!empty($row['patient_number'])): ?>
+                                                        <span class="text-xs text-gray-400">(<?= esc($row['patient_number']) ?>)</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="py-2 pr-3 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
+                                                <td class="py-2 pr-3 text-gray-700"><?= (int) ($row['days_past_due'] ?? 0) ?></td>
+                                                <td class="py-2 pr-3">
+                                                    <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc(strtoupper(str_replace('_', ' ', $row['aging_bucket'] ?? 'current'))) ?></span>
+                                                </td>
+                                                <td class="py-2 pr-3 text-right font-semibold text-rose-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <?php if (!empty($reports['provider_payout_status'])): ?>
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Provider Payout Status</h4>
+                                    <div class="space-y-3">
+                                        <?php foreach ($reports['provider_payout_status'] as $row): ?>
+                                        <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
+                                            <div>
+                                                <p class="font-semibold text-gray-800"><?= esc(ucfirst($row['status'] ?? 'unknown')) ?></p>
+                                                <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-bold text-blue-700"><?= formatCurrency($row['provider_share_total'] ?? 0) ?></p>
+                                                <p class="text-xs text-rose-600">Due: <?= formatCurrency($row['balance_due_total'] ?? 0) ?></p>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+
+                                <?php if (!empty($reports['provider_payout_breakdown'])): ?>
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Top Providers by Share</h4>
+                                    <div class="space-y-3">
+                                        <?php foreach ($reports['provider_payout_breakdown'] as $row): ?>
+                                        <?php
+                                            $share = (float) ($row['provider_share_total'] ?? 0);
+                                            $paid = (float) ($row['provider_paid_total'] ?? 0);
+                                            $pct = $share > 0 ? min(100, round(($paid / $share) * 100)) : 0;
+                                        ?>
+                                        <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? 'Unknown') ?></p>
+                                                    <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts • Gross <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="font-bold text-blue-700"><?= formatCurrency($share) ?></p>
+                                                    <p class="text-xs text-rose-600">Due <?= formatCurrency($row['provider_balance_total'] ?? 0) ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <div class="h-2 rounded-full bg-gray-200 overflow-hidden">
+                                                    <div class="h-full bg-gradient-to-r from-blue-500 to-emerald-500" style="width: <?= (int) $pct ?>%"></div>
+                                                </div>
+                                                <div class="mt-1 text-xs text-gray-500">Paid <?= formatCurrency($paid) ?> (<?= (int) $pct ?>%)</div>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         
                     <?php elseif ($report_type === 'treatments'): ?>
@@ -531,14 +678,31 @@ function generateReport() {
 function exportReport(format) {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
-    
-    // Construct the URL properly
-    const exportUrl = '<?= base_url("reports/export") ?>' + 
-        '?format=' + encodeURIComponent(format) + 
-        '&type=' + encodeURIComponent(reportType) + 
-        '&date_range=' + encodeURIComponent(dateRange);
-    
-    window.open(exportUrl, '_blank');
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '<?= base_url("reports/export") ?>';
+    form.target = '_blank';
+    form.style.display = 'none';
+
+    const fields = {
+        '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+        format: format,
+        type: reportType,
+        date_range: dateRange,
+    };
+
+    Object.entries(fields).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
 }
 
 // Revenue Chart
@@ -547,20 +711,11 @@ if (revenueCtx) {
     // Get real revenue data from PHP
     const revenueData = <?= json_encode($reports['charts']['monthly_revenue'] ?? []) ?>;
     
-    // Debug: Log the data to console
-    console.log('Revenue Chart Data:', revenueData);
-    
     // Extract labels and data
     const labels = revenueData.map(item => item.month || '');
     const data = revenueData.map(item => parseFloat(item.total_amount ?? item.amount) || 0);
-    
-    // Debug: Log processed data
-    console.log('Revenue Chart Labels:', labels);
-    console.log('Revenue Chart Data:', data);
-    
-    // Check if we have valid data
+
     if (labels.length === 0 || data.every(val => val === 0)) {
-        console.log('No revenue data available, showing empty chart');
         labels.length = 0;
         data.length = 0;
     }
@@ -606,20 +761,11 @@ if (examinationCtx) {
     // Get real examination data from PHP
     const examinationData = <?= json_encode($reports['charts']['examination_types'] ?? []) ?>;
     
-    // Debug: Log the data to console
-    console.log('Examination Chart Data:', examinationData);
-    
     // Extract labels and data
     const labels = examinationData.map(item => item.examination_type || 'Unknown');
     const data = examinationData.map(item => parseInt(item.count) || 0);
-    
-    // Debug: Log processed data
-    console.log('Examination Chart Labels:', labels);
-    console.log('Examination Chart Data:', data);
-    
-    // Check if we have valid data
+
     if (labels.length === 0 || data.every(val => val === 0)) {
-        console.log('No examination data available, showing empty chart');
         labels.length = 0;
         data.length = 0;
     }
@@ -657,20 +803,11 @@ if (appointmentCtx) {
     // Get real appointment data from PHP
     const appointmentData = <?= json_encode($reports['charts']['appointment_status'] ?? []) ?>;
     
-    // Debug: Log the data to console
-    console.log('Appointment Chart Data:', appointmentData);
-    
     // Extract labels and data
     const labels = appointmentData.map(item => item.status || 'Unknown');
     const data = appointmentData.map(item => parseInt(item.count) || 0);
-    
-    // Debug: Log processed data
-    console.log('Appointment Chart Labels:', labels);
-    console.log('Appointment Chart Data:', data);
-    
-    // Check if we have valid data
+
     if (labels.length === 0 || data.every(val => val === 0)) {
-        console.log('No appointment data available, showing empty chart');
         labels.length = 0;
         data.length = 0;
     }
