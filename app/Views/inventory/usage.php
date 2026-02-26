@@ -29,6 +29,36 @@
             </div>
         </div>
 
+        <?php $financeAutoPostInventoryCogs = (int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1; ?>
+        <div class="mb-8">
+            <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-lg shadow-emerald-500/10 border border-white/30 p-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center <?= $financeAutoPostInventoryCogs ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
+                            <i class="fas <?= $financeAutoPostInventoryCogs ? 'fa-file-invoice-dollar' : 'fa-toggle-off' ?>"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-gray-900">Finance Auto-Post (Inventory COGS)</h2>
+                            <p class="text-sm text-gray-600">
+                                <?= $financeAutoPostInventoryCogs
+                                    ? 'Enabled: recording inventory usage will also create an expense entry in Finance (Inventory COGS).'
+                                    : 'Disabled: recording inventory usage will not create a Finance expense entry automatically.' ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="shrink-0">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <?= $financeAutoPostInventoryCogs ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' ?>">
+                            <span class="w-2 h-2 rounded-full mr-2 <?= $financeAutoPostInventoryCogs ? 'bg-emerald-500' : 'bg-amber-500' ?>"></span>
+                            <?= $financeAutoPostInventoryCogs ? 'Enabled' : 'Disabled' ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-gray-500">
+                    Change this in <a href="<?= base_url('settings') ?>" class="font-semibold text-blue-600 hover:text-blue-800">Settings → System Preference</a>.
+                </div>
+            </div>
+        </div>
+
         <!-- Usage Form -->
         <div class="mb-8">
             <div class="backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/30 p-8">

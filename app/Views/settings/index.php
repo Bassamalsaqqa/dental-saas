@@ -502,7 +502,7 @@
                                                 </div>
                                                 <div class="shrink-0 pt-1">
                                                     <input type="hidden" name="finance_auto_post_inventory_cogs" value="0">
-                                                    <label class="inline-flex items-center cursor-pointer">
+                                                    <label class="relative inline-flex items-center cursor-pointer h-7 w-12">
                                                         <input
                                                             id="financeAutoPostInventoryCogs"
                                                             type="checkbox"
@@ -511,9 +511,8 @@
                                                             class="sr-only peer"
                                                             <?= (int) ($settings['finance_auto_post_inventory_cogs'] ?? 1) === 1 ? 'checked' : '' ?>
                                                         >
-                                                        <span class="relative h-7 w-12 rounded-full bg-slate-300 transition-colors peer-checked:bg-emerald-500">
-                                                            <span class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
-                                                        </span>
+                                                        <span class="block h-7 w-12 rounded-full bg-slate-300 transition-colors peer-checked:bg-emerald-500"></span>
+                                                        <span class="pointer-events-none absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 translate-x-0 peer-checked:translate-x-5"></span>
                                                     </label>
                                                 </div>
                                             </div>
