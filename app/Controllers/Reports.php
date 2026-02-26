@@ -254,6 +254,17 @@ class Reports extends BaseController
                         ['key' => 'provider_paid_total', 'label' => 'Paid'],
                         ['key' => 'provider_balance_total', 'label' => 'Balance'],
                     ], $reports['provider_payout_breakdown'] ?? []),
+                    $this->makeDetailTable('provider_payout_rows', 'Provider Payout Rows', [
+                        ['key' => 'transaction_id', 'label' => 'Transaction'],
+                        ['key' => 'patient_number', 'label' => 'Patient #'],
+                        ['key' => 'patient_name', 'label' => 'Patient'],
+                        ['key' => 'provider_label', 'label' => 'Provider'],
+                        ['key' => 'status', 'label' => 'Status'],
+                        ['key' => 'gross_amount', 'label' => 'Gross'],
+                        ['key' => 'provider_share_amount', 'label' => 'Provider Share'],
+                        ['key' => 'provider_paid_amount', 'label' => 'Paid'],
+                        ['key' => 'provider_balance_due', 'label' => 'Balance'],
+                    ], $reports['provider_payout_rows'] ?? []),
                 ];
             default:
                 return [];
@@ -663,6 +674,7 @@ class Reports extends BaseController
             'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $asOfDate ?: $endDate, 100),
             'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
             'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
+            'provider_payout_rows' => $this->providerPayoutModel->getReportRowsByClinic((int) $clinicId, $startDate, $endDate, 250),
             'summary' => [
                 'gross_collections' => $grossCollections,
                 'provider_share_accrual' => $providerShareAccrual,
@@ -1391,6 +1403,24 @@ class Reports extends BaseController
                     $row['provider_share_total'] ?? 0,
                     $row['provider_paid_total'] ?? 0,
                     $row['provider_balance_total'] ?? 0,
+                ]);
+            }
+        }
+
+        if (isset($data['reports']['provider_payout_rows']) && is_array($data['reports']['provider_payout_rows'])) {
+            $csv .= "\n" . $this->csvLine(['PROVIDER PAYOUT ROWS']);
+            $csv .= $this->csvLine(['Transaction', 'Patient #', 'Patient', 'Provider', 'Status', 'Gross', 'Provider Share', 'Paid', 'Balance']);
+            foreach ($data['reports']['provider_payout_rows'] as $row) {
+                $csv .= $this->csvLine([
+                    $row['transaction_id'] ?? '',
+                    $row['patient_number'] ?? '',
+                    $row['patient_name'] ?? '',
+                    $row['provider_label'] ?? '',
+                    $row['status'] ?? '',
+                    $row['gross_amount'] ?? 0,
+                    $row['provider_share_amount'] ?? 0,
+                    $row['provider_paid_amount'] ?? 0,
+                    $row['provider_balance_due'] ?? 0,
                 ]);
             }
         }

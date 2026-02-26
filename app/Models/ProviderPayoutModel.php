@@ -215,4 +215,38 @@ class ProviderPayoutModel extends TenantAwareModel
             ->get()
             ->getResultArray();
     }
+
+    public function getReportRowsByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null, int $limit = 250): array
+    {
+        $limit = max(1, min($limit, 1000));
+
+        $builder = $this->db->table('provider_payouts pp')
+            ->select('pp.id, pp.status, pp.provider_type, pp.provider_user_id, pp.provider_name_snapshot, pp.gross_amount, pp.provider_share_amount, pp.provider_paid_amount, pp.provider_balance_due, pp.created_at, f.transaction_id, p.patient_id AS patient_number, p.first_name AS patient_first_name, p.last_name AS patient_last_name')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
+            ->where('pp.clinic_id', $clinicId);
+
+        if (!empty($startDate)) {
+            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+        }
+        if (!empty($endDate)) {
+            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+        }
+
+        $rows = $builder
+            ->orderBy('pp.id', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $row['provider_label'] = !empty($row['provider_name_snapshot'])
+                ? (string) $row['provider_name_snapshot']
+                : ('User #' . (string) ($row['provider_user_id'] ?? '0'));
+            $row['patient_name'] = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+        }
+        unset($row);
+
+        return $rows;
+    }
 }

@@ -481,6 +481,36 @@
                             </div>
                             <?php endif; ?>
 
+                            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                    <div class="mb-4">
+                                        <h4 class="text-lg font-semibold text-gray-800">Payment Method Mix</h4>
+                                        <p class="text-sm text-gray-500">Click a slice to drill into matching transactions.</p>
+                                    </div>
+                                    <div class="relative h-64">
+                                        <canvas id="financePaymentMethodsChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                    <div class="mb-4">
+                                        <h4 class="text-lg font-semibold text-gray-800">A/R Aging Distribution</h4>
+                                        <p class="text-sm text-gray-500">Click a bucket to inspect invoices in that aging range.</p>
+                                    </div>
+                                    <div class="relative h-64">
+                                        <canvas id="financeAgingChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                    <div class="mb-4">
+                                        <h4 class="text-lg font-semibold text-gray-800">Provider Payout Status Mix</h4>
+                                        <p class="text-sm text-gray-500">Click a status to drill into provider payout rows.</p>
+                                    </div>
+                                    <div class="relative h-64">
+                                        <canvas id="financeProviderStatusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
                             <?php if (!empty($reports['ar_aging_summary'])): ?>
                             <?php $ar = $reports['ar_aging_summary']; ?>
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
@@ -597,7 +627,7 @@
                                             <div class="flex items-center justify-between gap-3">
                                                 <div>
                                                     <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? 'Unknown') ?></p>
-                                                    <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts • Gross <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
+                                                    <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts - Gross <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
                                                 </div>
                                                 <div class="text-right">
                                                     <p class="font-bold text-blue-700"><?= formatCurrency($share) ?></p>
@@ -1100,6 +1130,110 @@ if (appointmentCtx) {
                 const status = labels[idx];
                 if (!status) return;
                 applyDrillthrough('overview_appointments', status.toLowerCase(), `Appointment status -> ${status}`);
+            }
+        }
+    });
+}
+
+// Finance: Payment Method Mix
+const financePaymentMethodsCtx = document.getElementById('financePaymentMethodsChart')?.getContext('2d');
+if (financePaymentMethodsCtx) {
+    const rows = <?= json_encode($reports['payment_methods'] ?? []) ?>;
+    const labels = rows.map(r => (r.payment_method || 'unknown').toString());
+    const data = rows.map(r => parseFloat(r.total_amount || 0));
+    const palette = ['#0284c7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899'];
+
+    new Chart(financePaymentMethodsCtx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: palette.slice(0, Math.max(labels.length, 1)) }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            onClick: function(event, elements) {
+                if (!elements?.length) return;
+                const method = labels[elements[0].index];
+                if (!method) return;
+                applyDrillthrough('transactions', method.toLowerCase(), `Payment method -> ${method}`);
+            }
+        }
+    });
+}
+
+// Finance: A/R Aging Distribution
+const financeAgingCtx = document.getElementById('financeAgingChart')?.getContext('2d');
+if (financeAgingCtx) {
+    const ar = <?= json_encode($reports['ar_aging_summary'] ?? []) ?>;
+    const agingBuckets = [
+        { key: 'current', label: 'Current', color: '#94a3b8' },
+        { key: 'days_1_30', label: '1-30', color: '#fbbf24' },
+        { key: 'days_31_60', label: '31-60', color: '#fb923c' },
+        { key: 'days_61_90', label: '61-90', color: '#fb7185' },
+        { key: 'days_91_plus', label: '91+', color: '#ef4444' },
+    ];
+    const labels = agingBuckets.map(b => b.label);
+    const data = agingBuckets.map(b => parseFloat(ar[b.key] || 0));
+
+    new Chart(financeAgingCtx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Balance Due',
+                data,
+                backgroundColor: agingBuckets.map(b => b.color),
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: (v) => formatCurrency(v) }
+                }
+            },
+            onClick: function(event, elements) {
+                if (!elements?.length) return;
+                const bucket = agingBuckets[elements[0].index];
+                if (!bucket) return;
+                applyDrillthrough('ar_aging_detail', bucket.key.toLowerCase(), `A/R aging -> ${bucket.label}`);
+            }
+        }
+    });
+}
+
+// Finance: Provider Payout Status Mix
+const financeProviderStatusCtx = document.getElementById('financeProviderStatusChart')?.getContext('2d');
+if (financeProviderStatusCtx) {
+    const rows = <?= json_encode($reports['provider_payout_status'] ?? []) ?>;
+    const labels = rows.map(r => (r.status || 'unknown').toString());
+    const data = rows.map(r => parseFloat(r.provider_share_total || 0));
+    const statusColorMap = {
+        unpaid: '#ef4444',
+        partial: '#f59e0b',
+        paid: '#10b981',
+        void: '#64748b',
+    };
+    const colors = labels.map(l => statusColorMap[l.toLowerCase()] || '#0284c7');
+
+    new Chart(financeProviderStatusCtx, {
+        type: 'pie',
+        data: { labels, datasets: [{ data, backgroundColor: colors }] },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            onClick: function(event, elements) {
+                if (!elements?.length) return;
+                const status = labels[elements[0].index];
+                if (!status) return;
+                applyDrillthrough('provider_payout_rows', status.toLowerCase(), `Provider payout status -> ${status}`);
             }
         }
     });
