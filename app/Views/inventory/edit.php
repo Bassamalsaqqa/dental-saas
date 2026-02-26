@@ -183,6 +183,25 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Supplier Mapping (Optional)</label>
+                            <?php $prefLink = $preferred_supplier_link ?? null; ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <input type="text" name="supplier_sku" value="<?= old('supplier_sku', $prefLink['supplier_sku'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Supplier SKU">
+                                <input type="text" name="pack_size_label" value="<?= old('pack_size_label', $prefLink['pack_size_label'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Pack size">
+                                <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty', $prefLink['preferred_order_qty'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Preferred reorder qty">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price', $prefLink['last_unit_price'] ?? '') ?>" class="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Last supplier price">
+                                    <select name="supplier_price_currency" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
+                                            <option value="<?= esc($currency) ?>" <?= (string) old('supplier_price_currency', $prefLink['currency'] ?? 'ILS') === (string) $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500">These values update the preferred supplier mapping when a linked supplier is selected.</p>
+                        </div>
                     </div>
                 </div>
 

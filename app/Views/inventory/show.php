@@ -237,6 +237,115 @@
             </div>
         </div>
 
+        <!-- Supplier Procurement Mapping -->
+        <div class="mb-6">
+            <div class="grid grid-cols-1 xl:grid-cols-5 gap-4">
+                <div class="xl:col-span-3 backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-amber-500/10 border border-white/30 p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                                <i class="fas fa-truck-ramp-box text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-gray-900">Supplier Mappings</h3>
+                                <p class="text-xs text-gray-500">Preferred vendors, pack sizes, and reorder defaults for this item</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800"><?= count($supplier_links ?? []) ?> supplier(s)</span>
+                    </div>
+
+                    <?php if (!empty($supplier_links)): ?>
+                        <div class="space-y-3">
+                            <?php foreach (($supplier_links ?? []) as $link): ?>
+                                <div class="rounded-xl border border-slate-200 bg-white/70 p-3">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-slate-900"><?= esc($link['supplier_name'] ?? ('Supplier #' . (int) $link['supplier_id'])) ?></span>
+                                                <?php if ((int) ($link['is_preferred'] ?? 0) === 1): ?>
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Preferred</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="mt-1 text-xs text-slate-600">
+                                                <?php if (!empty($link['supplier_sku'])): ?>SKU: <?= esc($link['supplier_sku']) ?><?php endif; ?>
+                                                <?php if (!empty($link['pack_size_label'])): ?><?= !empty($link['supplier_sku']) ? ' • ' : '' ?>Pack: <?= esc($link['pack_size_label']) ?><?php endif; ?>
+                                                <?php if (!empty($link['preferred_order_qty'])): ?> • Preferred Qty: <?= (int) $link['preferred_order_qty'] ?><?php endif; ?>
+                                            </div>
+                                            <div class="mt-1 text-xs text-slate-500">
+                                                <?php if (!empty($link['last_unit_price'])): ?>Last Price: <?= esc($link['currency'] ?? 'ILS') ?> <?= number_format((float) $link['last_unit_price'], 2) ?><?php endif; ?>
+                                                <?php if (!empty($link['phone'])): ?> • Phone: <?= esc($link['phone']) ?><?php endif; ?>
+                                                <?php if (!empty($link['whatsapp'])): ?> • WhatsApp: <?= esc($link['whatsapp']) ?><?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="addItemToReorder(<?= (int) $item['id'] ?>, <?= (int) ($link['preferred_order_qty'] ?? 0) ?>)" class="inline-flex items-center px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600">
+                                                <i class="fas fa-cart-plus mr-2"></i>Add to Reorder
+                                            </button>
+                                            <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link/' . (int) $link['id'] . '/delete') ?>" onsubmit="return confirm('Remove this supplier mapping?');">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100">
+                                                    <i class="fas fa-trash mr-2"></i>Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-600">
+                            No supplier mappings yet. Add one to speed up reordering and supplier contact workflows.
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="xl:col-span-2 backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-amber-500/10 border border-white/30 p-4">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-link text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900">Add / Update Mapping</h3>
+                            <p class="text-xs text-gray-500">Map this item to a supplier and set default reorder values</p>
+                        </div>
+                    </div>
+                    <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link') ?>" class="space-y-3">
+                        <?= csrf_field() ?>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">Supplier</label>
+                            <select name="link_supplier_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
+                                <option value="">Select supplier</option>
+                                <?php foreach (($supplier_directory ?? []) as $supplier): ?>
+                                    <option value="<?= (int) $supplier['id'] ?>"><?= esc($supplier['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" name="supplier_sku" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Supplier SKU">
+                            <input type="text" name="pack_size_label" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Pack size">
+                            <input type="number" min="1" step="1" name="preferred_order_qty" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Preferred qty">
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" min="0" step="0.01" name="last_unit_price" class="col-span-2 w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Last price">
+                                <select name="link_currency" class="w-full px-2 py-2 border border-slate-300 rounded-lg bg-white text-sm">
+                                    <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
+                                        <option value="<?= esc($currency) ?>"><?= esc($currency) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea name="link_notes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white" placeholder="Notes (optional)"></textarea>
+                        <label class="flex items-center gap-2 text-sm text-slate-700">
+                            <input type="checkbox" name="is_preferred" value="1" checked class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            Set as preferred supplier
+                        </label>
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold shadow hover:shadow-lg">
+                            <i class="fas fa-save mr-2"></i>Save Supplier Mapping
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Stock Movement Ledger -->
         <div class="mb-6">
             <div class="backdrop-blur-xl bg-white/80 rounded-2xl shadow-xl shadow-emerald-500/10 border border-white/30 p-4">
@@ -325,6 +434,9 @@
 
         <!-- Compact Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+            <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <i class="fas fa-cart-plus mr-2"></i>Add to Reorder List
+            </button>
             <button onclick="receiveStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <i class="fas fa-box-open mr-2"></i>Receive Stock
             </button>
@@ -344,6 +456,36 @@
 </div>
 
 <script>
+function addItemToReorder(id, preferredQty = 0) {
+    const qtyPrompt = prompt('Requested reorder quantity:', preferredQty && preferredQty > 0 ? String(preferredQty) : '1');
+    if (qtyPrompt === null) return;
+    const requestedQty = parseInt(qtyPrompt, 10);
+    if (!Number.isFinite(requestedQty) || requestedQty <= 0) {
+        showToast('error', 'Error!', 'Please enter a valid reorder quantity.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('inventory_id', String(id));
+    formData.append('requested_qty', String(requestedQty));
+    formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+
+    fetch(`<?= base_url('inventory/reorder-list/add') ?>`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data && data.success) {
+            showToast('success', 'Reorder List', data.message || 'Added to reorder list.');
+        } else {
+            showToast('error', 'Error!', (data && data.message) ? data.message : 'Failed to add to reorder list.');
+        }
+    })
+    .catch(() => showToast('error', 'Error!', 'Failed to add to reorder list.'));
+}
+
 function receiveStock(id) {
     const quantity = prompt('Enter received quantity:');
     if (quantity === null) return;

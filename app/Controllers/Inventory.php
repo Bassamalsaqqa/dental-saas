@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\InventoryModel;
 use App\Models\InventoryItemTemplateModel;
+use App\Models\InventoryReorderItemModel;
+use App\Models\InventorySupplierLinkModel;
 use App\Models\InventoryStockMovementModel;
 use App\Models\SupplierModel;
 use App\Services\ActivityLogger;
@@ -17,6 +19,8 @@ class Inventory extends BaseController
     protected $storageService;
     protected $db;
     protected $supplierModel;
+    protected $supplierLinkModel;
+    protected $reorderItemModel;
 
     public function __construct()
     {
@@ -25,6 +29,8 @@ class Inventory extends BaseController
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
         $this->supplierModel = new SupplierModel();
+        $this->supplierLinkModel = new InventorySupplierLinkModel();
+        $this->reorderItemModel = new InventoryReorderItemModel();
     }
 
     public function index()
@@ -52,6 +58,7 @@ class Inventory extends BaseController
                 $data['total_items'] = 0;
                 $data['low_stock_items'] = 0;
                 $data['out_of_stock_items'] = 0;
+                $data['open_reorder_count'] = 0;
                 $data['error'] = 'Inventory table not found';
             } else {
                 // Get all inventory items (scoped)
@@ -69,6 +76,7 @@ class Inventory extends BaseController
                 $data['total_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults();
                 $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->countAllResults();
                 $data['out_of_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->countAllResults();
+                $data['open_reorder_count'] = $this->reorderItemModel->where('clinic_id', $clinicId)->whereIn('status', ['draft', 'ordered'])->countAllResults();
             }
 
             // Explicitly add user data to ensure it's available
@@ -88,6 +96,7 @@ class Inventory extends BaseController
                 'total_items' => 0,
                 'low_stock_items' => 0,
                 'out_of_stock_items' => 0,
+                'open_reorder_count' => 0,
                 'error' => 'Unable to load inventory data. Please check the database connection.'
             ];
 
@@ -207,6 +216,7 @@ class Inventory extends BaseController
             'categories' => $this->getCategories(),
             'suppliers' => $this->getSuppliers(),
             'supplier_directory' => $clinicId ? $this->supplierModel->getActiveOptionsByClinic($clinicId) : [],
+            'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
         ];
 
         return $this->view('inventory/create', $data);
@@ -260,6 +270,7 @@ class Inventory extends BaseController
 
         if ($this->inventoryModel->insert($inventoryData)) {
             $inventoryId = $this->inventoryModel->getInsertID();
+            $this->upsertSupplierLinkFromRequest($clinicId, (int) $inventoryId, $supplierId, $currentUserId);
             $initialQty = (int) ($inventoryData['quantity'] ?? 0);
             if ($initialQty > 0) {
                 $this->recordStockMovementSafe(
@@ -315,6 +326,10 @@ class Inventory extends BaseController
             'title' => 'Item Details',
             'item' => $item,
             'movements' => (new InventoryStockMovementModel())->getRecentByInventory((int) $clinicId, (int) $id, 100),
+            'supplier_links' => $this->supplierLinkModel->getByInventory((int) $clinicId, (int) $id),
+            'supplier_directory' => $this->supplierModel->getActiveOptionsByClinic((int) $clinicId),
+            'reorder_items' => $this->reorderItemModel->where('clinic_id', (int) $clinicId)->where('inventory_id', (int) $id)->orderBy('created_at', 'DESC')->findAll(),
+            'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
         ];
 
         return $this->view('inventory/show', $data);
@@ -339,6 +354,9 @@ class Inventory extends BaseController
             'categories' => $this->getCategories(),
             'suppliers' => $this->getSuppliers(),
             'supplier_directory' => $this->supplierModel->getActiveOptionsByClinic((int) $clinicId),
+            'supplier_links' => $this->supplierLinkModel->getByInventory((int) $clinicId, (int) $id),
+            'preferred_supplier_link' => $this->supplierLinkModel->getPreferredForInventory((int) $clinicId, (int) $id),
+            'currencies' => ['ILS', 'USD', 'EUR', 'GBP', 'JOD'],
         ];
 
         return $this->view('inventory/edit', $data);
@@ -399,6 +417,7 @@ class Inventory extends BaseController
         ];
 
         if ($this->inventoryModel->update($id, $inventoryData)) {
+            $this->upsertSupplierLinkFromRequest((int) $clinicId, (int) $id, $supplierId, (int) (session()->get('user_id') ?? 0));
             // Log the inventory update activity
             $this->activityLogger->logInventoryActivity(
                 'update',
@@ -546,6 +565,7 @@ class Inventory extends BaseController
         $data = [
             'title' => 'Low Stock Items',
             'items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->findAll(),
+            'open_reorder_count' => $this->reorderItemModel->where('clinic_id', (int) $clinicId)->whereIn('status', ['draft', 'ordered'])->countAllResults(),
         ];
 
         return $this->view('inventory/low_stock', $data);
@@ -724,6 +744,213 @@ class Inventory extends BaseController
                 'name' => $name,
             ],
         ]);
+    }
+
+    public function upsertSupplierLink($inventoryId)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($inventoryId);
+        if (!$item) {
+            return redirect()->back()->with('error', 'Inventory item not found.');
+        }
+
+        $supplierId = (int) ($this->request->getPost('link_supplier_id') ?? 0);
+        if ($supplierId <= 0) {
+            return redirect()->back()->with('error', 'Supplier is required.');
+        }
+
+        $supplier = $this->supplierModel->where('clinic_id', $clinicId)->find($supplierId);
+        if (!$supplier) {
+            return redirect()->back()->with('error', 'Supplier not found in this clinic.');
+        }
+
+        $isPreferred = $this->request->getPost('is_preferred') ? 1 : 0;
+        if ($isPreferred) {
+            $this->supplierLinkModel->clearPreferredForInventory($clinicId, (int) $inventoryId);
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'inventory_id' => (int) $inventoryId,
+            'supplier_id' => $supplierId,
+            'supplier_sku' => trim((string) $this->request->getPost('supplier_sku')) ?: null,
+            'pack_size_label' => trim((string) $this->request->getPost('pack_size_label')) ?: null,
+            'preferred_order_qty' => $this->request->getPost('preferred_order_qty') !== '' ? (int) $this->request->getPost('preferred_order_qty') : null,
+            'last_unit_price' => $this->request->getPost('last_unit_price') !== '' ? (float) $this->request->getPost('last_unit_price') : null,
+            'currency' => strtoupper(trim((string) ($this->request->getPost('link_currency') ?: 'ILS'))),
+            'is_preferred' => $isPreferred,
+            'notes' => trim((string) $this->request->getPost('link_notes')) ?: null,
+            'created_by' => (int) (session()->get('user_id') ?? 0),
+        ];
+
+        $existing = $this->supplierLinkModel->findLink($clinicId, (int) $inventoryId, $supplierId);
+        $ok = $existing
+            ? $this->supplierLinkModel->update((int) $existing['id'], $payload)
+            : $this->supplierLinkModel->insert($payload);
+
+        if (!$ok) {
+            return redirect()->back()->with('error', 'Failed to save supplier mapping.');
+        }
+
+        return redirect()->back()->with('success', 'Supplier mapping saved.');
+    }
+
+    public function deleteSupplierLink($inventoryId, $linkId)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($inventoryId);
+        if (!$item) {
+            return redirect()->back()->with('error', 'Inventory item not found.');
+        }
+
+        $link = $this->supplierLinkModel->where('clinic_id', $clinicId)
+            ->where('inventory_id', (int) $inventoryId)
+            ->find((int) $linkId);
+        if (!$link) {
+            return redirect()->back()->with('error', 'Supplier mapping not found.');
+        }
+
+        $this->supplierLinkModel->delete((int) $linkId);
+
+        return redirect()->back()->with('success', 'Supplier mapping removed.');
+    }
+
+    public function reorderList()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $items = $this->reorderItemModel->getOpenByClinic($clinicId);
+
+        return $this->view('inventory/reorder_list', [
+            'title' => 'Reorder List',
+            'reorder_items' => $items,
+        ]);
+    }
+
+    public function addToReorder()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $inventoryId = (int) ($this->request->getPost('inventory_id') ?? 0);
+        $item = $this->inventoryModel->where('clinic_id', $clinicId)->find($inventoryId);
+        if (!$item) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Inventory item not found']);
+        }
+
+        $preferredLink = $this->supplierLinkModel->getPreferredForInventory($clinicId, $inventoryId);
+        $supplierId = $preferredLink ? (int) ($preferredLink['supplier_id'] ?? 0) : null;
+        $suggestedQty = $preferredLink && !empty($preferredLink['preferred_order_qty'])
+            ? (int) $preferredLink['preferred_order_qty']
+            : max(1, ((int) ($item['min_quantity'] ?? 0)) - ((int) ($item['quantity'] ?? 0)));
+        if ($suggestedQty <= 0) {
+            $suggestedQty = max(1, (int) ($item['min_quantity'] ?? 1));
+        }
+
+        $requestedQty = $this->request->getPost('requested_qty');
+        $requestedQty = ($requestedQty !== null && $requestedQty !== '') ? (int) $requestedQty : $suggestedQty;
+        if ($requestedQty <= 0) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Requested quantity must be greater than zero']);
+        }
+
+        $existing = $this->reorderItemModel->findExistingDraft($clinicId, $inventoryId, $supplierId ?: null);
+        if ($existing) {
+            $newQty = (int) $existing['requested_qty'] + $requestedQty;
+            $this->reorderItemModel->update((int) $existing['id'], [
+                'requested_qty' => $newQty,
+                'notes' => trim((string) ($this->request->getPost('notes') ?? $existing['notes'])) ?: null,
+            ]);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Updated existing draft reorder line.',
+                'reorder_item_id' => (int) $existing['id'],
+                'requested_qty' => $newQty,
+            ]);
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'inventory_id' => $inventoryId,
+            'supplier_id' => $supplierId ?: null,
+            'requested_qty' => $requestedQty,
+            'status' => 'draft',
+            'notes' => trim((string) $this->request->getPost('notes')) ?: null,
+            'created_by' => (int) (session()->get('user_id') ?? 0),
+        ];
+
+        if (!$this->reorderItemModel->insert($payload)) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Failed to add to reorder list']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Added to reorder list.',
+            'reorder_item_id' => (int) $this->reorderItemModel->getInsertID(),
+            'requested_qty' => $requestedQty,
+        ]);
+    }
+
+    public function updateReorderItemStatus($id)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+
+        $row = $this->reorderItemModel->where('clinic_id', $clinicId)->find((int) $id);
+        if (!$row) {
+            return redirect()->back()->with('error', 'Reorder item not found.');
+        }
+
+        $status = (string) $this->request->getPost('status');
+        if (!in_array($status, ['draft', 'ordered', 'received', 'cancelled'], true)) {
+            return redirect()->back()->with('error', 'Invalid reorder status.');
+        }
+
+        $update = ['status' => $status];
+        if ($status === 'ordered') {
+            $update['ordered_at'] = date('Y-m-d H:i:s');
+        }
+        if ($this->request->getPost('requested_qty') !== null && $this->request->getPost('requested_qty') !== '') {
+            $qty = (int) $this->request->getPost('requested_qty');
+            if ($qty > 0) {
+                $update['requested_qty'] = $qty;
+            }
+        }
+        if ($this->request->getPost('notes') !== null) {
+            $update['notes'] = trim((string) $this->request->getPost('notes')) ?: null;
+        }
+
+        $this->reorderItemModel->update((int) $id, $update);
+        return redirect()->back()->with('success', 'Reorder line updated.');
+    }
+
+    public function deleteReorderItem($id)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->back()->with('error', 'Clinic context is required.');
+        }
+        $row = $this->reorderItemModel->where('clinic_id', $clinicId)->find((int) $id);
+        if (!$row) {
+            return redirect()->back()->with('error', 'Reorder item not found.');
+        }
+        $this->reorderItemModel->delete((int) $id);
+        return redirect()->back()->with('success', 'Reorder line removed.');
     }
 
     public function receiveStock($id)
@@ -1566,6 +1793,9 @@ class Inventory extends BaseController
                 <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>
+                <button type="button" onclick="addToReorderList(' . (int) $id . ')" class="text-amber-600 hover:text-amber-900" title="Add to Reorder List">
+                    <i class="fas fa-cart-plus"></i>
+                </button>
                 <button onclick="adjustStock(' . $id . ')" class="text-purple-600 hover:text-purple-900" title="Adjust Stock">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -1643,6 +1873,42 @@ class Inventory extends BaseController
         return (object)['id' => 1];
     }
 
+    private function upsertSupplierLinkFromRequest(int $clinicId, int $inventoryId, ?int $supplierId, ?int $createdBy = null): void
+    {
+        if (!$clinicId || !$inventoryId || !$supplierId) {
+            return;
+        }
+
+        $supplier = $this->supplierModel->where('clinic_id', $clinicId)->find($supplierId);
+        if (!$supplier) {
+            return;
+        }
+
+        $preferredQtyRaw = $this->request->getPost('preferred_order_qty');
+        $lastUnitPriceRaw = $this->request->getPost('supplier_last_unit_price');
+        $payload = [
+            'clinic_id' => $clinicId,
+            'inventory_id' => $inventoryId,
+            'supplier_id' => $supplierId,
+            'supplier_sku' => trim((string) $this->request->getPost('supplier_sku')) ?: null,
+            'pack_size_label' => trim((string) $this->request->getPost('pack_size_label')) ?: null,
+            'preferred_order_qty' => ($preferredQtyRaw !== null && $preferredQtyRaw !== '') ? max(1, (int) $preferredQtyRaw) : null,
+            'last_unit_price' => ($lastUnitPriceRaw !== null && $lastUnitPriceRaw !== '') ? max(0, (float) $lastUnitPriceRaw) : null,
+            'currency' => $this->sanitizeSupplierLinkCurrency((string) $this->request->getPost('supplier_price_currency')),
+            'is_preferred' => 1,
+            'notes' => trim((string) $this->request->getPost('supplier_link_notes')) ?: null,
+            'created_by' => $createdBy ?: ((int) (session()->get('user_id') ?? 0) ?: null),
+        ];
+
+        $this->supplierLinkModel->clearPreferredForInventory($clinicId, $inventoryId);
+        $existing = $this->supplierLinkModel->findLink($clinicId, $inventoryId, $supplierId);
+        if ($existing) {
+            $this->supplierLinkModel->update((int) $existing['id'], $payload);
+        } else {
+            $this->supplierLinkModel->insert($payload);
+        }
+    }
+
     private function resolveSupplierSelection(int $clinicId): array
     {
         $supplierIdRaw = $this->request->getPost('supplier_id');
@@ -1661,6 +1927,15 @@ class Inventory extends BaseController
         }
 
         return [null, $supplierText !== '' ? $supplierText : null];
+    }
+
+    private function sanitizeSupplierLinkCurrency(string $currency): string
+    {
+        $currency = strtoupper(trim($currency));
+        if ($currency === '') {
+            return 'ILS';
+        }
+        return preg_match('/^[A-Z]{3,10}$/', $currency) ? $currency : 'ILS';
     }
 
     private function recordStockMovementSafe(

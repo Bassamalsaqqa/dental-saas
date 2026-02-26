@@ -235,6 +235,11 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200">
+                            <i class="fas fa-cart-shopping mr-2"></i>
+                            Reorder List
+                            <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
+                        </a>
                         <a href="<?= base_url('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-arrow-left mr-2"></i>
                             <?= lang('Inventory.backToInventory') ?>
@@ -413,6 +418,36 @@
 </div>
 
 <script>
+function addToReorderList(id) {
+    const qtyValue = prompt('Requested reorder quantity:', '1');
+    if (qtyValue === null) return;
+    const qty = parseInt(qtyValue, 10);
+    if (!Number.isFinite(qty) || qty <= 0) {
+        showToast('error', 'Error!', 'Please enter a valid quantity.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('inventory_id', String(id));
+    formData.append('requested_qty', String(qty));
+    formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+
+    fetch('<?= base_url('inventory/reorder-list/add') ?>', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data && data.success) {
+            showToast('success', 'Reorder List', data.message || 'Added to reorder list.');
+        } else {
+            showToast('error', 'Error!', (data && data.message) ? data.message : 'Failed to add to reorder list.');
+        }
+    })
+    .catch(() => showToast('error', 'Error!', 'Failed to add to reorder list.'));
+}
+
 function adjustStock(id) {
     const adjustment = prompt('Enter adjustment amount (positive to add, negative to subtract):');
     if (adjustment !== null && !isNaN(adjustment)) {

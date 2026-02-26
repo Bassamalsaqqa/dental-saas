@@ -242,6 +242,27 @@
                                     </p>
                                 <?php endif; ?>
                             </div>
+
+                            <div class="group/field relative">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <i class="fas fa-link text-amber-600"></i>
+                                    <span>Supplier Mapping (Optional)</span>
+                                </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input type="text" name="supplier_sku" value="<?= old('supplier_sku') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Supplier SKU">
+                                    <input type="text" name="pack_size_label" value="<?= old('pack_size_label') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Pack size (e.g. Box of 50)">
+                                    <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Preferred reorder qty">
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price') ?>" class="col-span-2 w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Last supplier price">
+                                        <select name="supplier_price_currency" class="w-full px-3 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
+                                            <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
+                                                <option value="<?= esc($currency) ?>" <?= old('supplier_price_currency', 'ILS') === $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">If a linked supplier is selected, these fields seed the preferred supplier mapping for this item.</p>
+                            </div>
                         </div>
 
                         <!-- Purchase Date and Expiry Date -->
