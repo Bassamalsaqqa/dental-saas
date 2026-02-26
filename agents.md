@@ -83,6 +83,9 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
   - `net_clinic_revenue_accrual`
 - **Finance Reports Consistency**: `/reports?report_type=finance` now uses consistent start/end date filtering across transactions, payment methods, outstanding invoices, and monthly revenue; report cards use payout-aware values.
 - **Finance Create UX**: check-scan upload section is now always visible and optional; backend still only processes file if uploaded/valid.
+- **Tenant Finance Expansion**: tenant finance now supports `Add Expense` (alongside `Add Income`) with expense metadata (`expense_category`, `counterparty_name`), expense-aware index/show/reports, and finance API tenant ownership validation for patient/examination references.
+- **Inventory ↔ Finance (COGS)**: inventory usage can auto-post tenant finance `inventory_cogs` expenses (idempotent source refs), controlled by tenant setting `finance_auto_post_inventory_cogs`; usage history/details link to generated finance entries.
+- **Inventory Operations Refinement**: added tenant supplier directory + quick-add, stock movement ledger, receive-stock workflow, starter inventory templates/import, supplier-item mappings (SKU/pack/preferred reorder qty/last price), reorder list with supplier contact shortcuts, global movement ledger page (`/inventory/movements`), and batch/lot tracking foundation (`inventory_batches` + optional lot/expiry capture on receive).
 
 ## J) Current Improvement Phase (Authoritative)
 - Current phase: **Phase 0 - Notifications Hardening (pre-WhatsApp implementation)**.
