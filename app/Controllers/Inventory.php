@@ -684,7 +684,15 @@ class Inventory extends BaseController
         $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id')
             ->join('patients', 'patients.id = treatments.patient_id')
             ->join('users', 'users.id = inventory_usage.recorded_by')
-            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
+            ->join(
+                'finances f',
+                "f.clinic_id = inventory_usage.clinic_id
+                AND f.source_entity_type = 'inventory_usage'
+                AND f.source_entity_id = inventory_usage.id
+                AND f.transaction_type = 'expense'",
+                'left'
+            )
+            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name, f.id as finance_entry_id')
             ->orderBy('inventory_usage.created_at', 'DESC')
             ->findAll();
 
@@ -707,7 +715,15 @@ class Inventory extends BaseController
         $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
             ->join('patients', 'patients.id = treatments.patient_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
-            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
+            ->join(
+                'finances f',
+                "f.clinic_id = inventory_usage.clinic_id
+                AND f.source_entity_type = 'inventory_usage'
+                AND f.source_entity_id = inventory_usage.id
+                AND f.transaction_type = 'expense'",
+                'left'
+            )
+            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name, f.id as finance_entry_id')
             ->where('inventory_usage.id', $id)
             ->where('inventory_usage.clinic_id', $clinicId)
             ->first();
@@ -736,7 +752,15 @@ class Inventory extends BaseController
         $usage = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
             ->join('patients', 'patients.id = treatments.patient_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
-            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
+            ->join(
+                'finances f',
+                "f.clinic_id = inventory_usage.clinic_id
+                AND f.source_entity_type = 'inventory_usage'
+                AND f.source_entity_id = inventory_usage.id
+                AND f.transaction_type = 'expense'",
+                'left'
+            )
+            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name, f.id as finance_entry_id')
             ->where('inventory_usage.id', $id)
             ->where('inventory_usage.clinic_id', $clinicId)
             ->first();
@@ -939,7 +963,15 @@ class Inventory extends BaseController
             ->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
             ->join('patients', 'patients.id = treatments.patient_id', 'left')
             ->join('users', 'users.id = inventory_usage.recorded_by', 'left')
-            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name')
+            ->join(
+                'finances f',
+                "f.clinic_id = inventory_usage.clinic_id
+                AND f.source_entity_type = 'inventory_usage'
+                AND f.source_entity_id = inventory_usage.id
+                AND f.transaction_type = 'expense'",
+                'left'
+            )
+            ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name, f.id as finance_entry_id')
             ->where('inventory_usage.clinic_id', $clinicId);
         
         // Apply search filter
@@ -991,7 +1023,7 @@ class Inventory extends BaseController
                 $itemsText,
                 '<span class="font-bold text-green-600">$' . number_format($totalCost, 2) . '</span>',
                 $usage['recorded_by_name'] ?? '-',
-                $this->getUsageActionButtons($usage['id'])
+                $this->getUsageActionButtons($usage['id'], isset($usage['finance_entry_id']) ? (int) $usage['finance_entry_id'] : null)
             ];
         }
         
@@ -1157,8 +1189,17 @@ class Inventory extends BaseController
         ';
     }
 
-    private function getUsageActionButtons($id)
+    private function getUsageActionButtons($id, ?int $financeEntryId = null)
     {
+        $financeButton = '';
+        if ($financeEntryId) {
+            $financeButton = '
+                <a href="' . base_url() . 'finance/' . $financeEntryId . '" class="text-rose-600 hover:text-rose-900" title="View Finance Entry">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </a>
+            ';
+        }
+
         return '
             <div class="flex space-x-2">
                 <button onclick="viewUsageDetails(' . $id . ')" class="text-blue-600 hover:text-blue-900" title="View Details">
@@ -1167,6 +1208,7 @@ class Inventory extends BaseController
                 <button onclick="printUsageRecord(' . $id . ')" class="text-green-600 hover:text-green-900" title="Print Record">
                     <i class="fas fa-print"></i>
                 </button>
+                ' . $financeButton . '
             </div>
         ';
     }

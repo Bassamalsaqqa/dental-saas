@@ -640,6 +640,24 @@ function viewUsageDetails(usageId) {
                 footerDiv.className = 'text-sm text-gray-500';
                 footerDiv.textContent = `Recorded by: ${usage.recorded_by_name} on ${formatDate(usage.created_at)}`;
                 container.appendChild(footerDiv);
+
+                if (usage.finance_entry_id) {
+                    const financeRow = document.createElement('div');
+                    financeRow.className = 'pt-2 border-t border-gray-200';
+
+                    const financeLink = document.createElement('a');
+                    financeLink.href = `<?= base_url() ?>finance/${usage.finance_entry_id}`;
+                    financeLink.className = 'inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors';
+                    const financeIcon = document.createElement('i');
+                    financeIcon.className = 'fas fa-file-invoice-dollar mr-2';
+                    const financeText = document.createElement('span');
+                    financeText.textContent = 'View Finance Entry (COGS)';
+                    financeLink.appendChild(financeIcon);
+                    financeLink.appendChild(financeText);
+
+                    financeRow.appendChild(financeLink);
+                    container.appendChild(financeRow);
+                }
                 
                 contentDiv.appendChild(container);
             } else {
