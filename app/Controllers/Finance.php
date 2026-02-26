@@ -79,11 +79,7 @@ class Finance extends BaseController
                 throw new \RuntimeException('Please select a provider user.');
             }
 
-            $membership = $this->clinicUserModel
-                ->where('clinic_id', $clinicId)
-                ->where('user_id', $providerUserId)
-                ->where('status', 'active')
-                ->first();
+            $membership = $this->clinicUserModel->findActiveMembershipByClinicAndUser($clinicId, $providerUserId);
             if (!$membership) {
                 throw new \RuntimeException('Selected provider user is not active in this clinic.');
             }

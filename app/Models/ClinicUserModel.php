@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ClinicUserModel extends Model
+class ClinicUserModel extends TenantAwareModel
 {
     protected $table = 'clinic_users';
     protected $primaryKey = 'id';
+    protected $returnType = 'array';
+    protected $protectFields = true;
     protected $allowedFields = ['clinic_id', 'user_id', 'role_id', 'status', 'created_at', 'updated_at'];
     protected $useTimestamps = true;
 
@@ -16,7 +16,8 @@ class ClinicUserModel extends Model
      */
     public function getMemberships($userId)
     {
-        return $this->select('clinic_users.*, clinics.name as clinic_name, clinics.slug as clinic_slug')
+        return $this->withoutTenantScope()
+                    ->select('clinic_users.*, clinics.name as clinic_name, clinics.slug as clinic_slug')
                     ->join('clinics', 'clinics.id = clinic_users.clinic_id')
                     ->where('user_id', $userId)
                     ->where('clinic_users.status', 'active')
@@ -29,7 +30,8 @@ class ClinicUserModel extends Model
      */
     public function getMembership($userId, $clinicId)
     {
-        return $this->select('clinic_users.*, clinics.name as clinic_name')
+        return $this->withoutTenantScope()
+                    ->select('clinic_users.*, clinics.name as clinic_name')
                     ->join('clinics', 'clinics.id = clinic_users.clinic_id')
                     ->where('user_id', $userId)
                     ->where('clinic_id', $clinicId)
@@ -43,7 +45,8 @@ class ClinicUserModel extends Model
      */
     public function isUserInClinic($clinicId, $userId)
     {
-        return $this->where('clinic_id', $clinicId)
+        return $this->withoutTenantScope()
+                    ->where('clinic_id', $clinicId)
                     ->where('user_id', $userId)
                     ->countAllResults() > 0;
     }
@@ -53,14 +56,25 @@ class ClinicUserModel extends Model
      */
     public function countActiveByClinic(int $clinicId): int
     {
-        return (int) $this->where('clinic_id', $clinicId)
+        return (int) $this->withoutTenantScope()
+                          ->where('clinic_id', $clinicId)
                           ->where('status', 'active')
                           ->countAllResults();
     }
 
+    public function findActiveMembershipByClinicAndUser(int $clinicId, int $userId): ?array
+    {
+        return $this->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->first();
+    }
+
     public function findClinicAdminEmailForClinic(int $clinicId): ?array
     {
-        return $this->select('users.email')
+        return $this->withoutTenantScope()
+            ->select('users.email')
             ->join('users', 'users.id = clinic_users.user_id', 'left')
             ->join('roles', 'roles.id = clinic_users.role_id', 'left')
             ->where('clinic_users.clinic_id', $clinicId)
@@ -72,7 +86,9 @@ class ClinicUserModel extends Model
 
     public function getActiveUserDirectoryByClinic(int $clinicId): array
     {
-        return $this->select('users.id, users.first_name, users.last_name, users.email')
+        return $this->withoutTenantScope()
+            ->distinct()
+            ->select('users.id, users.first_name, users.last_name, users.email')
             ->join('users', 'users.id = clinic_users.user_id', 'inner')
             ->where('clinic_users.clinic_id', $clinicId)
             ->where('clinic_users.status', 'active')
