@@ -150,6 +150,31 @@ class Reports extends BaseController
     private function buildDetailTables(string $reportType, array $reports): array
     {
         switch ($reportType) {
+            case 'overview':
+                return [
+                    $this->makeDetailTable('overview_finance_transactions', 'Overview Revenue Transactions', [
+                        ['key' => 'month_label', 'label' => 'Month'],
+                        ['key' => 'transaction_id', 'label' => 'Transaction'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'payment_method', 'label' => 'Payment Method'],
+                        ['key' => 'payment_status', 'label' => 'Status'],
+                        ['key' => 'total_amount', 'label' => 'Amount'],
+                        ['key' => 'created_at', 'label' => 'Created'],
+                    ], $reports['detail_rows']['finance_transactions'] ?? []),
+                    $this->makeDetailTable('overview_examinations', 'Overview Examinations', [
+                        ['key' => 'examination_type', 'label' => 'Type'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'examination_date', 'label' => 'Date'],
+                        ['key' => 'notes', 'label' => 'Notes'],
+                    ], $reports['detail_rows']['examinations'] ?? []),
+                    $this->makeDetailTable('overview_appointments', 'Overview Appointments', [
+                        ['key' => 'status', 'label' => 'Status'],
+                        ['key' => 'appointment_type', 'label' => 'Type'],
+                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'appointment_date', 'label' => 'Date'],
+                        ['key' => 'notes', 'label' => 'Notes'],
+                    ], $reports['detail_rows']['appointments'] ?? []),
+                ];
             case 'patients':
                 return [
                     $this->makeDetailTable('patients', 'Patients Included', [
@@ -230,7 +255,6 @@ class Reports extends BaseController
                         ['key' => 'provider_balance_total', 'label' => 'Balance'],
                     ], $reports['provider_payout_breakdown'] ?? []),
                 ];
-            case 'overview':
             default:
                 return [];
         }
@@ -489,6 +513,33 @@ class Reports extends BaseController
         
         $totalRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId);
         $periodRevenueStats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
+        $startDateTime = $startDate . ' 00:00:00';
+        $endDateTime = $endDate . ' 23:59:59';
+
+        $overviewFinanceTransactions = $this->financeModel
+            ->where('clinic_id', $clinicId)
+            ->where('created_at >=', $startDateTime)
+            ->where('created_at <=', $endDateTime)
+            ->orderBy('created_at', 'DESC')
+            ->findAll(250);
+        foreach ($overviewFinanceTransactions as &$txn) {
+            $txn['month_label'] = !empty($txn['created_at']) ? date('M Y', strtotime((string) $txn['created_at'])) : '';
+        }
+        unset($txn);
+
+        $overviewExaminations = $this->examinationModel
+            ->where('clinic_id', $clinicId)
+            ->where('examination_date >=', $startDate)
+            ->where('examination_date <=', $endDate)
+            ->orderBy('examination_date', 'DESC')
+            ->findAll(250);
+
+        $overviewAppointments = $this->appointmentModel
+            ->where('clinic_id', $clinicId)
+            ->where('appointment_date >=', $startDate)
+            ->where('appointment_date <=', $endDate)
+            ->orderBy('appointment_date', 'DESC')
+            ->findAll(250);
 
         return [
             'summary' => [
@@ -506,7 +557,12 @@ class Reports extends BaseController
                 'monthly_revenue' => $monthlyRevenueData,
                 'examination_types' => $examinationTypesData,
                 'appointment_status' => $appointmentStatusData,
-            ]
+            ],
+            'detail_rows' => [
+                'finance_transactions' => $overviewFinanceTransactions,
+                'examinations' => $overviewExaminations,
+                'appointments' => $overviewAppointments,
+            ],
         ];
     }
 

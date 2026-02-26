@@ -713,6 +713,15 @@
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <div id="reportDrillBadge" class="hidden mb-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-sm font-semibold">
+                        <i class="fas fa-filter"></i>
+                        <span id="reportDrillBadgeText">Drillthrough active</span>
+                        <button type="button" id="clearDrillthroughBtn" class="inline-flex items-center px-2 py-1 rounded bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 text-xs font-semibold">
+                            Clear
+                        </button>
+                    </div>
+                </div>
 
                 <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                 <div class="report-detail-panel <?= $idx === 0 ? '' : 'hidden' ?>" data-panel="<?= esc($table['id']) ?>">
@@ -838,33 +847,95 @@ function exportReport(format) {
 document.getElementById('dateMode')?.addEventListener('change', syncDateModeControls);
 syncDateModeControls();
 
-document.querySelectorAll('.report-detail-tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-        const target = btn.dataset.target;
-        document.querySelectorAll('.report-detail-tab').forEach((b) => {
-            const active = b === btn;
-            b.classList.toggle('bg-blue-600', active);
-            b.classList.toggle('text-white', active);
-            b.classList.toggle('border-blue-600', active);
-            b.classList.toggle('bg-white', !active);
-            b.classList.toggle('text-gray-700', !active);
-            b.classList.toggle('border-gray-200', !active);
-        });
-        document.querySelectorAll('.report-detail-panel').forEach((panel) => {
-            panel.classList.toggle('hidden', panel.dataset.panel !== target);
-        });
+const reportDrillState = { active: false, tableId: null, query: '', label: '' };
+
+function setActiveDetailTab(target) {
+    document.querySelectorAll('.report-detail-tab').forEach((b) => {
+        const active = b.dataset.target === target;
+        b.classList.toggle('bg-blue-600', active);
+        b.classList.toggle('text-white', active);
+        b.classList.toggle('border-blue-600', active);
+        b.classList.toggle('bg-white', !active);
+        b.classList.toggle('text-gray-700', !active);
+        b.classList.toggle('border-gray-200', !active);
+        const countSpan = b.querySelector('span');
+        if (countSpan) {
+            countSpan.classList.toggle('text-blue-100', active);
+            countSpan.classList.toggle('text-gray-400', !active);
+        }
     });
+    document.querySelectorAll('.report-detail-panel').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.dataset.panel !== target);
+    });
+}
+
+function getPanelSearchQuery(panel) {
+    const search = panel.querySelector('.report-detail-search');
+    return (search?.value || '').trim().toLowerCase();
+}
+
+function applyPanelRowFilters(panel) {
+    const panelId = panel.dataset.panel;
+    const searchQ = getPanelSearchQuery(panel);
+    const drillQ = reportDrillState.active && reportDrillState.tableId === panelId
+        ? (reportDrillState.query || '').toLowerCase()
+        : '';
+
+    panel.querySelectorAll('.report-detail-row').forEach((row) => {
+        const text = row.innerText.toLowerCase();
+        const searchMatch = !searchQ || text.includes(searchQ);
+        const drillMatch = !drillQ || text.includes(drillQ);
+        row.classList.toggle('hidden', !(searchMatch && drillMatch));
+    });
+}
+
+function applyAllPanelFilters() {
+    document.querySelectorAll('.report-detail-panel').forEach(applyPanelRowFilters);
+}
+
+function updateDrillBadge() {
+    const badge = document.getElementById('reportDrillBadge');
+    const text = document.getElementById('reportDrillBadgeText');
+    if (!badge || !text) return;
+    if (!reportDrillState.active) {
+        badge.classList.add('hidden');
+        return;
+    }
+    text.textContent = `Drillthrough: ${reportDrillState.label}`;
+    badge.classList.remove('hidden');
+}
+
+function applyDrillthrough(tableId, query, label) {
+    reportDrillState.active = true;
+    reportDrillState.tableId = tableId;
+    reportDrillState.query = query;
+    reportDrillState.label = label;
+    setActiveDetailTab(tableId);
+    updateDrillBadge();
+    applyAllPanelFilters();
+    const section = document.getElementById('reportDrillBadge');
+    section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearDrillthrough() {
+    reportDrillState.active = false;
+    reportDrillState.tableId = null;
+    reportDrillState.query = '';
+    reportDrillState.label = '';
+    updateDrillBadge();
+    applyAllPanelFilters();
+}
+
+document.getElementById('clearDrillthroughBtn')?.addEventListener('click', clearDrillthrough);
+
+document.querySelectorAll('.report-detail-tab').forEach((btn) => {
+    btn.addEventListener('click', () => setActiveDetailTab(btn.dataset.target));
 });
 
 document.querySelectorAll('.report-detail-panel').forEach((panel) => {
     const search = panel.querySelector('.report-detail-search');
     if (!search) return;
-    search.addEventListener('input', () => {
-        const q = search.value.trim().toLowerCase();
-        panel.querySelectorAll('.report-detail-row').forEach((row) => {
-            row.classList.toggle('hidden', q !== '' && !row.innerText.toLowerCase().includes(q));
-        });
-    });
+    search.addEventListener('input', () => applyPanelRowFilters(panel));
 });
 
 // Revenue Chart
@@ -882,7 +953,7 @@ if (revenueCtx) {
         data.length = 0;
     }
     
-    new Chart(revenueCtx, {
+    const revenueChart = new Chart(revenueCtx, {
         type: 'line',
         data: {
             labels: labels,
@@ -912,6 +983,13 @@ if (revenueCtx) {
                         }
                     }
                 }
+            },
+            onClick: function(event, elements) {
+                if (!elements || !elements.length) return;
+                const idx = elements[0].index;
+                const month = labels[idx];
+                if (!month) return;
+                applyDrillthrough('overview_finance_transactions', month.toLowerCase(), `Revenue chart -> ${month}`);
             }
         }
     });
@@ -938,7 +1016,7 @@ if (examinationCtx) {
         '#f59e0b', '#ef4444', '#6b7280', '#10b981', '#8b5cf6'
     ];
     
-    new Chart(examinationCtx, {
+    const examinationChart = new Chart(examinationCtx, {
         type: 'doughnut',
         data: {
             labels: labels,
@@ -954,6 +1032,13 @@ if (examinationCtx) {
                 legend: {
                     position: 'bottom'
                 }
+            },
+            onClick: function(event, elements) {
+                if (!elements || !elements.length) return;
+                const idx = elements[0].index;
+                const type = labels[idx];
+                if (!type) return;
+                applyDrillthrough('overview_examinations', type.toLowerCase(), `Examination type -> ${type}`);
             }
         }
     });
@@ -986,7 +1071,7 @@ if (appointmentCtx) {
     
     const colors = labels.map(status => statusColors[status.toLowerCase()] || '#6b7280');
     
-    new Chart(appointmentCtx, {
+    const appointmentChart = new Chart(appointmentCtx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -1008,6 +1093,13 @@ if (appointmentCtx) {
                 y: {
                     beginAtZero: true
                 }
+            },
+            onClick: function(event, elements) {
+                if (!elements || !elements.length) return;
+                const idx = elements[0].index;
+                const status = labels[idx];
+                if (!status) return;
+                applyDrillthrough('overview_appointments', status.toLowerCase(), `Appointment status -> ${status}`);
             }
         }
     });
