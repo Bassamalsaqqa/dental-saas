@@ -449,7 +449,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-slate-800">Finance report basis</p>
-                                        <p class="text-sm text-slate-600">This report mixes cash collections and provider payout metrics. Cards are labeled as <span class="font-semibold">Cash</span> or <span class="font-semibold">Accrual</span> to avoid ambiguity.</p>
+                                        <p class="text-sm text-slate-600">This report mixes cash collections, provider payout metrics, and operating expenses. Summary cards use the clinic base currency, while transaction detail rows include original currency and exchange rate when applicable.</p>
                                     </div>
                                 </div>
                             </div>

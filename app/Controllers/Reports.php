@@ -230,16 +230,34 @@ class Reports extends BaseController
                     ], $reports['treatments'] ?? []),
                 ];
             case 'finance':
+                $financeRows = array_map(function ($row) {
+                    $type = (string) ($row['transaction_type'] ?? '');
+                    $baseAmount = (float) ($row['total_amount'] ?? ($row['amount'] ?? 0));
+                    $signedAmount = in_array($type, ['expense', 'refund'], true) ? -$baseAmount : $baseAmount;
+                    $patientLabel = trim((string) ($row['patient_id'] ?? ''));
+                    if ($patientLabel === '') {
+                        $patientLabel = (string) ($row['counterparty_name'] ?? '');
+                    }
+                    $row['subject_label'] = $patientLabel !== '' ? $patientLabel : 'General';
+                    $row['amount_base'] = round($signedAmount, 2);
+                    $row['amount_base_display'] = ($signedAmount < 0 ? '-' : '') . formatCurrency(abs($signedAmount));
+                    $row['amount_original_display'] = number_format((float) ($row['amount_original'] ?? $row['amount'] ?? $baseAmount), 2) . ' ' . (string) ($row['currency'] ?? settings()->get('currency', 'ILS'));
+                    $row['exchange_rate_display'] = rtrim(rtrim(number_format((float) ($row['exchange_rate'] ?? 1), 6), '0'), '.');
+                    return $row;
+                }, $reports['transactions'] ?? []);
+
                 return [
                     $this->makeDetailTable('transactions', 'Financial Transactions', [
                         ['key' => 'transaction_id', 'label' => 'Transaction'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
+                        ['key' => 'subject_label', 'label' => 'Patient / Payee'],
                         ['key' => 'transaction_type', 'label' => 'Type'],
                         ['key' => 'payment_method', 'label' => 'Payment Method'],
                         ['key' => 'payment_status', 'label' => 'Status'],
-                        ['key' => 'total_amount', 'label' => 'Amount'],
+                        ['key' => 'amount_original_display', 'label' => 'Original Amount'],
+                        ['key' => 'exchange_rate_display', 'label' => 'Rate'],
+                        ['key' => 'amount_base_display', 'label' => 'Amount (Base)'],
                         ['key' => 'created_at', 'label' => 'Created'],
-                    ], $reports['transactions'] ?? []),
+                    ], $financeRows),
                     $this->makeDetailTable('ar_aging_detail', 'A/R Aging Detail', [
                         ['key' => 'transaction_id', 'label' => 'Invoice'],
                         ['key' => 'patient_number', 'label' => 'Patient #'],

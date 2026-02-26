@@ -1934,19 +1934,39 @@ class Finance extends BaseController
             $data = [];
             foreach ($finances as $finance) {
                 $amount = floatval($finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
+                $type = (string) ($finance['transaction_type'] ?? '');
+                $isOutflow = in_array($type, ['refund', 'expense'], true);
+                $signedAmount = $isOutflow ? -$amount : $amount;
+                $originalCurrency = (string) ($finance['currency'] ?? settings()->get('currency', 'ILS'));
+                $baseCurrency = (string) settings()->get('currency', 'ILS');
+                $amountOriginal = floatval($finance['amount_original'] ?? $finance['amount'] ?? $amount);
+                $exchangeRate = floatval($finance['exchange_rate'] ?? 1);
+                $hasOriginalCurrencyDelta = strtoupper($originalCurrency) !== strtoupper($baseCurrency) || abs($exchangeRate - 1.0) > 0.000001;
+                $displayName = trim(($finance['first_name'] ?? '') . ' ' . ($finance['last_name'] ?? ''));
+                if ($displayName === '') {
+                    $displayName = (string) ($finance['counterparty_name'] ?? 'General');
+                }
                 $data[] = [
                     'id' => intval($finance['id'] ?? 0),
                     'transaction_id' => $finance['transaction_id'] ?? ('TXN-' . str_pad($finance['id'], 6, '0', STR_PAD_LEFT)),
-                    'patient_name' => trim(($finance['first_name'] ?? '') . ' ' . ($finance['last_name'] ?? '')),
+                    'patient_name' => $displayName,
                     'phone' => $finance['phone'] ?? '',
                     'transaction_type' => $finance['transaction_type'] ?? '',
-                    'amount' => $amount,
-                    'amount_formatted' => formatCurrency($amount),
+                    'amount' => $signedAmount,
+                    'amount_formatted' => ($signedAmount < 0 ? '-' : '') . formatCurrency(abs($signedAmount)),
+                    'amount_original' => $amountOriginal,
+                    'amount_original_currency' => $originalCurrency,
+                    'amount_original_formatted' => number_format($amountOriginal, 2) . ' ' . $originalCurrency,
+                    'exchange_rate' => $exchangeRate,
+                    'has_original_currency_delta' => $hasOriginalCurrencyDelta,
                     'payment_status' => $finance['payment_status'] ?? '',
                     'description' => $finance['description'] ?? '',
                     'created_at' => $finance['created_at'] ?? '',
                     'created_at_formatted' => formatDateTime($finance['created_at'] ?? ''),
-                    'patient_id' => intval($finance['patient_id'] ?? 0)
+                    'patient_id' => intval($finance['patient_id'] ?? 0),
+                    'counterparty_name' => $finance['counterparty_name'] ?? '',
+                    'expense_category' => $finance['expense_category'] ?? '',
+                    'subject_type' => ($type === 'expense') ? 'counterparty' : 'patient',
                 ];
             }
 

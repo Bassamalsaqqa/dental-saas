@@ -637,14 +637,21 @@ $(document).ready(function() {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
+                    const isExpense = row.transaction_type === 'expense';
+                    const iconWrap = isExpense ? 'bg-rose-100' : 'bg-green-100';
+                    const icon = isExpense ? 'fas fa-building' : 'fas fa-user';
+                    const iconColor = isExpense ? 'text-rose-600' : 'text-green-600';
+                    const subtitle = isExpense
+                        ? (row.expense_category ? row.expense_category.replace(/_/g, ' ') : 'Expense payee')
+                        : (row.patient_id || 'No ID');
                     return `
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user text-green-600 text-sm"></i>
+                            <div class="w-10 h-10 ${iconWrap} rounded-lg flex items-center justify-center">
+                                <i class="${icon} ${iconColor} text-sm"></i>
                         </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.patient_id || 'No ID'}</div>
+                                <div class="text-xs text-gray-500">${subtitle}</div>
                             </div>
                         </div>
                     `;
@@ -658,13 +665,15 @@ $(document).ready(function() {
                         'payment': 'bg-green-100 text-green-800',
                         'invoice': 'bg-blue-100 text-blue-800',
                         'refund': 'bg-red-100 text-red-800',
-                        'adjustment': 'bg-yellow-100 text-yellow-800'
+                        'adjustment': 'bg-yellow-100 text-yellow-800',
+                        'expense': 'bg-rose-100 text-rose-800'
                     };
                     const typeIcons = {
                         'payment': 'fas fa-credit-card',
                         'invoice': 'fas fa-file-invoice',
                         'refund': 'fas fa-undo',
-                        'adjustment': 'fas fa-adjust'
+                        'adjustment': 'fas fa-adjust',
+                        'expense': 'fas fa-receipt'
                     };
                     const colorClass = typeColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = typeIcons[data] || 'fas fa-tag';
@@ -684,11 +693,17 @@ $(document).ready(function() {
                     const isPositive = data >= 0;
                     const colorClass = isPositive ? 'text-green-600' : 'text-red-600';
                     const iconClass = isPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+                    const originalLine = row.has_original_currency_delta
+                        ? `<div class="text-xs text-gray-500">${row.amount_original_formatted} @ ${parseFloat(row.exchange_rate || 1).toFixed(4)}</div>`
+                        : '';
                     
                     return `
-                        <div class="flex items-center space-x-2">
-                            <i class="${iconClass} ${colorClass} text-xs"></i>
-                            <span class="text-sm font-medium ${colorClass}">${row.amount_formatted || formatCurrency(Math.abs(data))}</span>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <i class="${iconClass} ${colorClass} text-xs"></i>
+                                <span class="text-sm font-medium ${colorClass}">${row.amount_formatted || formatCurrency(Math.abs(data))}</span>
+                            </div>
+                            ${originalLine}
                         </div>
                     `;
                 }
@@ -753,7 +768,7 @@ $(document).ready(function() {
                     }
 
                     // View Invoice button
-                    if (permissions.finance.view) {
+                    if (permissions.finance.view && row.transaction_type === 'invoice') {
                         actions += `
                             <a href="<?= base_url('finance') ?>/${data}/invoice?return_to=${returnTo}" 
                                class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="View Invoice">
