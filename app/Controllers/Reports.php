@@ -271,6 +271,59 @@ class Reports extends BaseController
         }
     }
 
+    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?string $asOfDate = null): array
+    {
+        switch ($reportType) {
+            case 'patients':
+                return $this->getPatientReports($startDate, $endDate);
+            case 'examinations':
+                return $this->getExaminationReports($startDate, $endDate);
+            case 'appointments':
+                return $this->getAppointmentReports($startDate, $endDate);
+            case 'finance':
+                return $this->getFinanceReports($startDate, $endDate, $asOfDate);
+            case 'treatments':
+                return $this->getTreatmentReports($startDate, $endDate);
+            case 'overview':
+            default:
+                return $this->getOverviewReports($startDate, $endDate);
+        }
+    }
+
+    private function paginateDetailRows(array $rows, int $page, int $perPage, string $search = '', ?string $drillQuery = null): array
+    {
+        $search = trim($search);
+        $drillQuery = trim((string) ($drillQuery ?? ''));
+
+        if ($search !== '' || $drillQuery !== '') {
+            $rows = array_values(array_filter($rows, static function ($row) use ($search, $drillQuery): bool {
+                $blob = strtolower(json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '');
+                $searchMatch = ($search === '') || str_contains($blob, strtolower($search));
+                $drillMatch = ($drillQuery === '') || str_contains($blob, strtolower($drillQuery));
+                return $searchMatch && $drillMatch;
+            }));
+        }
+
+        $total = count($rows);
+        $page = max(1, $page);
+        $perPage = max(10, min($perPage, 200));
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'rows' => array_slice($rows, $offset, $perPage),
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total_rows' => $total,
+                'last_page' => $lastPage,
+                'from' => $total > 0 ? ($offset + 1) : 0,
+                'to' => min($offset + $perPage, $total),
+            ],
+        ];
+    }
+
     private function html(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -397,27 +450,7 @@ class Reports extends BaseController
             $endDate = $filters['end_date'];
             $asOfDate = $filters['as_of_date'];
             
-            $data = [];
-            
-            switch ($reportType) {
-                case 'patients':
-                    $data = $this->getPatientReports($startDate, $endDate);
-                    break;
-                case 'examinations':
-                    $data = $this->getExaminationReports($startDate, $endDate);
-                    break;
-                case 'appointments':
-                    $data = $this->getAppointmentReports($startDate, $endDate);
-                    break;
-                case 'finance':
-                    $data = $this->getFinanceReports($startDate, $endDate, $asOfDate);
-                    break;
-                case 'treatments':
-                    $data = $this->getTreatmentReports($startDate, $endDate);
-                    break;
-                default:
-                    $data = $this->getOverviewReports($startDate, $endDate);
-            }
+            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate);
             
             $data['_detail_tables'] = $this->buildDetailTables($reportType, $data);
             $data['_filters'] = $filters;
@@ -425,6 +458,66 @@ class Reports extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Chart data error: ' . $e->getMessage());
             return $this->response->setJSON(['error' => 'Failed to fetch chart data']);
+        }
+    }
+
+    public function getDetailData()
+    {
+        try {
+            $clinicId = $this->requireTenantClinicId();
+            if (!$clinicId) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+
+            $filters = $this->parseReportFilters('get');
+            $reportType = $filters['report_type'];
+            $startDate = $filters['start_date'];
+            $endDate = $filters['end_date'];
+            $asOfDate = $filters['as_of_date'];
+
+            $tableId = trim((string) $this->request->getGet('table_id'));
+            $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+            $perPage = (int) ($this->request->getGet('per_page') ?? 25);
+            $search = (string) ($this->request->getGet('q') ?? '');
+            $drillTable = trim((string) ($this->request->getGet('drill_table') ?? ''));
+            $drillQuery = (string) ($this->request->getGet('drill_query') ?? '');
+
+            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $asOfDate);
+            $detailTables = $this->buildDetailTables($reportType, $reports);
+
+            $table = null;
+            foreach ($detailTables as $candidate) {
+                if (($candidate['id'] ?? '') === $tableId) {
+                    $table = $candidate;
+                    break;
+                }
+            }
+
+            if ($table === null) {
+                return $this->response->setStatusCode(404)->setJSON(['error' => 'DETAIL_TABLE_NOT_FOUND']);
+            }
+
+            $appliedDrillQuery = ($drillTable !== '' && $drillTable === $tableId) ? $drillQuery : '';
+            $paged = $this->paginateDetailRows($table['rows'] ?? [], $page, $perPage, $search, $appliedDrillQuery);
+
+            return $this->response->setJSON([
+                'table' => [
+                    'id' => $table['id'],
+                    'title' => $table['title'],
+                    'columns' => $table['columns'] ?? [],
+                ],
+                'rows' => $paged['rows'],
+                'pagination' => $paged['pagination'],
+                'filters' => $filters,
+                'search' => $search,
+                'drill' => [
+                    'table' => $drillTable,
+                    'query' => $appliedDrillQuery,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Reports detail-data error: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'REPORT_DETAIL_FETCH_FAILED']);
         }
     }
 

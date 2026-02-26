@@ -427,6 +427,7 @@ $routes->group('prescriptions', ['filter' => ['auth', 'tenant', 'subscription']]
 $routes->group('reports', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('/', 'Reports::index', ['filter' => 'permission:reports:view']);
     $routes->get('chart-data', 'Reports::getChartData', ['filter' => 'permission:reports:view']);
+    $routes->get('detail-data', 'Reports::getDetailData', ['filter' => 'permission:reports:view']);
     $routes->get('export', 'Reports::export', ['filter' => 'permission:reports:export']);
     $routes->post('export', 'Reports::export', ['filter' => 'permission:reports:export']);
 });

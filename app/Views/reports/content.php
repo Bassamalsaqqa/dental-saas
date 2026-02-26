@@ -757,8 +757,15 @@
                 <div class="report-detail-panel <?= $idx === 0 ? '' : 'hidden' ?>" data-panel="<?= esc($table['id']) ?>">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                         <h4 class="text-lg font-semibold text-gray-800"><?= esc($table['title']) ?></h4>
-                        <div class="relative">
+                        <div class="flex items-center gap-2">
+                            <select class="report-detail-per-page px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="25">25 rows</option>
+                                <option value="50">50 rows</option>
+                                <option value="100">100 rows</option>
+                            </select>
+                            <div class="relative">
                             <input type="text" class="report-detail-search w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search rows in this table...">
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
@@ -766,7 +773,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
-                                    <th class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap"><?= esc($column['label'] ?? $column['key']) ?></th>
+                                    <th data-key="<?= esc($column['key'] ?? '') ?>" class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap"><?= esc($column['label'] ?? $column['key']) ?></th>
                                     <?php endforeach; ?>
                                 </tr>
                             </thead>
@@ -794,6 +801,14 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="text-sm text-gray-500 report-detail-pagination-info">Showing <?= (int) min(($table['row_count'] ?? 0), 25) ?> of <?= (int) ($table['row_count'] ?? 0) ?> rows</div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <span class="report-detail-page-label text-sm text-gray-600 min-w-[110px] text-center">Page 1</span>
+                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                        </div>
+                    </div>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -803,6 +818,28 @@
 </div>
 
 <script>
+const reportWorkspace = {
+    detailApiUrl: '<?= base_url('reports/detail-data') ?>',
+    filters: <?= json_encode($filters ?? [], JSON_UNESCAPED_SLASHES) ?>,
+    detailTableMeta: <?= json_encode(array_map(static function ($t) {
+        return [
+            'id' => $t['id'] ?? '',
+            'title' => $t['title'] ?? '',
+            'columns' => $t['columns'] ?? [],
+            'row_count' => (int) ($t['row_count'] ?? 0),
+        ];
+    }, $detail_tables ?? []), JSON_UNESCAPED_SLASHES) ?>,
+};
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function syncDateModeControls() {
     const mode = document.getElementById('dateMode')?.value || 'relative';
     const customWrap = document.getElementById('customDateControls');
@@ -878,6 +915,7 @@ document.getElementById('dateMode')?.addEventListener('change', syncDateModeCont
 syncDateModeControls();
 
 const reportDrillState = { active: false, tableId: null, query: '', label: '' };
+const reportDetailState = {};
 
 function setActiveDetailTab(target) {
     document.querySelectorAll('.report-detail-tab').forEach((b) => {
@@ -902,6 +940,11 @@ function setActiveDetailTab(target) {
 function getPanelSearchQuery(panel) {
     const search = panel.querySelector('.report-detail-search');
     return (search?.value || '').trim().toLowerCase();
+}
+
+function getPanelPerPage(panel) {
+    const select = panel.querySelector('.report-detail-per-page');
+    return Math.max(10, Math.min(200, parseInt(select?.value || '25', 10) || 25));
 }
 
 function applyPanelRowFilters(panel) {
@@ -943,6 +986,7 @@ function applyDrillthrough(tableId, query, label) {
     setActiveDetailTab(tableId);
     updateDrillBadge();
     applyAllPanelFilters();
+    loadDetailPanel(tableId, 1);
     const section = document.getElementById('reportDrillBadge');
     section?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -954,19 +998,133 @@ function clearDrillthrough() {
     reportDrillState.label = '';
     updateDrillBadge();
     applyAllPanelFilters();
+    if (document.querySelector('.report-detail-panel:not(.hidden)')) {
+        const activePanel = document.querySelector('.report-detail-panel:not(.hidden)');
+        loadDetailPanel(activePanel.dataset.panel, 1);
+    }
 }
 
 document.getElementById('clearDrillthroughBtn')?.addEventListener('click', clearDrillthrough);
 
 document.querySelectorAll('.report-detail-tab').forEach((btn) => {
-    btn.addEventListener('click', () => setActiveDetailTab(btn.dataset.target));
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        setActiveDetailTab(target);
+        loadDetailPanel(target, reportDetailState[target]?.page || 1);
+    });
 });
 
 document.querySelectorAll('.report-detail-panel').forEach((panel) => {
     const search = panel.querySelector('.report-detail-search');
-    if (!search) return;
-    search.addEventListener('input', () => applyPanelRowFilters(panel));
+    const perPage = panel.querySelector('.report-detail-per-page');
+    const prevBtn = panel.querySelector('.report-detail-prev');
+    const nextBtn = panel.querySelector('.report-detail-next');
+    const panelId = panel.dataset.panel;
+    reportDetailState[panelId] = { page: 1 };
+    if (search) {
+        search.addEventListener('input', () => {
+            reportDetailState[panelId].page = 1;
+            loadDetailPanel(panelId, 1);
+        });
+    }
+    if (perPage) {
+        perPage.addEventListener('change', () => {
+            reportDetailState[panelId].page = 1;
+            loadDetailPanel(panelId, 1);
+        });
+    }
+    prevBtn?.addEventListener('click', () => {
+        const currentPage = reportDetailState[panelId]?.page || 1;
+        if (currentPage > 1) loadDetailPanel(panelId, currentPage - 1);
+    });
+    nextBtn?.addEventListener('click', () => {
+        const currentPage = reportDetailState[panelId]?.page || 1;
+        loadDetailPanel(panelId, currentPage + 1);
+    });
 });
+
+function renderDetailRows(panel, payload) {
+    const tbody = panel.querySelector('tbody');
+    const info = panel.querySelector('.report-detail-pagination-info');
+    const pageLabel = panel.querySelector('.report-detail-page-label');
+    const prevBtn = panel.querySelector('.report-detail-prev');
+    const nextBtn = panel.querySelector('.report-detail-next');
+    if (!tbody || !payload?.table) return;
+
+    const columns = payload.table.columns || [];
+    const rows = payload.rows || [];
+    const pagination = payload.pagination || {};
+
+    if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns.length}" class="px-4 py-8 text-center text-gray-500">No rows match the current filters.</td></tr>`;
+    } else {
+        tbody.innerHTML = rows.map((row) => {
+            const cells = columns.map((col) => {
+                const key = col.key || '';
+                const raw = row[key] ?? '';
+                const isMoney = /amount|balance|total|share|paid/i.test(key) && !Number.isNaN(parseFloat(raw));
+                const rendered = isMoney ? formatCurrency(raw) : escapeHtml(raw);
+                return `<td class="px-4 py-3 text-gray-700 whitespace-nowrap">${isMoney ? `<span class="font-semibold">${rendered}</span>` : rendered}</td>`;
+            }).join('');
+            return `<tr class="report-detail-row hover:bg-blue-50/30 transition-colors">${cells}</tr>`;
+        }).join('');
+    }
+
+    const from = pagination.from ?? 0;
+    const to = pagination.to ?? 0;
+    const total = pagination.total_rows ?? rows.length;
+    const page = pagination.page ?? 1;
+    const lastPage = pagination.last_page ?? 1;
+    info.textContent = `Showing ${from}-${to} of ${total} rows`;
+    pageLabel.textContent = `Page ${page} of ${lastPage}`;
+    prevBtn.disabled = page <= 1;
+    nextBtn.disabled = page >= lastPage;
+}
+
+async function loadDetailPanel(panelId, page = 1) {
+    const panel = document.querySelector(`.report-detail-panel[data-panel="${panelId}"]`);
+    if (!panel) return;
+
+    const search = panel.querySelector('.report-detail-search')?.value || '';
+    const perPage = getPanelPerPage(panel);
+    const params = new URLSearchParams();
+    params.set('report_type', reportWorkspace.filters.report_type || 'overview');
+    params.set('date_mode', reportWorkspace.filters.date_mode || 'relative');
+    params.set('date_range', reportWorkspace.filters.date_range || '30');
+    if (reportWorkspace.filters.custom_from) params.set('custom_from', reportWorkspace.filters.custom_from);
+    if (reportWorkspace.filters.custom_to) params.set('custom_to', reportWorkspace.filters.custom_to);
+    if (reportWorkspace.filters.as_of_date) params.set('as_of_date', reportWorkspace.filters.as_of_date);
+    params.set('table_id', panelId);
+    params.set('page', String(page));
+    params.set('per_page', String(perPage));
+    if (search) params.set('q', search);
+    if (reportDrillState.active) {
+        params.set('drill_table', reportDrillState.tableId || '');
+        params.set('drill_query', reportDrillState.query || '');
+    }
+
+    panel.classList.add('opacity-70');
+    try {
+        const res = await fetch(`${reportWorkspace.detailApiUrl}?${params.toString()}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        renderDetailRows(panel, payload);
+        reportDetailState[panelId] = { ...(reportDetailState[panelId] || {}), page: payload.pagination?.page || page };
+    } catch (err) {
+        const tbody = panel.querySelector('tbody');
+        if (tbody) {
+            const colspan = panel.querySelectorAll('thead th').length || 1;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-rose-600">Failed to load rows. Please retry.</td></tr>`;
+        }
+    } finally {
+        panel.classList.remove('opacity-70');
+    }
+}
+
+const initialDetailPanel = document.querySelector('.report-detail-panel:not(.hidden)');
+if (initialDetailPanel) {
+    loadDetailPanel(initialDetailPanel.dataset.panel, 1);
+}
 
 // Revenue Chart
 const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
