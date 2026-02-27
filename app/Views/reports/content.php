@@ -37,13 +37,13 @@
         </div>
     </div>
 
-        <!-- Enhanced Report Filters -->
+        <!-- Simplified Report Filters -->
     <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-            <div class="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
-                <div class="flex-1">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Report Type</label>
-                        <select id="reportType" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-6 gap-4">
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Report Type</label>
+                    <select id="reportType" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                         <option value="overview" <?= ($report_type ?? 'overview') === 'overview' ? 'selected' : '' ?>>Overview</option>
                         <option value="patients" <?= ($report_type ?? '') === 'patients' ? 'selected' : '' ?>>Patients</option>
                         <option value="examinations" <?= ($report_type ?? '') === 'examinations' ? 'selected' : '' ?>>Examinations</option>
@@ -52,70 +52,75 @@
                         <option value="treatments" <?= ($report_type ?? '') === 'treatments' ? 'selected' : '' ?>>Treatments</option>
                     </select>
                 </div>
-                <div class="flex-1">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Period Mode</label>
-                        <select id="dateMode" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                            <option value="relative" <?= (($filters['date_mode'] ?? 'relative') === 'relative') ? 'selected' : '' ?>>Relative</option>
-                            <option value="custom" <?= (($filters['date_mode'] ?? '') === 'custom') ? 'selected' : '' ?>>Custom Range</option>
-                        </select>
-                </div>
-                <div class="flex-1">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
-                        <select id="dateRange" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Quick Range</label>
+                    <select id="dateRange" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                         <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>>Last 7 days</option>
                         <option value="30" <?= ($date_range ?? '30') === '30' ? 'selected' : '' ?>>Last 30 days</option>
                         <option value="90" <?= ($date_range ?? '30') === '90' ? 'selected' : '' ?>>Last 90 days</option>
                         <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>>Last year</option>
                     </select>
                 </div>
-                <div class="flex-1">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Compare</label>
-                    <select id="compareMode" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                        <option value="none" <?= (($filters['compare_mode'] ?? 'none') === 'none') ? 'selected' : '' ?>>No comparison</option>
-                        <option value="previous_period" <?= (($filters['compare_mode'] ?? '') === 'previous_period') ? 'selected' : '' ?>>Previous period</option>
-                    </select>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">From</label>
+                    <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
-                <div id="customDateControls" class="flex-[1.6] hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Custom Range</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                        <input id="customTo" type="text" data-clinic-date="1" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90 backdrop-blur-sm">
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">To</label>
+                    <input id="customTo" type="text" data-clinic-date="1" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
-                <div class="lg:pt-6">
-                        <button onclick="generateReport()" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-chart-bar mr-2"></i>
-                            Generate Report
+                <div class="flex items-end">
+                    <button onclick="generateReport()" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-chart-bar mr-2"></i>Generate
                     </button>
                 </div>
             </div>
-            <div class="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
-                <div class="flex flex-wrap items-center gap-2 text-sm">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
-                        <i class="fas fa-calendar-range mr-2"></i>
-                        <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
-                    </span>
-                    <?php if (($filters['compare_mode'] ?? 'none') === 'previous_period' && !empty($filters['compare_start_date'])): ?>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
-                        <i class="fas fa-code-compare mr-2"></i>
-                        vs <?= esc(($filters['compare_start_date'] ?? '') . ' to ' . ($filters['compare_end_date'] ?? '')) ?>
-                    </span>
-                    <?php endif; ?>
-                </div>
-                <div class="flex flex-wrap items-center gap-2 lg:ml-auto">
-                    <select id="reportPresetSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white/90 min-w-[220px]">
-                        <option value="">Saved presets...</option>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+                <div id="patientFilterWrap" class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Patient (Optional)</label>
+                    <select id="patientFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Patients</option>
+                        <?php foreach (($report_patients ?? []) as $patient): ?>
+                            <?php
+                                $patientId = (int) ($patient['id'] ?? 0);
+                                $patientLabel = trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')));
+                                if ($patientLabel === '') {
+                                    $patientLabel = 'Patient #' . $patientId;
+                                }
+                                $patientNumber = trim((string) ($patient['patient_number'] ?? ''));
+                            ?>
+                            <option value="<?= $patientId ?>" <?= (int) ($filters['patient_id'] ?? 0) === $patientId ? 'selected' : '' ?>>
+                                <?= esc($patientLabel . ($patientNumber !== '' ? ' (' . $patientNumber . ')' : '')) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
-                    <button type="button" id="loadPresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-gray-200 bg-white text-gray-700 hover:border-blue-300">
-                        <i class="fas fa-folder-open mr-2"></i>Load
-                    </button>
-                    <button type="button" id="savePresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
-                        <i class="fas fa-floppy-disk mr-2"></i>Save Preset
-                    </button>
-                    <button type="button" id="deletePresetBtn" class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100">
-                        <i class="fas fa-trash mr-2"></i>Delete
-                    </button>
                 </div>
+                <div id="transactionTypeWrap">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Transaction Type (Optional)</label>
+                    <select id="transactionTypeFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Types</option>
+                        <option value="invoice" <?= ($filters['transaction_type'] ?? '') === 'invoice' ? 'selected' : '' ?>>Invoice</option>
+                        <option value="payment" <?= ($filters['transaction_type'] ?? '') === 'payment' ? 'selected' : '' ?>>Payment</option>
+                        <option value="expense" <?= ($filters['transaction_type'] ?? '') === 'expense' ? 'selected' : '' ?>>Expense</option>
+                        <option value="refund" <?= ($filters['transaction_type'] ?? '') === 'refund' ? 'selected' : '' ?>>Refund</option>
+                        <option value="adjustment" <?= ($filters['transaction_type'] ?? '') === 'adjustment' ? 'selected' : '' ?>>Adjustment</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                    <i class="fas fa-calendar-range mr-2"></i><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
+                </span>
+                <?php if (!empty($filters['patient_id'])): ?>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
+                    <i class="fas fa-user mr-2"></i>Patient Scoped
+                </span>
+                <?php endif; ?>
+                <?php if (!empty($filters['transaction_type'])): ?>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
+                    <i class="fas fa-filter mr-2"></i>Type: <?= esc(ucfirst($filters['transaction_type'])) ?>
+                </span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -958,23 +963,36 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
-function syncDateModeControls() {
-    const mode = document.getElementById('dateMode')?.value || 'relative';
-    const customWrap = document.getElementById('customDateControls');
-    const dateRange = document.getElementById('dateRange');
+function syncReportFilterVisibility() {
+    const reportType = document.getElementById('reportType')?.value || 'overview';
+    const transactionTypeWrap = document.getElementById('transactionTypeWrap');
+    if (transactionTypeWrap) {
+        transactionTypeWrap.classList.toggle('opacity-50', reportType !== 'finance');
+    }
+}
 
-    if (customWrap) customWrap.classList.toggle('hidden', mode !== 'custom');
-    if (dateRange) {
-        dateRange.disabled = (mode === 'custom');
-        dateRange.classList.toggle('opacity-60', mode === 'custom');
+function applyQuickDateRange(days) {
+    const toIso = new Date().toISOString().slice(0, 10);
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - Number(days || 30));
+    const fromIso = fromDate.toISOString().slice(0, 10);
+    const fromDisplay = window.formatClinicDate ? window.formatClinicDate(fromIso) : fromIso;
+    const toDisplay = window.formatClinicDate ? window.formatClinicDate(toIso) : toIso;
+    const fromInput = document.getElementById('customFrom');
+    const toInput = document.getElementById('customTo');
+    if (fromInput && !fromInput.value) {
+        fromInput.value = fromDisplay;
+    }
+    if (toInput && !toInput.value) {
+        toInput.value = toDisplay;
     }
 }
 
 function generateReport() {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
-    const dateMode = document.getElementById('dateMode').value;
-    const compareMode = document.getElementById('compareMode')?.value || 'none';
+    const patientId = document.getElementById('patientFilter')?.value || '';
+    const transactionType = document.getElementById('transactionTypeFilter')?.value || '';
     const customFromRaw = document.getElementById('customFrom')?.value || '';
     const customToRaw = document.getElementById('customTo')?.value || '';
     const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
@@ -983,10 +1001,16 @@ function generateReport() {
     const url = new URL(window.location);
     url.searchParams.set('report_type', reportType);
     url.searchParams.set('date_range', dateRange);
-    url.searchParams.set('date_mode', dateMode);
-    url.searchParams.set('compare_mode', compareMode);
+    url.searchParams.set('date_mode', 'custom');
+    url.searchParams.set('compare_mode', 'none');
     if (customFrom) url.searchParams.set('custom_from', customFrom); else url.searchParams.delete('custom_from');
     if (customTo) url.searchParams.set('custom_to', customTo); else url.searchParams.delete('custom_to');
+    if (patientId) url.searchParams.set('patient_id', patientId); else url.searchParams.delete('patient_id');
+    if (reportType === 'finance' && transactionType) {
+        url.searchParams.set('transaction_type', transactionType);
+    } else {
+        url.searchParams.delete('transaction_type');
+    }
     
     window.location.href = url.toString();
 }
@@ -994,8 +1018,8 @@ function generateReport() {
 function exportReport(format) {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
-    const dateMode = document.getElementById('dateMode').value;
-    const compareMode = document.getElementById('compareMode')?.value || 'none';
+    const patientId = document.getElementById('patientFilter')?.value || '';
+    const transactionType = document.getElementById('transactionTypeFilter')?.value || '';
     const customFromRaw = document.getElementById('customFrom')?.value || '';
     const customToRaw = document.getElementById('customTo')?.value || '';
     const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
@@ -1012,10 +1036,12 @@ function exportReport(format) {
         format: format,
         report_type: reportType,
         date_range: dateRange,
-        date_mode: dateMode,
-        compare_mode: compareMode,
+        date_mode: 'custom',
+        compare_mode: 'none',
         custom_from: customFrom,
         custom_to: customTo,
+        patient_id: patientId,
+        transaction_type: reportType === 'finance' ? transactionType : '',
     };
 
     Object.entries(fields).forEach(([name, value]) => {
@@ -1031,8 +1057,16 @@ function exportReport(format) {
     form.remove();
 }
 
-document.getElementById('dateMode')?.addEventListener('change', syncDateModeControls);
-syncDateModeControls();
+document.getElementById('reportType')?.addEventListener('change', syncReportFilterVisibility);
+document.getElementById('dateRange')?.addEventListener('change', (event) => {
+    const fromInput = document.getElementById('customFrom');
+    const toInput = document.getElementById('customTo');
+    if (fromInput) fromInput.value = '';
+    if (toInput) toInput.value = '';
+    applyQuickDateRange(event.target.value);
+});
+syncReportFilterVisibility();
+applyQuickDateRange(document.getElementById('dateRange')?.value || '30');
 
 const reportDrillState = { active: false, tableId: null, query: '', label: '' };
 const reportDetailState = {};
@@ -1056,94 +1090,6 @@ function setActiveDetailTab(target) {
         panel.classList.toggle('hidden', panel.dataset.panel !== target);
     });
 }
-
-const REPORT_PRESETS_KEY = 'dental_saas_reports_presets_v1';
-
-function getCurrentFilterState() {
-    return {
-        report_type: document.getElementById('reportType')?.value || 'overview',
-        date_range: document.getElementById('dateRange')?.value || '30',
-        date_mode: document.getElementById('dateMode')?.value || 'relative',
-        compare_mode: document.getElementById('compareMode')?.value || 'none',
-        custom_from: (() => {
-            const raw = document.getElementById('customFrom')?.value || '';
-            return window.parseClinicDateToIso ? (window.parseClinicDateToIso(raw) || '') : raw;
-        })(),
-        custom_to: (() => {
-            const raw = document.getElementById('customTo')?.value || '';
-            return window.parseClinicDateToIso ? (window.parseClinicDateToIso(raw) || '') : raw;
-        })(),
-    };
-}
-
-function readReportPresets() {
-    try {
-        const raw = localStorage.getItem(REPORT_PRESETS_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-    } catch {
-        return [];
-    }
-}
-
-function writeReportPresets(presets) {
-    localStorage.setItem(REPORT_PRESETS_KEY, JSON.stringify(presets));
-}
-
-function renderPresetOptions() {
-    const select = document.getElementById('reportPresetSelect');
-    if (!select) return;
-    const presets = readReportPresets();
-    const currentValue = select.value;
-    select.innerHTML = '<option value="">Saved presets...</option>' + presets.map((p, idx) =>
-        `<option value="${idx}">${escapeHtml(p.name || `Preset ${idx + 1}`)}</option>`
-    ).join('');
-    if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
-        select.value = currentValue;
-    }
-}
-
-function applyPresetToForm(preset) {
-    if (!preset || !preset.filters) return;
-    const f = preset.filters;
-    if (document.getElementById('reportType')) document.getElementById('reportType').value = f.report_type || 'overview';
-    if (document.getElementById('dateRange')) document.getElementById('dateRange').value = f.date_range || '30';
-    if (document.getElementById('dateMode')) document.getElementById('dateMode').value = f.date_mode || 'relative';
-    if (document.getElementById('compareMode')) document.getElementById('compareMode').value = f.compare_mode || 'none';
-    if (document.getElementById('customFrom')) document.getElementById('customFrom').value = f.custom_from || '';
-    if (document.getElementById('customTo')) document.getElementById('customTo').value = f.custom_to || '';
-    syncDateModeControls();
-}
-
-document.getElementById('savePresetBtn')?.addEventListener('click', () => {
-    const name = window.prompt('Preset name');
-    if (!name) return;
-    const presets = readReportPresets();
-    presets.push({ name: name.trim(), filters: getCurrentFilterState(), created_at: new Date().toISOString() });
-    writeReportPresets(presets);
-    renderPresetOptions();
-});
-
-document.getElementById('loadPresetBtn')?.addEventListener('click', () => {
-    const idx = parseInt(document.getElementById('reportPresetSelect')?.value || '', 10);
-    if (Number.isNaN(idx)) return;
-    const preset = readReportPresets()[idx];
-    if (!preset) return;
-    applyPresetToForm(preset);
-});
-
-document.getElementById('deletePresetBtn')?.addEventListener('click', () => {
-    const select = document.getElementById('reportPresetSelect');
-    const idx = parseInt(select?.value || '', 10);
-    if (Number.isNaN(idx)) return;
-    const presets = readReportPresets();
-    if (!presets[idx]) return;
-    presets.splice(idx, 1);
-    writeReportPresets(presets);
-    renderPresetOptions();
-});
-
-renderPresetOptions();
 
 function getPanelSearchQuery(panel) {
     const search = panel.querySelector('.report-detail-search');
@@ -1336,6 +1282,8 @@ async function loadDetailPanel(panelId, page = 1) {
     params.set('compare_mode', reportWorkspace.filters.compare_mode || 'none');
     if (reportWorkspace.filters.custom_from) params.set('custom_from', reportWorkspace.filters.custom_from);
     if (reportWorkspace.filters.custom_to) params.set('custom_to', reportWorkspace.filters.custom_to);
+    if (reportWorkspace.filters.patient_id) params.set('patient_id', reportWorkspace.filters.patient_id);
+    if (reportWorkspace.filters.transaction_type) params.set('transaction_type', reportWorkspace.filters.transaction_type);
     params.set('table_id', panelId);
     params.set('page', String(page));
     params.set('per_page', String(perPage));

@@ -16,6 +16,7 @@ class Reports extends BaseController
     private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
     private const ALLOWED_DATE_MODES = ['relative', 'custom'];
     private const ALLOWED_COMPARE_MODES = ['none', 'previous_period'];
+    private const ALLOWED_FINANCE_TRANSACTION_TYPES = ['payment', 'invoice', 'refund', 'adjustment', 'expense'];
 
     protected $patientModel;
     protected $examinationModel;
@@ -98,12 +99,27 @@ class Reports extends BaseController
     private function parseReportFilters(string $source = 'get'): array
     {
         $input = strtolower($source) === 'post' ? 'getPost' : 'getGet';
+        $clinicId = $this->requireTenantClinicId();
         $reportType = $this->sanitizeReportType($this->request->{$input}('report_type') ?? $this->request->{$input}('type'));
         $dateRange = $this->sanitizeDateRange($this->request->{$input}('date_range'));
         $dateMode = $this->sanitizeDateMode($this->request->{$input}('date_mode'));
         $compareMode = $this->sanitizeCompareMode($this->request->{$input}('compare_mode'));
         $customFrom = $this->sanitizeDateInput($this->request->{$input}('custom_from'));
         $customTo = $this->sanitizeDateInput($this->request->{$input}('custom_to'));
+        $patientIdRaw = (int) ($this->request->{$input}('patient_id') ?? 0);
+        $transactionTypeRaw = strtolower(trim((string) ($this->request->{$input}('transaction_type') ?? '')));
+        $transactionType = in_array($transactionTypeRaw, self::ALLOWED_FINANCE_TRANSACTION_TYPES, true) ? $transactionTypeRaw : '';
+        $patientId = null;
+
+        if ($clinicId && $patientIdRaw > 0) {
+            $patientExists = $this->patientModel
+                ->where('clinic_id', (int) $clinicId)
+                ->where('id', $patientIdRaw)
+                ->first();
+            if (!empty($patientExists)) {
+                $patientId = $patientIdRaw;
+            }
+        }
 
         if ($dateMode === 'custom') {
             if (!$customFrom || !$customTo) {
@@ -136,6 +152,8 @@ class Reports extends BaseController
             'end_date' => $endDate,
             'compare_start_date' => $compareStartDate,
             'compare_end_date' => $compareEndDate,
+            'patient_id' => $patientId,
+            'transaction_type' => $transactionType,
             'period_label' => $dateMode === 'custom'
                 ? ($startDate . ' to ' . $endDate)
                 : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')'),
@@ -295,7 +313,7 @@ class Reports extends BaseController
         }
     }
 
-    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?array $compareWindow = null): array
+    private function buildReportDataByType(string $reportType, string $startDate, string $endDate, ?array $compareWindow = null, array $filters = []): array
     {
         switch ($reportType) {
             case 'patients':
@@ -305,7 +323,7 @@ class Reports extends BaseController
             case 'appointments':
                 return $this->getAppointmentReports($startDate, $endDate);
             case 'finance':
-                return $this->getFinanceReports($startDate, $endDate, $compareWindow);
+                return $this->getFinanceReports($startDate, $endDate, $compareWindow, $filters);
             case 'treatments':
                 return $this->getTreatmentReports($startDate, $endDate);
             case 'overview':
@@ -414,6 +432,12 @@ class Reports extends BaseController
                 'date_range' => $dateRange,
                 'report_type' => $reportType,
                 'filters' => $filters,
+                'report_patients' => $this->patientModel
+                    ->select('id, patient_number, first_name, last_name')
+                    ->where('clinic_id', $clinicId)
+                    ->orderBy('first_name', 'ASC')
+                    ->orderBy('last_name', 'ASC')
+                    ->findAll(300),
             ];
 
             $startDate = $filters['start_date'];
@@ -422,7 +446,7 @@ class Reports extends BaseController
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
 
-            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow, $filters);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -455,6 +479,7 @@ class Reports extends BaseController
                     'period_label' => 'Last 30 days',
                 ],
                 'detail_tables' => [],
+                'report_patients' => [],
             ];
 
             // Ensure user data is still available in error state
@@ -480,7 +505,7 @@ class Reports extends BaseController
             $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
-            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
+            $data = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow, $filters);
             
             $data['_detail_tables'] = $this->buildDetailTables($reportType, $data);
             $data['_filters'] = $filters;
@@ -515,7 +540,7 @@ class Reports extends BaseController
             $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
                 ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
                 : null;
-            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
+            $reports = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow, $filters);
             $detailTables = $this->buildDetailTables($reportType, $reports);
 
             $table = null;
@@ -588,7 +613,10 @@ class Reports extends BaseController
                 'end_date' => $endDate,
             ];
 
-            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow);
+            $compareWindow = ($filters['compare_mode'] ?? 'none') === 'previous_period'
+                ? ['start_date' => $filters['compare_start_date'], 'end_date' => $filters['compare_end_date']]
+                : null;
+            $data['reports'] = $this->buildReportDataByType($reportType, $startDate, $endDate, $compareWindow, $filters);
 
             $data['detail_tables'] = $this->buildDetailTables($reportType, $data['reports']);
 
@@ -764,7 +792,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getFinanceReports($startDate, $endDate, ?array $compareWindow = null)
+    private function getFinanceReports($startDate, $endDate, ?array $compareWindow = null, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -788,12 +816,20 @@ class Reports extends BaseController
         $providerPayableOutstanding = floatval($providerStats['total_provider_balance'] ?? 0);
         $pendingInvoiceAmount = floatval($financeStats['pending_payments'] ?? 0);
         $totalExpenses = floatval($financeStats['total_expenses'] ?? 0);
+        $selectedPatientId = (int) ($filters['patient_id'] ?? 0);
+        $selectedTransactionType = (string) ($filters['transaction_type'] ?? '');
 
-        $transactions = $this->financeModel
+        $transactionsQuery = $this->financeModel
             ->where('clinic_id', $clinicId)
             ->where('created_at >=', $startDateTime)
-            ->where('created_at <=', $endDateTime)
-            ->findAll();
+            ->where('created_at <=', $endDateTime);
+        if ($selectedPatientId > 0) {
+            $transactionsQuery->where('patient_id', $selectedPatientId);
+        }
+        if ($selectedTransactionType !== '') {
+            $transactionsQuery->where('transaction_type', $selectedTransactionType);
+        }
+        $transactions = $transactionsQuery->findAll();
 
         $refundCount = 0;
         $refundTotal = 0.0;
@@ -810,17 +846,122 @@ class Reports extends BaseController
             }
             $discountTotal += (float) ($txn['discount_amount'] ?? 0);
         }
+        $hasScopedFilter = $selectedPatientId > 0 || $selectedTransactionType !== '';
+        if ($hasScopedFilter) {
+            $grossCollections = 0.0;
+            $totalExpenses = 0.0;
+            $pendingInvoiceAmount = 0.0;
+            foreach ($transactions as $txn) {
+                $type = (string) ($txn['transaction_type'] ?? '');
+                $amount = (float) ($txn['total_amount'] ?? ($txn['amount'] ?? 0));
+                if ($type === 'expense') {
+                    $totalExpenses += $amount;
+                    continue;
+                }
+                if ($type === 'refund') {
+                    $grossCollections -= $amount;
+                    continue;
+                }
+                $grossCollections += $amount;
+                if ($type === 'invoice' && (string) ($txn['payment_status'] ?? '') !== 'paid') {
+                    $pendingInvoiceAmount += (float) ($txn['balance_due'] ?? 0);
+                }
+            }
+        }
+
+        $providerPayoutStatus = $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate);
+        $providerPayoutBreakdown = $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10);
+        $providerPayoutRows = $this->providerPayoutModel->getReportRowsByClinic((int) $clinicId, $startDate, $endDate, 250);
+        if ($hasScopedFilter) {
+            $allowedFinanceIds = array_map(static fn($row) => (int) ($row['id'] ?? 0), $transactions);
+            $providerPayoutRows = array_values(array_filter($providerPayoutRows, static function ($row) use ($selectedPatientId, $allowedFinanceIds) {
+                $financeId = (int) ($row['finance_id'] ?? 0);
+                $patientId = (int) ($row['patient_id'] ?? 0);
+                if (!empty($allowedFinanceIds) && !in_array($financeId, $allowedFinanceIds, true)) {
+                    return false;
+                }
+                if ($selectedPatientId > 0 && $patientId !== $selectedPatientId) {
+                    return false;
+                }
+                return true;
+            }));
+            $statusAgg = [];
+            $providerAgg = [];
+            foreach ($providerPayoutRows as $row) {
+                $status = (string) ($row['status'] ?? 'unknown');
+                if (!isset($statusAgg[$status])) {
+                    $statusAgg[$status] = ['status' => $status, 'payout_count' => 0, 'provider_share_total' => 0.0];
+                }
+                $statusAgg[$status]['payout_count'] += 1;
+                $statusAgg[$status]['provider_share_total'] += (float) ($row['provider_share_amount'] ?? 0);
+
+                $provider = (string) ($row['provider_label'] ?? 'Unknown');
+                if (!isset($providerAgg[$provider])) {
+                    $providerAgg[$provider] = [
+                        'provider_label' => $provider,
+                        'payout_count' => 0,
+                        'gross_amount_total' => 0.0,
+                        'provider_share_total' => 0.0,
+                        'provider_paid_total' => 0.0,
+                        'provider_balance_total' => 0.0,
+                    ];
+                }
+                $providerAgg[$provider]['payout_count'] += 1;
+                $providerAgg[$provider]['gross_amount_total'] += (float) ($row['gross_amount'] ?? 0);
+                $providerAgg[$provider]['provider_share_total'] += (float) ($row['provider_share_amount'] ?? 0);
+                $providerAgg[$provider]['provider_paid_total'] += (float) ($row['provider_paid_amount'] ?? 0);
+                $providerAgg[$provider]['provider_balance_total'] += (float) ($row['provider_balance_due'] ?? 0);
+            }
+            $providerPayoutStatus = array_values($statusAgg);
+            $providerPayoutBreakdown = array_values($providerAgg);
+            $providerShareAccrual = array_sum(array_map(static fn($r) => (float) ($r['provider_share_total'] ?? 0), $providerPayoutBreakdown));
+            $providerPaidCash = array_sum(array_map(static fn($r) => (float) ($r['provider_paid_total'] ?? 0), $providerPayoutBreakdown));
+            $providerPayableOutstanding = array_sum(array_map(static fn($r) => (float) ($r['provider_balance_total'] ?? 0), $providerPayoutBreakdown));
+        }
+        $monthlyRevenue = $this->getMonthlyRevenueData($startDate, $endDate);
+        $paymentMethods = $this->getPaymentMethodsData($startDate, $endDate);
+        $outstandingPayments = $this->getOutstandingPaymentsData($startDate, $endDate);
+        if ($hasScopedFilter) {
+            $monthlyAgg = [];
+            $paymentAgg = [];
+            $outstandingPayments = [];
+            foreach ($transactions as $txn) {
+                $monthKey = date('Y-m-01', strtotime((string) ($txn['created_at'] ?? 'now')));
+                $monthLabel = date('M Y', strtotime($monthKey));
+                $amount = (float) ($txn['total_amount'] ?? ($txn['amount'] ?? 0));
+                $type = (string) ($txn['transaction_type'] ?? '');
+                $signed = in_array($type, ['refund', 'expense'], true) ? -$amount : $amount;
+                if (!isset($monthlyAgg[$monthKey])) {
+                    $monthlyAgg[$monthKey] = ['month' => $monthLabel, 'total_amount' => 0.0];
+                }
+                $monthlyAgg[$monthKey]['total_amount'] += $signed;
+
+                $method = (string) ($txn['payment_method'] ?? 'unknown');
+                if (!isset($paymentAgg[$method])) {
+                    $paymentAgg[$method] = ['payment_method' => $method, 'total_amount' => 0.0, 'transaction_count' => 0];
+                }
+                $paymentAgg[$method]['total_amount'] += $signed;
+                $paymentAgg[$method]['transaction_count'] += 1;
+
+                if ($type === 'invoice' && (string) ($txn['payment_status'] ?? '') !== 'paid') {
+                    $outstandingPayments[] = $txn;
+                }
+            }
+            ksort($monthlyAgg);
+            $monthlyRevenue = array_values($monthlyAgg);
+            $paymentMethods = array_values($paymentAgg);
+        }
 
         $result = [
             'transactions' => $transactions,
-            'monthly_revenue' => $this->getMonthlyRevenueData($startDate, $endDate),
-            'payment_methods' => $this->getPaymentMethodsData($startDate, $endDate),
-            'outstanding_payments' => $this->getOutstandingPaymentsData($startDate, $endDate),
+            'monthly_revenue' => $monthlyRevenue,
+            'payment_methods' => $paymentMethods,
+            'outstanding_payments' => $outstandingPayments,
             'ar_aging_summary' => $this->financeModel->getAccountsReceivableAgingSummaryByClinic($clinicId, $endDate),
             'ar_aging_detail' => $this->financeModel->getAccountsReceivableAgingDetailByClinic($clinicId, $endDate, 100),
-            'provider_payout_status' => $this->providerPayoutModel->getStatusSummaryByClinic((int) $clinicId, $startDate, $endDate),
-            'provider_payout_breakdown' => $this->providerPayoutModel->getProviderBreakdownByClinic((int) $clinicId, $startDate, $endDate, 10),
-            'provider_payout_rows' => $this->providerPayoutModel->getReportRowsByClinic((int) $clinicId, $startDate, $endDate, 250),
+            'provider_payout_status' => $providerPayoutStatus,
+            'provider_payout_breakdown' => $providerPayoutBreakdown,
+            'provider_payout_rows' => $providerPayoutRows,
             'transaction_type_mix' => array_map(static function ($type, $amount) {
                 return ['transaction_type' => $type, 'total_amount' => $amount];
             }, array_keys($transactionTypeMix), array_values($transactionTypeMix)),
