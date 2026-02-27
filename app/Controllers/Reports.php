@@ -222,7 +222,7 @@ class Reports extends BaseController
         }
 
         $patients = $this->patientModel
-            ->select('id, patient_number, first_name, last_name')
+            ->select('id, first_name, last_name')
             ->where('clinic_id', $clinicId)
             ->whereIn('id', array_keys($patientIds))
             ->findAll();
@@ -234,12 +234,8 @@ class Reports extends BaseController
                 continue;
             }
             $name = trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')));
-            $number = trim((string) ($patient['patient_number'] ?? ''));
             if ($name === '') {
                 $name = 'Patient #' . $id;
-            }
-            if ($number !== '') {
-                $name .= ' (' . $number . ')';
             }
             $map[$id] = $name;
         }
