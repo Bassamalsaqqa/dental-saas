@@ -17,6 +17,10 @@ class Reports extends BaseController
     private const ALLOWED_DATE_MODES = ['relative', 'custom'];
     private const ALLOWED_COMPARE_MODES = ['none', 'previous_period'];
     private const ALLOWED_FINANCE_TRANSACTION_TYPES = ['payment', 'invoice', 'refund', 'adjustment', 'expense'];
+    private const ALLOWED_FINANCE_PAYMENT_METHODS = ['cash', 'card', 'bank_transfer', 'check', 'insurance', 'other'];
+    private const ALLOWED_FINANCE_PAYMENT_STATUSES = ['paid', 'pending', 'partial', 'overdue', 'cancelled'];
+    private const ALLOWED_APPOINTMENT_STATUSES = ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show', 'pending'];
+    private const ALLOWED_TREATMENT_STATUSES = ['planned', 'in_progress', 'completed', 'cancelled', 'on_hold'];
 
     protected $patientModel;
     protected $examinationModel;
@@ -78,6 +82,21 @@ class Reports extends BaseController
         return in_array($value, self::ALLOWED_COMPARE_MODES, true) ? $value : 'none';
     }
 
+    private function sanitizeTokenFilter(?string $value, array $allowed = []): string
+    {
+        $value = strtolower(trim((string) ($value ?? '')));
+        if ($value === '') {
+            return '';
+        }
+        if (preg_match('/^[a-z0-9_\- ]+$/', $value) !== 1) {
+            return '';
+        }
+        if (!empty($allowed) && !in_array($value, $allowed, true)) {
+            return '';
+        }
+        return $value;
+    }
+
     private function getReportWindow(string $dateRange): array
     {
         $days = (int) $dateRange;
@@ -107,8 +126,14 @@ class Reports extends BaseController
         $customFrom = $this->sanitizeDateInput($this->request->{$input}('custom_from'));
         $customTo = $this->sanitizeDateInput($this->request->{$input}('custom_to'));
         $patientIdRaw = (int) ($this->request->{$input}('patient_id') ?? 0);
-        $transactionTypeRaw = strtolower(trim((string) ($this->request->{$input}('transaction_type') ?? '')));
-        $transactionType = in_array($transactionTypeRaw, self::ALLOWED_FINANCE_TRANSACTION_TYPES, true) ? $transactionTypeRaw : '';
+        $transactionType = $this->sanitizeTokenFilter($this->request->{$input}('transaction_type'), self::ALLOWED_FINANCE_TRANSACTION_TYPES);
+        $paymentMethod = $this->sanitizeTokenFilter($this->request->{$input}('payment_method'), self::ALLOWED_FINANCE_PAYMENT_METHODS);
+        $paymentStatus = $this->sanitizeTokenFilter($this->request->{$input}('payment_status'), self::ALLOWED_FINANCE_PAYMENT_STATUSES);
+        $examinationType = $this->sanitizeTokenFilter($this->request->{$input}('examination_type'));
+        $appointmentStatus = $this->sanitizeTokenFilter($this->request->{$input}('appointment_status'), self::ALLOWED_APPOINTMENT_STATUSES);
+        $appointmentType = $this->sanitizeTokenFilter($this->request->{$input}('appointment_type'));
+        $treatmentStatus = $this->sanitizeTokenFilter($this->request->{$input}('treatment_status'), self::ALLOWED_TREATMENT_STATUSES);
+        $treatmentType = $this->sanitizeTokenFilter($this->request->{$input}('treatment_type'));
         $patientId = null;
 
         if ($clinicId && $patientIdRaw > 0) {
@@ -154,6 +179,13 @@ class Reports extends BaseController
             'compare_end_date' => $compareEndDate,
             'patient_id' => $patientId,
             'transaction_type' => $transactionType,
+            'payment_method' => $paymentMethod,
+            'payment_status' => $paymentStatus,
+            'examination_type' => $examinationType,
+            'appointment_status' => $appointmentStatus,
+            'appointment_type' => $appointmentType,
+            'treatment_status' => $treatmentStatus,
+            'treatment_type' => $treatmentType,
             'period_label' => $dateMode === 'custom'
                 ? ($startDate . ' to ' . $endDate)
                 : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')'),
@@ -317,15 +349,15 @@ class Reports extends BaseController
     {
         switch ($reportType) {
             case 'patients':
-                return $this->getPatientReports($startDate, $endDate);
+                return $this->getPatientReports($startDate, $endDate, $filters);
             case 'examinations':
-                return $this->getExaminationReports($startDate, $endDate);
+                return $this->getExaminationReports($startDate, $endDate, $filters);
             case 'appointments':
-                return $this->getAppointmentReports($startDate, $endDate);
+                return $this->getAppointmentReports($startDate, $endDate, $filters);
             case 'finance':
                 return $this->getFinanceReports($startDate, $endDate, $compareWindow, $filters);
             case 'treatments':
-                return $this->getTreatmentReports($startDate, $endDate);
+                return $this->getTreatmentReports($startDate, $endDate, $filters);
             case 'overview':
             default:
                 return $this->getOverviewReports($startDate, $endDate, $compareWindow);
@@ -732,7 +764,7 @@ class Reports extends BaseController
         return $result;
     }
 
-    private function getPatientReports($startDate, $endDate)
+    private function getPatientReports($startDate, $endDate, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -744,15 +776,23 @@ class Reports extends BaseController
             ];
         }
 
+        $patientsQuery = $this->patientModel
+            ->where('clinic_id', $clinicId)
+            ->where('created_at >=', $startDate . ' 00:00:00')
+            ->where('created_at <=', $endDate . ' 23:59:59');
+        if (!empty($filters['patient_id'])) {
+            $patientsQuery->where('id', (int) $filters['patient_id']);
+        }
+
         return [
-            'patients' => $this->patientModel->where('clinic_id', $clinicId)->where('created_at >=', $startDate . ' 00:00:00')->where('created_at <=', $endDate . ' 23:59:59')->findAll(),
-            'age_groups' => $this->getAgeGroupData(),
-            'gender_distribution' => $this->getGenderDistributionData($startDate, $endDate),
-            'new_vs_returning' => $this->getNewVsReturningData($startDate, $endDate),
+            'patients' => $patientsQuery->findAll(),
+            'age_groups' => $this->getAgeGroupData($filters),
+            'gender_distribution' => $this->getGenderDistributionData($startDate, $endDate, $filters),
+            'new_vs_returning' => $this->getNewVsReturningData($startDate, $endDate, $filters),
         ];
     }
 
-    private function getExaminationReports($startDate, $endDate)
+    private function getExaminationReports($startDate, $endDate, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -764,15 +804,26 @@ class Reports extends BaseController
             ];
         }
 
+        $examQuery = $this->examinationModel
+            ->where('clinic_id', $clinicId)
+            ->where('examination_date >=', $startDate)
+            ->where('examination_date <=', $endDate);
+        if (!empty($filters['patient_id'])) {
+            $examQuery->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['examination_type'])) {
+            $examQuery->where('examination_type', (string) $filters['examination_type']);
+        }
+
         return [
-            'examinations' => $this->examinationModel->where('clinic_id', $clinicId)->where('examination_date >=', $startDate)->where('examination_date <=', $endDate)->findAll(),
-            'examination_types' => $this->getExaminationTypesData($startDate, $endDate),
-            'monthly_examinations' => $this->getMonthlyExaminationsData($startDate, $endDate),
+            'examinations' => $examQuery->findAll(),
+            'examination_types' => $this->getExaminationTypesData($startDate, $endDate, $filters),
+            'monthly_examinations' => $this->getMonthlyExaminationsData($startDate, $endDate, $filters),
             'tooth_conditions' => $this->getToothConditionsData(),
         ];
     }
 
-    private function getAppointmentReports($startDate, $endDate)
+    private function getAppointmentReports($startDate, $endDate, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -784,11 +835,25 @@ class Reports extends BaseController
             ];
         }
 
+        $appointmentsQuery = $this->appointmentModel
+            ->where('clinic_id', $clinicId)
+            ->where('appointment_date >=', $startDate)
+            ->where('appointment_date <=', $endDate);
+        if (!empty($filters['patient_id'])) {
+            $appointmentsQuery->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['appointment_status'])) {
+            $appointmentsQuery->where('status', (string) $filters['appointment_status']);
+        }
+        if (!empty($filters['appointment_type'])) {
+            $appointmentsQuery->where('appointment_type', (string) $filters['appointment_type']);
+        }
+
         return [
-            'appointments' => $this->appointmentModel->where('clinic_id', $clinicId)->where('appointment_date >=', $startDate)->where('appointment_date <=', $endDate)->findAll(),
-            'appointment_types' => $this->getAppointmentTypesData($startDate, $endDate),
-            'monthly_appointments' => $this->getMonthlyAppointmentsData($startDate, $endDate),
-            'status_distribution' => $this->getAppointmentStatusData($startDate, $endDate),
+            'appointments' => $appointmentsQuery->findAll(),
+            'appointment_types' => $this->getAppointmentTypesData($startDate, $endDate, $filters),
+            'monthly_appointments' => $this->getMonthlyAppointmentsData($startDate, $endDate, $filters),
+            'status_distribution' => $this->getAppointmentStatusData($startDate, $endDate, $filters),
         ];
     }
 
@@ -818,6 +883,8 @@ class Reports extends BaseController
         $totalExpenses = floatval($financeStats['total_expenses'] ?? 0);
         $selectedPatientId = (int) ($filters['patient_id'] ?? 0);
         $selectedTransactionType = (string) ($filters['transaction_type'] ?? '');
+        $selectedPaymentMethod = (string) ($filters['payment_method'] ?? '');
+        $selectedPaymentStatus = (string) ($filters['payment_status'] ?? '');
 
         $transactionsQuery = $this->financeModel
             ->where('clinic_id', $clinicId)
@@ -828,6 +895,12 @@ class Reports extends BaseController
         }
         if ($selectedTransactionType !== '') {
             $transactionsQuery->where('transaction_type', $selectedTransactionType);
+        }
+        if ($selectedPaymentMethod !== '') {
+            $transactionsQuery->where('payment_method', $selectedPaymentMethod);
+        }
+        if ($selectedPaymentStatus !== '') {
+            $transactionsQuery->where('payment_status', $selectedPaymentStatus);
         }
         $transactions = $transactionsQuery->findAll();
 
@@ -846,7 +919,7 @@ class Reports extends BaseController
             }
             $discountTotal += (float) ($txn['discount_amount'] ?? 0);
         }
-        $hasScopedFilter = $selectedPatientId > 0 || $selectedTransactionType !== '';
+        $hasScopedFilter = $selectedPatientId > 0 || $selectedTransactionType !== '' || $selectedPaymentMethod !== '' || $selectedPaymentStatus !== '';
         if ($hasScopedFilter) {
             $grossCollections = 0.0;
             $totalExpenses = 0.0;
@@ -1004,7 +1077,7 @@ class Reports extends BaseController
         return $result;
     }
 
-    private function getTreatmentReports($startDate, $endDate)
+    private function getTreatmentReports($startDate, $endDate, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -1016,11 +1089,25 @@ class Reports extends BaseController
             ];
         }
 
+        $treatmentQuery = $this->treatmentModel
+            ->where('clinic_id', $clinicId)
+            ->where('start_date >=', $startDate)
+            ->where('start_date <=', $endDate);
+        if (!empty($filters['patient_id'])) {
+            $treatmentQuery->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['treatment_status'])) {
+            $treatmentQuery->where('status', (string) $filters['treatment_status']);
+        }
+        if (!empty($filters['treatment_type'])) {
+            $treatmentQuery->where('treatment_type', (string) $filters['treatment_type']);
+        }
+
         return [
-            'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->where('start_date >=', $startDate)->where('start_date <=', $endDate)->findAll(),
-            'treatment_types' => $this->getTreatmentTypesData($startDate, $endDate),
-            'monthly_treatments' => $this->getMonthlyTreatmentsData($startDate, $endDate),
-            'status_distribution' => $this->getTreatmentStatusData($startDate, $endDate),
+            'treatments' => $treatmentQuery->findAll(),
+            'treatment_types' => $this->getTreatmentTypesData($startDate, $endDate, $filters),
+            'monthly_treatments' => $this->getMonthlyTreatmentsData($startDate, $endDate, $filters),
+            'status_distribution' => $this->getTreatmentStatusData($startDate, $endDate, $filters),
         ];
     }
 
@@ -1099,7 +1186,7 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getExaminationTypesData(?string $startDate = null, ?string $endDate = null)
+    private function getExaminationTypesData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->examinationModel->select('examination_type, COUNT(*) as count')
                                        ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1109,11 +1196,17 @@ class Reports extends BaseController
         if ($endDate) {
             $query->where('examination_date <=', $endDate);
         }
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['examination_type'])) {
+            $query->where('examination_type', (string) $filters['examination_type']);
+        }
         $types = $query->groupBy('examination_type')->findAll();
         return $types;
     }
 
-    private function getAppointmentStatusData(?string $startDate = null, ?string $endDate = null)
+    private function getAppointmentStatusData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->appointmentModel->select('status, COUNT(*) as count')
                                           ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1123,11 +1216,20 @@ class Reports extends BaseController
         if ($endDate) {
             $query->where('appointment_date <=', $endDate);
         }
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['appointment_status'])) {
+            $query->where('status', (string) $filters['appointment_status']);
+        }
+        if (!empty($filters['appointment_type'])) {
+            $query->where('appointment_type', (string) $filters['appointment_type']);
+        }
         $statuses = $query->groupBy('status')->findAll();
         return $statuses;
     }
 
-    private function getAgeGroupData()
+    private function getAgeGroupData(array $filters = [])
     {
         try {
             $clinicId = session()->get('active_clinic_id');
@@ -1135,7 +1237,11 @@ class Reports extends BaseController
                 return [];
             }
 
-            $patients = $this->patientModel->select('date_of_birth')->where('clinic_id', $clinicId)->findAll();
+            $patientsQuery = $this->patientModel->select('date_of_birth')->where('clinic_id', $clinicId);
+            if (!empty($filters['patient_id'])) {
+                $patientsQuery->where('id', (int) $filters['patient_id']);
+            }
+            $patients = $patientsQuery->findAll();
             $ageGroups = [
                 '0-18' => 0,
                 '19-35' => 0,
@@ -1175,7 +1281,7 @@ class Reports extends BaseController
         }
     }
 
-    private function getGenderDistributionData(?string $startDate = null, ?string $endDate = null)
+    private function getGenderDistributionData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->patientModel->select('gender, COUNT(*) as count')
                                  ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1185,21 +1291,29 @@ class Reports extends BaseController
         if ($endDate) {
             $query->where('created_at <=', $endDate . ' 23:59:59');
         }
+        if (!empty($filters['patient_id'])) {
+            $query->where('id', (int) $filters['patient_id']);
+        }
         return $query->groupBy('gender')->findAll();
     }
 
-    private function getNewVsReturningData($startDate, $endDate)
+    private function getNewVsReturningData($startDate, $endDate, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
             return ['new' => 0, 'returning' => 0];
         }
 
-        $new = $this->patientModel->where('clinic_id', $clinicId)
+        $newQuery = $this->patientModel->where('clinic_id', $clinicId)
             ->where('created_at >=', $startDate . ' 00:00:00')
-            ->where('created_at <=', $endDate . ' 23:59:59')
-            ->countAllResults();
-        $returning = $this->patientModel->where('clinic_id', $clinicId)->where('created_at <', $startDate)->countAllResults();
+            ->where('created_at <=', $endDate . ' 23:59:59');
+        $returningQuery = $this->patientModel->where('clinic_id', $clinicId)->where('created_at <', $startDate);
+        if (!empty($filters['patient_id'])) {
+            $newQuery->where('id', (int) $filters['patient_id']);
+            $returningQuery->where('id', (int) $filters['patient_id']);
+        }
+        $new = $newQuery->countAllResults();
+        $returning = $returningQuery->countAllResults();
         
         return [
             'new' => $new,
@@ -1207,7 +1321,7 @@ class Reports extends BaseController
         ];
     }
 
-    private function getMonthlyExaminationsData(?string $startDate = null, ?string $endDate = null)
+    private function getMonthlyExaminationsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -1218,10 +1332,16 @@ class Reports extends BaseController
         foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
             $monthStart = date('Y-m-01', strtotime($date));
             $monthEnd = date('Y-m-t', strtotime($date));
-            $count = $this->examinationModel->where('clinic_id', $clinicId)
+            $countQuery = $this->examinationModel->where('clinic_id', $clinicId)
                                            ->where('examination_date >=', $monthStart)
-                                           ->where('examination_date <=', $monthEnd)
-                                           ->countAllResults();
+                                           ->where('examination_date <=', $monthEnd);
+            if (!empty($filters['patient_id'])) {
+                $countQuery->where('patient_id', (int) $filters['patient_id']);
+            }
+            if (!empty($filters['examination_type'])) {
+                $countQuery->where('examination_type', (string) $filters['examination_type']);
+            }
+            $count = $countQuery->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -1236,7 +1356,7 @@ class Reports extends BaseController
         return [];
     }
 
-    private function getAppointmentTypesData(?string $startDate = null, ?string $endDate = null)
+    private function getAppointmentTypesData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->appointmentModel->select('appointment_type, COUNT(*) as count')
                                      ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1246,10 +1366,19 @@ class Reports extends BaseController
         if ($endDate) {
             $query->where('appointment_date <=', $endDate);
         }
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['appointment_status'])) {
+            $query->where('status', (string) $filters['appointment_status']);
+        }
+        if (!empty($filters['appointment_type'])) {
+            $query->where('appointment_type', (string) $filters['appointment_type']);
+        }
         return $query->groupBy('appointment_type')->findAll();
     }
 
-    private function getMonthlyAppointmentsData(?string $startDate = null, ?string $endDate = null)
+    private function getMonthlyAppointmentsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -1260,10 +1389,19 @@ class Reports extends BaseController
         foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
             $monthStart = date('Y-m-01', strtotime($date));
             $monthEnd = date('Y-m-t', strtotime($date));
-            $count = $this->appointmentModel->where('clinic_id', $clinicId)
+            $countQuery = $this->appointmentModel->where('clinic_id', $clinicId)
                                            ->where('appointment_date >=', $monthStart)
-                                           ->where('appointment_date <=', $monthEnd)
-                                           ->countAllResults();
+                                           ->where('appointment_date <=', $monthEnd);
+            if (!empty($filters['patient_id'])) {
+                $countQuery->where('patient_id', (int) $filters['patient_id']);
+            }
+            if (!empty($filters['appointment_status'])) {
+                $countQuery->where('status', (string) $filters['appointment_status']);
+            }
+            if (!empty($filters['appointment_type'])) {
+                $countQuery->where('appointment_type', (string) $filters['appointment_type']);
+            }
+            $count = $countQuery->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -1310,7 +1448,7 @@ class Reports extends BaseController
         return $query->findAll();
     }
 
-    private function getTreatmentTypesData(?string $startDate = null, ?string $endDate = null)
+    private function getTreatmentTypesData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->treatmentModel->select('treatment_type, COUNT(*) as count')
                                    ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1320,10 +1458,19 @@ class Reports extends BaseController
         if ($endDate) {
             $query->where('start_date <=', $endDate);
         }
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['treatment_status'])) {
+            $query->where('status', (string) $filters['treatment_status']);
+        }
+        if (!empty($filters['treatment_type'])) {
+            $query->where('treatment_type', (string) $filters['treatment_type']);
+        }
         return $query->groupBy('treatment_type')->findAll();
     }
 
-    private function getMonthlyTreatmentsData(?string $startDate = null, ?string $endDate = null)
+    private function getMonthlyTreatmentsData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
@@ -1334,10 +1481,19 @@ class Reports extends BaseController
         foreach ($this->getMonthlyBuckets($startDate, $endDate) as $date) {
             $monthStart = date('Y-m-01', strtotime($date));
             $monthEnd = date('Y-m-t', strtotime($date));
-            $count = $this->treatmentModel->where('clinic_id', $clinicId)
+            $countQuery = $this->treatmentModel->where('clinic_id', $clinicId)
                                          ->where('start_date >=', $monthStart)
-                                         ->where('start_date <=', $monthEnd)
-                                         ->countAllResults();
+                                         ->where('start_date <=', $monthEnd);
+            if (!empty($filters['patient_id'])) {
+                $countQuery->where('patient_id', (int) $filters['patient_id']);
+            }
+            if (!empty($filters['treatment_status'])) {
+                $countQuery->where('status', (string) $filters['treatment_status']);
+            }
+            if (!empty($filters['treatment_type'])) {
+                $countQuery->where('treatment_type', (string) $filters['treatment_type']);
+            }
+            $count = $countQuery->countAllResults();
             $data[] = [
                 'month' => date('M Y', strtotime($date)),
                 'count' => $count
@@ -1346,7 +1502,7 @@ class Reports extends BaseController
         return $data;
     }
 
-    private function getTreatmentStatusData(?string $startDate = null, ?string $endDate = null)
+    private function getTreatmentStatusData(?string $startDate = null, ?string $endDate = null, array $filters = [])
     {
         $query = $this->treatmentModel->select('status, COUNT(*) as count')
                                    ->where('clinic_id', session()->get('active_clinic_id'));
@@ -1355,6 +1511,15 @@ class Reports extends BaseController
         }
         if ($endDate) {
             $query->where('start_date <=', $endDate);
+        }
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', (int) $filters['patient_id']);
+        }
+        if (!empty($filters['treatment_status'])) {
+            $query->where('status', (string) $filters['treatment_status']);
+        }
+        if (!empty($filters['treatment_type'])) {
+            $query->where('treatment_type', (string) $filters['treatment_type']);
         }
         return $query->groupBy('status')->findAll();
     }

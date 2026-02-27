@@ -107,6 +107,66 @@
                     </select>
                 </div>
             </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+                <div id="paymentMethodWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method (Finance)</label>
+                    <select id="paymentMethodFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Methods</option>
+                        <option value="cash" <?= ($filters['payment_method'] ?? '') === 'cash' ? 'selected' : '' ?>>Cash</option>
+                        <option value="card" <?= ($filters['payment_method'] ?? '') === 'card' ? 'selected' : '' ?>>Card</option>
+                        <option value="bank_transfer" <?= ($filters['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : '' ?>>Bank Transfer</option>
+                        <option value="check" <?= ($filters['payment_method'] ?? '') === 'check' ? 'selected' : '' ?>>Check</option>
+                        <option value="insurance" <?= ($filters['payment_method'] ?? '') === 'insurance' ? 'selected' : '' ?>>Insurance</option>
+                        <option value="other" <?= ($filters['payment_method'] ?? '') === 'other' ? 'selected' : '' ?>>Other</option>
+                    </select>
+                </div>
+                <div id="paymentStatusWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Status (Finance)</label>
+                    <select id="paymentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Statuses</option>
+                        <option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>Paid</option>
+                        <option value="pending" <?= ($filters['payment_status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+                        <option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>>Partial</option>
+                        <option value="overdue" <?= ($filters['payment_status'] ?? '') === 'overdue' ? 'selected' : '' ?>>Overdue</option>
+                        <option value="cancelled" <?= ($filters['payment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                    </select>
+                </div>
+                <div id="examinationTypeWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Examination Type</label>
+                    <input id="examinationTypeFilter" type="text" value="<?= esc($filters['examination_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any examination type">
+                </div>
+                <div id="appointmentStatusWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Status</label>
+                    <select id="appointmentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Statuses</option>
+                        <option value="scheduled" <?= ($filters['appointment_status'] ?? '') === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
+                        <option value="confirmed" <?= ($filters['appointment_status'] ?? '') === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                        <option value="completed" <?= ($filters['appointment_status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
+                        <option value="cancelled" <?= ($filters['appointment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                        <option value="no_show" <?= ($filters['appointment_status'] ?? '') === 'no_show' ? 'selected' : '' ?>>No Show</option>
+                        <option value="pending" <?= ($filters['appointment_status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+                    </select>
+                </div>
+                <div id="appointmentTypeWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Type</label>
+                    <input id="appointmentTypeFilter" type="text" value="<?= esc($filters['appointment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any appointment type">
+                </div>
+                <div id="treatmentStatusWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Treatment Status</label>
+                    <select id="treatmentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                        <option value="">All Statuses</option>
+                        <option value="planned" <?= ($filters['treatment_status'] ?? '') === 'planned' ? 'selected' : '' ?>>Planned</option>
+                        <option value="in_progress" <?= ($filters['treatment_status'] ?? '') === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
+                        <option value="completed" <?= ($filters['treatment_status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
+                        <option value="on_hold" <?= ($filters['treatment_status'] ?? '') === 'on_hold' ? 'selected' : '' ?>>On Hold</option>
+                        <option value="cancelled" <?= ($filters['treatment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                    </select>
+                </div>
+                <div id="treatmentTypeWrap" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Treatment Type</label>
+                    <input id="treatmentTypeFilter" type="text" value="<?= esc($filters['treatment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any treatment type">
+                </div>
+            </div>
             <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
                     <i class="fas fa-calendar-range mr-2"></i><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
@@ -967,14 +1027,55 @@ function syncReportFilterVisibility() {
     const reportType = document.getElementById('reportType')?.value || 'overview';
     const transactionTypeWrap = document.getElementById('transactionTypeWrap');
     const transactionTypeFilter = document.getElementById('transactionTypeFilter');
+    const paymentMethodWrap = document.getElementById('paymentMethodWrap');
+    const paymentStatusWrap = document.getElementById('paymentStatusWrap');
+    const examinationTypeWrap = document.getElementById('examinationTypeWrap');
+    const appointmentStatusWrap = document.getElementById('appointmentStatusWrap');
+    const appointmentTypeWrap = document.getElementById('appointmentTypeWrap');
+    const treatmentStatusWrap = document.getElementById('treatmentStatusWrap');
+    const treatmentTypeWrap = document.getElementById('treatmentTypeWrap');
+    const paymentMethodFilter = document.getElementById('paymentMethodFilter');
+    const paymentStatusFilter = document.getElementById('paymentStatusFilter');
+    const examinationTypeFilter = document.getElementById('examinationTypeFilter');
+    const appointmentStatusFilter = document.getElementById('appointmentStatusFilter');
+    const appointmentTypeFilter = document.getElementById('appointmentTypeFilter');
+    const treatmentStatusFilter = document.getElementById('treatmentStatusFilter');
+    const treatmentTypeFilter = document.getElementById('treatmentTypeFilter');
+
+    const isFinance = reportType === 'finance';
+    const isExaminations = reportType === 'examinations';
+    const isAppointments = reportType === 'appointments';
+    const isTreatments = reportType === 'treatments';
+
     if (transactionTypeWrap) {
-        transactionTypeWrap.classList.toggle('opacity-50', reportType !== 'finance');
+        transactionTypeWrap.classList.toggle('opacity-50', !isFinance);
     }
     if (transactionTypeFilter) {
-        transactionTypeFilter.disabled = reportType !== 'finance';
-        if (reportType !== 'finance') {
+        transactionTypeFilter.disabled = !isFinance;
+        if (!isFinance) {
             transactionTypeFilter.value = '';
         }
+    }
+    if (paymentMethodWrap) paymentMethodWrap.classList.toggle('hidden', !isFinance);
+    if (paymentStatusWrap) paymentStatusWrap.classList.toggle('hidden', !isFinance);
+    if (examinationTypeWrap) examinationTypeWrap.classList.toggle('hidden', !isExaminations);
+    if (appointmentStatusWrap) appointmentStatusWrap.classList.toggle('hidden', !isAppointments);
+    if (appointmentTypeWrap) appointmentTypeWrap.classList.toggle('hidden', !isAppointments);
+    if (treatmentStatusWrap) treatmentStatusWrap.classList.toggle('hidden', !isTreatments);
+    if (treatmentTypeWrap) treatmentTypeWrap.classList.toggle('hidden', !isTreatments);
+
+    if (!isFinance) {
+        if (paymentMethodFilter) paymentMethodFilter.value = '';
+        if (paymentStatusFilter) paymentStatusFilter.value = '';
+    }
+    if (!isExaminations && examinationTypeFilter) examinationTypeFilter.value = '';
+    if (!isAppointments) {
+        if (appointmentStatusFilter) appointmentStatusFilter.value = '';
+        if (appointmentTypeFilter) appointmentTypeFilter.value = '';
+    }
+    if (!isTreatments) {
+        if (treatmentStatusFilter) treatmentStatusFilter.value = '';
+        if (treatmentTypeFilter) treatmentTypeFilter.value = '';
     }
 }
 
@@ -995,11 +1096,38 @@ function applyQuickDateRange(days) {
     }
 }
 
+function collectSpecificFilters(reportType) {
+    const payload = {
+        patient_id: document.getElementById('patientFilter')?.value || '',
+        transaction_type: '',
+        payment_method: '',
+        payment_status: '',
+        examination_type: '',
+        appointment_status: '',
+        appointment_type: '',
+        treatment_status: '',
+        treatment_type: '',
+    };
+    if (reportType === 'finance') {
+        payload.transaction_type = document.getElementById('transactionTypeFilter')?.value || '';
+        payload.payment_method = document.getElementById('paymentMethodFilter')?.value || '';
+        payload.payment_status = document.getElementById('paymentStatusFilter')?.value || '';
+    } else if (reportType === 'examinations') {
+        payload.examination_type = document.getElementById('examinationTypeFilter')?.value || '';
+    } else if (reportType === 'appointments') {
+        payload.appointment_status = document.getElementById('appointmentStatusFilter')?.value || '';
+        payload.appointment_type = document.getElementById('appointmentTypeFilter')?.value || '';
+    } else if (reportType === 'treatments') {
+        payload.treatment_status = document.getElementById('treatmentStatusFilter')?.value || '';
+        payload.treatment_type = document.getElementById('treatmentTypeFilter')?.value || '';
+    }
+    return payload;
+}
+
 function generateReport() {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
-    const patientId = document.getElementById('patientFilter')?.value || '';
-    const transactionType = document.getElementById('transactionTypeFilter')?.value || '';
+    const specific = collectSpecificFilters(reportType);
     const customFromRaw = document.getElementById('customFrom')?.value || '';
     const customToRaw = document.getElementById('customTo')?.value || '';
     const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
@@ -1012,12 +1140,13 @@ function generateReport() {
     url.searchParams.set('compare_mode', 'none');
     if (customFrom) url.searchParams.set('custom_from', customFrom); else url.searchParams.delete('custom_from');
     if (customTo) url.searchParams.set('custom_to', customTo); else url.searchParams.delete('custom_to');
-    if (patientId) url.searchParams.set('patient_id', patientId); else url.searchParams.delete('patient_id');
-    if (reportType === 'finance' && transactionType) {
-        url.searchParams.set('transaction_type', transactionType);
-    } else {
-        url.searchParams.delete('transaction_type');
-    }
+    Object.entries(specific).forEach(([key, value]) => {
+        if (value) {
+            url.searchParams.set(key, value);
+        } else {
+            url.searchParams.delete(key);
+        }
+    });
     
     window.location.href = url.toString();
 }
@@ -1025,8 +1154,7 @@ function generateReport() {
 function exportReport(format) {
     const reportType = document.getElementById('reportType').value;
     const dateRange = document.getElementById('dateRange').value;
-    const patientId = document.getElementById('patientFilter')?.value || '';
-    const transactionType = document.getElementById('transactionTypeFilter')?.value || '';
+    const specific = collectSpecificFilters(reportType);
     const customFromRaw = document.getElementById('customFrom')?.value || '';
     const customToRaw = document.getElementById('customTo')?.value || '';
     const customFrom = window.parseClinicDateToIso ? (window.parseClinicDateToIso(customFromRaw) || '') : customFromRaw;
@@ -1047,8 +1175,15 @@ function exportReport(format) {
         compare_mode: 'none',
         custom_from: customFrom,
         custom_to: customTo,
-        patient_id: patientId,
-        transaction_type: reportType === 'finance' ? transactionType : '',
+        patient_id: specific.patient_id,
+        transaction_type: specific.transaction_type,
+        payment_method: specific.payment_method,
+        payment_status: specific.payment_status,
+        examination_type: specific.examination_type,
+        appointment_status: specific.appointment_status,
+        appointment_type: specific.appointment_type,
+        treatment_status: specific.treatment_status,
+        treatment_type: specific.treatment_type,
     };
 
     Object.entries(fields).forEach(([name, value]) => {
@@ -1291,6 +1426,13 @@ async function loadDetailPanel(panelId, page = 1) {
     if (reportWorkspace.filters.custom_to) params.set('custom_to', reportWorkspace.filters.custom_to);
     if (reportWorkspace.filters.patient_id) params.set('patient_id', reportWorkspace.filters.patient_id);
     if (reportWorkspace.filters.transaction_type) params.set('transaction_type', reportWorkspace.filters.transaction_type);
+    if (reportWorkspace.filters.payment_method) params.set('payment_method', reportWorkspace.filters.payment_method);
+    if (reportWorkspace.filters.payment_status) params.set('payment_status', reportWorkspace.filters.payment_status);
+    if (reportWorkspace.filters.examination_type) params.set('examination_type', reportWorkspace.filters.examination_type);
+    if (reportWorkspace.filters.appointment_status) params.set('appointment_status', reportWorkspace.filters.appointment_status);
+    if (reportWorkspace.filters.appointment_type) params.set('appointment_type', reportWorkspace.filters.appointment_type);
+    if (reportWorkspace.filters.treatment_status) params.set('treatment_status', reportWorkspace.filters.treatment_status);
+    if (reportWorkspace.filters.treatment_type) params.set('treatment_type', reportWorkspace.filters.treatment_type);
     params.set('table_id', panelId);
     params.set('page', String(page));
     params.set('per_page', String(perPage));
