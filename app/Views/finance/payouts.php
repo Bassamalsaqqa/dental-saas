@@ -71,26 +71,73 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-            <div class="bg-white/85 border border-white/40 rounded-2xl p-5 shadow-lg">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Share Total</p>
-                    <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i class="fas fa-percent text-sm"></i></span>
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-blue-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <i class="fas fa-percent text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-blue-100 px-3 py-1.5 rounded-full border border-indigo-200">
+                            <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                            <span class="text-indigo-700 font-bold text-xs">Split</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Provider Share Total</p>
+                        <p class="text-3xl font-black text-indigo-900"><?= formatCurrency($stats['total_provider_share'] ?? 0) ?></p>
+                        <p class="text-xs text-gray-500 font-medium">Accrued provider entitlement</p>
+                    </div>
                 </div>
-                <p class="mt-3 text-3xl font-black text-indigo-700"><?= formatCurrency($stats['total_provider_share'] ?? 0) ?></p>
             </div>
-            <div class="bg-white/85 border border-white/40 rounded-2xl p-5 shadow-lg">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Outstanding Payable</p>
-                    <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i class="fas fa-triangle-exclamation text-sm"></i></span>
+
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-orange-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <i class="fas fa-triangle-exclamation text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-orange-100 px-3 py-1.5 rounded-full border border-rose-200">
+                            <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+                            <span class="text-rose-700 font-bold text-xs">Due</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Outstanding Payable</p>
+                        <p class="text-3xl font-black text-rose-900"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
+                        <p class="text-xs text-gray-500 font-medium">Pending provider payouts</p>
+                    </div>
                 </div>
-                <p class="mt-3 text-3xl font-black text-rose-700"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
             </div>
-            <div class="bg-white/85 border border-white/40 rounded-2xl p-5 shadow-lg">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Clinic Share Total</p>
-                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i class="fas fa-building text-sm"></i></span>
+
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <i class="fas fa-building text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <span class="text-emerald-700 font-bold text-xs">Net</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 flex-1 flex flex-col justify-end">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinic Share Total</p>
+                        <p class="text-3xl font-black text-emerald-900"><?= formatCurrency($stats['total_clinic_share'] ?? 0) ?></p>
+                        <p class="text-xs text-gray-500 font-medium">Retained by clinic</p>
+                    </div>
                 </div>
-                <p class="mt-3 text-3xl font-black text-emerald-700"><?= formatCurrency($stats['total_clinic_share'] ?? 0) ?></p>
             </div>
         </div>
 
