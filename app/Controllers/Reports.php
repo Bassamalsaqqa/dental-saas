@@ -203,10 +203,87 @@ class Reports extends BaseController
         ];
     }
 
+    private function buildPatientLabelMap(array $rows): array
+    {
+        $clinicId = $this->requireTenantClinicId();
+        if (!$clinicId || empty($rows)) {
+            return [];
+        }
+
+        $patientIds = [];
+        foreach ($rows as $row) {
+            $id = (int) ($row['patient_id'] ?? 0);
+            if ($id > 0) {
+                $patientIds[$id] = true;
+            }
+        }
+        if (empty($patientIds)) {
+            return [];
+        }
+
+        $patients = $this->patientModel
+            ->select('id, patient_number, first_name, last_name')
+            ->where('clinic_id', $clinicId)
+            ->whereIn('id', array_keys($patientIds))
+            ->findAll();
+
+        $map = [];
+        foreach ($patients as $patient) {
+            $id = (int) ($patient['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $name = trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')));
+            $number = trim((string) ($patient['patient_number'] ?? ''));
+            if ($name === '') {
+                $name = 'Patient #' . $id;
+            }
+            if ($number !== '') {
+                $name .= ' (' . $number . ')';
+            }
+            $map[$id] = $name;
+        }
+
+        return $map;
+    }
+
+    private function applyPatientLabels(array $rows, array $patientLabelMap): array
+    {
+        if (empty($rows) || empty($patientLabelMap)) {
+            return $rows;
+        }
+
+        foreach ($rows as &$row) {
+            $id = (int) ($row['patient_id'] ?? 0);
+            if ($id > 0 && isset($patientLabelMap[$id])) {
+                $row['patient_id'] = $patientLabelMap[$id];
+                if (!isset($row['patient_name']) || trim((string) $row['patient_name']) === '') {
+                    $row['patient_name'] = $patientLabelMap[$id];
+                }
+            }
+        }
+        unset($row);
+
+        return $rows;
+    }
+
     private function buildDetailTables(string $reportType, array $reports): array
     {
+        $patientLabelMap = $this->buildPatientLabelMap(array_merge(
+            $reports['detail_rows']['finance_transactions'] ?? [],
+            $reports['detail_rows']['examinations'] ?? [],
+            $reports['detail_rows']['appointments'] ?? [],
+            $reports['examinations'] ?? [],
+            $reports['appointments'] ?? [],
+            $reports['treatments'] ?? [],
+            $reports['transactions'] ?? []
+        ));
+
         switch ($reportType) {
             case 'overview':
+                $overviewFinanceRows = $this->applyPatientLabels($reports['detail_rows']['finance_transactions'] ?? [], $patientLabelMap);
+                $overviewExamRows = $this->applyPatientLabels($reports['detail_rows']['examinations'] ?? [], $patientLabelMap);
+                $overviewAppointmentRows = $this->applyPatientLabels($reports['detail_rows']['appointments'] ?? [], $patientLabelMap);
                 return [
                     $this->makeDetailTable('overview_finance_transactions', 'Overview Revenue Transactions', [
                         ['key' => 'month_label', 'label' => 'Month'],
@@ -216,20 +293,20 @@ class Reports extends BaseController
                         ['key' => 'payment_status', 'label' => 'Status'],
                         ['key' => 'total_amount', 'label' => 'Amount'],
                         ['key' => 'created_at', 'label' => 'Created'],
-                    ], $reports['detail_rows']['finance_transactions'] ?? []),
+                    ], $overviewFinanceRows),
                     $this->makeDetailTable('overview_examinations', 'Overview Examinations', [
                         ['key' => 'examination_type', 'label' => 'Type'],
                         ['key' => 'patient_id', 'label' => 'Patient'],
                         ['key' => 'examination_date', 'label' => 'Date'],
                         ['key' => 'notes', 'label' => 'Notes'],
-                    ], $reports['detail_rows']['examinations'] ?? []),
+                    ], $overviewExamRows),
                     $this->makeDetailTable('overview_appointments', 'Overview Appointments', [
                         ['key' => 'status', 'label' => 'Status'],
                         ['key' => 'appointment_type', 'label' => 'Type'],
                         ['key' => 'patient_id', 'label' => 'Patient'],
                         ['key' => 'appointment_date', 'label' => 'Date'],
                         ['key' => 'notes', 'label' => 'Notes'],
-                    ], $reports['detail_rows']['appointments'] ?? []),
+                    ], $overviewAppointmentRows),
                 ];
             case 'patients':
                 return [
@@ -250,6 +327,7 @@ class Reports extends BaseController
                     }, $reports['patients'] ?? [])),
                 ];
             case 'examinations':
+                $examRows = $this->applyPatientLabels($reports['examinations'] ?? [], $patientLabelMap);
                 return [
                     $this->makeDetailTable('examinations', 'Examinations Included', [
                         ['key' => 'id', 'label' => 'ID'],
@@ -257,9 +335,10 @@ class Reports extends BaseController
                         ['key' => 'examination_type', 'label' => 'Type'],
                         ['key' => 'examination_date', 'label' => 'Date'],
                         ['key' => 'notes', 'label' => 'Notes'],
-                    ], $reports['examinations'] ?? []),
+                    ], $examRows),
                 ];
             case 'appointments':
+                $appointmentRows = $this->applyPatientLabels($reports['appointments'] ?? [], $patientLabelMap);
                 return [
                     $this->makeDetailTable('appointments', 'Appointments Included', [
                         ['key' => 'id', 'label' => 'ID'],
@@ -267,9 +346,10 @@ class Reports extends BaseController
                         ['key' => 'appointment_date', 'label' => 'Date'],
                         ['key' => 'appointment_type', 'label' => 'Type'],
                         ['key' => 'status', 'label' => 'Status'],
-                    ], $reports['appointments'] ?? []),
+                    ], $appointmentRows),
                 ];
             case 'treatments':
+                $treatmentRows = $this->applyPatientLabels($reports['treatments'] ?? [], $patientLabelMap);
                 return [
                     $this->makeDetailTable('treatments', 'Treatments Included', [
                         ['key' => 'id', 'label' => 'ID'],
@@ -277,16 +357,23 @@ class Reports extends BaseController
                         ['key' => 'treatment_type', 'label' => 'Type'],
                         ['key' => 'start_date', 'label' => 'Start'],
                         ['key' => 'status', 'label' => 'Status'],
-                    ], $reports['treatments'] ?? []),
+                    ], $treatmentRows),
                 ];
             case 'finance':
-                $financeRows = array_map(function ($row) {
+                $financeRows = array_map(function ($row) use ($patientLabelMap) {
                     $type = (string) ($row['transaction_type'] ?? '');
                     $baseAmount = (float) ($row['total_amount'] ?? ($row['amount'] ?? 0));
                     $signedAmount = in_array($type, ['expense', 'refund'], true) ? -$baseAmount : $baseAmount;
-                    $patientLabel = trim((string) ($row['patient_id'] ?? ''));
+                    $patientLabel = trim((string) ($row['patient_name'] ?? ''));
+                    if ($patientLabel === '') {
+                        $patientLabel = trim((string) ($row['patient_id'] ?? ''));
+                    }
                     if ($patientLabel === '') {
                         $patientLabel = (string) ($row['counterparty_name'] ?? '');
+                    }
+                    $patientId = (int) ($row['patient_id'] ?? 0);
+                    if ($patientId > 0 && isset($patientLabelMap[$patientId])) {
+                        $patientLabel = $patientLabelMap[$patientId];
                     }
                     $row['subject_label'] = $patientLabel !== '' ? $patientLabel : 'General';
                     $row['amount_base'] = round($signedAmount, 2);
