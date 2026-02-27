@@ -1063,21 +1063,292 @@ class Finance extends BaseController
         $stats['net_clinic_revenue'] = $grossCollections - $providerPaidCash;
         $stats['net_clinic_revenue_accrual'] = $grossCollections - $providerShare;
 
+        $monthlyRevenueRows = $this->financeModel->getMonthlyRevenueByClinicRange((int) $clinicId, $startDate, $endDate);
+        $revenueLabels = [];
+        $revenueValues = [];
+        foreach ($monthlyRevenueRows as $row) {
+            $monthKey = (string) ($row['month_key'] ?? '');
+            if ($monthKey === '') {
+                continue;
+            }
+            $dt = \DateTime::createFromFormat('Y-m', $monthKey);
+            if (!$dt) {
+                continue;
+            }
+            $revenueLabels[] = $dt->format('M Y');
+            $revenueValues[] = floatval($row['total_amount'] ?? 0);
+        }
+
+        $ledger = $this->buildFinancialLedger((int) $clinicId, $startDate, $endDate);
+
         $data = [
             'title' => 'Financial Reports',
             'start_date' => $startDate,
             'end_date' => $endDate,
             'stats' => $stats,
-            'provider_payout_stats' => $providerStats,
-            'monthly_revenue' => $this->financeModel->getMonthlyRevenueByClinic($clinicId),
-            'payment_methods' => $this->financeModel->getPaymentMethodsStats($startDate, $endDate, $clinicId),
-            'service_types' => $this->financeModel->getServiceTypeStats($startDate, $endDate, $clinicId),
-            'overdue_payments' => $this->financeModel->getOverduePayments($clinicId),
+            'monthly_revenue_labels' => $revenueLabels,
+            'monthly_revenue_values' => $revenueValues,
+            'ledger_rows' => $ledger['rows'],
+            'ledger_summary' => $ledger['summary'],
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
         ];
 
         return $this->view('finance/reports', $data);
+    }
+
+    private function buildFinancialLedger(int $clinicId, string $startDate, string $endDate): array
+    {
+        $startDateTime = $startDate . ' 00:00:00';
+        $endDateTime = $endDate . ' 23:59:59';
+        $baseCurrency = settings()->get('currency', 'ILS');
+        $financeAmountExpr = $this->db->fieldExists('total_amount', 'finances')
+            ? 'f.total_amount'
+            : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
+        $rows = [];
+
+        $financeRows = $this->db->table('finances f')
+            ->select("
+                f.id,
+                f.transaction_id,
+                f.transaction_type,
+                f.payment_method,
+                f.payment_status,
+                f.description,
+                f.created_at,
+                f.currency,
+                f.exchange_rate,
+                f.amount_original,
+                f.counterparty_name,
+                f.expense_category,
+                f.amount,
+                f.discount_amount,
+                f.tax_amount,
+                {$financeAmountExpr} AS amount_base,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                p.patient_id AS patient_number
+            ")
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
+            ->where('f.clinic_id', $clinicId)
+            ->where('f.created_at >=', $startDateTime)
+            ->where('f.created_at <=', $endDateTime)
+            ->orderBy('f.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($financeRows as $row) {
+            $amountBase = isset($row['amount_base']) ? floatval($row['amount_base']) : 0.0;
+            $type = (string) ($row['transaction_type'] ?? '');
+            $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
+            $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+
+            $rows[] = [
+                'event_source' => 'finance',
+                'event_type' => $type,
+                'event_at' => (string) ($row['created_at'] ?? ''),
+                'reference' => (string) ($row['transaction_id'] ?? ('F-' . $row['id'])),
+                'patient_label' => $patientName !== '' ? $patientName : null,
+                'patient_number' => $row['patient_number'] ?? null,
+                'counterparty' => $row['counterparty_name'] ?? null,
+                'payment_method' => $row['payment_method'] ?? null,
+                'payment_status' => $row['payment_status'] ?? null,
+                'notes' => $row['description'] ?? null,
+                'category' => $row['expense_category'] ?? null,
+                'currency' => $row['currency'] ?: $baseCurrency,
+                'exchange_rate' => floatval($row['exchange_rate'] ?? 1),
+                'amount_original' => isset($row['amount_original']) ? floatval($row['amount_original']) : null,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => $signedAmount,
+            ];
+        }
+
+        $invoicePaymentRows = $this->db->table('finance_payments fp')
+            ->select("
+                fp.id,
+                fp.type,
+                fp.payment_method,
+                fp.payment_date,
+                fp.notes,
+                fp.amount,
+                f.transaction_id AS invoice_transaction_id,
+                f.currency,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                p.patient_id AS patient_number
+            ")
+            ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
+            ->where('fp.clinic_id', $clinicId)
+            ->where('fp.payment_date >=', $startDate)
+            ->where('fp.payment_date <=', $endDate)
+            ->orderBy('fp.payment_date', 'DESC')
+            ->orderBy('fp.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($invoicePaymentRows as $row) {
+            $amountBase = floatval($row['amount'] ?? 0);
+            $type = (string) ($row['type'] ?? '');
+            $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
+            $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+
+            $rows[] = [
+                'event_source' => 'invoice_payment',
+                'event_type' => $type,
+                'event_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
+                'reference' => (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? '')),
+                'patient_label' => $patientName !== '' ? $patientName : null,
+                'patient_number' => $row['patient_number'] ?? null,
+                'counterparty' => null,
+                'payment_method' => $row['payment_method'] ?? null,
+                'payment_status' => null,
+                'notes' => $row['notes'] ?? null,
+                'category' => null,
+                'currency' => $row['currency'] ?: $baseCurrency,
+                'exchange_rate' => 1.0,
+                'amount_original' => null,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => $signedAmount,
+            ];
+        }
+
+        $payoutRows = $this->db->table('provider_payouts pp')
+            ->select("
+                pp.id,
+                pp.provider_type,
+                pp.provider_user_id,
+                pp.provider_name_snapshot,
+                pp.provider_share_amount,
+                pp.status,
+                f.transaction_id,
+                f.created_at,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                p.patient_id AS patient_number,
+                u.first_name AS provider_first_name,
+                u.last_name AS provider_last_name
+            ")
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'inner')
+            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
+            ->where('pp.clinic_id', $clinicId)
+            ->where('f.created_at >=', $startDateTime)
+            ->where('f.created_at <=', $endDateTime)
+            ->orderBy('f.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($payoutRows as $row) {
+            $providerLabel = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
+            if ($providerLabel === '') {
+                $providerLabel = (string) ($row['provider_name_snapshot'] ?? ('Provider #' . (string) ($row['provider_user_id'] ?? '0')));
+            }
+            $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+            $amountBase = floatval($row['provider_share_amount'] ?? 0);
+
+            $rows[] = [
+                'event_source' => 'provider_payout',
+                'event_type' => 'accrual',
+                'event_at' => (string) ($row['created_at'] ?? ''),
+                'reference' => (string) (($row['transaction_id'] ?? 'Finance') . ' / PYO-' . ($row['id'] ?? '')),
+                'patient_label' => $patientName !== '' ? $patientName : null,
+                'patient_number' => $row['patient_number'] ?? null,
+                'counterparty' => $providerLabel,
+                'payment_method' => null,
+                'payment_status' => $row['status'] ?? null,
+                'notes' => 'Provider share accrual',
+                'category' => 'provider_share',
+                'currency' => $baseCurrency,
+                'exchange_rate' => 1.0,
+                'amount_original' => null,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => -$amountBase,
+            ];
+        }
+
+        $payoutPaymentRows = $this->db->table('provider_payout_payments ppp')
+            ->select("
+                ppp.id,
+                ppp.amount,
+                ppp.payment_method,
+                ppp.paid_date,
+                ppp.notes,
+                pp.provider_user_id,
+                pp.provider_name_snapshot,
+                f.transaction_id,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                p.patient_id AS patient_number,
+                u.first_name AS provider_first_name,
+                u.last_name AS provider_last_name
+            ")
+            ->join('provider_payouts pp', 'pp.id = ppp.provider_payout_id AND pp.clinic_id = ppp.clinic_id', 'inner')
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
+            ->join('users u', 'u.id = pp.provider_user_id', 'left')
+            ->where('ppp.clinic_id', $clinicId)
+            ->where('ppp.paid_date >=', $startDate)
+            ->where('ppp.paid_date <=', $endDate)
+            ->orderBy('ppp.paid_date', 'DESC')
+            ->orderBy('ppp.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($payoutPaymentRows as $row) {
+            $providerLabel = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
+            if ($providerLabel === '') {
+                $providerLabel = (string) ($row['provider_name_snapshot'] ?? ('Provider #' . (string) ($row['provider_user_id'] ?? '0')));
+            }
+            $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+            $amountBase = floatval($row['amount'] ?? 0);
+
+            $rows[] = [
+                'event_source' => 'provider_payout_payment',
+                'event_type' => 'payment',
+                'event_at' => ((string) ($row['paid_date'] ?? '')) . ' 00:00:00',
+                'reference' => (string) (($row['transaction_id'] ?? 'Finance') . ' / PYP-' . ($row['id'] ?? '')),
+                'patient_label' => $patientName !== '' ? $patientName : null,
+                'patient_number' => $row['patient_number'] ?? null,
+                'counterparty' => $providerLabel,
+                'payment_method' => $row['payment_method'] ?? null,
+                'payment_status' => null,
+                'notes' => $row['notes'] ?? 'Provider payout cash payment',
+                'category' => 'provider_payout_cash',
+                'currency' => $baseCurrency,
+                'exchange_rate' => 1.0,
+                'amount_original' => null,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => -$amountBase,
+            ];
+        }
+
+        usort($rows, static function (array $a, array $b): int {
+            return strcmp((string) ($b['event_at'] ?? ''), (string) ($a['event_at'] ?? ''));
+        });
+
+        $inflow = 0.0;
+        $outflow = 0.0;
+        $net = 0.0;
+        foreach ($rows as $row) {
+            $signed = floatval($row['signed_amount_base'] ?? 0);
+            $net += $signed;
+            if ($signed >= 0) {
+                $inflow += $signed;
+            } else {
+                $outflow += abs($signed);
+            }
+        }
+
+        return [
+            'rows' => $rows,
+            'summary' => [
+                'count' => count($rows),
+                'inflow_total' => $inflow,
+                'outflow_total' => $outflow,
+                'net_total' => $net,
+            ],
+        ];
     }
 
     public function getFinanceStats()
@@ -2003,6 +2274,26 @@ class Finance extends BaseController
             $endDate = $this->request->getGet('end_date');
             $status = $this->request->getGet('status');
             $ids = $this->request->getGet('ids');
+            $includeAllEvents = filter_var($this->request->getGet('include_all_events'), FILTER_VALIDATE_BOOLEAN);
+
+            if ($includeAllEvents && $startDate && $endDate) {
+                $ledger = $this->buildFinancialLedger((int) $clinicId, (string) $startDate, (string) $endDate);
+                $content = $this->generateLedgerCSVContent($ledger['rows']);
+                $mimeType = 'text/csv';
+                $fileName = 'financial_ledger_' . $startDate . '_to_' . $endDate . '_' . date('H-i-s') . '.csv';
+
+                $attachment = $this->storageService->storeExport(
+                    $content,
+                    $fileName,
+                    $mimeType,
+                    $clinicId,
+                    'finance',
+                    0,
+                    'finance_ledger_export'
+                );
+
+                return redirect()->to(base_url('file/download/' . $attachment['id']));
+            }
 
             // Build query
             $query = $this->financeModel->forClinic($clinicId)
@@ -2097,6 +2388,57 @@ class Finance extends BaseController
                 $row['service_type'],
                 $row['description'],
                 $row['created_at']
+            ]);
+        }
+
+        rewind($output);
+        $content = stream_get_contents($output);
+        fclose($output);
+
+        return $content;
+    }
+
+    private function generateLedgerCSVContent(array $rows): string
+    {
+        $output = fopen('php://temp', 'r+');
+
+        fputcsv($output, [
+            'Date',
+            'Source',
+            'Type',
+            'Reference',
+            'Patient Name',
+            'Patient Number',
+            'Counterparty',
+            'Payment Method',
+            'Payment Status',
+            'Category',
+            'Notes',
+            'Currency',
+            'Exchange Rate',
+            'Original Amount',
+            'Base Amount',
+            'Signed Base Amount',
+        ]);
+
+        foreach ($rows as $row) {
+            fputcsv($output, [
+                $row['event_at'] ?? '',
+                $row['event_source'] ?? '',
+                $row['event_type'] ?? '',
+                $row['reference'] ?? '',
+                $row['patient_label'] ?? '',
+                $row['patient_number'] ?? '',
+                $row['counterparty'] ?? '',
+                $row['payment_method'] ?? '',
+                $row['payment_status'] ?? '',
+                $row['category'] ?? '',
+                $row['notes'] ?? '',
+                $row['currency'] ?? '',
+                $row['exchange_rate'] ?? '',
+                $row['amount_original'] ?? '',
+                $row['amount_base'] ?? '',
+                $row['signed_amount_base'] ?? '',
             ]);
         }
 

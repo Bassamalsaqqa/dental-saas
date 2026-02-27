@@ -40,7 +40,7 @@
                             <button onclick="exportReport()" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-bold rounded-2xl hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-4 focus:ring-green-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                 <i class="fas fa-download mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                <span class="relative z-10">Export Report</span>
+                                <span class="relative z-10">Export CSV</span>
                             </button>
                         </div>
                     </div>
@@ -232,18 +232,6 @@
                         </div>
                     </div>
                     
-                    <?php
-                        $monthlyMap = array_fill(1, 12, 0);
-                        if (!empty($monthly_revenue)) {
-                            foreach ($monthly_revenue as $row) {
-                                $monthNum = intval($row['month'] ?? 0);
-                                if ($monthNum >= 1 && $monthNum <= 12) {
-                                    $monthlyMap[$monthNum] = floatval($row['total_amount'] ?? 0);
-                                }
-                            }
-                        }
-                        $monthlyValues = array_values($monthlyMap);
-                    ?>
                     <div class="h-64 bg-white rounded-xl p-4 border border-gray-200">
                         <canvas id="financeRevenueChart" height="240"></canvas>
                     </div>
@@ -319,79 +307,151 @@
                 </div>
             </div>
         </div>
+
+        <!-- Unified Financial Ledger -->
+        <div class="mb-8">
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-500 overflow-hidden">
+                    <div class="px-8 py-6 border-b border-white/20 bg-gradient-to-r from-rose-50/80 to-orange-50/80 backdrop-blur-sm rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-3 h-3 bg-gradient-to-r from-rose-500 to-orange-600 rounded-full animate-pulse"></div>
+                                <h3 class="text-xl font-black text-gray-900">Unified Financial Ledger</h3>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 border border-rose-200 text-rose-700">
+                                <?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> events
+                            </span>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-600">Includes finance transactions, invoice payment events, provider payout accruals, and provider payout cash payments.</p>
+                    </div>
+
+                    <div class="p-8 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Inflow</p>
+                                <p class="text-2xl font-black text-emerald-900"><?= formatCurrency($ledger_summary['inflow_total'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-rose-200 bg-rose-50/70 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-rose-700">Outflow</p>
+                                <p class="text-2xl font-black text-rose-900"><?= formatCurrency($ledger_summary['outflow_total'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-indigo-200 bg-indigo-50/70 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-indigo-700">Net</p>
+                                <p class="text-2xl font-black text-indigo-900"><?= formatCurrency($ledger_summary['net_total'] ?? 0) ?></p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[1080px]">
+                                <thead class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 backdrop-blur-sm">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Date</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Source</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Type</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Reference</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Patient</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Counterparty</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Method/Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Original</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Amount (Base)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white/50 backdrop-blur-sm divide-y divide-white/20">
+                                    <?php if (!empty($ledger_rows)): ?>
+                                        <?php foreach ($ledger_rows as $row): ?>
+                                            <?php
+                                                $source = (string) ($row['event_source'] ?? '');
+                                                $sourceLabel = match ($source) {
+                                                    'finance' => 'Finance',
+                                                    'invoice_payment' => 'Invoice Payment',
+                                                    'provider_payout' => 'Provider Payout',
+                                                    'provider_payout_payment' => 'Payout Payment',
+                                                    default => ucfirst(str_replace('_', ' ', $source)),
+                                                };
+                                                $signed = floatval($row['signed_amount_base'] ?? 0);
+                                                $isInflow = $signed >= 0;
+                                                $badgeClass = $isInflow
+                                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                                    : 'bg-rose-100 text-rose-800 border-rose-200';
+                                                $patientLabel = trim((string) ($row['patient_label'] ?? ''));
+                                                $patientNo = trim((string) ($row['patient_number'] ?? ''));
+                                            ?>
+                                            <tr class="hover:bg-gradient-to-r hover:from-rose-50/40 hover:to-orange-50/40 transition-all duration-300">
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-800">
+                                                    <?= !empty($row['event_at']) ? formatDateTime($row['event_at']) : '-' ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                        <?= esc($sourceLabel) ?>
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-800">
+                                                    <?= esc(ucfirst((string) ($row['event_type'] ?? '-'))) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <?= esc((string) ($row['reference'] ?? '-')) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <?php if ($patientLabel !== ''): ?>
+                                                        <div class="font-semibold text-gray-800"><?= esc($patientLabel) ?></div>
+                                                        <?php if ($patientNo !== ''): ?>
+                                                            <div class="text-xs text-gray-500">#<?= esc($patientNo) ?></div>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <span class="text-gray-400">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <?= esc((string) ($row['counterparty'] ?? '-')) ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <div><?= esc((string) ($row['payment_method'] ?? '-')) ?></div>
+                                                    <div class="text-xs text-gray-500"><?= esc((string) ($row['payment_status'] ?? '-')) ?></div>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <?php if (isset($row['amount_original']) && $row['amount_original'] !== null): ?>
+                                                        <?= esc((string) ($row['currency'] ?? '')) ?> <?= number_format((float) $row['amount_original'], 2) ?>
+                                                    <?php else: ?>
+                                                        <span class="text-gray-400">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold border <?= $badgeClass ?>">
+                                                        <i class="fas <?= $isInflow ? 'fa-arrow-up' : 'fa-arrow-down' ?> mr-2"></i>
+                                                        <?= formatCurrency(abs($signed)) ?>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="9" class="px-6 py-16 text-center">
+                                                <div class="flex flex-col items-center space-y-4">
+                                                    <div class="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
+                                                        <i class="fas fa-wallet text-gray-400 text-2xl"></i>
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <h3 class="text-lg font-bold text-gray-900 mb-2">No Ledger Events</h3>
+                                                        <p class="text-gray-600 mb-4">No financial events found for the selected period.</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
 function exportReport() {
-    // Create a more modern confirmation dialog
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
-    
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4';
-    
-    const textCenter = document.createElement('div');
-    textCenter.className = 'text-center';
-    
-    const iconContainer = document.createElement('div');
-    iconContainer.className = 'w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4';
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-download text-white text-2xl';
-    iconContainer.appendChild(icon);
-    
-    const title = document.createElement('h3');
-    title.className = 'text-xl font-bold text-gray-800 mb-2';
-    title.textContent = 'Export Report';
-    
-    const description = document.createElement('p');
-    description.className = 'text-gray-600 mb-6';
-    description.textContent = 'Choose the format for your financial report';
-    
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'flex space-x-3';
-    
-    const pdfBtn = document.createElement('button');
-    pdfBtn.className = 'px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all';
-    pdfBtn.onclick = function() {
-        downloadReport('pdf');
-        modal.remove();
-    };
-    const pdfIcon = document.createElement('i');
-    pdfIcon.className = 'fas fa-file-pdf mr-2';
-    pdfBtn.appendChild(pdfIcon);
-    pdfBtn.appendChild(document.createTextNode('PDF'));
-    
-    const excelBtn = document.createElement('button');
-    excelBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all';
-    excelBtn.onclick = function() {
-        downloadReport('excel');
-        modal.remove();
-    };
-    const excelIcon = document.createElement('i');
-    excelIcon.className = 'fas fa-file-excel mr-2';
-    excelBtn.appendChild(excelIcon);
-    excelBtn.appendChild(document.createTextNode('Excel'));
-    
-    buttonContainer.appendChild(pdfBtn);
-    buttonContainer.appendChild(excelBtn);
-    
-    const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'mt-4 px-6 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors';
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.onclick = function() {
-        modal.remove();
-    };
-    
-    textCenter.appendChild(iconContainer);
-    textCenter.appendChild(title);
-    textCenter.appendChild(description);
-    textCenter.appendChild(buttonContainer);
-    textCenter.appendChild(cancelBtn);
-    
-    card.appendChild(textCenter);
-    modal.appendChild(card);
-    document.body.appendChild(modal);
+    downloadReport('csv');
 }
 
 function downloadReport(format) {
@@ -399,17 +459,21 @@ function downloadReport(format) {
     const endRaw = document.querySelector('input[name="end_date"]').value;
     const startDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(startRaw) : startRaw;
     const endDate = window.parseClinicDateToIso ? window.parseClinicDateToIso(endRaw) : endRaw;
-    
-    // Implementation for downloading report
-    window.location.href = `<?= base_url('finance/export') ?>?format=${format}&start_date=${startDate}&end_date=${endDate}`;
+    const params = new URLSearchParams({
+        format: format,
+        start_date: startDate,
+        end_date: endDate,
+        include_all_events: '1',
+    });
+    window.location.href = `<?= base_url('finance/export') ?>?${params.toString()}`;
 }
 
 // Add smooth scrolling and enhanced interactions
 document.addEventListener('DOMContentLoaded', function() {
     const revenueCtx = document.getElementById('financeRevenueChart');
     if (revenueCtx) {
-        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const dataPoints = <?= json_encode($monthlyValues) ?>;
+        const labels = <?= json_encode($monthly_revenue_labels ?? []) ?>;
+        const dataPoints = <?= json_encode($monthly_revenue_values ?? []) ?>;
         const currencySymbol = <?= json_encode($currency_symbol ?? '$') ?>;
 
         new Chart(revenueCtx, {

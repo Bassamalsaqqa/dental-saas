@@ -489,92 +489,26 @@ class FinanceModel extends TenantAwareModel
             ->findAll();
     }
 
-    public function getFinanceStats($startDate = null, $endDate = null)
+    public function getFinanceStats($startDate = null, $endDate = null, $clinicId = null)
     {
         try {
-            $builder = $this->db->table('finances');
-
-            if ($startDate) {
-                $builder->where('created_at >=', $startDate);
-            }
-            if ($endDate) {
-                $builder->where('created_at <=', $endDate);
-            }
-
-            $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
-
-            $balanceField = $this->db->fieldExists('balance_due', 'finances') ? 'balance_due' : '(' . $sumField . ' - COALESCE(amount_paid, 0))';
-
-            $standalonePayments = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'payment')->get()->getRow()->total_amount ?? 0;
-            $totalInvoices = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'invoice')->get()->getRow()->total_amount ?? 0;
-            $refunds = $builder->selectSum($sumField, 'total_amount')->where('transaction_type', 'refund')->get()->getRow()->total_amount ?? 0;
-            $totalTransactions = (clone $builder)->countAllResults();
-
-            $paymentBuilder = $this->db->table('finance_payments');
-            if ($startDate) {
-                $paymentBuilder->where('payment_date >=', $startDate);
-            }
-            if ($endDate) {
-                $paymentBuilder->where('payment_date <=', $endDate);
-            }
-            $invoicePayments = $paymentBuilder
-                ->select("SUM(CASE WHEN type = 'payment' THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
-                ->get()
-                ->getRow()
-                ->total_amount ?? 0;
-
-            $pendingPayments = $builder->selectSum($balanceField, 'total_amount')
-                ->where('transaction_type', 'invoice')
-                ->whereIn('payment_status', ['pending', 'partial', 'overdue'])
-                ->get()
-                ->getRow()
-                ->total_amount ?? 0;
-            $overduePayments = $builder->selectSum($balanceField, 'total_amount')
-                ->where('transaction_type', 'invoice')
-                ->where('due_date <', date('Y-m-d'))
-                ->where($balanceField . ' >', 0, false)
-                ->get()
-                ->getRow()
-                ->total_amount ?? 0;
-
-            $summaryBuilder = $this->db->table('finances')
-                ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount');
-            if ($startDate) {
-                $summaryBuilder->where('created_at >=', $startDate);
-            }
-            if ($endDate) {
-                $summaryBuilder->where('created_at <=', $endDate);
-            }
-            $summaryRows = $summaryBuilder->groupBy('transaction_type')->get()->getResultArray();
-            $transactionSummary = [];
-            foreach ($summaryRows as $row) {
-                $count = intval($row['count'] ?? 0);
-                $total = floatval($row['total_amount'] ?? 0);
-                $transactionSummary[] = [
-                    'transaction_type' => $row['transaction_type'],
-                    'count' => $count,
-                    'total_amount' => $total,
-                    'average_amount' => $count > 0 ? ($total / $count) : 0,
+            $resolvedClinicId = $clinicId ? (int) $clinicId : (int) (session()->get('active_clinic_id') ?? 0);
+            if ($resolvedClinicId <= 0) {
+                log_message('warning', 'FinanceModel::getFinanceStats called without clinic context. Returning empty summary.');
+                return [
+                    'total_revenue' => 0,
+                    'total_invoices' => 0,
+                    'pending_payments' => 0,
+                    'pending_amount' => 0,
+                    'overdue_payments' => 0,
+                    'total_expenses' => 0,
+                    'net_income' => 0,
+                    'total_transactions' => 0,
+                    'average_transaction' => 0,
+                    'transaction_summary' => []
                 ];
             }
-
-            $expenses = (clone $builder)->selectSum($sumField, 'total_amount')->where('transaction_type', 'expense')->get()->getRow()->total_amount ?? 0;
-            $totalRevenue = floatval($standalonePayments) + floatval($invoicePayments) - floatval($refunds);
-            $netIncome = $totalRevenue - floatval($expenses);
-            $averageTransaction = $totalTransactions > 0 ? ($netIncome / $totalTransactions) : 0;
-
-            return [
-                'total_revenue' => $totalRevenue,
-                'total_invoices' => floatval($totalInvoices),
-                'pending_payments' => floatval($pendingPayments),
-                'pending_amount' => floatval($pendingPayments),
-                'overdue_payments' => floatval($overduePayments),
-                'total_expenses' => floatval($expenses),
-                'net_income' => $netIncome,
-                'total_transactions' => intval($totalTransactions),
-                'average_transaction' => $averageTransaction,
-                'transaction_summary' => $transactionSummary
-            ];
+            return $this->getFinanceStatsByClinic($resolvedClinicId, $startDate, $endDate);
         } catch (\Exception $e) {
             log_message('error', 'Finance stats error: ' . $e->getMessage());
             return [
@@ -817,10 +751,10 @@ class FinanceModel extends TenantAwareModel
             $builder->where('clinic_id', $clinicId);
         }
         if ($startDate) {
-            $builder->where('created_at >=', $startDate);
+            $builder->where('created_at >=', $startDate . ' 00:00:00');
         }
         if ($endDate) {
-            $builder->where('created_at <=', $endDate);
+            $builder->where('created_at <=', $endDate . ' 23:59:59');
         }
 
         $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';

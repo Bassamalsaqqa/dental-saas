@@ -35,9 +35,7 @@ class ExportReportsJob extends TenantJob
         $startDate = $params['start_date'] ?? date('Y-m-01');
         $endDate = $params['end_date'] ?? date('Y-m-d');
 
-        // Logic similar to Reports::getFinanceReports but scoped
-        // We use the model which is already tenant-aware (if we passed clinic_id or set session)
-        $stats = $this->financeModel->getFinanceStats($startDate, $endDate);
+        $stats = $this->financeModel->getFinanceStatsByClinic($this->clinicId, $startDate, $endDate);
         
         $content = "Financial Report for " . $this->clinic['name'] . "\n";
         $content .= "Period: {$startDate} to {$endDate}\n";
