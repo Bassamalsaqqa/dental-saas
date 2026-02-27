@@ -336,169 +336,140 @@
     <!-- Other Report Types -->
     <?php if (($report_type ?? 'overview') !== 'overview'): ?>
         <div class="mb-8">
-                <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
-                <div class="mb-6">
+                <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-4">
+                <div class="mb-4">
                     <h3 class="text-xl font-bold text-gray-800 mb-2"><?= ucfirst($report_type ?? 'Report') ?> Report</h3>
                         <p class="text-sm text-gray-600">Detailed analysis for <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?></p>
                     </div>
                     
                     <?php if ($report_type === 'patients'): ?>
                         <!-- Patients Report -->
-                        <div class="space-y-6">
-                            <!-- Patient Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Patients</p>
-                                            <p class="text-2xl font-bold text-blue-900"><?= count($reports['patients'] ?? []) ?></p>
-                                        </div>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-users text-blue-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-blue-900"><?= count($reports['patients'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Total Patients</p>
                                 </div>
-                                <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-user-plus"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">New Patients</p>
-                                            <p class="text-2xl font-bold text-green-900"><?= $reports['new_vs_returning']['new'] ?? 0 ?></p>
-                                        </div>
+                                <div class="bg-emerald-50/80 rounded-lg p-3 border border-emerald-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-user-plus text-emerald-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-emerald-900"><?= $reports['new_vs_returning']['new'] ?? 0 ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">New</p>
                                 </div>
-                                <div class="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 rounded-lg p-4 border border-purple-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-user-check"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Returning Patients</p>
-                                            <p class="text-2xl font-bold text-purple-900"><?= $reports['new_vs_returning']['returning'] ?? 0 ?></p>
-                                        </div>
+                                <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-user-check text-indigo-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-indigo-900"><?= $reports['new_vs_returning']['returning'] ?? 0 ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Returning</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-venus-mars text-slate-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-slate-800"><?= count($reports['gender_distribution'] ?? []) ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Gender Buckets</p>
                                 </div>
                             </div>
-                            
-                            <!-- Gender Distribution -->
                             <?php if (!empty($reports['gender_distribution'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Gender Distribution</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <?php foreach ($reports['gender_distribution'] as $gender): ?>
-                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($gender['gender']) ?></span>
-                                        <span class="text-lg font-bold text-blue-600"><?= $gender['count'] ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <!-- Age Groups -->
-                            <?php if (!empty($reports['age_groups'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Age Groups</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                    <?php foreach ($reports['age_groups'] as $ageGroup => $count): ?>
-                                    <div class="text-center p-3 bg-white rounded-lg border">
-                                        <p class="text-sm text-gray-600"><?= $ageGroup ?> years</p>
-                                        <p class="text-xl font-bold text-blue-600"><?= $count ?></p>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php foreach (array_slice($reports['gender_distribution'], 0, 5) as $gender): ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
+                                        <?= ucfirst($gender['gender']) ?>: <?= (int) $gender['count'] ?>
+                                    </span>
+                                <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
                         </div>
                         
                     <?php elseif ($report_type === 'examinations'): ?>
                         <!-- Examinations Report -->
-                        <div class="space-y-6">
-                            <!-- Examination Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-stethoscope"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Examinations</p>
-                                            <p class="text-2xl font-bold text-green-900"><?= count($reports['examinations'] ?? []) ?></p>
-                                        </div>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="bg-emerald-50/80 rounded-lg p-3 border border-emerald-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-stethoscope text-emerald-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-emerald-900"><?= count($reports['examinations'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Examinations</p>
                                 </div>
-                                <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-chart-pie"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Examination Types</p>
-                                            <p class="text-2xl font-bold text-blue-900"><?= count($reports['examination_types'] ?? []) ?></p>
-                                        </div>
+                                <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-layer-group text-blue-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-blue-900"><?= count($reports['examination_types'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
+                                </div>
+                                <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-calendar-check text-indigo-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-indigo-900"><?= count($reports['monthly_examinations'] ?? []) ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Months Tracked</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-user text-slate-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
                                 </div>
                             </div>
-                            
-                            <!-- Examination Types -->
                             <?php if (!empty($reports['examination_types'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Examination Types</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <?php foreach ($reports['examination_types'] as $type): ?>
-                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($type['examination_type']) ?></span>
-                                        <span class="text-lg font-bold text-green-600"><?= $type['count'] ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php foreach (array_slice($reports['examination_types'], 0, 6) as $type): ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
+                                        <?= ucfirst($type['examination_type']) ?>: <?= (int) ($type['count'] ?? 0) ?>
+                                    </span>
+                                <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
                         </div>
                         
                     <?php elseif ($report_type === 'appointments'): ?>
                         <!-- Appointments Report -->
-                        <div class="space-y-6">
-                            <!-- Appointment Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-gradient-to-r from-yellow-50/80 to-amber-50/80 rounded-lg p-4 border border-yellow-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-calendar"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Appointments</p>
-                                            <p class="text-2xl font-bold text-yellow-900"><?= count($reports['appointments'] ?? []) ?></p>
-                                        </div>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="bg-amber-50/80 rounded-lg p-3 border border-amber-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-calendar-check text-amber-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-amber-900"><?= count($reports['appointments'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Appointments</p>
                                 </div>
-                                <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-chart-pie"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Status Types</p>
-                                            <p class="text-2xl font-bold text-blue-900"><?= count($reports['status_distribution'] ?? []) ?></p>
-                                        </div>
+                                <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-signal text-blue-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-blue-900"><?= count($reports['status_distribution'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Statuses</p>
+                                </div>
+                                <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-tags text-indigo-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-indigo-900"><?= count($reports['appointment_types'] ?? []) ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-user text-slate-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
                                 </div>
                             </div>
-                            
-                            <!-- Appointment Status -->
                             <?php if (!empty($reports['status_distribution'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Appointment Status</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <?php foreach ($reports['status_distribution'] as $status): ?>
-                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($status['status']) ?></span>
-                                        <span class="text-lg font-bold text-yellow-600"><?= $status['count'] ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php foreach (array_slice($reports['status_distribution'], 0, 6) as $status): ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
+                                        <?= ucfirst($status['status']) ?>: <?= (int) ($status['count'] ?? 0) ?>
+                                    </span>
+                                <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -833,62 +804,49 @@
                         
                     <?php elseif ($report_type === 'treatments'): ?>
                         <!-- Treatments Report -->
-                        <div class="space-y-6">
-                            <!-- Treatment Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-gradient-to-r from-pink-50/80 to-rose-50/80 rounded-lg p-4 border border-pink-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-tooth"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Total Treatments</p>
-                                            <p class="text-2xl font-bold text-pink-900"><?= count($reports['treatments'] ?? []) ?></p>
-                                        </div>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="bg-rose-50/80 rounded-lg p-3 border border-rose-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-tooth text-rose-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-rose-900"><?= count($reports['treatments'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Treatments</p>
                                 </div>
-                                <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-chart-pie"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900">Treatment Types</p>
-                                            <p class="text-2xl font-bold text-blue-900"><?= count($reports['treatment_types'] ?? []) ?></p>
-                                        </div>
+                                <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-tags text-blue-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-blue-900"><?= count($reports['treatment_types'] ?? []) ?></span>
                                     </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
                                 </div>
-                            </div>
-                            
-                            <!-- Treatment Types -->
-                            <?php if (!empty($reports['treatment_types'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Treatment Types</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <?php foreach ($reports['treatment_types'] as $type): ?>
-                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($type['treatment_type']) ?></span>
-                                        <span class="text-lg font-bold text-pink-600"><?= $type['count'] ?></span>
+                                <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-wave-square text-indigo-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-indigo-900"><?= count($reports['status_distribution'] ?? []) ?></span>
                                     </div>
-                                    <?php endforeach; ?>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Statuses</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
+                                    <div class="flex items-center justify-between">
+                                        <i class="fas fa-user text-slate-600 text-sm"></i>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
                                 </div>
                             </div>
-                            <?php endif; ?>
-                            
-                            <!-- Treatment Status -->
-                            <?php if (!empty($reports['status_distribution'])): ?>
-                            <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Treatment Status</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <?php foreach ($reports['status_distribution'] as $status): ?>
-                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($status['status']) ?></span>
-                                        <span class="text-lg font-bold text-pink-600"><?= $status['count'] ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
+                            <div class="flex flex-wrap gap-2">
+                                <?php foreach (array_slice(($reports['status_distribution'] ?? []), 0, 4) as $status): ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
+                                        <?= ucfirst($status['status']) ?>: <?= (int) ($status['count'] ?? 0) ?>
+                                    </span>
+                                <?php endforeach; ?>
+                                <?php foreach (array_slice(($reports['treatment_types'] ?? []), 0, 4) as $type): ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
+                                        <?= ucfirst($type['treatment_type']) ?>: <?= (int) ($type['count'] ?? 0) ?>
+                                    </span>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endif; ?>
                         </div>
                         
                     <?php else: ?>
