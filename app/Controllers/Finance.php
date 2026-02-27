@@ -2395,7 +2395,7 @@ class Finance extends BaseController
         $content = stream_get_contents($output);
         fclose($output);
 
-        return $content;
+        return "\xEF\xBB\xBF" . $content;
     }
 
     private function generateLedgerCSVContent(array $rows): string
@@ -2446,7 +2446,7 @@ class Finance extends BaseController
         $content = stream_get_contents($output);
         fclose($output);
 
-        return $content;
+        return "\xEF\xBB\xBF" . $content;
     }
 
     private function exportToCSV($data)
