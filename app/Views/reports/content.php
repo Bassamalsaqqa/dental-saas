@@ -63,11 +63,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">From</label>
-                    <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc($filters['custom_from'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                    <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_from'] ?? '') ?: ($filters['start_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">To</label>
-                    <input id="customTo" type="text" data-clinic-date="1" value="<?= esc($filters['custom_to'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
+                    <input id="customTo" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_to'] ?? '') ?: ($filters['end_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
                 <div class="flex items-end">
                     <button onclick="generateReport()" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -966,8 +966,15 @@ function escapeHtml(value) {
 function syncReportFilterVisibility() {
     const reportType = document.getElementById('reportType')?.value || 'overview';
     const transactionTypeWrap = document.getElementById('transactionTypeWrap');
+    const transactionTypeFilter = document.getElementById('transactionTypeFilter');
     if (transactionTypeWrap) {
         transactionTypeWrap.classList.toggle('opacity-50', reportType !== 'finance');
+    }
+    if (transactionTypeFilter) {
+        transactionTypeFilter.disabled = reportType !== 'finance';
+        if (reportType !== 'finance') {
+            transactionTypeFilter.value = '';
+        }
     }
 }
 
@@ -980,10 +987,10 @@ function applyQuickDateRange(days) {
     const toDisplay = window.formatClinicDate ? window.formatClinicDate(toIso) : toIso;
     const fromInput = document.getElementById('customFrom');
     const toInput = document.getElementById('customTo');
-    if (fromInput && !fromInput.value) {
+    if (fromInput) {
         fromInput.value = fromDisplay;
     }
-    if (toInput && !toInput.value) {
+    if (toInput) {
         toInput.value = toDisplay;
     }
 }

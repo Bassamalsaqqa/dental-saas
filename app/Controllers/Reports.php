@@ -433,7 +433,7 @@ class Reports extends BaseController
                 'report_type' => $reportType,
                 'filters' => $filters,
                 'report_patients' => $this->patientModel
-                    ->select('id, patient_number, first_name, last_name')
+                    ->select('id, first_name, last_name')
                     ->where('clinic_id', $clinicId)
                     ->orderBy('first_name', 'ASC')
                     ->orderBy('last_name', 'ASC')
