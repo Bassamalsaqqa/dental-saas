@@ -209,182 +209,39 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                             </div>
                         </div>
 
-                        <!-- Address Information -->
+                        <!-- Contact Details -->
                         <div class="group/section relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
                             <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
                                 <div class="flex items-center space-x-3 mb-6">
                                     <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                                        <i class="fas fa-city text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Address Information</h4>
+                                    <h4 class="text-xl font-bold text-gray-800">Contact Details</h4>
                                 </div>
                                 
-                                 <div class="space-y-8">
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-map-marker-alt text-green-600"></i>
-                                             <span>Address</span>
-                                         </label>
-                                         <div class="relative">
-                                             <textarea id="address" name="address" rows="3" 
-                                                       class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl resize-none <?= $validation->hasError('address') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="Enter full address"><?= old('address', $patient['address']) ?></textarea>
-                                             <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
-                                                 <i class="fas fa-edit"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('address')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('address') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-
-                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                         <div class="group/field relative">
-                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                 <i class="fas fa-city text-green-600"></i>
-                                                 <span>City</span>
-                                             </label>
-                                             <div class="relative">
-                                                 <input type="text" id="city" name="city" 
-                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('city') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                        value="<?= old('city', $patient['city']) ?>" placeholder="Enter city">
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                     <i class="fas fa-city text-gray-400"></i>
-                                                 </div>
-                                             </div>
-                                             <?php if ($validation->hasError('city')): ?>
-                                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                     <i class="fas fa-exclamation-circle"></i>
-                                                     <span><?= $validation->getError('city') ?></span>
-                                                 </p>
-                                             <?php endif; ?>
-                                         </div>
-
-                                         <div class="group/field relative">
-                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                 <i class="fas fa-map text-green-600"></i>
-                                                 <span>State</span>
-                                             </label>
-                                             <div class="relative">
-                                                 <input type="text" id="state" name="state" 
-                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('state') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                        value="<?= old('state', $patient['state']) ?>" placeholder="Enter state">
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                     <i class="fas fa-map text-gray-400"></i>
-                                                 </div>
-                                             </div>
-                                             <?php if ($validation->hasError('state')): ?>
-                                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                     <i class="fas fa-exclamation-circle"></i>
-                                                     <span><?= $validation->getError('state') ?></span>
-                                                 </p>
-                                             <?php endif; ?>
-                                         </div>
-
-                                         <div class="group/field relative">
-                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                                 <i class="fas fa-mail-bulk text-green-600"></i>
-                                                 <span>ZIP Code</span>
-                                             </label>
-                                             <div class="relative">
-                                                 <input type="text" id="zip_code" name="zip_code" 
-                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('zip_code') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                        value="<?= old('zip_code', $patient['zip_code']) ?>" placeholder="Enter ZIP code">
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                     <i class="fas fa-mail-bulk text-gray-400"></i>
-                                                 </div>
-                                             </div>
-                                             <?php if ($validation->hasError('zip_code')): ?>
-                                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                     <i class="fas fa-exclamation-circle"></i>
-                                                     <span><?= $validation->getError('zip_code') ?></span>
-                                                 </p>
-                                             <?php endif; ?>
-                                         </div>
-                                     </div>
-
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-globe text-green-600"></i>
-                                             <span>Country</span>
-                                         </label>
-                                         <div class="relative">
-                                             <input type="text" id="country" name="country" 
-                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('country') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                    value="<?= old('country', $patient['country']) ?: 'United States' ?>" placeholder="Enter country">
-                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                 <i class="fas fa-globe text-gray-400"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('country')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('country') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Emergency Contact -->
-                        <div class="group/section relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-600/5 rounded-2xl blur-lg opacity-0 group-hover/section:opacity-100 transition-opacity duration-500"></div>
-                            <div class="relative backdrop-blur-sm bg-white/60 border border-white/40 rounded-2xl p-8 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-phone text-white text-sm"></i>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-city text-green-600"></i>
+                                            <span>City</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" id="city" name="city"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('city') ? 'border-red-500 ring-red-500/20' : '' ?>"
+                                                   value="<?= old('city', $patient['city']) ?>" placeholder="Enter city">
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <i class="fas fa-city text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                        <?php if ($validation->hasError('city')): ?>
+                                            <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                                <span><?= $validation->getError('city') ?></span>
+                                            </p>
+                                        <?php endif; ?>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Emergency Contact</h4>
                                 </div>
-                                
-                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-user-friends text-orange-600"></i>
-                                             <span>Emergency Contact Name</span>
-                                         </label>
-                                         <div class="relative">
-                                             <input type="text" id="emergency_contact_name" name="emergency_contact_name" 
-                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('emergency_contact_name') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                    value="<?= old('emergency_contact_name', $patient['emergency_contact_name']) ?>" placeholder="Enter emergency contact name">
-                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                 <i class="fas fa-user-friends text-gray-400"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('emergency_contact_name')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('emergency_contact_name') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-
-                                     <div class="group/field relative">
-                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                             <i class="fas fa-phone text-orange-600"></i>
-                                             <span>Emergency Contact Phone</span>
-                                         </label>
-                                         <div class="relative">
-                                             <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" 
-                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('emergency_contact_phone') ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                    value="<?= old('emergency_contact_phone', $patient['emergency_contact_phone']) ?>" placeholder="Enter emergency contact phone">
-                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                 <i class="fas fa-phone text-gray-400"></i>
-                                             </div>
-                                         </div>
-                                         <?php if ($validation->hasError('emergency_contact_phone')): ?>
-                                             <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
-                                                 <i class="fas fa-exclamation-circle"></i>
-                                                 <span><?= $validation->getError('emergency_contact_phone') ?></span>
-                                             </p>
-                                         <?php endif; ?>
-                                     </div>
-                                 </div>
                             </div>
                         </div>
 

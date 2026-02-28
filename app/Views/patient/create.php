@@ -5,13 +5,7 @@
 $validation = $validation ?? null;
 $optionalFieldKeys = [
     'email',
-    'country',
-    'address',
     'city',
-    'state',
-    'zip_code',
-    'emergency_contact_name',
-    'emergency_contact_phone',
     'insurance_provider',
     'insurance_number',
     'notes',
@@ -181,38 +175,8 @@ $alertBoolChecked = static function (string $key): bool {
                                             <?php endif; ?>
                                         </div>
                                         <div>
-                                            <label for="country" class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                                            <input id="country" name="country" type="text" value="<?= old('country') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                                            <textarea id="address" name="address" rows="2" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl"><?= old('address') ?></textarea>
-                                        </div>
-                                        <div>
                                             <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City</label>
                                             <input id="city" name="city" type="text" value="<?= old('city') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
-                                        </div>
-                                        <div>
-                                            <label for="state" class="block text-sm font-medium text-gray-700 mb-2">State</label>
-                                            <input id="state" name="state" type="text" value="<?= old('state') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
-                                        </div>
-                                        <div>
-                                            <label for="zip_code" class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
-                                            <input id="zip_code" name="zip_code" type="text" value="<?= old('zip_code') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h5 class="text-sm font-semibold text-gray-700 mb-3">Emergency Contact</h5>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 mb-2">Contact Name</label>
-                                            <input id="emergency_contact_name" name="emergency_contact_name" type="text" value="<?= old('emergency_contact_name') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
-                                        </div>
-                                        <div>
-                                            <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
-                                            <input id="emergency_contact_phone" name="emergency_contact_phone" type="text" value="<?= old('emergency_contact_phone') ?>" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl">
                                         </div>
                                     </div>
                                 </div>

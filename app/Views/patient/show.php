@@ -235,19 +235,8 @@ function getFDINumber($universalNumber) {
                                                 <p class="text-sm text-gray-900"><?= $patient['email'] ?: 'Not provided' ?></p>
                                             </div>
                                             <div class="md:col-span-2">
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Address</label>
-                                                <p class="text-sm text-gray-900">
-                                                    <?php
-                                                    $address_parts = array_filter([
-                                                        $patient['address'],
-                                                        $patient['city'],
-                                                        $patient['state'],
-                                                        $patient['zip_code'],
-                                                        $patient['country']
-                                                    ]);
-                                                    echo $address_parts ? implode(', ', $address_parts) : 'Not provided';
-                                                    ?>
-                                                </p>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1">City</label>
+                                                <p class="text-sm text-gray-900"><?= !empty($patient['city']) ? esc($patient['city']) : 'Not provided' ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -258,27 +247,6 @@ function getFDINumber($universalNumber) {
                                     'patient_whatsapp' => $patient_whatsapp ?? null,
                                     'patient_whatsapp_optout' => $patient_whatsapp_optout ?? null,
                                 ]) ?>
-
-                                <!-- Emergency Contact -->
-                                <?php if ($patient['emergency_contact_name'] || $patient['emergency_contact_phone']): ?>
-                                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
-                                        <div class="px-6 py-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-semibold text-gray-800">Emergency Contact</h3>
-                                        </div>
-                                        <div class="px-6 py-4">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-600 mb-1">Contact Name</label>
-                                                    <p class="text-sm text-gray-900"><?= $patient['emergency_contact_name'] ?></p>
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-600 mb-1">Contact Phone</label>
-                                                    <p class="text-sm text-gray-900"><?= $patient['emergency_contact_phone'] ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
 
                                 <!-- Medical Information -->
                                 <?php

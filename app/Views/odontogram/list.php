@@ -270,40 +270,6 @@
                                    placeholder="Enter email address">
                         </div>
                     </div>
-
-                    <!-- Address -->
-                    <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                        <textarea id="address" name="address" rows="3"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
-                                  placeholder="Enter full address"></textarea>
-                    </div>
-                </div>
-
-                <!-- Emergency Contact Section -->
-                <div class="space-y-4">
-                    <h4 class="text-lg font-semibold text-gray-800 flex items-center">
-                        <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
-                        Emergency Contact
-                    </h4>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Emergency Contact Name -->
-                        <div>
-                            <label for="emergencyName" class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
-                            <input type="text" id="emergencyName" name="emergency_contact_name"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                   placeholder="Enter emergency contact name">
-                        </div>
-                        
-                        <!-- Emergency Contact Phone -->
-                        <div>
-                            <label for="emergencyPhone" class="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
-                            <input type="tel" id="emergencyPhone" name="emergency_contact_phone"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                   placeholder="Enter emergency contact phone">
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Medical Information Section -->

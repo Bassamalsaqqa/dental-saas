@@ -176,7 +176,6 @@ class Patient extends BaseController
                     ->orLike('email', $searchValue)
                     ->orLike('phone', $searchValue)
                     ->orLike('patient_id', $searchValue)
-                    ->orLike('address', $searchValue)
                     ->orLike('city', $searchValue)
                     ->groupEnd();
             }
@@ -367,13 +366,7 @@ class Patient extends BaseController
                 'phone' => $this->request->getPost('phone'),
                 'date_of_birth' => $this->normalizePostedDateOnly('date_of_birth'),
                 'gender' => $this->request->getPost('gender'),
-                'address' => $this->request->getPost('address'),
                 'city' => $this->request->getPost('city'),
-                'state' => $this->request->getPost('state'),
-                'zip_code' => $this->request->getPost('zip_code'),
-                'country' => $this->request->getPost('country'),
-                'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-                'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
                 'medical_history' => $legacyMedicalHistory,
                 'allergies' => $legacyAllergies,
                 'alert_has_allergies' => $alertHasAllergies,
@@ -969,13 +962,7 @@ class Patient extends BaseController
             'phone' => $this->request->getPost('phone'),
             'date_of_birth' => $this->normalizePostedDateOnly('date_of_birth'),
             'gender' => $this->request->getPost('gender'),
-            'address' => $this->request->getPost('address'),
             'city' => $this->request->getPost('city'),
-            'state' => $this->request->getPost('state'),
-            'zip_code' => $this->request->getPost('zip_code'),
-            'country' => $this->request->getPost('country'),
-            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-            'emergency_contact_phone' => $this->request->getPost('emergency_contact_phone'),
             'medical_history' => $legacyMedicalHistory,
             'allergies' => $legacyAllergies,
             'alert_has_allergies' => $alertHasAllergies,

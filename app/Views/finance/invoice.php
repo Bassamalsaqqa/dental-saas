@@ -110,9 +110,6 @@
                             <?php if ($patient['email']): ?>
                             <p class="text-sm text-gray-600">Email: <?= $patient['email'] ?></p>
                             <?php endif; ?>
-                            <?php if ($patient['address']): ?>
-                            <p class="text-sm text-gray-600">Address: <?= $patient['address'] ?></p>
-                            <?php endif; ?>
                         </div>
                     </div>
 
