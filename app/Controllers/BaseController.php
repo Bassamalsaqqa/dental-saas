@@ -43,6 +43,23 @@ abstract class BaseController extends Controller
     protected $session;
 
     /**
+     * Locale resolver instance
+     *
+     * @var \App\Services\LocaleResolverService
+     */
+    protected $localeResolver;
+
+    /**
+     * Resolved locale for current request
+     */
+    protected string $currentLocale = 'en';
+
+    /**
+     * Whether current locale should render RTL
+     */
+    protected bool $isRtl = false;
+
+    /**
      * An array of helpers to be loaded automatically upon
      * class instantiation. These helpers will be available
      * to all other controllers that extend BaseController.
@@ -62,13 +79,17 @@ abstract class BaseController extends Controller
         // Load IonAuth library
         $this->ionAuth = new \App\Libraries\IonAuth();
         $this->session = \Config\Services::session();
+        $this->localeResolver = service('localeResolver');
         
         // Load settings helper
         helper('settings');
         $this->applyRuntimeTimezone();
+        $this->applyLocaleContext($request);
 
         // Inject clinic info globally for all view() helper calls, unless already set
         $renderer = \Config\Services::renderer();
+        $renderer->setVar('locale', $this->currentLocale);
+        $renderer->setVar('is_rtl', $this->isRtl);
         if (!isset($renderer->getData()['clinic'])) {
             $renderer->setVar('clinic', settings()->getClinicInfo());
         }
@@ -488,5 +509,47 @@ abstract class BaseController extends Controller
             log_message('error', 'Timezone initialization failed: ' . $e->getMessage());
             date_default_timezone_set('UTC');
         }
+    }
+
+    /**
+     * Resolve and apply UI locale for non-kiosk pages.
+     */
+    protected function applyLocaleContext(RequestInterface $request): void
+    {
+        if (!$request instanceof IncomingRequest) {
+            return;
+        }
+
+        // Kiosk already resolves locale explicitly per clinic context.
+        $uriPath = trim((string) $request->getUri()->getPath(), '/');
+        if (str_starts_with($uriPath, 'kiosk')) {
+            $this->currentLocale = strtolower((string) $request->getLocale() ?: 'en');
+            $this->isRtl = $this->localeResolver->isRtl($this->currentLocale);
+            return;
+        }
+
+        $appConfig = config('App');
+        $supported = $appConfig->supportedLocales ?? ['en', 'ar'];
+        $defaultLocale = strtolower((string) ($appConfig->defaultLocale ?? 'en'));
+        $isControlPlane = str_starts_with($uriPath, 'controlplane');
+
+        $settingsLocale = '';
+        if (!$isControlPlane) {
+            $activeClinicId = (int) (session()->get('active_clinic_id') ?? 0);
+            if ($activeClinicId > 0) {
+                $settingsLocale = strtolower((string) settings()->get('ui_language', 'en'));
+            }
+        }
+
+        $resolved = $this->localeResolver->resolve($request, [
+            'supported' => $supported,
+            'default' => $defaultLocale,
+            'session_key' => $isControlPlane ? 'cp_ui_locale' : 'ui_locale',
+            'settings_locale' => $settingsLocale,
+        ]);
+
+        $this->localeResolver->apply($request, $resolved);
+        $this->currentLocale = $resolved;
+        $this->isRtl = $this->localeResolver->isRtl($resolved);
     }
 }

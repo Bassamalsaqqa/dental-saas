@@ -475,6 +475,13 @@
                                             </select>
                                         </div>
                                     <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">UI Language</label>
+                                        <select name="ui_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200" required>
+                                            <option value="en" <?= ($settings['ui_language'] ?? 'en') == 'en' ? 'selected' : '' ?>>English (LTR)</option>
+                                            <option value="ar" <?= ($settings['ui_language'] ?? 'en') == 'ar' ? 'selected' : '' ?>>Arabic (RTL)</option>
+                                        </select>
+                                    </div>
+                                    <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Currency</label>
                                         <select name="currency" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200" required>
                                             <option value="ILS" <?= ($settings['currency'] ?? '') == 'ILS' ? 'selected' : '' ?>>ILS - Israeli Shekel (ILS)</option>

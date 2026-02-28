@@ -38,3 +38,11 @@
 - Decision: Control plane defines default system preferences for new clinics (timezone, date/time formats, currency, working hours) and applies them only at onboarding.
 - Rationale: Provide consistent starting configuration without overriding existing tenant preferences.
 - Impact: New clinics are seeded with platform defaults at creation; existing clinics are unchanged.
+
+## 2026-02-28 — Bilingual Rollout Strategy (Foundation-First)
+- Decision: Ship bilingual support in two layers: (1) locale/RTL infrastructure + shell localization first, (2) module-by-module content translation later.
+- Rationale: Enables safe adoption with minimal regression risk, preserves current English-first UX, and avoids large unverified string migrations in a single release.
+- Impact:
+  - Current release includes global locale/dir support, tenant UI language setting (`ui_language`), and localized tenant/control-plane shell.
+  - Default behavior remains English unless tenant language is explicitly changed.
+  - Full in-page/module translation remains an explicit follow-up phase.

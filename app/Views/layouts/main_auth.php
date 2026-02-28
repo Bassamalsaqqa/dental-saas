@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="<?= esc($locale ?? 'en') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,7 +148,7 @@
             <div class="p-4">
                 <div class="flex items-center space-x-2 mb-4">
                     <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Main Menu</h3>
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.mainMenu') ?></h3>
                 </div>
                 <ul class="space-y-2">
                     <?php 
@@ -156,79 +156,79 @@
                     $userMenu = [];
                     $menu = [
                             'dashboard' => [
-                                'title' => 'Dashboard',
+                                'title' => lang('UI.menuDashboard'),
                                 'url' => 'dashboard',
                                 'icon' => 'fas fa-tachometer-alt',
                                 'color' => 'blue',
                             ],
                             'patients' => [
-                                'title' => 'Patients',
+                                'title' => lang('UI.menuPatients'),
                                 'url' => 'patients',
                                 'icon' => 'fas fa-users',
                                 'color' => 'emerald',
                             ],
                             'examinations' => [
-                                'title' => 'Examinations',
+                                'title' => lang('UI.menuExaminations'),
                                 'url' => 'examinations',
                                 'icon' => 'fas fa-stethoscope',
                                 'color' => 'orange',
                             ],
                             'appointments' => [
-                                'title' => 'Appointments',
+                                'title' => lang('UI.menuAppointments'),
                                 'url' => 'appointments',
                                 'icon' => 'fas fa-calendar-alt',
                                 'color' => 'purple',
                             ],
                             'treatments' => [
-                                'title' => 'Treatments',
+                                'title' => lang('UI.menuTreatments'),
                                 'url' => 'treatments',
                                 'icon' => 'fas fa-tooth',
                                 'color' => 'pink',
                             ],
                             'prescriptions' => [
-                                'title' => 'Prescriptions',
+                                'title' => lang('UI.menuPrescriptions'),
                                 'url' => 'prescriptions',
                                 'icon' => 'fas fa-prescription-bottle-alt',
                                 'color' => 'indigo',
                             ],
                             'finance' => [
-                                'title' => 'Finance',
+                                'title' => lang('UI.menuFinance'),
                                 'url' => 'finance',
                                 'icon' => 'fas fa-dollar-sign',
                                 'color' => 'green',
                             ],
                             'reports' => [
-                                'title' => 'Reports',
+                                'title' => lang('UI.menuReports'),
                                 'url' => 'reports',
                                 'icon' => 'fas fa-chart-bar',
                                 'color' => 'amber',
                             ],
                             'inventory' => [
-                                'title' => 'Inventory',
+                                'title' => lang('UI.menuInventory'),
                                 'url' => 'inventory',
                                 'icon' => 'fas fa-boxes',
                                 'color' => 'teal',
                             ],
                             'users' => [
-                                'title' => 'User Management',
+                                'title' => lang('UI.menuUserManagement'),
                                 'url' => 'users',
                                 'icon' => 'fas fa-users-cog',
                                 'color' => 'violet',
                             ],
                             'roles' => [
-                                'title' => 'Role Management',
+                                'title' => lang('UI.menuRoleManagement'),
                                 'url' => 'roles',
                                 'icon' => 'fas fa-user-tag',
                                 'color' => 'indigo',
                             ],
                             'activity_log' => [
-                                'title' => 'Activity Log',
+                                'title' => lang('UI.menuActivityLog'),
                                 'url' => 'activity-log',
                                 'icon' => 'fas fa-history',
                                 'color' => 'teal',
                             ],
                             'settings' => [
-                                'title' => 'Settings',
+                                'title' => lang('UI.menuSettings'),
                                 'url' => 'settings',
                                 'icon' => 'fas fa-cog',
                                 'color' => 'gray',
@@ -383,13 +383,13 @@
                         
                         <!-- Tooltip -->
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                            Switch Clinic (<?= esc($clinic['name']) ?>)
+                            <?= lang('UI.switchClinic') ?> (<?= esc($clinic['name']) ?>)
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
 
                         <div id="clinicSwitcherMenu" class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform origin-top-right transition-all">
                             <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Switch Clinic</p>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
                             </div>
                             <div class="p-2 max-h-64 overflow-y-auto">
                                 <?php foreach ($user_memberships as $m): ?>
@@ -415,7 +415,7 @@
                             <div class="p-3 border-t border-gray-50 bg-gray-50/30 text-center">
                                 <a href="<?= base_url('clinic/select') ?>" class="inline-flex items-center space-x-1 text-[11px] text-blue-600 hover:text-blue-700 font-bold uppercase tracking-wider transition-colors">
                                     <i class="fas fa-th-large text-[10px]"></i>
-                                    <span>All Clinics</span>
+                                    <span><?= lang('UI.allClinics') ?></span>
                                 </a>
                             </div>
                         </div>
@@ -431,7 +431,7 @@
                                 <i class="fas fa-user-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                New Patient
+                                <?= lang('UI.newPatient') ?>
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
@@ -442,7 +442,7 @@
                                 <i class="fas fa-calendar-plus text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                New Appointment
+                                <?= lang('UI.newAppointment') ?>
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
@@ -453,7 +453,7 @@
                                 <i class="fas fa-stethoscope text-sm"></i>
                             </a>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                New Examination
+                                <?= lang('UI.newExamination') ?>
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
@@ -465,7 +465,7 @@
                                 <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shadow-sm hidden text-[10px]">0</span>
                             </button>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                Notifications
+                                <?= lang('UI.notifications') ?>
                                 <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                             </div>
                         </div>
@@ -478,7 +478,7 @@
                             <i class="fas fa-user text-sm"></i>
                         </button>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                            Profile Menu
+                            <?= lang('UI.profileMenu') ?>
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
                         
@@ -519,15 +519,15 @@
                             <div class="p-2">
                                 <a href="<?= base_url('profile') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-user-cog text-gray-500 w-5"></i>
-                                    <span class="font-medium">Profile Settings</span>
+                                    <span class="font-medium"><?= lang('UI.profileSettings') ?></span>
                                 </a>
                                 <a href="<?= base_url('settings') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-cog text-gray-500 w-5"></i>
-                                    <span class="font-medium">System Settings</span>
+                                    <span class="font-medium"><?= lang('UI.systemSettings') ?></span>
                                 </a>
                                 <a href="<?= base_url('clinic/select') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-exchange-alt text-gray-500 w-5"></i>
-                                    <span class="font-medium">Switch Clinic</span>
+                                    <span class="font-medium"><?= lang('UI.switchClinic') ?></span>
                                 </a>
                                 
                                 <?php if (!empty($is_super_admin) && empty($global_mode)): ?>
@@ -536,7 +536,7 @@
                                         <?= csrf_field() ?>
                                         <button type="submit" class="w-full flex items-center space-x-3 px-3 py-2.5 text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors duration-200 text-left">
                                             <i class="fas fa-rocket text-indigo-500 w-5"></i>
-                                            <span class="font-medium">Enter Control Plane</span>
+                                            <span class="font-medium"><?= lang('UI.enterControlPlane') ?></span>
                                         </button>
                                     </form>
                                 <?php endif; ?>
@@ -544,7 +544,7 @@
                                 <div class="border-t border-gray-100 my-2"></div>
                                 <a href="<?= base_url('auth/logout') ?>" class="flex items-center space-x-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
                                     <i class="fas fa-sign-out-alt text-red-500 w-5"></i>
-                                    <span class="font-medium">Sign Out</span>
+                                    <span class="font-medium"><?= lang('UI.signOut') ?></span>
                                 </a>
                             </div>
                         </div>
@@ -556,7 +556,7 @@
                             <i class="fas fa-sign-out-alt text-sm"></i>
                         </a>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                            Logout
+                            <?= lang('UI.logout') ?>
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
                     </div>
@@ -588,15 +588,15 @@
     <div id="notifications-dropdown" class="fixed top-20 right-6 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important;">
         <div class="p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-900">Notifications</h3>
-                <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">Mark all as read</button>
+                <h3 class="text-lg font-bold text-gray-900"><?= lang('UI.notifications') ?></h3>
+                <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800"><?= lang('UI.markAllAsRead') ?></button>
             </div>
         </div>
         <div id="notifications-list" class="max-h-64 overflow-y-auto">
             <!-- Notifications will be loaded here -->
         </div>
         <div class="p-4 border-t border-gray-200">
-            <a href="<?= base_url('activity-log') ?>" class="text-sm text-blue-600 hover:text-blue-800">View all notifications</a>
+            <a href="<?= base_url('activity-log') ?>" class="text-sm text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
         </div>
     </div>
 </div>

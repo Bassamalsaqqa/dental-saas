@@ -1469,3 +1469,22 @@
     - `535e66b` `feat(inventory): add starter templates and movement ledger UI`
     - `3394e73` `feat(inventory): add supplier-item mappings and reorder workflow`
     - `92e5ee4` `feat(inventory): add movement ledger and batch tracking foundation`
+
+### Task: I18N-FOUNDATION-01 Bilingual Readiness Foundation (`en` + `ar`, LTR/RTL)
+- **Date:** 2026-02-28
+- **Status:** Completed
+- **Description:** Implemented app-wide locale/dir foundation for bilingual UI readiness without altering default UX (English remains default), added tenant UI language setting, localized shell-level labels for tenant/control-plane layouts, and fixed legacy layout compatibility.
+- **Actions:**
+    - **Global Locale Context:** Added request-level locale resolution to `BaseController` via `LocaleResolverService` for non-kiosk pages with precedence: `?lang`, session, tenant setting (`ui_language`), app default.
+    - **Direction Support:** Injected global `locale` + `is_rtl` view vars and switched core layouts to dynamic `<html lang=... dir=...>`.
+    - **Settings Integration:** Added tenant `ui_language` (`en|ar`) to System Preferences form and controller validation/persistence/defaults.
+    - **Shell Localization:** Added new language packs `app/Language/en/UI.php` and `app/Language/ar/UI.php`; replaced hardcoded labels in:
+      - `app/Views/layouts/main_auth.php`
+      - `app/Views/layouts/main_control_plane.php`
+      including command-palette runtime labels/messages.
+    - **Legacy Layout Fix:** Added `app/Views/layouts/main.php` as compatibility alias to `layouts/main_auth` to prevent `Invalid file: "layouts/main.php"` from older views.
+    - **Standalone Auth/Clinic Entry Pages:** Updated auth/clinic standalone pages to dynamic `lang/dir`.
+- **Verification:**
+    - `php -l` passed for all modified controller/layout/language/view files.
+    - `php spark routes` confirms core auth/settings/control-plane/kiosk routing intact.
+- **Resume Note:** Module-level page content translations (finance/reports/patients/etc.) remain pending and should be handled in a separate wave; this task intentionally established foundation + shell localization only.
