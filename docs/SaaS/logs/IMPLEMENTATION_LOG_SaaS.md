@@ -1488,3 +1488,24 @@
     - `php -l` passed for all modified controller/layout/language/view files.
     - `php spark routes` confirms core auth/settings/control-plane/kiosk routing intact.
 - **Resume Note:** Module-level page content translations (finance/reports/patients/etc.) remain pending and should be handled in a separate wave; this task intentionally established foundation + shell localization only.
+
+### Task: HOSTINGER-OPS-01 Control Plane Transition Troubleshooting Runbook
+- **Date:** 2026-02-28
+- **Status:** Completed
+- **Description:** Documented a production troubleshooting runbook after intermittent Hostinger browser errors were observed during control-plane transitions (enter/exit/impersonation), including route/method validation and writable/runtime diagnostics.
+- **Observed Symptoms (reported):**
+    - Browser-side intermittent `405` on `POST /controlplane/enter` and `/controlplane/exit`.
+    - `favicon.ico` errors during failure windows.
+- **Server Investigation Outcome:**
+    - Deployed routes confirmed present (`php spark routes`) including all control-plane POST transitions.
+    - Direct server-side POST probes returned `303` redirects (route reachable).
+    - `writable/logs` and `writable/cache` were missing initially and had to be created.
+    - `favicon.ico` served as `404` at edge despite local file presence in `public/` (docroot/edge static-path inconsistency).
+- **Actions:**
+    - Added permanent Hostinger troubleshooting section to `DEPLOYMENT_GUIDE.md` with:
+      - route verification commands,
+      - correct POST-vs-HEAD diagnostics,
+      - writable directory creation/permission checks,
+      - env/session sanity checks,
+      - favicon/docroot mismatch mitigation and escalation path.
+- **Verification:** manual SSH command outputs captured during incident triage (routes, curl POST checks, writable log write test, favicon HEAD check).
