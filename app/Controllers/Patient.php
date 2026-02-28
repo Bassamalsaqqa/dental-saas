@@ -423,6 +423,19 @@ class Patient extends BaseController
                     $this->request->getPost('return_to'),
                     ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations']
                 );
+
+                $postSubmitAction = (string) $this->request->getPost('post_submit_action');
+                if ($postSubmitAction === 'save_and_book') {
+                    if ($this->hasPermission('appointments', 'create')) {
+                        return redirect()->to(base_url('appointment/create?patient_id=' . (int) $patientId . '&return_to=patient/' . (int) $patientId))
+                            ->with('success', 'Patient has been added successfully! Continue by booking an appointment.');
+                    }
+
+                    $fallbackRedirect = $returnTo ? base_url($returnTo) : '/patient';
+                    return redirect()->to($fallbackRedirect)
+                        ->with('success', 'Patient has been added successfully! Appointment booking was skipped because you do not have appointment create permission.');
+                }
+
                 if ($returnTo) {
                     return redirect()->to(base_url($returnTo))->with('success', 'Patient has been added successfully!');
                 }

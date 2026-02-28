@@ -394,9 +394,13 @@ $alertBoolChecked = static function (string $key): bool {
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
                                 Cancel
                             </a>
-                            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <button type="submit" name="post_submit_action" value="save_only" class="inline-flex items-center justify-center px-6 py-3 border border-blue-200 bg-white text-blue-700 text-sm font-bold rounded-xl hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md">
                                 <i class="fas fa-user-plus mr-2"></i>
-                                Create Patient
+                                Save
+                            </button>
+                            <button type="submit" name="post_submit_action" value="save_and_book" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                <i class="fas fa-calendar-plus mr-2"></i>
+                                Save &amp; Book Appointment
                             </button>
                         </div>
                     </form>
