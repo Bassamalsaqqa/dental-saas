@@ -590,6 +590,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);
     $routes->post('updateChannelStatus', 'Settings::updateChannelStatus', ['filter' => 'permission:settings:edit']); // Gated by global_mode inside
     $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
+    $routes->post('getChannelConfig', 'Settings::getChannelConfig', ['filter' => 'permission:settings:edit']);
     $routes->post('testWhatsAppChannel', 'Settings::testWhatsAppChannel', ['filter' => 'permission:settings:edit']);
 });
 

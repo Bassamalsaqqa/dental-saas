@@ -49,6 +49,26 @@
             <input type="text" id="wa_api_version" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="v22.0">
             <p class="text-xs text-gray-500 mt-1">Leave empty to use platform default.</p>
         </div>
+        <div class="pt-2 border-t border-gray-100">
+            <label class="block text-sm font-medium text-gray-700">Fallback Template Name (Out-of-Session)</label>
+            <input type="text" id="wa_fallback_template_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="clinic_reengagement_ar">
+            <p class="text-xs text-gray-500 mt-1">Used automatically when provider returns out-of-session error 131047.</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fallback Template Language</label>
+            <input type="text" id="wa_fallback_template_language" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="ar">
+            <p class="text-xs text-gray-500 mt-1">Arabic by default. Use the exact language code configured in Meta templates.</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fallback Template Components JSON (optional)</label>
+            <textarea id="wa_fallback_template_components" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono" placeholder='[]'></textarea>
+            <p class="text-xs text-gray-500 mt-1">Optional static components payload for the fallback template.</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Arabic Message Templates JSON</label>
+            <textarea id="wa_message_templates" rows="8" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono" placeholder='{}'></textarea>
+            <p class="text-xs text-gray-500 mt-1">Fully editable. Keys are template identifiers; values are Arabic text with variables like {{patient_name}}.</p>
+        </div>
     </div>
 </div>
 
@@ -88,10 +108,66 @@
     }
 
     function serializeWhatsAppForm() {
+        let fallbackComponents = [];
+        const fallbackComponentsRaw = (document.getElementById('wa_fallback_template_components').value || '').trim();
+        if (fallbackComponentsRaw !== '') {
+            try {
+                fallbackComponents = JSON.parse(fallbackComponentsRaw);
+                if (!Array.isArray(fallbackComponents)) {
+                    throw new Error('Fallback components must be an array');
+                }
+            } catch (e) {
+                throw new Error('Invalid fallback template components JSON');
+            }
+        }
+
+        let messageTemplates = {};
+        const messageTemplatesRaw = (document.getElementById('wa_message_templates').value || '').trim();
+        if (messageTemplatesRaw !== '') {
+            try {
+                messageTemplates = JSON.parse(messageTemplatesRaw);
+                if (messageTemplates === null || typeof messageTemplates !== 'object' || Array.isArray(messageTemplates)) {
+                    throw new Error('Message templates must be a JSON object');
+                }
+            } catch (e) {
+                throw new Error('Invalid Arabic message templates JSON');
+            }
+        }
+
         return JSON.stringify({
             phone_number_id: document.getElementById('wa_phone_number_id').value,
-            api_version: document.getElementById('wa_api_version').value
+            api_version: document.getElementById('wa_api_version').value,
+            fallback_template: {
+                name: document.getElementById('wa_fallback_template_name').value,
+                language: document.getElementById('wa_fallback_template_language').value,
+                components: fallbackComponents
+            },
+            message_templates: messageTemplates
         });
+    }
+
+    function defaultWhatsAppTemplateSettings() {
+        return {
+            appointment_reminder: "تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.",
+            appointment_confirmation: "تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}. نتطلع لخدمتكم.",
+            follow_up: "نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة. لأي استفسار يرجى الرد على هذه الرسالة.",
+            payment_reminder: "تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}. للتفاصيل يرجى التواصل معنا عبر هذه المحادثة."
+        };
+    }
+
+    function hydrateWhatsAppForm(config) {
+        const safeConfig = (config && typeof config === 'object') ? config : {};
+        const fallback = (safeConfig.fallback_template && typeof safeConfig.fallback_template === 'object') ? safeConfig.fallback_template : {};
+        const templates = (safeConfig.message_templates && typeof safeConfig.message_templates === 'object' && !Array.isArray(safeConfig.message_templates))
+            ? safeConfig.message_templates
+            : defaultWhatsAppTemplateSettings();
+
+        document.getElementById('wa_phone_number_id').value = safeConfig.phone_number_id || safeConfig.wa_phone_number_id || '';
+        document.getElementById('wa_api_version').value = safeConfig.api_version || safeConfig.graph_api_version || '';
+        document.getElementById('wa_fallback_template_name').value = fallback.name || '';
+        document.getElementById('wa_fallback_template_language').value = fallback.language || 'ar';
+        document.getElementById('wa_fallback_template_components').value = JSON.stringify(Array.isArray(fallback.components) ? fallback.components : [], null, 2);
+        document.getElementById('wa_message_templates').value = JSON.stringify(templates, null, 2);
     }
 
     function clearChannelConfigForm(type) {
@@ -105,6 +181,10 @@
         if (type === 'whatsapp') {
             document.getElementById('wa_phone_number_id').value = '';
             document.getElementById('wa_api_version').value = '';
+            document.getElementById('wa_fallback_template_name').value = '';
+            document.getElementById('wa_fallback_template_language').value = 'ar';
+            document.getElementById('wa_fallback_template_components').value = '[]';
+            document.getElementById('wa_message_templates').value = JSON.stringify(defaultWhatsAppTemplateSettings(), null, 2);
             return;
         }
 

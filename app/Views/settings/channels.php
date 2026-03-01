@@ -150,6 +150,28 @@ function openConfigModal(type) {
 
     document.getElementById('configModal').classList.remove('hidden');
     document.getElementById('configModal').classList.add('flex');
+
+    if (type === 'email' || type === 'whatsapp') {
+        fetch('<?= base_url('settings/getChannelConfig') ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                [csrfHeader]: csrfToken
+            },
+            body: `channel_type=${encodeURIComponent(type)}`
+        }).then(res => res.json())
+          .then(data => {
+              if (!data || !data.success) {
+                  return;
+              }
+
+              if (type === 'whatsapp' && typeof hydrateWhatsAppForm === 'function') {
+                  hydrateWhatsAppForm(data.config || {});
+              }
+          })
+          .catch(() => {});
+    }
 }
 
 function closeConfigModal() {
@@ -163,7 +185,12 @@ function saveConfig() {
     if (currentChannel === 'email') {
         json = serializeSmtpForm(); // Defined in smtp_form component
     } else if (currentChannel === 'whatsapp') {
-        json = serializeWhatsAppForm(); // Defined in smtp_form component
+        try {
+            json = serializeWhatsAppForm(); // Defined in smtp_form component
+        } catch (e) {
+            alert(e && e.message ? e.message : 'Invalid WhatsApp configuration.');
+            return;
+        }
     } else {
         json = document.getElementById('configJson').value;
         try {

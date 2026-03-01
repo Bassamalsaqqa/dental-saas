@@ -56,7 +56,15 @@ class WhatsAppDriver
         }
 
         $payload = json_decode((string) ($notification['payload_json'] ?? '{}'), true) ?? [];
+        $payload = $this->preparePayload($payload, $channelConfig);
         $transport = $this->sendPayload($clinicId, $channelConfig, (string) $recipient['to'], $payload);
+
+        if ((string) ($transport['error_code'] ?? '') === '131047') {
+            $fallbackResult = $this->tryFallbackTemplateSend($clinicId, $channelConfig, (string) $recipient['to'], $payload);
+            if ($fallbackResult !== null) {
+                $transport = $fallbackResult;
+            }
+        }
 
         $attemptStatus = (string) ($transport['attempt_status'] ?? 'failed_permanent');
         $notificationStatus = !empty($transport['retryable']) ? 'failed' : ($attemptStatus === 'sent' ? 'sent' : 'failed');
@@ -74,6 +82,111 @@ class WhatsAppDriver
             'retryable' => (bool) ($transport['retryable'] ?? false),
             'next_retry_at' => $transport['next_retry_at'] ?? null,
         ];
+    }
+
+    private function preparePayload(array $payload, array $channelConfig): array
+    {
+        $message = trim((string) ($payload['message'] ?? $payload['body'] ?? ''));
+        if ($message !== '') {
+            return $payload;
+        }
+
+        $templateKey = trim((string) ($payload['message_template_key'] ?? ''));
+        if ($templateKey === '') {
+            return $payload;
+        }
+
+        $templates = $this->defaultArabicMessageTemplates();
+        $configuredTemplates = $channelConfig['message_templates'] ?? [];
+        if (is_array($configuredTemplates)) {
+            foreach ($configuredTemplates as $key => $value) {
+                if (!is_string($key)) {
+                    continue;
+                }
+                $cleanKey = trim($key);
+                if ($cleanKey === '') {
+                    continue;
+                }
+                $templates[$cleanKey] = trim((string) $value);
+            }
+        }
+
+        if (!array_key_exists($templateKey, $templates)) {
+            return $payload;
+        }
+
+        $templateBody = trim((string) ($templates[$templateKey] ?? ''));
+        if ($templateBody === '') {
+            return $payload;
+        }
+
+        $vars = $payload['template_vars'] ?? [];
+        if (!is_array($vars)) {
+            $vars = [];
+        }
+
+        $payload['message'] = $this->replacePlaceholders($templateBody, $vars);
+        return $payload;
+    }
+
+    private function defaultArabicMessageTemplates(): array
+    {
+        return [
+            'appointment_reminder' => 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
+            'appointment_confirmation' => 'تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}. نتطلع لخدمتكم.',
+            'follow_up' => 'نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة. لأي استفسار يرجى الرد على هذه الرسالة.',
+            'payment_reminder' => 'تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}. للتفاصيل يرجى التواصل معنا عبر هذه المحادثة.',
+        ];
+    }
+
+    private function tryFallbackTemplateSend(int $clinicId, array $channelConfig, string $to, array $payload): ?array
+    {
+        $fallback = $channelConfig['fallback_template'] ?? [];
+        if (!is_array($fallback)) {
+            return null;
+        }
+
+        $templateName = trim((string) ($fallback['name'] ?? ''));
+        if ($templateName === '') {
+            return null;
+        }
+
+        $languageCode = trim((string) ($fallback['language'] ?? 'ar'));
+        if ($languageCode === '') {
+            $languageCode = 'ar';
+        }
+
+        $components = $payload['template_components'] ?? $fallback['components'] ?? [];
+        if (!is_array($components)) {
+            $components = [];
+        }
+
+        return $this->client->sendTemplate($clinicId, $channelConfig, $to, $templateName, $languageCode, $components);
+    }
+
+    private function replacePlaceholders(string $template, array $vars): string
+    {
+        if ($template === '' || empty($vars)) {
+            return $template;
+        }
+
+        $replacePairs = [];
+        foreach ($vars as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+            $cleanKey = trim($key);
+            if ($cleanKey === '') {
+                continue;
+            }
+            $replacePairs['{{' . $cleanKey . '}}'] = (string) $value;
+        }
+
+        if (empty($replacePairs)) {
+            return $template;
+        }
+
+        return strtr($template, $replacePairs);
     }
 
     private function sendPayload(int $clinicId, array $channelConfig, string $to, array $payload): array

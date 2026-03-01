@@ -112,3 +112,12 @@ vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\un
 
 Result:
 - `OK (32 tests, 149 assertions)`
+
+## Settings UX Update (2026-03-01)
+
+- Added `POST /settings/getChannelConfig` to load sanitized channel config into the settings modal.
+- WhatsApp channel config now supports editable template controls:
+  - `fallback_template.name`
+  - `fallback_template.language` (Arabic default)
+  - `fallback_template.components` JSON
+  - `message_templates` JSON (Arabic defaults, fully editable per clinic)

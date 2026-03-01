@@ -1567,3 +1567,31 @@
     - Transport + webhook pipeline is operational end-to-end.
     - Remaining blocker for this recipient is Meta policy/session rule (`131047`), requiring template-first sends for out-of-session delivery.
 - **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-LIVE-PILOT-2026-03-01.md`
+
+### Task: WHATSAPP-PHASE6-03 Arabic Templates + Settings Customization
+- **Date:** 2026-03-01
+- **Status:** Completed
+- **Description:** Added tenant-configurable WhatsApp template settings (Arabic defaults), wired runtime template resolution/fallback behavior, and verified live delivery end-to-end.
+- **Actions:**
+    - Extended WhatsApp channel settings modal with configurable template profile:
+      - `fallback_template.name`
+      - `fallback_template.language` (default `ar`)
+      - `fallback_template.components` JSON
+      - `message_templates` JSON object (Arabic defaults, editable)
+    - Added tenant AJAX endpoint `POST /settings/getChannelConfig` to hydrate edit forms with sanitized channel config and normalized WhatsApp defaults.
+    - Updated `Settings::updateChannelConfig` to normalize/validate WhatsApp config payload and persist template profile.
+    - Enhanced `WhatsAppDriver`:
+      - supports `payload.message_template_key` + `payload.template_vars` rendering from configured templates
+      - auto-attempts configured fallback template on provider code `131047` (out-of-session)
+    - Hardened `WhatsAppClient`:
+      - uses `platform_secrets.wa_phone_number_id` when channel config phone ID is missing
+      - retries once with platform phone ID on Graph error `100` from misconfigured channel ID
+    - Added test coverage for the new settings config endpoint default behavior.
+- **Verification:**
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppPhase5EndpointsTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppWebhookTest.php` -> `OK (33 tests, 156 assertions)`
+    - Live controlled send evidence:
+      - `notifications.id=72` -> final `status=read`
+      - `notification_attempts.notification_id=72` -> final `status=read`, `provider_message_id` populated
+      - `notifications.id=73` (`message_template_key=appointment_confirmation`) -> final `status=delivered`
+      - `notification_attempts.notification_id=73` -> final `status=delivered`, `provider_message_id` populated
+- **Verification Doc:** `docs/SaaS/verification/WHATSAPP-TEMPLATES-SETTINGS-2026-03-01.md`

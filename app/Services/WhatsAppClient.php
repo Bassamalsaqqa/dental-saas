@@ -136,11 +136,13 @@ class WhatsAppClient
 
     private function sendRequest(int $clinicId, array $channelConfig, array $requestBody): array
     {
-        $phoneNumberId = trim((string) ($this->firstNonEmpty($channelConfig, [
+        $configuredPhoneNumberId = trim((string) ($this->firstNonEmpty($channelConfig, [
             'phone_number_id',
             'wa_phone_number_id',
             'whatsapp_phone_number_id',
         ]) ?? ''));
+        $secretPhoneNumberId = trim((string) ($this->platformSecretModel->getSecret('wa_phone_number_id') ?? ''));
+        $phoneNumberId = $configuredPhoneNumberId !== '' ? $configuredPhoneNumberId : $secretPhoneNumberId;
 
         if ($phoneNumberId === '') {
             return $this->terminalFailure('WA_PHONE_NUMBER_ID_MISSING', 'WhatsApp phone number ID is not configured for this clinic.');
@@ -159,10 +161,10 @@ class WhatsAppClient
 
         $apiVersion = trim((string) ($this->firstNonEmpty($channelConfig, ['graph_api_version', 'api_version']) ?? $this->defaultApiVersion));
         $timeout = max(3, min((int) ($channelConfig['timeout_seconds'] ?? 15), 60));
-        $endpoint = $this->baseUrl . '/' . $apiVersion . '/' . rawurlencode($phoneNumberId) . '/messages';
+        $sendWithPhoneNumberId = function (string $targetPhoneNumberId) use ($apiVersion, $accessToken, $timeout, $requestBody) {
+            $endpoint = $this->baseUrl . '/' . $apiVersion . '/' . rawurlencode($targetPhoneNumberId) . '/messages';
 
-        try {
-            $response = $this->http->request('POST', $endpoint, [
+            return $this->http->request('POST', $endpoint, [
                 'http_errors' => false,
                 'timeout' => $timeout,
                 'headers' => [
@@ -171,6 +173,10 @@ class WhatsAppClient
                 ],
                 'json' => $requestBody,
             ]);
+        };
+
+        try {
+            $response = $sendWithPhoneNumberId($phoneNumberId);
         } catch (\Throwable $e) {
             return $this->retryableFailure(
                 'WA_NETWORK_EXCEPTION',
@@ -180,7 +186,27 @@ class WhatsAppClient
             );
         }
 
-        return $this->classifyResponse($response);
+        $classified = $this->classifyResponse($response);
+
+        // Guardrail fallback: if clinic config points to an invalid/unauthorized phone number ID,
+        // retry once against platform-level wa_phone_number_id.
+        if (
+            (string) ($classified['error_code'] ?? '') === '100'
+            && $secretPhoneNumberId !== ''
+            && $secretPhoneNumberId !== $phoneNumberId
+        ) {
+            try {
+                $retryResponse = $sendWithPhoneNumberId($secretPhoneNumberId);
+                $retryClassified = $this->classifyResponse($retryResponse);
+                if (!empty($retryClassified['provider_message_id']) || (string) ($retryClassified['attempt_status'] ?? '') === 'sent') {
+                    return $retryClassified;
+                }
+            } catch (\Throwable $e) {
+                // Keep original classified failure to avoid hiding the primary error context.
+            }
+        }
+
+        return $classified;
     }
 
     private function extractProviderErrorCode($json): ?string

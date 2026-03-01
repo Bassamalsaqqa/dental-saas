@@ -99,13 +99,20 @@ Result:
   - provider returned `131047` (`Re-engagement message`) for the test text send, causing terminal failure
   - evidence in `docs/SaaS/verification/WHATSAPP-PHASE6-LIVE-PILOT-2026-03-01.md`
 
+- Template/settings hardening added:
+  - tenant-configurable WhatsApp template profile in Settings (Arabic defaults, editable)
+  - runtime `message_template_key` rendering support
+  - auto fallback template attempt on `131047`
+  - `WhatsAppClient` fallback retry on Graph error `100` using platform `wa_phone_number_id`
+  - evidence in `docs/SaaS/verification/WHATSAPP-TEMPLATES-SETTINGS-2026-03-01.md`
+
 ## Resume Checklist (next session)
 
 1. Re-run current WhatsApp regression bundle:
    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php`
 2. Choose next WhatsApp slice:
-   - Template-first enqueue UX/workflow integration (required for out-of-session recipients after observed `131047`)
-   - Phase 6 pilot rollout/ops runbook execution with approved templates
+   - Wire product flows to explicit template keys/components by event type (appointments, recalls, payment reminders)
+   - Phase 6 pilot rollout/ops runbook execution with approved Meta templates and threshold monitoring
 3. Update `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` with new work before/after changes
 
 ## Context Shift Note

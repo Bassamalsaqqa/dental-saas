@@ -44,6 +44,64 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
         ]);
     }
 
+    public function testSettingsGetChannelConfigReturnsWhatsaAppTemplateDefaults(): void
+    {
+        $clinicId = $this->findAnyClinicId();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No clinic row found for getChannelConfig test.');
+        }
+
+        $session = session();
+        $originalClinicId = $session->get('active_clinic_id');
+        $session->set('active_clinic_id', $clinicId);
+
+        $channelModel = new ClinicNotificationChannelModel();
+        $originalConfig = $channelModel->getConfig((int) $clinicId, 'whatsapp');
+        try {
+            $channelModel->setConfig((int) $clinicId, 'whatsapp', [
+                'phone_number_id' => '1234567890',
+                'api_version' => 'v22.0',
+            ]);
+        } finally {
+            $session->set('active_clinic_id', $originalClinicId);
+        }
+
+        try {
+            $response = $this->postWithCsrf(
+                '/settings/getChannelConfig',
+                ['channel_type' => 'whatsapp'],
+                ['active_clinic_id' => $clinicId],
+                ['X-Requested-With' => 'XMLHttpRequest']
+            );
+
+            $response->assertStatus(200);
+            $response->assertJSONFragment(['success' => true]);
+
+            $json = json_decode((string) $response->getJSON(), true);
+            $this->assertIsArray($json);
+            $this->assertSame('1234567890', (string) ($json['config']['phone_number_id'] ?? ''));
+            $this->assertSame('ar', (string) ($json['config']['fallback_template']['language'] ?? ''));
+            $this->assertSame(
+                'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
+                (string) ($json['config']['message_templates']['appointment_reminder'] ?? '')
+            );
+        } finally {
+            $session->set('active_clinic_id', $clinicId);
+            try {
+                if (is_array($originalConfig)) {
+                    $channelModel->setConfig((int) $clinicId, 'whatsapp', $originalConfig);
+                } else {
+                    $this->db->table('clinic_notification_channels')
+                        ->where('clinic_id', $clinicId)
+                        ->where('channel_type', 'whatsapp')
+                        ->delete();
+                }
+            } finally {
+                $session->set('active_clinic_id', $originalClinicId);
+            }
+        }
+    }
+
     public function testPatientWhatsAppIdentityRequiresAjax(): void
     {
         $clinicId = $this->findAnyClinicId();
@@ -282,6 +340,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
     private function withPhase5TestRoutes(): self
     {
         $this->withRoutes([
+            ['POST', 'settings/getChannelConfig', 'Settings::getChannelConfig'],
             ['POST', 'settings/testWhatsAppChannel', 'Settings::testWhatsAppChannel'],
             ['POST', 'patient/(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1'],
             ['POST', 'controlplane/whatsapp/rotate-secret', 'ControlPlane\WhatsApp::rotateSecret'],

@@ -789,7 +789,11 @@ class Settings extends BaseController
             if (!$config && $configJson) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Invalid JSON']);
             }
-            
+
+            if ($channelType === 'whatsapp') {
+                $config = $this->normalizeWhatsAppChannelConfig($config ?? []);
+            }
+
             $channelModel->setConfig($clinicId, $channelType, $config ?? []);
             return $this->response->setJSON(['success' => true, 'message' => 'Configuration saved']);
         } elseif ($action === 'validate') {
@@ -806,6 +810,49 @@ class Settings extends BaseController
         }
 
         return $this->response->setJSON(['success' => false, 'message' => 'Invalid action']);
+    }
+
+    public function getChannelConfig()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Invalid request.',
+            ]);
+        }
+
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON([
+                'success' => false,
+                'message' => 'TENANT_CONTEXT_REQUIRED',
+            ]);
+        }
+
+        $channelType = trim((string) $this->request->getPost('channel_type'));
+        if (!in_array($channelType, ['email', 'sms', 'whatsapp'], true)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => 'Unsupported channel_type.',
+            ]);
+        }
+
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        $config = $channelModel->getConfig($clinicId, $channelType) ?? [];
+
+        if ($channelType === 'email') {
+            // Keep password write-only.
+            unset($config['smtp_pass']);
+        }
+
+        if ($channelType === 'whatsapp') {
+            $config = $this->normalizeWhatsAppChannelConfig($config);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'config' => $config,
+        ]);
     }
 
     public function testWhatsAppChannel()
@@ -874,9 +921,63 @@ class Settings extends BaseController
                 'validated' => !empty($channel['validated']),
                 'phone_number_id_present' => $phoneNumberId !== '',
                 'plan_feature_enabled' => $featureEnabled,
+                'fallback_template_name_present' => trim((string) (($config['fallback_template']['name'] ?? ''))) !== '',
             ],
             'missing' => $missing,
         ]);
+    }
+
+    private function normalizeWhatsAppChannelConfig(array $config): array
+    {
+        $defaults = [
+            'appointment_reminder' => 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
+            'appointment_confirmation' => 'تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}. نتطلع لخدمتكم.',
+            'follow_up' => 'نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة. لأي استفسار يرجى الرد على هذه الرسالة.',
+            'payment_reminder' => 'تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}. للتفاصيل يرجى التواصل معنا عبر هذه المحادثة.',
+        ];
+
+        $phoneNumberId = trim((string) ($config['phone_number_id'] ?? $config['wa_phone_number_id'] ?? ''));
+        $apiVersion = trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? ''));
+
+        $fallbackRaw = is_array($config['fallback_template'] ?? null) ? $config['fallback_template'] : [];
+        $fallbackName = trim((string) ($fallbackRaw['name'] ?? ''));
+        $fallbackLanguage = trim((string) ($fallbackRaw['language'] ?? ''));
+        if ($fallbackLanguage === '') {
+            $fallbackLanguage = 'ar';
+        }
+
+        $components = $fallbackRaw['components'] ?? [];
+        if (!is_array($components)) {
+            $components = [];
+        }
+
+        $templatesRaw = $config['message_templates'] ?? [];
+        if (!is_array($templatesRaw)) {
+            $templatesRaw = [];
+        }
+
+        $templates = $defaults;
+        foreach ($templatesRaw as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+            $cleanKey = trim($key);
+            if ($cleanKey === '') {
+                continue;
+            }
+            $templates[$cleanKey] = trim((string) $value);
+        }
+
+        return [
+            'phone_number_id' => $phoneNumberId,
+            'api_version' => $apiVersion,
+            'fallback_template' => [
+                'name' => $fallbackName,
+                'language' => $fallbackLanguage,
+                'components' => $components,
+            ],
+            'message_templates' => $templates,
+        ];
     }
 
     private function getSettings()
