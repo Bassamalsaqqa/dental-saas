@@ -58,7 +58,7 @@ class PatientModel extends TenantAwareModel
         'first_name' => 'required|min_length[2]|max_length[50]',
         'last_name' => 'required|min_length[2]|max_length[50]',
         'email' => 'permit_empty|valid_email',
-        'phone' => 'required|min_length[10]|max_length[15]',
+        'phone' => 'required|regex_match[/^\d{9,15}$/]',
         'date_of_birth' => 'required|valid_date',
         'gender' => 'required|in_list[male,female,other]'
     ];
@@ -80,8 +80,7 @@ class PatientModel extends TenantAwareModel
         ],
         'phone' => [
             'required' => 'Phone number is required',
-            'min_length' => 'Phone number must be at least 10 digits',
-            'max_length' => 'Phone number cannot exceed 15 digits'
+            'regex_match' => 'Phone number must be digits only and contain 9 to 15 digits'
         ],
         'date_of_birth' => [
             'required' => 'Date of birth is required',

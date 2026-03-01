@@ -114,10 +114,23 @@ $alertBoolChecked = static function (string $key): bool {
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                                 <div>
                                     <label for="phone" class="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
-                                    <input id="phone" name="phone" type="tel" required value="<?= old('phone') ?>" class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('phone')) ? 'border-red-500' : 'border-gray-300' ?>">
-                                    <?php if ($validation && $validation->hasError('phone')): ?>
-                                        <p class="text-red-500 text-sm mt-2"><?= esc($validation->getError('phone')) ?></p>
-                                    <?php endif; ?>
+                                    <input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        required
+                                        minlength="9"
+                                        maxlength="15"
+                                        inputmode="numeric"
+                                        pattern="\d{9,15}"
+                                        title="Phone number must be digits only and contain 9 to 15 digits."
+                                        value="<?= old('phone') ?>"
+                                        class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('phone')) ? 'border-red-500' : 'border-gray-300' ?>"
+                                        aria-describedby="phoneFieldError"
+                                    >
+                                    <p id="phoneFieldError" class="text-red-500 text-sm mt-2 <?= ($validation && $validation->hasError('phone')) ? '' : 'hidden' ?>">
+                                        <?= ($validation && $validation->hasError('phone')) ? esc($validation->getError('phone')) : '' ?>
+                                    </p>
                                 </div>
 
                                 <div>
@@ -381,6 +394,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const optionalTrack = document.getElementById('optionalTrack');
     const optionalDot = document.getElementById('optionalDot');
     const genderSelect = document.getElementById('gender');
+    const patientForm = document.querySelector('form[action$="patient/store"]');
+    const phoneInput = document.getElementById('phone');
+    const phoneFieldError = document.getElementById('phoneFieldError');
+
+    function validatePhoneField() {
+        if (!phoneInput) {
+            return true;
+        }
+
+        const value = (phoneInput.value || '').trim();
+        let message = '';
+
+        if (value === '') {
+            message = 'Phone number is required.';
+        } else if (!/^\d{9,15}$/.test(value)) {
+            message = 'Phone number must be digits only and contain 9 to 15 digits.';
+        }
+
+        phoneInput.setCustomValidity(message);
+        if (phoneFieldError) {
+            phoneFieldError.textContent = message;
+            phoneFieldError.classList.toggle('hidden', message === '');
+        }
+
+        return message === '';
+    }
 
     function syncOptionalState() {
         if (!optionalToggle || !optionalSection) {
@@ -407,6 +446,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (optionalToggle) {
         optionalToggle.addEventListener('change', syncOptionalState);
         syncOptionalState();
+    }
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', validatePhoneField);
+        phoneInput.addEventListener('blur', validatePhoneField);
+        validatePhoneField();
+    }
+
+    if (patientForm) {
+        patientForm.addEventListener('submit', function (event) {
+            if (!validatePhoneField()) {
+                event.preventDefault();
+                phoneInput?.focus();
+                phoneInput?.reportValidity();
+            }
+        });
     }
 
     function syncMedicalAlertToggle(toggle) {

@@ -248,9 +248,14 @@ class Patient extends BaseController
             ['dashboard', 'patient', 'patients', 'appointment', 'appointments', 'examination', 'examinations']
         );
 
+        $validation = session('validation');
+        if (!$validation instanceof \CodeIgniter\Validation\Validation) {
+            $validation = \Config\Services::validation();
+        }
+
         $data = [
             'title' => 'Add New Patient',
-            'validation' => \Config\Services::validation(),
+            'validation' => $validation,
             'return_to' => $returnTo
         ];
 
@@ -280,12 +285,14 @@ class Patient extends BaseController
                 'first_name' => 'required|min_length[2]|max_length[50]',
                 'last_name' => 'required|min_length[2]|max_length[50]',
                 'email' => 'permit_empty|valid_email|is_unique[patients.email]',
-                'phone' => 'required|min_length[10]|max_length[15]',
-                'date_of_birth' => 'required|valid_date',
+                'phone' => 'required|regex_match[/^\d{9,15}$/]',
+                'date_of_birth' => $this->getClinicDateValidationRule(),
                 'gender' => 'required|in_list[male,female,other]'
             ];
+
+            $validationMessages = $this->getPatientValidationMessages();
             
-            if (!$this->validate($rules)) {
+            if (!$this->validate($rules, $validationMessages)) {
                 $db->transRollback();
                 // Check if this is an AJAX request
                 if ($this->request->isAJAX()) {
@@ -295,7 +302,11 @@ class Patient extends BaseController
                         'errors' => $this->validator->getErrors()
                     ]);
                 }
-                return redirect()->back()->withInput()->with('validation', $this->validator);
+                return redirect()->back()
+                    ->withInput()
+                    ->with('validation', $this->validator)
+                    ->with('errors', $this->validator->getErrors())
+                    ->with('error', 'Please review the highlighted fields and try again.');
             }
 
             $email = trim((string) $this->request->getPost('email'));
@@ -835,6 +846,20 @@ class Patient extends BaseController
             ->with('attachments_flash', '1');
     }
 
+    private function getPatientValidationMessages(): array
+    {
+        $format = $this->getClinicDateFormat();
+        return [
+            'phone' => [
+                'required' => 'Phone number is required.',
+                'regex_match' => 'Phone number must be digits only and contain 9 to 15 digits.',
+            ],
+            'date_of_birth' => [
+                'valid_date' => "Date of birth must follow {$format}.",
+            ],
+        ];
+    }
+
     public function edit($id)
     {
         $clinicId = session()->get('active_clinic_id');
@@ -878,13 +903,19 @@ class Patient extends BaseController
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'permit_empty|valid_email',
-            'phone' => 'required|min_length[10]|max_length[15]',
-            'date_of_birth' => 'required|valid_date',
+            'phone' => 'required|regex_match[/^\d{9,15}$/]',
+            'date_of_birth' => $this->getClinicDateValidationRule(),
             'gender' => 'required|in_list[male,female,other]'
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+        $validationMessages = $this->getPatientValidationMessages();
+
+        if (!$this->validate($rules, $validationMessages)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('validation', $this->validator)
+                ->with('errors', $this->validator->getErrors())
+                ->with('error', 'Please review the highlighted fields and try again.');
         }
 
         // Check email uniqueness manually for updates

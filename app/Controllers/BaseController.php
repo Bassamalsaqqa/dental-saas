@@ -326,6 +326,30 @@ abstract class BaseController extends Controller
     }
 
     /**
+     * Return the clinic's configured date format.
+     */
+    protected function getClinicDateFormat(): string
+    {
+        $format = (string) settings()->get('date_format', 'd/m/Y');
+        return $format === '' ? 'd/m/Y' : $format;
+    }
+
+    /**
+     * Build a validation rule string honoring the clinic date format.
+     */
+    protected function getClinicDateValidationRule(): string
+    {
+        $format = strtolower(str_replace(['.', '-'], '/', $this->getClinicDateFormat()));
+        $rule = 'valid_date';
+        if ($format === 'd/m/y') {
+            $rule = 'valid_date[d/m/Y]';
+        } elseif ($format === 'm/d/y') {
+            $rule = 'valid_date[m/d/Y]';
+        }
+        return 'required|' . $rule;
+    }
+
+    /**
      * Get user permissions
      *
      * @param int|null $userId
