@@ -31,7 +31,7 @@
    - `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
    - `docs/SaaS/whatsapp_provider_facts.md`
    - `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`
-   - Active phase must be treated as: **Phase 0 - Notifications hardening (pre-WhatsApp implementation)** unless explicitly changed in docs.
+   - Active phase is: **Phase 6 - Pilot rollout & operations hardening** (Phases 0-5 completed; see WhatsApp checkpoint/verification docs).
 3) Drift scans:
    - `rg -n "innerHTML|outerHTML|insertAdjacentHTML|\.html\(" app/Views`
    - `php spark routes | findstr /I "controlplane api/v1 api/search"`
@@ -88,11 +88,14 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - **Inventory Operations Refinement**: added tenant supplier directory + quick-add, stock movement ledger, receive-stock workflow, starter inventory templates/import, supplier-item mappings (SKU/pack/preferred reorder qty/last price), reorder list with supplier contact shortcuts, global movement ledger page (`/inventory/movements`), and batch/lot tracking foundation (`inventory_batches` + optional lot/expiry capture on receive).
 
 ## J) Current Improvement Phase (Authoritative)
-- Current phase: **Phase 0 - Notifications Hardening (pre-WhatsApp implementation)**.
-- Execution runbook: `docs/SaaS/PHASE_0_EXECUTION_CHECKLIST.md`.
+- Current phase: **Phase 6 - Pilot rollout & operations hardening**.
+- Phase 6 readiness monitor: `php spark whatsapp:ops-check`.
+- Execution baseline docs:
+  - `docs/SaaS/verification/WHATSAPP-CHECKPOINT-2026-02-26.md`
+  - `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`
 - Provider behavior registry: `docs/SaaS/whatsapp_provider_facts.md` (confidence-tiered, update date required).
 - Implementation architecture plan: `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`.
-- Do not start Phase 1+ until Phase 0 exit criteria and verification evidence are complete.
+- Remaining Phase 6 work: pilot rollout execution, template-first enqueue flows, and alerting/runbook hardening.
 
 ## I) Known Requirements / Guardrails
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.

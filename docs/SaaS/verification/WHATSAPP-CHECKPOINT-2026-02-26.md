@@ -89,6 +89,9 @@ Result:
 - Evidence recorded in:
   - `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`
   - `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` (task `WHATSAPP-PHASE5-02`)
+- Phase 6 ops readiness baseline added:
+  - `php spark whatsapp:ops-check`
+  - evidence in `docs/SaaS/verification/WHATSAPP-PHASE6-OPS-READINESS-2026-03-01.md`
 
 ## Resume Checklist (next session)
 

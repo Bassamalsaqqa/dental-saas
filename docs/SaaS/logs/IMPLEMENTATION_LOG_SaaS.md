@@ -1526,3 +1526,22 @@
 - **Verification:**
     - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (8 tests, 28 assertions)`
     - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (32 tests, 149 assertions)`
+
+### Task: WHATSAPP-PHASE6-01 Ops Readiness Command + Phase-State Cleanup
+- **Date:** 2026-03-01
+- **Status:** Completed
+- **Description:** Added a Phase 6 WhatsApp operations readiness command with threshold gates, captured baseline execution evidence, and updated phase-state documentation from stale Phase 0 references to active Phase 6 context.
+- **Actions:**
+    - Added `app/Commands/WhatsAppOpsCheck.php` (`whatsapp:ops-check`) with rolling-window monitoring gates for:
+      - failure rate (`failed`/`failed_permanent`)
+      - rate-limited attempt counts
+      - stale processing lock counts
+      - suspended clinic count (informational)
+    - Added automation-friendly `--json` output mode and non-zero exit on failed checks.
+    - Updated `agents.md` phase-state references to active Phase 6 and linked checkpoint/verification baselines.
+    - Added verification doc `docs/SaaS/verification/WHATSAPP-PHASE6-OPS-READINESS-2026-03-01.md`.
+- **Verification:**
+    - `php -l app/Commands/WhatsAppOpsCheck.php` -> `No syntax errors detected`
+    - `php spark list | findstr /I "whatsapp:ops-check"` -> command listed
+    - `php spark whatsapp:ops-check --hours 24` -> `Overall status: PASS` (baseline environment)
+    - `php spark whatsapp:ops-check --hours 24 --min-attempts 1 --max-failure-rate 100 --max-rate-limited 99999 --max-stuck 99999 --json` -> JSON payload with `status: "PASS"`
