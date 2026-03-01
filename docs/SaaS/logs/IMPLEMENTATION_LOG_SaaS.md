@@ -1509,3 +1509,20 @@
       - env/session sanity checks,
       - favicon/docroot mismatch mitigation and escalation path.
 - **Verification:** manual SSH command outputs captured during incident triage (routes, curl POST checks, writable log write test, favicon HEAD check).
+
+### Task: WHATSAPP-PHASE5-02 Endpoint Test Hardening
+- **Date:** 2026-03-01
+- **Status:** Completed
+- **Description:** Added automated endpoint tests for Phase 5 WhatsApp tenant/control-plane surfaces and validated they pass together with the existing WhatsApp suites.
+- **Actions:**
+    - Added `tests/unit/WhatsAppPhase5EndpointsTest.php` with route-level POST coverage for:
+      - `Settings::testWhatsAppChannel` (`POST /settings/testWhatsAppChannel`)
+      - `Patient::saveWhatsAppIdentity` (`POST /patient/{id}/whatsapp-identity`)
+      - `ControlPlane\WhatsApp::rotateSecret` (`POST /controlplane/whatsapp/rotate-secret`)
+      - `ControlPlane\WhatsApp::updatePolicy` (`POST /controlplane/whatsapp/policy`)
+      - `ControlPlane\WhatsApp::setEmergencyPause` (`POST /controlplane/whatsapp/emergency-pause`)
+    - Added CSRF-aware test request helper in the new test suite so endpoint assertions run under current global filter behavior.
+    - Updated `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md` with the new automated test evidence.
+- **Verification:**
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (8 tests, 28 assertions)`
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (32 tests, 149 assertions)`

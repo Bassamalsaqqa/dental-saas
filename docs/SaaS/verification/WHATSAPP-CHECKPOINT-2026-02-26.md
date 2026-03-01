@@ -80,6 +80,16 @@ Result:
    - control-plane secret rotation + emergency pause/policy actions
 5. Documentation/AGENTS phase-state cleanup (some files still mention "Phase 0" as active)
 
+### Update (2026-03-01)
+
+- Phase 5 endpoint hardening item is now complete:
+  - `Settings::testWhatsAppChannel`
+  - patient WhatsApp identity save
+  - control-plane secret rotation / policy / emergency pause
+- Evidence recorded in:
+  - `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`
+  - `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` (task `WHATSAPP-PHASE5-02`)
+
 ## Resume Checklist (next session)
 
 1. Re-run current WhatsApp regression bundle:

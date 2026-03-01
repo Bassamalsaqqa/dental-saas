@@ -82,3 +82,33 @@
   - control-plane secret-key allowlist enforcement
   - emergency pause / policy upsert behavior
 - Optional UX improvement: fetch/display masked existing WhatsApp channel config fields for clinic admins (without exposing secrets).
+
+## Automated Endpoint Tests (2026-03-01)
+
+Added new test suite:
+- `tests/unit/WhatsAppPhase5EndpointsTest.php`
+
+Coverage includes:
+- `POST /settings/testWhatsAppChannel`
+  - rejects non-AJAX requests
+  - returns "not configured" when clinic channel setup is missing
+- `POST /patient/{id}/whatsapp-identity`
+  - rejects non-AJAX requests
+  - rejects invalid number shape
+  - accepts and normalizes valid input to `+<digits>` (e.g. `+970599350450`)
+- `POST /controlplane/whatsapp/rotate-secret`
+  - rejects keys outside allowlist
+  - accepts allowlisted key rotation
+- `POST /controlplane/whatsapp/policy`
+  - upserts policy limits for a clinic
+- `POST /controlplane/whatsapp/emergency-pause`
+  - toggles suspension and persists suspension reason
+
+Execution evidence:
+
+```bat
+vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php
+```
+
+Result:
+- `OK (32 tests, 149 assertions)`
