@@ -27,10 +27,11 @@ class WhatsApp extends BaseController
         $this->auditService = new ControlPlaneAuditService();
     }
 
-    public function index()
+    public function index(string $activeTab = 'dashboard')
     {
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/whatsapp',
+            'tab' => $activeTab
         ]);
 
         $attemptModel = new NotificationAttemptModel();
@@ -69,14 +70,42 @@ class WhatsApp extends BaseController
         }
 
         $clinics = $clinicModel->select('id, name')->orderBy('name', 'ASC')->findAll();
+        
+        // Merge policies with clinics to ensure all clinics show in the registry
+        $existingPolicies = $policyModel->getControlPlanePoliciesWithClinic(500);
+        $policiesById = [];
+        foreach ($existingPolicies as $p) {
+            $policiesById[$p['clinic_id']] = $p;
+        }
+
+        $mergedPolicies = [];
+        foreach ($clinics as $c) {
+            if (isset($policiesById[$c['id']])) {
+                $mergedPolicies[] = $policiesById[$c['id']];
+            } else {
+                $mergedPolicies[] = [
+                    'clinic_id' => $c['id'],
+                    'clinic_name' => $c['name'],
+                    'daily_limit' => 50,
+                    'monthly_limit' => 1000,
+                    'per_patient_daily_limit' => 3,
+                    'per_hour_limit' => 20,
+                    'suspended' => 0,
+                    'suspended_reason' => null,
+                    'updated_at' => null,
+                    'created_at' => null,
+                    'is_virtual' => true
+                ];
+            }
+        }
 
         return $this->view('control_plane/whatsapp', [
             'title' => 'WhatsApp Operations',
-            'disableDataTables' => true,
+            'active_tab' => $activeTab,
             'recent_attempts' => $attemptModel->getControlPlaneRecentWhatsAppAttempts(50),
             'recent_events' => $eventModel->getRecentEvents(50),
             'recent_optouts' => $optoutModel->getControlPlaneRecentOptouts(50),
-            'policies' => $policyModel->getControlPlanePoliciesWithClinic(200),
+            'policies' => $mergedPolicies,
             'clinics' => $clinics,
             'secrets' => $secrets,
             'stats' => [

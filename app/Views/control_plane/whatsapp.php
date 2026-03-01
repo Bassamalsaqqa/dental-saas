@@ -4,310 +4,349 @@
 <?php
 $stats = $stats ?? [];
 $failureRate = (float) ($stats['failure_rate_24h'] ?? 0);
+$activeTab = $active_tab ?? 'dashboard';
 ?>
-<div class="space-y-6">
-    <div class="glass-card rounded-2xl p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900">WhatsApp Operations</h2>
-                <p class="text-sm text-slate-600 mt-1">Outbound attempts, webhook events, opt-outs, platform secrets, and tenant emergency controls.</p>
-            </div>
-            <div class="flex flex-wrap gap-2 text-xs font-semibold">
-                <a href="#attempts" class="px-3 py-2 rounded-xl bg-white/80 border border-white/70 text-slate-700 hover:bg-white">Attempts</a>
-                <a href="#events" class="px-3 py-2 rounded-xl bg-white/80 border border-white/70 text-slate-700 hover:bg-white">Events</a>
-                <a href="#optouts" class="px-3 py-2 rounded-xl bg-white/80 border border-white/70 text-slate-700 hover:bg-white">Opt-Outs</a>
-                <a href="#secrets" class="px-3 py-2 rounded-xl bg-white/80 border border-white/70 text-slate-700 hover:bg-white">Secrets</a>
-                <a href="#policies" class="px-3 py-2 rounded-xl bg-white/80 border border-white/70 text-slate-700 hover:bg-white">Policies</a>
-            </div>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-        <div class="glass-card rounded-2xl p-5">
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Attempts (24h)</div>
-            <div class="mt-2 text-2xl font-black text-slate-900"><?= (int) ($stats['attempts_24h_total'] ?? 0) ?></div>
-        </div>
-        <div class="glass-card rounded-2xl p-5">
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Delivered/Read/Sent (24h)</div>
-            <div class="mt-2 text-2xl font-black text-emerald-700"><?= (int) ($stats['attempts_24h_sentish'] ?? 0) ?></div>
-        </div>
-        <div class="glass-card rounded-2xl p-5">
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Failures (24h)</div>
-            <div class="mt-2 text-2xl font-black text-rose-700"><?= (int) ($stats['attempts_24h_failed'] ?? 0) ?></div>
-        </div>
-        <div class="glass-card rounded-2xl p-5">
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Failure Rate (24h)</div>
-            <div class="mt-2 text-2xl font-black <?= $failureRate >= 20 ? 'text-rose-700' : 'text-slate-900' ?>"><?= number_format($failureRate, 2) ?>%</div>
-        </div>
-        <div class="glass-card rounded-2xl p-5">
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Webhook Events / Opt-Outs (24h)</div>
-            <div class="mt-2 text-lg font-black text-slate-900">
-                <?= (int) ($stats['events_24h'] ?? 0) ?> <span class="text-slate-400">/</span> <?= (int) ($stats['optouts_24h'] ?? 0) ?>
-            </div>
-        </div>
-    </div>
+<style>
+    .wa-tab.hidden { display: none !important; }
+    .journal-pane.hidden { display: none !important; }
+    .glass-pulse { animation: glass-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes glass-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+    
+    .cp-input-inline {
+        width: 80px;
+        padding: 0.4rem 0.6rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-align: center;
+    }
+    .cp-input-inline:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .nav-btn-active {
+        background: linear-gradient(to right, #3b82f6, #2563eb);
+        color: white !important;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+    }
 
-    <div id="secrets" class="glass-card rounded-2xl p-6">
-        <div class="flex items-center justify-between gap-3 mb-4">
-            <div>
-                <h3 class="text-lg font-bold text-slate-900">Platform Secrets (Rotation)</h3>
-                <p class="text-sm text-slate-600">Values are write-only. This surface only shows metadata and rotates allowlisted WhatsApp keys.</p>
+    .copy-toast { animation: slide-up 0.3s ease-out; }
+    @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+
+<div class="space-y-8">
+    <!-- Page Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center space-x-5">
+            <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
+                <i class="fab fa-whatsapp text-3xl"></i>
             </div>
-        </div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <?php foreach (($secrets ?? []) as $secret): ?>
-                <div class="rounded-2xl border border-white/50 bg-white/70 p-4">
-                    <div class="flex items-center justify-between gap-2 mb-3">
-                        <div class="font-mono text-xs font-bold text-slate-800"><?= esc($secret['secret_key']) ?></div>
-                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold <?= !empty($secret['missing']) ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700' ?>">
-                            <?= !empty($secret['missing']) ? 'Missing' : 'Present' ?>
-                        </span>
-                    </div>
-                    <div class="text-xs text-slate-600 space-y-1 mb-3">
-                        <div>Rotated At: <?= !empty($secret['rotated_at']) ? esc((string) $secret['rotated_at']) : '-' ?></div>
-                        <div>Rotated By: <?= !empty($secret['rotated_by']) ? (int) $secret['rotated_by'] : '-' ?></div>
-                        <div>Note: <?= !empty($secret['rotation_note']) ? esc((string) $secret['rotation_note']) : '-' ?></div>
-                    </div>
-                    <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="space-y-2">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="secret_key" value="<?= esc($secret['secret_key']) ?>">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">New Value</label>
-                            <input type="password" name="new_value" required class="w-full rounded-xl border-slate-300 text-sm" autocomplete="off">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Rotation Note (optional)</label>
-                            <input type="text" name="rotation_note" maxlength="255" class="w-full rounded-xl border-slate-300 text-sm" placeholder="Reason / ticket / incident">
-                        </div>
-                        <button type="submit" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800">
-                            Rotate Secret
-                        </button>
-                    </form>
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">WhatsApp Command Center</h1>
+                <div class="flex items-center mt-1 space-x-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-700 uppercase tracking-wider">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 glass-pulse"></span>
+                        SYSTEM LIVE
+                    </span>
+                    <p class="text-sm text-slate-500 font-bold opacity-60">Global Governance</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap gap-2 p-1.5 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm">
+            <button onclick="showWATab('dashboard')" id="btn-dashboard" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">Dashboard</button>
+            <button onclick="showWATab('secrets')" id="btn-secrets" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">Secrets</button>
+            <button onclick="showWATab('policies')" id="btn-policies" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">Policies</button>
+            <button onclick="showWATab('journal')" id="btn-journal" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">Journal</button>
+        </div>
+    </div>
+
+    <!-- Tab: Dashboard -->
+    <div id="dashboard-tab" class="wa-tab space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-emerald-500">
+                <div class="text-[10px] uppercase font-black text-slate-400 mb-1">Delivered (24h)</div>
+                <div class="text-3xl font-black text-slate-900"><?= number_format($stats['attempts_24h_sentish'] ?? 0) ?></div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-rose-500">
+                <div class="text-[10px] uppercase font-black text-slate-400 mb-1">Failures (24h)</div>
+                <div class="text-3xl font-black text-slate-900"><?= number_format($stats['attempts_24h_failed'] ?? 0) ?></div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-blue-500">
+                <div class="text-[10px] uppercase font-black text-slate-400 mb-1">Webhook Ingest</div>
+                <div class="text-3xl font-black text-slate-900"><?= number_format($stats['events_24h'] ?? 0) ?></div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-amber-500">
+                <div class="text-[10px] uppercase font-black text-slate-400 mb-1">Opt-Outs</div>
+                <div class="text-3xl font-black text-slate-900"><?= number_format($stats['optouts_24h'] ?? 0) ?></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div class="xl:col-span-2 glass-card rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900">Recent Stream</h3>
+                    <button onclick="showWATab('journal')" class="text-xs text-blue-600 font-bold hover:underline uppercase">VIEW ALL</button>
+                </div>
+                <table class="w-full text-left text-sm">
+                    <tbody class="divide-y divide-slate-50">
+                        <?php foreach (array_slice($recent_attempts ?? [], 0, 6) as $att): ?>
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="p-4 font-bold text-slate-900">#<?= $att['id'] ?></td>
+                            <td class="p-4"><?= esc($att['clinic_name']) ?></td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded-lg text-[10px] font-black border uppercase <?= in_array($att['status'],['delivered','read']) ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100' ?>"><?= $att['status'] ?></span></td>
+                            <td class="p-4 text-slate-400 text-xs font-bold"><?= date('H:i:s', strtotime($att['created_at'])) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="xl:col-span-1 space-y-6">
+                <div class="glass-card rounded-2xl p-6 bg-slate-800 text-white border-none shadow-xl">
+                    <h3 class="font-black mb-4 flex items-center uppercase text-xs tracking-widest text-emerald-400">
+                        <i class="fas fa-shield-alt mr-2"></i> System Health
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Failure Rate</span>
+                            <span class="text-xs font-black"><?= $failureRate ?>%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Vault Status</span>
+                            <span class="text-[10px] font-black text-emerald-400">READY</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Secrets -->
+    <div id="secrets-tab" class="wa-tab hidden space-y-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <?php foreach ($secrets as $s): ?>
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <code class="text-xs font-black text-blue-600"><?= $s['secret_key'] ?></code>
+                    <span class="text-[10px] font-black <?= !empty($s['missing']) ? 'text-rose-600' : 'text-emerald-600' ?>"><?= !empty($s['missing']) ? 'MISSING' : 'READY' ?></span>
+                </div>
+                <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="space-y-4">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="secret_key" value="<?= $s['secret_key'] ?>">
+                    <input type="password" name="new_value" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 text-sm" placeholder="New Secret Value">
+                    <input type="text" name="rotation_note" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 text-sm" placeholder="Audit Note">
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-black uppercase hover:bg-blue-700 transition-all">ROTATE KEY</button>
+                </form>
+            </div>
             <?php endforeach; ?>
         </div>
     </div>
 
-    <div id="policies" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div class="glass-card rounded-2xl p-6">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Emergency Pause</h3>
-            <p class="text-sm text-slate-600 mb-4">Suspend or resume WhatsApp sends for a clinic immediately. This writes `whatsapp_tenant_policies.suspended`.</p>
-            <form action="<?= base_url('controlplane/whatsapp/emergency-pause') ?>" method="post" class="space-y-3">
-                <?= csrf_field() ?>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Clinic</label>
-                    <select name="clinic_id" required class="w-full rounded-xl border-slate-300 text-sm">
-                        <option value="">Select clinic</option>
-                        <?php foreach (($clinics ?? []) as $clinic): ?>
-                            <option value="<?= (int) $clinic['id'] ?>"><?= esc($clinic['name']) ?> (ID <?= (int) $clinic['id'] ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="cp-wa-suspend" name="suspend" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
-                    <label for="cp-wa-suspend" class="text-sm text-slate-700 font-medium">Suspend WhatsApp for selected clinic</label>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Reason</label>
-                    <input type="text" name="suspended_reason" maxlength="255" class="w-full rounded-xl border-slate-300 text-sm" placeholder="Fraud spike / provider incident / pilot pause">
-                </div>
-                <button type="submit" class="px-3 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700">
-                    Apply Emergency Pause
-                </button>
-            </form>
-        </div>
-
-        <div class="glass-card rounded-2xl p-6">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Policy Limits</h3>
-            <p class="text-sm text-slate-600 mb-4">Create or update clinic WhatsApp policy limits and suspension state.</p>
-            <form action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" class="space-y-3">
-                <?= csrf_field() ?>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Clinic</label>
-                    <select name="clinic_id" required class="w-full rounded-xl border-slate-300 text-sm">
-                        <option value="">Select clinic</option>
-                        <?php foreach (($clinics ?? []) as $clinic): ?>
-                            <option value="<?= (int) $clinic['id'] ?>"><?= esc($clinic['name']) ?> (ID <?= (int) $clinic['id'] ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Daily Limit</label>
-                        <input type="number" min="1" name="daily_limit" class="w-full rounded-xl border-slate-300 text-sm" placeholder="50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Monthly Limit</label>
-                        <input type="number" min="1" name="monthly_limit" class="w-full rounded-xl border-slate-300 text-sm" placeholder="1000">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Per Patient / Day</label>
-                        <input type="number" min="1" name="per_patient_daily_limit" class="w-full rounded-xl border-slate-300 text-sm" placeholder="3">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Per Hour</label>
-                        <input type="number" min="1" name="per_hour_limit" class="w-full rounded-xl border-slate-300 text-sm" placeholder="20">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Reminder Lead Time (minutes)</label>
-                    <input type="number" min="1" name="reminder_lead_time_minutes" class="w-full rounded-xl border-slate-300 text-sm" placeholder="1440">
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="cp-wa-policy-suspend" name="suspended" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
-                    <label for="cp-wa-policy-suspend" class="text-sm text-slate-700 font-medium">Mark suspended</label>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Suspended Reason (optional)</label>
-                    <input type="text" name="suspended_reason" maxlength="255" class="w-full rounded-xl border-slate-300 text-sm">
-                </div>
-                <button type="submit" class="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">
-                    Save Policy
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <div class="glass-card rounded-2xl p-6" id="attempts">
-        <h3 class="text-lg font-bold text-slate-900 mb-4">Recent WhatsApp Attempts</h3>
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead>
-                    <tr class="text-left text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                        <th class="py-2 pr-4">ID</th>
-                        <th class="py-2 pr-4">Clinic</th>
-                        <th class="py-2 pr-4">Status</th>
-                        <th class="py-2 pr-4">Provider Message</th>
-                        <th class="py-2 pr-4">Error</th>
-                        <th class="py-2 pr-4">Created</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach (($recent_attempts ?? []) as $attempt): ?>
-                        <?php $status = (string) ($attempt['status'] ?? 'unknown'); ?>
-                        <tr class="border-b border-slate-100">
-                            <td class="py-2 pr-4 font-semibold text-slate-800"><?= (int) ($attempt['id'] ?? 0) ?></td>
-                            <td class="py-2 pr-4"><?= esc((string) ($attempt['clinic_name'] ?? 'Unknown')) ?></td>
-                            <td class="py-2 pr-4">
-                                <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold <?= in_array($status, ['sent', 'delivered', 'read'], true) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' ?>">
-                                    <?= esc($status) ?>
-                                </span>
-                            </td>
-                            <td class="py-2 pr-4 font-mono text-xs text-slate-700"><?= !empty($attempt['provider_message_id']) ? esc(substr((string) $attempt['provider_message_id'], 0, 36)) : '-' ?></td>
-                            <td class="py-2 pr-4 text-rose-700"><?= !empty($attempt['error_code']) ? esc((string) $attempt['error_code']) : '-' ?></td>
-                            <td class="py-2 pr-4 text-slate-600"><?= esc((string) ($attempt['created_at'] ?? '-')) ?></td>
+    <!-- Tab: Policies (Restored Table Style) -->
+    <div id="policies-tab" class="wa-tab hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50">
+                <h3 class="font-black text-slate-900 uppercase text-xs tracking-widest">Tenant Policy Registry</h3>
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black"><?= count($policies) ?> TENANTS</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/50">
+                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                            <th class="p-6">Clinic Info</th>
+                            <th class="p-6">Status</th>
+                            <th class="p-6 text-center">Daily</th>
+                            <th class="p-6 text-center">Monthly</th>
+                            <th class="p-6 text-center">Hourly</th>
+                            <th class="p-6 text-center">Actions</th>
                         </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($recent_attempts)): ?>
-                        <tr><td colspan="6" class="py-4 text-slate-500">No WhatsApp attempts yet.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <?php foreach ($policies as $pol): ?>
+                        <tr class="hover:bg-blue-50/30 transition-colors">
+                            <td class="p-6">
+                                <div class="font-bold text-slate-900"><?= esc($pol['clinic_name']) ?></div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase">ID: <?= $pol['clinic_id'] ?></div>
+                            </td>
+                            <td class="p-6">
+                                <?php if(!empty($pol['suspended'])): ?>
+                                    <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded text-[10px] font-black">SUSPENDED</span>
+                                <?php else: ?>
+                                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-black">ACTIVE</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="p-6 text-center"><input type="number" id="daily-<?= $pol['clinic_id'] ?>" value="<?= $pol['daily_limit'] ?>" class="cp-input-inline"></td>
+                            <td class="p-6 text-center"><input type="number" id="monthly-<?= $pol['clinic_id'] ?>" value="<?= $pol['monthly_limit'] ?>" class="cp-input-inline"></td>
+                            <td class="p-6 text-center"><input type="number" id="hourly-<?= $pol['clinic_id'] ?>" value="<?= $pol['per_hour_limit'] ?>" class="cp-input-inline"></td>
+                            <td class="p-6 text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <button onclick="updatePolicyLive(<?= $pol['clinic_id'] ?>)" class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"><i class="fas fa-save text-xs"></i></button>
+                                    <?php if(empty($pol['suspended'])): ?>
+                                    <button onclick="emergencyPauseLive(<?= $pol['clinic_id'] ?>, 1)" class="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all"><i class="fas fa-pause text-xs"></i></button>
+                                    <?php else: ?>
+                                    <button onclick="emergencyPauseLive(<?= $pol['clinic_id'] ?>, 0)" class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><i class="fas fa-play text-xs"></i></button>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div class="glass-card rounded-2xl p-6" id="events">
-            <h3 class="text-lg font-bold text-slate-900 mb-4">Recent Webhook Events</h3>
-            <div class="space-y-3 max-h-[34rem] overflow-y-auto pr-1">
-                <?php foreach (($recent_events ?? []) as $event): ?>
-                    <?php
-                    $payloadRaw = $event['payload_json'] ?? '';
-                    if (is_array($payloadRaw)) {
-                        $payloadRaw = json_encode($payloadRaw);
-                    }
-                    $payloadRaw = is_string($payloadRaw) ? $payloadRaw : '';
-                    $payloadPreview = mb_substr($payloadRaw, 0, 220);
-                    ?>
-                    <div class="rounded-xl border border-white/60 bg-white/70 p-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-mono text-slate-500">#<?= (int) ($event['id'] ?? 0) ?></div>
-                                <div class="text-sm font-semibold text-slate-900"><?= esc((string) ($event['event_type'] ?? 'unknown')) ?></div>
-                            </div>
-                            <div class="text-xs text-slate-600"><?= !empty($event['processed_at']) ? esc((string) $event['processed_at']) : 'unprocessed' ?></div>
-                        </div>
-                        <div class="mt-2 text-xs text-slate-600 font-mono break-all"><?= esc((string) ($event['provider_event_id'] ?? '-')) ?></div>
-                        <pre class="mt-2 text-xs text-slate-700 whitespace-pre-wrap break-words"><?= esc($payloadPreview) ?><?= strlen($payloadRaw) > strlen($payloadPreview) ? '...' : '' ?></pre>
+    <!-- Tab: Journal -->
+    <div id="journal-tab" class="wa-tab hidden space-y-8">
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-2 bg-slate-50 border-b flex justify-center space-x-2">
+                <button onclick="showJournalSubTab('attempts')" id="btn-j-attempts" class="px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg">Attempts</button>
+                <button onclick="showJournalSubTab('webhooks')" id="btn-j-webhooks" class="px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg">Webhooks</button>
+                <button onclick="showJournalSubTab('optouts')" id="btn-j-optouts" class="px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg">Opt-Outs</button>
+            </div>
+
+            <!-- Attempts -->
+            <div id="journal-attempts" class="journal-pane">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        <tr><th class="p-6">ID / Clinic</th><th class="p-6">Status</th><th class="p-6">Meta ID / Error</th><th class="p-6">Timeline</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <?php foreach($recent_attempts as $a): ?>
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="p-6 font-bold text-slate-900">#<?= $a['id'] ?><div class="text-[10px] text-slate-400"><?= esc($a['clinic_name']) ?></div></td>
+                            <td class="p-6"><span class="px-2 py-0.5 rounded text-[10px] font-black border uppercase <?= in_array($a['status'],['sent','delivered','read']) ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100' ?>"><?= $a['status'] ?></span></td>
+                            <td class="p-6"><div class="text-[10px] font-mono text-slate-500 truncate max-w-[200px]"><?= $a['provider_message_id'] ?: 'NONE' ?></div><div class="text-rose-600 text-[9px] font-bold"><?= $a['error_code'] ?></div></td>
+                            <td class="p-6 text-slate-400 text-[10px] font-bold"><?= $a['created_at'] ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Webhooks -->
+            <div id="journal-webhooks" class="journal-pane hidden p-6 space-y-4">
+                <?php foreach($recent_events as $ev): ?>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 group">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="font-black text-slate-900 text-xs uppercase tracking-tighter"><?= esc($ev['event_type']) ?></div>
+                        <button onclick="copyToClipboard('<?= htmlspecialchars($ev['payload_json']) ?>')" class="text-[9px] font-black text-blue-600 uppercase hover:underline">Copy JSON</button>
                     </div>
+                    <pre class="p-4 bg-slate-900 rounded-lg text-emerald-400 text-[10px] overflow-x-auto"><?= esc(json_encode(json_decode($ev['payload_json']), JSON_PRETTY_PRINT)) ?></pre>
+                </div>
                 <?php endforeach; ?>
-                <?php if (empty($recent_events)): ?>
-                    <div class="text-sm text-slate-500">No webhook events journaled yet.</div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            <div class="glass-card rounded-2xl p-6" id="optouts">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">Recent Opt-Outs</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                                <th class="py-2 pr-4">Clinic</th>
-                                <th class="py-2 pr-4">Patient</th>
-                                <th class="py-2 pr-4">Number</th>
-                                <th class="py-2 pr-4">Source</th>
-                                <th class="py-2 pr-4">Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach (($recent_optouts ?? []) as $row): ?>
-                                <tr class="border-b border-slate-100">
-                                    <td class="py-2 pr-4"><?= esc((string) ($row['clinic_name'] ?? 'Unknown')) ?></td>
-                                    <td class="py-2 pr-4"><?= !empty($row['patient_id']) ? (int) $row['patient_id'] : '-' ?></td>
-                                    <td class="py-2 pr-4 font-mono text-xs"><?= esc((string) ($row['wa_number'] ?? $row['bsuid'] ?? '-')) ?></td>
-                                    <td class="py-2 pr-4"><?= esc((string) ($row['source'] ?? '-')) ?></td>
-                                    <td class="py-2 pr-4 text-slate-600"><?= esc((string) ($row['created_at'] ?? '-')) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php if (empty($recent_optouts)): ?>
-                                <tr><td colspan="5" class="py-4 text-slate-500">No opt-outs recorded yet.</td></tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
             </div>
 
-            <div class="glass-card rounded-2xl p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">Tenant Policies Snapshot</h3>
-                <div class="max-h-[20rem] overflow-y-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                                <th class="py-2 pr-4">Clinic</th>
-                                <th class="py-2 pr-4">Suspended</th>
-                                <th class="py-2 pr-4">Daily/Monthly</th>
-                                <th class="py-2 pr-4">Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach (($policies ?? []) as $policy): ?>
-                                <tr class="border-b border-slate-100">
-                                    <td class="py-2 pr-4">
-                                        <div class="font-medium text-slate-800"><?= esc((string) ($policy['clinic_name'] ?? 'Unknown')) ?></div>
-                                        <div class="text-xs text-slate-500">Clinic ID <?= (int) ($policy['clinic_id'] ?? 0) ?></div>
-                                        <?php if (!empty($policy['suspended_reason'])): ?>
-                                            <div class="text-xs text-rose-700 mt-1"><?= esc((string) $policy['suspended_reason']) ?></div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="py-2 pr-4">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold <?= !empty($policy['suspended']) ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' ?>">
-                                            <?= !empty($policy['suspended']) ? 'Yes' : 'No' ?>
-                                        </span>
-                                    </td>
-                                    <td class="py-2 pr-4"><?= (int) ($policy['daily_limit'] ?? 0) ?> / <?= (int) ($policy['monthly_limit'] ?? 0) ?></td>
-                                    <td class="py-2 pr-4 text-slate-600"><?= esc((string) ($policy['updated_at'] ?? $policy['created_at'] ?? '-')) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            <?php if (empty($policies)): ?>
-                                <tr><td colspan="4" class="py-4 text-slate-500">No tenant policies created yet.</td></tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Optouts -->
+            <div id="journal-optouts" class="journal-pane hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        <tr><th class="p-6">Clinic</th><th class="p-6">BSUID / Number</th><th class="p-6">Timeline</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <?php foreach($recent_optouts as $o): ?>
+                        <tr>
+                            <td class="p-6 font-bold text-slate-900"><?= esc($o['clinic_name']) ?></td>
+                            <td class="p-6"><code class="text-xs font-black text-blue-600"><?= esc($o['wa_number'] ?? $o['bsuid']) ?></code></td>
+                            <td class="p-6 text-slate-400 text-[10px] font-bold"><?= $o['created_at'] ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+const csrfHeader = '<?= config('Security')->headerName ?>';
+const csrfToken = '<?= csrf_hash() ?>';
+
+function showWATab(tabName) {
+    document.querySelectorAll('.wa-tab').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById(tabName + '-tab');
+    if(target) target.classList.remove('hidden');
+
+    document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+        btn.classList.remove('nav-btn-active', 'text-slate-900', 'bg-white', 'shadow-sm');
+        btn.classList.add('text-slate-600', 'hover:bg-white/80');
+    });
+    const activeBtn = document.getElementById('btn-' + tabName);
+    if(activeBtn) activeBtn.classList.add('nav-btn-active');
+}
+
+function showJournalSubTab(subName) {
+    document.querySelectorAll('.journal-pane').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById('journal-' + subName);
+    if(target) target.classList.remove('hidden');
+
+    document.querySelectorAll('[id^="btn-j-"]').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-blue-600', 'shadow-md');
+        btn.classList.add('text-slate-500');
+    });
+    const activeBtn = document.getElementById('btn-j-' + subName);
+    if(activeBtn) activeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+}
+
+function updatePolicyLive(clinicId) {
+    const daily = document.getElementById('daily-' + clinicId).value;
+    const monthly = document.getElementById('monthly-' + clinicId).value;
+    const hourly = document.getElementById('hourly-' + clinicId).value;
+
+    const formData = new FormData();
+    formData.append('clinic_id', clinicId);
+    formData.append('daily_limit', daily);
+    formData.append('monthly_limit', monthly);
+    formData.append('per_hour_limit', hourly);
+    formData.append(csrfHeader, csrfToken);
+
+    fetch('<?= base_url('controlplane/whatsapp/policy') ?>', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    }).then(res => res.ok ? showToast('Policy Synced') : alert('Failed'));
+}
+
+function emergencyPauseLive(clinicId, suspend) {
+    const reason = suspend ? prompt('Reason?') : '';
+    if(suspend && reason === null) return;
+
+    const formData = new FormData();
+    formData.append('clinic_id', clinicId);
+    formData.append('suspend', suspend);
+    formData.append('suspended_reason', reason);
+    formData.append(csrfHeader, csrfToken);
+
+    fetch('<?= base_url('controlplane/whatsapp/emergency-pause') ?>', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    }).then(res => res.ok ? location.reload() : alert('Failed'));
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied'));
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white text-[10px] font-black rounded-2xl shadow-2xl z-[100] copy-toast border border-white/10 uppercase tracking-widest';
+    toast.innerHTML = `<i class="fas fa-check-circle text-emerald-400 mr-2"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const startTab = '<?= $active_tab ?? 'dashboard' ?>';
+    showWATab(startTab);
+    showJournalSubTab('attempts');
+});
+</script>
+
 <?= $this->endSection() ?>
