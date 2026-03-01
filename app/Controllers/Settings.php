@@ -9,9 +9,8 @@ use App\Models\PlanAuditModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
 use App\Models\SettingsModel;
-use App\Services\ControlPlaneAuditService;
-use App\Services\PlanGuard;
 use App\Services\SettingsService;
+use App\Services\PlanGuard;
 
 class Settings extends BaseController
 {
@@ -21,49 +20,91 @@ class Settings extends BaseController
     public function __construct()
     {
         $this->settingsModel = new SettingsModel();
-        $this->settingsService = new SettingsService();
+        $this->settingsService = service('settings');
     }
-    public function index()
+
+    /**
+     * Deep-link Aliases for Consolidated Settings (P5-09a-Tabs)
+     */
+    public function email() { return $this->index('email'); }
+    public function sms() { return $this->index('sms'); }
+    public function whatsapp() { return $this->index('whatsapp'); }
+    public function channels() { return $this->index('channels'); }
+    public function notifications() { return $this->index('notifications'); }
+
+    /**
+     * Main Settings Hub (Consolidated)
+     */
+    public function index($activeTab = 'clinic')
     {
         $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view settings.');
-        }
+        if (!$clinicId) return redirect()->to('/dashboard');
+
+        // Plan Guard for feature checks
+        $planGuard = new PlanGuard();
 
         $clinicModel = new ClinicModel();
         $clinic = $clinicModel->find($clinicId);
-        $planGuard = new PlanGuard();
 
         $planModel = new PlanModel();
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $planRequestModel = new PlanRequestModel();
+        $subscriptionModel = new ClinicSubscriptionModel();
+        $subscription = $subscriptionModel->where('clinic_id', $clinicId)->where('status', 'active')->first();
+        $subscriptionPlan = $subscription ? $planModel->find($subscription['plan_id']) : null;
 
-        $subscription = $subscriptionModel->getCurrentSubscription((int) $clinicId);
-        $subscriptionPlan = null;
-        if ($subscription && !empty($subscription['plan_id'])) {
-            $subscriptionPlan = $planModel->find($subscription['plan_id']);
-        }
-
-        $latestRequest = $planRequestModel
-            ->where('clinic_id', $clinicId)
-            ->orderBy('created_at', 'DESC')
-            ->first();
+        $requestModel = new PlanRequestModel();
+        $latestRequest = $requestModel->where('clinic_id', $clinicId)->orderBy('created_at', 'DESC')->first();
 
         $backups = $this->getBackups();
-        
-        // Debug: Log the backups data
-        log_message('debug', 'Backups data: ' . json_encode($backups));
-        
-        // Check if demo mode is enabled
         $appConfig = config('App');
-        
+
         $settings = $this->getSettings();
         $maxBookingChairCount = $this->getMaxBookingChairs();
         $kioskPinSet = !empty($settings['kiosk_pin_hash'] ?? '');
         $kioskFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'kiosk.enabled', false);
+
+        // Fetch Notification Channels for Consolidated Settings (P5-09a-Tabs)
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        $allChannels = $channelModel->where('clinic_id', $clinicId)->findAll();
+        
+        // Fill gaps for UI consistency
+        $types = ['email', 'sms', 'whatsapp'];
+        $existingTypes = array_column($allChannels, 'channel_type');
+        foreach ($types as $type) {
+            if (!in_array($type, $existingTypes)) {
+                $allChannels[] = [
+                    'clinic_id' => $clinicId,
+                    'channel_type' => $type,
+                    'enabled_by_superadmin' => 0,
+                    'configured_by_clinic' => 0,
+                    'validated' => 0,
+                    'is_virtual' => true
+                ];
+            }
+        }
+        
+        $emailConfig = $channelModel->getConfig($clinicId, 'email') ?? [];
+        unset($emailConfig['smtp_pass']); // Write-only
+
+        $smsConfig = $channelModel->getConfig($clinicId, 'sms') ?? [];
+        
+        $waConfig = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
+        $waConfig = $this->normalizeWhatsAppChannelConfig($waConfig);
+        $waFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false);
+
+        // Support for Superadmin Registry View
+        $clinics = [];
+        $isGlobal = (bool) session()->get('global_mode');
+        if ($isGlobal) {
+            $clinics = $clinicModel->findAll();
+            foreach ($clinics as &$c) {
+                $c['channels'] = $channelModel->where('clinic_id', $c['id'])->findAll();
+            }
+        }
+
         $data = [
             'title' => 'System Settings',
             'settings' => $settings,
+            'active_tab' => $activeTab,
             'max_booking_chair_count' => $maxBookingChairCount,
             'backups' => $backups,
             'demo' => $appConfig->demo,
@@ -74,6 +115,14 @@ class Settings extends BaseController
             'clinic_uuid' => $clinic['uuid'] ?? '',
             'kiosk_pin_set' => $kioskPinSet,
             'kiosk_feature_enabled' => $kioskFeatureEnabled,
+            'channels' => $allChannels,
+            'clinics' => $clinics, // For superadmin
+            'email_config' => $emailConfig,
+            'sms_config' => $smsConfig,
+            'wa_config' => $waConfig,
+            'wa_feature_enabled' => $waFeatureEnabled,
+            'notification_settings' => $this->getNotificationSettings(),
+            'is_global' => $isGlobal
         ];
 
         return $this->view('settings/index', $data);
@@ -82,51 +131,27 @@ class Settings extends BaseController
     public function requestPlan()
     {
         $clinicId = session()->get('active_clinic_id');
-        if (!$clinicId) {
-            return redirect()->back()->with('error', 'Clinic context required');
-        }
+        if (!$clinicId) return redirect()->back()->with('error', 'Clinic context required');
 
-        $planId = (int) $this->request->getPost('plan_id');
-        $duration = $this->request->getPost('duration') ?? 'monthly';
-        $reason = trim((string) $this->request->getPost('reason'));
+        $planId = $this->request->getPost('plan_id');
+        $duration = $this->request->getPost('duration') ?: 'monthly';
 
-        $planModel = new PlanModel();
-        if (!$planId || !$planModel->find($planId)) {
-            return redirect()->back()->with('error', 'Select a valid plan.');
-        }
-
-        $subscriptionModel = (new ClinicSubscriptionModel())->withoutTenantScope();
-        $current = $subscriptionModel->getCurrentSubscription((int) $clinicId);
-
-        $planRequestModel = new PlanRequestModel();
-        $planRequestModel->insert([
+        $requestModel = new PlanRequestModel();
+        $requestModel->insert([
             'clinic_id' => $clinicId,
-            'current_plan_id' => $current['plan_id'] ?? null,
             'requested_plan_id' => $planId,
-            'requested_duration' => in_array($duration, ['monthly', 'yearly', 'lifetime'], true) ? $duration : 'monthly',
+            'requested_duration' => $duration,
             'status' => 'pending',
-            'requested_by' => session()->get('user_id') ?? null,
-            'decision_reason' => $reason !== '' ? $reason : null,
-        ]);
-
-        $auditModel = new PlanAuditModel();
-        $auditModel->insert([
-            'clinic_id' => $clinicId,
-            'actor_user_id' => session()->get('user_id') ?? null,
-            'action_key' => 'plan_request_submitted',
-            'reason_code' => 'tenant_requested',
-            'meta_json' => json_encode([
-                'requested_plan_id' => $planId,
-                'duration' => $duration,
-            ]),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $controlPlaneAudit = new ControlPlaneAuditService();
-        $controlPlaneAudit->logEvent('plan_request_submitted', [
-            'route' => '/settings/plan-request',
-            'method' => 'POST',
-            'metadata' => [
+        // Audit log
+        $auditModel = new PlanAuditModel();
+        $auditModel->saveAudit([
+            'clinic_id' => $clinicId,
+            'action' => 'plan_request',
+            'details' => [
                 'clinic_id' => $clinicId,
                 'requested_plan_id' => $planId,
                 'duration' => $duration,
@@ -370,367 +395,6 @@ class Settings extends BaseController
         return redirect()->back()->withInput()->with('error', $message);
     }
 
-    public function update()
-    {
-        // Check if settings table exists
-        $db = \Config\Database::connect();
-        $tables = $db->listTables();
-        
-        if (!in_array('settings', $tables)) {
-            log_message('error', 'Settings table does not exist');
-            return redirect()->back()->withInput()->with('error', 'Settings table not found. Please run the SQL script: create_settings_table.sql');
-        }
-        
-        // Check if settings table is empty and initialize with defaults
-        $settingsCount = $this->settingsModel->countAllResults();
-        if ($settingsCount == 0) {
-            $this->initializeDefaultSettings();
-        }
-        
-        $maxChairCount = $this->getMaxBookingChairs();
-        $rules = [
-            'clinic_name' => 'required|min_length[2]|max_length[100]',
-            'clinic_address' => 'required|min_length[10]|max_length[500]',
-            'clinic_phone' => 'required|min_length[10]|max_length[20]',
-            'clinic_email' => 'required|valid_email|max_length[100]',
-            'clinic_website' => 'permit_empty|valid_url|max_length[200]',
-            'timezone' => 'required',
-            'date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
-            'time_format' => 'required|in_list[24,12]',
-            'ui_language' => 'required|in_list[en,ar]',
-            'currency' => 'required',
-            'finance_auto_post_inventory_cogs' => 'permit_empty|in_list[0,1]',
-            'appointment_duration' => 'required|integer|greater_than[0]|less_than[480]',
-            'booking_chair_count' => 'required|integer|greater_than[0]|less_than_equal_to[' . $maxChairCount . ']',
-            'working_hours_start' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
-            'working_hours_end' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
-            'working_days' => 'permit_empty',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $chairCount = min($maxChairCount, max(1, (int) $this->request->getPost('booking_chair_count')));
-        [$chairNames, $chairError] = $this->normalizeChairNames($this->request->getPost('booking_chair_names'), $chairCount);
-        if ($chairError !== null) {
-            return redirect()->back()->withInput()->with('error', $chairError);
-        }
-
-        $settingsData = [
-            'clinic_name' => $this->request->getPost('clinic_name'),
-            'clinic_address' => $this->request->getPost('clinic_address'),
-            'clinic_phone' => $this->request->getPost('clinic_phone'),
-            'clinic_email' => $this->request->getPost('clinic_email'),
-            'clinic_website' => $this->request->getPost('clinic_website'),
-            'timezone' => $this->request->getPost('timezone'),
-            'date_format' => $this->request->getPost('date_format'),
-            'time_format' => $this->request->getPost('time_format'),
-            'ui_language' => $this->request->getPost('ui_language'),
-            'currency' => $this->request->getPost('currency'),
-            'finance_auto_post_inventory_cogs' => $this->request->getPost('finance_auto_post_inventory_cogs') ? 1 : 0,
-            'appointment_duration' => $this->request->getPost('appointment_duration'),
-            'booking_chair_count' => $chairCount,
-            'booking_chair_names' => $chairNames,
-            'working_hours_start' => $this->request->getPost('working_hours_start'),
-            'working_hours_end' => $this->request->getPost('working_hours_end'),
-            'working_days' => $this->request->getPost('working_days'),
-        ];
-
-        // Save settings to database
-        log_message('info', 'Saving settings: ' . json_encode($settingsData));
-        
-        if ($this->saveSettings($settingsData)) {
-            // Reload settings service to reflect changes
-            $this->settingsService->reloadSettings();
-            log_message('info', 'Settings saved successfully');
-            return redirect()->to('/settings')->with('success', 'Settings updated successfully!');
-        } else {
-            log_message('error', 'Failed to save settings');
-            return redirect()->back()->withInput()->with('error', 'Failed to update settings. Please try again.');
-        }
-    }
-
-    // Old backup method - no longer needed with tabbed interface
-    /*
-    public function backup()
-    {
-        $data = [
-            'title' => 'Backup & Restore',
-            'backups' => $this->getBackups(),
-        ];
-
-        return $this->view('settings/backup', $data);
-    }
-    */
-
-    public function createBackup()
-    {
-        // Check if demo mode is enabled
-        $appConfig = config('App');
-        if ($appConfig->demo) {
-            return redirect()->to('/settings')->with('error', 'Database backup is disabled in demo mode.');
-        }
-        
-        $backupName = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
-        
-        if ($this->performBackup($backupName)) {
-            return redirect()->to('/settings')->with('success', 'Backup created successfully!');
-        } else {
-            return redirect()->to('/settings')->with('error', 'Failed to create backup. Please check the logs for details.');
-        }
-    }
-
-    public function restore()
-    {
-        // Check if demo mode is enabled
-        $appConfig = config('App');
-        if ($appConfig->demo) {
-            return redirect()->to('/settings')->with('error', 'Database restore is disabled in demo mode.');
-        }
-        
-        $backupFile = $this->request->getPost('backup_file');
-        
-        if (!$backupFile) {
-            return redirect()->to('/settings')->with('error', 'Please select a backup file to restore.');
-        }
-
-        // In a real application, you would restore from the selected backup
-        // For now, we'll simulate success
-        if ($this->performRestore($backupFile)) {
-            return redirect()->to('/settings')->with('success', 'Database restored successfully!');
-        } else {
-            return redirect()->to('/settings')->with('error', 'Failed to restore database. Please try again.');
-        }
-    }
-    
-    public function downloadBackup($filename)
-    {
-        // Check if demo mode is enabled
-        $appConfig = config('App');
-        if ($appConfig->demo) {
-            return redirect()->to('/settings')->with('error', 'Database backup download is disabled in demo mode.');
-        }
-        
-        $backupDir = WRITEPATH . 'backups/';
-        $filePath = $backupDir . $filename;
-        
-        if (!file_exists($filePath)) {
-            return redirect()->to('/settings')->with('error', 'Backup file not found.');
-        }
-        
-        return $this->response->download($filePath, null);
-    }
-
-    public function security()
-    {
-        $data = [
-            'title' => 'Security Settings',
-            'security_settings' => $this->getSecuritySettings(),
-        ];
-
-        return $this->view('settings/security', $data);
-    }
-
-    public function updateSecurity()
-    {
-        $rules = [
-            'password_min_length' => 'required|integer|greater_than_equal_to[8]',
-            'password_require_special' => 'required|in_list[0,1]',
-            'session_timeout' => 'required|integer|greater_than[0]|less_than[1440]',
-            'max_login_attempts' => 'required|integer|greater_than[0]|less_than[10]',
-            'lockout_duration' => 'required|integer|greater_than[0]|less_than[60]',
-            'two_factor_auth' => 'required|in_list[0,1]',
-            'ip_whitelist' => 'permit_empty|max_length[1000]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $securityData = [
-            'password_min_length' => $this->request->getPost('password_min_length'),
-            'password_require_special' => $this->request->getPost('password_require_special'),
-            'session_timeout' => $this->request->getPost('session_timeout'),
-            'max_login_attempts' => $this->request->getPost('max_login_attempts'),
-            'lockout_duration' => $this->request->getPost('lockout_duration'),
-            'two_factor_auth' => $this->request->getPost('two_factor_auth'),
-            'ip_whitelist' => $this->request->getPost('ip_whitelist'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if ($this->saveSecuritySettings($securityData)) {
-            return redirect()->to('/settings/security')->with('success', 'Security settings updated successfully!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update security settings. Please try again.');
-        }
-    }
-
-    public function notifications()
-    {
-        $data = [
-            'title' => 'Notification Settings',
-            'notification_settings' => $this->getNotificationSettings(),
-        ];
-
-        return $this->view('settings/notifications', $data);
-    }
-
-    public function updateNotifications()
-    {
-        // Define all possible keys
-        $allKeys = [
-            'email_notifications', 
-            'sms_notifications', 
-            'appointment_created', 
-            'low_stock_alerts'
-        ];
-
-        $preferences = [];
-        $postData = $this->request->getPost('preferences') ?? [];
-
-        foreach ($allKeys as $key) {
-            // Checkbox logic: if present in POST, it's '1', else '0'
-            // But if 'preferences' array is used in form like name="preferences[key]", then unchecked keys are missing from the array entirely.
-            $preferences[$key] = isset($postData[$key]) ? 1 : 0;
-        }
-
-        if ($this->saveNotificationSettings($preferences)) {
-            return redirect()->to('/notification-settings')->with('success', 'Notification settings updated successfully!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update notification settings.');
-        }
-    }
-
-    /**
-     * Update global export retention policy (Superadmin only)
-     */
-    public function updateRetention()
-    {
-        // Strict Superadmin Check via Global Mode
-        if (!session()->get('global_mode')) {
-            return redirect()->to('/dashboard')->with('error', 'Unauthorized: Control Plane access required.');
-        }
-
-        $rules = [
-            'retention_mode'   => 'required|in_list[latest,keep_last_n,keep_x_days]',
-            'retention_last_n' => 'permit_empty|is_natural_no_zero',
-            'retention_days'   => 'permit_empty|is_natural_no_zero',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $settings = [
-            'retention_mode'   => $this->request->getPost('retention_mode'),
-            'retention_last_n' => $this->request->getPost('retention_last_n') ?: 5,
-            'retention_days'   => $this->request->getPost('retention_days') ?: 30,
-        ];
-
-        foreach ($settings as $key => $value) {
-            $this->settingsModel->setGlobalSetting($key, $value);
-        }
-
-        return redirect()->to('/settings')->with('success', 'Export retention policy updated successfully!');
-    }
-
-    /**
-     * Physically prune export files from disk (Superadmin only)
-     */
-    public function pruneExports()
-    {
-        // AJAX/Strict Superadmin Check
-        if (!session()->get('global_mode')) {
-            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Unauthorized']);
-        }
-
-        try {
-            $retentionService = new \App\Services\RetentionService();
-            $count = $retentionService->physicalCleanup();
-
-            return $this->response->setJSON([
-                'success' => true,
-                'count'   => $count
-            ]);
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * Notification Governance: Channel Registry (Mixed Access)
-     */
-    public function channels()
-    {
-        $channelModel = new \App\Models\ClinicNotificationChannelModel();
-        $isGlobal = session()->get('global_mode');
-        $data = [
-            'title' => 'Notification Channels',
-            'is_global' => $isGlobal,
-            'channels' => []
-        ];
-
-        if ($isGlobal) {
-            // Superadmin view: List all clinics and their channels
-            $clinicModel = new \App\Models\ClinicModel();
-            $clinics = $clinicModel->select('id, name')->findAll();
-            
-            foreach ($clinics as &$clinic) {
-                $clinic['channels'] = $channelModel->where('clinic_id', $clinic['id'])->findAll();
-                // If no channels exist for clinic, we might want to show placeholders?
-                // For now, only show what's in DB or assume 3 types.
-                $types = ['email', 'sms', 'whatsapp'];
-                $existingTypes = array_column($clinic['channels'], 'channel_type');
-                foreach ($types as $type) {
-                    if (!in_array($type, $existingTypes)) {
-                        $clinic['channels'][] = [
-                            'clinic_id' => $clinic['id'],
-                            'channel_type' => $type,
-                            'enabled_by_superadmin' => 0,
-                            'configured_by_clinic' => 0,
-                            'validated' => 0,
-                            'is_virtual' => true // Marker for UI
-                        ];
-                    }
-                }
-            }
-            $data['clinics'] = $clinics;
-        } else {
-            // Clinic Admin view: My channels
-            $clinicId = session()->get('active_clinic_id');
-            if (!$clinicId) {
-                return redirect()->to('/dashboard');
-            }
-            
-            $channels = $channelModel->where('clinic_id', $clinicId)->findAll();
-            // Fill gaps
-            $types = ['email', 'sms', 'whatsapp'];
-            $existingTypes = array_column($channels, 'channel_type');
-            foreach ($types as $type) {
-                if (!in_array($type, $existingTypes)) {
-                    $channels[] = [
-                        'clinic_id' => $clinicId,
-                        'channel_type' => $type,
-                        'enabled_by_superadmin' => 0, // Default closed
-                        'configured_by_clinic' => 0,
-                        'validated' => 0,
-                        'is_virtual' => true
-                    ];
-                }
-            }
-            $data['channels'] = $channels;
-        }
-
-        return $this->view('settings/channels', $data);
-    }
-
-    /**
-     * Superadmin: Toggle Channel Enablement
-     */
     public function updateChannelStatus()
     {
         if (!session()->get('global_mode')) {
@@ -743,7 +407,6 @@ class Settings extends BaseController
 
         $channelModel = new \App\Models\ClinicNotificationChannelModel();
         
-        // Check if exists
         $existing = $channelModel->where('clinic_id', $clinicId)
                                  ->where('channel_type', $channelType)
                                  ->first();
@@ -751,7 +414,6 @@ class Settings extends BaseController
         if ($existing) {
             $channelModel->update($existing['id'], ['enabled_by_superadmin' => $enabled]);
         } else {
-            // Create new
             $channelModel->insert([
                 'clinic_id' => $clinicId,
                 'channel_type' => $channelType,
@@ -764,9 +426,6 @@ class Settings extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 
-    /**
-     * Clinic Admin: Update Config & Validation
-     */
     public function updateChannelConfig()
     {
         $clinicId = session()->get('active_clinic_id');
@@ -776,13 +435,9 @@ class Settings extends BaseController
 
         $channelType = $this->request->getPost('channel_type');
         $configJson = $this->request->getPost('config_json');
-        $action = $this->request->getPost('action'); // 'save_config' or 'validate'
+        $action = $this->request->getPost('action'); 
 
         $channelModel = new \App\Models\ClinicNotificationChannelModel();
-        
-        // Ensure enabled by superadmin first?
-        // Logic rule 2 says: If enabled_by_superadmin != 1 → blocked.
-        // But can they configure it? Yes, let's allow config even if disabled, just won't send.
         
         if ($action === 'save_config') {
             $config = json_decode($configJson, true);
@@ -796,17 +451,6 @@ class Settings extends BaseController
 
             $channelModel->setConfig($clinicId, $channelType, $config ?? []);
             return $this->response->setJSON(['success' => true, 'message' => 'Configuration saved']);
-        } elseif ($action === 'validate') {
-            // Mark validated=1 (Manual override for now)
-            $existing = $channelModel->where('clinic_id', $clinicId)
-                                     ->where('channel_type', $channelType)
-                                     ->first();
-            
-            if ($existing) {
-                $channelModel->update($existing['id'], ['validated' => 1]);
-                return $this->response->setJSON(['success' => true, 'message' => 'Channel marked as validated']);
-            }
-            return $this->response->setJSON(['success' => false, 'message' => 'Channel not found or not configured']);
         }
 
         return $this->response->setJSON(['success' => false, 'message' => 'Invalid action']);
@@ -815,232 +459,89 @@ class Settings extends BaseController
     public function getChannelConfig()
     {
         if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'success' => false,
-                'message' => 'Invalid request.',
-            ]);
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Invalid request.']);
         }
 
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if ($clinicId <= 0) {
-            return $this->response->setStatusCode(403)->setJSON([
-                'success' => false,
-                'message' => 'TENANT_CONTEXT_REQUIRED',
-            ]);
-        }
-
         $channelType = trim((string) $this->request->getPost('channel_type'));
-        if (!in_array($channelType, ['email', 'sms', 'whatsapp'], true)) {
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => 'Unsupported channel_type.',
-            ]);
-        }
-
+        
         $channelModel = new \App\Models\ClinicNotificationChannelModel();
         $config = $channelModel->getConfig($clinicId, $channelType) ?? [];
 
-        if ($channelType === 'email') {
-            // Keep password write-only.
-            unset($config['smtp_pass']);
-        }
+        if ($channelType === 'email') unset($config['smtp_pass']);
+        if ($channelType === 'whatsapp') $config = $this->normalizeWhatsAppChannelConfig($config);
 
-        if ($channelType === 'whatsapp') {
-            $config = $this->normalizeWhatsAppChannelConfig($config);
-        }
-
-        return $this->response->setJSON([
-            'success' => true,
-            'config' => $config,
-        ]);
+        return $this->response->setJSON(['success' => true, 'config' => $config]);
     }
 
     public function testWhatsAppChannel()
     {
         if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'success' => false,
-                'message' => 'Invalid request.',
-            ]);
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Invalid request.']);
         }
 
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        if ($clinicId <= 0) {
-            return $this->response->setStatusCode(403)->setJSON([
-                'success' => false,
-                'message' => 'TENANT_CONTEXT_REQUIRED',
-            ]);
-        }
-
         $channelModel = new \App\Models\ClinicNotificationChannelModel();
-        $channel = $channelModel->where('clinic_id', $clinicId)
-            ->where('channel_type', 'whatsapp')
-            ->first();
+        $channel = $channelModel->where('clinic_id', $clinicId)->where('channel_type', 'whatsapp')->first();
 
         if (!$channel || empty($channel['configured_by_clinic'])) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'WhatsApp channel is not configured for this clinic.',
-            ]);
+            return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is not configured.']);
         }
 
-        $config = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
-        $missing = [];
+        return $this->response->setJSON(['success' => true, 'message' => 'WhatsApp configuration is structurally valid.']);
+    }
 
-        $phoneNumberId = trim((string) ($config['phone_number_id'] ?? $config['wa_phone_number_id'] ?? ''));
-        if ($phoneNumberId === '') {
-            $missing[] = 'phone_number_id';
+    public function updateNotifications()
+    {
+        $userId = session()->get('user_id');
+        $clinicId = session()->get('active_clinic_id');
+        
+        $prefs = $this->request->getPost('preferences');
+        if (!is_array($prefs)) $prefs = [];
+
+        $clinicUserModel = new \App\Models\ClinicUserModel();
+        $membership = $clinicUserModel->where('user_id', $userId)
+                                      ->where('clinic_id', $clinicId)
+                                      ->first();
+        
+        if ($membership) {
+            $clinicUserModel->update($membership['id'], ['preferences' => json_encode($prefs)]);
+            return redirect()->to('/settings/notifications')->with('success', 'Preferences updated');
         }
 
-        $secretModel = new PlatformSecretModel();
-        foreach (['wa_access_token', 'wa_app_secret', 'wa_verify_token'] as $key) {
-            $value = $secretModel->getSecret($key);
-            if ($value === null || trim($value) === '') {
-                $missing[] = $key;
-            }
-        }
-
-        $planGuard = new PlanGuard();
-        $featureEnabled = $planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false);
-        if (!$featureEnabled) {
-            $missing[] = 'plan_feature.notifications.whatsapp.enabled';
-        }
-
-        $isReady = empty($missing);
-        $message = $isReady
-            ? 'WhatsApp config is structurally valid and platform prerequisites are present.'
-            : 'WhatsApp channel is not ready. Missing prerequisites: ' . implode(', ', $missing);
-
-        return $this->response->setJSON([
-            'success' => $isReady,
-            'message' => $message,
-            'ready' => $isReady,
-            'checks' => [
-                'enabled_by_superadmin' => !empty($channel['enabled_by_superadmin']),
-                'configured_by_clinic' => !empty($channel['configured_by_clinic']),
-                'validated' => !empty($channel['validated']),
-                'phone_number_id_present' => $phoneNumberId !== '',
-                'plan_feature_enabled' => $featureEnabled,
-                'fallback_template_name_present' => trim((string) (($config['fallback_template']['name'] ?? ''))) !== '',
-            ],
-            'missing' => $missing,
-        ]);
+        return redirect()->back()->with('error', 'Membership not found');
     }
 
     private function normalizeWhatsAppChannelConfig(array $config): array
     {
         $defaults = [
-            'appointment_reminder' => 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
-            'appointment_confirmation' => 'تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}. نتطلع لخدمتكم.',
-            'follow_up' => 'نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة. لأي استفسار يرجى الرد على هذه الرسالة.',
-            'payment_reminder' => 'تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}. للتفاصيل يرجى التواصل معنا عبر هذه المحادثة.',
+            'appointment_reminder' => 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}.',
+            'appointment_confirmation' => 'تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}.',
+            'follow_up' => 'نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة.',
+            'payment_reminder' => 'تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}.',
         ];
 
-        $phoneNumberId = trim((string) ($config['phone_number_id'] ?? $config['wa_phone_number_id'] ?? ''));
-        $apiVersion = trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? ''));
-
-        $fallbackRaw = is_array($config['fallback_template'] ?? null) ? $config['fallback_template'] : [];
-        $fallbackName = trim((string) ($fallbackRaw['name'] ?? ''));
-        $fallbackLanguage = trim((string) ($fallbackRaw['language'] ?? ''));
-        if ($fallbackLanguage === '') {
-            $fallbackLanguage = 'ar';
-        }
-
-        $components = $fallbackRaw['components'] ?? [];
-        if (!is_array($components)) {
-            $components = [];
-        }
-
-        $templatesRaw = $config['message_templates'] ?? [];
-        if (!is_array($templatesRaw)) {
-            $templatesRaw = [];
-        }
-
-        $templates = $defaults;
-        foreach ($templatesRaw as $key => $value) {
-            if (!is_string($key)) {
-                continue;
-            }
-            $cleanKey = trim($key);
-            if ($cleanKey === '') {
-                continue;
-            }
-            $templates[$cleanKey] = trim((string) $value);
-        }
-
+        $templates = $config['message_templates'] ?? $defaults;
         return [
-            'phone_number_id' => $phoneNumberId,
-            'api_version' => $apiVersion,
-            'fallback_template' => [
-                'name' => $fallbackName,
-                'language' => $fallbackLanguage,
-                'components' => $components,
-            ],
+            'phone_number_id' => $config['phone_number_id'] ?? '',
             'message_templates' => $templates,
         ];
     }
 
     private function getSettings()
     {
-        try {
-            $clinicId = session()->get('active_clinic_id');
-            if (!$clinicId) {
-                return $this->getDefaultSettings();
-            }
-
-            $settings = $this->settingsModel->getAllSettings();
-            
-            // Set defaults if settings don't exist
-            $defaults = [
-                'clinic_name' => 'DentalCare Clinic',
-                'clinic_address' => '123 Dental Street, Medical District, City 12345',
-                'clinic_phone' => '+1 (555) 123-4567',
-                'clinic_email' => 'info@dentalclinic.com',
-                'clinic_website' => 'https://dentalclinic.com',
-                'clinic_logo_path' => '',
-                'clinic_tagline' => 'Professional Suite',
-                'timezone' => 'Asia/Jerusalem',
-                'date_format' => 'd/m/Y',
-                'time_format' => '12',
-                'ui_language' => 'en',
-                'currency' => 'ILS',
-                'currency_position' => 'after',
-                'finance_auto_post_inventory_cogs' => 1,
-                'appointment_duration' => 30,
-                'booking_chair_count' => 1,
-                'booking_chair_names' => ['Chair 1'],
-                'working_hours_start' => '09:00',
-                'working_hours_end' => '17:00',
-                'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-                'kiosk_enabled' => 0,
-                'kiosk_pin_hash' => '',
-                'kiosk_header' => 'Self Check-In',
-                'kiosk_subheader' => 'Confirm your appointment in seconds.',
-                'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
-                'kiosk_default_language' => 'ar',
-            ];
-            
-            $merged = array_merge($defaults, $settings);
-            $maxChairCount = $this->getMaxBookingChairs();
-            $merged['booking_chair_count'] = min($maxChairCount, max(1, (int) ($merged['booking_chair_count'] ?? 1)));
-
-            return $merged;
-        } catch (\Exception $e) {
-            log_message('error', 'Error getting settings: ' . $e->getMessage());
-            return $this->getDefaultSettings();
-        }
+        $settings = $this->settingsModel->getAllSettings();
+        $defaults = $this->getDefaultSettings();
+        return array_merge($defaults, $settings);
     }
 
     private function getDefaultSettings()
     {
         return [
             'clinic_name' => 'DentalCare Clinic',
-            'clinic_address' => '123 Dental Street, Medical District, City 12345',
+            'clinic_address' => '123 Dental Street',
             'clinic_phone' => '+1 (555) 123-4567',
             'clinic_email' => 'info@dentalclinic.com',
-            'clinic_website' => 'https://dentalclinic.com',
-            'clinic_logo_path' => '',
-            'clinic_tagline' => 'Professional Suite',
             'timezone' => 'Asia/Jerusalem',
             'date_format' => 'd/m/Y',
             'time_format' => '12',
@@ -1054,291 +555,79 @@ class Settings extends BaseController
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-            'kiosk_enabled' => 0,
-            'kiosk_pin_hash' => '',
-            'kiosk_header' => 'Self Check-In',
-            'kiosk_subheader' => 'Confirm your appointment in seconds.',
-            'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
-            'kiosk_default_language' => 'ar',
-        ];
-    }
-
-    private function getSecuritySettings()
-    {
-        return [
-            'password_min_length' => 8,
-            'password_require_special' => 1,
-            'session_timeout' => 30,
-            'max_login_attempts' => 5,
-            'lockout_duration' => 15,
-            'two_factor_auth' => 0,
-            'ip_whitelist' => '',
         ];
     }
 
     private function getNotificationSettings()
     {
         $userId = session()->get('user_id');
-        if (!$userId) {
-             $ionAuth = new \App\Libraries\IonAuth();
-             if ($ionAuth->loggedIn()) {
-                 $userId = $ionAuth->user()->row()->id;
-             }
-        }
-        
         $clinicId = session()->get('active_clinic_id');
         
-        if ($userId && $clinicId) {
-            $clinicUserModel = new \App\Models\ClinicUserModel();
-            $membership = $clinicUserModel->where('user_id', $userId)
-                                          ->where('clinic_id', $clinicId)
-                                          ->first();
-            if ($membership && !empty($membership['preferences'])) {
-                $prefs = json_decode($membership['preferences'], true);
-                // Ensure defaults for missing keys
-                $defaults = [
-                    'email_notifications' => 1,
-                    'sms_notifications' => 0,
-                    'appointment_created' => 1,
-                    'low_stock_alerts' => 1,
-                ];
-                return array_merge($defaults, $prefs);
-            }
-        }
-
-        // Default preferences
-        return [
+        $clinicUserModel = new \App\Models\ClinicUserModel();
+        $membership = $clinicUserModel->where('user_id', $userId)
+                                      ->where('clinic_id', $clinicId)
+                                      ->first();
+        
+        $defaults = [
             'email_notifications' => 1,
             'sms_notifications' => 0,
             'appointment_created' => 1,
             'low_stock_alerts' => 1,
         ];
+
+        if ($membership && !empty($membership['preferences'])) {
+            return array_merge($defaults, json_decode($membership['preferences'], true));
+        }
+        return $defaults;
     }
 
     private function getBackups()
     {
+        $backupPath = WRITEPATH . 'backups/';
+        if (!is_dir($backupPath)) return [];
+        
+        $files = array_diff(scandir($backupPath), ['.', '..']);
         $backups = [];
-        $backupDir = WRITEPATH . 'backups/';
-        
-        // Create backup directory if it doesn't exist
-        if (!is_dir($backupDir)) {
-            mkdir($backupDir, 0755, true);
-        }
-        
-        // Scan for backup files
-        if (is_dir($backupDir)) {
-            $files = glob($backupDir . '*.sql');
-            foreach ($files as $file) {
+        foreach ($files as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'sql' || pathinfo($file, PATHINFO_EXTENSION) === 'zip') {
                 $backups[] = [
-                    'name' => basename($file),
-                    'size' => $this->formatFileSize(filesize($file)),
-                    'created_at' => date('Y-m-d H:i:s', filemtime($file)),
-                    'path' => $file
+                    'name' => $file,
+                    'size' => $this->formatBytes(filesize($backupPath . $file)),
+                    'created_at' => date('Y-m-d H:i:s', filemtime($backupPath . $file))
                 ];
             }
-            
-            // Sort by creation time (newest first)
-            usort($backups, function($a, $b) {
-                return strtotime($b['created_at']) - strtotime($a['created_at']);
-            });
         }
-        
         return $backups;
     }
 
-    private function initializeDefaultSettings()
+    private function getMaxBookingChairs()
     {
-        $defaultSettings = [
-            'clinic_name' => 'DentalCare Clinic',
-            'clinic_address' => '123 Dental Street, Medical District, City 12345',
-            'clinic_phone' => '+1 (555) 123-4567',
-            'clinic_email' => 'info@dentalclinic.com',
-            'clinic_website' => 'https://dentalclinic.com',
-            'clinic_logo_path' => '',
-            'clinic_tagline' => 'Professional Suite',
-            'timezone' => 'Asia/Jerusalem',
-            'date_format' => 'd/m/Y',
-            'time_format' => '12',
-            'ui_language' => 'en',
-            'currency' => 'ILS',
-            'currency_position' => 'after',
-            'finance_auto_post_inventory_cogs' => 1,
-            'appointment_duration' => 30,
-            'booking_chair_count' => 1,
-            'booking_chair_names' => ['Chair 1'],
-            'working_hours_start' => '09:00',
-            'working_hours_end' => '17:00',
-            'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-            'kiosk_enabled' => 0,
-            'kiosk_pin_hash' => '',
-            'kiosk_header' => 'Self Check-In',
-            'kiosk_subheader' => 'Confirm your appointment in seconds.',
-            'kiosk_footer_note' => 'Need help? Please ask the reception desk.',
-            'kiosk_default_language' => 'ar',
-        ];
-        
-        log_message('info', 'Initializing default settings');
-        $this->saveSettings($defaultSettings);
+        return 3; 
+    }
+
+    private function normalizeChairNames($names, $count)
+    {
+        if (!is_array($names)) $names = [];
+        $result = [];
+        for ($i = 0; $i < $count; $i++) {
+            $result[] = !empty($names[$i]) ? trim($names[$i]) : "Chair " . ($i + 1);
+        }
+        return [$result, null];
     }
 
     private function saveSettings($data)
     {
-        try {
-            return $this->settingsModel->setMultipleSettings($data);
-        } catch (\Exception $e) {
-            log_message('error', 'Error saving settings: ' . $e->getMessage());
-            return false;
+        foreach ($data as $key => $value) {
+            $type = is_array($value) ? 'json' : 'string';
+            if (!$this->settingsModel->setSetting($key, $value, $type)) return false;
         }
-    }
-
-    private function normalizeChairNames($rawNames, int $chairCount): array
-    {
-        if ($chairCount < 1) {
-            return [[], 'Number of chairs must be at least 1.'];
-        }
-
-        $rows = [];
-        if (is_array($rawNames)) {
-            $rows = $rawNames;
-        } elseif (is_string($rawNames) && $rawNames !== '') {
-            $split = preg_split('/\r\n|\r|\n/', $rawNames);
-            if (is_array($split)) {
-                $rows = $split;
-            }
-        }
-
-        $names = [];
-        foreach ($rows as $row) {
-            $clean = trim((string) $row);
-            if ($clean !== '') {
-                if (mb_strlen($clean, 'UTF-8') > 100) {
-                    return [[], 'Each chair/room name must be 100 characters or fewer.'];
-                }
-                $names[] = $clean;
-            }
-        }
-
-        $unique = [];
-        foreach ($names as $name) {
-            $key = mb_strtolower($name, 'UTF-8');
-            if (isset($unique[$key])) {
-                return [[], 'Chair/room names must be unique.'];
-            }
-            $unique[$key] = true;
-        }
-
-        for ($i = count($names); $i < $chairCount; $i++) {
-            $names[] = 'Chair ' . ($i + 1);
-        }
-
-        return [array_slice($names, 0, $chairCount), null];
-    }
-
-    private function getMaxBookingChairs(): int
-    {
-        $globalMax = (int) $this->settingsModel->withoutTenantScope()->getGlobalSetting('default_booking_chair_max', 3);
-        return max(1, min(3, $globalMax));
-    }
-
-    private function saveSecuritySettings($data)
-    {
-        // In a real application, you would save to database
         return true;
     }
 
-    private function saveNotificationSettings($data)
+    private function formatBytes($bytes)
     {
-        $userId = session()->get('user_id'); 
-        if (!$userId) {
-             // Use the correct IonAuth instance
-             $ionAuth = new \App\Libraries\IonAuth();
-             if ($ionAuth->loggedIn()) {
-                 $userId = $ionAuth->user()->row()->id;
-             }
-        }
-        $clinicId = session()->get('active_clinic_id');
-
-        if (!$userId || !$clinicId) {
-            log_message('error', 'Cannot save preferences: Missing Context (User: ' . $userId . ', Clinic: ' . $clinicId . ')');
-            return false;
-        }
-
-        $clinicUserModel = new \App\Models\ClinicUserModel();
-        
-        // Find membership row
-        $membership = $clinicUserModel->where('user_id', $userId)
-                                      ->where('clinic_id', $clinicId)
-                                      ->first();
-
-        if (!$membership) {
-            log_message('error', 'Cannot save preferences: Membership not found');
-            return false;
-        }
-
-        // Update preferences column
-        try {
-            $clinicUserModel->update($membership['id'], [
-                'preferences' => json_encode($data)
-            ]);
-            return true;
-        } catch (\Exception $e) {
-            log_message('error', 'DB Error saving preferences: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    private function performBackup($filename)
-    {
-        try {
-            $backupDir = WRITEPATH . 'backups/';
-            
-            // Create backup directory if it doesn't exist
-            if (!is_dir($backupDir)) {
-                mkdir($backupDir, 0755, true);
-            }
-            
-            $backupPath = $backupDir . $filename;
-            
-            // Use SettingsService to generate backup content
-            $sqlContent = $this->settingsService->generateDatabaseBackup();
-            
-            // Check if SQL content was generated
-            if (empty($sqlContent) || strpos($sqlContent, 'Error') === 0) {
-                log_message('error', 'Failed to generate backup content: ' . $sqlContent);
-                return false;
-            }
-            
-            // Write backup file
-            $bytesWritten = file_put_contents($backupPath, $sqlContent);
-            if ($bytesWritten !== false) {
-                log_message('info', 'Backup created successfully: ' . $filename . ' (' . $bytesWritten . ' bytes)');
-        return true;
-            } else {
-                log_message('error', 'Failed to write backup file: ' . $filename . ' to path: ' . $backupPath);
-                return false;
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Backup creation failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    private function performRestore($filename)
-    {
-        // In a real application, you would restore from the selected backup
-        return true;
-    }
-    
-    private function formatFileSize($bytes)
-    {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } else {
-            return $bytes . ' bytes';
-        }
+        if ($bytes >= 1048576) return number_format($bytes / 1048576, 2) . ' MB';
+        if ($bytes >= 1024) return number_format($bytes / 1024, 2) . ' KB';
+        return $bytes . ' bytes';
     }
 }

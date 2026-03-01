@@ -588,6 +588,9 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     
     // Notification Channels (P5-09a)
     $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);
+    $routes->get('email', 'Settings::email', ['filter' => 'permission:settings:view']);
+    $routes->get('sms', 'Settings::sms', ['filter' => 'permission:settings:view']);
+    $routes->get('whatsapp', 'Settings::whatsapp', ['filter' => 'permission:settings:view']);
     $routes->post('updateChannelStatus', 'Settings::updateChannelStatus', ['filter' => 'permission:settings:edit']); // Gated by global_mode inside
     $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
     $routes->post('getChannelConfig', 'Settings::getChannelConfig', ['filter' => 'permission:settings:edit']);
