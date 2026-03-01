@@ -850,10 +850,6 @@ class Patient extends BaseController
     {
         $format = $this->getClinicDateFormat();
         return [
-            'phone' => [
-                'required' => 'Phone number is required.',
-                'regex_match' => 'Phone number must be digits only and contain 9 to 15 digits.',
-            ],
             'date_of_birth' => [
                 'valid_date' => "Date of birth must follow {$format}.",
             ],

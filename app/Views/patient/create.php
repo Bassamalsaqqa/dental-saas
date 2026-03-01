@@ -123,14 +123,12 @@ $alertBoolChecked = static function (string $key): bool {
                                         maxlength="15"
                                         inputmode="numeric"
                                         pattern="\d{9,15}"
-                                        title="Phone number must be digits only and contain 9 to 15 digits."
                                         value="<?= old('phone') ?>"
                                         class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('phone')) ? 'border-red-500' : 'border-gray-300' ?>"
-                                        aria-describedby="phoneFieldError"
                                     >
-                                    <p id="phoneFieldError" class="text-red-500 text-sm mt-2 <?= ($validation && $validation->hasError('phone')) ? '' : 'hidden' ?>">
-                                        <?= ($validation && $validation->hasError('phone')) ? esc($validation->getError('phone')) : '' ?>
-                                    </p>
+                                    <?php if ($validation && $validation->hasError('phone')): ?>
+                                        <p class="text-red-500 text-sm mt-2"><?= esc($validation->getError('phone')) ?></p>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div>
@@ -396,7 +394,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const genderSelect = document.getElementById('gender');
     const patientForm = document.querySelector('form[action$="patient/store"]');
     const phoneInput = document.getElementById('phone');
-    const phoneFieldError = document.getElementById('phoneFieldError');
 
     function validatePhoneField() {
         if (!phoneInput) {
@@ -404,21 +401,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const value = (phoneInput.value || '').trim();
-        let message = '';
-
-        if (value === '') {
-            message = 'Phone number is required.';
-        } else if (!/^\d{9,15}$/.test(value)) {
-            message = 'Phone number must be digits only and contain 9 to 15 digits.';
-        }
-
-        phoneInput.setCustomValidity(message);
-        if (phoneFieldError) {
-            phoneFieldError.textContent = message;
-            phoneFieldError.classList.toggle('hidden', message === '');
-        }
-
-        return message === '';
+        const isValid = /^\d{9,15}$/.test(value);
+        phoneInput.classList.toggle('border-red-500', !isValid);
+        phoneInput.classList.toggle('border-gray-300', isValid);
+        return isValid;
     }
 
     function syncOptionalState() {
@@ -459,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!validatePhoneField()) {
                 event.preventDefault();
                 phoneInput?.focus();
-                phoneInput?.reportValidity();
             }
         });
     }

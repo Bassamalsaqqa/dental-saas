@@ -79,8 +79,7 @@ class PatientModel extends TenantAwareModel
             'is_unique' => 'This email is already registered'
         ],
         'phone' => [
-            'required' => 'Phone number is required',
-            'regex_match' => 'Phone number must be digits only and contain 9 to 15 digits'
+            'required' => 'Phone number is required'
         ],
         'date_of_birth' => [
             'required' => 'Date of birth is required',
