@@ -93,14 +93,19 @@ Result:
   - `php spark whatsapp:ops-check`
   - evidence in `docs/SaaS/verification/WHATSAPP-PHASE6-OPS-READINESS-2026-03-01.md`
 
+- Phase 6 live pilot attempt executed with real recipient and webhook correlation:
+  - outbound provider handoff succeeded (`provider_message_id` captured)
+  - webhook callback was ingested and mapped to the same attempt
+  - provider returned `131047` (`Re-engagement message`) for the test text send, causing terminal failure
+  - evidence in `docs/SaaS/verification/WHATSAPP-PHASE6-LIVE-PILOT-2026-03-01.md`
+
 ## Resume Checklist (next session)
 
 1. Re-run current WhatsApp regression bundle:
    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php`
 2. Choose next WhatsApp slice:
-   - Phase 5 endpoint tests
-   - Phase 6 pilot rollout/ops runbook execution
-   - Template-first enqueue UX/workflow integration
+   - Template-first enqueue UX/workflow integration (required for out-of-session recipients after observed `131047`)
+   - Phase 6 pilot rollout/ops runbook execution with approved templates
 3. Update `docs/SaaS/logs/IMPLEMENTATION_LOG_SaaS.md` with new work before/after changes
 
 ## Context Shift Note

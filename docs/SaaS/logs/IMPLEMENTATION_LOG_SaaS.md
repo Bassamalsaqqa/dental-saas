@@ -1545,3 +1545,25 @@
     - `php spark list | findstr /I "whatsapp:ops-check"` -> command listed
     - `php spark whatsapp:ops-check --hours 24` -> `Overall status: PASS` (baseline environment)
     - `php spark whatsapp:ops-check --hours 24 --min-attempts 1 --max-failure-rate 100 --max-rate-limited 99999 --max-stuck 99999 --json` -> JSON payload with `status: "PASS"`
+
+### Task: WHATSAPP-PHASE6-02 Live Pilot Attempt (Real Number + Webhook Correlation)
+- **Date:** 2026-03-01
+- **Status:** Completed
+- **Description:** Executed controlled live WhatsApp pilot sends for clinic `19` to the designated real number and captured outbound + webhook evidence.
+- **Actions:**
+    - Verified preconditions in DB (channel flags, plan feature gate, platform secret key presence, patient WhatsApp identity mapping).
+    - Enqueued test notification `#48` and dispatched via `tenant:run-job DispatchNotificationsJob --clinic-id 19` in restricted runtime; observed `WA_NETWORK_EXCEPTION` (cannot reach `graph.facebook.com:443` in sandboxed network).
+    - Enqueued test notification `#49` and dispatched with unrestricted runtime; observed successful outbound provider handoff (`Sent: 1`) with `provider_message_id` populated.
+    - Confirmed webhook event ingestion (`whatsapp_delivery_events`) correlated to the same `provider_message_id` and provider failure code `131047` (`Re-engagement message`).
+    - Confirmed parent notification state transition updated from send to terminal failed based on webhook failure mapping (`WA_WEBHOOK_FAILED:131047`).
+- **Verification:**
+    - `php spark tenant:run-job DispatchNotificationsJob --clinic-id 19` (restricted runtime) -> `Processed: 1`, `Sent: 0`, `Failed: 1`
+    - `php spark tenant:run-job DispatchNotificationsJob --clinic-id 19` (unrestricted runtime) -> `Processed: 1`, `Sent: 1`, `Failed: 0`
+    - SQL evidence captured for:
+      - `notifications.id IN (48,49)`
+      - `notification_attempts.notification_id IN (48,49)`
+      - `whatsapp_delivery_events.id=58` (`event_type=status:failed`, provider code `131047`)
+- **Outcome:**
+    - Transport + webhook pipeline is operational end-to-end.
+    - Remaining blocker for this recipient is Meta policy/session rule (`131047`), requiring template-first sends for out-of-session delivery.
+- **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-LIVE-PILOT-2026-03-01.md`
