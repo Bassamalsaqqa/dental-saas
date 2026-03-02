@@ -231,13 +231,15 @@ class Settings extends BaseController
 
     public function updateSystem()
     {
+        $currentSettings = $this->getSettings();
+
         $rules = [
             'timezone' => 'required',
             'date_format' => 'required|in_list[Y-m-d,m/d/Y,d/m/Y]',
             'time_format' => 'required|in_list[24,12]',
             'ui_language' => 'required|in_list[en,ar]',
-            'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
-            'currency_position' => 'required|in_list[before,after]',
+            'currency' => 'permit_empty|in_list[ILS,USD,JOD,EUR,GBP]',
+            'currency_position' => 'permit_empty|in_list[before,after]',
             'finance_auto_post_inventory_cogs' => 'permit_empty|in_list[0,1]',
         ];
 
@@ -250,9 +252,11 @@ class Settings extends BaseController
             'date_format' => $this->request->getPost('date_format'),
             'time_format' => $this->request->getPost('time_format'),
             'ui_language' => $this->request->getPost('ui_language'),
-            'currency' => $this->request->getPost('currency'),
-            'currency_position' => $this->request->getPost('currency_position'),
-            'finance_auto_post_inventory_cogs' => $this->request->getPost('finance_auto_post_inventory_cogs') ? 1 : 0,
+            'currency' => (string) ($this->request->getPost('currency') ?: ($currentSettings['currency'] ?? 'ILS')),
+            'currency_position' => (string) ($this->request->getPost('currency_position') ?: ($currentSettings['currency_position'] ?? 'before')),
+            'finance_auto_post_inventory_cogs' => $this->request->getPost('finance_auto_post_inventory_cogs') !== null
+                ? ($this->request->getPost('finance_auto_post_inventory_cogs') ? 1 : 0)
+                : (int) ($currentSettings['finance_auto_post_inventory_cogs'] ?? 0),
         ];
 
         log_message('info', 'Saving system settings: ' . json_encode($settingsData));

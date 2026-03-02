@@ -11,7 +11,6 @@ use App\Models\TreatmentContractItemModel;
 use App\Models\TreatmentContractModel;
 use App\Models\TreatmentContractOdontogramSnapshotModel;
 use App\Models\TreatmentContractSignatureModel;
-use App\Services\LocaleResolverService;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -28,7 +27,6 @@ class Kiosk extends BaseController
     protected TreatmentContractSignatureModel $contractSignatureModel;
     protected PlanGuard $planGuard;
     protected StorageService $storageService;
-    protected LocaleResolverService $localeResolver;
 
     public function __construct()
     {
