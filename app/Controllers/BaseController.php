@@ -335,18 +335,18 @@ abstract class BaseController extends Controller
     }
 
     /**
-     * Build a validation rule string honoring the clinic date format.
+     * Build a validation rule string for clinic date inputs.
+     *
+     * Important:
+     * UI date fields may be submitted as ISO `Y-m-d` because the shared layout
+     * normalizes `data-clinic-date="1"` values on form submit.
+     * Using generic `valid_date` keeps server validation compatible with both:
+     * - displayed clinic format (e.g. d/m/Y, m/d/Y)
+     * - normalized ISO format (Y-m-d)
      */
     protected function getClinicDateValidationRule(): string
     {
-        $format = strtolower(str_replace(['.', '-'], '/', $this->getClinicDateFormat()));
-        $rule = 'valid_date';
-        if ($format === 'd/m/y') {
-            $rule = 'valid_date[d/m/Y]';
-        } elseif ($format === 'm/d/y') {
-            $rule = 'valid_date[m/d/Y]';
-        }
-        return 'required|' . $rule;
+        return 'required|valid_date';
     }
 
     /**

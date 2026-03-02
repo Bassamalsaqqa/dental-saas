@@ -848,10 +848,9 @@ class Patient extends BaseController
 
     private function getPatientValidationMessages(): array
     {
-        $format = $this->getClinicDateFormat();
         return [
             'date_of_birth' => [
-                'valid_date' => "Date of birth must follow {$format}.",
+                'valid_date' => 'Enter a valid date of birth.',
             ],
         ];
     }

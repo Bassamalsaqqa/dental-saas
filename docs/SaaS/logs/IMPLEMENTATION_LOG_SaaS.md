@@ -1593,5 +1593,20 @@
       - `notifications.id=72` -> final `status=read`
       - `notification_attempts.notification_id=72` -> final `status=read`, `provider_message_id` populated
       - `notifications.id=73` (`message_template_key=appointment_confirmation`) -> final `status=delivered`
-      - `notification_attempts.notification_id=73` -> final `status=delivered`, `provider_message_id` populated
+    - `notification_attempts.notification_id=73` -> final `status=delivered`, `provider_message_id` populated
 - **Verification Doc:** `docs/SaaS/verification/WHATSAPP-TEMPLATES-SETTINGS-2026-03-01.md`
+
+### Task: PATIENT-DOB-UX-01 Date Validation Compatibility
+- **Date:** 2026-03-01
+- **Status:** Completed
+- **Description:** Fixed false DOB validation failures on `/patients/create` and `/patients/{id}/edit` when users entered clinic-format dates (e.g., `01/01/1963`) and the shared frontend normalized submit payloads to ISO.
+- **Actions:**
+    - Updated `BaseController::getClinicDateValidationRule()` to use `required|valid_date` so server validation accepts both clinic display format and normalized ISO date submissions.
+    - Updated patient DOB error message to a non-misleading generic validation message (`Enter a valid date of birth.`).
+- **Files:**
+    - `app/Controllers/BaseController.php`
+    - `app/Controllers/Patient.php`
+- **Verification:**
+    - `php -l app/Controllers/BaseController.php` -> `No syntax errors detected`
+    - `php -l app/Controllers/Patient.php` -> `No syntax errors detected`
+- **Verification Doc:** `docs/SaaS/verification/PATIENT-DOB-DATE-UX-2026-03-01.md`
