@@ -395,15 +395,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const patientForm = document.querySelector('form[action$="patient/store"]');
     const phoneInput = document.getElementById('phone');
 
-    function validatePhoneField() {
+    function validatePhoneField(showError = false) {
         if (!phoneInput) {
             return true;
         }
 
         const value = (phoneInput.value || '').trim();
+        const isEmpty = value === '';
         const isValid = /^\d{9,15}$/.test(value);
-        phoneInput.classList.toggle('border-red-500', !isValid);
-        phoneInput.classList.toggle('border-gray-300', isValid);
+        const shouldShowError = showError && !isValid;
+
+        phoneInput.classList.toggle('border-red-500', shouldShowError);
+        phoneInput.classList.toggle('border-gray-300', !shouldShowError);
+
+        if (isEmpty && !showError) {
+            return false;
+        }
+
         return isValid;
     }
 
@@ -435,14 +443,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (phoneInput) {
-        phoneInput.addEventListener('input', validatePhoneField);
-        phoneInput.addEventListener('blur', validatePhoneField);
-        validatePhoneField();
+        phoneInput.addEventListener('input', function () { validatePhoneField(false); });
+        phoneInput.addEventListener('blur', function () { validatePhoneField(false); });
+        validatePhoneField(false);
     }
 
     if (patientForm) {
         patientForm.addEventListener('submit', function (event) {
-            if (!validatePhoneField()) {
+            if (!validatePhoneField(true)) {
                 event.preventDefault();
                 phoneInput?.focus();
             }
