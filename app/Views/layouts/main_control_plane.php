@@ -751,6 +751,7 @@
                     const switchToPickerMode = () => {
                         const raw = (field.value || '').trim();
                         const iso = parseClinicDateToIso(raw);
+                        field.setCustomValidity('');
                         field.type = 'date';
                         if (iso) field.value = iso;
                         if (raw === '') field.value = '';
@@ -764,6 +765,7 @@
                         const iso = (field.value || '').trim();
                         field.type = 'text';
                         field.value = iso ? formatClinicDateFromIso(iso) : '';
+                        field.setCustomValidity('');
                     };
 
                     field.addEventListener('click', () => { if (field.type !== 'date') switchToPickerMode(); });
@@ -774,15 +776,17 @@
                             switchToPickerMode();
                         }
                     });
+                    field.addEventListener('input', () => { field.setCustomValidity(''); });
+                    field.addEventListener('change', () => { field.setCustomValidity(''); });
                     field.addEventListener('blur', switchToDisplayMode);
                 });
 
                 document.querySelectorAll('form').forEach((form) => {
                     form.addEventListener('submit', function (event) {
                         for (const input of form.querySelectorAll('input[data-clinic-date="1"]')) {
+                            input.setCustomValidity('');
                             const raw = (input.value || '').trim();
                             if (raw === '') {
-                                input.setCustomValidity('');
                                 continue;
                             }
                             const iso = parseClinicDateToIso(raw);

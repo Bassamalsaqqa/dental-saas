@@ -1412,6 +1412,7 @@
             const switchToPickerMode = () => {
                 const raw = (field.value || '').trim();
                 const iso = parseClinicDateToIso(raw);
+                field.setCustomValidity('');
                 field.type = 'date';
                 if (iso) {
                     field.value = iso;
@@ -1433,6 +1434,7 @@
                     field.type = 'text';
                     field.value = iso ? formatClinicDateFromIso(iso) : '';
                 }
+                field.setCustomValidity('');
             };
 
             // Keep text mode by default so users can type dates manually with numpad.
@@ -1453,6 +1455,12 @@
                     switchToPickerMode();
                 }
             });
+            field.addEventListener('input', () => {
+                field.setCustomValidity('');
+            });
+            field.addEventListener('change', () => {
+                field.setCustomValidity('');
+            });
             field.addEventListener('blur', switchToDisplayMode);
         });
 
@@ -1460,9 +1468,9 @@
             form.addEventListener('submit', function (event) {
                 const dateInputs = form.querySelectorAll('input[data-clinic-date="1"]');
                 for (const input of dateInputs) {
+                    input.setCustomValidity('');
                     const raw = (input.value || '').trim();
                     if (raw === '') {
-                        input.setCustomValidity('');
                         continue;
                     }
 
