@@ -31,6 +31,7 @@ class Settings extends BaseController
     public function whatsapp() { return $this->index('whatsapp'); }
     public function channels() { return $this->index('channels'); }
     public function notifications() { return $this->index('notifications'); }
+    public function kiosk() { return $this->index('kiosk'); }
 
     /**
      * Main Settings Hub (Consolidated)
@@ -258,6 +259,7 @@ class Settings extends BaseController
         
         if ($this->saveSettings($settingsData)) {
             $this->settingsService->reloadSettings();
+            session()->set('ui_locale', (string) $settingsData['ui_language']);
             log_message('info', 'System settings saved successfully');
             return redirect()->to('/settings')->with('success', 'System preferences updated successfully!');
         } else {
