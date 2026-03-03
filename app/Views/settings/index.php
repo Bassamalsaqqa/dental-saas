@@ -234,9 +234,9 @@
                             <form action="<?= base_url('settings/updateWorkingHours') ?>" method="POST">
                                 <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label><input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The earliest time a new appointment can be booked.</p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The latest time a new appointment can be booked.</p></div>
-                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">Number of simultaneous appointment slots available (1-3).</p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label><input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The earliest time a new appointment can be booked.</p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The latest time a new appointment can be booked.</p></div>
+                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">Number of simultaneous appointment slots available (1-3).</p></div>
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
                             </form>
@@ -326,11 +326,11 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">New PIN</label>
-                                            <input type="password" inputmode="numeric" name="kiosk_pin" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="4 to 8 digits" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="4 to 8 digits" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm PIN</label>
-                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Re-enter PIN" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Re-enter PIN" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -502,10 +502,10 @@
                         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-blue-100">SMTP configuration</p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">SMTP Host</label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Your email provider's SMTP server address (e.g. smtp.gmail.com).</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">Port</label><input type="number" id="smtp_port" value="<?= esc($email_config['smtp_port'] ?? '587') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Standard ports: 587 (TLS), 465 (SSL), 25 (unencrypted - avoid).</p></div>
+                                <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">SMTP Host</label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Your email provider's SMTP server address (e.g. smtp.gmail.com).</p></div>
+                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">Port</label><input type="number" id="smtp_port" value="<?= esc($email_config['smtp_port'] ?? '587') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Standard ports: 587 (TLS), 465 (SSL), 25 (unencrypted - avoid).</p></div>
                                 <div><label class="block text-sm font-semibold text-gray-700 mb-2">Encryption</label><select id="smtp_crypto" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><option value="tls" <?= ($email_config['smtp_crypto']??'')==='tls'?'selected':'' ?>>TLS</option><option value="ssl" <?= ($email_config['smtp_crypto']??'')==='ssl'?'selected':'' ?>>SSL</option></select><p class="text-xs text-gray-500 mt-1">Use TLS (port 587) for most providers. SSL for legacy setups.</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">User</label><input type="text" id="smtp_user" value="<?= esc($email_config['smtp_user'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Usually your full email address.</p></div>
+                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">User</label><input type="text" id="smtp_user" value="<?= esc($email_config['smtp_user'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Usually your full email address.</p></div>
                                 <div><label class="block text-sm font-semibold text-gray-700 mb-2">Pass</label><input type="password" id="smtp_pass" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all" placeholder="••••••••"><p class="text-xs text-gray-500 mt-1">Leave blank to keep the current password.</p></div>
                             </div>
                         </div>
@@ -554,7 +554,7 @@
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-green-600 to-emerald-700 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-green-100">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig(event)" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save</button></div></div>
                         <div class="p-8 space-y-8">
-                            <div><label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number ID</label><input type="text" id="wa_phone_number_id" value="<?= esc($wa_config['phone_number_id'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono" placeholder="1234567890"><p class="text-xs text-gray-500 mt-1">Found in your Meta Business Manager > WhatsApp > Phone Number ID.</p></div>
+                            <div><label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number ID</label><input type="text" id="wa_phone_number_id" value="<?= esc($wa_config['phone_number_id'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono" placeholder="1234567890"><p class="text-xs text-gray-500 mt-1">Found in your Meta Business Manager > WhatsApp > Phone Number ID.</p></div>
                             <div class="pt-6 border-t border-gray-100">
                                 <h4 class="font-bold text-gray-900 mb-4 flex justify-between items-center"><span>Arabic Templates</span><button onclick="resetTemplatesToDefault()" class="text-[10px] text-blue-600 font-bold hover:underline">RESET</button></h4>
                                 <div class="grid grid-cols-1 gap-4" dir="rtl">
@@ -682,6 +682,71 @@ function setButtonLoading(btn, loading) {
         btn.disabled = false;
         btn.classList.remove('opacity-75', 'cursor-not-allowed');
     }
+}
+
+function getFieldErrorElement(input) {
+    if (!input || !input.parentNode) return null;
+    let errorEl = input.parentNode.querySelector(`.field-error[data-for="${input.id || input.name}"]`);
+    if (!errorEl) {
+        errorEl = document.createElement('p');
+        errorEl.className = 'field-error text-xs text-red-600 mt-1 hidden';
+        errorEl.dataset.for = input.id || input.name || '';
+        input.parentNode.insertBefore(errorEl, input.nextSibling);
+    }
+    return errorEl;
+}
+
+function setFieldError(input, message) {
+    if (!input) return false;
+    const errorEl = getFieldErrorElement(input);
+    if (message) {
+        input.classList.add('border-red-400');
+        input.classList.remove('border-gray-200', 'border-green-400');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+        return false;
+    }
+
+    input.classList.remove('border-red-400');
+    if ((input.value || '').trim()) {
+        input.classList.add('border-green-400');
+        input.classList.remove('border-gray-200');
+    } else {
+        input.classList.remove('border-green-400');
+        input.classList.add('border-gray-200');
+    }
+    if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+    }
+    return true;
+}
+
+function validateField(input, rules = {}) {
+    if (!input) return true;
+    const value = (input.value || '').trim();
+    let error = '';
+
+    if (rules.required && !value) {
+        error = 'This field is required.';
+    } else if (rules.email && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = 'Please enter a valid email address.';
+    } else if (rules.url && value && !/^https?:\/\/.+/i.test(value)) {
+        error = 'Please enter a valid URL starting with http:// or https://';
+    } else if (rules.port && value) {
+        const port = parseInt(value, 10);
+        if (Number.isNaN(port) || port < 1 || port > 65535) {
+            error = 'Port must be a number between 1 and 65535.';
+        }
+    } else if (rules.minLength && value && value.length < rules.minLength) {
+        error = `Must be at least ${rules.minLength} characters.`;
+    } else if (rules.maxLength && value && value.length > rules.maxLength) {
+        error = `Must be no more than ${rules.maxLength} characters.`;
+    }
+
+    return setFieldError(input, error);
 }
 
 function showSettingsTab(tabName, options = {}) {
@@ -1034,6 +1099,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const clinicEmail = document.querySelector('input[name="clinic_email"]');
+    clinicEmail?.addEventListener('blur', () => validateField(clinicEmail, { required: true, email: true }));
+
+    const clinicWebsite = document.querySelector('input[name="clinic_website"]');
+    clinicWebsite?.addEventListener('blur', () => validateField(clinicWebsite, { url: true }));
+
+    const clinicName = document.querySelector('input[name="clinic_name"]');
+    clinicName?.addEventListener('blur', () => validateField(clinicName, { required: true, minLength: 2 }));
+
+    const smtpHost = document.getElementById('smtp_host');
+    smtpHost?.addEventListener('blur', () => validateField(smtpHost, { required: true }));
+
+    const smtpPort = document.getElementById('smtp_port');
+    smtpPort?.addEventListener('blur', () => validateField(smtpPort, { required: true, port: true }));
+
+    const smtpUser = document.getElementById('smtp_user');
+    smtpUser?.addEventListener('blur', () => validateField(smtpUser, { email: true }));
+
+    const kioskPin = document.querySelector('input[name="kiosk_pin"]');
+    kioskPin?.addEventListener('blur', () => validateField(kioskPin, { minLength: 4, maxLength: 8 }));
+
+    const kioskPinConfirm = document.querySelector('input[name="kiosk_pin_confirm"]');
+    kioskPinConfirm?.addEventListener('blur', () => {
+        const kioskPinValue = (kioskPin?.value || '').trim();
+        const confirmValue = (kioskPinConfirm.value || '').trim();
+        if (!confirmValue) {
+            setFieldError(kioskPinConfirm, '');
+            return;
+        }
+        if (kioskPinValue && confirmValue !== kioskPinValue) {
+            setFieldError(kioskPinConfirm, 'PINs do not match.');
+            return;
+        }
+        validateField(kioskPinConfirm, { minLength: 4, maxLength: 8 });
+    });
 
     const params = new URLSearchParams(window.location.search);
     const requestedTab = params.get('tab');
