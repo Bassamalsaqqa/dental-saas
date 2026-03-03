@@ -120,7 +120,7 @@
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Logo</label><input type="file" name="clinic_logo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><p class="text-xs text-gray-500 mt-1">PNG or JPEG, max 2 MB. Recommended: 400x400px square.</p></div>
                                     <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Address</label><textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required><?= esc($settings['clinic_address'] ?? '') ?></textarea><p class="text-xs text-gray-500 mt-1">Full address used on invoices and appointment reminders.</p></div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
                             </form>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                                     <div><label class="block text-xs font-semibold text-gray-700 mb-2">Duration</label><select name="duration" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 transition-all"><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="lifetime">Lifetime</option></select></div>
                                     <div><label class="block text-xs font-semibold text-gray-700 mb-2">Reason</label><input type="text" name="reason" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 transition-all" placeholder="Optional reason"></div>
                                 </div>
-                                <div class="flex justify-end"><button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-paper-plane mr-2"></i>Submit Request</button></div>
+                                <div class="flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-paper-plane mr-2"></i>Submit Request</button></div>
                             </form>
                         </div>
                     </div>
@@ -184,7 +184,7 @@
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label><select name="time_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="24" <?= ($settings['time_format'] ?? '') == '24' ? 'selected' : '' ?>>24 Hour</option><option value="12" <?= ($settings['time_format'] ?? '') == '12' ? 'selected' : '' ?>>12 Hour</option></select><p class="text-xs text-gray-500 mt-1">24-hour or 12-hour (AM/PM) display.</p></div>
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">UI Language</label><select name="ui_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="en" <?= ($settings['ui_language'] ?? 'en') == 'en' ? 'selected' : '' ?>>English</option><option value="ar" <?= ($settings['ui_language'] ?? 'en') == 'ar' ? 'selected' : '' ?>>Arabic</option></select><p class="text-xs text-gray-500 mt-1">Changes the interface language. The page will reload after saving.</p></div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
                             </form>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The latest time a new appointment can be booked.</p></div>
                                     <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">Number of simultaneous appointment slots available (1-3).</p></div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
                             </form>
                         </div>
                     </div>
@@ -305,7 +305,7 @@
                                 </div>
 
                                 <div class="flex justify-end">
-                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                    <button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         <i class="fas fa-save mr-2"></i>Save Kiosk Settings
                                     </button>
                                 </div>
@@ -326,7 +326,7 @@
                         <div class="p-8">
                             <div class="flex justify-between items-center mb-8 bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200">
                                 <div><h4 class="text-lg font-bold text-gray-900">Manual Backup</h4><p class="text-sm text-gray-500">Create a full database dump now</p></div>
-                                <form action="<?= base_url('settings/create-backup') ?>" method="POST"><?= csrf_field() ?><button type="submit" class="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg hover:bg-purple-700 transition-all"><i class="fas fa-download mr-2"></i>Create Backup</button></form>
+                                <form action="<?= base_url('settings/create-backup') ?>" method="POST"><?= csrf_field() ?><button type="submit" onclick="setButtonLoading(this, true)" class="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg hover:bg-purple-700 transition-all"><i class="fas fa-download mr-2"></i>Create Backup</button></form>
                             </div>
                             <div class="space-y-4">
                                 <?php if (!empty($backups)): foreach ($backups as $backup): ?>
@@ -400,7 +400,7 @@
                 <!-- Email Tab -->
                 <div id="email-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-blue-100">SMTP configuration</p></div></div><button onclick="saveEmailConfig()" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
+                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-blue-100">SMTP configuration</p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">SMTP Host</label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Your email provider's SMTP server address (e.g. smtp.gmail.com).</p></div>
@@ -416,7 +416,7 @@
                 <!-- SMS Tab -->
                 <div id="sms-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">API Provider JSON</p></div></div><button onclick="saveSmsConfig()" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
+                        <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">API Provider JSON</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
                         <div class="p-8">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Configuration JSON</label>
                             <textarea id="sms_config_json" rows="8" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono text-sm"><?= esc(json_encode($sms_config, JSON_PRETTY_PRINT)) ?></textarea>
@@ -427,7 +427,7 @@
                 <!-- WhatsApp Tab -->
                 <div id="whatsapp-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-600 to-emerald-700 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-green-100">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig()" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all">Save</button></div></div>
+                        <div class="bg-gradient-to-r from-green-600 to-emerald-700 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-green-100">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig(event)" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save</button></div></div>
                         <div class="p-8 space-y-8">
                             <div><label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number ID</label><input type="text" id="wa_phone_number_id" value="<?= esc($wa_config['phone_number_id'] ?? '') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono" placeholder="1234567890"><p class="text-xs text-gray-500 mt-1">Found in your Meta Business Manager > WhatsApp > Phone Number ID.</p></div>
                             <div class="pt-6 border-t border-gray-100">
@@ -455,7 +455,7 @@
                                     <input type="checkbox" name="preferences[<?= $k ?>]" value="1" <?= !empty($notification_settings[$k]) ? 'checked' : '' ?> class="w-6 h-6 text-amber-500">
                                 </div>
                                 <?php endforeach; ?>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg transition-all">Save Preferences</button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg transition-all">Save Preferences</button></div>
                             </form>
                         </div>
                     </div>
@@ -474,7 +474,7 @@
                                     <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_last_n'?'border-red-500 bg-red-50':'border-gray-200' ?>"><input type="radio" name="retention_mode" value="keep_last_n" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_last_n'?'checked':'' ?>><div class="font-bold">Keep Last N</div></label>
                                     <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_x_days'?'border-red-500 bg-red-50':'border-gray-200' ?>"><input type="radio" name="retention_mode" value="keep_x_days" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_x_days'?'checked':'' ?>><div class="font-bold">Time Based</div></label>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">Save Policy</button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">Save Policy</button></div>
                             </form>
                         </div>
                     </div>
@@ -488,6 +488,20 @@
 <script>
 const csrfHeader = '<?= config('Security')->headerName ?>';
 const csrfToken = '<?= csrf_hash() ?>';
+
+function setButtonLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+        btn.dataset.originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+        btn.disabled = true;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+    } else {
+        btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+        btn.disabled = false;
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+}
 
 function showSettingsTab(tabName, options = {}) {
     console.log('Switching to settings tab:', tabName);
@@ -559,24 +573,40 @@ function toggleChannel(clinicId, type, enabled, buttonElement = null) {
     });
 }
 
-function saveEmailConfig() {
+function saveEmailConfig(event) {
+    const btn = event?.currentTarget || null;
+    setButtonLoading(btn, true);
     const config = { smtp_host: document.getElementById('smtp_host').value, smtp_port: document.getElementById('smtp_port').value, smtp_crypto: document.getElementById('smtp_crypto').value, smtp_user: document.getElementById('smtp_user').value };
     const pass = document.getElementById('smtp_pass').value; if (pass) config.smtp_pass = pass;
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=email&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMTP settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMTP settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
+    .finally(() => setButtonLoading(btn, false));
 }
 
-function saveSmsConfig() {
-    let config = {}; try { config = JSON.parse(document.getElementById('sms_config_json').value); } catch(e) { window.showToast?.('error', 'Invalid JSON', 'SMS config must be valid JSON. Check for missing quotes or brackets.'); return; }
+function saveSmsConfig(event) {
+    const btn = event?.currentTarget || null;
+    setButtonLoading(btn, true);
+    let config = {};
+    try {
+        config = JSON.parse(document.getElementById('sms_config_json').value);
+    } catch(e) {
+        window.showToast?.('error', 'Invalid JSON', 'SMS config must be valid JSON. Check for missing quotes or brackets.');
+        setButtonLoading(btn, false);
+        return;
+    }
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=sms&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
+    .finally(() => setButtonLoading(btn, false));
 }
 
-function saveWhatsAppConfig() {
+function saveWhatsAppConfig(event) {
+    const btn = event?.currentTarget || null;
+    setButtonLoading(btn, true);
     const messageTemplates = { appointment_reminder: document.getElementById('tmpl_appointment_reminder').value, appointment_confirmation: document.getElementById('tmpl_appointment_confirmation').value, follow_up: document.getElementById('tmpl_follow_up').value, payment_reminder: document.getElementById('tmpl_payment_reminder').value };
     const config = { phone_number_id: document.getElementById('wa_phone_number_id').value, message_templates: messageTemplates };
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=whatsapp&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'WhatsApp settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'WhatsApp settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
+    .finally(() => setButtonLoading(btn, false));
 }
 
 function resetTemplatesToDefault() {
