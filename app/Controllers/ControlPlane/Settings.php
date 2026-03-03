@@ -3,9 +3,12 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
+use App\Models\ClinicModel;
 use App\Models\ControlPlaneAuditModel;
 use App\Models\EmailTemplateModel;
+use App\Models\PlatformSecretModel;
 use App\Models\SettingsModel;
+use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\ControlPlaneAuditService;
 use App\Services\RetentionService;
 
@@ -29,10 +32,85 @@ class Settings extends BaseController
         ]);
 
         $settings = $this->getPlatformSettings();
+        $request = service('request');
+
+        $statusFilter = strtolower(trim((string) ($request ? $request->getGet('status') : '')));
+        $search = trim((string) ($request ? $request->getGet('q') : ''));
+        $activeTemplateId = (int) ($request ? $request->getGet('template_id') : 0);
+        $templateModel = new EmailTemplateModel();
+        $templateQuery = $templateModel->orderBy('id', 'DESC');
+        if (in_array($statusFilter, ['active', 'draft'], true)) {
+            $templateQuery = $templateQuery->where('status', $statusFilter);
+        }
+        if ($search !== '') {
+            $templateQuery = $templateQuery->groupStart()
+                ->like('name', $search)
+                ->orLike('slug', $search)
+                ->orLike('subject', $search)
+                ->groupEnd();
+        }
+        $templates = $templateQuery->findAll();
+        $totalTemplates = $templateModel->countAllResults();
+        $activeTemplates = (new EmailTemplateModel())->where('status', 'active')->countAllResults();
+        $draftTemplates = (new EmailTemplateModel())->where('status', 'draft')->countAllResults();
+        $activeTemplate = $activeTemplateId ? $templateModel->find($activeTemplateId) : null;
+
+        $secretModel = new PlatformSecretModel();
+        $secretKeys = ['wa_access_token', 'wa_app_secret', 'wa_verify_token', 'wa_phone_number_id'];
+        $secretRows = $secretModel->listMetadata($secretKeys);
+        $secretsByKey = array_column($secretRows, null, 'secret_key');
+        $waSecrets = [];
+        foreach ($secretKeys as $key) {
+            $waSecrets[] = $secretsByKey[$key] ?? [
+                'secret_key' => $key,
+                'rotated_at' => null,
+                'rotated_by' => null,
+                'rotation_note' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'missing' => true,
+            ];
+        }
+
+        $policyModel = new WhatsAppTenantPolicyModel();
+        $clinicModel = new ClinicModel();
+        $clinics = $clinicModel->select('id, name')->orderBy('name', 'ASC')->findAll();
+        $existingPolicies = $policyModel->getControlPlanePoliciesWithClinic(500);
+        $policiesById = array_column($existingPolicies, null, 'clinic_id');
+        $waPolicies = [];
+        foreach ($clinics as $c) {
+            $waPolicies[] = $policiesById[$c['id']] ?? [
+                'clinic_id' => $c['id'],
+                'clinic_name' => $c['name'],
+                'daily_limit' => 50,
+                'monthly_limit' => 1000,
+                'per_patient_daily_limit' => 3,
+                'per_hour_limit' => 20,
+                'suspended' => 0,
+                'suspended_reason' => null,
+                'updated_at' => null,
+                'created_at' => null,
+                'is_virtual' => true,
+            ];
+        }
 
         return view('control_plane/settings', [
             'title' => 'Settings',
             'settings' => $settings,
+            'templates' => $templates,
+            'activeTemplate' => $activeTemplate,
+            'templateStats' => [
+                'total' => $totalTemplates,
+                'active' => $activeTemplates,
+                'draft' => $draftTemplates,
+                'filtered' => count($templates),
+            ],
+            'templateFilters' => [
+                'status' => $statusFilter,
+                'q' => $search,
+            ],
+            'wa_secrets' => $waSecrets,
+            'wa_policies' => $waPolicies,
         ]);
     }
 
@@ -419,7 +497,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $templateId, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/email-templates?template_id=' . $templateId . '#template-editor'))
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . $templateId . '#template-editor'))
             ->with('success', 'Email template created.');
     }
 
@@ -470,7 +548,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $id, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/email-templates?template_id=' . $id . '#template-editor'))
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . $id . '#template-editor'))
             ->with('success', 'Email template updated.');
     }
 }

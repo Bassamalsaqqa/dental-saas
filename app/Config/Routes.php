@@ -75,7 +75,9 @@ $routes->group('controlplane', function ($routes) {
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('whatsapp', 'ControlPlane\WhatsApp::index');
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
-        $routes->get('email-templates', 'ControlPlane\Settings::emailTemplates'); // CP-UX-25-MODULAR
+        $routes->get('email-templates', static function () {
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates'), 301);
+        }); // CP-UX-25-MODULAR
         $routes->post('exit', 'ControlPlane::exit');
         $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
         $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');

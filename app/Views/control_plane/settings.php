@@ -53,6 +53,10 @@
                             <i class="fas fa-shield-alt w-5 h-5 mr-3 text-slate-400"></i>
                             Governance
                         </button>
+                        <button onclick="showTab('communications')" id="nav-communications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+                            <i class="fas fa-satellite-dish w-5 h-5 mr-3 text-slate-400"></i>
+                            Communications
+                        </button>
                     </nav>
                 </div>
             </div>
@@ -413,9 +417,175 @@
                                     <a href="<?= base_url('controlplane/plans') ?>" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-all">
                                         <i class="fas fa-layer-group mr-2"></i>Manage Plans
                                     </a>
-                                    <a href="<?= base_url('controlplane/email-templates') ?>" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all">
+                                    <a href="<?= base_url('controlplane/settings?tab=communications&subtab=email-templates') ?>" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all">
                                         <i class="fas fa-envelope mr-2"></i>Email Templates
                                     </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-communications" class="settings-content hidden">
+                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-satellite-dish text-sky-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Communications</h3>
+                                    <p class="text-slate-300 text-sm">Email templates and WhatsApp platform configuration</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b border-slate-100 px-8 pt-4">
+                            <div class="flex space-x-1 overflow-x-auto pb-0">
+                                <button onclick="showCommsSubTab('email-templates')" id="comms-subtab-email-templates" class="comms-subtab px-5 py-2.5 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                                    <i class="fas fa-envelope-open-text mr-2"></i>Email Templates
+                                </button>
+                                <button onclick="showCommsSubTab('whatsapp')" id="comms-subtab-whatsapp" class="comms-subtab px-5 py-2.5 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                                    <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-8">
+                            <div id="comms-panel-email-templates" class="comms-panel space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50"><p class="text-xs text-slate-500">Total</p><p class="text-2xl font-black text-slate-900"><?= number_format($templateStats['total'] ?? 0) ?></p></div>
+                                    <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50"><p class="text-xs text-emerald-600">Active</p><p class="text-2xl font-black text-emerald-700"><?= number_format($templateStats['active'] ?? 0) ?></p></div>
+                                    <div class="p-4 rounded-xl border border-amber-200 bg-amber-50"><p class="text-xs text-amber-600">Draft</p><p class="text-2xl font-black text-amber-700"><?= number_format($templateStats['draft'] ?? 0) ?></p></div>
+                                    <div class="p-4 rounded-xl border border-blue-200 bg-blue-50"><p class="text-xs text-blue-600">Filtered</p><p class="text-2xl font-black text-blue-700"><?= number_format($templateStats['filtered'] ?? 0) ?></p></div>
+                                </div>
+
+                                <form method="get" action="<?= base_url('controlplane/settings') ?>" class="flex flex-wrap gap-3 items-end">
+                                    <input type="hidden" name="tab" value="communications">
+                                    <input type="hidden" name="subtab" value="email-templates">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search</label>
+                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="px-3 py-2 border border-slate-300 rounded-lg text-sm w-64" placeholder="Search templates...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
+                                        <select name="status" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+                                            <?php $currentTemplateStatus = $templateFilters['status'] ?? ''; ?>
+                                            <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>>All</option>
+                                            <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>>Active</option>
+                                            <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm font-semibold">Apply</button>
+                                </form>
+
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                                        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 text-sm font-bold text-slate-800">Template Library</div>
+                                        <div class="max-h-[28rem] overflow-y-auto divide-y divide-slate-100">
+                                            <?php if (empty($templates)): ?>
+                                                <div class="p-6 text-sm text-slate-500">No templates found.</div>
+                                            <?php else: ?>
+                                                <?php foreach ($templates as $template): ?>
+                                                    <a href="<?= base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . (int) $template['id']) ?>" class="block p-4 hover:bg-slate-50 transition-colors">
+                                                        <p class="text-sm font-semibold text-slate-900"><?= esc($template['name']) ?></p>
+                                                        <p class="text-xs text-slate-500"><?= esc($template['slug']) ?></p>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <?php $editorTemplate = $activeTemplate ?? null; ?>
+                                    <div class="border border-slate-200 rounded-xl p-4" id="template-editor">
+                                        <h4 class="text-sm font-bold text-slate-800 mb-4"><?= $editorTemplate ? 'Edit Template' : 'Create Template' ?></h4>
+                                        <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-3">
+                                            <?= csrf_field() ?>
+                                            <div><label class="block text-xs font-bold text-slate-500 mb-1">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 mb-1">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 mb-1">Subject</label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 mb-1">HTML Body</label><textarea name="body_html" rows="6" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 mb-1">Text Body</label><textarea name="body_text" rows="4" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
+                                                <select name="status" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                                                    <option value="draft" <?= (($editorTemplate['status'] ?? 'draft') === 'draft') ? 'selected' : '' ?>>Draft</option>
+                                                    <option value="active" <?= (($editorTemplate['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-lg">Save Template</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="comms-panel-whatsapp" class="comms-panel hidden space-y-6">
+                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-bold text-emerald-800 text-sm">WhatsApp Live Operations</h4>
+                                        <p class="text-xs text-emerald-600 mt-0.5">Real-time delivery stats, journal, and opt-out monitoring</p>
+                                    </div>
+                                    <a href="<?= base_url('controlplane/whatsapp') ?>" class="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-all">
+                                        <i class="fas fa-external-link-alt mr-1.5"></i>Open Dashboard
+                                    </a>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-100">
+                                    <h4 class="text-sm font-bold text-slate-800 mb-3">API Credentials</h4>
+                                    <div class="space-y-4">
+                                        <?php foreach (($wa_secrets ?? []) as $s): ?>
+                                            <div class="p-4 border border-slate-200 rounded-xl bg-white">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <code class="text-xs font-black text-blue-600"><?= esc($s['secret_key']) ?></code>
+                                                    <span class="text-[10px] font-black <?= !empty($s['missing']) ? 'text-rose-600' : 'text-emerald-600' ?>"><?= !empty($s['missing']) ? 'MISSING' : 'READY' ?></span>
+                                                </div>
+                                                <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="secret_key" value="<?= esc($s['secret_key']) ?>">
+                                                    <div class="relative md:col-span-1">
+                                                        <input type="password" name="new_value" required class="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg text-sm font-mono" placeholder="Paste new secret value">
+                                                        <button type="button" onclick="toggleSecretVis(this)" class="absolute right-3 top-2.5 text-slate-400"><i class="fas fa-eye text-sm"></i></button>
+                                                    </div>
+                                                    <input type="text" name="rotation_note" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm md:col-span-1" placeholder="Rotation note">
+                                                    <button type="submit" class="px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-lg md:col-span-1">Rotate Key</button>
+                                                </form>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-100">
+                                    <h4 class="text-sm font-bold text-slate-800 mb-3">Tenant Rate Limits</h4>
+                                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-slate-50">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Clinic</th>
+                                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Daily</th>
+                                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Monthly</th>
+                                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Per Hour</th>
+                                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                            <?php foreach (($wa_policies ?? []) as $pol): ?>
+                                                <tr>
+                                                    <td class="px-4 py-3"><?= esc($pol['clinic_name']) ?></td>
+                                                    <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="daily_limit" value="<?= (int) $pol['daily_limit'] ?>" class="w-20 px-2 py-1 border border-slate-300 rounded text-xs"></td>
+                                                    <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="monthly_limit" value="<?= (int) $pol['monthly_limit'] ?>" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs"></td>
+                                                    <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="per_hour_limit" value="<?= (int) $pol['per_hour_limit'] ?>" class="w-20 px-2 py-1 border border-slate-300 rounded text-xs"></td>
+                                                    <td class="px-4 py-3">
+                                                        <form id="policy-form-<?= (int) $pol['clinic_id'] ?>" action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post">
+                                                            <?= csrf_field() ?>
+                                                            <input type="hidden" name="clinic_id" value="<?= (int) $pol['clinic_id'] ?>">
+                                                            <button type="submit" class="px-3 py-1.5 bg-slate-700 text-white rounded text-xs font-semibold">Save</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -456,6 +626,7 @@ function showTab(tabName, options = {}) {
         platform: 'Platform Profile',
         'clinic-defaults': 'Clinic Defaults',
         governance: 'Governance',
+        communications: 'Communications',
     };
     if (!document.getElementById('tab-' + tabName)) {
         tabName = 'platform';
@@ -466,6 +637,11 @@ function showTab(tabName, options = {}) {
     const target = document.getElementById('tab-' + tabName);
     if (target) {
         target.classList.remove('hidden');
+    }
+
+    if (tabName === 'communications') {
+        const subtab = new URLSearchParams(window.location.search).get('subtab') || 'email-templates';
+        showCommsSubTab(subtab, { updateUrl: false });
     }
 
     const navButtons = document.querySelectorAll('[id^="nav-"]');
@@ -501,6 +677,33 @@ function showTab(tabName, options = {}) {
 
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tabName);
+    if (tabName !== 'communications') {
+        url.searchParams.delete('subtab');
+    }
+    history.pushState(null, '', url.toString());
+}
+
+function showCommsSubTab(name, options = {}) {
+    document.querySelectorAll('.comms-panel').forEach(panel => panel.classList.add('hidden'));
+    document.querySelectorAll('.comms-subtab').forEach(btn => {
+        btn.classList.remove('border-blue-600', 'text-blue-600', 'bg-blue-50');
+        btn.classList.add('border-transparent', 'text-slate-500');
+    });
+
+    const panel = document.getElementById('comms-panel-' + name);
+    if (panel) panel.classList.remove('hidden');
+    const btn = document.getElementById('comms-subtab-' + name);
+    if (btn) {
+        btn.classList.add('border-blue-600', 'text-blue-600', 'bg-blue-50');
+        btn.classList.remove('border-transparent', 'text-slate-500');
+    }
+
+    if (options.updateUrl === false) {
+        return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'communications');
+    url.searchParams.set('subtab', name);
     history.pushState(null, '', url.toString());
 }
 
@@ -660,6 +863,19 @@ window.addEventListener('popstate', () => {
     const urlTab = new URLSearchParams(window.location.search).get('tab') || 'platform';
     showTab(urlTab, { updateUrl: false });
 });
+
+function toggleSecretVis(btn) {
+    const input = btn.closest('.relative')?.querySelector('input[name="new_value"]');
+    const icon = btn.querySelector('i');
+    if (!input || !icon) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash text-sm';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye text-sm';
+    }
+}
 </script>
 <?= $this->endSection() ?>
 

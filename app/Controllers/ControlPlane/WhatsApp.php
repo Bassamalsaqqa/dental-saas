@@ -29,17 +29,22 @@ class WhatsApp extends BaseController
 
     public function index(string $activeTab = 'dashboard')
     {
+        $requestedTab = strtolower((string) ($this->request->getGet('tab') ?? $activeTab));
+        if (in_array($requestedTab, ['secrets', 'policies'], true)) {
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'));
+        }
+        if (!in_array($requestedTab, ['dashboard', 'journal'], true)) {
+            $requestedTab = 'dashboard';
+        }
+
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/whatsapp',
-            'tab' => $activeTab
+            'tab' => $requestedTab
         ]);
 
         $attemptModel = new NotificationAttemptModel();
         $eventModel = new WhatsAppDeliveryEventModel();
         $optoutModel = new WhatsAppOptoutModel();
-        $policyModel = new WhatsAppTenantPolicyModel();
-        $clinicModel = new ClinicModel();
-        $secretModel = new PlatformSecretModel();
 
         $since = date('Y-m-d H:i:s', time() - 86400);
         $attemptCounts = $attemptModel->getControlPlaneWhatsAppCountsSince($since);
@@ -50,64 +55,12 @@ class WhatsApp extends BaseController
             ? round(($attemptCounts['failed'] / $attemptCounts['total']) * 100, 2)
             : 0.0;
 
-        $secretRows = $secretModel->listMetadata(self::ALLOWED_SECRET_KEYS);
-        $secretsByKey = [];
-        foreach ($secretRows as $row) {
-            $secretsByKey[$row['secret_key']] = $row;
-        }
-
-        $secrets = [];
-        foreach (self::ALLOWED_SECRET_KEYS as $key) {
-            $secrets[] = $secretsByKey[$key] ?? [
-                'secret_key' => $key,
-                'rotated_at' => null,
-                'rotated_by' => null,
-                'rotation_note' => null,
-                'created_at' => null,
-                'updated_at' => null,
-                'missing' => true,
-            ];
-        }
-
-        $clinics = $clinicModel->select('id, name')->orderBy('name', 'ASC')->findAll();
-        
-        // Merge policies with clinics to ensure all clinics show in the registry
-        $existingPolicies = $policyModel->getControlPlanePoliciesWithClinic(500);
-        $policiesById = [];
-        foreach ($existingPolicies as $p) {
-            $policiesById[$p['clinic_id']] = $p;
-        }
-
-        $mergedPolicies = [];
-        foreach ($clinics as $c) {
-            if (isset($policiesById[$c['id']])) {
-                $mergedPolicies[] = $policiesById[$c['id']];
-            } else {
-                $mergedPolicies[] = [
-                    'clinic_id' => $c['id'],
-                    'clinic_name' => $c['name'],
-                    'daily_limit' => 50,
-                    'monthly_limit' => 1000,
-                    'per_patient_daily_limit' => 3,
-                    'per_hour_limit' => 20,
-                    'suspended' => 0,
-                    'suspended_reason' => null,
-                    'updated_at' => null,
-                    'created_at' => null,
-                    'is_virtual' => true
-                ];
-            }
-        }
-
         return $this->view('control_plane/whatsapp', [
             'title' => 'WhatsApp Operations',
-            'active_tab' => $activeTab,
+            'active_tab' => $requestedTab,
             'recent_attempts' => $attemptModel->getControlPlaneRecentWhatsAppAttempts(50),
             'recent_events' => $eventModel->getRecentEvents(50),
             'recent_optouts' => $optoutModel->getControlPlaneRecentOptouts(50),
-            'policies' => $mergedPolicies,
-            'clinics' => $clinics,
-            'secrets' => $secrets,
             'stats' => [
                 'attempts_24h_total' => $attemptCounts['total'],
                 'attempts_24h_failed' => $attemptCounts['failed'],
@@ -126,12 +79,12 @@ class WhatsApp extends BaseController
         $rotationNote = trim((string) $this->request->getPost('rotation_note'));
 
         if (!in_array($secretKey, self::ALLOWED_SECRET_KEYS, true)) {
-            return redirect()->to(base_url('controlplane/whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
                 ->with('error', 'Invalid secret key.');
         }
 
         if ($newValue === '') {
-            return redirect()->to(base_url('controlplane/whatsapp?tab=secrets'))
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
                 ->with('error', 'Secret value is required.');
         }
 
@@ -151,7 +104,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/whatsapp?tab=secrets'))
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
             ->with('success', 'Secret rotated successfully.');
     }
 
@@ -159,7 +112,7 @@ class WhatsApp extends BaseController
     {
         $clinicId = (int) $this->request->getPost('clinic_id');
         if ($clinicId <= 0) {
-            return redirect()->to(base_url('controlplane/whatsapp?tab=policies'))
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
                 ->with('error', 'Clinic is required.');
         }
 
@@ -173,7 +126,7 @@ class WhatsApp extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->to(base_url('controlplane/whatsapp?tab=policies'))
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
                 ->with('error', implode(' ', $this->validator->getErrors()));
         }
 
@@ -208,7 +161,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/whatsapp?tab=policies'))
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
             ->with('success', 'WhatsApp tenant policy updated.');
     }
 
@@ -219,7 +172,7 @@ class WhatsApp extends BaseController
         $reason = trim((string) $this->request->getPost('suspended_reason'));
 
         if ($clinicId <= 0) {
-            return redirect()->to(base_url('controlplane/whatsapp?tab=policies'))
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
                 ->with('error', 'Clinic is required.');
         }
 
@@ -244,7 +197,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/whatsapp?tab=policies'))
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
             ->with('success', $suspend ? 'Emergency pause enabled.' : 'Emergency pause cleared.');
     }
 }

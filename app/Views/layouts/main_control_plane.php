@@ -191,13 +191,6 @@
                                     <span class="relative z-10"><?= lang('UI.cpSystemActivity') ?></span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="<?= base_url('controlplane/email-templates') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-envelope-open-text w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/email-templates') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
-                                    <span class="relative z-10"><?= lang('UI.cpTemplates') ?></span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
 
