@@ -263,7 +263,7 @@
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="kiosk_enabled" value="1" class="sr-only kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         <span class="kiosk-toggle-track w-11 h-6 rounded-full relative transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'bg-blue-500' : 'bg-gray-200' ?>">
-                                            <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'translate-x-5 bg-blue-500' : '' ?>"></span>
+                                            <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'bg-blue-500' : '' ?>" style="transform: <?= !empty($settings['kiosk_enabled']) ? 'translateX(1.25rem)' : 'translateX(0)' ?>;"></span>
                                         </span>
                                     </label>
                                 </div>
@@ -352,7 +352,7 @@
                                         <?php foreach (['email', 'sms', 'whatsapp'] as $type): 
                                             $ch = null; foreach ($clinic['channels'] as $c) if ($c['channel_type'] === $type) { $ch = $c; break; }
                                             $enabled = $ch && $ch['enabled_by_superadmin'] == 1; ?>
-                                        <td class="py-4"><button onclick="toggleChannel(<?= $clinic['id'] ?>, '<?= $type ?>', <?= $enabled ? 0 : 1 ?>)" class="w-10 h-6 rounded-full transition-all <?= $enabled ? 'bg-green-500' : 'bg-gray-300' ?>"><div class="w-4 h-4 bg-white rounded-full transition-all ml-1 <?= $enabled ? 'translate-x-4' : '' ?>"></div></button></td>
+                                        <td class="py-4"><button onclick="toggleChannel(<?= $clinic['id'] ?>, '<?= $type ?>', <?= $enabled ? 0 : 1 ?>, this)" class="w-10 h-6 rounded-full transition-all <?= $enabled ? 'bg-green-500' : 'bg-gray-300' ?>"><div class="w-4 h-4 bg-white rounded-full transition-all ml-1 <?= $enabled ? 'translate-x-4' : '' ?>"></div></button></td>
                                         <?php endforeach; ?>
                                     </tr><?php endforeach; ?>
                                 </tbody></table></div>
@@ -466,66 +466,100 @@
 const csrfHeader = '<?= config('Security')->headerName ?>';
 const csrfToken = '<?= csrf_hash() ?>';
 
-function showSettingsTab(tabName) {
+function showSettingsTab(tabName, options = {}) {
     console.log('Switching to settings tab:', tabName);
-    
-    // Hide all tab contents
+    const communicationTabs = ['channels', 'email', 'sms', 'whatsapp', 'notifications'];
+    const isCommunicationTab = communicationTabs.includes(tabName);
+
+    if (!document.getElementById(tabName + '-tab')) {
+        tabName = 'clinic';
+    }
+
     document.querySelectorAll('.settings-tab').forEach(tab => {
         tab.classList.add('hidden');
     });
-    
-    // Reset all tab buttons to inactive state
+
     document.querySelectorAll('[id^="tab-"]').forEach(btn => {
         btn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
         btn.classList.add('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
     });
-    
-    // Show selected tab
+
     const targetTab = document.getElementById(tabName + '-tab');
     if (targetTab) {
         targetTab.classList.remove('hidden');
     }
-    
-    // Add active styling to clicked button
+
     const activeButton = document.getElementById('tab-' + tabName);
     if (activeButton) {
         activeButton.classList.remove('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
         activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
     }
+
+    if (options.updateUrl === false) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    if (isCommunicationTab) {
+        url.searchParams.set('tab', 'communications');
+        url.searchParams.set('subtab', tabName);
+    } else {
+        url.searchParams.set('tab', tabName);
+        url.searchParams.delete('subtab');
+    }
+    history.pushState(null, '', url.toString());
 }
 
-function toggleChannel(clinicId, type, enabled) {
+function toggleChannel(clinicId, type, enabled, buttonElement = null) {
     fetch('<?= base_url('settings/updateChannelStatus') ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken },
         body: `clinic_id=${clinicId}&channel_type=${type}&enabled=${enabled}`
-    }).then(res => res.json()).then(data => { if (data.success) location.reload(); else alert('Operation failed'); });
+    }).then(res => res.json()).then(data => {
+        if (!data.success) {
+            window.showToast?.('error', 'Error', data.message || 'Operation failed. Please try again.');
+            return;
+        }
+
+        const isNowEnabled = enabled === 1;
+        if (buttonElement) {
+            buttonElement.className = `w-10 h-6 rounded-full transition-all ${isNowEnabled ? 'bg-green-500' : 'bg-gray-300'}`;
+            const knob = buttonElement.querySelector('div');
+            if (knob) {
+                knob.className = `w-4 h-4 bg-white rounded-full transition-all ml-1 ${isNowEnabled ? 'translate-x-4' : ''}`;
+            }
+            buttonElement.setAttribute('onclick', `toggleChannel(${clinicId}, '${type}', ${isNowEnabled ? 0 : 1}, this)`);
+        }
+        window.showToast?.('success', 'Updated', 'Channel status updated successfully.');
+    }).catch(() => {
+        window.showToast?.('error', 'Error', 'Operation failed. Please try again.');
+    });
 }
 
 function saveEmailConfig() {
     const config = { smtp_host: document.getElementById('smtp_host').value, smtp_port: document.getElementById('smtp_port').value, smtp_crypto: document.getElementById('smtp_crypto').value, smtp_user: document.getElementById('smtp_user').value };
     const pass = document.getElementById('smtp_pass').value; if (pass) config.smtp_pass = pass;
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=email&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMTP settings updated'); else alert(data.message); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMTP settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
 }
 
 function saveSmsConfig() {
-    let config = {}; try { config = JSON.parse(document.getElementById('sms_config_json').value); } catch(e) { alert('Invalid JSON'); return; }
+    let config = {}; try { config = JSON.parse(document.getElementById('sms_config_json').value); } catch(e) { window.showToast?.('error', 'Invalid JSON', 'SMS config must be valid JSON. Check for missing quotes or brackets.'); return; }
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=sms&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else alert(data.message); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
 }
 
 function saveWhatsAppConfig() {
     const messageTemplates = { appointment_reminder: document.getElementById('tmpl_appointment_reminder').value, appointment_confirmation: document.getElementById('tmpl_appointment_confirmation').value, follow_up: document.getElementById('tmpl_follow_up').value, payment_reminder: document.getElementById('tmpl_payment_reminder').value };
     const config = { phone_number_id: document.getElementById('wa_phone_number_id').value, message_templates: messageTemplates };
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=whatsapp&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'WhatsApp settings updated'); else alert(data.message); });
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'WhatsApp settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); });
 }
 
 function resetTemplatesToDefault() {
-    if(!confirm('Reset templates?')) return;
     const defaults = { appointment_reminder: "تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}.", appointment_confirmation: "تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}.", follow_up: "نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة.", payment_reminder: "تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}." };
     Object.entries(defaults).forEach(([k,v]) => { const el = document.getElementById('tmpl_' + k); if(el) el.value = v; });
+    window.showToast?.('success', 'Updated', 'Default templates loaded. Click Save to apply.');
 }
 
 function copyKioskLink() {
@@ -551,7 +585,15 @@ function copyKioskLink() {
 
 function testWhatsAppChannel() {
     fetch('<?= base_url('settings/testWhatsAppChannel') ?>', { method: 'POST', headers: { [csrfHeader]: csrfToken, 'X-Requested-With': 'XMLHttpRequest' } })
-    .then(res => res.json()).then(data => { alert(data.message); });
+    .then(res => res.json()).then(data => {
+        if (data.success) {
+            window.showToast?.('success', 'Test Sent', data.message || 'WhatsApp channel test succeeded.');
+            return;
+        }
+        window.showToast?.('error', 'Test Failed', data.message || 'WhatsApp channel test failed.');
+    }).catch(() => {
+        window.showToast?.('error', 'Test Failed', 'WhatsApp channel test failed.');
+    });
 }
 
 function downloadBackup(filename) { window.location.href = `<?= base_url('settings/download-backup/') ?>${filename}`; }
@@ -574,11 +616,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const syncToggleVisual = () => {
             if (!knob || !track) return;
             if (kioskToggle.checked) {
-                knob.classList.add('translate-x-5', 'bg-blue-500');
+                knob.style.transform = 'translateX(1.25rem)';
+                knob.classList.add('bg-blue-500');
                 track.classList.remove('bg-gray-200');
                 track.classList.add('bg-blue-500');
             } else {
-                knob.classList.remove('translate-x-5', 'bg-blue-500');
+                knob.style.transform = 'translateX(0)';
+                knob.classList.remove('bg-blue-500');
                 track.classList.remove('bg-blue-500');
                 track.classList.add('bg-gray-200');
             }
@@ -618,8 +662,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (typeof $ !== 'undefined' && $.fn.select2) { $('select').select2({ theme: 'default', width: '100%' }); }
-    const activeTab = '<?= $active_tab ?? 'clinic' ?>';
-    showSettingsTab(activeTab);
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get('tab');
+    const requestedSubTab = params.get('subtab');
+    const fallbackTab = '<?= $active_tab ?? 'clinic' ?>';
+    let initialTab = requestedTab || fallbackTab;
+    if (requestedTab === 'communications') {
+        initialTab = requestedSubTab || 'channels';
+    }
+    showSettingsTab(initialTab, { updateUrl: false });
+});
+
+window.addEventListener('popstate', function() {
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get('tab');
+    const requestedSubTab = params.get('subtab');
+    let targetTab = requestedTab || 'clinic';
+    if (requestedTab === 'communications') {
+        targetTab = requestedSubTab || 'channels';
+    }
+    showSettingsTab(targetTab, { updateUrl: false });
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
