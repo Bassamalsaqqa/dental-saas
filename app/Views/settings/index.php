@@ -515,10 +515,36 @@
                 <!-- SMS Tab -->
                 <div id="sub-sms" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">API Provider JSON</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
-                        <div class="p-8">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Configuration JSON</label>
-                            <textarea id="sms_config_json" rows="8" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono text-sm"><?= esc(json_encode($sms_config, JSON_PRETTY_PRINT)) ?></textarea>
+                        <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">Provider credentials and sender configuration</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
+                        <div class="p-8 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">SMS Provider</label>
+                                    <select id="sms_provider" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl">
+                                        <option value="">Select provider</option>
+                                        <option value="unifonic">Unifonic</option>
+                                        <option value="twilio">Twilio</option>
+                                        <option value="msegat">Msegat</option>
+                                        <option value="custom">Custom (API)</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">Your SMS gateway provider.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">API Key / Token</label>
+                                    <input type="password" id="sms_api_key" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="********" autocomplete="new-password">
+                                    <p class="text-xs text-gray-500 mt-1">Leave blank to keep current key.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sender ID / From</label>
+                                    <input type="text" id="sms_sender_id" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="ClinicName">
+                                    <p class="text-xs text-gray-500 mt-1">Alphanumeric sender name (max 11 chars for most providers).</p>
+                                </div>
+                                <div id="sms_base_url_wrap">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Base API URL</label>
+                                    <input type="url" id="sms_base_url" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="https://api.provider.com/v1">
+                                    <p class="text-xs text-gray-500 mt-1">Required for Custom provider only.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -754,14 +780,16 @@ function saveEmailConfig(event) {
 function saveSmsConfig(event) {
     const btn = event?.currentTarget || null;
     setButtonLoading(btn, true);
-    let config = {};
-    try {
-        config = JSON.parse(document.getElementById('sms_config_json').value);
-    } catch(e) {
-        window.showToast?.('error', 'Invalid JSON', 'SMS config must be valid JSON. Check for missing quotes or brackets.');
-        setButtonLoading(btn, false);
-        return;
+    const config = {
+        provider: document.getElementById('sms_provider')?.value || '',
+        sender_id: document.getElementById('sms_sender_id')?.value || '',
+        base_url: document.getElementById('sms_base_url')?.value || '',
+    };
+    const apiKey = document.getElementById('sms_api_key')?.value || '';
+    if (apiKey) {
+        config.api_key = apiKey;
     }
+
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=sms&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
     .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
     .finally(() => setButtonLoading(btn, false));
@@ -883,6 +911,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (typeof $ !== 'undefined' && $.fn.select2) { $('select').select2({ theme: 'default', width: '100%' }); }
+    const smsConfig = <?= json_encode($sms_config ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    const smsProvider = document.getElementById('sms_provider');
+    const smsSenderId = document.getElementById('sms_sender_id');
+    const smsBaseUrl = document.getElementById('sms_base_url');
+    const smsBaseUrlWrap = document.getElementById('sms_base_url_wrap');
+    if (smsProvider && smsSenderId && smsBaseUrl && smsBaseUrlWrap) {
+        if (smsConfig.provider) smsProvider.value = smsConfig.provider;
+        if (smsConfig.sender_id) smsSenderId.value = smsConfig.sender_id;
+        if (smsConfig.base_url) smsBaseUrl.value = smsConfig.base_url;
+
+        const syncSmsBaseUrlVisibility = () => {
+            const isCustom = smsProvider.value === 'custom';
+            smsBaseUrlWrap.classList.toggle('hidden', !isCustom);
+            smsBaseUrl.disabled = !isCustom;
+        };
+        syncSmsBaseUrlVisibility();
+        smsProvider.addEventListener('change', syncSmsBaseUrlVisibility);
+    }
+
     const uiLanguageSelect = document.querySelector('select[name="ui_language"]');
     const langChangeNotice = document.getElementById('lang-change-notice');
     if (uiLanguageSelect && langChangeNotice) {
