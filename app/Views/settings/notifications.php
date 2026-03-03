@@ -7,11 +7,10 @@
             <h1 class="text-3xl font-bold text-gray-900">Notification Preferences</h1>
             <p class="text-gray-600 mt-1">Manage your personal notification settings for this clinic.</p>
         </div>
-        <a href="<?= base_url('settings') ?>" class="text-blue-600 hover:text-blue-800">Back to Settings</a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-2xl">
-        <form action="<?= base_url('notifications/update') ?>" method="post">
+        <form action="<?= base_url('settings/updateNotifications') ?>" method="post">
             <?= csrf_field() ?>
 
             <!-- System Notifications -->

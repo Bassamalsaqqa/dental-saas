@@ -26,6 +26,42 @@
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
     }
     .settings-tab.hidden { display: none !important; }
+    .settings-toggle {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+    .settings-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .settings-toggle-slider {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        background-color: #d1d5db;
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+    }
+    .settings-toggle-slider::before {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 4px;
+        top: 4px;
+        border-radius: 9999px;
+        background-color: #fff;
+        transition: transform 0.2s ease;
+    }
+    .settings-toggle input:checked + .settings-toggle-slider {
+        background-color: #3b82f6;
+    }
+    .settings-toggle input:checked + .settings-toggle-slider::before {
+        transform: translateX(20px);
+    }
 </style>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -447,14 +483,63 @@
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-cog text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Personal Alerts</h3><p class="text-amber-100">Your notification preferences</p></div></div></div>
                         <div class="p-8">
-                            <form action="<?= base_url('settings/updateNotifications') ?>" method="POST" class="space-y-4">
+                            <form action="<?= base_url('settings/updateNotifications') ?>" method="POST" class="space-y-8">
                                 <?= csrf_field() ?>
-                                <?php foreach (['email_notifications' => 'Email Alerts', 'sms_notifications' => 'SMS Alerts', 'appointment_created' => 'New Appointments', 'low_stock_alerts' => 'Inventory Alerts'] as $k => $l): ?>
-                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <span class="font-bold text-gray-700"><?= $l ?></span>
-                                    <input type="checkbox" name="preferences[<?= $k ?>]" value="1" <?= !empty($notification_settings[$k]) ? 'checked' : '' ?> class="w-6 h-6 text-amber-500">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <i class="fas fa-bell text-blue-500 mr-2"></i>System Alerts
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p class="font-bold text-gray-800">Email Alerts</p>
+                                                <p class="text-xs text-gray-500 mt-1">Receive updates via email.</p>
+                                            </div>
+                                            <label class="settings-toggle">
+                                                <input type="checkbox" name="preferences[email_notifications]" value="1" <?= !empty($notification_settings['email_notifications']) ? 'checked' : '' ?>>
+                                                <span class="settings-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p class="font-bold text-gray-800">SMS Alerts</p>
+                                                <p class="text-xs text-gray-500 mt-1">Receive short critical updates by SMS.</p>
+                                            </div>
+                                            <label class="settings-toggle">
+                                                <input type="checkbox" name="preferences[sms_notifications]" value="1" <?= !empty($notification_settings['sms_notifications']) ? 'checked' : '' ?>>
+                                                <span class="settings-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <?php endforeach; ?>
+
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <i class="fas fa-tasks text-green-500 mr-2"></i>Operational Alerts
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p class="font-bold text-gray-800">New Appointments</p>
+                                                <p class="text-xs text-gray-500 mt-1">Get notified when appointments are created.</p>
+                                            </div>
+                                            <label class="settings-toggle">
+                                                <input type="checkbox" name="preferences[appointment_created]" value="1" <?= !empty($notification_settings['appointment_created']) ? 'checked' : '' ?>>
+                                                <span class="settings-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <p class="font-bold text-gray-800">Low Stock Alerts</p>
+                                                <p class="text-xs text-gray-500 mt-1">Get notified when inventory items are low.</p>
+                                            </div>
+                                            <label class="settings-toggle">
+                                                <input type="checkbox" name="preferences[low_stock_alerts]" value="1" <?= !empty($notification_settings['low_stock_alerts']) ? 'checked' : '' ?>>
+                                                <span class="settings-toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg transition-all">Save Preferences</button></div>
                             </form>
                         </div>
@@ -505,8 +590,11 @@ function setButtonLoading(btn, loading) {
 
 function showSettingsTab(tabName, options = {}) {
     console.log('Switching to settings tab:', tabName);
-    const communicationTabs = ['channels', 'email', 'sms', 'whatsapp', 'notifications'];
+    const communicationTabs = ['channels', 'email', 'sms', 'whatsapp', 'notifications', 'alerts'];
     const isCommunicationTab = communicationTabs.includes(tabName);
+    if (tabName === 'alerts') {
+        tabName = 'notifications';
+    }
 
     if (!document.getElementById(tabName + '-tab')) {
         tabName = 'clinic';
@@ -539,7 +627,7 @@ function showSettingsTab(tabName, options = {}) {
     const url = new URL(window.location.href);
     if (isCommunicationTab) {
         url.searchParams.set('tab', 'communications');
-        url.searchParams.set('subtab', tabName);
+        url.searchParams.set('subtab', tabName === 'notifications' ? 'alerts' : tabName);
     } else {
         url.searchParams.set('tab', tabName);
         url.searchParams.delete('subtab');

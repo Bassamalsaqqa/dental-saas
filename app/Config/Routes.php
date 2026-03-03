@@ -539,7 +539,12 @@ $routes->group('controlplane/roles', ['filter' => ['auth', 'controlplane']], fun
 
 // Notifications routes (accessible to all authenticated users - Tenant Plane)
 $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
-    $routes->get('notifications', 'Notifications::index');
+    $routes->get('notifications', static function () {
+        return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
+    });
+    $routes->get('notifications/update', static function () {
+        return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
+    });
     $routes->get('notifications/ledger', 'NotificationLedger::index', ['filter' => 'permission:settings:view']); // New
     $routes->post('notifications/ledger/retry/(:num)', 'NotificationLedger::retry/$1', ['filter' => 'permission:settings:edit']); // New
     $routes->get('api/notifications', 'Notifications::api');

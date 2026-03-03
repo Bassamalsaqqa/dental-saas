@@ -512,7 +512,7 @@ class Settings extends BaseController
         
         if ($membership) {
             $clinicUserModel->update($membership['id'], ['preferences' => json_encode($prefs)]);
-            return redirect()->to('/settings/notifications')->with('success', 'Preferences updated');
+            return redirect()->to('/settings?tab=communications&subtab=alerts')->with('success', 'Preferences updated');
         }
 
         return redirect()->back()->with('error', 'Membership not found');
