@@ -643,9 +643,32 @@
     </div>
 </div>
 
+<div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+        <div class="flex items-start space-x-4 mb-6">
+            <div id="confirm-modal-icon" class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <div>
+                <h3 id="confirm-modal-title" class="text-xl font-bold text-gray-900 mb-1">Are you sure?</h3>
+                <p id="confirm-modal-message" class="text-gray-500 text-sm">This action cannot be undone.</p>
+            </div>
+        </div>
+        <div class="flex justify-end space-x-3">
+            <button type="button" onclick="closeConfirmModal()" class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+                Cancel
+            </button>
+            <button id="confirm-modal-confirm-btn" type="button" class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all" onclick="confirmModalProceed()">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 const csrfHeader = '<?= config('Security')->headerName ?>';
 const csrfToken = '<?= csrf_hash() ?>';
+let confirmModalAction = null;
 
 function setButtonLoading(btn, loading) {
     if (!btn) return;
@@ -847,14 +870,83 @@ function testWhatsAppChannel() {
 
 function downloadBackup(filename) { window.location.href = `<?= base_url('settings/download-backup/') ?>${filename}`; }
 function restoreBackup(filename) {
-    if (!confirm('Are you sure? This will overwrite your current data!')) return;
-    const form = document.createElement('form'); form.method = 'POST'; form.action = '<?= base_url('settings/restore') ?>';
-    const csrfInput = document.createElement('input'); csrfInput.type = 'hidden'; csrfInput.name = csrfHeader; csrfInput.value = csrfToken; form.appendChild(csrfInput);
-    const input = document.createElement('input'); input.type = 'hidden'; input.name = 'backup_file'; input.value = filename; form.appendChild(input);
-    document.body.appendChild(form); form.submit();
+    openConfirmModal({
+        title: 'Restore Backup?',
+        message: 'This will overwrite your current data with the selected backup. This action cannot be undone.',
+        confirmText: 'Restore',
+        onConfirm: () => {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?= base_url('settings/restore') ?>';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = csrfHeader;
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'backup_file';
+            input.value = filename;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        },
+    });
+}
+
+function openConfirmModal(options = {}) {
+    const modal = document.getElementById('confirm-modal');
+    if (!modal) return;
+
+    const title = document.getElementById('confirm-modal-title');
+    const message = document.getElementById('confirm-modal-message');
+    const confirmBtn = document.getElementById('confirm-modal-confirm-btn');
+    const iconWrap = document.getElementById('confirm-modal-icon');
+    const icon = iconWrap?.querySelector('i');
+
+    if (title) title.textContent = options.title || 'Are you sure?';
+    if (message) message.textContent = options.message || 'This action cannot be undone.';
+    if (confirmBtn) confirmBtn.textContent = options.confirmText || 'Confirm';
+    if (iconWrap) iconWrap.className = 'w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0';
+    if (icon) icon.className = 'fas fa-exclamation-triangle text-red-600 text-xl';
+
+    confirmModalAction = typeof options.onConfirm === 'function' ? options.onConfirm : null;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeConfirmModal() {
+    const modal = document.getElementById('confirm-modal');
+    if (!modal) return;
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    confirmModalAction = null;
+}
+
+function confirmModalProceed() {
+    const action = confirmModalAction;
+    closeConfirmModal();
+    if (typeof action === 'function') {
+        action();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const confirmModal = document.getElementById('confirm-modal');
+    if (confirmModal) {
+        confirmModal.addEventListener('click', function(event) {
+            if (event.target === confirmModal) {
+                closeConfirmModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeConfirmModal();
+        }
+    });
+
     const kioskToggle = document.querySelector('.kiosk-toggle');
     if (kioskToggle) {
         const label = kioskToggle.closest('label');
