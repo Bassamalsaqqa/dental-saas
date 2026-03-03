@@ -112,11 +112,6 @@
                             </button>
                         </div>
 
-                        <?php if (session()->get('global_mode')): ?>
-                        <button onclick="showSettingsTab('retention')" id="tab-retention" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-history w-5 h-5 mr-3"></i> Export Retention
-                        </button>
-                        <?php endif; ?>
                     </nav>
                 </div>
             </div>
@@ -371,6 +366,46 @@
                                 </div>
                                 <?php endif; ?>
                             </div>
+
+                            <div class="mt-8 pt-8 border-t border-gray-100">
+                                <h4 class="text-lg font-bold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-history text-red-500 mr-2"></i>
+                                    Export Retention Policy
+                                </h4>
+                                <p class="text-sm text-gray-500 mb-6">
+                                    Control how long exported files are kept before automatic pruning.
+                                </p>
+
+                                <?php if (!session()->get('global_mode')): ?>
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-700 text-sm">
+                                    <i class="fas fa-lock mr-2"></i>
+                                    Export retention policy is managed by your platform administrator.
+                                </div>
+                                <?php else: ?>
+                                <form action="<?= base_url('settings/updateRetention') ?>" method="POST" class="space-y-6">
+                                    <?= csrf_field() ?>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'latest')==='latest'?'border-red-500 bg-red-50':'border-gray-200' ?>">
+                                            <input type="radio" name="retention_mode" value="latest" class="sr-only" <?= ($settings['retention_mode']??'latest')==='latest'?'checked':'' ?>>
+                                            <div class="font-bold">Latest Only</div>
+                                        </label>
+                                        <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_last_n'?'border-red-500 bg-red-50':'border-gray-200' ?>">
+                                            <input type="radio" name="retention_mode" value="keep_last_n" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_last_n'?'checked':'' ?>>
+                                            <div class="font-bold">Keep Last N</div>
+                                        </label>
+                                        <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_x_days'?'border-red-500 bg-red-50':'border-gray-200' ?>">
+                                            <input type="radio" name="retention_mode" value="keep_x_days" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_x_days'?'checked':'' ?>>
+                                            <div class="font-bold">Time Based</div>
+                                        </label>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">
+                                            Save Policy
+                                        </button>
+                                    </div>
+                                </form>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -565,25 +600,6 @@
                     </div>
                 </div>
 
-                <!-- Retention Tab -->
-                <?php if (session()->get('global_mode')): ?>
-                <div id="retention-tab" class="settings-tab hidden">
-                    <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-red-500 to-rose-600 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-history text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Export Retention</h3><p class="text-red-100">Policy for file pruning</p></div></div></div>
-                        <div class="p-8">
-                            <form action="<?= base_url('settings/updateRetention') ?>" method="POST" class="space-y-6">
-                                <?= csrf_field() ?>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'latest')==='latest'?'border-red-500 bg-red-50':'border-gray-200' ?>"><input type="radio" name="retention_mode" value="latest" class="sr-only" <?= ($settings['retention_mode']??'latest')==='latest'?'checked':'' ?>><div class="font-bold">Latest Only</div></label>
-                                    <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_last_n'?'border-red-500 bg-red-50':'border-gray-200' ?>"><input type="radio" name="retention_mode" value="keep_last_n" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_last_n'?'checked':'' ?>><div class="font-bold">Keep Last N</div></label>
-                                    <label class="p-4 border-2 rounded-xl cursor-pointer text-center <?= ($settings['retention_mode']??'')==='keep_x_days'?'border-red-500 bg-red-50':'border-gray-200' ?>"><input type="radio" name="retention_mode" value="keep_x_days" class="sr-only" <?= ($settings['retention_mode']??'')==='keep_x_days'?'checked':'' ?>><div class="font-bold">Time Based</div></label>
-                                </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">Save Policy</button></div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
             </div> <!-- End Main Content Area -->
         </div>
     </div>
