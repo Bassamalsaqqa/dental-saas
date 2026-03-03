@@ -227,12 +227,6 @@
                                 'icon' => 'fas fa-history',
                                 'color' => 'teal',
                             ],
-                            'kiosk' => [
-                                'title' => lang('Kiosk.title'),
-                                'url' => 'settings/kiosk',
-                                'icon' => 'fas fa-tablet-alt',
-                                'color' => 'indigo',
-                            ],
                             'settings' => [
                                 'title' => lang('UI.menuSettings'),
                                 'url' => 'settings',
@@ -255,7 +249,6 @@
                         'users' => ['module' => 'users', 'action' => 'view'],
                         'roles' => ['module' => 'users', 'action' => 'roles'], // Roles are part of user management
                         'activity_log' => ['module' => 'activity_log', 'action' => 'view'],
-                        'kiosk' => ['module' => 'settings', 'action' => 'view'],
                         'settings' => ['module' => 'settings', 'action' => 'view']
                     ];
 
