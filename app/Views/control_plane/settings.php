@@ -63,7 +63,7 @@
                         <div class="bg-gradient-to-r from-slate-700 to-gray-800 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <i class="fas fa-id-badge text-white text-xl"></i>
+                                    <i class="fas fa-id-badge text-blue-400 text-xl"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-white">Platform Profile</h3>
@@ -78,26 +78,32 @@
                                     <div class="md:col-span-2">
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Platform Name</label>
                                         <input type="text" name="platform_name" value="<?= esc($settings['platform_name'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all" required>
+                                        <p class="text-xs text-slate-400 mt-1">Shown in the control plane header and support email footers.</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Email</label>
                                         <input type="email" name="platform_support_email" value="<?= esc($settings['platform_support_email'] ?? '') ?>" placeholder="support@yourdomain.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        <p class="text-xs text-slate-400 mt-1">Used as the reply-to address in system-generated emails to clinic admins.</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Phone</label>
                                         <input type="text" name="platform_support_phone" value="<?= esc($settings['platform_support_phone'] ?? '') ?>" placeholder="+970 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        <p class="text-xs text-slate-400 mt-1">Displayed on the platform support page accessible from the clinic dashboard.</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp (Primary)</label>
                                         <input type="text" name="platform_support_whatsapp_primary" value="<?= esc($settings['platform_support_whatsapp_primary'] ?? '') ?>" placeholder="+970 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        <p class="text-xs text-slate-400 mt-1">Primary WhatsApp number for support requests from clinics.</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp (Secondary)</label>
                                         <input type="text" name="platform_support_whatsapp_secondary" value="<?= esc($settings['platform_support_whatsapp_secondary'] ?? '') ?>" placeholder="+972 000 000 000" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        <p class="text-xs text-slate-400 mt-1">Fallback contact shown when the primary number is unreachable.</p>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Support Website</label>
                                         <input type="url" name="platform_support_website" value="<?= esc($settings['platform_support_website'] ?? '') ?>" placeholder="https://yourdomain.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                        <p class="text-xs text-slate-400 mt-1">Link to your support portal or documentation site. Include https://.</p>
                                     </div>
                                 </div>
                                 <div class="flex justify-end">
@@ -114,14 +120,14 @@
                     <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-8">
                         <?= csrf_field() ?>
                         <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
-                            <div class="bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 p-8">
+                            <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-cog text-white text-xl"></i>
+                                        <i class="fas fa-cog text-emerald-400 text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-2xl font-bold text-white">System Preference</h3>
-                                        <p class="text-green-100">Defaults applied when a new clinic is onboarded</p>
+                                        <p class="text-slate-300 text-sm">Defaults applied when a new clinic is onboarded</p>
                                     </div>
                                 </div>
                             </div>
@@ -194,6 +200,7 @@
                                             <option value="Africa/Lagos" <?= $defaultTimezone === 'Africa/Lagos' ? 'selected' : '' ?>>Lagos (WAT)</option>
                                             <option value="Africa/Casablanca" <?= $defaultTimezone === 'Africa/Casablanca' ? 'selected' : '' ?>>Casablanca (WET)</option>
                                         </select>
+                                        <p class="text-xs text-slate-400 mt-1">Applied to all new clinics at onboarding. Existing clinics are unaffected.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Date Format</label>
@@ -203,6 +210,7 @@
                                             <option value="m/d/Y" <?= $defaultDateFormat === 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option>
                                             <option value="d/m/Y" <?= $defaultDateFormat === 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option>
                                         </select>
+                                        <p class="text-xs text-slate-400 mt-1">Controls how dates appear in patient lists, invoices, and reminders.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label>
@@ -211,6 +219,7 @@
                                             <option value="24" <?= $defaultTimeFormat === '24' ? 'selected' : '' ?>>24 Hour</option>
                                             <option value="12" <?= $defaultTimeFormat === '12' ? 'selected' : '' ?>>12 Hour</option>
                                         </select>
+                                        <p class="text-xs text-slate-400 mt-1">12-hour (AM/PM) or 24-hour display across all clinic interfaces.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Currency</label>
@@ -222,6 +231,7 @@
                                             <option value="EUR" <?= $defaultCurrency == 'EUR' ? 'selected' : '' ?>>EUR - Euro (EUR)</option>
                                             <option value="GBP" <?= $defaultCurrency == 'GBP' ? 'selected' : '' ?>>GBP - British Pound (GBP)</option>
                                         </select>
+                                        <p class="text-xs text-slate-400 mt-1">Currency used on invoices and financial reports for new clinics.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Currency Position</label>
@@ -230,20 +240,21 @@
                                             <option value="before" <?= $defaultCurrencyPosition === 'before' ? 'selected' : '' ?>>Before Amount (e.g., $100)</option>
                                             <option value="after" <?= $defaultCurrencyPosition === 'after' ? 'selected' : '' ?>>After Amount (e.g., 100$)</option>
                                         </select>
+                                        <p class="text-xs text-slate-400 mt-1">Whether the symbol appears before or after the amount (e.g. ₪120 vs 120 ₪).</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
-                            <div class="bg-gradient-to-r from-orange-500 via-amber-600 to-yellow-600 p-8">
+                            <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-clock text-white text-xl"></i>
+                                        <i class="fas fa-clock text-emerald-400 text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-2xl font-bold text-white">Working Hours</h3>
-                                        <p class="text-white/90">Set default operating hours and working days</p>
+                                        <p class="text-slate-300 text-sm">Set default operating hours and working days</p>
                                     </div>
                                 </div>
                             </div>
@@ -253,13 +264,16 @@
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label>
                                         <input type="time" name="default_working_hours_start" data-clinic-time="1" value="<?= esc($settings['default_working_hours_start'] ?? '09:00') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
+                                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label>
                                         <input type="time" name="default_working_hours_end" data-clinic-time="1" value="<?= esc($settings['default_working_hours_end'] ?? '17:00') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200" required>
+                                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Working Days</label>
+                                        <p class="text-xs text-slate-400 mt-1 mb-3">Days the clinic is open by default. Clinics can override their own schedule.</p>
                                         <?php
                                             $workingDefaults = $settings['default_working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
                                             $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -277,11 +291,12 @@
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Duration (minutes)</label>
                                         <input type="number" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>" min="15" max="480" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
+                                        <p class="text-xs text-slate-400 mt-1">Initial slot length for the clinic calendar in minutes. Clinics can override after onboarding.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Clinic Max Chairs</label>
                                         <input type="number" name="default_booking_chair_max" value="<?= esc((int) ($settings['default_booking_chair_max'] ?? 3)) ?>" min="1" max="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200" required>
-                                        <p class="mt-2 text-xs text-gray-500">Global cap for tenant chair count. Maximum allowed value is 3.</p>
+                                        <p class="text-xs text-slate-400 mt-1">Platform-level cap on concurrent appointment slots per time slot. Cannot exceed 3.</p>
                                     </div>
                                 </div>
 
@@ -335,10 +350,12 @@
                                         <div id="retention-last-n" class="<?= $retentionMode === 'keep_last_n' ? '' : 'hidden' ?>">
                                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Number of exports to keep</label>
                                             <input type="number" name="retention_last_n" value="<?= esc((int) ($settings['retention_last_n'] ?? 5)) ?>" min="1" max="100" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                            <p class="text-xs text-slate-400 mt-1">How many export files to keep per clinic per export type.</p>
                                         </div>
                                         <div id="retention-days" class="<?= $retentionMode === 'keep_x_days' ? '' : 'hidden' ?>">
                                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Number of days to keep</label>
                                             <input type="number" name="retention_days" value="<?= esc((int) ($settings['retention_days'] ?? 30)) ?>" min="1" max="3650" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-slate-500 focus:ring-4 focus:ring-slate-200/60 transition-all">
+                                            <p class="text-xs text-slate-400 mt-1">Exports older than this number of days are eligible for pruning.</p>
                                         </div>
                                     </div>
 
@@ -355,14 +372,14 @@
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-                            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-8">
+                            <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                        <i class="fas fa-user-shield text-white text-xl"></i>
+                                        <i class="fas fa-user-shield text-violet-400 text-xl"></i>
                                     </div>
                                     <div>
                                         <h3 class="text-xl font-bold text-white">Control Plane Audit Retention</h3>
-                                        <p class="text-indigo-100 text-sm">Retention policy for operator activity logs</p>
+                                        <p class="text-slate-300 text-sm">Retention policy for operator activity logs</p>
                                     </div>
                                 </div>
                             </div>
@@ -372,13 +389,13 @@
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Audit log retention window (days)</label>
                                         <input type="number" name="control_plane_audit_retention_days" value="<?= esc((int) ($settings['control_plane_audit_retention_days'] ?? 365)) ?>" min="30" max="3650" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200/60 transition-all">
-                                        <p class="text-xs text-slate-500 mt-2">Retention applies to control plane audit events only. Tenant audit policies remain unchanged.</p>
+                                        <p class="text-xs text-slate-400 mt-1">Audit log entries older than this window are pruned when you run 'Prune Audit Logs'. Minimum 30 days recommended.</p>
                                     </div>
                                     <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
                                         <button type="button" id="prune-audits-btn" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all">
                                             <i class="fas fa-broom mr-2"></i>Prune Audit Logs
                                         </button>
-                                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-lg hover:from-indigo-700 hover:to-violet-700 transition-all">
+                                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-slate-700 to-gray-800 text-white font-semibold rounded-xl shadow-lg hover:from-slate-800 hover:to-gray-900 transition-all">
                                             <i class="fas fa-save mr-2"></i>Save Audit Policy
                                         </button>
                                     </div>
@@ -405,6 +422,30 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+        <div class="flex items-start space-x-4 mb-6">
+            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <div>
+                <h3 id="confirm-modal-title" class="text-xl font-bold text-gray-900 mb-1">Are you sure?</h3>
+                <p id="confirm-modal-message" class="text-gray-500 text-sm">This action cannot be undone.</p>
+            </div>
+        </div>
+        <div class="flex justify-end space-x-3">
+            <button onclick="closeConfirmModal()"
+                    class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+                Cancel
+            </button>
+            <button id="confirm-modal-action"
+                    class="px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">
+                Confirm
+            </button>
         </div>
     </div>
 </div>
@@ -498,54 +539,89 @@ function bindPruneActions() {
     const pruneExportsBtn = document.getElementById('prune-exports-btn');
     if (pruneExportsBtn) {
         pruneExportsBtn.addEventListener('click', () => {
-            if (!confirm('Prune all expired/superseded export artifacts? This cannot be undone.')) return;
-
-            fetch('<?= base_url('controlplane/settings/retention/prune') ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
+            openConfirmModal(
+                'Prune Export Artifacts',
+                'This will permanently delete all expired and superseded export files across all clinics. Only files outside the retention window are affected. This cannot be undone.',
+                () => {
+                    fetch('<?= base_url('controlplane/settings/retention/prune') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastMessage('success', data.message || 'Export artifacts pruned.');
+                                return;
+                            }
+                            toastMessage('error', data.message || 'Pruning failed.');
+                        })
+                        .catch(() => toastMessage('error', 'Pruning failed.'));
                 },
-                body: JSON.stringify({})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastMessage('success', data.message || 'Export artifacts pruned.');
-                        return;
-                    }
-                    toastMessage('error', data.message || 'Pruning failed.');
-                })
-                .catch(() => toastMessage('error', 'Pruning failed.'));
+                'Prune Now'
+            );
         });
     }
 
     const pruneAuditsBtn = document.getElementById('prune-audits-btn');
     if (pruneAuditsBtn) {
         pruneAuditsBtn.addEventListener('click', () => {
-            if (!confirm('Prune control plane audit logs beyond the retention window?')) return;
-
-            fetch('<?= base_url('controlplane/settings/audit-retention/prune') ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
+            openConfirmModal(
+                'Prune Audit Log Entries',
+                'This will permanently delete all control plane audit log entries older than the configured retention window. Deleted entries cannot be recovered.',
+                () => {
+                    fetch('<?= base_url('controlplane/settings/audit-retention/prune') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastMessage('success', data.message || 'Audit logs pruned.');
+                                return;
+                            }
+                            toastMessage('error', data.message || 'Pruning failed.');
+                        })
+                        .catch(() => toastMessage('error', 'Pruning failed.'));
                 },
-                body: JSON.stringify({})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastMessage('success', data.message || 'Audit logs pruned.');
-                        return;
-                    }
-                    toastMessage('error', data.message || 'Pruning failed.');
-                })
-                .catch(() => toastMessage('error', 'Pruning failed.'));
+                'Prune Now'
+            );
         });
     }
+}
+
+function openConfirmModal(title, message, callback, label = 'Confirm') {
+    const modal = document.getElementById('confirm-modal');
+    const titleEl = document.getElementById('confirm-modal-title');
+    const messageEl = document.getElementById('confirm-modal-message');
+    const actionBtn = document.getElementById('confirm-modal-action');
+    if (!modal || !titleEl || !messageEl || !actionBtn) return;
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    actionBtn.textContent = label;
+    actionBtn.onclick = () => {
+        closeConfirmModal();
+        callback();
+    };
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeConfirmModal() {
+    const modal = document.getElementById('confirm-modal');
+    if (!modal) return;
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -571,6 +647,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 label.classList.add('border-gray-200');
             }
         });
+    });
+
+    document.getElementById('confirm-modal')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+            closeConfirmModal();
+        }
     });
 });
 

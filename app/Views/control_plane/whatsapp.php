@@ -139,7 +139,12 @@ $activeTab = $active_tab ?? 'dashboard';
                 <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="space-y-4">
                     <?= csrf_field() ?>
                     <input type="hidden" name="secret_key" value="<?= $s['secret_key'] ?>">
-                    <input type="password" name="new_value" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 text-sm" placeholder="New Secret Value">
+                    <div class="relative">
+                        <input type="password" name="new_value" id="secret-new-value-<?= esc($s['secret_key']) ?>" required class="w-full px-4 py-3 pr-12 border-2 border-slate-200 rounded-xl focus:border-blue-500 text-sm font-mono" placeholder="Paste new secret value">
+                        <button type="button" onclick="toggleSecretVis(this)" class="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors" aria-label="Toggle secret visibility">
+                            <i class="fas fa-eye text-sm"></i>
+                        </button>
+                    </div>
                     <input type="text" name="rotation_note" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 text-sm" placeholder="Audit Note">
                     <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-black uppercase hover:bg-blue-700 transition-all">ROTATE KEY</button>
                 </form>
@@ -340,6 +345,19 @@ function showToast(message) {
     toast.innerHTML = `<i class="fas fa-check-circle text-emerald-400 mr-2"></i> ${message}`;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
+}
+
+function toggleSecretVis(btn) {
+    const input = btn.closest('.relative')?.querySelector('input[name="new_value"]');
+    const icon = btn.querySelector('i');
+    if (!input || !icon) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash text-sm';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye text-sm';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
