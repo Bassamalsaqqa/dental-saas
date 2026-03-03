@@ -1,28 +1,35 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100">
     <div class="container mx-auto px-4 py-6">
         <div class="max-w-6xl mx-auto">
         <div class="mb-8">
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                <div class="space-y-2">
-                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Activity Log</h1>
-                    <p class="text-gray-600 text-base lg:text-lg">Track all control plane actions and system events</p>
-                </div>
-                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                    <button onclick="refreshActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-sync-alt mr-2"></i>Refresh
-                    </button>
-                    <button onclick="exportActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-download mr-2"></i>Export
-                    </button>
+            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-slate-700 to-gray-800 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-history text-amber-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">Activity Log</h1>
+                            <p class="text-gray-600">Track all control plane actions and system events</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="refreshActivities()" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all">
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        </button>
+                        <button onclick="exportActivities()" class="px-5 py-2.5 bg-gradient-to-r from-slate-700 to-gray-800 text-white font-semibold rounded-xl shadow-lg transition-all">
+                            <i class="fas fa-download mr-2"></i>Export CSV
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-4 lg:space-y-0">
                     <div class="flex-1">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
@@ -46,20 +53,15 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Activities</h3>
+        <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-700 to-slate-900 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-history text-amber-400 text-sm"></i>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="text-sm text-gray-600">
-                            <span id="total-activities">0</span> activities
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            <span id="filtered-activities">0</span> filtered
-                        </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wide">Recent Activities</h3>
+                        <p class="text-xs text-slate-400"><span id="total-activities">0</span> total · <span id="filtered-activities">0</span> filtered</p>
                     </div>
                 </div>
             </div>
@@ -129,7 +131,10 @@ let totalActivities = 0;
 let filteredActivities = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadActivities();
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('eventTypeFilter').value = urlParams.get('event_type') || '';
+    document.getElementById('userFilter').value = urlParams.get('user') || '';
+    loadActivities(1);
 
     document.getElementById('pageSize').addEventListener('change', function() {
         pageSize = parseInt(this.value);
@@ -140,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('prevPage').addEventListener('click', function() {
         if (currentPage > 1) {
             currentPage--;
-            loadActivities();
+            loadActivities(currentPage);
         }
     });
 
@@ -148,12 +153,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxPage = Math.ceil(filteredActivities / pageSize);
         if (currentPage < maxPage) {
             currentPage++;
-            loadActivities();
+            loadActivities(currentPage);
         }
+    });
+
+    window.addEventListener('popstate', () => {
+        const p = new URLSearchParams(window.location.search);
+        document.getElementById('eventTypeFilter').value = p.get('event_type') || '';
+        document.getElementById('userFilter').value = p.get('user') || '';
+        loadActivities(1);
     });
 });
 
-function loadActivities() {
+function loadActivities(page = currentPage) {
+    currentPage = page;
     showLoading();
 
     const eventType = document.getElementById('eventTypeFilter').value;
@@ -161,10 +174,10 @@ function loadActivities() {
 
     const params = new URLSearchParams({
         limit: pageSize,
-        offset: (currentPage - 1) * pageSize,
-        event_type: eventType,
-        user: user
+        offset: (currentPage - 1) * pageSize
     });
+    if (eventType) params.set('event_type', eventType);
+    if (user) params.set('user', user);
 
     fetch(`<?= base_url('controlplane/activity-log/api') ?>?${params}`)
         .then(response => response.json())
@@ -331,24 +344,28 @@ function updateCounts() {
 }
 
 function applyFilters() {
+    const eventType = document.getElementById('eventTypeFilter').value;
+    const user = document.getElementById('userFilter').value;
+    const params = new URLSearchParams();
+    if (eventType) params.set('event_type', eventType);
+    if (user) params.set('user', user);
+    const targetUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    history.pushState(null, '', targetUrl);
     currentPage = 1;
-    loadActivities();
+    loadActivities(1);
 }
 
 function refreshActivities() {
-    loadActivities();
+    loadActivities(currentPage);
 }
 
 function exportActivities() {
     const eventType = document.getElementById('eventTypeFilter').value;
     const user = document.getElementById('userFilter').value;
-
-    const params = new URLSearchParams({
-        event_type: eventType,
-        user: user
-    });
-
-    window.location.href = `<?= base_url('controlplane/activity-log/export') ?>?${params.toString()}`;
+    const params = new URLSearchParams();
+    if (eventType) params.set('event_type', eventType);
+    if (user) params.set('user', user);
+    window.location.href = '<?= base_url('controlplane/activity-log/export') ?>' + (params.toString() ? '?' + params.toString() : '');
 }
 
 function getActivityIconBgClass(color) {

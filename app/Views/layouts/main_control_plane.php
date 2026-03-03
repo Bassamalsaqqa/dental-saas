@@ -80,7 +80,10 @@
                 <nav class="flex-1 overflow-y-auto" id="sidebar-nav">
                     <!-- Platform -->
                     <div class="p-4">
-                        <div class="flex items-center space-x-2 mb-4">
+                        <div class="px-2 pt-5 pb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">OPERATE</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mb-4 mt-3">
                             <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpPlatform') ?></h3>
                         </div>
@@ -159,8 +162,11 @@
 
                     <!-- Governance -->
                     <div class="p-4">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <div class="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full animate-pulse"></div>
+                        <div class="px-2 pt-5 pb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">MONITOR</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mb-4 mt-3">
+                            <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider"><?= lang('UI.cpGovernance') ?></h3>
                         </div>
                         <ul class="space-y-1">
@@ -179,9 +185,9 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="<?= base_url('controlplane/activity-log') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-900 hover:shadow-md hover:shadow-amber-500/10 mx-1' ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                                    <i class="fas fa-history w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'text-white' : 'text-amber-600 group-hover:text-amber-700' ?>"></i>
+                                <a href="<?= base_url('controlplane/activity-log') ?>" class="group relative flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-lg shadow-slate-500/25 mx-1' : 'text-gray-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-900 hover:shadow-md hover:shadow-slate-500/10 mx-1' ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-500/10 to-slate-700/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                                    <i class="fas fa-history w-5 h-5 mr-3 relative z-10 <?= (strpos(uri_string(), 'controlplane/activity-log') === 0) ? 'text-white' : 'text-slate-600 group-hover:text-slate-700' ?>"></i>
                                     <span class="relative z-10"><?= lang('UI.cpSystemActivity') ?></span>
                                 </a>
                             </li>
@@ -197,7 +203,10 @@
 
                     <!-- System -->
                     <div class="p-4">
-                        <div class="flex items-center space-x-2 mb-4">
+                        <div class="px-2 pt-5 pb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CONFIGURE</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mb-4 mt-3">
                             <div class="w-2 h-2 bg-gradient-to-r from-slate-500 to-blue-600 rounded-full animate-pulse"></div>
                             <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">System</h3>
                         </div>

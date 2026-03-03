@@ -36,6 +36,18 @@
             </div>
         </div>
 
+        <div class="mb-6">
+            <div class="flex gap-2 p-1.5 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm inline-flex">
+                <button onclick="showOpsTab('health')" id="ops-btn-health" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
+                    <i class="fas fa-heartbeat mr-2"></i>System Health
+                </button>
+                <button onclick="showOpsTab('audit')" id="ops-btn-audit" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
+                    <i class="fas fa-history mr-2"></i>Plan Audit Trail
+                </button>
+            </div>
+        </div>
+
+        <div id="ops-tab-health">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-white/50 flex items-center justify-between">
@@ -190,7 +202,9 @@
                 </a>
             </div>
         </div>
+        </div>
 
+        <div id="ops-tab-audit" class="hidden">
         <div id="planEnforcementTableView" class="bg-white rounded-xl border border-gray-200 shadow-lg mt-8">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -274,10 +288,33 @@
                 </table>
             </div>
         </div>
+        </div>
     </div>
 </div>
 <script>
+    function showOpsTab(name, options = {}) {
+        ['health', 'audit'].forEach((tab) => {
+            document.getElementById('ops-tab-' + tab)?.classList.toggle('hidden', tab !== name);
+            const btn = document.getElementById('ops-btn-' + tab);
+            if (btn) {
+                btn.className = 'px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ' +
+                    (tab === name
+                        ? 'bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-lg'
+                        : 'text-slate-600 hover:bg-slate-100');
+            }
+        });
+        if (options.updateUrl === false) {
+            return;
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', name);
+        history.pushState(null, '', url.toString());
+    }
+
     (function () {
+        const opsTab = new URLSearchParams(window.location.search).get('tab') || 'health';
+        showOpsTab(opsTab, { updateUrl: false });
+
         const searchInput = document.getElementById('planEnforcementSearch');
         const rows = document.querySelectorAll('.plan-enforcement-row');
         if (!searchInput || !rows.length) return;
@@ -292,5 +329,10 @@
 
         searchInput.addEventListener('input', filterRows);
     })();
+
+    window.addEventListener('popstate', () => {
+        const opsTab = new URLSearchParams(window.location.search).get('tab') || 'health';
+        showOpsTab(opsTab, { updateUrl: false });
+    });
 </script>
 <?= $this->endSection() ?>
