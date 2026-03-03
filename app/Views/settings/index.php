@@ -87,22 +87,22 @@
                     <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
                     <nav class="space-y-2">
                         <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-building w-5 h-5 mr-3"></i> Clinic Information
+                            <i class="fas fa-building w-5 h-5 mr-3"></i> Clinic Profile
                         </button>
                         <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i> Subscription Plan
+                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i> Subscription
                         </button>
                         <button onclick="showSettingsTab('system')" id="tab-system" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-cog w-5 h-5 mr-3"></i> System Preference
+                            <i class="fas fa-cog w-5 h-5 mr-3"></i> System
                         </button>
                         <button onclick="showSettingsTab('hours')" id="tab-hours" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-clock w-5 h-5 mr-3"></i> Working Hours
+                            <i class="fas fa-clock w-5 h-5 mr-3"></i> Operations
                         </button>
                         <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> Kiosk Check-In
+                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> Kiosk
                         </button>
                         <button onclick="showSettingsTab('backup')" id="tab-backup" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-database w-5 h-5 mr-3"></i> DB Backup
+                            <i class="fas fa-database w-5 h-5 mr-3"></i> Backup &amp; Restore
                         </button>
                         
                         <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
@@ -129,7 +129,7 @@
                         <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-building text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Clinic Information</h3><p class="text-blue-100">Manage your clinic details</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">Clinic Profile</h3><p class="text-blue-100">Manage your clinic details</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -156,7 +156,7 @@
                         <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Subscription Plan</h3><p class="text-emerald-100">Review and upgrade your plan</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">Subscription</h3><p class="text-emerald-100">Review and upgrade your plan</p></div>
                             </div>
                         </div>
                         <div class="p-8 space-y-8">
@@ -196,7 +196,7 @@
                         <div class="bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-cog text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">System Preference</h3><p class="text-green-100">Global system configuration</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">System</h3><p class="text-green-100">Global system configuration</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -220,7 +220,7 @@
                         <div class="bg-gradient-to-r from-orange-500 to-amber-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-clock text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Working Hours</h3><p class="text-orange-100" style="color: white !important;">Clinic operation schedule</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">Operations</h3><p class="text-orange-100" style="color: white !important;">Clinic operation schedule</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -243,7 +243,7 @@
                         <div class="bg-gradient-to-r from-indigo-500 via-blue-600 to-cyan-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-tablet-alt text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Kiosk Check-In</h3><p class="text-blue-100">Configure the in-clinic self check-in experience</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">Kiosk</h3><p class="text-blue-100">Configure the in-clinic self check-in experience</p></div>
                             </div>
                         </div>
 
@@ -344,7 +344,7 @@
                         <div class="bg-gradient-to-r from-purple-500 to-blue-600 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-database text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Database Backup</h3><p class="text-purple-100">Manage data safety</p></div>
+                                <div><h3 class="text-2xl font-bold text-white">Backup &amp; Restore</h3><p class="text-purple-100">Manage data safety</p></div>
                             </div>
                         </div>
                         <div class="p-8">
