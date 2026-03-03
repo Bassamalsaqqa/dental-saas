@@ -334,7 +334,18 @@
                                     <div><h5 class="font-bold text-gray-800"><?= $backup['name'] ?></h5><p class="text-xs text-gray-500"><?= $backup['size'] ?> • <?= $backup['created_at'] ?></p></div>
                                     <div class="flex space-x-2"><button onclick="downloadBackup('<?= $backup['name'] ?>')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fas fa-download"></i></button><button onclick="restoreBackup('<?= $backup['name'] ?>')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"><i class="fas fa-undo"></i></button></div>
                                 </div>
-                                <?php endforeach; else: ?><div class="text-center py-8 text-gray-400">No backups found</div><?php endif; ?>
+                                <?php endforeach; else: ?>
+                                <div class="flex flex-col items-center justify-center py-16 text-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-database text-gray-300 text-2xl"></i>
+                                    </div>
+                                    <h4 class="text-lg font-bold text-gray-800 mb-1">No backups yet</h4>
+                                    <p class="text-sm text-gray-500 mb-6 max-w-xs">
+                                        Create your first backup to protect your clinic's data.
+                                        Backups can be downloaded or used to restore the system.
+                                    </p>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -368,6 +379,18 @@
                                         <button onclick="showSettingsTab('<?= $type ?>')" class="mt-4 px-4 py-2 bg-white border border-gray-200 text-xs font-bold rounded-lg hover:bg-gray-100 transition-all">CONFIGURE</button>
                                     </div>
                                     <?php endforeach; ?>
+                                    <?php if (empty($channels)): ?>
+                                    <div class="md:col-span-3 flex flex-col items-center justify-center py-16 text-center">
+                                        <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+                                            <i class="fas fa-satellite-dish text-gray-300 text-2xl"></i>
+                                        </div>
+                                        <h4 class="text-lg font-bold text-gray-800 mb-1">No channels configured</h4>
+                                        <p class="text-sm text-gray-500 max-w-xs">
+                                            Contact your platform administrator to enable communication channels
+                                            for your clinic.
+                                        </p>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
