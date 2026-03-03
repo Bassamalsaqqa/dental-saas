@@ -28,6 +28,14 @@
             </div>
         </div>
 
+        <nav class="mb-4 flex items-center space-x-1 text-sm text-gray-500" id="control-settings-breadcrumb">
+            <span class="text-gray-700 font-medium">Control Plane</span>
+            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+            <span class="text-gray-700 font-medium">Settings</span>
+            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+            <span id="control-breadcrumb-tab" class="text-gray-900 font-semibold"></span>
+        </nav>
+
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="lg:w-72 flex-shrink-0">
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 sticky top-6">
@@ -402,7 +410,16 @@
 </div>
 
 <script>
-function showTab(tabName) {
+function showTab(tabName, options = {}) {
+    const tabNames = {
+        platform: 'Platform Profile',
+        'clinic-defaults': 'Clinic Defaults',
+        governance: 'Governance',
+    };
+    if (!document.getElementById('tab-' + tabName)) {
+        tabName = 'platform';
+    }
+
     document.querySelectorAll('.settings-content').forEach(el => el.classList.add('hidden'));
 
     const target = document.getElementById('tab-' + tabName);
@@ -414,13 +431,14 @@ function showTab(tabName) {
     navButtons.forEach(btn => {
         btn.className = 'w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900';
         const icon = btn.querySelector('i');
-        if (icon) icon.className = icon.className.replace('text-slate-300', 'text-slate-400');
+        if (icon) {
+            icon.classList.remove('text-slate-300', 'text-white/80');
+            icon.classList.add('text-slate-400');
+        }
     });
 
     const activeBtn = document.getElementById('nav-' + tabName);
-    let activeClass = 'bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md';
-    if (tabName === 'governance') activeClass = 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md';
-    if (tabName === 'clinic-defaults') activeClass = 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md';
+    const activeClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg';
 
     if (activeBtn) {
         activeBtn.className = `w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 ${activeClass}`;
@@ -430,6 +448,19 @@ function showTab(tabName) {
             activeIcon.classList.add('text-white/80');
         }
     }
+
+    const breadcrumbTab = document.getElementById('control-breadcrumb-tab');
+    if (breadcrumbTab) {
+        breadcrumbTab.textContent = tabNames[tabName] || '';
+    }
+
+    if (options.updateUrl === false) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tabName);
+    history.pushState(null, '', url.toString());
 }
 
 function toastMessage(type, message) {
@@ -520,9 +551,9 @@ function bindPruneActions() {
 document.addEventListener('DOMContentLoaded', () => {
     const urlTab = new URLSearchParams(window.location.search).get('tab');
     if (urlTab && document.getElementById(`tab-${urlTab}`)) {
-        showTab(urlTab);
+        showTab(urlTab, { updateUrl: false });
     } else {
-        showTab('platform');
+        showTab('platform', { updateUrl: false });
     }
 
     initRetentionControls();
@@ -541,6 +572,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+});
+
+window.addEventListener('popstate', () => {
+    const urlTab = new URLSearchParams(window.location.search).get('tab') || 'platform';
+    showTab(urlTab, { updateUrl: false });
 });
 </script>
 <?= $this->endSection() ?>
