@@ -265,7 +265,12 @@ class Settings extends BaseController
             $this->settingsService->reloadSettings();
             session()->set('ui_locale', (string) $settingsData['ui_language']);
             log_message('info', 'System settings saved successfully');
-            return redirect()->to('/settings')->with('success', 'System preferences updated successfully!');
+            $redirectTab = (string) ($this->request->getPost('redirect_tab') ?: 'system');
+            $allowedTabs = ['clinic', 'subscription', 'system', 'hours', 'kiosk', 'backup', 'communications'];
+            if (!in_array($redirectTab, $allowedTabs, true)) {
+                $redirectTab = 'system';
+            }
+            return redirect()->to('/settings?tab=' . rawurlencode($redirectTab))->with('success', 'System preferences updated successfully!');
         } else {
             log_message('error', 'Failed to save system settings');
             return redirect()->back()->withInput()->with('error', 'Failed to update system preferences. Please try again.');
