@@ -107,20 +107,8 @@
                         
                         <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
                             <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
-                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> Channel Registry
-                            </button>
-                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fab fa-whatsapp w-5 h-5 mr-3"></i> WhatsApp
-                            </button>
-                            <button onclick="showSettingsTab('email')" id="tab-email" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-envelope w-5 h-5 mr-3"></i> Email (SMTP)
-                            </button>
-                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-sms w-5 h-5 mr-3"></i> SMS Gateway
-                            </button>
-                            <button onclick="showSettingsTab('notifications')" id="tab-notifications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-user-cog w-5 h-5 mr-3"></i> Preferences
+                            <button onclick="showSettingsTab('communications')" id="tab-communications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> Communications
                             </button>
                         </div>
 
@@ -387,11 +375,41 @@
                     </div>
                 </div>
 
-                <!-- Channel Registry Tab -->
-                <div id="channels-tab" class="settings-tab hidden">
+                <!-- Communications Tab -->
+                <div id="communications-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-satellite-dish text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Channel Registry</h3><p class="text-blue-100">Global status of delivery methods</p></div></div></div>
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-satellite-dish text-sky-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Communications</h3>
+                                    <p class="text-slate-300">Delivery channels and notification preferences</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 px-8 pt-4">
+                            <div class="flex space-x-1 overflow-x-auto pb-0">
+                                <button onclick="showSubTab('channels')" id="subtab-channels" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
+                                    <i class="fas fa-th-large mr-1"></i>Channels
+                                </button>
+                                <button onclick="showSubTab('email')" id="subtab-email" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
+                                    <i class="fas fa-envelope mr-1"></i>Email
+                                </button>
+                                <button onclick="showSubTab('sms')" id="subtab-sms" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
+                                    <i class="fas fa-sms mr-1"></i>SMS
+                                </button>
+                                <button onclick="showSubTab('whatsapp')" id="subtab-whatsapp" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
+                                    <i class="fab fa-whatsapp mr-1"></i>WhatsApp
+                                </button>
+                                <button onclick="showSubTab('alerts')" id="subtab-alerts" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
+                                    <i class="fas fa-user-cog mr-1"></i>My Alerts
+                                </button>
+                            </div>
+                        </div>
                         <div class="p-8">
+                            <div id="sub-channels" class="sub-tab-panel">
                             <?php if ($is_global): ?>
                                 <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs font-bold text-gray-500 uppercase border-b"><th class="pb-4">Clinic</th><th class="pb-4">Email</th><th class="pb-4">SMS</th><th class="pb-4">WhatsApp</th></tr></thead><tbody class="divide-y divide-gray-50">
                                     <?php foreach ($clinics as $clinic): ?>
@@ -429,12 +447,10 @@
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+                            </div>
 
                 <!-- Email Tab -->
-                <div id="email-tab" class="settings-tab hidden">
+                <div id="sub-email" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-blue-100">SMTP configuration</p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
                         <div class="p-8 space-y-6">
@@ -450,7 +466,7 @@
                 </div>
 
                 <!-- SMS Tab -->
-                <div id="sms-tab" class="settings-tab hidden">
+                <div id="sub-sms" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">API Provider JSON</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
                         <div class="p-8">
@@ -461,7 +477,7 @@
                 </div>
 
                 <!-- WhatsApp Tab -->
-                <div id="whatsapp-tab" class="settings-tab hidden">
+                <div id="sub-whatsapp" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-green-600 to-emerald-700 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-green-100">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig(event)" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save</button></div></div>
                         <div class="p-8 space-y-8">
@@ -479,7 +495,7 @@
                 </div>
 
                 <!-- Notifications Preference Tab -->
-                <div id="notifications-tab" class="settings-tab hidden">
+                <div id="sub-alerts" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-cog text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Personal Alerts</h3><p class="text-amber-100">Your notification preferences</p></div></div></div>
                         <div class="p-8">
@@ -545,6 +561,9 @@
                         </div>
                     </div>
                 </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Retention Tab -->
                 <?php if (session()->get('global_mode')): ?>
@@ -591,9 +610,11 @@ function setButtonLoading(btn, loading) {
 function showSettingsTab(tabName, options = {}) {
     console.log('Switching to settings tab:', tabName);
     const communicationTabs = ['channels', 'email', 'sms', 'whatsapp', 'notifications', 'alerts'];
-    const isCommunicationTab = communicationTabs.includes(tabName);
-    if (tabName === 'alerts') {
-        tabName = 'notifications';
+    const isLegacyCommunicationTab = communicationTabs.includes(tabName);
+    let communicationSubTab = null;
+    if (isLegacyCommunicationTab) {
+        communicationSubTab = (tabName === 'notifications' || tabName === 'alerts') ? 'alerts' : tabName;
+        tabName = 'communications';
     }
 
     if (!document.getElementById(tabName + '-tab')) {
@@ -620,18 +641,49 @@ function showSettingsTab(tabName, options = {}) {
         activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
     }
 
+    if (tabName === 'communications') {
+        const params = new URLSearchParams(window.location.search);
+        const requestedSubtab = communicationSubTab || params.get('subtab') || 'channels';
+        showSubTab(requestedSubtab, { updateUrl: false });
+    }
+
     if (options.updateUrl === false) {
         return;
     }
 
     const url = new URL(window.location.href);
-    if (isCommunicationTab) {
+    if (tabName === 'communications') {
         url.searchParams.set('tab', 'communications');
-        url.searchParams.set('subtab', tabName === 'notifications' ? 'alerts' : tabName);
+        url.searchParams.set('subtab', communicationSubTab || url.searchParams.get('subtab') || 'channels');
     } else {
         url.searchParams.set('tab', tabName);
         url.searchParams.delete('subtab');
     }
+    history.pushState(null, '', url.toString());
+}
+
+function showSubTab(name, options = {}) {
+    const normalizedName = (name === 'notifications' || name === 'alerts') ? 'alerts' : name;
+    document.querySelectorAll('.sub-tab-panel').forEach(panel => panel.classList.add('hidden'));
+    document.querySelectorAll('.subtab-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
+        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+    });
+
+    document.getElementById('sub-' + normalizedName)?.classList.remove('hidden');
+    const activeBtn = document.getElementById('subtab-' + normalizedName);
+    if (activeBtn) {
+        activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
+        activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
+    }
+
+    if (options.updateUrl === false) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'communications');
+    url.searchParams.set('subtab', normalizedName);
     history.pushState(null, '', url.toString());
 }
 
@@ -808,10 +860,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const requestedSubTab = params.get('subtab');
     const fallbackTab = '<?= $active_tab ?? 'clinic' ?>';
     let initialTab = requestedTab || fallbackTab;
-    if (requestedTab === 'communications') {
-        initialTab = requestedSubTab || 'channels';
+    if (requestedTab === 'communications' || ['channels', 'email', 'sms', 'whatsapp', 'notifications', 'alerts'].includes(initialTab)) {
+        initialTab = 'communications';
     }
     showSettingsTab(initialTab, { updateUrl: false });
+    if (initialTab === 'communications') {
+        showSubTab(requestedSubTab || (fallbackTab === 'notifications' ? 'alerts' : fallbackTab) || 'channels', { updateUrl: false });
+    }
 });
 
 window.addEventListener('popstate', function() {
@@ -820,9 +875,12 @@ window.addEventListener('popstate', function() {
     const requestedSubTab = params.get('subtab');
     let targetTab = requestedTab || 'clinic';
     if (requestedTab === 'communications') {
-        targetTab = requestedSubTab || 'channels';
+        targetTab = 'communications';
     }
     showSettingsTab(targetTab, { updateUrl: false });
+    if (targetTab === 'communications') {
+        showSubTab(requestedSubTab || 'channels', { updateUrl: false });
+    }
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
