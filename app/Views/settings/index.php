@@ -26,41 +26,44 @@
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
     }
     .settings-tab.hidden { display: none !important; }
-    .settings-toggle {
-        position: relative;
-        display: inline-block;
+    .ui-toggle {
+        appearance: none;
         width: 44px;
         height: 24px;
-    }
-    .settings-toggle input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .settings-toggle-slider {
-        position: absolute;
-        inset: 0;
         border-radius: 9999px;
-        background-color: #d1d5db;
-        transition: background-color 0.2s ease;
+        background: #e5e7eb;
+        position: relative;
         cursor: pointer;
+        transition: background 0.2s ease;
+        flex-shrink: 0;
     }
-    .settings-toggle-slider::before {
-        content: "";
+    .ui-toggle::before {
+        content: '';
         position: absolute;
-        width: 16px;
-        height: 16px;
-        left: 4px;
-        top: 4px;
-        border-radius: 9999px;
-        background-color: #fff;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        top: 3px;
+        left: 3px;
         transition: transform 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
-    .settings-toggle input:checked + .settings-toggle-slider {
-        background-color: #3b82f6;
+    .ui-toggle:checked {
+        background: #3b82f6;
     }
-    .settings-toggle input:checked + .settings-toggle-slider::before {
+    .ui-toggle:checked::before {
         transform: translateX(20px);
+    }
+    .ui-toggle:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    [dir="rtl"] #settings-breadcrumb {
+        direction: rtl;
+    }
+    [dir="rtl"] #settings-breadcrumb .fa-chevron-right::before {
+        content: "\f053";
     }
 </style>
 
@@ -78,6 +81,16 @@
                 </div>
             </div>
         </div>
+
+        <nav class="mb-4 flex items-center space-x-1 text-sm text-gray-500" id="settings-breadcrumb">
+            <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors">Home</a>
+            <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+            <span class="text-gray-700 font-medium">Settings</span>
+            <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-2" style="display:none"></i>
+            <span id="breadcrumb-tab" class="text-gray-900 font-semibold"></span>
+            <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-3" style="display:none"></i>
+            <span id="breadcrumb-subtab" class="text-gray-900 font-semibold"></span>
+        </nav>
 
         <!-- Settings Layout with Sidebar -->
         <div class="flex flex-col lg:flex-row gap-8">
@@ -121,10 +134,10 @@
                 <!-- Clinic Information Tab -->
                 <div id="clinic-tab" class="settings-tab">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-building text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Clinic Profile</h3><p class="text-blue-100">Manage your clinic details</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-building text-blue-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">Clinic Profile</h3><p class="text-slate-300">Manage your clinic details</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -148,10 +161,10 @@
                 <!-- Subscription Plan Tab -->
                 <div id="subscription-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Subscription</h3><p class="text-emerald-100">Review and upgrade your plan</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-emerald-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">Subscription</h3><p class="text-slate-300">Review and upgrade your plan</p></div>
                             </div>
                         </div>
                         <div class="p-8 space-y-8">
@@ -188,10 +201,10 @@
                 <!-- System Preference Tab -->
                 <div id="system-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-cog text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">System</h3><p class="text-green-100">Global system configuration</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-cog text-violet-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">System</h3><p class="text-slate-300">Global system configuration</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -224,10 +237,10 @@
                 <!-- Working Hours Tab -->
                 <div id="hours-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-orange-500 to-amber-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-clock text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Operations</h3><p class="text-orange-100" style="color: white !important;">Clinic operation schedule</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-clock text-orange-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">Operations</h3><p class="text-slate-300">Clinic operation schedule</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -247,10 +260,10 @@
                 <!-- Kiosk Tab -->
                 <div id="kiosk-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-indigo-500 via-blue-600 to-cyan-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-tablet-alt text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Kiosk</h3><p class="text-blue-100">Configure the in-clinic self check-in experience</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-tablet-alt text-cyan-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">Kiosk</h3><p class="text-slate-300">Configure the in-clinic self check-in experience</p></div>
                             </div>
                         </div>
 
@@ -292,10 +305,7 @@
                                         <p class="text-sm text-slate-500">Allow patients to confirm appointments from a clinic kiosk.</p>
                                     </div>
                                     <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="kiosk_enabled" value="1" class="sr-only kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                        <span class="kiosk-toggle-track w-11 h-6 rounded-full relative transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'bg-blue-500' : 'bg-gray-200' ?>">
-                                            <span class="kiosk-toggle-knob absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 <?= !empty($settings['kiosk_enabled']) ? 'bg-blue-500' : '' ?>" style="transform: <?= !empty($settings['kiosk_enabled']) ? 'translateX(1.25rem)' : 'translateX(0)' ?>;"></span>
-                                        </span>
+                                        <input type="checkbox" name="kiosk_enabled" value="1" class="ui-toggle kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                     </label>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -348,10 +358,10 @@
                 <!-- DB Backup Tab -->
                 <div id="backup-tab" class="settings-tab hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-500 to-blue-600 p-8">
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-database text-white text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Backup &amp; Restore</h3><p class="text-purple-100">Manage data safety</p></div>
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-database text-amber-400 text-xl"></i></div>
+                                <div><h3 class="text-2xl font-bold text-white">Backup &amp; Restore</h3><p class="text-slate-300">Manage data safety</p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -499,7 +509,7 @@
                 <!-- Email Tab -->
                 <div id="sub-email" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-blue-100">SMTP configuration</p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-blue-400 text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Email Settings</h3><p class="text-slate-300">SMTP configuration</p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save SMTP</button></div>
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">SMTP Host</label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Your email provider's SMTP server address (e.g. smtp.gmail.com).</p></div>
@@ -515,7 +525,7 @@
                 <!-- SMS Tab -->
                 <div id="sub-sms" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-orange-500 to-red-600 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-orange-100">Provider credentials and sender configuration</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sms text-orange-400 text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">SMS Gateway</h3><p class="text-slate-300">Provider credentials and sender configuration</p></div></div><button onclick="saveSmsConfig(event)" class="px-6 py-2.5 bg-white text-orange-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Gateway</button></div>
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -552,7 +562,7 @@
                 <!-- WhatsApp Tab -->
                 <div id="sub-whatsapp" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-600 to-emerald-700 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-green-100">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig(event)" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save</button></div></div>
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fab fa-whatsapp text-emerald-400 text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">WhatsApp</h3><p class="text-slate-300">Meta API & Templates</p></div></div><div class="flex space-x-2"><button onclick="testWhatsAppChannel()" class="px-4 py-2 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all">Test</button><button onclick="saveWhatsAppConfig(event)" class="px-6 py-2 bg-white text-green-700 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save</button></div></div>
                         <div class="p-8 space-y-8">
                             <div><label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number ID</label><input type="text" id="wa_phone_number_id" value="<?= esc($wa_config['phone_number_id'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-mono" placeholder="1234567890"><p class="text-xs text-gray-500 mt-1">Found in your Meta Business Manager > WhatsApp > Phone Number ID.</p></div>
                             <div class="pt-6 border-t border-gray-100">
@@ -570,7 +580,7 @@
                 <!-- Notifications Preference Tab -->
                 <div id="sub-alerts" class="sub-tab-panel hidden">
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
-                        <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-cog text-white text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Personal Alerts</h3><p class="text-amber-100">Your notification preferences</p></div></div></div>
+                        <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-cog text-amber-400 text-xl"></i></div><div><h3 class="text-2xl font-bold text-white">Personal Alerts</h3><p class="text-slate-300">Your notification preferences</p></div></div></div>
                         <div class="p-8">
                             <form action="<?= base_url('settings/updateNotifications') ?>" method="POST" class="space-y-8">
                                 <?= csrf_field() ?>
@@ -584,20 +594,14 @@
                                                 <p class="font-bold text-gray-800">Email Alerts</p>
                                                 <p class="text-xs text-gray-500 mt-1">Receive updates via email.</p>
                                             </div>
-                                            <label class="settings-toggle">
-                                                <input type="checkbox" name="preferences[email_notifications]" value="1" <?= !empty($notification_settings['email_notifications']) ? 'checked' : '' ?>>
-                                                <span class="settings-toggle-slider"></span>
-                                            </label>
+                                            <input type="checkbox" name="preferences[email_notifications]" value="1" class="ui-toggle" <?= !empty($notification_settings['email_notifications']) ? 'checked' : '' ?>>
                                         </div>
                                         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                             <div>
                                                 <p class="font-bold text-gray-800">SMS Alerts</p>
                                                 <p class="text-xs text-gray-500 mt-1">Receive short critical updates by SMS.</p>
                                             </div>
-                                            <label class="settings-toggle">
-                                                <input type="checkbox" name="preferences[sms_notifications]" value="1" <?= !empty($notification_settings['sms_notifications']) ? 'checked' : '' ?>>
-                                                <span class="settings-toggle-slider"></span>
-                                            </label>
+                                            <input type="checkbox" name="preferences[sms_notifications]" value="1" class="ui-toggle" <?= !empty($notification_settings['sms_notifications']) ? 'checked' : '' ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -612,20 +616,14 @@
                                                 <p class="font-bold text-gray-800">New Appointments</p>
                                                 <p class="text-xs text-gray-500 mt-1">Get notified when appointments are created.</p>
                                             </div>
-                                            <label class="settings-toggle">
-                                                <input type="checkbox" name="preferences[appointment_created]" value="1" <?= !empty($notification_settings['appointment_created']) ? 'checked' : '' ?>>
-                                                <span class="settings-toggle-slider"></span>
-                                            </label>
+                                            <input type="checkbox" name="preferences[appointment_created]" value="1" class="ui-toggle" <?= !empty($notification_settings['appointment_created']) ? 'checked' : '' ?>>
                                         </div>
                                         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                             <div>
                                                 <p class="font-bold text-gray-800">Low Stock Alerts</p>
                                                 <p class="text-xs text-gray-500 mt-1">Get notified when inventory items are low.</p>
                                             </div>
-                                            <label class="settings-toggle">
-                                                <input type="checkbox" name="preferences[low_stock_alerts]" value="1" <?= !empty($notification_settings['low_stock_alerts']) ? 'checked' : '' ?>>
-                                                <span class="settings-toggle-slider"></span>
-                                            </label>
+                                            <input type="checkbox" name="preferences[low_stock_alerts]" value="1" class="ui-toggle" <?= !empty($notification_settings['low_stock_alerts']) ? 'checked' : '' ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -783,6 +781,30 @@ function showSettingsTab(tabName, options = {}) {
         activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
     }
 
+    const tabNames = {
+        clinic: 'Clinic Profile',
+        subscription: 'Subscription',
+        system: 'System',
+        hours: 'Operations',
+        kiosk: 'Kiosk',
+        backup: 'Backup & Restore',
+        communications: 'Communications',
+    };
+    const breadcrumbTab = document.getElementById('breadcrumb-tab');
+    const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
+    const sep2 = document.getElementById('breadcrumb-sep-2');
+    const sep3 = document.getElementById('breadcrumb-sep-3');
+    if (breadcrumbTab) {
+        breadcrumbTab.textContent = tabNames[tabName] || '';
+    }
+    if (sep2) {
+        sep2.style.display = tabNames[tabName] ? '' : 'none';
+    }
+    if (tabName !== 'communications') {
+        if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
+        if (sep3) sep3.style.display = 'none';
+    }
+
     if (tabName === 'communications') {
         const params = new URLSearchParams(window.location.search);
         const requestedSubtab = communicationSubTab || params.get('subtab') || 'channels';
@@ -817,6 +839,22 @@ function showSubTab(name, options = {}) {
     if (activeBtn) {
         activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
         activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
+    }
+
+    const subNames = {
+        channels: 'Channels',
+        email: 'Email',
+        sms: 'SMS',
+        whatsapp: 'WhatsApp',
+        alerts: 'My Alerts',
+    };
+    const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
+    const sep3 = document.getElementById('breadcrumb-sep-3');
+    if (breadcrumbSubTab) {
+        breadcrumbSubTab.textContent = subNames[normalizedName] || '';
+    }
+    if (sep3) {
+        sep3.style.display = subNames[normalizedName] ? '' : 'none';
     }
 
     if (options.updateUrl === false) {
@@ -1014,30 +1052,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const kioskToggle = document.querySelector('.kiosk-toggle');
     if (kioskToggle) {
-        const label = kioskToggle.closest('label');
-        const knob = label?.querySelector('.kiosk-toggle-knob');
-        const track = label?.querySelector('.kiosk-toggle-track');
         const kioskForm = kioskToggle.closest('form');
-
-        const syncToggleVisual = () => {
-            if (!knob || !track) return;
-            if (kioskToggle.checked) {
-                knob.style.transform = 'translateX(1.25rem)';
-                knob.classList.add('bg-blue-500');
-                track.classList.remove('bg-gray-200');
-                track.classList.add('bg-blue-500');
-            } else {
-                knob.style.transform = 'translateX(0)';
-                knob.classList.remove('bg-blue-500');
-                track.classList.remove('bg-blue-500');
-                track.classList.add('bg-gray-200');
-            }
-        };
-
-        syncToggleVisual();
         kioskToggle.addEventListener('change', function() {
-            syncToggleVisual();
-
             if (!kioskForm) {
                 return;
             }
@@ -1056,12 +1072,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 kioskToggle.checked = !kioskToggle.checked;
-                syncToggleVisual();
                 const payload = await response.json().catch(() => null);
                 window.showToast?.('error', 'Error', payload?.message || 'Failed to update kiosk status.');
             }).catch(() => {
                 kioskToggle.checked = !kioskToggle.checked;
-                syncToggleVisual();
                 window.showToast?.('error', 'Error', 'Failed to update kiosk status.');
             });
         });
