@@ -29,7 +29,8 @@
     <meta name="csrf-header" content="<?= csrf_header() ?>">
     <style>
         body {
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            /* Keep control plane typography aligned with tenant plane defaults. */
+            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.82);
