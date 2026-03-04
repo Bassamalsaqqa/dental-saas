@@ -263,6 +263,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
     const chairSelect = document.getElementById('chairName');
+    const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
+
+    function setTimeOptions(options) {
+        timeSelect.replaceChildren();
+        options.forEach((item) => {
+            const option = document.createElement('option');
+            option.value = item.value ?? '';
+            option.textContent = item.label ?? '';
+            timeSelect.appendChild(option);
+        });
+    }
+
+    function normalizeSlotsPayload(data) {
+        if (data && data.csrf_token && window.refreshCsrfToken) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+
+        if (Array.isArray(data)) {
+            return { slots: data, error: null };
+        }
+
+        if (data && typeof data === 'object') {
+            const directSlots = Array.isArray(data.slots) ? data.slots : [];
+            if (directSlots.length > 0) {
+                return { slots: directSlots, error: null };
+            }
+
+            const extractedSlots = Object.values(data).filter((item) =>
+                item && typeof item === 'object' && Object.prototype.hasOwnProperty.call(item, 'value') && Object.prototype.hasOwnProperty.call(item, 'display')
+            );
+
+            return {
+                slots: extractedSlots,
+                error: typeof data.error === 'string' ? data.error : null,
+            };
+        }
+
+        return { slots: [], error: 'Invalid response format.' };
+    }
+
+    function clearSlotError() {
+        const existingError = timeSelect.parentNode.querySelector('.slot-load-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    function showSlotError(message) {
+        clearSlotError();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'slot-load-error text-red-500 text-sm mt-2';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-exclamation-circle mr-1';
+        errorDiv.appendChild(icon);
+        errorDiv.appendChild(document.createTextNode(message));
+        timeSelect.parentNode.appendChild(errorDiv);
+    }
 
     function loadAvailableTimeSlots() {
         const rawDate = (dateInput.value || '').trim();
@@ -270,114 +328,55 @@ document.addEventListener('DOMContentLoaded', function() {
         const duration = durationSelect.value;
         const chairName = (chairSelect?.value || '').trim();
 
-        console.log('Loading time slots for raw date:', rawDate, 'ISO date:', date, 'duration:', duration, 'chair:', chairName);
-
         if (date && duration && chairName) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                const invalidOption = document.createElement('option');
-                invalidOption.value = "";
-                invalidOption.textContent = "Enter a valid date first";
-                timeSelect.replaceChildren(invalidOption);
+                setTimeOptions([{ value: '', label: 'Enter a valid date first' }]);
                 timeSelect.disabled = true;
+                clearSlotError();
                 return;
             }
 
-            // Show loading state
-            const loadingOption = document.createElement('option');
-            loadingOption.value = "";
-            loadingOption.textContent = "Loading time slots...";
-            timeSelect.replaceChildren(loadingOption);
+            setTimeOptions([{ value: '', label: 'Loading time slots...' }]);
             timeSelect.disabled = true;
+            clearSlotError();
 
-            const url = `<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&chair_name=${encodeURIComponent(chairName)}`;
-            console.log('Fetching URL:', url);
-
-            fetch(url)
+            fetch(`${apiBase}?date=${date}&duration=${duration}&chair_name=${encodeURIComponent(chairName)}`)
                 .then(response => {
-                    console.log('Response status:', response.status);
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error(`HTTP ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Received data:', data);
-                    
-                    const selectOption = document.createElement('option');
-                    selectOption.value = "";
-                    selectOption.textContent = "Select time";
-                    timeSelect.replaceChildren(selectOption);
-                    
-                    // Handle CSRF token if present
-                    if (data.csrf_token && window.refreshCsrfToken) {
-                        window.refreshCsrfToken(data.csrf_token);
-                    }
-
-                    let slots = [];
-                    if (Array.isArray(data)) {
-                        slots = data;
-                    } else if (typeof data === 'object' && data !== null) {
-                        // Filter out csrf_token and keep only slot objects
-                        slots = Object.values(data).filter(item => 
-                            typeof item === 'object' && item !== null && item.hasOwnProperty('value') && item.hasOwnProperty('display')
-                        );
-                    }
+                    const normalized = normalizeSlotsPayload(data);
+                    const slots = normalized.slots;
 
                     if (slots.length > 0) {
-                        const fragment = document.createDocumentFragment();
-                        slots.forEach(timeSlot => {
-                            const option = document.createElement('option');
-                            option.value = timeSlot.value;
-                            option.textContent = timeSlot.display;
-                            fragment.appendChild(option);
-                        });
-                        timeSelect.appendChild(fragment);
-                        console.log('Added', slots.length, 'time slots');
+                        setTimeOptions([{ value: '', label: 'Select time' }].concat(
+                            slots.map((slot) => ({ value: slot.value, label: slot.display }))
+                        ));
+                        clearSlotError();
                     } else {
-                        const noSlotsOption = document.createElement('option');
-                        noSlotsOption.value = "";
-                        noSlotsOption.textContent = "No available time slots";
-                        timeSelect.replaceChildren(noSlotsOption);
-                        console.log('No time slots available');
+                        if (normalized.error) {
+                            setTimeOptions([{ value: '', label: normalized.error }]);
+                        } else {
+                            setTimeOptions([{ value: '', label: 'No available time slots' }]);
+                        }
+                        clearSlotError();
                     }
-                    
+
                     timeSelect.disabled = false;
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    
-                    const errorOption = document.createElement('option');
-                    errorOption.value = "";
-                    errorOption.textContent = "Error loading time slots";
-                    timeSelect.replaceChildren(errorOption);
-                    
+                    setTimeOptions([{ value: '', label: 'Error loading time slots' }]);
                     timeSelect.disabled = false;
-                    
-                    // Show error message to user
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'text-red-500 text-sm mt-2';
-                    
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-exclamation-circle mr-1';
-                    errorDiv.appendChild(icon);
-                    errorDiv.appendChild(document.createTextNode('Failed to load time slots. Please try again.'));
-                    
-                    // Remove any existing error message
-                    const existingError = timeSelect.parentNode.querySelector('.text-red-500');
-                    if (existingError) {
-                        existingError.remove();
-                    }
-                    
-                    timeSelect.parentNode.appendChild(errorDiv);
+                    showSlotError('Failed to load time slots. Please try again.');
                 });
         } else {
-            const promptOption = document.createElement('option');
-            promptOption.value = "";
-            promptOption.textContent = "Select chair, date, and duration first";
-            timeSelect.replaceChildren(promptOption);
-            
+            setTimeOptions([{ value: '', label: 'Select chair, date, and duration first' }]);
             timeSelect.disabled = true;
-            console.log('Chair/date/duration missing - chair:', chairName, 'date:', date, 'duration:', duration);
+            clearSlotError();
         }
     }
 

@@ -271,6 +271,62 @@ document.addEventListener('DOMContentLoaded', function() {
     const chairSelect = document.getElementById('chairName');
     const currentTime = '<?= $appointment['appointment_time'] ?>';
     const appointmentId = '<?= $appointment['id'] ?>';
+    const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
+
+    function setTimeOptions(options, selectedValue = '') {
+        timeSelect.replaceChildren();
+        options.forEach((item) => {
+            const option = document.createElement('option');
+            option.value = item.value ?? '';
+            option.textContent = item.label ?? '';
+            if (selectedValue && option.value === selectedValue) {
+                option.selected = true;
+            }
+            timeSelect.appendChild(option);
+        });
+    }
+
+    function normalizeSlotsPayload(data) {
+        if (data && data.csrf_token && window.refreshCsrfToken) {
+            window.refreshCsrfToken(data.csrf_token);
+        }
+
+        if (Array.isArray(data)) {
+            return { slots: data, error: null };
+        }
+
+        if (data && typeof data === 'object') {
+            const directSlots = Array.isArray(data.slots) ? data.slots : [];
+            if (directSlots.length > 0) {
+                return { slots: directSlots, error: null };
+            }
+
+            const extractedSlots = Object.values(data).filter((item) =>
+                item && typeof item === 'object' && Object.prototype.hasOwnProperty.call(item, 'value') && Object.prototype.hasOwnProperty.call(item, 'display')
+            );
+
+            return {
+                slots: extractedSlots,
+                error: typeof data.error === 'string' ? data.error : null,
+            };
+        }
+
+        return { slots: [], error: 'Invalid response format.' };
+    }
+
+    function appendCurrentTimeIfMissing(slots) {
+        if (!currentTime) {
+            return;
+        }
+        const hasCurrent = slots.some((slot) => slot && slot.value === currentTime);
+        if (!hasCurrent) {
+            const currentOption = document.createElement('option');
+            currentOption.value = currentTime;
+            currentOption.textContent = `${currentTime} (Current)`;
+            currentOption.selected = true;
+            timeSelect.appendChild(currentOption);
+        }
+    }
 
     function loadAvailableTimeSlots() {
         const rawDate = (dateInput.value || '').trim();
@@ -279,82 +335,47 @@ document.addEventListener('DOMContentLoaded', function() {
         const chairName = (chairSelect?.value || '').trim();
 
         if (date && duration && chairName) {
-            fetch(`<?= base_url('appointment/available-time-slots') ?>?date=${date}&duration=${duration}&exclude_id=${appointmentId}&chair_name=${encodeURIComponent(chairName)}`)
-                .then(response => response.json())
-                .then(data => {
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = "";
-                    defaultOption.textContent = "Select time";
-                    timeSelect.replaceChildren(defaultOption);
-                    
-                    if (Array.isArray(data)) {
-                        const fragment = document.createDocumentFragment();
-                        data.forEach(timeSlot => {
-                            const option = document.createElement('option');
-                            option.value = timeSlot.value;
-                            option.textContent = timeSlot.display;
-                            if (timeSlot.value === currentTime) {
-                                option.selected = true;
-                            }
-                            fragment.appendChild(option);
-                        });
-                        timeSelect.appendChild(fragment);
-                        
-                        // If current time is not in available slots, add it anyway for editing
-                        if (currentTime && !data.some(slot => slot.value === currentTime)) {
-                            const currentOption = document.createElement('option');
-                            currentOption.value = currentTime;
-                            currentOption.textContent = currentTime + ' (Current)';
-                            currentOption.selected = true;
-                            timeSelect.appendChild(currentOption);
-                        }
-                    } else {
-                        console.error('Invalid data format:', data);
-                        const errorOption = document.createElement('option');
-                        errorOption.value = "";
-                        errorOption.textContent = "Error loading times";
-                        timeSelect.replaceChildren(errorOption);
-                        
-                        // Add current time even if there's an error
-                        if (currentTime) {
-                            const currentOption = document.createElement('option');
-                            currentOption.value = currentTime;
-                            currentOption.textContent = currentTime;
-                            currentOption.selected = true;
-                            timeSelect.appendChild(currentOption);
-                        }
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                setTimeOptions([{ value: '', label: 'Enter a valid date first' }], '');
+                appendCurrentTimeIfMissing([]);
+                return;
+            }
+
+            setTimeOptions([{ value: '', label: 'Loading time slots...' }], '');
+
+            fetch(`${apiBase}?date=${date}&duration=${duration}&exclude_id=${appointmentId}&chair_name=${encodeURIComponent(chairName)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    const normalized = normalizeSlotsPayload(data);
+                    if (normalized.slots.length > 0) {
+                        const options = [{ value: '', label: 'Select time' }].concat(
+                            normalized.slots.map((slot) => ({ value: slot.value, label: slot.display }))
+                        );
+                        setTimeOptions(options, currentTime);
+                        appendCurrentTimeIfMissing(normalized.slots);
+                        return;
+                    }
+
+                    if (normalized.error) {
+                        setTimeOptions([{ value: '', label: normalized.error }], '');
+                    } else {
+                        setTimeOptions([{ value: '', label: 'No available time slots' }], '');
+                    }
+                    appendCurrentTimeIfMissing(normalized.slots);
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    const errorOption = document.createElement('option');
-                    errorOption.value = "";
-                    errorOption.textContent = "Error loading times";
-                    timeSelect.replaceChildren(errorOption);
-                    
-                    // Add current time even if there's an error
-                    if (currentTime) {
-                        const currentOption = document.createElement('option');
-                        currentOption.value = currentTime;
-                        currentOption.textContent = currentTime;
-                        currentOption.selected = true;
-                        timeSelect.appendChild(currentOption);
-                    }
+                    setTimeOptions([{ value: '', label: 'Error loading times' }], '');
+                    appendCurrentTimeIfMissing([]);
                 });
         } else {
-            // If no date/duration, just show current time
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "";
-            defaultOption.textContent = "Select time";
-            timeSelect.replaceChildren(defaultOption);
-            
-            if (currentTime) {
-                const currentOption = document.createElement('option');
-                currentOption.value = currentTime;
-                currentOption.textContent = currentTime;
-                currentOption.selected = true;
-                timeSelect.appendChild(currentOption);
-            }
+            setTimeOptions([{ value: '', label: 'Select chair, date, and duration first' }], '');
+            appendCurrentTimeIfMissing([]);
         }
     }
 
