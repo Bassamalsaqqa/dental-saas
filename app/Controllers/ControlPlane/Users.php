@@ -24,6 +24,14 @@ class Users extends BaseController
     }
 
     /**
+     * Control-plane queries on clinic_users must not require tenant session context.
+     */
+    private function clinicUserModel(): ClinicUserModel
+    {
+        return (new ClinicUserModel())->withoutTenantScope();
+    }
+
+    /**
      * GET/POST /controlplane/users
      */
     public function index()
@@ -113,7 +121,7 @@ class Users extends BaseController
     private function buildUserRows(string $statusFilter, string $search): array
     {
         $userModel = new UserModel();
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = $this->clinicUserModel();
 
         $builder = $userModel->orderBy('created_on', 'DESC');
 
@@ -208,7 +216,7 @@ class Users extends BaseController
         }
 
         // Fetch Clinic Memberships
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = $this->clinicUserModel();
         $memberships = $clinicUserModel->getMemberships($id);
         
         // Fetch Global Roles
@@ -292,7 +300,7 @@ class Users extends BaseController
             return redirect()->back()->with('error', 'Invalid role selected for this clinic.');
         }
 
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = $this->clinicUserModel();
         $existing = $clinicUserModel
             ->where('clinic_id', $clinicId)
             ->where('user_id', $id)
@@ -336,7 +344,7 @@ class Users extends BaseController
      */
     public function updateMembershipRole(int $id, int $membershipId)
     {
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = $this->clinicUserModel();
         $membership = $clinicUserModel->find($membershipId);
         if (!$membership || (int) $membership['user_id'] !== $id) {
             return redirect()->back()->with('error', 'Membership not found.');
@@ -386,7 +394,7 @@ class Users extends BaseController
      */
     public function removeMembership(int $id, int $membershipId)
     {
-        $clinicUserModel = new ClinicUserModel();
+        $clinicUserModel = $this->clinicUserModel();
         $membership = $clinicUserModel->find($membershipId);
         if (!$membership || (int) $membership['user_id'] !== $id) {
             return redirect()->back()->with('error', 'Membership not found.');
@@ -437,7 +445,7 @@ class Users extends BaseController
 
     private function countActiveClinicManagers(int $clinicId): int
     {
-        $memberships = (new ClinicUserModel())
+        $memberships = $this->clinicUserModel()
             ->where('clinic_id', $clinicId)
             ->where('status', 'active')
             ->findAll();
