@@ -32,6 +32,87 @@
             /* Keep control plane typography aligned with tenant plane defaults. */
             font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
         }
+        /*
+         * Control-plane typography contract:
+         * Align all CP pages (and tab content) to the /controlplane/roles hierarchy.
+         */
+        .cp-content {
+            color: #374151;
+            line-height: 1.5;
+            letter-spacing: 0;
+        }
+        .cp-content h1,
+        .cp-content h2,
+        .cp-content h3,
+        .cp-content h4,
+        .cp-content h5,
+        .cp-content h6 {
+            color: #1f2937;
+            font-weight: 700;
+            letter-spacing: 0;
+            line-height: 1.3;
+            margin-top: 0;
+        }
+        .cp-content h1 { font-size: 2.25rem; margin-bottom: 0.75rem; }
+        .cp-content h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .cp-content h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .cp-content h4 { font-size: 1.125rem; margin-bottom: 0.375rem; }
+        .cp-content p,
+        .cp-content li,
+        .cp-content td,
+        .cp-content th,
+        .cp-content label,
+        .cp-content input,
+        .cp-content select,
+        .cp-content textarea,
+        .cp-content button,
+        .cp-content a {
+            letter-spacing: 0;
+        }
+        .cp-content p,
+        .cp-content li,
+        .cp-content td,
+        .cp-content label,
+        .cp-content input,
+        .cp-content select,
+        .cp-content textarea,
+        .cp-content button,
+        .cp-content a {
+            font-size: 0.875rem;
+        }
+        .cp-content th {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        .cp-content .font-black,
+        .cp-content .font-extrabold {
+            font-weight: 700 !important;
+        }
+        .cp-content .font-bold {
+            font-weight: 700 !important;
+        }
+        .cp-content .font-semibold {
+            font-weight: 600 !important;
+        }
+        .cp-content .font-medium {
+            font-weight: 500 !important;
+        }
+        .cp-content [class*="tracking-"] {
+            letter-spacing: 0 !important;
+        }
+        .cp-content .uppercase {
+            text-transform: none !important;
+        }
+        .cp-content .text-4xl { font-size: 2.25rem !important; line-height: 1.2 !important; }
+        .cp-content .text-3xl { font-size: 1.875rem !important; line-height: 1.25 !important; }
+        .cp-content .text-2xl { font-size: 1.5rem !important; line-height: 1.3 !important; }
+        .cp-content .text-xl { font-size: 1.25rem !important; line-height: 1.35 !important; }
+        .cp-content .text-lg { font-size: 1.125rem !important; line-height: 1.4 !important; }
+        .cp-content .text-base { font-size: 1rem !important; }
+        .cp-content .text-sm { font-size: 0.875rem !important; }
+        .cp-content .text-xs { font-size: 0.75rem !important; }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.82);
             border: 1px solid rgba(255, 255, 255, 0.35);
@@ -314,7 +395,7 @@
                     </div>
                 <?php endif; ?>
 
-                <div class="relative">
+                <div class="relative cp-content">
                     <?= $this->renderSection('content') ?>
                 </div>
             </main>
