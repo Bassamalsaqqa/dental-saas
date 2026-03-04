@@ -93,6 +93,47 @@
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
+
+        /* RTL parity: keep icon/text spacing identical to LTR rhythm in sidebar/menu clusters */
+        [dir="rtl"] #sidebar-nav ul li a {
+            text-align: right;
+        }
+        [dir="rtl"] #sidebar-nav ul li a i {
+            margin-right: 0 !important;
+            margin-left: 0.75rem !important;
+        }
+        [dir="rtl"] #sidebar .space-x-1 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #sidebar .space-x-2 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #sidebar .space-x-3 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #sidebar .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+        [dir="rtl"] #main-header .space-x-1 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-header .space-x-2 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-header .space-x-3 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-header .space-x-4 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-1 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-2 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-3 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-4 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-5 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] #main-content .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+        [dir="rtl"] button i.mr-1,
+        [dir="rtl"] a i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+        [dir="rtl"] button i.mr-2,
+        [dir="rtl"] a i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+        [dir="rtl"] button i.mr-3,
+        [dir="rtl"] a i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
+        [dir="rtl"] button i.mr-4,
+        [dir="rtl"] a i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
+        [dir="rtl"] #main-header i.mr-1, [dir="rtl"] #main-content i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+        [dir="rtl"] #main-header i.mr-2, [dir="rtl"] #main-content i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+        [dir="rtl"] #main-header i.mr-3, [dir="rtl"] #main-content i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
+        [dir="rtl"] #main-header i.mr-4, [dir="rtl"] #main-content i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
+        [dir="rtl"] #main-header i.mr-5, [dir="rtl"] #main-content i.mr-5 { margin-right: 0 !important; margin-left: 1.25rem !important; }
+        [dir="rtl"] #main-header i.mr-6, [dir="rtl"] #main-content i.mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">

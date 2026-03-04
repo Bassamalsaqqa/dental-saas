@@ -65,6 +65,13 @@
     [dir="rtl"] #settings-breadcrumb .fa-chevron-right::before {
         content: "\f053";
     }
+    [dir="rtl"] .settings-menu-btn {
+        text-align: right;
+    }
+    [dir="rtl"] .settings-menu-btn i {
+        margin-right: 0 !important;
+        margin-left: 0.75rem !important;
+    }
 </style>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -99,28 +106,28 @@
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 p-6 sticky top-8">
                     <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
                     <nav class="space-y-2">
-                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-building w-5 h-5 mr-3"></i> Clinic Profile
                         </button>
-                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-layer-group w-5 h-5 mr-3"></i> Subscription
                         </button>
-                        <button onclick="showSettingsTab('system')" id="tab-system" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-cog w-5 h-5 mr-3"></i> System
                         </button>
-                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-clock w-5 h-5 mr-3"></i> Operations
                         </button>
-                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> Kiosk
                         </button>
-                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                             <i class="fas fa-database w-5 h-5 mr-3"></i> Backup &amp; Restore
                         </button>
                         
                         <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
                             <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
-                            <button onclick="showSettingsTab('communications')" id="tab-communications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                            <button onclick="showSettingsTab('communications')" id="tab-communications" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
                                 <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> Communications
                             </button>
                         </div>

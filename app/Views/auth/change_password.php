@@ -61,6 +61,8 @@
             font-size: 3rem;
             margin-bottom: 1rem;
         }
+        [dir="rtl"] .text-start { text-align: right !important; }
+        [dir="rtl"] .text-end { text-align: left !important; }
     </style>
 </head>
 <body>

@@ -153,6 +153,19 @@
         .animate-footer-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-5 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+        [dir="rtl"] i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+        [dir="rtl"] i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+        [dir="rtl"] i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
+        [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
+        [dir="rtl"] .text-left { text-align: right !important; }
     </style>
 </body>
 </html>

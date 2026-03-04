@@ -125,6 +125,31 @@
             box-shadow: 0 20px 50px -40px rgba(15, 23, 42, 0.35);
             backdrop-filter: blur(20px);
         }
+        /* RTL spacing parity */
+        [dir="rtl"] #sidebar-nav ul li a {
+            text-align: right;
+        }
+        [dir="rtl"] #sidebar-nav ul li a i {
+            margin-right: 0 !important;
+            margin-left: 0.75rem !important;
+        }
+        [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-5 > :not([hidden]) ~ :not([hidden]),
+        [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-x-reverse: 1;
+        }
+        [dir="rtl"] i.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+        [dir="rtl"] i.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+        [dir="rtl"] i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
+        [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
+        [dir="rtl"] i.mr-5 { margin-right: 0 !important; margin-left: 1.25rem !important; }
+        [dir="rtl"] i.mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
+        [dir="rtl"] .text-left {
+            text-align: right !important;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen">
