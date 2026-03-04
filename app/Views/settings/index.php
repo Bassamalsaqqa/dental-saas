@@ -208,7 +208,7 @@
                             </div>
                         </div>
                         <div class="p-8">
-                            <form action="<?= base_url('settings/updateSystem') ?>" method="POST">
+                            <form id="system-settings-form" action="<?= base_url('settings/updateSystem') ?>" method="POST">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="redirect_tab" value="system">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -216,19 +216,15 @@
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">Date Format</label><select name="date_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="Y-m-d" <?= ($settings['date_format'] ?? '') == 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option><option value="m/d/Y" <?= ($settings['date_format'] ?? '') == 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option><option value="d/m/Y" <?= ($settings['date_format'] ?? '') == 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option></select><p class="text-xs text-gray-500 mt-1">Controls how dates appear across the system.</p></div>
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label><select name="time_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="24" <?= ($settings['time_format'] ?? '') == '24' ? 'selected' : '' ?>>24 Hour</option><option value="12" <?= ($settings['time_format'] ?? '') == '12' ? 'selected' : '' ?>>12 Hour</option></select><p class="text-xs text-gray-500 mt-1">24-hour or 12-hour (AM/PM) display.</p></div>
                                     <div>
-                                        <div id="lang-change-notice" class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-700 text-sm flex items-center">
-                                            <i class="fas fa-globe mr-2"></i>
-                                            Changing the language will reload the page. Your current tab will be preserved.
-                                        </div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">UI Language</label>
                                         <select name="ui_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required>
                                             <option value="en" <?= ($settings['ui_language'] ?? 'en') == 'en' ? 'selected' : '' ?>>English</option>
                                             <option value="ar" <?= ($settings['ui_language'] ?? 'en') == 'ar' ? 'selected' : '' ?>>Arabic</option>
                                         </select>
-                                        <p class="text-xs text-gray-500 mt-1">Changes the interface language. The page will reload after saving.</p>
+                                        <p class="text-xs text-gray-500 mt-1">Changes the interface language.</p>
                                     </div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
+                                <div class="mt-8 flex justify-end"><button type="button" onclick="submitSystemSettings(this)" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
                             </form>
                         </div>
                     </div>
@@ -687,6 +683,23 @@ function setButtonLoading(btn, loading) {
     }
 }
 
+function submitSystemSettings(btn) {
+    const form = document.getElementById('system-settings-form');
+    if (!form) {
+        return;
+    }
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    setButtonLoading(btn, true);
+    if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+    } else {
+        form.submit();
+    }
+}
+
 function getFieldErrorElement(input) {
     if (!input || !input.parentNode) return null;
     let errorEl = input.parentNode.querySelector(`.field-error[data-for="${input.id || input.name}"]`);
@@ -1104,19 +1117,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         syncSmsBaseUrlVisibility();
         smsProvider.addEventListener('change', syncSmsBaseUrlVisibility);
-    }
-
-    const uiLanguageSelect = document.querySelector('select[name="ui_language"]');
-    const langChangeNotice = document.getElementById('lang-change-notice');
-    if (uiLanguageSelect && langChangeNotice) {
-        const initialLanguage = uiLanguageSelect.value;
-        uiLanguageSelect.addEventListener('change', function() {
-            if (this.value !== initialLanguage) {
-                langChangeNotice.classList.remove('hidden');
-            } else {
-                langChangeNotice.classList.add('hidden');
-            }
-        });
     }
 
     const clinicEmail = document.querySelector('input[name="clinic_email"]');
