@@ -671,6 +671,11 @@ let confirmModalAction = null;
 function setButtonLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
+        // Prevent "stuck on Saving..." when browser validation blocks submit.
+        if (btn.form && !btn.form.checkValidity()) {
+            btn.form.reportValidity();
+            return;
+        }
         btn.dataset.originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
         btn.disabled = true;
@@ -1081,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (typeof $ !== 'undefined' && $.fn.select2) { $('select').select2({ theme: 'default', width: '100%' }); }
+    // Keep native selects to preserve built-in required/validity UX for settings forms.
     const smsConfig = <?= json_encode($sms_config ?? [], JSON_UNESCAPED_UNICODE) ?>;
     const smsProvider = document.getElementById('sms_provider');
     const smsSenderId = document.getElementById('sms_sender_id');
