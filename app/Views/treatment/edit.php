@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-amber-900 transition-colors duration-300">Edit Treatment</h3>
-                                <p class="text-gray-600 font-medium">Update treatment details and information</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-amber-900 transition-colors duration-300"><?= lang('Treatment.edit_treatment') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('Treatment.edit_treatment_subtitle') ?></p>
                             </div>
                         </div>
                         
@@ -29,7 +29,7 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('treatment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= lang('Treatment.back') ?></span>
                             </a>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-user text-blue-600"></i>
-                                <span>Select Patient *</span>
+                                <span><?= lang('Treatment.select_patient_required') ?></span>
                             </label>
                                                             <div class="relative">
                                                                 <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
@@ -54,9 +54,9 @@
                                                                         data-minimum-input-length="0"
                                                                         data-limit="5"
                                                                         data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                                                        data-placeholder="Search patients by name, phone, or ID..."
+                                                                        data-placeholder="<?= lang('Treatment.search_patients_placeholder') ?>"
                                                                         required>
-                                                                    <option value="">Select a patient</option>
+                                                                    <option value=""><?= lang('Treatment.select_patient') ?></option>
                                                                     <?php if (!empty($patients)): ?>
                                                                         <?php foreach ($patients as $patient): ?>
                                                                             <option value="<?= $patient['id'] ?>" selected>
@@ -81,7 +81,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-stethoscope text-purple-600"></i>
-                                    <span>Treatment Type *</span>
+                                    <span><?= lang('Treatment.treatment_type_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select id="treatment_type" name="treatment_type" 
@@ -90,9 +90,9 @@
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/treatment-types') ?>"
-                                            data-placeholder="Search treatment types..."
+                                            data-placeholder="<?= lang('Treatment.search_treatment_types_placeholder') ?>"
                                             required>
-                                        <option value="">Select Treatment Type</option>
+                                        <option value=""><?= lang('Treatment.select_treatment_type') ?></option>
                                         <?php if (!empty($treatment_types)): ?>
                                             <?php foreach ($treatment_types as $key => $value): ?>
                                                 <option value="<?= $key ?>" <?= (old('treatment_type', $treatment['treatment_type']) == $key) ? 'selected' : '' ?>>
@@ -116,12 +116,12 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-tooth text-cyan-600"></i>
-                                    <span>Tooth Number</span>
+                                    <span><?= lang('Treatment.tooth_number') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="tooth_number" name="tooth_number" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('tooth_number', $treatment['tooth_number']) ?>" maxlength="10" placeholder="e.g., 11, 12, 21, 22, etc.">
+                                           value="<?= old('tooth_number', $treatment['tooth_number']) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-tooth text-gray-400"></i>
                                     </div>
@@ -134,7 +134,7 @@
                                 <?php endif; ?>
                                 <p class="text-gray-500 text-sm mt-2 flex items-center space-x-1">
                                     <i class="fas fa-info-circle"></i>
-                                    <span>Leave empty if not applicable</span>
+                                    <span><?= lang('Treatment.leave_empty_if_not_applicable') ?></span>
                                 </p>
                             </div>
                         </div>
@@ -143,12 +143,12 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-align-left text-indigo-600"></i>
-                                <span>Treatment Description *</span>
+                                <span><?= lang('Treatment.treatment_description_required') ?></span>
                             </label>
                             <div class="relative">
                                 <textarea id="description" name="description" rows="4" 
                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none"
-                                          placeholder="Provide detailed description of the treatment procedure..." required><?= old('description', $treatment['treatment_description']) ?></textarea>
+                                          placeholder="<?= lang('Treatment.treatment_description_placeholder') ?>" required><?= old('description', $treatment['treatment_description']) ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -164,12 +164,12 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-amber-600"></i>
-                                <span>Treatment Notes</span>
+                                <span><?= lang('Treatment.treatment_notes') ?></span>
                             </label>
                             <div class="relative">
                                 <textarea id="treatment_notes" name="treatment_notes" rows="3"
                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl resize-none"
-                                          placeholder="Optional internal notes for this treatment..."><?= old('treatment_notes', $treatment['treatment_notes'] ?? '') ?></textarea>
+                                          placeholder="<?= lang('Treatment.optional_treatment_notes_placeholder') ?>"><?= old('treatment_notes', $treatment['treatment_notes'] ?? '') ?></textarea>
                             </div>
                         </div>
 
@@ -178,7 +178,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span>Treatment Cost *</span>
+                                    <span><?= lang('Treatment.treatment_cost_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -186,7 +186,7 @@
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
                                            class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('cost', $treatment['cost']) ?>" placeholder="0.00" required>
+                                           value="<?= old('cost', $treatment['cost']) ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>" required>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-dollar-sign text-gray-400"></i>
                                     </div>
@@ -202,12 +202,12 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-clock text-amber-600"></i>
-                                    <span>Estimated Duration (days) *</span>
+                                    <span><?= lang('Treatment.estimated_duration_days_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" id="estimated_duration" name="estimated_duration" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('estimated_duration', $treatment['estimated_duration']) ?>" min="1" placeholder="e.g., 7" required>
+                                           value="<?= old('estimated_duration', $treatment['estimated_duration']) ?>" min="1" placeholder="<?= lang('Treatment.estimated_duration_placeholder') ?>" required>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-clock text-gray-400"></i>
                                     </div>
@@ -225,7 +225,7 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-calendar text-rose-600"></i>
-                                <span>Start Date *</span>
+                                <span><?= lang('Treatment.start_date_required') ?></span>
                             </label>
                             <div class="relative">
                                 <input type="text" id="start_date" name="start_date" data-clinic-date="1"
@@ -252,8 +252,8 @@
                                             <i class="fas fa-boxes"></i>
                                         </div>
                                         <div>
-                                            <h4 class="text-lg font-bold text-gray-900">Record Inventory Usage</h4>
-                                            <p class="text-sm text-gray-500">Optional: log materials used for this treatment</p>
+                                            <h4 class="text-lg font-bold text-gray-900"><?= lang('Treatment.record_inventory_usage') ?></h4>
+                                            <p class="text-sm text-gray-500"><?= lang('Treatment.record_inventory_usage_subtitle') ?></p>
                                         </div>
                                     </div>
                                     <label class="inline-flex items-center cursor-pointer">
@@ -261,18 +261,18 @@
                                         <div class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
                                             <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
                                         </div>
-                                        <span class="ml-3 text-sm font-semibold text-gray-700">Enable</span>
+                                        <span class="ml-3 text-sm font-semibold text-gray-700"><?= lang('Treatment.enable') ?></span>
                                     </label>
                                 </div>
 
                                 <div id="usageSection" class="hidden space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Usage Date *</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_date_required') ?></label>
                                             <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
                                         </div>
                                         <div class="flex items-end">
-                                            <p class="text-sm text-gray-500">Items must be in stock to record usage.</p>
+                                            <p class="text-sm text-gray-500"><?= lang('Treatment.items_must_be_in_stock') ?></p>
                                         </div>
                                     </div>
 
@@ -280,32 +280,32 @@
                                         <div class="usage-item bg-gray-50 p-4 rounded-xl border border-gray-200">
                                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Item *</label>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.item_required') ?></label>
                                                     <select name="usage_items[0][item_id]" class="w-full px-3 py-2 border border-gray-300 rounded-lg item-select">
-                                                        <option value="">Select item...</option>
+                                                        <option value=""><?= lang('Treatment.select_item') ?></option>
                                                         <?php foreach ($inventory_items ?? [] as $item): ?>
                                                             <option value="<?= $item['id'] ?>" data-quantity="<?= $item['quantity'] ?>" data-unit="<?= $item['unit'] ?>" data-price="<?= $item['unit_price'] ?>">
-                                                                <?= $item['item_name'] ?> (<?= $item['quantity'] ?> <?= $item['unit'] ?: 'pieces' ?>)
+                                                                <?= $item['item_name'] ?> (<?= $item['quantity'] ?> <?= $item['unit'] ?: lang('Treatment.pieces') ?>)
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.quantity_required') ?></label>
                                                     <input type="number" name="usage_items[0][quantity]" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg quantity-input">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit Cost</label>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.unit_cost') ?></label>
                                                     <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 unit-cost" readonly>
                                                 </div>
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.total_cost') ?></label>
                                                     <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 total-cost" readonly>
                                                 </div>
                                             </div>
                                             <div class="mt-3 flex justify-end">
                                                 <button type="button" class="text-red-600 hover:text-red-800 remove-usage-item hidden">
-                                                    <i class="fas fa-trash mr-1"></i>Remove
+                                                    <i class="fas fa-trash mr-1"></i><?= lang('Treatment.remove') ?>
                                                 </button>
                                             </div>
                                         </div>
@@ -313,16 +313,16 @@
 
                                     <div class="flex items-center justify-between">
                                         <button type="button" id="addUsageItem" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700">
-                                            <i class="fas fa-plus mr-2"></i>Add Item
+                                            <i class="fas fa-plus mr-2"></i><?= lang('Treatment.add_item') ?>
                                         </button>
                                         <div class="text-sm font-semibold text-gray-700">
-                                            Total: <span id="usageGrandTotal"><?= formatCurrency(0) ?></span>
+                                            <?= lang('Treatment.total') ?>: <span id="usageGrandTotal"><?= formatCurrency(0) ?></span>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Usage Notes</label>
-                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="Optional notes about usage..."></textarea>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_notes') ?></label>
+                                        <textarea name="usage_notes" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="<?= lang('Treatment.optional_usage_notes_placeholder') ?>"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -333,12 +333,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('treatment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('Treatment.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-tooth mr-2 relative z-10"></i>
-                                <span class="relative z-10">Update Treatment</span>
+                                <span class="relative z-10"><?= lang('Treatment.update_treatment') ?></span>
                             </button>
                         </div>
                     </form>

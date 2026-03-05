@@ -1,7 +1,8 @@
-<?= $this->extend('layouts/main_auth') ?>
+﻿<?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
 <?php
+$tr = static fn(string $key, array $params = []) => lang('Examination.' . $key, $params);
 $currentUri = service('request')->getUri();
 $returnToContext = ltrim($currentUri->getPath(), '/');
 $currentQuery = $currentUri->getQuery();
@@ -250,15 +251,15 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-stethoscope text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Examination Management</h1>
-                            <p class="text-gray-600">Conduct and manage patient examinations</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= esc($tr('examination_management')) ?></h1>
+                            <p class="text-gray-600"><?= esc($tr('examination_management_subtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('examinations', 'create')): ?>
                             <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
-                                New Examination
+                                <?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -287,7 +288,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Examinations</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_total_examinations')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-orange-900" id="totalExaminations">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -296,7 +297,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_vs_last_month')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -315,11 +316,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm">Completed</span>
+                                <span class="text-green-700 font-bold text-sm"><?= esc($tr('card_completed')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Completed Today</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_completed_today')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-green-900" id="completedToday">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -328,7 +329,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Today's completed</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_today_completed')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -347,11 +348,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 rounded-full border border-amber-200">
                                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-hourglass-half text-amber-600 text-sm"></i>
-                                <span class="text-amber-700 font-bold text-sm">Pending</span>
+                                <span class="text-amber-700 font-bold text-sm"><?= esc($tr('card_pending')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Pending Reviews</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_pending_reviews')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-amber-900" id="pendingReviews">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -360,7 +361,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-2/3 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Awaiting review</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_awaiting_review')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -379,11 +380,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-pink-100 px-4 py-2 rounded-full border border-red-200">
                                 <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-bolt text-red-600 text-sm"></i>
-                                <span class="text-red-700 font-bold text-sm">Emergency</span>
+                                <span class="text-red-700 font-bold text-sm"><?= esc($tr('card_emergency')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Emergency Cases</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc($tr('card_emergency_cases')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-red-900" id="emergencyCases">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -392,7 +393,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Urgent attention</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('card_urgent_attention')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -409,7 +410,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Examinations Registry</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('examinations_registry')) ?></h3>
                         </div>
                         <div class="flex items-center space-x-3">
                             <!-- Export Buttons -->
@@ -419,7 +420,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </button>
                             <button onclick="printExaminations()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= esc($tr('print')) ?>
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
@@ -438,37 +439,37 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-stethoscope text-orange-600"></i>
-                                            <span>Examination ID</span>
+                                            <span><?= esc($tr('column_examination_id')) ?></span>
                                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-user text-orange-600"></i>
-                                            <span>Patient</span>
+                                            <span><?= esc($tr('column_patient')) ?></span>
                                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-calendar-alt text-orange-600"></i>
-                                            <span>Date & Time</span>
+                                            <span><?= esc($tr('column_date_time')) ?></span>
                                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-tag text-orange-600"></i>
-                                            <span>Type</span>
+                                            <span><?= esc($tr('column_type')) ?></span>
                                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-orange-600"></i>
-                                            <span>Status</span>
+                                            <span><?= esc($tr('column_status')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-cogs text-orange-600"></i>
-                                            <span>Actions</span>
+                                            <span><?= esc($tr('column_actions')) ?></span>
                                         </div>
                                     </th>
                                 </tr>
@@ -500,7 +501,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 
                                             ($examination['status'] == 'in_progress' ? 'bg-blue-100 text-blue-800' : 
                                             ($examination['status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')) ?>">
-                                        <?= ucfirst($examination['status']) ?>
+                                        <?= esc($tr('status_' . $examination['status'])) ?>
                                     </span>
                                 </div>
                                 
@@ -523,7 +524,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <?= $examination['examination_type'] == 'emergency' ? 'bg-red-100 text-red-800' : 
                                             ($examination['examination_type'] == 'initial' ? 'bg-yellow-100 text-yellow-800' : 
                                             ($examination['examination_type'] == 'periodic' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) ?>">
-                                        <?= ucfirst(str_replace('_', ' ', $examination['examination_type'])) ?>
+                                        <?= esc($tr('type_' . $examination['examination_type'])) ?>
                                     </span>
                                 </div>
                                 
@@ -531,26 +532,26 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="flex space-x-2">
                                         <?php if (has_permission('examinations', 'view')): ?>
                                             <a href="<?= base_url('examination/' . $examination['id']) ?>" 
-                                               class="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="View Details">
+                                               class="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="<?= esc($tr('action_view_details')) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('examinations', 'edit')): ?>
                                             <a href="<?= base_url('examination/' . $examination['id'] . '/edit') ?>" 
-                                               class="text-yellow-600 hover:text-yellow-700 p-2 rounded-lg hover:bg-yellow-50 transition-colors" title="Edit">
+                                               class="text-yellow-600 hover:text-yellow-700 p-2 rounded-lg hover:bg-yellow-50 transition-colors" title="<?= esc($tr('edit_examination')) ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('examinations', 'view')): ?>
                                             <a href="<?= base_url('odontogram/' . $examination['patient_id']) ?>" 
-                                               class="text-purple-600 hover:text-purple-700 p-2 rounded-lg hover:bg-purple-50 transition-colors" title="Odontogram">
+                                               class="text-purple-600 hover:text-purple-700 p-2 rounded-lg hover:bg-purple-50 transition-colors" title="<?= esc($tr('action_view_odontogram')) ?>">
                                                 <i class="fas fa-tooth"></i>
                                             </a>
                                         <?php endif; ?>
                                     </div>
                                     <?php if (($examination['status'] == 'pending' || $examination['status'] == 'in_progress') && has_permission('examinations', 'edit')): ?>
                                         <button onclick="completeExamination(<?= $examination['id'] ?>)" 
-                                                class="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors" title="Complete">
+                                                class="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors" title="<?= esc($tr('action_complete_examination')) ?>">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     <?php endif; ?>
@@ -563,11 +564,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                             <i class="fas fa-stethoscope text-gray-400 text-2xl"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No examinations found</h3>
-                        <p class="text-gray-500 mb-4">Start by creating a new examination.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('no_examinations_found')) ?></h3>
+                        <p class="text-gray-500 mb-4"><?= esc($tr('start_creating_new_examination')) ?></p>
                         <?php if (has_permission('examinations', 'create')): ?>
                             <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                                <i class="fas fa-plus mr-2"></i>New Examination
+                                <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -580,7 +581,7 @@ $returnToContextEncoded = urlencode($returnToContext);
             <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Examination Calendar</h3>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('calendar_title')) ?></h3>
                         <div class="flex items-center space-x-4">
                             <button onclick="previousMonth()" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
                                 <i class="fas fa-chevron-left"></i>
@@ -611,8 +612,8 @@ $returnToContextEncoded = urlencode($returnToContext);
             </div>
             
             <div class="text-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Complete Examination</h3>
-                <p class="text-gray-600">Add final notes to complete this examination</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-2"><?= esc($tr('complete_examination')) ?></h3>
+                <p class="text-gray-600"><?= esc($tr('complete_examination_subtitle')) ?></p>
             </div>
             
             <form id="completeForm">
@@ -620,18 +621,18 @@ $returnToContextEncoded = urlencode($returnToContext);
                 <input type="hidden" id="examinationId" name="examination_id">
                 
                 <div class="mb-6">
-                    <label for="examination_notes" class="block text-sm font-medium text-gray-700 mb-2">Final Notes</label>
+                    <label for="examination_notes" class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('final_notes')) ?></label>
                     <textarea id="examination_notes" name="examination_notes" 
                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" 
-                              placeholder="Add any final notes about the examination, treatment recommendations, or follow-up instructions..."></textarea>
+                              placeholder="<?= esc($tr('final_notes_placeholder')) ?>"></textarea>
                 </div>
                 
                 <div class="flex space-x-4">
                     <button type="button" onclick="closeCompleteModal()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex-1">
-                        <i class="fas fa-times mr-2"></i>Cancel
+                        <i class="fas fa-times mr-2"></i><?= esc($tr('cancel')) ?>
                     </button>
                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-1">
-                        <i class="fas fa-check mr-2"></i>Complete Examination
+                        <i class="fas fa-check mr-2"></i><?= esc($tr('complete_examination')) ?>
                     </button>
                 </div>
             </form>
@@ -662,6 +663,53 @@ const permissions = {
         edit: <?= has_permission('examinations', 'edit') ? 'true' : 'false' ?>,
         delete: <?= has_permission('examinations', 'delete') ? 'true' : 'false' ?>
     }
+};
+const i18n = {
+    datatableShow: '<?= esc($tr('datatable_show'), 'js') ?>',
+    datatableSearch: '<?= esc($tr('datatable_search'), 'js') ?>',
+    errorLoadingStatistics: '<?= esc($tr('error_loading_statistics'), 'js') ?>',
+    errorLoadingData: '<?= esc($tr('error_loading_data'), 'js') ?>',
+    datatableErrorPrefix: '<?= esc($tr('datatable_error_prefix'), 'js') ?>',
+    actionViewDetails: '<?= esc($tr('action_view_details'), 'js') ?>',
+    actionEditExamination: '<?= esc($tr('action_edit_examination'), 'js') ?>',
+    actionViewOdontogram: '<?= esc($tr('action_view_odontogram'), 'js') ?>',
+    actionCompleteExamination: '<?= esc($tr('action_complete_examination'), 'js') ?>',
+    actionMoreActions: '<?= esc($tr('action_more_actions'), 'js') ?>',
+    actionPrintReport: '<?= esc($tr('action_print_report'), 'js') ?>',
+    actionDuplicate: '<?= esc($tr('action_duplicate'), 'js') ?>',
+    actionDelete: '<?= esc($tr('action_delete'), 'js') ?>',
+    deleteExaminationConfirm: '<?= esc($tr('delete_examination_confirm'), 'js') ?>',
+    errorPrefix: '<?= esc($tr('error_prefix'), 'js') ?>',
+    datatableLoadingExaminations: '<?= esc($tr('datatable_loading_examinations'), 'js') ?>',
+    datatableNoExaminationsFound: '<?= esc($tr('datatable_no_examinations_found'), 'js') ?>',
+    datatableInfo: '<?= esc($tr('datatable_info'), 'js') ?>',
+    datatableInfoEmpty: '<?= esc($tr('datatable_info_empty'), 'js') ?>',
+    datatableInfoFiltered: '<?= esc($tr('datatable_info_filtered'), 'js') ?>',
+    datatableSearchPlaceholder: '<?= esc($tr('datatable_search_placeholder'), 'js') ?>',
+    first: '<?= esc($tr('first'), 'js') ?>',
+    last: '<?= esc($tr('last'), 'js') ?>',
+    next: '<?= esc($tr('next'), 'js') ?>',
+    previous: '<?= esc($tr('previous'), 'js') ?>',
+    examinationsReport: '<?= esc($tr('examinations_report'), 'js') ?>',
+    examinationIdLabel: '<?= esc($tr('examination_id_label'), 'js') ?>',
+    typeInitial: '<?= esc($tr('type_initial'), 'js') ?>',
+    typePeriodic: '<?= esc($tr('type_periodic'), 'js') ?>',
+    typeEmergency: '<?= esc($tr('type_emergency'), 'js') ?>',
+    typeFollowUp: '<?= esc($tr('type_follow_up'), 'js') ?>',
+    statusPending: '<?= esc($tr('status_pending'), 'js') ?>',
+    statusInProgress: '<?= esc($tr('status_in_progress'), 'js') ?>',
+    statusCompleted: '<?= esc($tr('status_completed'), 'js') ?>',
+    statusCancelled: '<?= esc($tr('status_cancelled'), 'js') ?>',
+    calendarDays: [
+        '<?= esc($tr('calendar_day_sun'), 'js') ?>',
+        '<?= esc($tr('calendar_day_mon'), 'js') ?>',
+        '<?= esc($tr('calendar_day_tue'), 'js') ?>',
+        '<?= esc($tr('calendar_day_wed'), 'js') ?>',
+        '<?= esc($tr('calendar_day_thu'), 'js') ?>',
+        '<?= esc($tr('calendar_day_fri'), 'js') ?>',
+        '<?= esc($tr('calendar_day_sat'), 'js') ?>'
+    ],
+    locale: '<?= esc(strtolower(service('request')->getLocale()), 'js') ?>',
 };
 
 // Function to apply DataTables styling
@@ -698,10 +746,10 @@ function applyDataTablesStyling() {
     
     // Add clean labels with icons
     if ($('.dataTables_length label').length === 0) {
-        $('.dataTables_length').prepend('<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-list-ul mr-2 text-gray-500"></i>Show:</label>');
+        $('.dataTables_length').prepend(`<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-list-ul mr-2 text-gray-500"></i>${i18n.datatableShow}</label>`);
     }
     if ($('.dataTables_filter label').length === 0) {
-        $('.dataTables_filter').prepend('<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-search mr-2 text-gray-500"></i>Search:</label>');
+        $('.dataTables_filter').prepend(`<label class="text-sm text-gray-700 mr-3 flex items-center"><i class="fas fa-search mr-2 text-gray-500"></i>${i18n.datatableSearch}</label>`);
     }
     
     // Add icons to pagination buttons using safe DOM construction
@@ -730,7 +778,7 @@ function loadExaminationStats() {
             document.getElementById('emergencyCases').textContent = data.emergency_examinations || 0;
         })
         .catch(error => {
-            console.error('Error loading statistics:', error);
+            console.error(i18n.errorLoadingStatistics, error);
             document.getElementById('totalExaminations').textContent = '0';
             document.getElementById('completedToday').textContent = '0';
             document.getElementById('pendingReviews').textContent = '0';
@@ -779,7 +827,7 @@ $(document).ready(function() {
                     window.refreshCsrfToken(xhr.responseJSON.csrf_token);
                 }
                 
-                let errorMessage = 'Error loading data';
+                let errorMessage = i18n.errorLoadingData;
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (response.error) {
@@ -789,7 +837,7 @@ $(document).ready(function() {
                     errorMessage = xhr.responseText || error || thrown;
                 }
                 
-                alert('DataTables Error: ' + errorMessage);
+                alert(i18n.datatableErrorPrefix + ' ' + errorMessage);
             }
         },
         columns: [
@@ -805,7 +853,7 @@ $(document).ready(function() {
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">Examination ID</div>
+                                <div class="text-xs text-gray-500">${i18n.examinationIdLabel}</div>
                             </div>
                         </div>
                     `;
@@ -858,11 +906,17 @@ $(document).ready(function() {
                         'periodic': { bg: 'bg-gradient-to-r from-green-100 to-emerald-100', text: 'text-green-800', border: 'border-green-200', icon: 'calendar-check' },
                         'follow_up': { bg: 'bg-gradient-to-r from-gray-100 to-slate-100', text: 'text-gray-800', border: 'border-gray-200', icon: 'arrow-right' }
                     };
+                    const typeLabelMap = {
+                        emergency: i18n.typeEmergency,
+                        initial: i18n.typeInitial,
+                        periodic: i18n.typePeriodic,
+                        follow_up: i18n.typeFollowUp,
+                    };
                     const config = typeConfig[data] || typeConfig['follow_up'];
                     return `
                         <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${config.bg} ${config.text} border ${config.border}">
                             <i class="fas fa-${config.icon} mr-2"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1).replace('_', ' ')}
+                            ${typeLabelMap[data] || (typeLabelMap.follow_up)}
                         </span>
                     `;
                 }
@@ -877,11 +931,17 @@ $(document).ready(function() {
                         'pending': { bg: 'bg-gradient-to-r from-yellow-100 to-amber-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: 'hourglass-half' },
                         'cancelled': { bg: 'bg-gradient-to-r from-red-100 to-pink-100', text: 'text-red-800', border: 'border-red-200', icon: 'times-circle' }
                     };
+                    const statusLabelMap = {
+                        pending: i18n.statusPending,
+                        in_progress: i18n.statusInProgress,
+                        completed: i18n.statusCompleted,
+                        cancelled: i18n.statusCancelled,
+                    };
                     const config = statusConfig[data] || statusConfig['pending'];
                     return `
                         <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${config.bg} ${config.text} border ${config.border}">
                             <i class="fas fa-${config.icon} mr-2"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
+                            ${statusLabelMap[data] || statusLabelMap.pending}
                         </span>
                     `;
                 }
@@ -899,7 +959,7 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-orange-600 hover:text-orange-700 rounded-md hover:bg-orange-50 transition-colors duration-200" title="View Details">
+                               class="p-2 text-orange-600 hover:text-orange-700 rounded-md hover:bg-orange-50 transition-colors duration-200" title="${i18n.actionViewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -908,7 +968,7 @@ $(document).ready(function() {
                     if (permissions.examinations.edit) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}/edit?return_to=${returnTo}" 
-                               class="group/action relative p-2 text-blue-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-110" title="Edit Examination">
+                               class="group/action relative p-2 text-blue-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-110" title="${i18n.actionEditExamination}">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-edit relative z-10"></i>
                             </a>`;
@@ -918,7 +978,7 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('odontogram') ?>/${row.patient_id}?return_to=${returnTo}" 
-                               class="group/action relative p-2 text-purple-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 hover:scale-110" title="View Odontogram">
+                               class="group/action relative p-2 text-purple-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 hover:scale-110" title="${i18n.actionViewOdontogram}">
                                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-tooth relative z-10"></i>
                             </a>`;
@@ -928,7 +988,7 @@ $(document).ready(function() {
                     if ((row.status === 'pending' || row.status === 'in_progress') && permissions.examinations.edit) {
                         actions += `
                             <button onclick="completeExamination(${data})" 
-                                    class="group/action relative p-2 text-green-600 hover:text-green-700 rounded-xl hover:bg-green-50 transition-all duration-300 hover:scale-110" title="Complete Examination">
+                                    class="group/action relative p-2 text-green-600 hover:text-green-700 rounded-xl hover:bg-green-50 transition-all duration-300 hover:scale-110" title="${i18n.actionCompleteExamination}">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-check relative z-10"></i>
                             </button>`;
@@ -937,7 +997,7 @@ $(document).ready(function() {
                     // More actions dropdown
                     actions += `
                         <div class="relative">
-                            <button onclick="toggleDropdown(${data})" class="p-2 text-gray-600 hover:text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-110" title="More Actions">
+                            <button onclick="toggleDropdown(${data})" class="p-2 text-gray-600 hover:text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-110" title="${i18n.actionMoreActions}">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div id="dropdown-${data}" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 z-10 hidden">
@@ -947,7 +1007,7 @@ $(document).ready(function() {
                     if (permissions.examinations.view) {
                         actions += `
                             <a href="<?= base_url('examination') ?>/${data}/print" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                                        <i class="fas fa-print mr-3 text-gray-500"></i>Print Report
+                                        <i class="fas fa-print mr-3 text-gray-500"></i>${i18n.actionPrintReport}
                                     </a>`;
                     }
                     
@@ -955,7 +1015,7 @@ $(document).ready(function() {
                     if (permissions.examinations.create) {
                         actions += `
                                     <a href="<?= base_url('examination') ?>/${data}/duplicate" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
-                                        <i class="fas fa-copy mr-3 text-blue-600"></i>Duplicate
+                                        <i class="fas fa-copy mr-3 text-blue-600"></i>${i18n.actionDuplicate}
                                     </a>`;
                     }
                     
@@ -963,7 +1023,7 @@ $(document).ready(function() {
                     if (permissions.examinations.delete) {
                         actions += `
                                     <button onclick="deleteExamination(${data})" class="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors duration-200">
-                                        <i class="fas fa-trash mr-3 text-red-600"></i>Delete
+                                        <i class="fas fa-trash mr-3 text-red-600"></i>${i18n.actionDelete}
                                     </button>`;
                     }
                     
@@ -981,19 +1041,19 @@ $(document).ready(function() {
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         language: {
-            processing: "Loading examinations...",
+            processing: i18n.datatableLoadingExaminations,
             lengthMenu: "_MENU_",
-            zeroRecords: "No examinations found",
-            info: "Showing _START_ to _END_ of _TOTAL_ examinations",
-            infoEmpty: "No examinations available",
-            infoFiltered: "(filtered from _MAX_ total examinations)",
+            zeroRecords: i18n.datatableNoExaminationsFound,
+            info: i18n.datatableInfo,
+            infoEmpty: i18n.datatableInfoEmpty,
+            infoFiltered: i18n.datatableInfoFiltered,
             search: "",
-            searchPlaceholder: "Search examinations...",
+            searchPlaceholder: i18n.datatableSearchPlaceholder,
             paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+                first: i18n.first,
+                last: i18n.last,
+                next: i18n.next,
+                previous: i18n.previous
             }
         },
         dom: '<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
@@ -1002,7 +1062,7 @@ $(document).ready(function() {
                 extend: 'pdf',
                 text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
                 className: 'btn-pdf',
-                title: 'Examinations Report',
+                title: i18n.examinationsReport,
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
@@ -1011,9 +1071,9 @@ $(document).ready(function() {
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print mr-2"></i>Print',
+                text: '<i class="fas fa-print mr-2"></i><?= esc($tr('print'), 'js') ?>',
                 className: 'btn-print',
-                title: 'Examinations Report',
+                title: i18n.examinationsReport,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Adjust column indices as needed
                 }
@@ -1022,7 +1082,7 @@ $(document).ready(function() {
                 extend: 'csv',
                 text: '<i class="fas fa-file-csv mr-2"></i>CSV',
                 className: 'btn-csv',
-                title: 'Examinations Report',
+                title: i18n.examinationsReport,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Adjust column indices as needed
                 }
@@ -1095,14 +1155,13 @@ function generateCalendar() {
     const month = currentMonth.getMonth();
     
     // Update month display
-    document.getElementById('currentMonth').textContent = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('currentMonth').textContent = currentMonth.toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric' });
     
     // Clear calendar
     calendarGrid.replaceChildren();
     
     // Add day headers
-    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    dayHeaders.forEach(day => {
+    i18n.calendarDays.forEach(day => {
         const dayHeader = document.createElement('div');
         dayHeader.className = 'p-2 text-center text-sm font-semibold text-gray-600 bg-gray-50';
         dayHeader.textContent = day;
@@ -1178,7 +1237,7 @@ function completeExamination(examinationId) {
 }
 
 function deleteExamination(examinationId) {
-    if (confirm('Are you sure you want to delete this examination?')) {
+    if (confirm(i18n.deleteExaminationConfirm)) {
         fetch(`<?= base_url('examination') ?>/${examinationId}/delete`, {
             method: 'DELETE',
             headers: {
@@ -1194,7 +1253,7 @@ function deleteExamination(examinationId) {
             if (data.success) {
                 examinationsTable.ajax.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert(i18n.errorPrefix + ' ' + data.message);
             }
         });
     }
@@ -1231,7 +1290,7 @@ document.getElementById('completeForm').addEventListener('submit', function(e) {
             closeCompleteModal();
             examinationsTable.ajax.reload();
         } else {
-            alert('Error: ' + data.message);
+            alert(i18n.errorPrefix + ' ' + data.message);
         }
     });
 });
@@ -1277,3 +1336,4 @@ document.addEventListener('click', function(e) {
 });
 </script>
 <?= $this->endSection() ?>
+

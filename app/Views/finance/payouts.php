@@ -55,8 +55,8 @@
                         <i class="fas fa-hand-holding-dollar text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900">Provider Payouts</h1>
-                        <p class="text-gray-600">Track provider split liabilities and payout settlement status.</p>
+                        <h1 class="text-3xl font-bold text-gray-900"><?= lang('Finance.providerPayouts') ?></h1>
+                        <p class="text-gray-600"><?= lang('Finance.providerPayoutsHelp') ?></p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -83,13 +83,13 @@
                         </div>
                         <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-blue-100 px-3 py-1.5 rounded-full border border-indigo-200">
                             <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                            <span class="text-indigo-700 font-bold text-xs">Split</span>
+                            <span class="text-indigo-700 font-bold text-xs"><?= lang('Finance.split') ?></span>
                         </div>
                     </div>
                     <div class="space-y-2 flex-1 flex flex-col justify-end">
-                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Provider Share Total</p>
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.providerShareTotal') ?></p>
                         <p class="text-3xl font-black text-indigo-900"><?= formatCurrency($stats['total_provider_share'] ?? 0) ?></p>
-                        <p class="text-xs text-gray-500 font-medium">Accrued provider entitlement</p>
+                        <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.accruedProviderEntitlement') ?></p>
                     </div>
                 </div>
             </div>
@@ -106,13 +106,13 @@
                         </div>
                         <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-orange-100 px-3 py-1.5 rounded-full border border-rose-200">
                             <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                            <span class="text-rose-700 font-bold text-xs">Due</span>
+                            <span class="text-rose-700 font-bold text-xs"><?= lang('Finance.due') ?></span>
                         </div>
                     </div>
                     <div class="space-y-2 flex-1 flex flex-col justify-end">
-                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Outstanding Payable</p>
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.outstandingPayable') ?></p>
                         <p class="text-3xl font-black text-rose-900"><?= formatCurrency($stats['total_provider_balance'] ?? 0) ?></p>
-                        <p class="text-xs text-gray-500 font-medium">Pending provider payouts</p>
+                        <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.pendingProviderPayouts') ?></p>
                     </div>
                 </div>
             </div>
@@ -129,13 +129,13 @@
                         </div>
                         <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
                             <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                            <span class="text-emerald-700 font-bold text-xs">Net</span>
+                            <span class="text-emerald-700 font-bold text-xs"><?= lang('Finance.net') ?></span>
                         </div>
                     </div>
                     <div class="space-y-2 flex-1 flex flex-col justify-end">
-                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Clinic Share Total</p>
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.clinicShareTotal') ?></p>
                         <p class="text-3xl font-black text-emerald-900"><?= formatCurrency($stats['total_clinic_share'] ?? 0) ?></p>
-                        <p class="text-xs text-gray-500 font-medium">Retained by clinic</p>
+                        <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.retainedByClinic') ?></p>
                     </div>
                 </div>
             </div>
@@ -146,19 +146,19 @@
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center space-x-3">
                         <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Payout Ledger</h3>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= lang('Finance.payoutLedger') ?></h3>
                     </div>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400">
-                            <option value="">All statuses</option>
-                            <option value="unpaid">Unpaid</option>
-                            <option value="partial">Partial</option>
-                            <option value="paid">Paid</option>
-                            <option value="void">Void</option>
+                            <option value=""><?= lang('Finance.allStatuses') ?></option>
+                            <option value="unpaid"><?= lang('Finance.unpaid') ?></option>
+                            <option value="partial"><?= lang('Finance.partial') ?></option>
+                            <option value="paid"><?= lang('Finance.paid') ?></option>
+                            <option value="void"><?= lang('Finance.void') ?></option>
                         </select>
                         <div class="relative">
                             <span class="absolute left-3 top-2.5 text-gray-400 text-sm"><i class="fas fa-search"></i></span>
-                            <input id="payoutSearch" type="text" class="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="Search provider, patient, txn...">
+                            <input id="payoutSearch" type="text" class="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
                         </div>
                     </div>
                 </div>
@@ -167,14 +167,14 @@
                 <table id="providerPayoutsTable" class="w-full min-w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-receipt text-indigo-600 mr-2"></i>Transaction</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user text-indigo-600 mr-2"></i>Patient</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-indigo-600 mr-2"></i>Provider</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-indigo-600 mr-2"></i>Split</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-wallet text-indigo-600 mr-2"></i>Paid / Balance</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-info-circle text-indigo-600 mr-2"></i>Status</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-calendar text-indigo-600 mr-2"></i>Date</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-cogs text-indigo-600 mr-2"></i>Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-receipt text-indigo-600 mr-2"></i><?= lang('Finance.transaction') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user text-indigo-600 mr-2"></i><?= lang('Finance.patient') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-indigo-600 mr-2"></i><?= lang('Finance.provider') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-indigo-600 mr-2"></i><?= lang('Finance.split') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-wallet text-indigo-600 mr-2"></i><?= lang('Finance.paidBalance') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-info-circle text-indigo-600 mr-2"></i><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-calendar text-indigo-600 mr-2"></i><?= lang('Finance.date') ?></th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-cogs text-indigo-600 mr-2"></i><?= lang('Finance.actions') ?></th>
                         </tr>
                     </thead>
                     <tbody id="providerPayoutsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
@@ -189,37 +189,37 @@
     <div class="relative min-h-full flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-white rounded-xl shadow-2xl border border-gray-200">
             <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h4 class="text-base font-semibold text-gray-900">Record Provider Payout</h4>
+                <h4 class="text-base font-semibold text-gray-900"><?= lang('Finance.recordProviderPayout') ?></h4>
                 <button type="button" class="text-gray-500 hover:text-gray-700" onclick="closePayoutModal()"><i class="fas fa-times"></i></button>
             </div>
             <form id="recordPayoutForm" class="p-5 space-y-4">
                 <input type="hidden" id="payoutIdInput">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Amount</label>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.amount') ?></label>
                     <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" required>
                     <p id="payoutAmountHelp" class="mt-1 text-xs text-gray-500"></p>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Payment Method</label>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.paymentMethod') ?></label>
                     <select id="payoutMethodInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400">
-                        <option value="cash">Cash</option>
-                        <option value="card">Card</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                        <option value="check">Check</option>
-                        <option value="other">Other</option>
+                        <option value="cash"><?= lang('Finance.cash') ?></option>
+                        <option value="card"><?= lang('Finance.card') ?></option>
+                        <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
+                        <option value="check"><?= lang('Finance.check') ?></option>
+                        <option value="other"><?= lang('Finance.other') ?></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Paid Date</label>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
                     <input type="date" id="payoutDateInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Notes</label>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
                     <textarea id="payoutNotesInput" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="Optional"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closePayoutModal()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Record Payment</button>
+                    <button type="button" onclick="closePayoutModal()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"><?= lang('Finance.cancel') ?></button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"><?= lang('Finance.recordPayment') ?></button>
                 </div>
             </form>
         </div>
@@ -274,7 +274,7 @@ function openPayoutModal(id, maxAmount) {
     document.getElementById('payoutIdInput').value = String(id);
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';
     document.getElementById('payoutDateInput').value = new Date().toISOString().split('T')[0];
-    document.getElementById('payoutAmountHelp').textContent = `Maximum payable: ${formatCurrency(payoutModalMaxAmount)}`;
+    document.getElementById('payoutAmountHelp').textContent = `<?= lang('Finance.maximumPayable') ?>: ${formatCurrency(payoutModalMaxAmount)}`;
     document.getElementById('recordPayoutModal').classList.remove('hidden');
 }
 
@@ -311,7 +311,7 @@ $(document).ready(function () {
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">${data || '-'}</div>
-                                    <div class="text-xs text-gray-500">Finance Transaction</div>
+                                    <div class="text-xs text-gray-500"><?= lang('Finance.financeTransaction') ?></div>
                                 </div>
                             </div>
                         </a>`;
@@ -336,7 +336,7 @@ $(document).ready(function () {
                                 <i class="${iconClass} text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data || 'Provider'}</div>
+                                <div class="text-sm font-medium text-gray-900">${data || '<?= lang('Finance.provider') ?>'}</div>
                                 <div class="text-xs text-gray-500">${subtitle}</div>
                             </div>
                         </div>`;
@@ -351,7 +351,7 @@ $(document).ready(function () {
                                 <i class="fas fa-arrow-down text-rose-500 text-xs"></i>
                                 <span>${formatCurrency(value)}</span>
                             </div>
-                            <div class="text-xs text-gray-500">of ${formatCurrency(row.gross_amount || 0)}</div>
+                            <div class="text-xs text-gray-500"><?= lang('Finance.of') ?> ${formatCurrency(row.gross_amount || 0)}</div>
                         </div>`;
                 }
             },
@@ -365,7 +365,7 @@ $(document).ready(function () {
                                 <span>${formatCurrency(value)}</span>
                             </div>
                             <div class="text-xs ${Number(row.provider_balance_due || 0) > 0 ? 'text-rose-600' : 'text-emerald-600'}">
-                                Balance: ${formatCurrency(row.provider_balance_due || 0)}
+                                <?= lang('Finance.balance') ?>: ${formatCurrency(row.provider_balance_due || 0)}
                             </div>
                         </div>`;
                 }
@@ -393,13 +393,13 @@ $(document).ready(function () {
                 render: function (id, type, row) {
                     const canSettle = row.status !== 'paid' && row.status !== 'void';
                     let actions = '<div class="flex items-center space-x-2">';
-                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="View Transaction"><i class="fas fa-eye"></i></a>`;
+                    actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
                     if (canSettle) {
-                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Record Payment"><i class="fas fa-money-bill-wave"></i></button>`;
-                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Mark Fully Paid"><i class="fas fa-check-double"></i></button>`;
+                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= lang('Finance.recordPayment') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
+                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
                     }
                     if (!canSettle) {
-                        actions += '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-500">No actions</span>';
+                        actions += '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-500"><?= lang('Finance.noActions') ?></span>';
                     }
                     actions += '</div>';
                     return actions;
@@ -410,16 +410,16 @@ $(document).ready(function () {
         order: [[0, 'desc']],
         dom: 'rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         language: {
-            processing: 'Loading payouts...',
-            zeroRecords: 'No provider payouts found',
-            info: 'Showing _START_ to _END_ of _TOTAL_ payouts',
-            infoEmpty: 'No payouts available',
-            infoFiltered: '(filtered from _MAX_ total payouts)',
+            processing: '<?= lang('Finance.loadingPayouts') ?>',
+            zeroRecords: '<?= lang('Finance.noProviderPayoutsFound') ?>',
+            info: '<?= lang('Finance.showingPayoutsInfo') ?>',
+            infoEmpty: '<?= lang('Finance.noPayoutsAvailable') ?>',
+            infoFiltered: '<?= lang('Finance.filteredPayoutsInfo') ?>',
             paginate: {
-                first: 'First',
-                last: 'Last',
-                next: 'Next',
-                previous: 'Previous'
+                first: '<?= lang('Finance.first') ?>',
+                last: '<?= lang('Finance.last') ?>',
+                next: '<?= lang('Finance.next') ?>',
+                previous: '<?= lang('Finance.previous') ?>'
             }
         },
         createdRow: function (row) {
@@ -444,7 +444,7 @@ $(document).ready(function () {
         const notes = document.getElementById('payoutNotesInput').value || '';
 
         if (!Number.isFinite(amount) || amount <= 0 || amount > payoutModalMaxAmount) {
-            notify('error', 'Invalid Amount', `Amount must be greater than 0 and not exceed ${formatCurrency(payoutModalMaxAmount)}.`);
+            notify('error', '<?= lang('Finance.invalidAmount') ?>', `<?= lang('Finance.amountValidationMessage') ?> ${formatCurrency(payoutModalMaxAmount)}.`);
             return;
         }
         submitPayoutPayment(id, amount, method, paidDate, notes);
@@ -472,19 +472,19 @@ function submitPayoutPayment(id, amount, method, paidDate, notes) {
             window.refreshCsrfToken(data.csrf_token);
         }
         if (!data.success) {
-            throw new Error(data.message || 'Failed to record payout payment.');
+            throw new Error(data.message || '<?= lang('Finance.failedToRecordPayoutPayment') ?>');
         }
         closePayoutModal();
         payoutsTable.ajax.reload(null, false);
-        notify('success', 'Payment Recorded', data.message || 'Provider payout payment recorded.');
+        notify('success', '<?= lang('Finance.paymentRecorded') ?>', data.message || '<?= lang('Finance.providerPayoutPaymentRecorded') ?>');
     })
     .catch(err => {
-        notify('error', 'Payment Failed', err.message || 'Unable to record payment.');
+        notify('error', '<?= lang('Finance.paymentFailed') ?>', err.message || '<?= lang('Finance.unableToRecordPayment') ?>');
     });
 }
 
 function markPayoutPaid(id) {
-    if (!confirm('Mark this provider payout as fully paid now?')) {
+    if (!confirm('<?= lang('Finance.confirmMarkProviderPayoutFullyPaid') ?>')) {
         return;
     }
     const formData = new FormData();
@@ -504,13 +504,13 @@ function markPayoutPaid(id) {
             window.refreshCsrfToken(data.csrf_token);
         }
         if (!data.success) {
-            throw new Error(data.message || 'Failed to mark payout as paid.');
+            throw new Error(data.message || '<?= lang('Finance.failedToMarkPayoutPaid') ?>');
         }
         payoutsTable.ajax.reload(null, false);
-        notify('success', 'Payout Updated', data.message || 'Provider payout marked as paid.');
+        notify('success', '<?= lang('Finance.payoutUpdated') ?>', data.message || '<?= lang('Finance.providerPayoutMarkedPaid') ?>');
     })
     .catch(err => {
-        notify('error', 'Update Failed', err.message || 'Unable to mark payout as paid.');
+        notify('error', '<?= lang('Finance.updateFailed') ?>', err.message || '<?= lang('Finance.unableToMarkPayoutPaid') ?>');
     });
 }
 </script>

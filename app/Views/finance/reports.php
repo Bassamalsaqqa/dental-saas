@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<!-- Enhanced Financial Reports with Advanced Design -->
+<!-- Enhanced <?= lang('Finance.financialReports') ?> with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -26,8 +26,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 class="text-5xl font-black text-gray-900 mb-2">Financial Reports</h1>
-                                    <p class="text-gray-600 text-xl font-medium">Comprehensive financial analysis and insights</p>
+                                    <h1 class="text-5xl font-black text-gray-900 mb-2"><?= lang('Finance.financialReports') ?></h1>
+                                    <p class="text-gray-600 text-xl font-medium"><?= lang('Finance.financialReportsHelp') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -35,12 +35,12 @@
                             <a href="<?= base_url('finance') ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-bold rounded-2xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-600/10 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                 <i class="fas fa-arrow-left mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                <span class="relative z-10">Back to Finance</span>
+                                <span class="relative z-10"><?= lang('Finance.backToFinance') ?></span>
                             </a>
                             <button onclick="exportReport()" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-bold rounded-2xl hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-4 focus:ring-green-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                 <i class="fas fa-download mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                <span class="relative z-10">Export CSV</span>
+                                <span class="relative z-10"><?= lang('Finance.exportCsv') ?></span>
                             </button>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                         <div class="flex-1">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-calendar-alt w-4 h-4 mr-2 text-blue-600"></i>
-                                Start Date
+                                <?= lang('Finance.startDate') ?>
                             </label>
                             <input type="text" name="start_date" data-clinic-date="1" value="<?= $start_date ?>" 
                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
@@ -65,7 +65,7 @@
                         <div class="flex-1">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-calendar-alt w-4 h-4 mr-2 text-green-600"></i>
-                                End Date
+                                <?= lang('Finance.endDate') ?>
                             </label>
                             <input type="text" name="end_date" data-clinic-date="1" value="<?= $end_date ?>" 
                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl">
@@ -74,12 +74,12 @@
                             <button type="submit" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-search mr-2 relative z-10"></i>
-                                <span class="relative z-10">Filter</span>
+                                <span class="relative z-10"><?= lang('Finance.filter') ?></span>
                             </button>
                             <a href="<?= base_url('finance/reports') ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:from-gray-300 hover:to-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-500/20 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-400 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-refresh mr-2 relative z-10"></i>
-                                <span class="relative z-10">Reset</span>
+                                <span class="relative z-10"><?= lang('Finance.reset') ?></span>
                             </a>
                         </div>
                     </form>
@@ -90,7 +90,7 @@
         <!-- Financial Statistics Cards -->
         <div class="mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Total Revenue Card -->
+                <!-- Total <?= lang('Finance.revenue') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -108,19 +108,19 @@
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Revenue</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total <?= lang('Finance.revenue') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-green-900"><?= formatCurrencyAbbreviated($stats['total_revenue'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-green-200 to-emerald-200 rounded-full overflow-hidden">
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last period</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.vsLastPeriod') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Total Transactions Card -->
+                <!-- <?= lang('Finance.totalTransactions') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -134,23 +134,23 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-indigo-100 px-3 py-1.5 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-chart-line text-blue-600 text-xs"></i>
-                                <span class="text-blue-700 font-bold text-xs">Active</span>
+                                <span class="text-blue-700 font-bold text-xs"><?= lang('Finance.active') ?></span>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Transactions</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.totalTransactions') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-blue-900"><?= number_format($stats['total_transactions'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full overflow-hidden">
                                     <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">this period</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.thisPeriod') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pending Payments Card -->
+                <!-- <?= lang('Finance.pendingPayments') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -164,23 +164,23 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1.5 rounded-full border border-amber-200">
                                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-exclamation-triangle text-amber-600 text-xs"></i>
-                                <span class="text-amber-700 font-bold text-xs">Pending</span>
+                                <span class="text-amber-700 font-bold text-xs"><?= lang('Finance.pending') ?></span>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending Payments</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.pendingPayments') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-amber-900"><?= formatCurrencyAbbreviated($stats['pending_amount'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
                                     <div class="w-2/3 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">awaiting payment</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.awaitingPayment') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Average Transaction Card -->
+                <!-- <?= lang('Finance.average') ?> Transaction Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -194,25 +194,25 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1.5 rounded-full border border-purple-200">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-trending-up text-purple-600 text-xs"></i>
-                                <span class="text-purple-700 font-bold text-xs">Average</span>
+                                <span class="text-purple-700 font-bold text-xs"><?= lang('Finance.average') ?></span>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Avg Transaction</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.avgTransaction') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-purple-900"><?= formatCurrencyAbbreviated($stats['average_transaction'] ?? 0) ?></p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full overflow-hidden">
                                     <div class="w-5/6 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">per transaction</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.perTransaction') ?></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Revenue Chart -->
+        <!-- <?= lang('Finance.revenue') ?> Chart -->
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
@@ -226,8 +226,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900">Revenue Trend</h3>
-                                <p class="text-gray-600">Monthly revenue over time</p>
+                                <h3 class="text-2xl font-bold text-gray-900"><?= lang('Finance.revenue') ?> Trend</h3>
+                                <p class="text-gray-600"><?= lang('Finance.monthlyRevenueOverTime') ?></p>
                             </div>
                         </div>
                     </div>
@@ -239,7 +239,7 @@
             </div>
         </div>
 
-        <!-- Transaction Summary Table -->
+        <!-- <?= lang('Finance.transactionSummary') ?> Table -->
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-cyan-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
@@ -248,7 +248,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="w-3 h-3 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full animate-pulse"></div>
-                                <h3 class="text-xl font-black text-gray-900">Transaction Summary</h3>
+                                <h3 class="text-xl font-black text-gray-900"><?= lang('Finance.transactionSummary') ?></h3>
                             </div>
                         </div>
                     </div>
@@ -258,10 +258,10 @@
                             <table class="w-full min-w-full">
                                 <thead class="bg-gradient-to-r from-teal-50/80 to-cyan-50/80 backdrop-blur-sm">
                                     <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Transaction Type</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Count</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Total Amount</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider">Average</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider"><?= lang('Finance.transactionType') ?></th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider"><?= lang('Finance.count') ?></th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider"><?= lang('Finance.totalAmount') ?></th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-teal-700 uppercase tracking-wider"><?= lang('Finance.average') ?></th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white/50 backdrop-blur-sm divide-y divide-white/20">
@@ -293,8 +293,8 @@
                                                         <i class="fas fa-chart-bar text-gray-400 text-2xl"></i>
                                                     </div>
                                                     <div class="text-center">
-                                                        <h3 class="text-lg font-bold text-gray-900 mb-2">No Data Available</h3>
-                                                        <p class="text-gray-600 mb-4">No transactions found for the selected period</p>
+                                                        <h3 class="text-lg font-bold text-gray-900 mb-2"><?= lang('Finance.noDataAvailable') ?></h3>
+                                                        <p class="text-gray-600 mb-4"><?= lang('Finance.noTransactionsForPeriod') ?></p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -308,7 +308,7 @@
             </div>
         </div>
 
-        <!-- Unified Financial Ledger -->
+        <!-- <?= lang('Finance.unifiedFinancialLedger') ?> -->
         <div class="mb-8">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
@@ -317,27 +317,27 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="w-3 h-3 bg-gradient-to-r from-rose-500 to-orange-600 rounded-full animate-pulse"></div>
-                                <h3 class="text-xl font-black text-gray-900">Unified Financial Ledger</h3>
+                                <h3 class="text-xl font-black text-gray-900"><?= lang('Finance.unifiedFinancialLedger') ?></h3>
                             </div>
                             <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 border border-rose-200 text-rose-700">
                                 <?= number_format((int) ($ledger_summary['count'] ?? 0)) ?> events
                             </span>
                         </div>
-                        <p class="mt-3 text-sm text-gray-600">Includes finance transactions, invoice payment events, provider payout accruals, and provider payout cash payments.</p>
+                        <p class="mt-3 text-sm text-gray-600"><?= lang('Finance.unifiedLedgerHelp') ?></p>
                     </div>
 
                     <div class="p-8 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Inflow</p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700"><?= lang('Finance.inflow') ?></p>
                                 <p class="text-2xl font-black text-emerald-900"><?= formatCurrency($ledger_summary['inflow_total'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-rose-200 bg-rose-50/70 px-4 py-3">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-rose-700">Outflow</p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-rose-700"><?= lang('Finance.outflow') ?></p>
                                 <p class="text-2xl font-black text-rose-900"><?= formatCurrency($ledger_summary['outflow_total'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-indigo-200 bg-indigo-50/70 px-4 py-3">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-indigo-700">Net</p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-indigo-700"><?= lang('Finance.net') ?></p>
                                 <p class="text-2xl font-black text-indigo-900"><?= formatCurrency($ledger_summary['net_total'] ?? 0) ?></p>
                             </div>
                         </div>
@@ -347,14 +347,14 @@
                                 <thead class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 backdrop-blur-sm">
                                     <tr>
                                         <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Date</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Source</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Type</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Reference</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Patient</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Counterparty</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Method/Status</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Original</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider">Amount (Base)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.source') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.type') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.reference') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.patient') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.counterparty') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.methodStatus') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.original') ?></th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-rose-700 uppercase tracking-wider"><?= lang('Finance.amountBase') ?></th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white/50 backdrop-blur-sm divide-y divide-white/20">
@@ -363,10 +363,10 @@
                                             <?php
                                                 $source = (string) ($row['event_source'] ?? '');
                                                 $sourceLabel = match ($source) {
-                                                    'finance' => 'Finance',
-                                                    'invoice_payment' => 'Invoice Payment',
-                                                    'provider_payout' => 'Provider Payout',
-                                                    'provider_payout_payment' => 'Payout Payment',
+                                                    'finance' => lang('Finance.finance'),
+                                                    'invoice_payment' => lang('Finance.invoicePayment'),
+                                                    'provider_payout' => lang('Finance.providerPayout'),
+                                                    'provider_payout_payment' => lang('Finance.payoutPayment'),
                                                     default => ucfirst(str_replace('_', ' ', $source)),
                                                 };
                                                 $signed = floatval($row['signed_amount_base'] ?? 0);
@@ -432,8 +432,8 @@
                                                         <i class="fas fa-wallet text-gray-400 text-2xl"></i>
                                                     </div>
                                                     <div class="text-center">
-                                                        <h3 class="text-lg font-bold text-gray-900 mb-2">No Ledger Events</h3>
-                                                        <p class="text-gray-600 mb-4">No financial events found for the selected period.</p>
+                                                        <h3 class="text-lg font-bold text-gray-900 mb-2"><?= lang('Finance.noLedgerEvents') ?></h3>
+                                                        <p class="text-gray-600 mb-4"><?= lang('Finance.noFinancialEventsForPeriod') ?></p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Revenue',
+                    label: '<?= lang('Finance.revenue') ?>',
                     data: dataPoints,
                     borderColor: '#4f46e5',
                     backgroundColor: 'rgba(79, 70, 229, 0.12)',
@@ -538,3 +538,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+
+

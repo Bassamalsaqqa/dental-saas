@@ -208,15 +208,15 @@
                             <i class="fas fa-users text-xl"></i>
                             </div>
                             <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Patient Management</h1>
-                            <p class="text-gray-600">Manage patient records and information</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= esc(lang('UI.patientManagementTitle')) ?></h1>
+                            <p class="text-gray-600"><?= esc(lang('UI.patientManagementSubtitle')) ?></p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('patients', 'create')): ?>
                             <a href="<?= base_url('patient/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
-                                New Patient
+                                <?= esc(lang('UI.patientNewPatient')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -245,7 +245,7 @@
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Patients</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientTotalPatients')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-emerald-900" id="totalPatients">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -254,7 +254,7 @@
                                     <div class="w-4/5 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.dashboardVsLastMonth')) ?></p>
                         </div>
                     </div>
             </div>
@@ -273,11 +273,11 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm">Active</span>
+                                <span class="text-green-700 font-bold text-sm"><?= esc(lang('UI.patientStatusActive')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Active Patients</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientActivePatients')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-green-900" id="activePatients">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -286,7 +286,7 @@
                                     <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently active</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.patientCurrentlyActive')) ?></p>
                         </div>
                         </div>
                     </div>
@@ -305,11 +305,11 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-star text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm">New</span>
+                                <span class="text-blue-700 font-bold text-sm"><?= esc(lang('UI.patientNewPatients')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">New Patients</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientNewPatients')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-blue-900" id="newPatients">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -318,7 +318,7 @@
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">This month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('UI.patientThisMonthShort')) ?></p>
                         </div>
                                 </div>
                             </div>
@@ -337,11 +337,11 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full border border-purple-200">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-calendar text-purple-600 text-sm"></i>
-                                <span class="text-purple-700 font-bold text-sm">This Month</span>
+                                <span class="text-purple-700 font-bold text-sm"><?= esc(lang('UI.patientThisMonth')) ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">This Month</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= esc(lang('UI.patientThisMonth')) ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-purple-900" id="monthlyPatients">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -366,7 +366,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Patient Registry</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= esc(lang('UI.patientPatientRegistry')) ?></h3>
                         </div>
                         <div class="flex items-center space-x-3">
                             <!-- Export Buttons -->
@@ -376,7 +376,7 @@
                             </button>
                             <button onclick="printPatients()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= esc(lang('UI.patientPrint')) ?>
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
@@ -394,43 +394,43 @@
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-id-card text-emerald-600"></i>
-                                            <span>Patient ID</span>
+                                            <span><?= esc(lang('UI.patientPatientId')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-user text-emerald-600"></i>
-                                            <span>Patient Name</span>
+                                            <span><?= esc(lang('UI.patientName')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-phone text-emerald-600"></i>
-                                            <span>Phone</span>
+                                            <span><?= esc(lang('UI.patientPhone')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-envelope text-emerald-600"></i>
-                                            <span>Email</span>
+                                            <span><?= esc(lang('UI.patientEmail')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-emerald-600"></i>
-                                            <span>Status</span>
+                                            <span><?= esc(lang('UI.patientStatus')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-calendar text-emerald-600"></i>
-                                            <span>Created</span>
+                                            <span><?= esc(lang('UI.patientCreated')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-cogs text-emerald-600"></i>
-                                            <span>Actions</span>
+                                            <span><?= esc(lang('UI.patientActions')) ?></span>
                                         </div>
                                     </th>
                                 </tr>
@@ -461,6 +461,38 @@ let patientsTable;
 const csrfMetaName = document.querySelector('meta[name="csrf-name"]');
 const csrfMetaToken = document.querySelector('meta[name="csrf-token"]');
 const csrfCookieName = '<?= esc(config('Security')->cookieName) ?>';
+const patientI18n = {
+    sessionExpired: '<?= esc(lang('UI.patientSessionExpired'), 'js') ?>',
+    networkError: '<?= esc(lang('UI.patientNetworkError'), 'js') ?>',
+    loadingError: '<?= esc(lang('UI.patientLoadingError'), 'js') ?>',
+    noPhone: '<?= esc(lang('UI.patientNoPhone'), 'js') ?>',
+    noEmail: '<?= esc(lang('UI.patientNoEmail'), 'js') ?>',
+    na: '<?= esc(lang('UI.patientNa'), 'js') ?>',
+    unknown: '<?= esc(lang('UI.patientUnknown'), 'js') ?>',
+    statusActive: '<?= esc(lang('UI.patientStatusActive'), 'js') ?>',
+    statusInactive: '<?= esc(lang('UI.patientStatusInactive'), 'js') ?>',
+    statusPending: '<?= esc(lang('UI.patientStatusPending'), 'js') ?>',
+    patientId: '<?= esc(lang('UI.patientPatientId'), 'js') ?>',
+    patientName: '<?= esc(lang('UI.patientName'), 'js') ?>',
+    viewPatient: '<?= esc(lang('UI.patientViewPatient'), 'js') ?>',
+    editPatient: '<?= esc(lang('UI.patientEditPatient'), 'js') ?>',
+    odontogram: '<?= esc(lang('UI.patientOdontogram'), 'js') ?>',
+    newExamination: '<?= esc(lang('UI.newExamination'), 'js') ?>',
+    newTreatment: '<?= esc(lang('UI.patientNewTreatment'), 'js') ?>',
+    deletePatient: '<?= esc(lang('UI.patientDeletePatient'), 'js') ?>',
+    reportTitle: '<?= esc(lang('UI.patientReportTitle'), 'js') ?>',
+    loading: '<?= esc(lang('UI.patientLoading'), 'js') ?>',
+    noRecords: '<?= esc(lang('UI.patientNoRecords'), 'js') ?>',
+    showing: '<?= esc(lang('UI.patientShowing'), 'js') ?>',
+    infoEmpty: '<?= esc(lang('UI.patientInfoEmpty'), 'js') ?>',
+    infoFiltered: '<?= esc(lang('UI.patientInfoFiltered'), 'js') ?>',
+    searchPlaceholder: '<?= esc(lang('UI.patientSearchPlaceholder'), 'js') ?>',
+    paginateFirst: '<?= esc(lang('UI.patientPaginateFirst'), 'js') ?>',
+    paginateLast: '<?= esc(lang('UI.patientPaginateLast'), 'js') ?>',
+    paginateNext: '<?= esc(lang('UI.patientPaginateNext'), 'js') ?>',
+    paginatePrevious: '<?= esc(lang('UI.patientPaginatePrevious'), 'js') ?>',
+    deleteConfirm: '<?= esc(lang('UI.patientDeleteConfirm'), 'js') ?>'
+};
 
 function getCookieValue(name) {
     if (!name) {
@@ -539,12 +571,12 @@ $(document).ready(function() {
                 
                 // Check if it's an authentication error
                 if (xhr.status === 401 || xhr.status === 403) {
-                    alert('Session expired. Please refresh the page and log in again.');
+                    alert(patientI18n.sessionExpired);
                     window.location.reload();
                 } else if (xhr.status === 0) {
-                    alert('Network error. Please check your connection.');
+                    alert(patientI18n.networkError);
                 } else {
-                    alert('Error loading patient data. Please check console for details.');
+                    alert(patientI18n.loadingError);
                 }
             }
         },
@@ -560,8 +592,8 @@ $(document).ready(function() {
                                 <i class="fas fa-id-card text-emerald-600 text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data || 'N/A'}</div>
-                                <div class="text-xs text-gray-500">Patient ID</div>
+                                <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
+                                <div class="text-xs text-gray-500">${patientI18n.patientId}</div>
                             </div>
                         </div>
                     `;
@@ -585,8 +617,8 @@ $(document).ready(function() {
                                 <i class="fas fa-user text-emerald-600 text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${data || 'N/A'}</div>
-                                <div class="text-xs text-gray-500">Patient Name</div>
+                                <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
+                                <div class="text-xs text-gray-500">${patientI18n.patientName}</div>
                             </div>
                         </div>
                     `;
@@ -601,7 +633,7 @@ $(document).ready(function() {
                             <i class="fas fa-phone text-emerald-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${data}</span>
                         </div>
-                    ` : '<span class="text-gray-400 text-sm">No phone</span>';
+                    ` : `<span class="text-gray-400 text-sm">${patientI18n.noPhone}</span>`;
                 }
             },
             { 
@@ -613,7 +645,7 @@ $(document).ready(function() {
                             <i class="fas fa-envelope text-emerald-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${data}</span>
                         </div>
-                    ` : '<span class="text-gray-400 text-sm">No email</span>';
+                    ` : `<span class="text-gray-400 text-sm">${patientI18n.noEmail}</span>`;
                 }
             },
             { 
@@ -630,13 +662,19 @@ $(document).ready(function() {
                         'inactive': 'fas fa-times-circle',
                         'pending': 'fas fa-clock'
                     };
+                    const statusLabels = {
+                        'active': patientI18n.statusActive,
+                        'inactive': patientI18n.statusInactive,
+                        'pending': patientI18n.statusPending
+                    };
                     const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
+                    const label = statusLabels[data] || patientI18n.unknown;
                     
                     return `
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
                             <i class="${iconClass} mr-1"></i>
-                            ${data ? data.charAt(0).toUpperCase() + data.slice(1) : 'Unknown'}
+                            ${label}
                         </span>
                     `;
                 }
@@ -648,7 +686,7 @@ $(document).ready(function() {
                     return `
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-calendar text-emerald-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${data || 'N/A'}</span>
+                            <span class="text-sm text-gray-900">${data || patientI18n.na}</span>
                         </div>
                     `;
                 }
@@ -666,7 +704,7 @@ $(document).ready(function() {
                     if (permissions.patients.view) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="View Patient">
+                               class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="${patientI18n.viewPatient}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -675,7 +713,7 @@ $(document).ready(function() {
                     if (permissions.patients.edit) {
                         actions += `
                             <a href="<?= base_url('patient') ?>/${data}/edit?return_to=${returnTo}" 
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Patient">
+                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${patientI18n.editPatient}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -683,21 +721,21 @@ $(document).ready(function() {
                     // Odontogram button
                     actions += `
                         <a href="<?= base_url('odontogram') ?>/${data}?return_to=${returnTo}" 
-                           class="p-2 text-purple-600 hover:text-purple-700 rounded-md hover:bg-purple-50 transition-colors duration-200" title="Odontogram">
+                           class="p-2 text-purple-600 hover:text-purple-700 rounded-md hover:bg-purple-50 transition-colors duration-200" title="${patientI18n.odontogram}">
                             <i class="fas fa-tooth"></i>
                         </a>`;
 
                     // New examination button
                     actions += `
                         <a href="<?= base_url('examination/create?patient_id=') ?>${data}&return_to=${returnTo}" 
-                           class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="New Examination">
+                           class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="${patientI18n.newExamination}">
                             <i class="fas fa-stethoscope"></i>
                         </a>`;
 
                     // New treatment button
                     actions += `
                         <a href="<?= base_url('treatment/create?patient_id=') ?>${data}&return_to=${returnTo}" 
-                           class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="New Treatment">
+                           class="p-2 text-cyan-600 hover:text-cyan-700 rounded-md hover:bg-cyan-50 transition-colors duration-200" title="${patientI18n.newTreatment}">
                             <i class="fas fa-briefcase-medical"></i>
                         </a>`;
                     
@@ -705,7 +743,7 @@ $(document).ready(function() {
                     if (permissions.patients.delete) {
                         actions += `
                             <button onclick="deletePatient(${data})" 
-                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="Delete Patient">
+                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="${patientI18n.deletePatient}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -724,7 +762,7 @@ $(document).ready(function() {
                 extend: 'pdf',
                 text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
                 className: 'btn-pdf',
-                title: 'Patients Report',
+                title: patientI18n.reportTitle,
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
@@ -735,7 +773,7 @@ $(document).ready(function() {
                 extend: 'print',
                 text: '<i class="fas fa-print mr-2"></i>Print',
                 className: 'btn-print',
-                title: 'Patients Report',
+                title: patientI18n.reportTitle,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient ID, Name, Phone, Email, Status, Created
                 }
@@ -744,26 +782,26 @@ $(document).ready(function() {
                 extend: 'csv',
                 text: '<i class="fas fa-file-csv mr-2"></i>CSV',
                 className: 'btn-csv',
-                title: 'Patients Report',
+                title: patientI18n.reportTitle,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient ID, Name, Phone, Email, Status, Created
                 }
             }
         ],
         language: {
-            processing: "Loading patients...",
+            processing: patientI18n.loading,
             lengthMenu: "_MENU_",
-            zeroRecords: "No patients found",
-            info: "Showing _START_ to _END_ of _TOTAL_ patients",
-            infoEmpty: "No patients available",
-            infoFiltered: "(filtered from _MAX_ total patients)",
+            zeroRecords: patientI18n.noRecords,
+            info: patientI18n.showing,
+            infoEmpty: patientI18n.infoEmpty,
+            infoFiltered: patientI18n.infoFiltered,
             search: "",
-            searchPlaceholder: "Search patients...",
+            searchPlaceholder: patientI18n.searchPlaceholder,
             paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+                first: patientI18n.paginateFirst,
+                last: patientI18n.paginateLast,
+                next: patientI18n.paginateNext,
+                previous: patientI18n.paginatePrevious
             }
         },
         drawCallback: function(settings) {
@@ -872,7 +910,7 @@ function exportToCSV() {
 
 // Delete patient function
 function deletePatient(patientId) {
-    confirmDelete('<?= base_url('patient') ?>/' + patientId, 'Are you sure you want to delete this patient? This action cannot be undone.');
+    confirmDelete('<?= base_url('patient') ?>/' + patientId, patientI18n.deleteConfirm);
 }
 
 // Permissions object (you'll need to populate this from your backend)
@@ -887,3 +925,5 @@ var permissions = {
 </script>
 
 <?= $this->endSection() ?>
+
+

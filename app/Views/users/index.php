@@ -7,18 +7,18 @@
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
                 <div>
-                    <h1 class="text-4xl font-bold text-gray-800 mb-2">👥 User Management</h1>
-                    <p class="text-gray-600">Manage system users and their access levels</p>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2"><?= lang('UserRole.userManagement') ?></h1>
+                    <p class="text-gray-600"><?= lang('UserRole.manageUsersAccessLevels') ?></p>
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                     <?php if (has_permission('settings', 'edit')): ?>
                         <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-cog mr-2"></i>RBAC Setup
+                            <i class="fas fa-cog mr-2"></i><?= lang('UserRole.rbacSetup') ?>
                         </a>
                     <?php endif; ?>
                     <?php if (has_permission('users', 'create')): ?>
                         <a href="<?= base_url('users/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-plus mr-2"></i>Create User
+                            <i class="fas fa-plus mr-2"></i><?= lang('UserRole.createUser') ?>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -33,12 +33,12 @@
                         <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800">RBAC System Not Ready</h3>
+                        <h3 class="text-sm font-medium text-yellow-800"><?= lang('UserRole.rbacSystemNotReady') ?></h3>
                         <div class="mt-2 text-sm text-yellow-700">
-                            <p>The role-based access control system hasn't been initialized yet. User roles and permissions won't be displayed until you sync the system.</p>
+                            <p><?= lang('UserRole.rbacNotInitializedUsers') ?></p>
                             <div class="mt-3">
                                 <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors">
-                                    <i class="fas fa-cog mr-2"></i>Initialize RBAC System
+                                    <i class="fas fa-cog mr-2"></i><?= lang('UserRole.initializeRbacSystem') ?>
                                 </a>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                         <i class="fas fa-check-circle text-green-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-green-800">Success</h3>
+                        <h3 class="text-sm font-medium text-green-800"><?= lang('UserRole.success') ?></h3>
                         <div class="mt-2 text-sm text-green-700">
                             <p><?= session()->getFlashdata('success') ?></p>
                         </div>
@@ -88,7 +88,7 @@
                         <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">Error Loading Users</h3>
+                        <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.errorLoadingUsers') ?></h3>
                         <div class="mt-2 text-sm text-red-700">
                             <p><?= $error ?></p>
                         </div>
@@ -107,7 +107,7 @@
                                 <i class="fas fa-users text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Total Users</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('UserRole.totalUsers') ?></p>
                                 <p class="text-3xl font-bold text-gray-900"><?= $total_users ?? 0 ?></p>
                             </div>
                         </div>
@@ -121,7 +121,7 @@
                                 <i class="fas fa-check-circle text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Active Users</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('UserRole.activeUsers') ?></p>
                                 <p class="text-3xl font-bold text-gray-900"><?= $active_users ?? 0 ?></p>
                             </div>
                         </div>
@@ -135,7 +135,7 @@
                                 <i class="fas fa-user-slash text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Inactive Users</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('UserRole.inactiveUsers') ?></p>
                                 <p class="text-3xl font-bold text-gray-900"><?= $inactive_users ?? 0 ?></p>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                                 <i class="fas fa-user-shield text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Admin Users</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= lang('UserRole.adminUsers') ?></p>
                                 <p class="text-3xl font-bold text-gray-900"><?= $diagnostics['total_user_roles'] ?? 0 ?></p>
                             </div>
                         </div>
@@ -183,7 +183,7 @@
                                         0 => 'bg-gray-100 text-gray-800 border-gray-200'
                                     ];
                                     $statusColor = $statusColors[$user->active] ?? 'bg-gray-100 text-gray-800 border-gray-200';
-                                    $statusText = $user->active == 1 ? 'Active' : 'Inactive';
+                                    $statusText = $user->active == 1 ? lang('UserRole.active') : lang('UserRole.inactive');
                                     ?>
                                     <span class="px-3 py-1 text-sm font-medium rounded-full border <?= $statusColor ?>">
                                         <?= $statusText ?>
@@ -192,23 +192,23 @@
                                     <!-- Actions -->
                                     <div class="flex space-x-2">
                                         <?php if (has_permission('users', 'view')): ?>
-                                            <a href="<?= base_url('users/' . $user->id) ?>" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="View User">
+                                            <a href="<?= base_url('users/' . $user->id) ?>" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="<?= lang('UserRole.viewUser') ?>">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (has_permission('users', 'edit')): ?>
-                                            <a href="<?= base_url('users/' . $user->id . '/edit') ?>" class="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-lg transition-colors" title="Edit User">
+                                            <a href="<?= base_url('users/' . $user->id . '/edit') ?>" class="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-lg transition-colors" title="<?= lang('UserRole.editUser') ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= base_url('users/' . $user->id . '/change-password') ?>" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="Change Password">
+                                            <a href="<?= base_url('users/' . $user->id . '/change-password') ?>" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="<?= lang('UserRole.changePassword') ?>">
                                                 <i class="fas fa-key"></i>
                                             </a>
-                                            <button onclick="toggleStatus(<?= $user->id ?>)" class="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors" title="Toggle Status">
+                                            <button onclick="toggleStatus(<?= $user->id ?>)" class="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors" title="<?= lang('UserRole.toggleStatus') ?>">
                                                 <i class="fas fa-toggle-on"></i>
                                             </button>
                                         <?php endif; ?>
                                         <?php if (has_permission('users', 'delete') && $user->id != 1): ?>
-                                            <button onclick="deleteUser(<?= $user->id ?>)" class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" title="Delete User">
+                                            <button onclick="deleteUser(<?= $user->id ?>)" class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" title="<?= lang('UserRole.deleteUser') ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         <?php endif; ?>
@@ -220,7 +220,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <!-- Groups/Roles -->
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Roles & Permissions</h4>
+                                    <h4 class="text-lg font-semibold text-gray-700 mb-3"><?= lang('UserRole.rolesAndPermissions') ?></h4>
                                     <?php if (!empty($user->display_roles)): ?>
                                         <div class="space-y-2">
                                             <?php foreach ($user->display_roles as $role): ?>
@@ -230,9 +230,9 @@
                                                     // Handle both array and object formats
                                                     $roleName = '';
                                                     if (is_array($role)) {
-                                                        $roleName = $role['name'] ?? 'Unknown Role';
+                                                        $roleName = $role['name'] ?? lang('UserRole.unknownRole');
                                                     } else {
-                                                        $roleName = $role->name ?? 'Unknown Role';
+                                                        $roleName = $role->name ?? lang('UserRole.unknownRole');
                                                     }
                                                     echo esc(ucfirst($roleName));
                                                     ?>
@@ -242,18 +242,18 @@
                                     <?php else: ?>
                                         <div class="text-center py-4 text-gray-500">
                                             <i class="fas fa-user-tag text-2xl mb-2"></i>
-                                            <p>No roles assigned</p>
+                                            <p><?= lang('UserRole.noRolesAssigned') ?></p>
                                         </div>
                                     <?php endif; ?>
                                 </div>
 
                                 <!-- Contact Info -->
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Contact Information</h4>
+                                    <h4 class="text-lg font-semibold text-gray-700 mb-3"><?= lang('UserRole.contactInformation') ?></h4>
                                     <div class="space-y-2">
                                         <div class="flex items-center text-sm text-gray-600">
                                             <i class="fas fa-phone w-4 mr-2"></i>
-                                            <span><?= esc($user->phone ?? 'Not provided') ?></span>
+                                            <span><?= esc($user->phone ?? lang('UserRole.notProvided')) ?></span>
                                         </div>
                                         <div class="flex items-center text-sm text-gray-600">
                                             <i class="fas fa-envelope w-4 mr-2"></i>
@@ -262,17 +262,17 @@
                                     </div>
                                 </div>
 
-                                <!-- Activity Info -->
+                                <!-- <?= lang('UserRole.activity') ?> Info -->
                                 <div>
-                                    <h4 class="text-lg font-semibold text-gray-700 mb-3">Activity</h4>
+                                    <h4 class="text-lg font-semibold text-gray-700 mb-3"><?= lang('UserRole.activity') ?></h4>
                                     <div class="space-y-2">
                                         <div class="flex items-center text-sm text-gray-600">
                                             <i class="fas fa-calendar w-4 mr-2"></i>
-                                            <span>Created: <?= $user->created_on ? date('M j, Y', strtotime($user->created_on)) : 'N/A' ?></span>
+                                            <span><?= lang('UserRole.createdColon') ?> <?= $user->created_on ? date('M j, Y', strtotime($user->created_on)) : lang('UserRole.na') ?></span>
                                         </div>
                                         <div class="flex items-center text-sm text-gray-600">
                                             <i class="fas fa-clock w-4 mr-2"></i>
-                                            <span>Last Login: <?= $user->last_login ? date('M j, Y g:i A', strtotime($user->last_login)) : 'Never' ?></span>
+                                            <span><?= lang('UserRole.lastLoginColon') ?> <?= $user->last_login ? date('M j, Y g:i A', strtotime($user->last_login)) : lang('UserRole.never') ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -286,10 +286,10 @@
                     <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <i class="fas fa-users text-gray-400 text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">No Users Found</h3>
-                    <p class="text-gray-500 mb-8 max-w-md mx-auto">Get started by creating your first user account. You can assign roles and permissions to manage access levels.</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4"><?= lang('UserRole.noUsersFound') ?></h3>
+                    <p class="text-gray-500 mb-8 max-w-md mx-auto"><?= lang('UserRole.noUsersFoundDescription') ?></p>
                     <a href="<?= base_url('users/create') ?>" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-plus mr-3"></i>Create First User
+                        <i class="fas fa-plus mr-3"></i><?= lang('UserRole.createFirstUser') ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -298,32 +298,32 @@
         <!-- Search and Filter Controls -->
         <?php if (!empty($users)): ?>
             <div class="mt-8 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Search & Filter Users</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 <?= lang('UserRole.searchFilterUsers') ?></h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="relative">
-                        <input type="text" id="userSearchInput" placeholder="Search users..." class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10">
+                        <input type="text" id="userSearchInput" placeholder="<?= lang('UserRole.searchUsers') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                     <select id="groupFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Roles</option>
+                        <option value=""><?= lang('UserRole.allRoles') ?></option>
                         <?php if (!empty($roles)): ?>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= strtolower($role['name']) ?>"><?= esc(ucfirst($role['name'])) ?></option>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <option value="super admin">Super Admin</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="receptionist">Receptionist</option>
+                            <option value="super admin"><?= lang('UserRole.superAdmin') ?></option>
+                            <option value="doctor"><?= lang('UserRole.doctor') ?></option>
+                            <option value="receptionist"><?= lang('UserRole.receptionist') ?></option>
                         <?php endif; ?>
                     </select>
                     <select id="statusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Status</option>
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
+                        <option value=""><?= lang('UserRole.allStatus') ?></option>
+                        <option value="1"><?= lang('UserRole.active') ?></option>
+                        <option value="0"><?= lang('UserRole.inactive') ?></option>
                     </select>
                 </div>
                 <div class="mt-4 text-sm text-gray-500">
-                    Showing <span id="filteredCount"><?= count($users) ?></span> of <span id="totalCount"><?= count($users) ?></span> users
+                    <?= lang('UserRole.showing') ?> <span id="filteredCount"><?= count($users) ?></span> <?= lang('UserRole.of') ?> <span id="totalCount"><?= count($users) ?></span> <?= lang('UserRole.users') ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function toggleStatus(id) {
-    if (confirm('Are you sure you want to toggle this user\'s status?')) {
+    if (confirm(<?= json_encode(lang('UserRole.confirmToggleUserStatus')) ?>)) {
         fetch(`<?= base_url('users') ?>/${id}/toggle-status`, {
             method: 'POST',
             headers: {
@@ -481,18 +481,18 @@ function toggleStatus(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert(<?= json_encode(lang('UserRole.errorPrefix')) ?> + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the user status.');
+            alert(<?= json_encode(lang('UserRole.errorUpdatingUserStatus')) ?>);
         });
     }
 }
 
 function deleteUser(id) {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (confirm(<?= json_encode(lang('UserRole.confirmDeleteUser')) ?>)) {
         fetch(`<?= base_url('users') ?>/${id}`, {
             method: 'DELETE',
             headers: {
@@ -511,14 +511,15 @@ function deleteUser(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert(<?= json_encode(lang('UserRole.errorPrefix')) ?> + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the user.');
+            alert(<?= json_encode(lang('UserRole.errorDeletingUser')) ?>);
         });
     }
 }
 </script>
 <?= $this->endSection() ?>
+

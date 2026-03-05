@@ -28,23 +28,23 @@
                             </div>
                             <div>
                                 <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                    <?= $isExpense ? 'Expense Transaction' : 'Financial Transaction' ?>
+                                    <?= $isExpense ? lang('Finance.expenseTransaction') : lang('Finance.financialTransaction') ?>
                                 </h1>
-                                <p class="text-gray-600">Transaction ID: <?= $finance['transaction_id'] ?></p>
+                                <p class="text-gray-600"><?= lang('Finance.transactionIdLabel') ?>: <?= $finance['transaction_id'] ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                         <?php if (!empty($patient)): ?>
                         <a href="<?= base_url('patient/' . $patient['id']) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-user mr-2"></i>Back to Patient
+                            <i class="fas fa-user mr-2"></i><?= lang('Finance.backToPatient') ?>
                         </a>
                         <?php endif; ?>
                         <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-arrow-left mr-2"></i>Back to Finance
+                            <i class="fas fa-arrow-left mr-2"></i><?= lang('Finance.backToFinance') ?>
                         </a>
                         <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-edit mr-2"></i>Edit Transaction
+                            <i class="fas fa-edit mr-2"></i><?= lang('Finance.editTransaction') ?>
                         </a>
                     </div>
                 </div>
@@ -697,7 +697,7 @@
 
 <script>
 function markAsPaid(transactionId) {
-    if (confirm('Are you sure you want to mark this transaction as paid?')) {
+    if (confirm('<?= lang('Finance.confirmMarkTransactionPaid') ?>')) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${transactionId}/mark-paid`, {
@@ -716,18 +716,18 @@ function markAsPaid(transactionId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the transaction.');
+            alert('<?= lang('Finance.errorUpdatingTransaction') ?>');
         });
     }
 }
 
 function deleteFinance(id) {
-    if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+    if (confirm('<?= lang('Finance.confirmDeleteTransaction') ?>')) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url('finance') ?>/${id}`, {
@@ -746,22 +746,22 @@ function deleteFinance(id) {
             if (data.success) {
                 window.location.href = '<?= base_url('finance') ?>';
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the transaction.');
+            alert('<?= lang('Finance.errorDeletingTransaction') ?>');
         });
     }
 }
 
 function closeBalance(transactionId) {
-    if (!confirm('Close the remaining balance as write-off/credit?')) {
+    if (!confirm('<?= lang('Finance.confirmCloseBalance') ?>')) {
         return;
     }
 
-    const reason = prompt('Reason (optional):') || '';
+    const reason = prompt('<?= lang('Finance.reasonOptionalPrompt') ?>') || '';
     const formData = new FormData();
     formData.append('reason', reason);
 
@@ -784,12 +784,12 @@ function closeBalance(transactionId) {
         if (data.success) {
             location.reload();
         } else {
-            alert('Error: ' + data.message);
+            alert('<?= lang('Finance.errorPrefix') ?>: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while closing the balance.');
+        alert('<?= lang('Finance.errorClosingBalance') ?>');
     });
 }
 

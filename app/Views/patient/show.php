@@ -24,18 +24,18 @@ function getFDINumber($universalNumber) {
         <!-- Page Header -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">Patient Details</h1>
-                <p class="text-gray-600 mt-1">Complete information for <?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
+                <h1 class="text-3xl font-bold text-gray-800"><?= esc(lang('UI.patientDetailsTitle')) ?></h1>
+                <p class="text-gray-600 mt-1"><?= esc(lang('UI.patientDetailsSubtitle', ['name' => $patient['first_name'] . ' ' . $patient['last_name']])) ?></p>
             </div>
             <div class="flex space-x-3">
                 <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" 
                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Patients
+                    <i class="fas fa-arrow-left mr-2"></i><?= esc(lang('UI.patientBackToPatients')) ?>
                 </a>
                 <?php if (has_permission('patients', 'edit')): ?>
                     <a href="<?= base_url('patient/' . $patient['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" 
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-edit mr-2"></i>Edit Patient
+                        <i class="fas fa-edit mr-2"></i><?= esc(lang('UI.patientEditPatient')) ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -43,31 +43,31 @@ function getFDINumber($universalNumber) {
 
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800">Patient Statistics</h3>
+                <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientStatistics')) ?></h3>
             </div>
             <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Examinations</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientExaminations')) ?></p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= count($examinations) ?></p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Appointments</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientAppointments')) ?></p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= count($appointments) ?></p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Treatments</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientTreatments')) ?></p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= count($treatments) ?></p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Prescriptions</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientPrescriptions')) ?></p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= count($prescriptions) ?></p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Invoices</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientInvoices')) ?></p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= count($finances) ?></p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-xs uppercase tracking-wide text-gray-500">Member Since</p>
+                    <p class="text-xs uppercase tracking-wide text-gray-500"><?= esc(lang('UI.patientMemberSince')) ?></p>
                     <p class="mt-1 text-sm font-semibold text-gray-900"><?= formatDate($patient['created_at']) ?></p>
                 </div>
             </div>
@@ -79,7 +79,7 @@ function getFDINumber($universalNumber) {
             <div class="w-full">
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Patient History</h3>
+                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientHistory')) ?></h3>
                     </div>
                     
                     <!-- Tab Navigation -->
@@ -89,51 +89,51 @@ function getFDINumber($universalNumber) {
                                 <button type="button" onclick="return showTab('details', event)" 
                                         id="details-tab" 
                                         class="tab-button active whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-user mr-2"></i>Details
+                                    <i class="fas fa-user mr-2"></i><?= esc(lang('UI.patientTabDetails')) ?>
                                 </button>
                                 <button type="button" onclick="return showTab('timeline', event)" 
                                         id="timeline-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-history mr-2"></i>Timeline
+                                    <i class="fas fa-history mr-2"></i><?= esc(lang('UI.patientTabTimeline')) ?>
                                 </button>
                                 <button type="button" onclick="return showTab('examinations', event)" 
                                         id="examinations-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-stethoscope mr-2"></i>Exams (<?= count($examinations) ?>)
+                                    <i class="fas fa-stethoscope mr-2"></i><?= esc(lang('UI.patientTabExams')) ?> (<?= count($examinations) ?>)
                                 </button>
                                 <button type="button" onclick="return showTab('appointments', event)" 
                                         id="appointments-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-calendar mr-2"></i>Appts (<?= count($appointments) ?>)
+                                    <i class="fas fa-calendar mr-2"></i><?= esc(lang('UI.patientTabAppts')) ?> (<?= count($appointments) ?>)
                                 </button>
                                 <button type="button" onclick="return showTab('treatments', event)" 
                                         id="treatments-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-tooth mr-2"></i>Treatments (<?= count($treatments) ?>)
+                                    <i class="fas fa-tooth mr-2"></i><?= esc(lang('UI.patientTreatments')) ?> (<?= count($treatments) ?>)
                                 </button>
                                 <button type="button" onclick="return showTab('prescriptions', event)" 
                                         id="prescriptions-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-prescription mr-2"></i>Rx (<?= count($prescriptions) ?>)
+                                    <i class="fas fa-prescription mr-2"></i><?= esc(lang('UI.patientTabRx')) ?> (<?= count($prescriptions) ?>)
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
                                     <button type="button" onclick="return showTab('attachments', event)" 
                                             id="attachments-tab" 
                                             class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                        <i class="fas fa-paperclip mr-2"></i>Attachments (<?= count($attachments ?? []) ?>)
+                                        <i class="fas fa-paperclip mr-2"></i><?= esc(lang('UI.patientTabAttachments')) ?> (<?= count($attachments ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
                                     <button type="button" onclick="return showTab('contracts', event)" 
                                             id="contracts-tab" 
                                             class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                        <i class="fas fa-file-signature mr-2"></i>Contracts (<?= count($contracts ?? []) ?>)
+                                        <i class="fas fa-file-signature mr-2"></i><?= esc(lang('UI.patientTabContracts')) ?> (<?= count($contracts ?? []) ?>)
                                     </button>
                                 <?php endif; ?>
                                 <button type="button" onclick="return showTab('finances', event)" 
                                         id="finances-tab" 
                                         class="tab-button whitespace-nowrap py-2 px-3 font-medium text-sm">
-                                    <i class="fas fa-file-invoice mr-2"></i>Invoice (<?= count($finances) ?>)
+                                    <i class="fas fa-file-invoice mr-2"></i><?= esc(lang('UI.patientTabInvoice')) ?> (<?= count($finances) ?>)
                                 </button>
                             </nav>
                             
@@ -142,7 +142,7 @@ function getFDINumber($universalNumber) {
                                 <div class="relative w-full sm:w-auto">
                                     <input type="text" 
                                            id="historySearch" 
-                                           placeholder="Search history..." 
+                                           placeholder="<?= esc(lang('UI.patientSearchHistory')) ?>" 
                                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm w-full sm:w-64">
                                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 </div>
@@ -157,7 +157,7 @@ function getFDINumber($universalNumber) {
                                 <div class="flex items-center space-x-2">
                                     <button onclick="clearFilters()" 
                                             class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
-                                        <i class="fas fa-times mr-1"></i>Clear
+                                        <i class="fas fa-times mr-1"></i><?= esc(lang('UI.patientClear')) ?>
                                     </button>
                                 </div>
                             </div>
@@ -172,48 +172,48 @@ function getFDINumber($universalNumber) {
                                 <!-- Personal Details -->
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
                                     <div class="px-6 py-4 border-b border-gray-200">
-                                        <h3 class="text-lg font-semibold text-gray-800">Personal Information</h3>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientPersonalInformation')) ?></h3>
                                     </div>
                                     <div class="px-6 py-4">
                                         <?php $creatorName = trim(($patient['creator_first_name'] ?? '') . ' ' . ($patient['creator_last_name'] ?? '')); ?>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Patient ID</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientPatientId')) ?></label>
                                                 <p class="text-sm text-gray-900 font-semibold"><?= $patient['patient_id'] ?></p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientFullName')) ?></label>
                                                 <p class="text-sm text-gray-900"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Date of Birth</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientDateOfBirth')) ?></label>
                                                 <p class="text-sm text-gray-900"><?= formatDate($patient['date_of_birth']) ?></p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Age</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientAge')) ?></label>
                                                 <p class="text-sm text-gray-900">
                                                     <?php
                                                     $dob = new DateTime($patient['date_of_birth']);
                                                     $now = new DateTime();
                                                     $age = $now->diff($dob)->y;
-                                                    echo $age . ' years';
+                                                    echo $age . ' ' . lang('UI.patientYears');
                                                     ?>
                                                 </p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Gender</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientGender')) ?></label>
                                                 <p class="text-sm text-gray-900"><?= ucfirst($patient['gender']) ?></p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientStatus')) ?></label>
                                                 <span class="status-badge <?= $patient['status'] == 'active' ? 'status-active' : 
                                                     ($patient['status'] == 'inactive' ? 'status-inactive' : 'status-pending') ?>">
                                                     <?= ucfirst($patient['status']) ?>
                                                 </span>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
-                                                <p class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientCreatedBy')) ?></label>
+                                                <p class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : esc(lang('UI.patientUnknownDoctor')) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -222,21 +222,21 @@ function getFDINumber($universalNumber) {
                                 <!-- Contact Information -->
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
                                     <div class="px-6 py-4 border-b border-gray-200">
-                                        <h3 class="text-lg font-semibold text-gray-800">Contact Information</h3>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientContactDetails')) ?></h3>
                                     </div>
                                     <div class="px-6 py-4">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Phone</label>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientPhone')) ?></label>
                                                 <p class="text-sm text-gray-900"><?= $patient['phone'] ?></p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                                                <p class="text-sm text-gray-900"><?= $patient['email'] ?: 'Not provided' ?></p>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientEmail')) ?></label>
+                                                <p class="text-sm text-gray-900"><?= $patient['email'] ?: esc(lang('UI.patientNotProvided')) ?></p>
                                             </div>
                                             <div class="md:col-span-2">
-                                                <label class="block text-sm font-medium text-gray-600 mb-1">City</label>
-                                                <p class="text-sm text-gray-900"><?= !empty($patient['city']) ? esc($patient['city']) : 'Not provided' ?></p>
+                                                <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc(lang('UI.patientCity')) ?></label>
+                                                <p class="text-sm text-gray-900"><?= !empty($patient['city']) ? esc($patient['city']) : esc(lang('UI.patientNotProvided')) ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -255,56 +255,56 @@ function getFDINumber($universalNumber) {
                                         'enabled' => !empty($patient['alert_has_allergies'] ?? 0),
                                         'icon' => 'fas fa-allergies',
                                         'icon_class' => 'text-red-600',
-                                        'label' => 'Allergies',
+                                        'label' => lang('UI.patientAllergies'),
                                         'details' => $patient['alert_allergies_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_taking_medications'] ?? 0),
                                         'icon' => 'fas fa-pills',
                                         'icon_class' => 'text-blue-600',
-                                        'label' => 'Taking medications',
+                                        'label' => lang('UI.patientTakingMedications'),
                                         'details' => $patient['alert_medications_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_blood_thinners'] ?? 0),
                                         'icon' => 'fas fa-tint',
                                         'icon_class' => 'text-rose-600',
-                                        'label' => 'Blood thinners',
+                                        'label' => lang('UI.patientTakingBloodThinners'),
                                         'details' => $patient['alert_blood_thinners_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_diabetes'] ?? 0),
                                         'icon' => 'fas fa-syringe',
                                         'icon_class' => 'text-amber-600',
-                                        'label' => 'Diabetes',
+                                        'label' => lang('UI.patientDiabetes'),
                                         'details' => $patient['alert_diabetes_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_high_blood_pressure'] ?? 0),
                                         'icon' => 'fas fa-heartbeat',
                                         'icon_class' => 'text-pink-600',
-                                        'label' => 'High blood pressure',
+                                        'label' => lang('UI.patientHighBloodPressure'),
                                         'details' => $patient['alert_blood_pressure_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_heart_condition'] ?? 0),
                                         'icon' => 'fas fa-heart',
                                         'icon_class' => 'text-red-700',
-                                        'label' => 'Heart condition / surgery history',
+                                        'label' => lang('UI.patientHeartCondition'),
                                         'details' => $patient['alert_heart_condition_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_pregnant'] ?? 0),
                                         'icon' => 'fas fa-baby',
                                         'icon_class' => 'text-fuchsia-600',
-                                        'label' => 'Pregnant / possibly pregnant',
+                                        'label' => lang('UI.patientPregnant'),
                                         'details' => $patient['alert_pregnancy_details'] ?? null,
                                     ],
                                     [
                                         'enabled' => !empty($patient['alert_anesthesia_problem'] ?? 0),
                                         'icon' => 'fas fa-mask-face',
                                         'icon_class' => 'text-indigo-600',
-                                        'label' => 'Anesthesia / sedation issue',
+                                        'label' => lang('UI.patientAnesthesiaProblem'),
                                         'details' => $patient['alert_anesthesia_problem_details'] ?? null,
                                     ],
                                 ];
@@ -319,13 +319,13 @@ function getFDINumber($universalNumber) {
                                 <?php if ($hasStructuredMedicalAlerts || $patient['medical_history'] || $patient['allergies']): ?>
                                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
                                         <div class="px-6 py-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-semibold text-gray-800">Medical Information</h3>
+                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientMedicalInformation')) ?></h3>
                                         </div>
                                         <div class="px-6 py-4">
                                             <div class="space-y-4">
                                                 <?php if ($hasStructuredMedicalAlerts): ?>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-600 mb-2">Medical Alerts (Quick Check)</label>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-2"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></label>
                                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                             <?php foreach ($medicalAlerts as $medicalAlertRow): ?>
                                                                 <?php if (empty($medicalAlertRow['enabled'])) continue; ?>
@@ -335,7 +335,7 @@ function getFDINumber($universalNumber) {
                                                                             <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'text-amber-700') ?> mt-0.5 w-4 text-center"></i>
                                                                             <span><?= esc($medicalAlertRow['label']) ?></span>
                                                                         </span>
-                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900">Yes</span>
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900"><?= esc(lang('UI.patientYes')) ?></span>
                                                                     </div>
                                                                     <?php if (!empty($medicalAlertRow['details'])): ?>
                                                                         <p class="text-xs text-amber-800 mt-1"><?= nl2br(esc($medicalAlertRow['details'])) ?></p>
@@ -347,13 +347,13 @@ function getFDINumber($universalNumber) {
                                                 <?php endif; ?>
                                                 <?php if ($patient['medical_history']): ?>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= $hasStructuredMedicalAlerts ? 'Legacy Medical History' : 'Medical History' ?></label>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyMedicalHistory') : lang('UI.patientMedicalHistory')) ?></label>
                                                         <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($patient['medical_history'])) ?></p>
                                                     </div>
                                                 <?php endif; ?>
                                                 <?php if ($patient['allergies']): ?>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= $hasStructuredMedicalAlerts ? 'Legacy Allergies' : 'Allergies' ?></label>
+                                                        <label class="block text-sm font-medium text-gray-600 mb-1"><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyAllergies') : lang('UI.patientAllergies')) ?></label>
                                                         <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($patient['allergies'])) ?></p>
                                                     </div>
                                                 <?php endif; ?>
@@ -366,7 +366,7 @@ function getFDINumber($universalNumber) {
                                 <?php if ($patient['notes']): ?>
                                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
                                         <div class="px-6 py-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-semibold text-gray-800">Notes</h3>
+                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientNotesTitle')) ?></h3>
                                         </div>
                                         <div class="px-6 py-4">
                                             <p class="text-sm text-gray-900"><?= nl2br(htmlspecialchars($patient['notes'])) ?></p>
@@ -390,8 +390,8 @@ function getFDINumber($universalNumber) {
                                         $timeline[] = [
                                             'type' => 'examination',
                                             'date' => $exam['examination_date'],
-                                            'title' => 'Examination - ' . ($exam['examination_type'] ?? 'General'),
-                                            'description' => $exam['chief_complaint'] ?? 'No complaint recorded',
+                                            'title' => lang('UI.patientTimelineExamTitle', ['type' => ($exam['examination_type'] ?? lang('UI.patientGeneral'))]),
+                                            'description' => $exam['chief_complaint'] ?? lang('UI.patientNoComplaintRecorded'),
                                             'status' => $exam['status'],
                                             'id' => $exam['id'],
                                             'doctor' => $doctorName ?: null,
@@ -406,8 +406,8 @@ function getFDINumber($universalNumber) {
                                         $timeline[] = [
                                             'type' => 'appointment',
                                             'date' => $appt['appointment_date'],
-                                            'title' => 'Appointment - ' . ($appt['appointment_type'] ?? 'General'),
-                                            'description' => $appt['notes'] ?? 'No notes',
+                                            'title' => lang('UI.patientTimelineAppointmentTitle', ['type' => ($appt['appointment_type'] ?? lang('UI.patientGeneral'))]),
+                                            'description' => $appt['notes'] ?? lang('UI.patientNoNotes'),
                                             'status' => $appt['status'],
                                             'id' => $appt['id'],
                                             'doctor' => $doctorName ?: null,
@@ -422,8 +422,8 @@ function getFDINumber($universalNumber) {
                                         $timeline[] = [
                                             'type' => 'treatment',
                                             'date' => $treatment['start_date'],
-                                            'title' => 'Treatment - ' . ($treatment['treatment_name'] ?? 'General'),
-                                            'description' => $treatment['treatment_description'] ?? 'No description',
+                                            'title' => lang('UI.patientTimelineTreatmentTitle', ['name' => ($treatment['treatment_name'] ?? lang('UI.patientGeneral'))]),
+                                            'description' => $treatment['treatment_description'] ?? lang('UI.patientNoDescription'),
                                             'status' => $treatment['status'],
                                             'id' => $treatment['id'],
                                             'doctor' => $doctorName ?: null,
@@ -435,7 +435,7 @@ function getFDINumber($universalNumber) {
                                     // Add prescriptions
                                     foreach ($prescriptions as $prescription) {
                                         // Parse medication JSON data
-                                        $medicationName = 'Unknown';
+                                        $medicationName = lang('UI.patientUnknown');
                                         try {
                                             $medicines = json_decode($prescription['medication_name'], true);
                                             if (is_array($medicines) && !empty($medicines)) {
@@ -447,17 +447,17 @@ function getFDINumber($universalNumber) {
                                                 }
                                                 $medicationName = implode(', ', $medicineNames);
                                             } else {
-                                                $medicationName = $prescription['medication_name'] ?? 'Unknown';
+                                                $medicationName = $prescription['medication_name'] ?? lang('UI.patientUnknown');
                                             }
                                         } catch (Exception $e) {
-                                            $medicationName = $prescription['medication_name'] ?? 'Unknown';
+                                            $medicationName = $prescription['medication_name'] ?? lang('UI.patientUnknown');
                                         }
                                         
                                         $timeline[] = [
                                             'type' => 'prescription',
                                             'date' => $prescription['prescribed_date'],
-                                            'title' => 'Prescription - ' . $medicationName,
-                                            'description' => $prescription['instructions'] ?? 'No instructions',
+                                            'title' => lang('UI.patientTimelinePrescriptionTitle', ['name' => $medicationName]),
+                                            'description' => $prescription['instructions'] ?? lang('UI.patientNoInstructions'),
                                             'status' => $prescription['status'],
                                             'id' => $prescription['id'],
                                             'icon' => 'fas fa-prescription',
@@ -470,8 +470,8 @@ function getFDINumber($universalNumber) {
                                         $timeline[] = [
                                             'type' => 'finance',
                                             'date' => $finance['created_at'],
-                                            'title' => 'Payment - ' . ($finance['transaction_type'] ?? 'Unknown'),
-                                            'description' => $finance['description'] ?? 'No description',
+                                            'title' => lang('UI.patientTimelinePaymentTitle', ['type' => ($finance['transaction_type'] ?? lang('UI.patientUnknown'))]),
+                                            'description' => $finance['description'] ?? lang('UI.patientNoDescription'),
                                             'status' => $finance['payment_status'],
                                             'id' => $finance['id'],
                                             'icon' => 'fas fa-dollar-sign',
@@ -501,11 +501,11 @@ function getFDINumber($universalNumber) {
                                                     <div>
                                                         <p class="text-sm text-gray-500">
                                                             <span class="font-medium text-gray-900"><?= $item['title'] ?></span>
-                                                            <span class="text-gray-500">on <?= formatDate($item['date']) ?></span>
+                                                            <span class="text-gray-500"><?= esc(lang('UI.patientTimelineOn')) ?> <?= formatDate($item['date']) ?></span>
                                                         </p>
                                                         <p class="text-sm text-gray-500"><?= $item['description'] ?></p>
                                                         <?php if (!empty($item['doctor'])): ?>
-                                                            <p class="text-xs text-gray-400 mt-1">Dr. <?= esc($item['doctor']) ?></p>
+                                                            <p class="text-xs text-gray-400 mt-1"><?= esc(lang('UI.patientCreatedBy')) ?>: <?= esc($item['doctor']) ?></p>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="text-right text-sm whitespace-nowrap text-gray-500">
@@ -523,7 +523,7 @@ function getFDINumber($universalNumber) {
                                         <li>
                                             <div class="text-center py-8">
                                                 <i class="fas fa-history text-gray-400 text-4xl mb-4"></i>
-                                                <p class="text-gray-500">No history records found for this patient.</p>
+                                                <p class="text-gray-500"><?= esc(lang('UI.patientNoHistoryRecords')) ?></p>
                                             </div>
                                         </li>
                                     <?php endif; ?>
@@ -555,15 +555,15 @@ function getFDINumber($universalNumber) {
 
                                 <?php if ($limitBytes > 0 && $usagePercent >= 80): ?>
                                     <div class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm">
-                                        <strong>Storage warning:</strong> <?= $usagePercent ?>% of your plan storage is used.
+                                        <strong><?= esc(lang('UI.patientStorageWarning')) ?></strong> <?= esc(lang('UI.patientStorageWarningText', ['percent' => $usagePercent])) ?>
                                     </div>
                                 <?php endif; ?>
 
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                     <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                         <div>
-                                            <h3 class="text-lg font-semibold text-gray-800">Patient Attachments</h3>
-                                            <p class="text-xs text-gray-500 mt-1">PDF, images, scans, and documents (max <?= $maxFileMb === null ? 'unlimited' : (int) $maxFileMb . 'MB' ?>)</p>
+                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentsTitle')) ?></h3>
+                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
                                         </div>
                                     </div>
                                     <div class="px-6 py-4">
@@ -573,40 +573,40 @@ function getFDINumber($universalNumber) {
                                                 <div id="attachmentDropzone" tabindex="0" role="button"
                                                      class="w-full cursor-pointer rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40 px-4 py-6 text-center transition-all duration-200">
                                                     <div class="text-sm text-gray-600">
-                                                        Drag & drop files here, or click to browse
+                                                        <?= esc(lang('UI.patientDragDropFiles')) ?>
                                                     </div>
-                                                    <div class="mt-2 text-xs text-gray-500">You can select multiple files</div>
+                                                    <div class="mt-2 text-xs text-gray-500"><?= esc(lang('UI.patientSelectMultipleFiles')) ?></div>
                                                     <div class="mt-4 inline-flex items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700">
                                                         <i class="fas fa-folder-open"></i>
-                                                        Choose Files
+                                                        <?= esc(lang('UI.patientChooseFiles')) ?>
                                                     </div>
                                                 </div>
 
                                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientUploadFiles')) ?></label>
                                                         <input type="file" name="attachment[]" id="attachmentInput" required multiple
                                                                accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
                                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                         <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
                                                     </div>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                                        <input type="text" name="category" placeholder="Scan, X-Ray, Lab..."
+                                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
+                                                        <input type="text" name="category" placeholder="<?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?>"
                                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                                     </div>
                                                 </div>
 
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                                                    <textarea name="notes" rows="4" placeholder="Optional notes for this file"
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientNotes')) ?></label>
+                                                    <textarea name="notes" rows="4" placeholder="<?= esc(lang('UI.patientAttachmentNotesPlaceholder')) ?>"
                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                                                 </div>
                                             </div>
                                             <div class="flex items-center justify-between">
-                                                <p class="text-xs text-gray-500">Allowed: PDF, JPG, PNG, DOCX, XLSX, ZIP</p>
+                                                <p class="text-xs text-gray-500"><?= esc(lang('UI.patientAllowedFileTypes')) ?></p>
                                                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                                    <i class="fas fa-upload mr-2"></i>Upload
+                                                    <i class="fas fa-upload mr-2"></i><?= esc(lang('UI.patientUpload')) ?>
                                                 </button>
                                             </div>
                                         </form>
@@ -615,17 +615,17 @@ function getFDINumber($universalNumber) {
 
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                                     <div class="px-6 py-4 border-b border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-800">Attachment History</h4>
+                                        <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientCategory')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientNotes')) ?></th>
+                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
@@ -636,24 +636,24 @@ function getFDINumber($universalNumber) {
                                                                 <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
                                                             </td>
                                                             <td class="px-6 py-4 text-sm text-gray-900">
-                                                                <div class="font-medium"><?= esc($attachment['original_name'] ?? 'Attachment') ?></div>
+                                                                <div class="font-medium"><?= esc($attachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></div>
                                                                 <div class="text-xs text-gray-500"><?= number_format(($attachment['file_size'] ?? 0) / 1024, 1) ?> KB</div>
                                                             </td>
                                                             <td class="px-6 py-4 text-sm text-gray-500">
-                                                                <?= esc($attachment['category'] ?? '—') ?>
+                                                                <?= esc($attachment['category'] ?? lang('UI.patientDash')) ?>
                                                             </td>
                                                             <td class="px-6 py-4 text-sm text-gray-500">
-                                                                <?= esc($attachment['notes'] ?? '—') ?>
+                                                                <?= esc($attachment['notes'] ?? lang('UI.patientDash')) ?>
                                                             </td>
                                                             <td class="px-6 py-4 text-right text-sm">
                                                                 <a href="<?= base_url('file/download/' . $attachment['id']) ?>" 
                                                                    class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
-                                                                    <i class="fas fa-download mr-1"></i>Download
+                                                                    <i class="fas fa-download mr-1"></i><?= esc(lang('UI.patientDownload')) ?>
                                                                 </a>
                                                                 <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/' . $attachment['id'] . '/delete') ?>" method="post" class="inline">
                                                                     <?= csrf_field() ?>
-                                                                    <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800" onclick="return confirm('Delete this attachment?');">
-                                                                        <i class="fas fa-trash mr-1"></i>Delete
+                                                                    <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
+                                                                        <i class="fas fa-trash mr-1"></i><?= esc(lang('UI.patientDelete')) ?>
                                                                     </button>
                                                                 </form>
                                                             </td>
@@ -661,7 +661,7 @@ function getFDINumber($universalNumber) {
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">No attachments uploaded yet.</td>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500"><?= esc(lang('UI.patientNoAttachmentsYet')) ?></td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -688,26 +688,26 @@ function getFDINumber($universalNumber) {
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                     <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                         <div>
-                                            <h3 class="text-lg font-semibold text-gray-800">Treatment Contracts</h3>
-                                            <p class="text-xs text-gray-500 mt-1">Create and sign treatment agreements with a snapshot odontogram.</p>
+                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
+                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1">Create treatment plans from an examination.</p>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
                                     </div>
                                 </div>
 
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                                     <div class="px-6 py-4 border-b border-gray-200">
-                                        <h4 class="text-md font-semibold text-gray-800">Contract History</h4>
+                                        <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientContractHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam</th>
-                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientExam')) ?></th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
+                                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
@@ -731,30 +731,30 @@ function getFDINumber($universalNumber) {
                                                     <td class="px-6 py-4 text-right text-sm">
                                                         <a href="<?= base_url('contracts/' . $contract['id']) ?>" 
                                                            class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
-                                                            <i class="fas fa-eye mr-1"></i>View
+                                                            <i class="fas fa-eye mr-1"></i><?= esc(lang('UI.patientView')) ?>
                                                         </a>
                                                         <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
                                                             <a href="<?= base_url('contracts/' . $contract['id'] . '/edit') ?>" 
                                                                class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mr-3">
-                                                                <i class="fas fa-edit mr-1"></i>Edit
+                                                                <i class="fas fa-edit mr-1"></i><?= esc(lang('UI.patientEdit')) ?>
                                                             </a>
                                                             <form action="<?= base_url('contracts/' . $contract['id'] . '/delete') ?>" method="post" class="inline">
                                                                 <?= csrf_field() ?>
-                                                                <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800 mr-3" onclick="return confirm('Delete this contract?');">
-                                                                    <i class="fas fa-trash mr-1"></i>Delete
+                                                                <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800 mr-3" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
+                                                                    <i class="fas fa-trash mr-1"></i><?= esc(lang('UI.patientDelete')) ?>
                                                                 </button>
                                                             </form>
                                                         <?php endif; ?>
                                                         <a href="<?= base_url('contracts/' . $contract['id'] . '/print') ?>" 
                                                            class="inline-flex items-center text-gray-600 hover:text-gray-800">
-                                                            <i class="fas fa-print mr-1"></i>Print
+                                                            <i class="fas fa-print mr-1"></i><?= esc(lang('UI.patientPrint')) ?>
                                                         </a>
                                                     </td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">No contracts created yet.</td>
+                                                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500"><?= esc(lang('UI.patientNoContractsYet')) ?></td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -769,13 +769,13 @@ function getFDINumber($universalNumber) {
                             <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800">Examinations</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Clinical examinations for this patient.</p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientExaminations')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientExaminationsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('examinations', 'create')): ?>
                                         <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i>Create Examination
+                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateExamination')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -785,11 +785,11 @@ function getFDINumber($universalNumber) {
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chief Complaint</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientChiefComplaint')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -799,10 +799,10 @@ function getFDINumber($universalNumber) {
                                                         <?= formatDate($examination['examination_date']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($examination['examination_type'] ?? 'General') ?>
+                                                        <?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 text-sm text-gray-900">
-                                                        <?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : 'No complaint' ?>
+                                                        <?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : lang('UI.patientNoComplaint') ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
@@ -811,7 +811,7 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="<?= base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -821,7 +821,7 @@ function getFDINumber($universalNumber) {
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-stethoscope text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No examinations found for this patient.</p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoExaminations')) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -831,13 +831,13 @@ function getFDINumber($universalNumber) {
                             <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800">Appointments</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Scheduled visits and appointment history.</p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientAppointments')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientAppointmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('appointments', 'create')): ?>
                                         <a href="<?= base_url('appointment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i>Schedule Appointment
+                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientScheduleAppointment')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -847,24 +847,24 @@ function getFDINumber($universalNumber) {
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDateTime')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDuration')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             <?php foreach ($appointments as $appointment): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= formatDate($appointment['appointment_date']) ?> at <?= formatTime($appointment['appointment_time']) ?>
+                                                        <?= formatDate($appointment['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($appointment['appointment_time']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($appointment['appointment_type'] ?? 'General') ?>
+                                                        <?= ucfirst($appointment['appointment_type'] ?? lang('UI.patientGeneral')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $appointment['duration'] ?? 'N/A' ?> minutes
+                                                        <?= $appointment['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <?php
@@ -883,7 +883,7 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -893,7 +893,7 @@ function getFDINumber($universalNumber) {
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-calendar text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No appointments found for this patient.</p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoAppointments')) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -903,13 +903,13 @@ function getFDINumber($universalNumber) {
                             <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800">Treatments</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Procedures and treatment plans for this patient.</p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientTreatments')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientTreatmentsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('treatments', 'create')): ?>
                                         <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i>Add Treatment
+                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientAddTreatment')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -919,25 +919,25 @@ function getFDINumber($universalNumber) {
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treatment</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tooth</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTreatment')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTooth')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientCost')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             <?php foreach ($treatments as $treatment): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $treatment['treatment_name'] ?? 'N/A' ?>
+                                                        <?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($treatment['treatment_type'] ?? 'General') ?>
+                                                        <?= ucfirst($treatment['treatment_type'] ?? lang('UI.patientGeneral')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $treatment['tooth_number'] ?? 'N/A' ?>
+                                                        <?= $treatment['tooth_number'] ?? lang('UI.patientNa') ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         $<?= number_format($treatment['cost'] ?? 0, 2) ?>
@@ -958,7 +958,7 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="<?= base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -968,7 +968,7 @@ function getFDINumber($universalNumber) {
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-tooth text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No treatments found for this patient.</p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoTreatments')) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -978,13 +978,13 @@ function getFDINumber($universalNumber) {
                             <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800">Prescriptions</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Medication plans for this patient.</p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientPrescriptions')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientPrescriptionsSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('prescriptions', 'create')): ?>
                                         <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i>Create Prescription
+                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreatePrescription')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -994,12 +994,12 @@ function getFDINumber($universalNumber) {
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Medication</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosage</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prescribed Date</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientMedication')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDosage')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientFrequency')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientPrescribedDate')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -1007,9 +1007,9 @@ function getFDINumber($universalNumber) {
                                                 <?php
                                                 // Parse medication JSON data
                                                 $medicines = [];
-                                                $medicationName = 'N/A';
-                                                $dosage = 'N/A';
-                                                $frequency = 'N/A';
+                                                $medicationName = lang('UI.patientNa');
+                                                $dosage = lang('UI.patientNa');
+                                                $frequency = lang('UI.patientNa');
                                                 
                                                 try {
                                                     $medicinesData = json_decode($prescription['medication_name'], true);
@@ -1035,14 +1035,14 @@ function getFDINumber($universalNumber) {
                                                         $dosage = implode(', ', $dosages);
                                                         $frequency = implode(', ', $frequencies);
                                                     } else {
-                                                        $medicationName = $prescription['medication_name'] ?? 'N/A';
-                                                        $dosage = $prescription['dosage'] ?? 'N/A';
-                                                        $frequency = $prescription['frequency'] ?? 'N/A';
+                                                        $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
+                                                        $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
+                                                        $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
                                                     }
                                                 } catch (Exception $e) {
-                                                    $medicationName = $prescription['medication_name'] ?? 'N/A';
-                                                    $dosage = $prescription['dosage'] ?? 'N/A';
-                                                    $frequency = $prescription['frequency'] ?? 'N/A';
+                                                    $medicationName = $prescription['medication_name'] ?? lang('UI.patientNa');
+                                                    $dosage = $prescription['dosage'] ?? lang('UI.patientNa');
+                                                    $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
                                                 }
                                                 ?>
                                                 <tr class="hover:bg-gray-50">
@@ -1077,7 +1077,7 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="<?= base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -1087,7 +1087,7 @@ function getFDINumber($universalNumber) {
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-prescription text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No prescriptions found for this patient.</p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoPrescriptions')) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -1097,13 +1097,13 @@ function getFDINumber($universalNumber) {
                             <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
                                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800">Invoices</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Financial records and invoices for this patient.</p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientInvoices')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientInvoicesSubtitle')) ?></p>
                                     </div>
                                     <?php if (has_permission('finance', 'create')): ?>
                                         <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i>Create Invoice
+                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -1113,12 +1113,12 @@ function getFDINumber($universalNumber) {
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientPaymentMethod')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -1128,10 +1128,10 @@ function getFDINumber($universalNumber) {
                                                         <?= formatDate($finance['created_at']) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($finance['transaction_type'] ?? 'Unknown') ?>
+                                                        <?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($finance['payment_method'] ?? 'N/A') ?>
+                                                        <?= ucfirst($finance['payment_method'] ?? lang('UI.patientNa')) ?>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         <?php
@@ -1156,7 +1156,7 @@ function getFDINumber($universalNumber) {
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="<?= base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -1166,7 +1166,7 @@ function getFDINumber($universalNumber) {
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-file-invoice text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500">No invoices found for this patient.</p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoInvoices')) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -1185,8 +1185,12 @@ function getFDINumber($universalNumber) {
                                                         <i class="fas fa-tooth text-white text-xl"></i>
                                                     </div>
                                                     <div>
-                                                        <h3 class="text-xl font-bold">Tooth <span id="modalToothNumber" class="text-yellow-300"></span> Condition</h3>
-                                                        <p class="text-blue-100 text-sm">Update dental condition and treatment notes</p>
+                                                        <h3 class="text-xl font-bold">
+                                                            <?= esc(lang('UI.patientToothConditionHeadingPrefix')) ?>
+                                                            <span id="modalToothNumber" class="text-yellow-300"></span>
+                                                            <?= esc(lang('UI.patientToothConditionHeadingSuffix')) ?>
+                                                        </h3>
+                                                        <p class="text-blue-100 text-sm"><?= esc(lang('UI.patientToothConditionSubtitle')) ?></p>
                                                     </div>
                                                 </div>
                                                 <button onclick="closeToothModal()" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors duration-200">
@@ -1205,42 +1209,42 @@ function getFDINumber($universalNumber) {
                                             <div class="space-y-6">
                                                 <!-- Condition Type -->
                                                 <div>
-                                                    <label for="condition_type" class="block text-sm font-medium text-gray-700 mb-2">Condition Type</label>
+                                                    <label for="condition_type" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientConditionType')) ?></label>
                                                     <select id="condition_type" name="condition_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <option value="healthy">Healthy</option>
-                                                        <option value="cavity">Cavity</option>
-                                                        <option value="filling">Filling</option>
-                                                        <option value="crown">Crown</option>
-                                                        <option value="root_canal">Root Canal</option>
-                                                        <option value="extracted">Extracted</option>
-                                                        <option value="implant">Implant</option>
-                                                        <option value="bridge">Bridge</option>
-                                                        <option value="partial_denture">Partial Denture</option>
-                                                        <option value="full_denture">Full Denture</option>
-                                                        <option value="other">Other</option>
+                                                        <option value="healthy"><?= esc(lang('UI.patientConditionHealthy')) ?></option>
+                                                        <option value="cavity"><?= esc(lang('UI.patientConditionCavity')) ?></option>
+                                                        <option value="filling"><?= esc(lang('UI.patientConditionFilling')) ?></option>
+                                                        <option value="crown"><?= esc(lang('UI.patientConditionCrown')) ?></option>
+                                                        <option value="root_canal"><?= esc(lang('UI.patientConditionRootCanal')) ?></option>
+                                                        <option value="extracted"><?= esc(lang('UI.patientConditionExtracted')) ?></option>
+                                                        <option value="implant"><?= esc(lang('UI.patientConditionImplant')) ?></option>
+                                                        <option value="bridge"><?= esc(lang('UI.patientConditionBridge')) ?></option>
+                                                        <option value="partial_denture"><?= esc(lang('UI.patientConditionPartialDenture')) ?></option>
+                                                        <option value="full_denture"><?= esc(lang('UI.patientConditionFullDenture')) ?></option>
+                                                        <option value="other"><?= esc(lang('UI.patientConditionOther')) ?></option>
                                                     </select>
                                                 </div>
 
                                                 <!-- Condition Description -->
                                                 <div>
-                                                    <label for="condition_description" class="block text-sm font-medium text-gray-700 mb-2">Condition Description</label>
-                                                    <textarea id="condition_description" name="condition_description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Describe the condition..."></textarea>
+                                                    <label for="condition_description" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientConditionDescription')) ?></label>
+                                                    <textarea id="condition_description" name="condition_description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= esc(lang('UI.patientConditionDescriptionPlaceholder')) ?>"></textarea>
                                                 </div>
 
                                                 <!-- Treatment Notes -->
                                                 <div>
-                                                    <label for="treatment_notes" class="block text-sm font-medium text-gray-700 mb-2">Treatment Notes</label>
-                                                    <textarea id="treatment_notes" name="treatment_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add treatment notes..."></textarea>
+                                                    <label for="treatment_notes" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientTreatmentNotes')) ?></label>
+                                                    <textarea id="treatment_notes" name="treatment_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="<?= esc(lang('UI.patientTreatmentNotesPlaceholder')) ?>"></textarea>
                                                 </div>
 
                                                 <!-- Treatment Status -->
                                                 <div>
-                                                    <label for="treatment_status" class="block text-sm font-medium text-gray-700 mb-2">Treatment Status</label>
+                                                    <label for="treatment_status" class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientTreatmentStatus')) ?></label>
                                                     <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <option value="pending">Pending</option>
-                                                        <option value="in_progress">In Progress</option>
-                                                        <option value="completed">Completed</option>
-                                                        <option value="needs_attention">Needs Attention</option>
+                                                        <option value="pending"><?= esc(lang('UI.patientTreatmentStatusPending')) ?></option>
+                                                        <option value="in_progress"><?= esc(lang('UI.patientTreatmentStatusInProgress')) ?></option>
+                                                        <option value="completed"><?= esc(lang('UI.patientTreatmentStatusCompleted')) ?></option>
+                                                        <option value="needs_attention"><?= esc(lang('UI.patientTreatmentStatusNeedsAttention')) ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -1248,14 +1252,14 @@ function getFDINumber($universalNumber) {
                                             <!-- Modal Footer -->
                                             <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
                                                 <button type="button" onclick="resetTooth()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200">
-                                                    <i class="fas fa-undo mr-2"></i>Reset to Healthy
+                                                    <i class="fas fa-undo mr-2"></i><?= esc(lang('UI.patientResetToHealthy')) ?>
                                                 </button>
                                                 <div class="flex space-x-3">
                                                     <button type="button" onclick="closeToothModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
-                                                        Cancel
+                                                        <?= esc(lang('UI.cancel')) ?>
                                                     </button>
                                                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                                        <i class="fas fa-save mr-2"></i>Save Changes
+                                                        <i class="fas fa-save mr-2"></i><?= esc(lang('UI.settingsSaveChanges')) ?>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1422,6 +1426,16 @@ function getFDINumber($universalNumber) {
 </style>
 
 <script>
+    const patientShowI18n = {
+        noHistoryRecords: '<?= esc(lang('UI.patientNoHistoryRecords'), 'js') ?>',
+        timelineOn: '<?= esc(lang('UI.patientTimelineOn'), 'js') ?>',
+        saving: '<?= esc(lang('UI.patientSaving'), 'js') ?>',
+        toothUpdatedSuccess: '<?= esc(lang('UI.patientToothUpdatedSuccess'), 'js') ?>',
+        toothUpdateError: '<?= esc(lang('UI.patientToothUpdateError'), 'js') ?>',
+        toothUpdateGenericError: '<?= esc(lang('UI.patientToothUpdateGenericError'), 'js') ?>',
+        unknown: '<?= esc(lang('UI.patientUnknown'), 'js') ?>'
+    };
+
     // Global variables for filtering
     let currentTab = 'details';
     let allTimelineData = [];
@@ -1635,7 +1649,7 @@ function getFDINumber($universalNumber) {
             
             const p = document.createElement('p');
             p.className = 'text-gray-500';
-            p.textContent = 'No records found matching your criteria.';
+            p.textContent = patientShowI18n.noHistoryRecords;
             
             div.appendChild(icon);
             div.appendChild(p);
@@ -1683,7 +1697,7 @@ function getFDINumber($universalNumber) {
             spanDate.className = 'text-gray-500';
             const itemIso = String(item.date || '').split(' ')[0];
             const itemDisplay = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(itemIso) : itemIso;
-            spanDate.textContent = ` on ${itemDisplay}`;
+            spanDate.textContent = ` ${patientShowI18n.timelineOn} ${itemDisplay}`;
             pTitle.appendChild(spanTitle);
             pTitle.appendChild(spanDate);
             
@@ -1908,7 +1922,7 @@ function getFDINumber($universalNumber) {
         
         const loadingIcon = document.createElement('i');
         loadingIcon.className = 'fas fa-spinner fa-spin mr-2';
-        submitBtn.replaceChildren(loadingIcon, document.createTextNode('Saving...'));
+        submitBtn.replaceChildren(loadingIcon, document.createTextNode(patientShowI18n.saving));
         submitBtn.disabled = true;
         
         fetch('<?= base_url('odontogram/update-tooth') ?>', {
@@ -1946,15 +1960,16 @@ function getFDINumber($universalNumber) {
                 }
                 
                 updateToothAppearance(toothNumber, formData.get('condition_type'));
-                showNotification('Tooth updated successfully!', 'success');
+                showNotification(patientShowI18n.toothUpdatedSuccess, 'success');
                 closeToothModal();
             } else {
-                showNotification('Error updating tooth: ' + (data.message || 'Unknown error'), 'error');
+                const errorText = patientShowI18n.toothUpdateError.replace('{message}', data.message || patientShowI18n.unknown);
+                showNotification(errorText, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error updating tooth. Please try again.', 'error');
+            showNotification(patientShowI18n.toothUpdateGenericError, 'error');
         })
         .finally(() => {
             // Restore original button state

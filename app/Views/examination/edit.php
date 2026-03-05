@@ -1,7 +1,8 @@
-<?= $this->extend('layouts/main_auth') ?>
+﻿<?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
 <?php
+$tr = static fn(string $key, array $params = []) => lang('Examination.' . $key, $params);
 $validation = session()->getFlashdata('validation');
 $optionalFieldKeys = [
     'history_of_present_illness',
@@ -59,8 +60,8 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 </div>
                             </div>
                             <div>
-                                <h1 class="text-2xl font-black text-gray-900 group-hover:text-cyan-900 transition-colors duration-300">Edit Examination</h1>
-                                <p class="text-gray-600 font-medium">Update examination record - <?= esc($examination['examination_id']) ?></p>
+                                <h1 class="text-2xl font-black text-gray-900 group-hover:text-cyan-900 transition-colors duration-300"><?= esc($tr('edit_examination_title')) ?></h1>
+                                <p class="text-gray-600 font-medium"><?= esc($tr('edit_examination_subtitle', ['id' => $examination['examination_id']])) ?></p>
                             </div>
                         </div>
 
@@ -72,13 +73,13 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-user mr-2 relative z-10"></i>
-                                    <span class="relative z-10">Back to Patient</span>
+                                    <span class="relative z-10"><?= esc($tr('back_to_patient')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination/' . $examination['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= esc($tr('back')) ?></span>
                             </a>
                         </div>
                     </div>
@@ -94,12 +95,12 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                         <section class="rounded-xl border border-slate-200 bg-slate-50/60 p-6 md:p-7">
                             <h4 class="text-lg font-bold text-gray-900 mb-5 flex items-center space-x-2">
                                 <i class="fas fa-asterisk text-xs text-blue-600"></i>
-                                <span>Required Information</span>
+                                <span><?= esc($tr('required_information')) ?></span>
                             </h4>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="patientSelect" class="block text-sm font-semibold text-slate-700 mb-2">Patient *</label>
+                                    <label for="patientSelect" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('patient_required')) ?></label>
                                     <select
                                         name="patient_id"
                                         id="patientSelect"
@@ -108,14 +109,14 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         data-minimum-input-length="0"
                                         data-limit="5"
                                         data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                        data-placeholder="Search patients by name, phone, or ID..."
+                                        data-placeholder="<?= esc($tr('search_patients_placeholder')) ?>"
                                         required
                                     >
-                                        <option value="">Select a patient</option>
+                                        <option value=""><?= esc($tr('select_patient')) ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
                                                 <option value="<?= $patient['id'] ?>" data-gender="<?= esc($patient['gender'] ?? '') ?>" <?= (string) old('patient_id', $examination['patient_id']) === (string) $patient['id'] ? 'selected' : '' ?>>
-                                                    <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> (<?= esc($patient['phone'] ?? $patient['patient_id'] ?? 'N/A') ?>)
+                                                    <?= esc($patient['first_name'] . ' ' . $patient['last_name']) ?> (<?= esc($patient['phone'] ?? $patient['patient_id'] ?? $tr('na')) ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -126,13 +127,13 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 </div>
 
                                 <div>
-                                    <label for="examination_type" class="block text-sm font-semibold text-slate-700 mb-2">Examination Type *</label>
+                                    <label for="examination_type" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_type_required')) ?></label>
                                     <select name="examination_type" id="examination_type" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200" required>
-                                        <option value="">Select type</option>
-                                        <option value="initial" <?= old('examination_type', $examination['examination_type']) == 'initial' ? 'selected' : '' ?>>Initial</option>
-                                        <option value="periodic" <?= old('examination_type', $examination['examination_type']) == 'periodic' ? 'selected' : '' ?>>Periodic</option>
-                                        <option value="emergency" <?= old('examination_type', $examination['examination_type']) == 'emergency' ? 'selected' : '' ?>>Emergency</option>
-                                        <option value="follow_up" <?= old('examination_type', $examination['examination_type']) == 'follow_up' ? 'selected' : '' ?>>Follow-up</option>
+                                        <option value=""><?= esc($tr('select_type')) ?></option>
+                                        <option value="initial" <?= old('examination_type', $examination['examination_type']) == 'initial' ? 'selected' : '' ?>><?= esc($tr('type_initial')) ?></option>
+                                        <option value="periodic" <?= old('examination_type', $examination['examination_type']) == 'periodic' ? 'selected' : '' ?>><?= esc($tr('type_periodic')) ?></option>
+                                        <option value="emergency" <?= old('examination_type', $examination['examination_type']) == 'emergency' ? 'selected' : '' ?>><?= esc($tr('type_emergency')) ?></option>
+                                        <option value="follow_up" <?= old('examination_type', $examination['examination_type']) == 'follow_up' ? 'selected' : '' ?>><?= esc($tr('type_follow_up')) ?></option>
                                     </select>
                                     <?php if ($validation && $validation->hasError('examination_type')): ?>
                                         <p class="text-red-600 text-sm mt-2"><?= $validation->getError('examination_type') ?></p>
@@ -142,7 +143,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
 
                             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="examination_date" class="block text-sm font-semibold text-slate-700 mb-2">Examination Date *</label>
+                                    <label for="examination_date" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_date_required')) ?></label>
                                     <input
                                         type="text"
                                         name="examination_date"
@@ -158,24 +159,24 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 </div>
 
                                 <div>
-                                    <label for="status" class="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+                                    <label for="status" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('status')) ?></label>
                                     <select name="status" id="status" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
-                                        <option value="pending" <?= old('status', $examination['status']) == 'pending' ? 'selected' : '' ?>>Pending</option>
-                                        <option value="in_progress" <?= old('status', $examination['status']) == 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                                        <option value="completed" <?= old('status', $examination['status']) == 'completed' ? 'selected' : '' ?>>Completed</option>
-                                        <option value="cancelled" <?= old('status', $examination['status']) == 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                        <option value="pending" <?= old('status', $examination['status']) == 'pending' ? 'selected' : '' ?>><?= esc($tr('status_pending')) ?></option>
+                                        <option value="in_progress" <?= old('status', $examination['status']) == 'in_progress' ? 'selected' : '' ?>><?= esc($tr('status_in_progress')) ?></option>
+                                        <option value="completed" <?= old('status', $examination['status']) == 'completed' ? 'selected' : '' ?>><?= esc($tr('status_completed')) ?></option>
+                                        <option value="cancelled" <?= old('status', $examination['status']) == 'cancelled' ? 'selected' : '' ?>><?= esc($tr('status_cancelled')) ?></option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="mt-6">
-                                <label for="chief_complaint" class="block text-sm font-semibold text-slate-700 mb-2">Chief Complaint *</label>
+                                <label for="chief_complaint" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('chief_complaint_required')) ?></label>
                                 <textarea
                                     name="chief_complaint"
                                     id="chief_complaint"
                                     rows="3"
                                     class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y"
-                                    placeholder="Describe the patient's main complaint..."
+                                    placeholder="<?= esc($tr('chief_complaint_placeholder')) ?>"
                                     required
                                 ><?= old('chief_complaint', $examination['chief_complaint']) ?></textarea>
                                 <?php if ($validation && $validation->hasError('chief_complaint')): ?>
@@ -191,8 +192,8 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         <i class="fas fa-notes-medical"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-900">Additional Clinical Details</h4>
-                                        <p class="text-sm text-gray-500">Optional</p>
+                                        <h4 class="text-lg font-bold text-gray-900"><?= esc($tr('additional_clinical_details')) ?></h4>
+                                        <p class="text-sm text-gray-500"><?= esc($tr('optional')) ?></p>
                                     </div>
                                 </div>
                                 <label class="inline-flex items-center cursor-pointer">
@@ -200,29 +201,29 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                     <div id="optionalTrack" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
                                         <div id="optionalDot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
                                     </div>
-                                    <span class="ml-3 text-sm font-semibold text-gray-700">Enable</span>
+                                    <span class="ml-3 text-sm font-semibold text-gray-700"><?= esc($tr('enable')) ?></span>
                                 </label>
                             </div>
 
                             <div id="optionalSection" class="hidden space-y-5">
                                 <div>
-                                    <label for="history_of_present_illness" class="block text-sm font-semibold text-slate-700 mb-2">History of Present Illness</label>
-                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Detailed history of the current condition..."><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
+                                    <label for="history_of_present_illness" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('history_of_present_illness')) ?></label>
+                                    <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('history_of_present_illness_placeholder')) ?>"><?= old('history_of_present_illness', $examination['history_of_present_illness']) ?></textarea>
                                 </div>
 
                                 <div class="rounded-xl border border-slate-200 bg-white p-4 md:p-5">
                                     <div class="flex items-center justify-between gap-3 mb-3">
-                                        <h5 class="text-sm font-semibold text-slate-800">Health Update Since Last Visit</h5>
-                                        <span class="text-xs text-slate-500">Quick check</span>
+                                        <h5 class="text-sm font-semibold text-slate-800"><?= esc($tr('health_update_since_last_visit')) ?></h5>
+                                        <span class="text-xs text-slate-500"><?= esc($tr('quick_check')) ?></span>
                                     </div>
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
                                         <?php
                                         $healthUpdateItems = [
-                                            ['key' => 'health_update_medical_changes', 'label' => 'Any medical changes since last visit?', 'icon' => 'fas fa-notes-medical', 'icon_class' => 'text-emerald-500'],
-                                            ['key' => 'health_update_medication_changes', 'label' => 'Started or stopped medications?', 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500'],
-                                            ['key' => 'health_update_allergies_reactions', 'label' => 'New allergies or reactions?', 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500'],
-                                            ['key' => 'health_update_pregnancy', 'label' => 'Pregnant / possibly pregnant?', 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'pregnancy_only' => true],
-                                            ['key' => 'health_update_current_symptoms', 'label' => 'Current pain / swelling / bleeding?', 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'text-amber-500'],
+                                            ['key' => 'health_update_medical_changes', 'label' => $tr('health_q_medical_changes'), 'icon' => 'fas fa-notes-medical', 'icon_class' => 'text-emerald-500'],
+                                            ['key' => 'health_update_medication_changes', 'label' => $tr('health_q_medication_changes'), 'icon' => 'fas fa-pills', 'icon_class' => 'text-blue-500'],
+                                            ['key' => 'health_update_allergies_reactions', 'label' => $tr('health_q_allergies_reactions'), 'icon' => 'fas fa-allergies', 'icon_class' => 'text-red-500'],
+                                            ['key' => 'health_update_pregnancy', 'label' => $tr('health_q_pregnancy'), 'icon' => 'fas fa-baby', 'icon_class' => 'text-fuchsia-500', 'pregnancy_only' => true],
+                                            ['key' => 'health_update_current_symptoms', 'label' => $tr('health_q_current_symptoms'), 'icon' => 'fas fa-triangle-exclamation', 'icon_class' => 'text-amber-500'],
                                         ];
                                         ?>
                                         <?php foreach ($healthUpdateItems as $item): ?>
@@ -234,7 +235,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                                         <span><?= esc($item['label']) ?></span>
                                                     </label>
                                                     <div class="flex items-center gap-2 shrink-0">
-                                                        <span class="text-xs font-semibold text-gray-500">No</span>
+                                                        <span class="text-xs font-semibold text-gray-500"><?= esc($tr('no')) ?></span>
                                                         <label class="inline-flex items-center cursor-pointer">
                                                             <input type="hidden" name="<?= esc($item['key']) ?>" value="0">
                                                             <input type="checkbox"
@@ -249,7 +250,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                                                 <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? 'translateX(20px)' : 'translateX(0)' ?>;"></div>
                                                             </div>
                                                         </label>
-                                                        <span class="text-xs font-semibold text-blue-700">Yes</span>
+                                                        <span class="text-xs font-semibold text-blue-700"><?= esc($tr('yes')) ?></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -263,41 +264,41 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                         || $healthToggleChecked('health_update_current_symptoms', $examination);
                                     ?>
                                     <div id="healthUpdateDetailsWrap" class="mt-4 <?= $showHealthUpdateDetails ? '' : 'hidden' ?>">
-                                        <label for="health_update_details" class="block text-sm font-semibold text-slate-700 mb-2">Health Update Details</label>
-                                        <textarea name="health_update_details" id="health_update_details" rows="3" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Add short details about changes, medications, allergies, symptoms..." <?= $showHealthUpdateDetails ? '' : 'disabled' ?>><?= old('health_update_details', $examination['health_update_details'] ?? '') ?></textarea>
+                                        <label for="health_update_details" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('health_update_details')) ?></label>
+                                        <textarea name="health_update_details" id="health_update_details" rows="3" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('health_update_details_placeholder')) ?>" <?= $showHealthUpdateDetails ? '' : 'disabled' ?>><?= old('health_update_details', $examination['health_update_details'] ?? '') ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2">Dental History</label>
-                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Previous dental treatments and oral history..."><?= old('dental_history', $examination['dental_history']) ?></textarea>
+                                        <label for="dental_history" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('dental_history')) ?></label>
+                                        <textarea name="dental_history" id="dental_history" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('dental_history_placeholder')) ?>"><?= old('dental_history', $examination['dental_history']) ?></textarea>
                                     </div>
                                     <div>
-                                        <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2">Clinical Findings</label>
-                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Objective findings from the examination..."><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
+                                        <label for="clinical_findings" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('clinical_findings')) ?></label>
+                                        <textarea name="clinical_findings" id="clinical_findings" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('clinical_findings_placeholder_edit')) ?>"><?= old('clinical_findings', $examination['clinical_findings']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label for="diagnosis" class="block text-sm font-semibold text-slate-700 mb-2">Diagnosis</label>
-                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Diagnosis based on findings..."><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
+                                        <label for="diagnosis" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('diagnosis')) ?></label>
+                                        <textarea name="diagnosis" id="diagnosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('diagnosis_placeholder')) ?>"><?= old('diagnosis', $examination['diagnosis']) ?></textarea>
                                     </div>
                                     <div>
-                                        <label for="prognosis" class="block text-sm font-semibold text-slate-700 mb-2">Prognosis</label>
-                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Expected outcome and prognosis..."><?= old('prognosis', $examination['prognosis']) ?></textarea>
+                                        <label for="prognosis" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('prognosis')) ?></label>
+                                        <textarea name="prognosis" id="prognosis" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('prognosis_placeholder')) ?>"><?= old('prognosis', $examination['prognosis']) ?></textarea>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label for="recommendations" class="block text-sm font-semibold text-slate-700 mb-2">Recommendations</label>
-                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Patient care recommendations..."><?= old('recommendations', $examination['recommendations']) ?></textarea>
+                                    <label for="recommendations" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('recommendations')) ?></label>
+                                    <textarea name="recommendations" id="recommendations" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('recommendations_placeholder')) ?>"><?= old('recommendations', $examination['recommendations']) ?></textarea>
                                 </div>
 
                                 <div>
-                                    <label for="examination_notes" class="block text-sm font-semibold text-slate-700 mb-2">Examination Notes</label>
-                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="Additional notes and observations..."><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
+                                    <label for="examination_notes" class="block text-sm font-semibold text-slate-700 mb-2"><?= esc($tr('examination_notes')) ?></label>
+                                    <textarea name="examination_notes" id="examination_notes" rows="4" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-y" placeholder="<?= esc($tr('examination_notes_placeholder_edit')) ?>"><?= old('examination_notes', $examination['examination_notes']) ?></textarea>
                                 </div>
                             </div>
                         </section>
@@ -305,11 +306,11 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                         <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination/' . $examination['id']) ?>" class="inline-flex items-center justify-center px-6 py-2.5 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors">
                                 <i class="fas fa-times mr-2"></i>
-                                Cancel
+                                <?= esc($tr('cancel')) ?>
                             </a>
                             <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-blue-700 hover:to-cyan-700 transition-colors">
                                 <i class="fas fa-save mr-2"></i>
-                                Update Examination
+                                <?= esc($tr('update_examination')) ?>
                             </button>
                         </div>
                     </form>
@@ -423,3 +424,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <?= $this->endSection() ?>
+

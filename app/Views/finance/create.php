@@ -29,8 +29,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-green-900 transition-colors duration-300">New Financial Transaction</h3>
-                                <p class="text-gray-600 font-medium">Create a new financial transaction or invoice</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-green-900 transition-colors duration-300"><?= lang('Finance.newFinancialTransaction') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('Finance.createFinancialTransactionHelp') ?></p>
                             </div>
                         </div>
                         
@@ -42,13 +42,13 @@
                                 <a href="<?= base_url('patient/' . $patients[0]['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-user mr-2 relative z-10"></i>
-                                    <span class="relative z-10">Back to Patient</span>
+                                    <span class="relative z-10"><?= lang('Finance.backToPatient') ?></span>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= lang('Finance.back') ?></span>
                             </a>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
-                                    <span>Patient *</span>
+                                    <span><?= lang('Finance.patientRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
@@ -74,9 +74,9 @@
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                            data-placeholder="Search patients by name, phone, or ID..."
+                                            data-placeholder="<?= esc(lang('Finance.searchPatientsPlaceholder')) ?>"
                                             required>
-                                        <option value="">Select a patient</option>
+                                        <option value=""><?= lang('Finance.selectPatient') ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
                                                 <option value="<?= $patient['id'] ?>" selected>
@@ -100,15 +100,15 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-exchange-alt text-purple-600"></i>
-                                    <span>Transaction Type *</span>
+                                    <span><?= lang('Finance.transactionTypeRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="transaction_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select type</option>
-                                        <option value="payment" <?= (old('transaction_type') == 'payment') ? 'selected' : '' ?>>Payment</option>
-                                        <option value="invoice" <?= (old('transaction_type') == 'invoice') ? 'selected' : '' ?>>Invoice</option>
-                                        <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>>Refund</option>
-                                        <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>>Adjustment</option>
+                                        <option value=""><?= lang('Finance.selectType') ?></option>
+                                        <option value="payment" <?= (old('transaction_type') == 'payment') ? 'selected' : '' ?>><?= lang('Finance.payment') ?></option>
+                                        <option value="invoice" <?= (old('transaction_type') == 'invoice') ? 'selected' : '' ?>><?= lang('Finance.invoice') ?></option>
+                                        <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
+                                        <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -139,8 +139,8 @@
                                         data-require-dependency="true"
                                         data-status="all"
                                         data-search-url="<?= base_url('api/v1/search/examinations') ?>"
-                                        data-placeholder="Search examinations by ID, type, or patient...">
-                                    <option value="">Select examination (optional)</option>
+                                        data-placeholder="<?= esc(lang('Finance.searchExaminationsPlaceholder')) ?>">
+                                    <option value=""><?= lang('Finance.selectExaminationOptional') ?></option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
@@ -148,12 +148,12 @@
                             </div>
                         </div>
 
-                        <!-- Amount, Currency & Payment Method -->
+                        <!-- Amount, Currency & <?= lang('Finance.paymentMethod') ?> -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span>Amount (Original) *</span>
+                                    <span><?= lang('Finance.amountOriginalRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="amount_original" id="amountOriginal" value="<?= old('amount_original') ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
@@ -169,7 +169,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-coins text-indigo-600"></i>
-                                    <span>Currency *</span>
+                                    <span><?= lang('Finance.currencyRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="currency" id="currencySelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
@@ -190,18 +190,18 @@
                             <div class="group/field relative" id="exchangeRateField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-exchange-alt text-blue-600"></i>
-                                    <span>Exchange Rate *</span>
+                                    <span><?= lang('Finance.exchangeRateRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="exchange_rate" id="exchangeRate" value="<?= old('exchange_rate', 1) ?>" step="0.0001" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="1.0000">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-2">Rate to convert into clinic currency (<?= esc($base_currency ?? 'ILS') ?>).</p>
+                                <p class="text-xs text-gray-500 mt-2"><?= lang('Finance.exchangeRateHelp') ?> (<?= esc($base_currency ?? 'ILS') ?>).</p>
                             </div>
 
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calculator text-emerald-600"></i>
-                                    <span>Converted Amount (<?= esc($base_currency ?? 'ILS') ?>)</span>
+                                    <span><?= lang('Finance.convertedAmount') ?> (<?= esc($base_currency ?? 'ILS') ?>)</span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="amountConverted" readonly class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl shadow-lg text-gray-700" value="0.00">
@@ -213,16 +213,16 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-credit-card text-indigo-600"></i>
-                                    <span>Payment Method</span>
+                                    <span><?= lang('Finance.paymentMethod') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="payment_method" id="paymentMethod" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select method</option>
-                                        <option value="cash" <?= (old('payment_method') == 'cash') ? 'selected' : '' ?>>Cash</option>
-                                        <option value="card" <?= (old('payment_method') == 'card') ? 'selected' : '' ?>>Card</option>
-                                        <option value="bank_transfer" <?= (old('payment_method') == 'bank_transfer') ? 'selected' : '' ?>>Bank Transfer</option>
-                                        <option value="check" <?= (old('payment_method') == 'check') ? 'selected' : '' ?>>Check</option>
-                                        <option value="other" <?= (old('payment_method') == 'other') ? 'selected' : '' ?>>Other</option>
+                                        <option value=""><?= lang('Finance.selectMethod') ?></option>
+                                        <option value="cash" <?= (old('payment_method') == 'cash') ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
+                                        <option value="card" <?= (old('payment_method') == 'card') ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
+                                        <option value="bank_transfer" <?= (old('payment_method') == 'bank_transfer') ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
+                                        <option value="check" <?= (old('payment_method') == 'check') ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
+                                        <option value="other" <?= (old('payment_method') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -233,14 +233,14 @@
                             <div class="group/field relative" id="checkScanField">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-file-upload text-rose-600"></i>
-                                    <span>Check Scan (optional)</span>
+                                    <span><?= lang('Finance.checkScanOptional') ?></span>
                                 </label>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                                     <label class="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-rose-700 cursor-pointer transition-all w-fit">
-                                        <i class="fas fa-upload mr-2"></i>Upload Check Scan
+                                        <i class="fas fa-upload mr-2"></i><?= lang('Finance.uploadCheckScan') ?>
                                         <input type="file" name="check_scan" id="checkScanInput" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
                                     </label>
-                                    <span class="text-xs text-gray-500">PDF, JPG, PNG (max per plan)</span>
+                                    <span class="text-xs text-gray-500"><?= lang('Finance.checkScanFormatsHelp') ?></span>
                                     <span id="checkScanName" class="text-xs text-gray-400"></span>
                                 </div>
                             </div>
@@ -251,7 +251,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-rose-600"></i>
-                                    <span>Payment Date</span>
+                                    <span><?= lang('Finance.paymentDate') ?></span>
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
@@ -263,7 +263,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar-day text-orange-600"></i>
-                                    <span>Due Date</span>
+                                    <span><?= lang('Finance.dueDate') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
@@ -278,16 +278,16 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-stethoscope text-teal-600"></i>
-                                <span>Service Type *</span>
+                                <span><?= lang('Finance.serviceTypeRequired') ?></span>
                             </label>
                             <div class="relative">
                                 <select name="service_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <option value="">Select service type</option>
-                                    <option value="consultation" <?= (old('service_type') == 'consultation') ? 'selected' : '' ?>>Consultation</option>
-                                    <option value="treatment" <?= (old('service_type') == 'treatment') ? 'selected' : '' ?>>Treatment</option>
-                                    <option value="medication" <?= (old('service_type') == 'medication') ? 'selected' : '' ?>>Medication</option>
-                                    <option value="procedure" <?= (old('service_type') == 'procedure') ? 'selected' : '' ?>>Procedure</option>
-                                    <option value="other" <?= (old('service_type') == 'other') ? 'selected' : '' ?>>Other</option>
+                                    <option value=""><?= lang('Finance.selectServiceType') ?></option>
+                                    <option value="consultation" <?= (old('service_type') == 'consultation') ? 'selected' : '' ?>><?= lang('Finance.consultation') ?></option>
+                                    <option value="treatment" <?= (old('service_type') == 'treatment') ? 'selected' : '' ?>><?= lang('Finance.treatment') ?></option>
+                                    <option value="medication" <?= (old('service_type') == 'medication') ? 'selected' : '' ?>><?= lang('Finance.medication') ?></option>
+                                    <option value="procedure" <?= (old('service_type') == 'procedure') ? 'selected' : '' ?>><?= lang('Finance.procedure') ?></option>
+                                    <option value="other" <?= (old('service_type') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
@@ -301,11 +301,11 @@
                             <?php endif; ?>
                         </div>
 
-                        <!-- Service Details -->
+                        <!-- <?= lang('Finance.serviceDetails') ?> -->
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-notes-medical text-emerald-600"></i>
-                                <span>Service Details</span>
+                                <span><?= lang('Finance.serviceDetails') ?></span>
                             </label>
                             <div class="relative">
                                 <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Details about the service provided..."><?= old('service_details') ?></textarea>
@@ -322,7 +322,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-percentage text-blue-600"></i>
-                                    <span>Discount Amount</span>
+                                    <span><?= lang('Finance.discountAmount') ?></span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -338,7 +338,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-percent text-indigo-600"></i>
-                                    <span>Tax Percentage (%)</span>
+                                    <span><?= lang('Finance.taxPercentage') ?></span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -361,41 +361,41 @@
                             <div class="relative">
                                 <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-lg text-emerald-700 font-bold" value="0.00">
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">Total = Converted Amount - Discount + Tax</p>
+                            <p class="text-xs text-gray-500 mt-2">Total = <?= lang('Finance.convertedAmount') ?> - Discount + Tax</p>
                         </div>
 
-                        <!-- Provider Split -->
+                        <!-- <?= lang('Finance.providerSplit') ?> -->
                         <div class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h4 class="text-base font-bold text-indigo-900 flex items-center gap-2">
                                         <i class="fas fa-hand-holding-dollar text-indigo-600"></i>
-                                        Provider Split
+                                        <?= lang('Finance.providerSplit') ?>
                                     </h4>
-                                    <p class="text-xs text-indigo-700/80">Optional: split this transaction with a provider (user or guest).</p>
+                                    <p class="text-xs text-indigo-700/80"><?= lang('Finance.providerSplitHelp') ?></p>
                                 </div>
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="providerSplitEnabled" name="provider_split_enabled" value="1" class="sr-only" <?= old('provider_split_enabled') ? 'checked' : '' ?>>
                                     <div id="providerSplitTrack" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
                                         <div id="providerSplitDot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
                                     </div>
-                                    <span class="ml-3 text-sm font-semibold text-indigo-900">Enable</span>
+                                    <span class="ml-3 text-sm font-semibold text-indigo-900"><?= lang('Finance.enable') ?></span>
                                 </label>
                             </div>
 
                             <div id="providerSplitFields" class="<?= old('provider_split_enabled') ? 'space-y-5' : 'hidden space-y-5' ?>">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Provider Type</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
                                         <select id="providerType" name="provider_type" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                                            <option value="user" <?= old('provider_type', 'user') === 'user' ? 'selected' : '' ?>>Clinic User</option>
-                                            <option value="guest" <?= old('provider_type') === 'guest' ? 'selected' : '' ?>>Guest Provider</option>
+                                            <option value="user" <?= old('provider_type', 'user') === 'user' ? 'selected' : '' ?>><?= lang('Finance.clinicUser') ?></option>
+                                            <option value="guest" <?= old('provider_type') === 'guest' ? 'selected' : '' ?>><?= lang('Finance.guestProvider') ?></option>
                                         </select>
                                     </div>
                                     <div id="providerUserWrap">
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Provider User</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
                                         <select id="providerUserId" name="provider_user_id" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                                            <option value="">Select user</option>
+                                            <option value=""><?= lang('Finance.selectUser') ?></option>
                                             <?php foreach (($clinic_providers ?? []) as $provider): ?>
                                                 <option value="<?= (int) $provider['id'] ?>" <?= (string) old('provider_user_id') === (string) $provider['id'] ? 'selected' : '' ?>>
                                                     <?= esc(trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? ''))) ?>
@@ -404,36 +404,36 @@
                                         </select>
                                     </div>
                                     <div id="providerGuestWrap">
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Guest Provider Name</label>
-                                        <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc(old('provider_name_snapshot')) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="e.g., Dr. Guest Ahmed">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProvider') ?> Name</label>
+                                        <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc(old('provider_name_snapshot')) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Split Mode</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
                                         <select id="providerSplitMode" name="provider_split_mode" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                                            <option value="percent" <?= old('provider_split_mode', 'percent') === 'percent' ? 'selected' : '' ?>>Percentage</option>
-                                            <option value="fixed" <?= old('provider_split_mode') === 'fixed' ? 'selected' : '' ?>>Fixed Amount</option>
+                                            <option value="percent" <?= old('provider_split_mode', 'percent') === 'percent' ? 'selected' : '' ?>><?= lang('Finance.percentage') ?></option>
+                                            <option value="fixed" <?= old('provider_split_mode') === 'fixed' ? 'selected' : '' ?>><?= lang('Finance.fixedAmount') ?></option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Split Value</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
                                         <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc(old('provider_split_value', '70')) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="rounded-xl bg-white border border-indigo-100 p-4">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Gross Collected</p>
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.grossCollected') ?></p>
                                         <p class="mt-1 text-lg font-bold text-gray-900" id="splitGrossPreview">0.00</p>
                                     </div>
                                     <div class="rounded-xl bg-white border border-indigo-100 p-4">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Provider Share</p>
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.providerShare') ?></p>
                                         <p class="mt-1 text-lg font-bold text-indigo-700" id="splitProviderPreview">0.00</p>
                                     </div>
                                     <div class="rounded-xl bg-white border border-indigo-100 p-4">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Clinic Net</p>
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.clinicNet') ?></p>
                                         <p class="mt-1 text-lg font-bold text-emerald-700" id="splitClinicPreview">0.00</p>
                                     </div>
                                 </div>
@@ -441,26 +441,26 @@
                                 <div class="rounded-xl border border-indigo-200 bg-white p-4 space-y-4">
                                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-800">
                                         <input type="checkbox" id="providerMarkPaidNow" name="provider_mark_paid_now" value="1" class="h-4 w-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500" <?= old('provider_mark_paid_now') ? 'checked' : '' ?>>
-                                        Mark provider as paid now
+                                        <?= lang('Finance.markProviderPaidNow') ?>
                                     </label>
 
                                     <div id="providerPaidNowFields" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Paid Amount</label>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
                                             <input type="number" id="providerPaidAmount" name="provider_paid_amount" value="<?= esc(old('provider_paid_amount')) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Method</label>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
                                             <select id="providerPaidMethod" name="provider_paid_method" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                                <option value="cash" <?= old('provider_paid_method', 'cash') === 'cash' ? 'selected' : '' ?>>Cash</option>
-                                                <option value="card" <?= old('provider_paid_method') === 'card' ? 'selected' : '' ?>>Card</option>
-                                                <option value="bank_transfer" <?= old('provider_paid_method') === 'bank_transfer' ? 'selected' : '' ?>>Bank Transfer</option>
-                                                <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>>Check</option>
-                                                <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>>Other</option>
+                                                <option value="cash" <?= old('provider_paid_method', 'cash') === 'cash' ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
+                                                <option value="card" <?= old('provider_paid_method') === 'card' ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
+                                                <option value="bank_transfer" <?= old('provider_paid_method') === 'bank_transfer' ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
+                                                <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
+                                                <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Paid Date</label>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
                                             <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
                                         </div>
                                     </div>
@@ -472,10 +472,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-align-left text-purple-600"></i>
-                                <span>Description</span>
+                                <span><?= lang('Finance.description') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Transaction description or notes..."><?= old('description') ?></textarea>
+                                <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.transactionDescriptionPlaceholder')) ?>"><?= old('description') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -486,10 +486,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-cyan-600"></i>
-                                <span>Notes</span>
+                                <span><?= lang('Finance.notes') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Additional notes..."><?= old('notes') ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.additionalNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -501,12 +501,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('Finance.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-dollar-sign mr-2 relative z-10"></i>
-                                <span class="relative z-10">Create Transaction</span>
+                                <span class="relative z-10"><?= lang('Finance.createTransaction') ?></span>
                             </button>
                         </div>
                     </form>

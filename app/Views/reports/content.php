@@ -19,18 +19,18 @@
                             <i class="fas fa-chart-bar text-xl"></i>
                         </div>
         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
-                            <p class="text-gray-600">Comprehensive reports and analytics for your dental practice</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('TenantMisc.reportsAnalyticsTitle') ?></h1>
+                            <p class="text-gray-600"><?= lang('TenantMisc.reportsAnalyticsDesc') ?></p>
                         </div>
         </div>
                     <div class="flex items-center space-x-3">
                         <button onclick="exportReport('pdf')" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-file-pdf mr-2"></i>
-                            Export HTML
+                            <?= lang('TenantMisc.exportHtml') ?>
             </button>
                         <button onclick="exportReport('excel')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-file-excel mr-2"></i>
-                            Export Excel (CSV)
+                            <?= lang('TenantMisc.exportExcelCsv') ?>
             </button>
                     </div>
                 </div>
@@ -42,50 +42,50 @@
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
             <div class="grid grid-cols-1 lg:grid-cols-6 gap-4">
                 <div class="lg:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Report Type</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.reportType') ?></label>
                     <select id="reportType" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="overview" <?= ($report_type ?? 'overview') === 'overview' ? 'selected' : '' ?>>Overview</option>
-                        <option value="patients" <?= ($report_type ?? '') === 'patients' ? 'selected' : '' ?>>Patients</option>
-                        <option value="examinations" <?= ($report_type ?? '') === 'examinations' ? 'selected' : '' ?>>Examinations</option>
-                        <option value="appointments" <?= ($report_type ?? '') === 'appointments' ? 'selected' : '' ?>>Appointments</option>
-                        <option value="finance" <?= ($report_type ?? '') === 'finance' ? 'selected' : '' ?>>Finance</option>
-                        <option value="treatments" <?= ($report_type ?? '') === 'treatments' ? 'selected' : '' ?>>Treatments</option>
+                        <option value="overview" <?= ($report_type ?? 'overview') === 'overview' ? 'selected' : '' ?>><?= lang('TenantMisc.reportOverview') ?></option>
+                        <option value="patients" <?= ($report_type ?? '') === 'patients' ? 'selected' : '' ?>><?= lang('TenantMisc.reportPatients') ?></option>
+                        <option value="examinations" <?= ($report_type ?? '') === 'examinations' ? 'selected' : '' ?>><?= lang('TenantMisc.reportExaminations') ?></option>
+                        <option value="appointments" <?= ($report_type ?? '') === 'appointments' ? 'selected' : '' ?>><?= lang('TenantMisc.reportAppointments') ?></option>
+                        <option value="finance" <?= ($report_type ?? '') === 'finance' ? 'selected' : '' ?>><?= lang('TenantMisc.reportFinance') ?></option>
+                        <option value="treatments" <?= ($report_type ?? '') === 'treatments' ? 'selected' : '' ?>><?= lang('TenantMisc.reportTreatments') ?></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Quick Range</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.quickRange') ?></label>
                     <select id="dateRange" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>>Last 7 days</option>
-                        <option value="30" <?= ($date_range ?? '30') === '30' ? 'selected' : '' ?>>Last 30 days</option>
-                        <option value="90" <?= ($date_range ?? '30') === '90' ? 'selected' : '' ?>>Last 90 days</option>
-                        <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>>Last year</option>
+                        <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>><?= lang('TenantMisc.last7Days') ?></option>
+                        <option value="30" <?= ($date_range ?? '30') === '30' ? 'selected' : '' ?>><?= lang('TenantMisc.last30Days') ?></option>
+                        <option value="90" <?= ($date_range ?? '30') === '90' ? 'selected' : '' ?>><?= lang('TenantMisc.last90Days') ?></option>
+                        <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>><?= lang('TenantMisc.lastYear') ?></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">From</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.from') ?></label>
                     <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_from'] ?? '') ?: ($filters['start_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">To</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.to') ?></label>
                     <input id="customTo" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_to'] ?? '') ?: ($filters['end_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                 </div>
                 <div class="flex items-end">
                     <button onclick="generateReport()" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-chart-bar mr-2"></i>Generate
+                        <i class="fas fa-chart-bar mr-2"></i><?= lang('TenantMisc.generate') ?>
                     </button>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
                 <div id="patientFilterWrap" class="lg:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Patient (Optional)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.patientOptional') ?></label>
                     <select id="patientFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Patients</option>
+                        <option value=""><?= lang('TenantMisc.allPatients') ?></option>
                         <?php foreach (($report_patients ?? []) as $patient): ?>
                             <?php
                                 $patientId = (int) ($patient['id'] ?? 0);
                                 $patientLabel = trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')));
                                 if ($patientLabel === '') {
-                                    $patientLabel = 'Patient #' . $patientId;
+                                    $patientLabel = lang('TenantMisc.patientNumberPrefix') . $patientId;
                                 }
                                 $patientNumber = trim((string) ($patient['patient_number'] ?? ''));
                             ?>
@@ -96,14 +96,14 @@
                     </select>
                 </div>
                 <div id="transactionTypeWrap">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Transaction Type (Optional)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.transactionTypeOptional') ?></label>
                     <select id="transactionTypeFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Types</option>
-                        <option value="invoice" <?= ($filters['transaction_type'] ?? '') === 'invoice' ? 'selected' : '' ?>>Invoice</option>
-                        <option value="payment" <?= ($filters['transaction_type'] ?? '') === 'payment' ? 'selected' : '' ?>>Payment</option>
-                        <option value="expense" <?= ($filters['transaction_type'] ?? '') === 'expense' ? 'selected' : '' ?>>Expense</option>
-                        <option value="refund" <?= ($filters['transaction_type'] ?? '') === 'refund' ? 'selected' : '' ?>>Refund</option>
-                        <option value="adjustment" <?= ($filters['transaction_type'] ?? '') === 'adjustment' ? 'selected' : '' ?>>Adjustment</option>
+                        <option value=""><?= lang('TenantMisc.allTypes') ?></option>
+                        <option value="invoice" <?= ($filters['transaction_type'] ?? '') === 'invoice' ? 'selected' : '' ?>><?= lang('TenantMisc.invoice') ?></option>
+                        <option value="payment" <?= ($filters['transaction_type'] ?? '') === 'payment' ? 'selected' : '' ?>><?= lang('TenantMisc.payment') ?></option>
+                        <option value="expense" <?= ($filters['transaction_type'] ?? '') === 'expense' ? 'selected' : '' ?>><?= lang('TenantMisc.expense') ?></option>
+                        <option value="refund" <?= ($filters['transaction_type'] ?? '') === 'refund' ? 'selected' : '' ?>><?= lang('TenantMisc.refund') ?></option>
+                        <option value="adjustment" <?= ($filters['transaction_type'] ?? '') === 'adjustment' ? 'selected' : '' ?>><?= lang('TenantMisc.adjustment') ?></option>
                     </select>
                 </div>
             </div>
@@ -173,12 +173,12 @@
                 </span>
                 <?php if (!empty($filters['patient_id'])): ?>
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
-                    <i class="fas fa-user mr-2"></i>Patient Scoped
+                    <i class="fas fa-user mr-2"></i><?= lang('TenantMisc.patientScoped') ?>
                 </span>
                 <?php endif; ?>
                 <?php if (!empty($filters['transaction_type'])): ?>
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
-                    <i class="fas fa-filter mr-2"></i>Type: <?= esc(ucfirst($filters['transaction_type'])) ?>
+                    <i class="fas fa-filter mr-2"></i><?= lang('TenantMisc.typePrefix') ?> <?= esc(ucfirst($filters['transaction_type'])) ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -192,8 +192,8 @@
                 <!-- Summary Stats -->
                     <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Summary Statistics</h3>
-                        <p class="text-sm text-gray-600">Key metrics for the selected period</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2"><?= lang('TenantMisc.summaryStatistics') ?></h3>
+                        <p class="text-sm text-gray-600"><?= lang('TenantMisc.summaryStatisticsDesc') ?></p>
                     </div>
                 <div class="space-y-4">
                             <div class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg backdrop-blur-sm border border-blue-100/50">
@@ -202,13 +202,13 @@
                                         <i class="fas fa-users"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-gray-900">Total Patients</p>
-                                <p class="text-xs text-gray-500">All time</p>
+                                        <p class="text-sm font-semibold text-gray-900"><?= lang('TenantMisc.totalPatients') ?></p>
+                                <p class="text-xs text-gray-500"><?= lang('TenantMisc.allTime') ?></p>
                             </div>
                         </div>
                         <div class="text-right">
                             <p class="text-2xl font-bold text-gray-900"><?= $reports['summary']['total_patients'] ?? 0 ?></p>
-                                    <p class="text-xs text-green-600 font-semibold">+<?= $reports['summary']['new_patients'] ?? 0 ?> new</p>
+                                    <p class="text-xs text-green-600 font-semibold">+<?= $reports['summary']['new_patients'] ?? 0 ?> <?= lang('TenantMisc.new') ?></p>
                         </div>
                     </div>
 
@@ -218,8 +218,8 @@
                                         <i class="fas fa-stethoscope"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-gray-900">Examinations</p>
-                                <p class="text-xs text-gray-500">This period</p>
+                                        <p class="text-sm font-semibold text-gray-900"><?= lang('TenantMisc.examinations') ?></p>
+                                <p class="text-xs text-gray-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -234,8 +234,8 @@
                                         <i class="fas fa-calendar"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-gray-900">Appointments</p>
-                                <p class="text-xs text-gray-500">This period</p>
+                                        <p class="text-sm font-semibold text-gray-900"><?= lang('TenantMisc.appointments') ?></p>
+                                <p class="text-xs text-gray-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -250,8 +250,8 @@
                                         <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div>
-                                        <p class="text-sm font-semibold text-gray-900">Revenue</p>
-                                <p class="text-xs text-gray-500">This period</p>
+                                        <p class="text-sm font-semibold text-gray-900"><?= lang('TenantMisc.revenue') ?></p>
+                                <p class="text-xs text-gray-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -780,7 +780,7 @@
                                         <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
                                             <div class="flex items-center justify-between gap-3">
                                                 <div>
-                                                    <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? 'Unknown') ?></p>
+                                                    <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? lang('TenantMisc.unknown')) ?></p>
                                                     <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts - Gross <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
                                                 </div>
                                                 <div class="text-right">
@@ -868,8 +868,8 @@
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">Rows Behind This Report</h3>
-                        <p class="text-sm text-gray-600">Audit the exact rows included in the currently selected report and period.</p>
+                        <h3 class="text-xl font-bold text-gray-800"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
+                        <p class="text-sm text-gray-600"><?= lang('TenantMisc.rowsBehindReportDesc') ?></p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
@@ -887,9 +887,9 @@
                 <div id="reportDrillBadge" class="hidden mb-4">
                     <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-sm font-semibold">
                         <i class="fas fa-filter"></i>
-                        <span id="reportDrillBadgeText">Drillthrough active</span>
+                        <span id="reportDrillBadgeText"><?= lang('TenantMisc.drillthroughActive') ?></span>
                         <button type="button" id="clearDrillthroughBtn" class="inline-flex items-center px-2 py-1 rounded bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 text-xs font-semibold">
-                            Clear
+                            <?= lang('TenantMisc.clear') ?>
                         </button>
                     </div>
                 </div>
@@ -900,12 +900,12 @@
                         <h4 class="text-lg font-semibold text-gray-800"><?= esc($table['title']) ?></h4>
                         <div class="flex items-center gap-2">
                             <select class="report-detail-per-page px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="25">25 rows</option>
-                                <option value="50">50 rows</option>
-                                <option value="100">100 rows</option>
+                                <option value="25">25 <?= lang('TenantMisc.rows') ?></option>
+                                <option value="50">50 <?= lang('TenantMisc.rows') ?></option>
+                                <option value="100">100 <?= lang('TenantMisc.rows') ?></option>
                             </select>
                             <div class="relative">
-                            <input type="text" class="report-detail-search w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search rows in this table...">
+                            <input type="text" class="report-detail-search w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="<?= lang('TenantMisc.searchRowsPlaceholder') ?>">
                             </div>
                         </div>
                     </div>
@@ -921,7 +921,7 @@
                             <tbody class="divide-y divide-gray-100">
                                 <?php if (empty($table['rows'])): ?>
                                 <tr>
-                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-4 py-8 text-center text-gray-500">No rows available for this period.</td>
+                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-4 py-8 text-center text-gray-500"><?= lang('TenantMisc.noRowsForPeriod') ?></td>
                                 </tr>
                                 <?php else: ?>
                                 <?php foreach ($table['rows'] as $row): ?>
@@ -943,11 +943,11 @@
                         </table>
                     </div>
                     <div class="mt-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div class="text-sm text-gray-500 report-detail-pagination-info">Showing <?= (int) min(($table['row_count'] ?? 0), 25) ?> of <?= (int) ($table['row_count'] ?? 0) ?> rows</div>
+                        <div class="text-sm text-gray-500 report-detail-pagination-info"><?= lang('TenantMisc.showing') ?> <?= (int) min(($table['row_count'] ?? 0), 25) ?> <?= lang('TenantMisc.of') ?> <?= (int) ($table['row_count'] ?? 0) ?> <?= lang('TenantMisc.rows') ?></div>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
-                            <span class="report-detail-page-label text-sm text-gray-600 min-w-[110px] text-center">Page 1</span>
-                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.previous') ?></button>
+                            <span class="report-detail-page-label text-sm text-gray-600 min-w-[110px] text-center"><?= lang('TenantMisc.page') ?> 1</span>
+                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.next') ?></button>
                         </div>
                     </div>
                 </div>
@@ -970,6 +970,20 @@ const reportWorkspace = {
             'row_count' => (int) ($t['row_count'] ?? 0),
         ];
     }, $detail_tables ?? []), JSON_UNESCAPED_SLASHES) ?>,
+};
+
+const reportI18n = {
+    noRowsMatch: '<?= esc(lang('TenantMisc.noRowsMatchFilters'), 'js') ?>',
+    showing: '<?= esc(lang('TenantMisc.showing'), 'js') ?>',
+    of: '<?= esc(lang('TenantMisc.of'), 'js') ?>',
+    rows: '<?= esc(lang('TenantMisc.rows'), 'js') ?>',
+    page: '<?= esc(lang('TenantMisc.page'), 'js') ?>',
+    failedLoadRows: '<?= esc(lang('TenantMisc.failedLoadRowsRetry'), 'js') ?>',
+    revenue: '<?= esc(lang('TenantMisc.revenue'), 'js') ?>',
+    unknown: '<?= esc(lang('TenantMisc.unknown'), 'js') ?>',
+    appointments: '<?= esc(lang('TenantMisc.appointments'), 'js') ?>',
+    balanceDue: '<?= esc(lang('TenantMisc.balanceDue'), 'js') ?>',
+    totalAmount: '<?= esc(lang('TenantMisc.totalAmount'), 'js') ?>',
 };
 
 function escapeHtml(value) {
@@ -1344,7 +1358,7 @@ function renderDetailRows(panel, payload) {
     });
 
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${columns.length}" class="px-4 py-8 text-center text-gray-500">No rows match the current filters.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${columns.length}" class="px-4 py-8 text-center text-gray-500">${reportI18n.noRowsMatch}</td></tr>`;
     } else {
         tbody.innerHTML = rows.map((row) => {
             const cells = columns.map((col) => {
@@ -1363,8 +1377,8 @@ function renderDetailRows(panel, payload) {
     const total = pagination.total_rows ?? rows.length;
     const page = pagination.page ?? 1;
     const lastPage = pagination.last_page ?? 1;
-    info.textContent = `Showing ${from}-${to} of ${total} rows`;
-    pageLabel.textContent = `Page ${page} of ${lastPage}`;
+    info.textContent = `${reportI18n.showing} ${from}-${to} ${reportI18n.of} ${total} ${reportI18n.rows}`;
+    pageLabel.textContent = `${reportI18n.page} ${page} ${reportI18n.of} ${lastPage}`;
     prevBtn.disabled = page <= 1;
     nextBtn.disabled = page >= lastPage;
 }
@@ -1416,7 +1430,7 @@ async function loadDetailPanel(panelId, page = 1) {
         const tbody = panel.querySelector('tbody');
         if (tbody) {
             const colspan = panel.querySelectorAll('thead th').length || 1;
-            tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-rose-600">Failed to load rows. Please retry.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-4 py-8 text-center text-rose-600">${reportI18n.failedLoadRows}</td></tr>`;
         }
     } finally {
         panel.classList.remove('opacity-70');
@@ -1448,7 +1462,7 @@ if (revenueCtx) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Revenue',
+                label: reportI18n.revenue,
                 data: data,
                 borderColor: '#0284c7',
                 backgroundColor: 'rgba(2, 132, 199, 0.1)',
@@ -1492,7 +1506,7 @@ if (examinationCtx) {
     const examinationData = <?= json_encode($reports['charts']['examination_types'] ?? []) ?>;
     
     // Extract labels and data
-    const labels = examinationData.map(item => item.examination_type || 'Unknown');
+    const labels = examinationData.map(item => item.examination_type || reportI18n.unknown);
     const data = examinationData.map(item => parseInt(item.count) || 0);
 
     if (labels.length === 0 || data.every(val => val === 0)) {
@@ -1541,7 +1555,7 @@ if (appointmentCtx) {
     const appointmentData = <?= json_encode($reports['charts']['appointment_status'] ?? []) ?>;
     
     // Extract labels and data
-    const labels = appointmentData.map(item => item.status || 'Unknown');
+    const labels = appointmentData.map(item => item.status || reportI18n.unknown);
     const data = appointmentData.map(item => parseInt(item.count) || 0);
 
     if (labels.length === 0 || data.every(val => val === 0)) {
@@ -1566,7 +1580,7 @@ if (appointmentCtx) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Appointments',
+                label: reportI18n.appointments,
                 data: data,
                 backgroundColor: colors
             }]
@@ -1642,7 +1656,7 @@ if (financeAgingCtx) {
         data: {
             labels,
             datasets: [{
-                label: 'Balance Due',
+                label: reportI18n.balanceDue,
                 data,
                 backgroundColor: agingBuckets.map(b => b.color),
                 borderRadius: 6
@@ -1717,7 +1731,7 @@ if (financeTxnTypeCtx) {
         data: {
             labels,
             datasets: [{
-                label: 'Total Amount',
+                label: reportI18n.totalAmount,
                 data,
                 backgroundColor: colors,
                 borderRadius: 6,

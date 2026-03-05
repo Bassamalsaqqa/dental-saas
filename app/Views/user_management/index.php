@@ -10,10 +10,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800"><?= $title ?></h1>
-            <p class="text-muted mb-0">Manage users, roles, and permissions</p>
+            <p class="text-muted mb-0"><?= lang('UserRole.manageUsersRolesPermissions') ?></p>
         </div>
         <a href="<?= base_url('user-management/create') ?>" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create User
+            <i class="fas fa-plus"></i> <?= lang('UserRole.createUser') ?>
         </a>
     </div>
 
@@ -39,11 +39,11 @@
         <div class="card-header">
             <div class="row align-items-center">
                 <div class="col">
-                    <h6 class="mb-0">Users</h6>
+                    <h6 class="mb-0"><?= lang('UserRole.users') ?></h6>
                 </div>
                 <div class="col-auto">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Search users..." id="searchInput">
+                        <input type="text" class="form-control" placeholder="<?= lang('UserRole.searchUsers') ?>" id="searchInput">
                         <button class="btn btn-outline-secondary" type="button">
                             <i class="fas fa-search"></i>
                         </button>
@@ -56,12 +56,12 @@
                 <table class="table table-hover mb-0" id="usersTable">
                     <thead class="table-light">
                         <tr>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Roles</th>
-                            <th>Status</th>
-                            <th>Last Login</th>
-                            <th width="120">Actions</th>
+                            <th><?= lang('UserRole.user') ?></th>
+                            <th><?= lang('UserRole.email') ?></th>
+                            <th><?= lang('UserRole.roles') ?></th>
+                            <th><?= lang('UserRole.status') ?></th>
+                            <th><?= lang('UserRole.lastLogin') ?></th>
+                            <th width="120"><?= lang('UserRole.actions') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,7 +75,7 @@
                                             </div>
                                             <div>
                                                 <div class="fw-bold"><?= esc($user['first_name'] . ' ' . $user['last_name']) ?></div>
-                                                <small class="text-muted">ID: <?= $user['id'] ?></small>
+                                                <small class="text-muted"><?= lang('UserRole.idColon') ?> <?= $user['id'] ?></small>
                                             </div>
                                         </div>
                                     </a>
@@ -96,13 +96,13 @@
                                             <?php endforeach; ?>
                                         </div>
                                     <?php else: ?>
-                                        <span class="text-muted">No roles assigned</span>
+                                        <span class="text-muted"><?= lang('UserRole.noRolesAssigned') ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="badge bg-<?= $user['active'] ? 'success' : 'danger' ?>">
                                         <i class="fas fa-<?= $user['active'] ? 'check' : 'times' ?>"></i>
-                                        <?= $user['active'] ? 'Active' : 'Inactive' ?>
+                                        <?= $user['active'] ? lang('UserRole.active') : lang('UserRole.inactive') ?>
                                     </span>
                                 </td>
                                 <td>
@@ -110,7 +110,7 @@
                                         <div><?= formatDate($user['last_login']) ?></div>
                                         <small class="text-muted"><?= formatTime($user['last_login']) ?></small>
                                     <?php else: ?>
-                                        <span class="text-muted">Never</span>
+                                        <span class="text-muted"><?= lang('UserRole.never') ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -120,20 +120,20 @@
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a class="dropdown-item" href="<?= base_url('user-management/' . $user['id']) ?>">
-                                                <i class="fas fa-eye"></i> View Details
+                                                <i class="fas fa-eye"></i> <?= lang('UserRole.viewDetails') ?>
                                             </a></li>
                                             <li><a class="dropdown-item" href="<?= base_url('user-management/' . $user['id'] . '/edit') ?>">
-                                                <i class="fas fa-edit"></i> Edit User
+                                                <i class="fas fa-edit"></i> <?= lang('UserRole.editUser') ?>
                                             </a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
                                                 <button class="dropdown-item" onclick="assignRole(<?= $user['id'] ?>)">
-                                                    <i class="fas fa-user-tag"></i> Assign Role
+                                                    <i class="fas fa-user-tag"></i> <?= lang('UserRole.assignRole') ?>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button class="dropdown-item" onclick="managePermissions(<?= $user['id'] ?>)">
-                                                    <i class="fas fa-key"></i> Manage Permissions
+                                                    <i class="fas fa-key"></i> <?= lang('UserRole.managePermissions') ?>
                                                 </button>
                                             </li>
                                             <?php if ($user['id'] != 1): // Don't allow deactivating super admin ?>
@@ -142,16 +142,16 @@
                                                     <form action="<?= base_url('user-management/' . $user['id'] . '/toggle-status') ?>" method="post" class="d-inline">
                                                         <button type="submit" class="dropdown-item text-<?= $user['active'] ? 'warning' : 'success' ?>">
                                                             <i class="fas fa-<?= $user['active'] ? 'pause' : 'play' ?>"></i>
-                                                            <?= $user['active'] ? 'Deactivate' : 'Activate' ?>
+                                                            <?= $user['active'] ? lang('UserRole.deactivate') : lang('UserRole.activate') ?>
                                                         </button>
                                                     </form>
                                                 </li>
                                                 <li>
                                                     <form action="<?= base_url('user-management/' . $user['id']) ?>" method="post" class="d-inline" 
-                                                          onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                          onsubmit="return confirm(<?= json_encode(lang('UserRole.confirmDeleteUserShort')) ?>)">
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class="dropdown-item text-danger">
-                                                            <i class="fas fa-trash"></i> Delete User
+                                                            <i class="fas fa-trash"></i> <?= lang('UserRole.deleteUser') ?>
                                                         </button>
                                                     </form>
                                                 </li>
@@ -175,7 +175,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4><?= count($users) ?></h4>
-                            <p class="mb-0">Total Users</p>
+                            <p class="mb-0"><?= lang('UserRole.totalUsers') ?></p>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-users fa-2x"></i>
@@ -190,7 +190,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4><?= count(array_filter($users, fn($u) => $u['active'])) ?></h4>
-                            <p class="mb-0">Active Users</p>
+                            <p class="mb-0"><?= lang('UserRole.activeUsers') ?></p>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-user-check fa-2x"></i>
@@ -205,7 +205,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4><?= count($roles) ?></h4>
-                            <p class="mb-0">Available Roles</p>
+                            <p class="mb-0"><?= lang('UserRole.availableRoles') ?></p>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-user-tag fa-2x"></i>
@@ -220,7 +220,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4><?= count(array_filter($users, fn($u) => !$u['active'])) ?></h4>
-                            <p class="mb-0">Inactive Users</p>
+                            <p class="mb-0"><?= lang('UserRole.inactiveUsers') ?></p>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-user-times fa-2x"></i>
@@ -237,31 +237,31 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Assign Role</h5>
+                <h5 class="modal-title"><?= lang('UserRole.assignRole') ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="roleForm">
                     <input type="hidden" id="userId" name="user_id">
                     <div class="mb-3">
-                        <label for="roleSelect" class="form-label">Select Role</label>
+                        <label for="roleSelect" class="form-label"><?= lang('UserRole.selectRole') ?></label>
                         <select class="form-select" id="roleSelect" name="role_id" required>
-                            <option value="">Choose a role...</option>
+                            <option value=""><?= lang('UserRole.chooseRole') ?></option>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= esc($role['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="expiresAt" class="form-label">Expires At (Optional)</label>
+                        <label for="expiresAt" class="form-label"><?= lang('UserRole.expiresAtOptional') ?></label>
                         <input type="datetime-local" class="form-control" id="expiresAt" name="expires_at">
-                        <div class="form-text">Leave empty for permanent assignment</div>
+                        <div class="form-text"><?= lang('UserRole.leaveEmptyForPermanentAssignment') ?></div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitRoleAssignment()">Assign Role</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang('UserRole.cancel') ?></button>
+                <button type="button" class="btn btn-primary" onclick="submitRoleAssignment()"><?= lang('UserRole.assignRole') ?></button>
             </div>
         </div>
     </div>
@@ -272,14 +272,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Manage Permissions</h5>
+                <h5 class="modal-title"><?= lang('UserRole.managePermissions') ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="permissionContent">
                     <div class="text-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden"><?= lang('UserRole.loading') ?></span>
                         </div>
                     </div>
                 </div>
@@ -327,12 +327,12 @@ function submitRoleAssignment() {
         if (data.success) {
             location.reload();
         } else {
-            alert('Error: ' + data.error);
+            alert(<?= json_encode(lang('UserRole.errorPrefix')) ?> + data.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while assigning the role.');
+        alert(<?= json_encode(lang('UserRole.errorAssigningRole')) ?>);
     });
 }
 
@@ -349,7 +349,7 @@ function managePermissions(userId) {
     spinner.setAttribute('role', 'status');
     const srOnly = document.createElement('span');
     srOnly.className = 'visually-hidden';
-    srOnly.textContent = 'Loading...';
+    srOnly.textContent = <?= json_encode(lang('UserRole.loading')) ?>;
     spinner.appendChild(srOnly);
     spinnerDiv.appendChild(spinner);
     container.appendChild(spinnerDiv);
@@ -363,12 +363,12 @@ function managePermissions(userId) {
         container.replaceChildren();
         if (data.success) {
             const p = document.createElement('p');
-            p.textContent = 'Permission management interface will be implemented here.';
+            p.textContent = <?= json_encode(lang('UserRole.permissionManagementPlaceholder')) ?>;
             container.appendChild(p);
         } else {
             const alert = document.createElement('div');
             alert.className = 'alert alert-danger';
-            alert.textContent = 'Error loading permissions: ' + data.error;
+            alert.textContent = <?= json_encode(lang('UserRole.errorLoadingPermissionsPrefix')) ?> + data.error;
             container.appendChild(alert);
         }
     })
@@ -377,7 +377,7 @@ function managePermissions(userId) {
         container.replaceChildren();
         const alert = document.createElement('div');
         alert.className = 'alert alert-danger';
-        alert.textContent = 'An error occurred while loading permissions.';
+        alert.textContent = <?= json_encode(lang('UserRole.errorLoadingPermissions')) ?>;
         container.appendChild(alert);
     });
 }

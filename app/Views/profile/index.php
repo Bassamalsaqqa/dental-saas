@@ -14,8 +14,8 @@
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-black text-gray-900 mb-2">Profile Management</h1>
-                        <p class="text-gray-600 font-medium">Manage your account information and permissions</p>
+                        <h1 class="text-3xl font-black text-gray-900 mb-2"><?= lang('TenantMisc.profileManagement') ?></h1>
+                        <p class="text-gray-600 font-medium"><?= lang('TenantMisc.profileManagementDesc') ?></p>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-black text-gray-900 flex items-center">
                             <i class="fas fa-user-edit w-6 h-6 mr-3 text-blue-600"></i>
-                            Personal Information
+                            <?= lang('TenantMisc.personalInformation') ?>
                         </h2>
                     </div>
 
@@ -42,7 +42,7 @@
                             <div class="group">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                     <i class="fas fa-user w-4 h-4 mr-2 text-blue-600"></i>
-                                    First Name
+                                    <?= lang('TenantMisc.firstName') ?>
                                 </label>
                                 <input type="text" name="first_name" value="<?= old('first_name', $user->first_name ?? '') ?>" 
                                        class="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:border-gray-300 group-hover:shadow-lg" 
@@ -55,7 +55,7 @@
                             <div class="group">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                     <i class="fas fa-user w-4 h-4 mr-2 text-blue-600"></i>
-                                    Last Name
+                                    <?= lang('TenantMisc.lastName') ?>
                                 </label>
                                 <input type="text" name="last_name" value="<?= old('last_name', $user->last_name ?? '') ?>" 
                                        class="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:border-gray-300 group-hover:shadow-lg" 
@@ -69,7 +69,7 @@
                         <div class="group">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-envelope w-4 h-4 mr-2 text-green-600"></i>
-                                Email Address
+                                <?= lang('TenantMisc.emailAddress') ?>
                             </label>
                             <input type="email" name="email" value="<?= old('email', $user->email ?? '') ?>" 
                                    class="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:border-gray-300 group-hover:shadow-lg" 
@@ -82,7 +82,7 @@
                         <div class="group">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-phone w-4 h-4 mr-2 text-purple-600"></i>
-                                Phone Number
+                                <?= lang('TenantMisc.phoneNumber') ?>
                             </label>
                             <input type="tel" name="phone" value="<?= old('phone', $user->phone ?? '') ?>" 
                                    class="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:border-gray-300 group-hover:shadow-lg">
@@ -96,7 +96,7 @@
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
                                 <span class="relative z-10 flex items-center">
                                     <i class="fas fa-save mr-2"></i>
-                                    Update Profile
+                                    <?= lang('TenantMisc.updateProfile') ?>
                                 </span>
                             </button>
                         </div>
@@ -110,7 +110,7 @@
                 <div class="backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/30 p-6">
                     <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center">
                         <i class="fas fa-shield-alt w-5 h-5 mr-3 text-green-600"></i>
-                        User Permissions
+                        <?= lang('TenantMisc.userPermissions') ?>
                     </h3>
                     
                     <div class="space-y-4">
@@ -127,7 +127,7 @@
                         <?php else: ?>
                             <div class="text-center py-4">
                                 <i class="fas fa-info-circle text-gray-400 text-2xl mb-2"></i>
-                                <p class="text-gray-500">No specific permissions assigned</p>
+                                <p class="text-gray-500"><?= lang('TenantMisc.noSpecificPermissions') ?></p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -137,28 +137,28 @@
                 <div class="backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/30 p-6">
                     <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center">
                         <i class="fas fa-key w-5 h-5 mr-3 text-orange-600"></i>
-                        Change Password
+                        <?= lang('TenantMisc.changePassword') ?>
                     </h3>
                     
                     <form action="<?= base_url('profile/change-password') ?>" method="POST" class="space-y-4">
                         <?= csrf_field() ?>
                         
                         <div class="group">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Current Password</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('TenantMisc.currentPassword') ?></label>
                             <input type="password" name="current_password" 
                                    class="w-full px-3 py-3 bg-gray-50/50 border-2 border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300" 
                                    required>
                         </div>
 
                         <div class="group">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">New Password</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('TenantMisc.newPassword') ?></label>
                             <input type="password" name="new_password" 
                                    class="w-full px-3 py-3 bg-gray-50/50 border-2 border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300" 
                                    required>
                         </div>
 
                         <div class="group">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Confirm Password</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('TenantMisc.confirmPassword') ?></label>
                             <input type="password" name="confirm_password" 
                                    class="w-full px-3 py-3 bg-gray-50/50 border-2 border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300" 
                                    required>
@@ -168,7 +168,7 @@
                             <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
                             <span class="relative z-10 flex items-center justify-center">
                                 <i class="fas fa-key mr-2"></i>
-                                Change Password
+                                <?= lang('TenantMisc.changePassword') ?>
                             </span>
                         </button>
                     </form>
@@ -178,31 +178,31 @@
                 <div class="backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/30 p-6">
                     <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center">
                         <i class="fas fa-info-circle w-5 h-5 mr-3 text-blue-600"></i>
-                        Account Information
+                        <?= lang('TenantMisc.accountInformation') ?>
                     </h3>
                     
                     <div class="space-y-4">
                         <div class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 font-medium">User ID:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('TenantMisc.userIdLabel') ?></span>
                             <span class="text-gray-900 font-semibold">#<?= $user->id ?></span>
                         </div>
                         
                         <div class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 font-medium">Status:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('TenantMisc.statusLabel') ?></span>
                             <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                <?= $user->active ? 'Active' : 'Inactive' ?>
+                                <?= $user->active ? lang('TenantMisc.statusActive') : lang('TenantMisc.statusInactive') ?>
                             </span>
                         </div>
                         
                         <div class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 font-medium">Last Login:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('TenantMisc.lastLoginLabel') ?></span>
                             <span class="text-gray-900 font-semibold">
-                                <?= $user->last_login ? date('M j, Y g:i A', $user->last_login) : 'Never' ?>
+                                <?= $user->last_login ? date('M j, Y g:i A', $user->last_login) : lang('TenantMisc.never') ?>
                             </span>
                         </div>
                         
                         <div class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 font-medium">Created:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('TenantMisc.createdLabel') ?></span>
                             <span class="text-gray-900 font-semibold">
                                 <?= formatDate($user->created_on) ?>
                             </span>

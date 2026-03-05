@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300">New Appointment</h3>
-                                <p class="text-gray-600 font-medium">Fill in the details to schedule the appointment</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= esc(lang('UI.appointmentNew')) ?></h3>
+                                <p class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentFillDetails')) ?></p>
                             </div>
                         </div>
                         
@@ -34,20 +34,20 @@
                                 <a href="<?= base_url('examination/' . $examination_id) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-indigo-200 text-indigo-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 hover:border-indigo-300 transition-all duration-300 hover:scale-105">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                    <span class="relative z-10">Back to Examination</span>
+                                    <span class="relative z-10"><?= esc(lang('UI.appointmentBackToExamination')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if ($showBackToPatient): ?>
                                 <a href="<?= base_url('patient/' . $selected_patient['id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-blue-200 text-blue-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 transition-all duration-300 hover:scale-105">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-user mr-2 relative z-10"></i>
-                                    <span class="relative z-10">Back to Patient</span>
+                                    <span class="relative z-10"><?= esc(lang('UI.appointmentBackToPatient')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('appointment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentBack')) ?></span>
                             </a>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
-                                    <span>Patient *</span>
+                                    <span><?= esc(lang('UI.appointmentPatientRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
@@ -76,9 +76,9 @@
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                            data-placeholder="Search patients by name, phone, or ID..."
+                                            data-placeholder="<?= esc(lang('UI.appointmentSearchPatientPlaceholder')) ?>"
                                             required>
-                                        <option value="">Select a patient</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectPatient')) ?></option>
                                         <?php if (!empty($selected_patient)): ?>
                                             <option value="<?= $selected_patient['id'] ?>" selected>
                                                 <?= esc($selected_patient['first_name'] . ' ' . $selected_patient['last_name']) ?> (<?= esc($selected_patient['phone'] ?? $selected_patient['patient_id'] ?? 'N/A') ?>)
@@ -100,18 +100,18 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar-alt text-purple-600"></i>
-                                    <span>Appointment Type *</span>
+                                    <span><?= esc(lang('UI.appointmentTypeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <?php $selectedType = old('appointment_type', $appointment_type_prefill ?? ''); ?>
                                     <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select type</option>
-                                        <option value="consultation" <?= ($selectedType == 'consultation') ? 'selected' : '' ?>>Consultation</option>
-                                        <option value="treatment" <?= ($selectedType == 'treatment') ? 'selected' : '' ?>>Treatment</option>
-                                        <option value="follow_up" <?= ($selectedType == 'follow_up') ? 'selected' : '' ?>>Follow-up</option>
-                                        <option value="emergency" <?= ($selectedType == 'emergency') ? 'selected' : '' ?>>Emergency</option>
-                                        <option value="cleaning" <?= ($selectedType == 'cleaning') ? 'selected' : '' ?>>Cleaning</option>
-                                        <option value="checkup" <?= ($selectedType == 'checkup') ? 'selected' : '' ?>>Checkup</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
+                                        <option value="consultation" <?= ($selectedType == 'consultation') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
+                                        <option value="treatment" <?= ($selectedType == 'treatment') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
+                                        <option value="follow_up" <?= ($selectedType == 'follow_up') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeFollowUp')) ?></option>
+                                        <option value="emergency" <?= ($selectedType == 'emergency') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeEmergency')) ?></option>
+                                        <option value="cleaning" <?= ($selectedType == 'cleaning') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCleaning')) ?></option>
+                                        <option value="checkup" <?= ($selectedType == 'checkup') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCheckup')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -128,12 +128,12 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-door-open text-indigo-600"></i>
-                                    <span>Chair / Room *</span>
+                                    <span><?= esc(lang('UI.appointmentChairLabel')) ?> *</span>
                                 </label>
                                 <div class="relative">
                                     <?php $selectedChair = old('chair_name', $chair_options[0] ?? ''); ?>
                                     <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select chair / room</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectChair')) ?></option>
                                         <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
                                             <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
                                         <?php endif; ?>
@@ -159,7 +159,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-emerald-600"></i>
-                                    <span>Appointment Date *</span>
+                                    <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
@@ -178,11 +178,11 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-clock text-amber-600"></i>
-                                    <span>Appointment Time *</span>
+                                    <span><?= esc(lang('UI.appointmentTimeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select time</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -199,16 +199,16 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-hourglass-half text-rose-600"></i>
-                                    <span>Duration (minutes) *</span>
+                                    <span><?= esc(lang('UI.appointmentDurationRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" required>
                                         <?php $defaultDuration = getAppointmentDuration(); ?>
-                                        <option value="30" <?= (old('duration', $defaultDuration) == '30') ? 'selected' : '' ?>>30 minutes</option>
-                                        <option value="45" <?= (old('duration', $defaultDuration) == '45') ? 'selected' : '' ?>>45 minutes</option>
-                                        <option value="60" <?= (old('duration', $defaultDuration) == '60') ? 'selected' : '' ?>>60 minutes</option>
-                                        <option value="90" <?= (old('duration', $defaultDuration) == '90') ? 'selected' : '' ?>>90 minutes</option>
-                                        <option value="120" <?= (old('duration', $defaultDuration) == '120') ? 'selected' : '' ?>>120 minutes</option>
+                                        <option value="30" <?= (old('duration', $defaultDuration) == '30') ? 'selected' : '' ?>>30 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="45" <?= (old('duration', $defaultDuration) == '45') ? 'selected' : '' ?>>45 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="60" <?= (old('duration', $defaultDuration) == '60') ? 'selected' : '' ?>>60 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="90" <?= (old('duration', $defaultDuration) == '90') ? 'selected' : '' ?>>90 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="120" <?= (old('duration', $defaultDuration) == '120') ? 'selected' : '' ?>>120 <?= esc(lang('UI.patientMinutes')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -227,10 +227,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-indigo-600"></i>
-                                <span>Additional Notes</span>
+                                <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Additional notes about the appointment..."><?= old('notes') ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -242,12 +242,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('appointment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= esc(lang('UI.cancel')) ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-calendar-check mr-2 relative z-10"></i>
-                                <span class="relative z-10">Schedule Appointment</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentSchedule')) ?></span>
                             </button>
                         </div>
                     </form>
@@ -264,6 +264,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const durationSelect = document.getElementById('duration');
     const chairSelect = document.getElementById('chairName');
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
+    const appointmentI18n = {
+        validDateFirst: '<?= esc(lang('UI.appointmentEnterValidDateFirst'), 'js') ?>',
+        loadingSlots: '<?= esc(lang('UI.appointmentLoadingTimeSlots'), 'js') ?>',
+        selectTime: '<?= esc(lang('UI.appointmentSelectTime'), 'js') ?>',
+        noSlots: '<?= esc(lang('UI.appointmentNoAvailableSlots'), 'js') ?>',
+        loadError: '<?= esc(lang('UI.appointmentErrorLoadingSlots'), 'js') ?>',
+        loadFailed: '<?= esc(lang('UI.appointmentFailedLoadingSlots'), 'js') ?>',
+        selectPrerequisites: '<?= esc(lang('UI.appointmentSelectPrerequisites'), 'js') ?>',
+        invalidFormat: '<?= esc(lang('UI.appointmentInvalidResponseFormat'), 'js') ?>'
+    };
 
     function setTimeOptions(options) {
         timeSelect.replaceChildren();
@@ -300,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        return { slots: [], error: 'Invalid response format.' };
+        return { slots: [], error: appointmentI18n.invalidFormat };
     }
 
     function clearSlotError() {
@@ -330,13 +340,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (date && duration && chairName) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                setTimeOptions([{ value: '', label: 'Enter a valid date first' }]);
+                setTimeOptions([{ value: '', label: appointmentI18n.validDateFirst }]);
                 timeSelect.disabled = true;
                 clearSlotError();
                 return;
             }
 
-            setTimeOptions([{ value: '', label: 'Loading time slots...' }]);
+            setTimeOptions([{ value: '', label: appointmentI18n.loadingSlots }]);
             timeSelect.disabled = true;
             clearSlotError();
 
@@ -352,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const slots = normalized.slots;
 
                     if (slots.length > 0) {
-                        setTimeOptions([{ value: '', label: 'Select time' }].concat(
+                        setTimeOptions([{ value: '', label: appointmentI18n.selectTime }].concat(
                             slots.map((slot) => ({ value: slot.value, label: slot.display }))
                         ));
                         clearSlotError();
@@ -360,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (normalized.error) {
                             setTimeOptions([{ value: '', label: normalized.error }]);
                         } else {
-                            setTimeOptions([{ value: '', label: 'No available time slots' }]);
+                            setTimeOptions([{ value: '', label: appointmentI18n.noSlots }]);
                         }
                         clearSlotError();
                     }
@@ -369,12 +379,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    setTimeOptions([{ value: '', label: 'Error loading time slots' }]);
+                    setTimeOptions([{ value: '', label: appointmentI18n.loadError }]);
                     timeSelect.disabled = false;
-                    showSlotError('Failed to load time slots. Please try again.');
+                    showSlotError(appointmentI18n.loadFailed);
                 });
         } else {
-            setTimeOptions([{ value: '', label: 'Select chair, date, and duration first' }]);
+            setTimeOptions([{ value: '', label: appointmentI18n.selectPrerequisites }]);
             timeSelect.disabled = true;
             clearSlotError();
         }

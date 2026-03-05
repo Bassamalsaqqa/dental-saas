@@ -217,15 +217,15 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-prescription-bottle-alt text-xl"></i>
                             </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Prescription Management</h1>
-                            <p class="text-gray-600">Manage patient prescriptions and medications</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Prescription.management_title') ?></h1>
+                            <p class="text-gray-600"><?= lang('Prescription.management_subtitle') ?></p>
                                 </div>
                             </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('prescriptions', 'create')): ?>
                             <a href="<?= base_url('prescription/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
-                                New Prescription
+                                <?= lang('Prescription.new_prescription') ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -254,7 +254,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Prescriptions</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Prescription.total_prescriptions') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-teal-900" id="totalPrescriptions">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -263,7 +263,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Prescription.vs_last_month') ?></p>
                         </div>
                     </div>
                 </div>
@@ -282,11 +282,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm">Active</span>
+                                <span class="text-green-700 font-bold text-sm"><?= lang('Prescription.status_active') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Active Prescriptions</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Prescription.active_prescriptions') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-green-900" id="activePrescriptions">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -295,7 +295,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently active</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Prescription.currently_active') ?></p>
                         </div>
                     </div>
                 </div>
@@ -314,11 +314,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 rounded-full border border-amber-200">
                                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-clock text-amber-600 text-sm"></i>
-                                <span class="text-amber-700 font-bold text-sm">Expired</span>
+                                <span class="text-amber-700 font-bold text-sm"><?= lang('Prescription.status_expired') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Expired Prescriptions</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Prescription.expired_prescriptions') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-amber-900" id="expiredPrescriptions">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -327,7 +327,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-2/3 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Need renewal</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Prescription.need_renewal') ?></p>
                         </div>
                     </div>
                 </div>
@@ -346,11 +346,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full border border-purple-200">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-calendar text-purple-600 text-sm"></i>
-                                <span class="text-purple-700 font-bold text-sm">This Month</span>
+                                <span class="text-purple-700 font-bold text-sm"><?= lang('Prescription.this_month') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">This Month</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Prescription.this_month') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-purple-900" id="monthlyPrescriptions">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -375,21 +375,21 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Prescription Registry</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= lang('Prescription.prescription_registry') ?></h3>
     </div>
                         <div class="flex items-center space-x-3">
                             <!-- Export Buttons -->
                             <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
+                                <?= lang('Prescription.export_pdf') ?>
                             </button>
                             <button onclick="printPrescriptions()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= lang('Prescription.export_print') ?>
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
+                                <?= lang('Prescription.export_csv') ?>
                             </button>
 </div>
     </div>
@@ -404,37 +404,37 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-prescription-bottle-alt text-teal-600"></i>
-                                            <span>Prescription ID</span>
+                                            <span><?= lang('Prescription.prescription_id') ?></span>
                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-user text-teal-600"></i>
-                                            <span>Patient</span>
+                                            <span><?= lang('Prescription.patient') ?></span>
                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-pills text-teal-600"></i>
-                                            <span>Medicines</span>
+                                            <span><?= lang('Prescription.medicines') ?></span>
                     </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-calendar-alt text-teal-600"></i>
-                                            <span>Date</span>
+                                            <span><?= lang('Prescription.date_col') ?></span>
                             </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-teal-600"></i>
-                                            <span>Status</span>
+                                            <span><?= lang('Prescription.status') ?></span>
                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-cogs text-teal-600"></i>
-                                            <span>Actions</span>
+                                            <span><?= lang('Prescription.actions') ?></span>
                             </div>
                                     </th>
                                 </tr>
@@ -445,7 +445,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                             <div class="flex items-center justify-center space-x-2">
                                                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div>
-                                                <span>Loading prescriptions...</span>
+                                                <span><?= lang('Prescription.loading_prescriptions') ?></span>
                     </div>
                 </td>
                                     </tr>
@@ -470,6 +470,41 @@ $returnToContextEncoded = urlencode($returnToContext);
 <script>
 // Global variables
 let prescriptionsTable;
+const prescriptionI18n = {
+    prescriptionId: <?= json_encode(lang('Prescription.prescription_id')) ?>,
+    noPhone: <?= json_encode(lang('Prescription.no_phone')) ?>,
+    medicineSingular: <?= json_encode(lang('Prescription.medicine_singular')) ?>,
+    medicinePlural: <?= json_encode(lang('Prescription.medicine_plural')) ?>,
+    oneMedicine: <?= json_encode(lang('Prescription.one_medicine')) ?>,
+    noMedicines: <?= json_encode(lang('Prescription.no_medicines')) ?>,
+    statusLabels: {
+        active: <?= json_encode(lang('Prescription.status_active')) ?>,
+        expired: <?= json_encode(lang('Prescription.status_expired')) ?>,
+        cancelled: <?= json_encode(lang('Prescription.status_cancelled')) ?>,
+        pending: <?= json_encode(lang('Prescription.status_pending')) ?>
+    },
+    viewDetails: <?= json_encode(lang('Prescription.view_details')) ?>,
+    printPrescription: <?= json_encode(lang('Prescription.print_prescription')) ?>,
+    editPrescription: <?= json_encode(lang('Prescription.edit_prescription')) ?>,
+    deletePrescription: <?= json_encode(lang('Prescription.delete_prescription')) ?>,
+    exportPdf: <?= json_encode(lang('Prescription.export_pdf')) ?>,
+    exportPrint: <?= json_encode(lang('Prescription.export_print')) ?>,
+    exportCsv: <?= json_encode(lang('Prescription.export_csv')) ?>,
+    prescriptionsReport: <?= json_encode(lang('Prescription.prescriptions_report')) ?>,
+    dtProcessing: <?= json_encode(lang('Prescription.dt_processing')) ?>,
+    dtZeroRecords: <?= json_encode(lang('Prescription.dt_zero_records')) ?>,
+    dtInfo: <?= json_encode(lang('Prescription.dt_info')) ?>,
+    dtInfoEmpty: <?= json_encode(lang('Prescription.dt_info_empty')) ?>,
+    dtInfoFiltered: <?= json_encode(lang('Prescription.dt_info_filtered')) ?>,
+    dtSearchPlaceholder: <?= json_encode(lang('Prescription.dt_search_placeholder')) ?>,
+    dtFirst: <?= json_encode(lang('Prescription.dt_first')) ?>,
+    dtLast: <?= json_encode(lang('Prescription.dt_last')) ?>,
+    dtNext: <?= json_encode(lang('Prescription.dt_next')) ?>,
+    dtPrevious: <?= json_encode(lang('Prescription.dt_previous')) ?>,
+    errorLoadingData: <?= json_encode(lang('Prescription.error_loading_data')) ?>,
+    unknownError: <?= json_encode(lang('Prescription.unknown_error')) ?>,
+    deleteConfirm: <?= json_encode(lang('Prescription.delete_confirm')) ?>
+};
 
 $(document).ready(function() {
     // Initialize DataTable with server-side processing
@@ -507,14 +542,14 @@ $(document).ready(function() {
                     window.refreshCsrfToken(xhr.responseJSON.csrf_token);
                 }
                 
-                let errorMessage = 'Error loading data';
+                let errorMessage = prescriptionI18n.errorLoadingData;
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (response.error) {
                         errorMessage = response.error;
                     }
                 } catch (e) {
-                    errorMessage = xhr.responseText || 'Unknown error';
+                    errorMessage = xhr.responseText || prescriptionI18n.unknownError;
                 }
                 
                 // Show error message
@@ -556,7 +591,7 @@ $(document).ready(function() {
                                 </div>
                                 <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">Prescription ID</div>
+                                <div class="text-xs text-gray-500">${prescriptionI18n.prescriptionId}</div>
                                 </div>
                             </div>
                     `;
@@ -581,7 +616,7 @@ $(document).ready(function() {
                                 </div>
                                 <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.phone || 'No phone'}</div>
+                                <div class="text-xs text-gray-500">${row.phone || prescriptionI18n.noPhone}</div>
                                 </div>
                             </div>
                     `;
@@ -597,7 +632,7 @@ $(document).ready(function() {
                             return `
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-pills text-teal-600 text-xs"></i>
-                                    <span class="text-sm text-gray-900">${medicines.length} medicine${medicines.length > 1 ? 's' : ''}</span>
+                                    <span class="text-sm text-gray-900">${medicines.length} ${medicines.length > 1 ? prescriptionI18n.medicinePlural : prescriptionI18n.medicineSingular}</span>
                                 </div>
                             `;
                         }
@@ -607,12 +642,12 @@ $(document).ready(function() {
                             return `
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-pills text-teal-600 text-xs"></i>
-                                    <span class="text-sm text-gray-900">1 medicine</span>
+                                    <span class="text-sm text-gray-900">${prescriptionI18n.oneMedicine}</span>
             </div>
         `;
                         }
                     }
-                    return '<span class="text-gray-400 text-sm">No medicines</span>';
+                    return `<span class="text-gray-400 text-sm">${prescriptionI18n.noMedicines}</span>`;
                 }
             },
             { 
@@ -649,7 +684,7 @@ $(document).ready(function() {
                     return `
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
                             <i class="${iconClass} mr-1"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
+                            ${prescriptionI18n.statusLabels[data] || prescriptionI18n.statusLabels.pending}
                         </span>
                     `;
                 }
@@ -667,7 +702,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.view) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="View Details">
+                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${prescriptionI18n.viewDetails}">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -676,7 +711,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.print) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}/print" 
-                               class="p-2 text-teal-600 hover:text-teal-700 rounded-md hover:bg-teal-50 transition-colors duration-200" title="Print Prescription">
+                               class="p-2 text-teal-600 hover:text-teal-700 rounded-md hover:bg-teal-50 transition-colors duration-200" title="${prescriptionI18n.printPrescription}">
                                 <i class="fas fa-print"></i>
                             </a>`;
                     }
@@ -685,7 +720,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.edit) {
                         actions += `
                             <a href="<?= base_url('prescription') ?>/${data}/edit?return_to=${returnTo}" 
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Prescription">
+                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="${prescriptionI18n.editPrescription}">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -694,7 +729,7 @@ $(document).ready(function() {
                     if (permissions.prescriptions.delete) {
                         actions += `
                             <button onclick="deletePrescription(${data})" 
-                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="Delete Prescription">
+                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="${prescriptionI18n.deletePrescription}">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -711,9 +746,9 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'pdf',
-                text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
+                text: '<i class="fas fa-file-pdf mr-2"></i>' + prescriptionI18n.exportPdf,
                 className: 'btn-pdf',
-                title: 'Prescriptions Report',
+                title: prescriptionI18n.prescriptionsReport,
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
@@ -722,37 +757,37 @@ $(document).ready(function() {
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print mr-2"></i>Print',
+                text: '<i class="fas fa-print mr-2"></i>' + prescriptionI18n.exportPrint,
                 className: 'btn-print',
-                title: 'Prescriptions Report',
+                title: prescriptionI18n.prescriptionsReport,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient, Doctor, Date, Status, Notes, Actions
                 }
             },
             {
                 extend: 'csv',
-                text: '<i class="fas fa-file-csv mr-2"></i>CSV',
+                text: '<i class="fas fa-file-csv mr-2"></i>' + prescriptionI18n.exportCsv,
                 className: 'btn-csv',
-                title: 'Prescriptions Report',
+                title: prescriptionI18n.prescriptionsReport,
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient, Doctor, Date, Status, Notes, Actions
                 }
             }
         ],
         language: {
-            processing: "Loading prescriptions...",
+            processing: prescriptionI18n.dtProcessing,
             lengthMenu: "_MENU_",
-            zeroRecords: "No prescriptions found",
-            info: "Showing _START_ to _END_ of _TOTAL_ prescriptions",
-            infoEmpty: "No prescriptions available",
-            infoFiltered: "(filtered from _MAX_ total prescriptions)",
+            zeroRecords: prescriptionI18n.dtZeroRecords,
+            info: prescriptionI18n.dtInfo,
+            infoEmpty: prescriptionI18n.dtInfoEmpty,
+            infoFiltered: prescriptionI18n.dtInfoFiltered,
             search: "",
-            searchPlaceholder: "Search prescriptions...",
+            searchPlaceholder: prescriptionI18n.dtSearchPlaceholder,
             paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+                first: prescriptionI18n.dtFirst,
+                last: prescriptionI18n.dtLast,
+                next: prescriptionI18n.dtNext,
+                previous: prescriptionI18n.dtPrevious
             }
         },
         drawCallback: function(settings) {
@@ -851,7 +886,7 @@ function exportToCSV() {
 
 // Delete prescription function
 function deletePrescription(prescriptionId) {
-    confirmDelete('<?= base_url('prescription') ?>/' + prescriptionId, 'Are you sure you want to delete this prescription? This action cannot be undone.');
+    confirmDelete('<?= base_url('prescription') ?>/' + prescriptionId, prescriptionI18n.deleteConfirm);
 }
 
 // Permissions object (you'll need to populate this from your backend)

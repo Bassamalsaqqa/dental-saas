@@ -178,14 +178,14 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-white border border-slate-200 rounded-2xl p-6">
                                     <h4 class="text-sm font-bold text-slate-800"><?= lang('UI.settingsCurrentPlan') ?></h4>
-                                    <p class="text-2xl font-bold text-slate-900 mt-3"><?= esc($subscription_plan['name'] ?? 'Unassigned') ?></p>
-                                    <p class="text-sm text-slate-500 mt-2">Status: <?= esc($subscription['status'] ?? 'none') ?></p>
+                                    <p class="text-2xl font-bold text-slate-900 mt-3"><?= esc($subscription_plan['name'] ?? lang('TenantMisc.unassigned')) ?></p>
+                                    <p class="text-sm text-slate-500 mt-2"><?= lang('TenantMisc.statusLabel') ?> <?= esc($subscription['status'] ?? lang('TenantMisc.none')) ?></p>
                                 </div>
                                 <div class="bg-white border border-slate-200 rounded-2xl p-6">
                                     <h4 class="text-sm font-bold text-slate-800"><?= lang('UI.settingsLatestRequest') ?></h4>
                                     <?php if (!empty($latest_plan_request)): ?>
-                                        <p class="text-sm text-slate-500 mt-2">Status: <?= esc(ucfirst($latest_plan_request['status'] ?? 'pending')) ?></p>
-                                        <p class="text-xs text-slate-400">Requested: <?= esc($latest_plan_request['created_at'] ?? '--') ?></p>
+                                        <p class="text-sm text-slate-500 mt-2"><?= lang('TenantMisc.statusLabel') ?> <?= esc(ucfirst($latest_plan_request['status'] ?? lang('TenantMisc.pending'))) ?></p>
+                                        <p class="text-xs text-slate-400"><?= lang('TenantMisc.requestedLabel') ?> <?= esc($latest_plan_request['created_at'] ?? '--') ?></p>
                                     <?php else: ?>
                                         <p class="text-sm text-slate-500 mt-2"><?= lang('UI.settingsNoPlanRequestsYet') ?></p>
                                     <?php endif; ?>
@@ -219,9 +219,9 @@
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="redirect_tab" value="system">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Timezone</label><select name="timezone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><?php $tzs = DateTimeZone::listIdentifiers(); foreach($tzs as $tz): ?><option value="<?= $tz ?>" <?= ($settings['timezone'] ?? '') == $tz ? 'selected' : '' ?>><?= $tz ?></option><?php endforeach; ?></select><p class="text-xs text-gray-500 mt-1">Affects appointment times, report dates, and scheduled messages.</p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Date Format</label><select name="date_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="Y-m-d" <?= ($settings['date_format'] ?? '') == 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option><option value="m/d/Y" <?= ($settings['date_format'] ?? '') == 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option><option value="d/m/Y" <?= ($settings['date_format'] ?? '') == 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option></select><p class="text-xs text-gray-500 mt-1">Controls how dates appear across the system.</p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label><select name="time_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="24" <?= ($settings['time_format'] ?? '') == '24' ? 'selected' : '' ?>>24 Hour</option><option value="12" <?= ($settings['time_format'] ?? '') == '12' ? 'selected' : '' ?>>12 Hour</option></select><p class="text-xs text-gray-500 mt-1">24-hour or 12-hour (AM/PM) display.</p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.timezone') ?></label><select name="timezone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><?php $tzs = DateTimeZone::listIdentifiers(); foreach($tzs as $tz): ?><option value="<?= $tz ?>" <?= ($settings['timezone'] ?? '') == $tz ? 'selected' : '' ?>><?= $tz ?></option><?php endforeach; ?></select><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.timezoneHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.dateFormat') ?></label><select name="date_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="Y-m-d" <?= ($settings['date_format'] ?? '') == 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option><option value="m/d/Y" <?= ($settings['date_format'] ?? '') == 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option><option value="d/m/Y" <?= ($settings['date_format'] ?? '') == 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option></select><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.dateFormatHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.timeFormat') ?></label><select name="time_format" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required><option value="24" <?= ($settings['time_format'] ?? '') == '24' ? 'selected' : '' ?>><?= lang('TenantMisc.hour24') ?></option><option value="12" <?= ($settings['time_format'] ?? '') == '12' ? 'selected' : '' ?>><?= lang('TenantMisc.hour12') ?></option></select><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.timeFormatHelp') ?></p></div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">UI Language</label>
                                         <select name="ui_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 transition-all" required>
@@ -305,7 +305,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <h4 class="text-sm font-bold text-slate-800"><?= lang('UI.settingsEnableKioskCheckin') ?></h4>
-                                        <p class="text-sm text-slate-500">Allow patients to confirm appointments from a clinic kiosk.</p>
+                                        <p class="text-sm text-slate-500"><?= lang('TenantMisc.kioskEnableHelp') ?></p>
                                     </div>
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="kiosk_enabled" value="1" class="ui-toggle kiosk-toggle" <?= !empty($settings['kiosk_enabled']) ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
@@ -313,37 +313,37 @@
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kiosk Header</label>
-                                        <input type="text" name="kiosk_header" value="<?= esc($settings['kiosk_header'] ?? 'Self Check-In') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.kioskHeader') ?></label>
+                                        <input type="text" name="kiosk_header" value="<?= esc($settings['kiosk_header'] ?? lang('TenantMisc.kioskHeaderDefault')) ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kiosk Subheader</label>
-                                        <input type="text" name="kiosk_subheader" value="<?= esc($settings['kiosk_subheader'] ?? 'Confirm your appointment in seconds.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.kioskSubheader') ?></label>
+                                        <input type="text" name="kiosk_subheader" value="<?= esc($settings['kiosk_subheader'] ?? lang('TenantMisc.kioskSubheaderDefault')) ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Default Language</label>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.defaultLanguage') ?></label>
                                         <select name="kiosk_default_language" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            <option value="ar" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'ar') ? 'selected' : '' ?>>Arabic (Default)</option>
-                                            <option value="en" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'en') ? 'selected' : '' ?>>English</option>
+                                            <option value="ar" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'ar') ? 'selected' : '' ?>><?= lang('TenantMisc.arabicDefault') ?></option>
+                                            <option value="en" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'en') ? 'selected' : '' ?>><?= lang('TenantMisc.english') ?></option>
                                         </select>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Footer Note (optional)</label>
-                                        <input type="text" name="kiosk_footer_note" value="<?= esc($settings['kiosk_footer_note'] ?? 'Need help? Please ask the reception desk.') ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.footerNoteOptional') ?></label>
+                                        <input type="text" name="kiosk_footer_note" value="<?= esc($settings['kiosk_footer_note'] ?? lang('TenantMisc.kioskFooterDefault')) ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                     </div>
                                 </div>
 
                                 <div class="border-t border-gray-100 pt-6">
-                                    <h5 class="text-sm font-bold text-slate-800 mb-3">Kiosk PIN</h5>
-                                    <p class="text-xs text-slate-500 mb-4">PIN is required to unlock the kiosk screen. Leave blank to keep the current PIN.</p>
+                                    <h5 class="text-sm font-bold text-slate-800 mb-3"><?= lang('TenantMisc.kioskPin') ?></h5>
+                                    <p class="text-xs text-slate-500 mb-4"><?= lang('TenantMisc.kioskPinHelp') ?></p>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">New PIN</label>
-                                            <input type="password" inputmode="numeric" name="kiosk_pin" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="4 to 8 digits" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.newPin') ?></label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.pinDigitsPlaceholder') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm PIN</label>
-                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="Re-enter PIN" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.confirmPin') ?></label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.reenterPin') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -364,7 +364,7 @@
                         <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-database text-amber-400 text-xl"></i></div>
-                                <div><h3 class="text-2xl font-bold text-white">Backup &amp; Restore</h3><p class="text-slate-300">Manage data safety</p></div>
+                                <div><h3 class="text-2xl font-bold text-white"><?= lang('TenantMisc.backupRestore') ?></h3><p class="text-slate-300"><?= lang('TenantMisc.manageDataSafety') ?></p></div>
                             </div>
                         </div>
                         <div class="p-8">
@@ -471,7 +471,7 @@
                         <div class="p-8">
                             <div id="sub-channels" class="sub-tab-panel">
                             <?php if ($is_global): ?>
-                                <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs font-bold text-gray-500 uppercase border-b"><th class="pb-4">Clinic</th><th class="pb-4">Email</th><th class="pb-4">SMS</th><th class="pb-4">WhatsApp</th></tr></thead><tbody class="divide-y divide-gray-50">
+                                <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs font-bold text-gray-500 uppercase border-b"><th class="pb-4"><?= lang('TenantMisc.clinic') ?></th><th class="pb-4"><?= lang('TenantMisc.email') ?></th><th class="pb-4"><?= lang('TenantMisc.sms') ?></th><th class="pb-4"><?= lang('TenantMisc.whatsapp') ?></th></tr></thead><tbody class="divide-y divide-gray-50">
                                     <?php foreach ($clinics as $clinic): ?>
                                     <tr><td class="py-4 font-bold"><?= esc($clinic['name']) ?></td>
                                         <?php foreach (['email', 'sms', 'whatsapp'] as $type): 
@@ -489,8 +489,8 @@
                                     <div class="p-6 bg-gray-50 rounded-2xl border-2 border-gray-100 text-center">
                                         <div class="w-12 h-12 mx-auto bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm mb-4"><i class="fas fa-<?= $type==='whatsapp'?'fab fa-whatsapp':($type==='sms'?'sms':'envelope') ?> text-2xl"></i></div>
                                         <h4 class="font-bold text-gray-900 uppercase"><?= $type ?></h4>
-                                        <div class="my-2"><span class="px-2 py-1 text-[10px] font-bold rounded-lg <?= $locked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' ?>"><?= $locked ? 'DISABLED' : 'ACTIVE' ?></span></div>
-                                        <button onclick="showSettingsTab('<?= $type ?>')" class="mt-4 px-4 py-2 bg-white border border-gray-200 text-xs font-bold rounded-lg hover:bg-gray-100 transition-all">CONFIGURE</button>
+                                        <div class="my-2"><span class="px-2 py-1 text-[10px] font-bold rounded-lg <?= $locked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' ?>"><?= $locked ? lang('TenantMisc.disabledUpper') : lang('TenantMisc.activeUpper') ?></span></div>
+                                        <button onclick="showSettingsTab('<?= $type ?>')" class="mt-4 px-4 py-2 bg-white border border-gray-200 text-xs font-bold rounded-lg hover:bg-gray-100 transition-all"><?= lang('TenantMisc.configureUpper') ?></button>
                                     </div>
                                     <?php endforeach; ?>
                                     <?php if (empty($channels)): ?>
@@ -498,10 +498,9 @@
                                         <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
                                             <i class="fas fa-satellite-dish text-gray-300 text-2xl"></i>
                                         </div>
-                                        <h4 class="text-lg font-bold text-gray-800 mb-1">No channels configured</h4>
+                                        <h4 class="text-lg font-bold text-gray-800 mb-1"><?= lang('TenantMisc.noChannelsConfigured') ?></h4>
                                         <p class="text-sm text-gray-500 max-w-xs">
-                                            Contact your platform administrator to enable communication channels
-                                            for your clinic.
+                                            <?= lang('TenantMisc.contactAdminEnableChannels') ?>
                                         </p>
                                     </div>
                                     <?php endif; ?>
@@ -515,11 +514,11 @@
                         <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8 flex justify-between items-center"><div class="flex items-center space-x-4"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"><i class="fas fa-envelope text-blue-400 text-xl"></i></div><div><h3 class="text-2xl font-bold text-white"><?= lang('UI.settingsEmailSettings') ?></h3><p class="text-slate-300"><?= lang('UI.settingsSmtpConfiguration') ?></p></div></div><button onclick="saveEmailConfig(event)" class="px-6 py-2.5 bg-white text-blue-600 font-bold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveSmtp') ?></button></div>
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">SMTP Host</label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Your email provider's SMTP server address (e.g. smtp.gmail.com).</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">Port</label><input type="number" id="smtp_port" value="<?= esc($email_config['smtp_port'] ?? '587') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Standard ports: 587 (TLS), 465 (SSL), 25 (unencrypted - avoid).</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">Encryption</label><select id="smtp_crypto" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><option value="tls" <?= ($email_config['smtp_crypto']??'')==='tls'?'selected':'' ?>>TLS</option><option value="ssl" <?= ($email_config['smtp_crypto']??'')==='ssl'?'selected':'' ?>>SSL</option></select><p class="text-xs text-gray-500 mt-1">Use TLS (port 587) for most providers. SSL for legacy setups.</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">User</label><input type="text" id="smtp_user" value="<?= esc($email_config['smtp_user'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1">Usually your full email address.</p></div>
-                                <div><label class="block text-sm font-semibold text-gray-700 mb-2">Pass</label><input type="password" id="smtp_pass" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all" placeholder="••••••••"><p class="text-xs text-gray-500 mt-1">Leave blank to keep the current password.</p></div>
+<div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.smtpHost') ?></label><input type="text" id="smtp_host" value="<?= esc($email_config['smtp_host'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.smtpHostHelp') ?></p></div>
+<div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.port') ?></label><input type="number" id="smtp_port" value="<?= esc($email_config['smtp_port'] ?? '587') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.smtpPortHelp') ?></p></div>
+<div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.encryption') ?></label><select id="smtp_crypto" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><option value="tls" <?= ($email_config['smtp_crypto']??'')==='tls'?'selected':'' ?>>TLS</option><option value="ssl" <?= ($email_config['smtp_crypto']??'')==='ssl'?'selected':'' ?>>SSL</option></select><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.smtpEncryptionHelp') ?></p></div>
+<div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.user') ?></label><input type="text" id="smtp_user" value="<?= esc($email_config['smtp_user'] ?? '') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all"><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.smtpUserHelp') ?></p></div>
+                                <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.pass') ?></label><input type="password" id="smtp_pass" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all" placeholder="********"><p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.leaveBlankKeepPassword') ?></p></div>
                             </div>
                         </div>
                     </div>
@@ -532,30 +531,30 @@
                         <div class="p-8 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">SMS Provider</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.smsProvider') ?></label>
                                     <select id="sms_provider" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl">
-                                        <option value="">Select provider</option>
+                                        <option value=""><?= lang('TenantMisc.selectProvider') ?></option>
                                         <option value="unifonic">Unifonic</option>
                                         <option value="twilio">Twilio</option>
                                         <option value="msegat">Msegat</option>
-                                        <option value="custom">Custom (API)</option>
+                                        <option value="custom"><?= lang('TenantMisc.customApi') ?></option>
                                     </select>
-                                    <p class="text-xs text-gray-500 mt-1">Your SMS gateway provider.</p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.smsProviderHelp') ?></p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">API Key / Token</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.apiKeyToken') ?></label>
                                     <input type="password" id="sms_api_key" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="********" autocomplete="new-password">
-                                    <p class="text-xs text-gray-500 mt-1">Leave blank to keep current key.</p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.leaveBlankKeepKey') ?></p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sender ID / From</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.senderIdFrom') ?></label>
                                     <input type="text" id="sms_sender_id" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="ClinicName">
-                                    <p class="text-xs text-gray-500 mt-1">Alphanumeric sender name (max 11 chars for most providers).</p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.senderIdHelp') ?></p>
                                 </div>
                                 <div id="sms_base_url_wrap">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Base API URL</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.baseApiUrl') ?></label>
                                     <input type="url" id="sms_base_url" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="https://api.provider.com/v1">
-                                    <p class="text-xs text-gray-500 mt-1">Required for Custom provider only.</p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= lang('TenantMisc.baseApiUrlHelp') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -698,6 +697,20 @@ const settingsI18n = {
     toastTestFailed: '<?= esc(lang('UI.toastTestFailed'), 'js') ?>',
     toastUpdated: '<?= esc(lang('UI.toastUpdated'), 'js') ?>',
     pinMismatch: '<?= esc(lang('UI.validationPinMismatch'), 'js') ?>',
+    toastOperationFailedRetry: '<?= esc(lang('TenantMisc.toastOperationFailedRetry'), 'js') ?>',
+    toastChannelUpdated: '<?= esc(lang('TenantMisc.toastChannelStatusUpdated'), 'js') ?>',
+    toastSmtpUpdated: '<?= esc(lang('TenantMisc.toastSmtpUpdated'), 'js') ?>',
+    toastSmsUpdated: '<?= esc(lang('TenantMisc.toastSmsUpdated'), 'js') ?>',
+    toastCopyKioskLinkFailed: '<?= esc(lang('TenantMisc.toastCopyKioskLinkFailed'), 'js') ?>',
+    toastTemplatesDefaultLoaded: '<?= esc(lang('TenantMisc.toastTemplatesDefaultLoaded'), 'js') ?>',
+    confirmRestoreBackupTitle: '<?= esc(lang('TenantMisc.confirmRestoreBackupTitle'), 'js') ?>',
+    confirmRestoreBackupMessage: '<?= esc(lang('TenantMisc.confirmRestoreBackupMessage'), 'js') ?>',
+    confirmRestore: '<?= esc(lang('TenantMisc.restore'), 'js') ?>',
+    validationPortRange: '<?= esc(lang('TenantMisc.validationPortRange'), 'js') ?>',
+    validationMinChars: '<?= esc(lang('TenantMisc.validationMinChars'), 'js') ?>',
+    validationMaxChars: '<?= esc(lang('TenantMisc.validationMaxChars'), 'js') ?>',
+    actionCannotBeUndone: '<?= esc(lang('TenantMisc.actionCannotBeUndone'), 'js') ?>',
+    toastKioskStatusFailed: '<?= esc(lang('TenantMisc.toastKioskStatusFailed'), 'js') ?>',
 };
 
 function setButtonLoading(btn, loading) {
@@ -790,12 +803,12 @@ function validateField(input, rules = {}) {
     } else if (rules.port && value) {
         const port = parseInt(value, 10);
         if (Number.isNaN(port) || port < 1 || port > 65535) {
-            error = 'Port must be a number between 1 and 65535.';
+            error = settingsI18n.validationPortRange;
         }
     } else if (rules.minLength && value && value.length < rules.minLength) {
-        error = `Must be at least ${rules.minLength} characters.`;
+        error = `${settingsI18n.validationMinChars} ${rules.minLength}.`;
     } else if (rules.maxLength && value && value.length > rules.maxLength) {
-        error = `Must be no more than ${rules.maxLength} characters.`;
+        error = `${settingsI18n.validationMaxChars} ${rules.maxLength}.`;
     }
 
     return setFieldError(input, error);
@@ -928,7 +941,7 @@ function toggleChannel(clinicId, type, enabled, buttonElement = null) {
         body: `clinic_id=${clinicId}&channel_type=${type}&enabled=${enabled}`
     }).then(res => res.json()).then(data => {
         if (!data.success) {
-            window.showToast?.('error', 'Error', data.message || 'Operation failed. Please try again.');
+            window.showToast?.('error', settingsI18n.toastError, data.message || settingsI18n.toastOperationFailedRetry);
             return;
         }
 
@@ -941,9 +954,9 @@ function toggleChannel(clinicId, type, enabled, buttonElement = null) {
             }
             buttonElement.setAttribute('onclick', `toggleChannel(${clinicId}, '${type}', ${isNowEnabled ? 0 : 1}, this)`);
         }
-        window.showToast?.('success', 'Updated', 'Channel status updated successfully.');
+        window.showToast?.('success', settingsI18n.toastUpdated, settingsI18n.toastChannelUpdated);
     }).catch(() => {
-        window.showToast?.('error', 'Error', 'Operation failed. Please try again.');
+        window.showToast?.('error', settingsI18n.toastError, settingsI18n.toastOperationFailedRetry);
     });
 }
 
@@ -953,7 +966,7 @@ function saveEmailConfig(event) {
     const config = { smtp_host: document.getElementById('smtp_host').value, smtp_port: document.getElementById('smtp_port').value, smtp_crypto: document.getElementById('smtp_crypto').value, smtp_user: document.getElementById('smtp_user').value };
     const pass = document.getElementById('smtp_pass').value; if (pass) config.smtp_pass = pass;
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=email&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMTP settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', settingsI18n.toastSaved, settingsI18n.toastSmtpUpdated); else window.showToast?.('error', settingsI18n.toastError, data.message || settingsI18n.toastSomethingWrong); })
     .finally(() => setButtonLoading(btn, false));
 }
 
@@ -971,7 +984,7 @@ function saveSmsConfig(event) {
     }
 
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=sms&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
-    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', 'Saved', 'SMS settings updated'); else window.showToast?.('error', 'Error', data.message || 'Something went wrong.'); })
+    .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', settingsI18n.toastSaved, settingsI18n.toastSmsUpdated); else window.showToast?.('error', settingsI18n.toastError, data.message || settingsI18n.toastSomethingWrong); })
     .finally(() => setButtonLoading(btn, false));
 }
 
@@ -988,7 +1001,7 @@ function saveWhatsAppConfig(event) {
 function resetTemplatesToDefault() {
     const defaults = { appointment_reminder: "تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}.", appointment_confirmation: "تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}.", follow_up: "نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة.", payment_reminder: "تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}." };
     Object.entries(defaults).forEach(([k,v]) => { const el = document.getElementById('tmpl_' + k); if(el) el.value = v; });
-    window.showToast?.('success', 'Updated', 'Default templates loaded. Click Save to apply.');
+    window.showToast?.('success', settingsI18n.toastUpdated, settingsI18n.toastTemplatesDefaultLoaded);
 }
 
 function copyKioskLink() {
@@ -1001,7 +1014,7 @@ function copyKioskLink() {
     if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(input.value)
             .then(() => window.showToast?.('success', settingsI18n.toastSaved, settingsI18n.toastKioskLinkCopied))
-            .catch(() => window.showToast?.('error', 'Error', 'Unable to copy kiosk link.'));
+            .catch(() => window.showToast?.('error', settingsI18n.toastError, settingsI18n.toastCopyKioskLinkFailed));
         return;
     }
 
@@ -1028,9 +1041,9 @@ function testWhatsAppChannel() {
 function downloadBackup(filename) { window.location.href = `<?= base_url('settings/download-backup/') ?>${filename}`; }
 function restoreBackup(filename) {
     openConfirmModal({
-        title: 'Restore Backup?',
-        message: 'This will overwrite your current data with the selected backup. This action cannot be undone.',
-        confirmText: 'Restore',
+        title: settingsI18n.confirmRestoreBackupTitle,
+        message: settingsI18n.confirmRestoreBackupMessage,
+        confirmText: settingsI18n.confirmRestore,
         onConfirm: () => {
             const form = document.createElement('form');
             form.method = 'POST';
@@ -1062,7 +1075,7 @@ function openConfirmModal(options = {}) {
     const icon = iconWrap?.querySelector('i');
 
     if (title) title.textContent = options.title || settingsI18n.confirmAreYouSure;
-    if (message) message.textContent = options.message || 'This action cannot be undone.';
+    if (message) message.textContent = options.message || settingsI18n.actionCannotBeUndone;
     if (confirmBtn) confirmBtn.textContent = options.confirmText || settingsI18n.confirmText;
     if (iconWrap) iconWrap.className = 'w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0';
     if (icon) icon.className = 'fas fa-exclamation-triangle text-red-600 text-xl';
@@ -1127,10 +1140,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 kioskToggle.checked = !kioskToggle.checked;
                 const payload = await response.json().catch(() => null);
-                window.showToast?.('error', 'Error', payload?.message || 'Failed to update kiosk status.');
+                window.showToast?.('error', settingsI18n.toastError, payload?.message || settingsI18n.toastKioskStatusFailed);
             }).catch(() => {
                 kioskToggle.checked = !kioskToggle.checked;
-                window.showToast?.('error', 'Error', 'Failed to update kiosk status.');
+                window.showToast?.('error', settingsI18n.toastError, settingsI18n.toastKioskStatusFailed);
             });
         });
     }
@@ -1221,3 +1234,4 @@ window.addEventListener('popstate', function() {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <?= $this->endSection() ?>
+

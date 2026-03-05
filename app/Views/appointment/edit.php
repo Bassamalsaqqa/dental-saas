@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300">Edit Appointment</h3>
-                                <p class="text-gray-600 font-medium">Update appointment details for <?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?></p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= esc(lang('UI.appointmentEdit')) ?></h3>
+                                <p class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentUpdateFor', ['name' => $appointment['first_name'] . ' ' . $appointment['last_name']])) ?></p>
                             </div>
                         </div>
                         
@@ -29,7 +29,7 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('appointment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentBack')) ?></span>
                             </a>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
-                                    <span>Patient *</span>
+                                    <span><?= esc(lang('UI.appointmentPatientRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
@@ -55,9 +55,9 @@
                                             data-minimum-input-length="0"
                                             data-limit="5"
                                             data-search-url="<?= base_url('api/v1/search/patients') ?>"
-                                            data-placeholder="Search patients by name, phone, or ID..."
+                                            data-placeholder="<?= esc(lang('UI.appointmentSearchPatientPlaceholder')) ?>"
                                             required>
-                                        <option value="">Select a patient</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectPatient')) ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
                                                 <option value="<?= $patient['id'] ?>" selected>
@@ -81,17 +81,17 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar-alt text-purple-600"></i>
-                                    <span>Appointment Type *</span>
+                                    <span><?= esc(lang('UI.appointmentTypeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select type</option>
-                                        <option value="consultation" <?= (old('appointment_type', $appointment['appointment_type']) == 'consultation') ? 'selected' : '' ?>>Consultation</option>
-                                        <option value="treatment" <?= (old('appointment_type', $appointment['appointment_type']) == 'treatment') ? 'selected' : '' ?>>Treatment</option>
-                                        <option value="follow_up" <?= (old('appointment_type', $appointment['appointment_type']) == 'follow_up') ? 'selected' : '' ?>>Follow-up</option>
-                                        <option value="emergency" <?= (old('appointment_type', $appointment['appointment_type']) == 'emergency') ? 'selected' : '' ?>>Emergency</option>
-                                        <option value="cleaning" <?= (old('appointment_type', $appointment['appointment_type']) == 'cleaning') ? 'selected' : '' ?>>Cleaning</option>
-                                        <option value="checkup" <?= (old('appointment_type', $appointment['appointment_type']) == 'checkup') ? 'selected' : '' ?>>Checkup</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
+                                        <option value="consultation" <?= (old('appointment_type', $appointment['appointment_type']) == 'consultation') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
+                                        <option value="treatment" <?= (old('appointment_type', $appointment['appointment_type']) == 'treatment') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
+                                        <option value="follow_up" <?= (old('appointment_type', $appointment['appointment_type']) == 'follow_up') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeFollowUp')) ?></option>
+                                        <option value="emergency" <?= (old('appointment_type', $appointment['appointment_type']) == 'emergency') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeEmergency')) ?></option>
+                                        <option value="cleaning" <?= (old('appointment_type', $appointment['appointment_type']) == 'cleaning') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCleaning')) ?></option>
+                                        <option value="checkup" <?= (old('appointment_type', $appointment['appointment_type']) == 'checkup') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCheckup')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -108,12 +108,12 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-door-open text-indigo-600"></i>
-                                    <span>Chair / Room *</span>
+                                    <span><?= esc(lang('UI.appointmentChairLabel')) ?> *</span>
                                 </label>
                                 <div class="relative">
                                     <?php $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chair_options[0] ?? '')); ?>
                                     <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select chair / room</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectChair')) ?></option>
                                         <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
                                             <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
                                         <?php endif; ?>
@@ -139,7 +139,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-emerald-600"></i>
-                                    <span>Appointment Date *</span>
+                                    <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $appointment['appointment_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
@@ -158,11 +158,11 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-clock text-amber-600"></i>
-                                    <span>Appointment Time *</span>
+                                    <span><?= esc(lang('UI.appointmentTimeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select time</option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -179,16 +179,16 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-hourglass-half text-rose-600"></i>
-                                    <span>Duration (minutes) *</span>
+                                    <span><?= esc(lang('UI.appointmentDurationRequired')) ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" required>
                                         <?php $defaultDuration = getAppointmentDuration(); ?>
-                                        <option value="30" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '30') ? 'selected' : '' ?>>30 minutes</option>
-                                        <option value="45" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '45') ? 'selected' : '' ?>>45 minutes</option>
-                                        <option value="60" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '60') ? 'selected' : '' ?>>60 minutes</option>
-                                        <option value="90" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '90') ? 'selected' : '' ?>>90 minutes</option>
-                                        <option value="120" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '120') ? 'selected' : '' ?>>120 minutes</option>
+                                        <option value="30" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '30') ? 'selected' : '' ?>>30 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="45" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '45') ? 'selected' : '' ?>>45 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="60" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '60') ? 'selected' : '' ?>>60 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="90" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '90') ? 'selected' : '' ?>>90 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <option value="120" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '120') ? 'selected' : '' ?>>120 <?= esc(lang('UI.patientMinutes')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -207,15 +207,15 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-info-circle text-cyan-600"></i>
-                                <span>Appointment Status *</span>
+                                <span><?= esc(lang('UI.appointmentStatusRequired')) ?></span>
                             </label>
                             <div class="relative">
                                 <select name="status" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <option value="scheduled" <?= (old('status', $appointment['status']) == 'scheduled') ? 'selected' : '' ?>>Scheduled</option>
-                                    <option value="confirmed" <?= (old('status', $appointment['status']) == 'confirmed') ? 'selected' : '' ?>>Confirmed</option>
-                                    <option value="completed" <?= (old('status', $appointment['status']) == 'completed') ? 'selected' : '' ?>>Completed</option>
-                                    <option value="cancelled" <?= (old('status', $appointment['status']) == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
-                                    <option value="no_show" <?= (old('status', $appointment['status']) == 'no_show') ? 'selected' : '' ?>>No Show</option>
+                                    <option value="scheduled" <?= (old('status', $appointment['status']) == 'scheduled') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusScheduled')) ?></option>
+                                    <option value="confirmed" <?= (old('status', $appointment['status']) == 'confirmed') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusConfirmed')) ?></option>
+                                    <option value="completed" <?= (old('status', $appointment['status']) == 'completed') ? 'selected' : '' ?>><?= esc(lang('UI.dashboardCompleted')) ?></option>
+                                    <option value="cancelled" <?= (old('status', $appointment['status']) == 'cancelled') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusCancelled')) ?></option>
+                                    <option value="no_show" <?= (old('status', $appointment['status']) == 'no_show') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentStatusNoShow')) ?></option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
@@ -233,10 +233,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-indigo-600"></i>
-                                <span>Additional Notes</span>
+                                <span><?= esc(lang('UI.appointmentAdditionalNotes')) ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Additional notes about the appointment..."><?= old('notes', $appointment['notes']) ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= old('notes', $appointment['notes']) ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -248,12 +248,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('appointment') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= esc(lang('UI.cancel')) ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-save mr-2 relative z-10"></i>
-                                <span class="relative z-10">Update Appointment</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentUpdate')) ?></span>
                             </button>
                         </div>
                     </form>
@@ -272,6 +272,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentTime = '<?= $appointment['appointment_time'] ?>';
     const appointmentId = '<?= $appointment['id'] ?>';
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
+    const appointmentI18n = {
+        current: '<?= esc(lang('UI.appointmentCurrentTime'), 'js') ?>',
+        validDateFirst: '<?= esc(lang('UI.appointmentEnterValidDateFirst'), 'js') ?>',
+        loadingSlots: '<?= esc(lang('UI.appointmentLoadingTimeSlots'), 'js') ?>',
+        selectTime: '<?= esc(lang('UI.appointmentSelectTime'), 'js') ?>',
+        noSlots: '<?= esc(lang('UI.appointmentNoAvailableSlots'), 'js') ?>',
+        loadError: '<?= esc(lang('UI.appointmentErrorLoadingSlots'), 'js') ?>',
+        selectPrerequisites: '<?= esc(lang('UI.appointmentSelectPrerequisites'), 'js') ?>',
+        invalidFormat: '<?= esc(lang('UI.appointmentInvalidResponseFormat'), 'js') ?>'
+    };
 
     function setTimeOptions(options, selectedValue = '') {
         timeSelect.replaceChildren();
@@ -311,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        return { slots: [], error: 'Invalid response format.' };
+        return { slots: [], error: appointmentI18n.invalidFormat };
     }
 
     function appendCurrentTimeIfMissing(slots) {
@@ -322,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!hasCurrent) {
             const currentOption = document.createElement('option');
             currentOption.value = currentTime;
-            currentOption.textContent = `${currentTime} (Current)`;
+            currentOption.textContent = `${currentTime} (${appointmentI18n.current})`;
             currentOption.selected = true;
             timeSelect.appendChild(currentOption);
         }
@@ -336,12 +346,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (date && duration && chairName) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                setTimeOptions([{ value: '', label: 'Enter a valid date first' }], '');
+                setTimeOptions([{ value: '', label: appointmentI18n.validDateFirst }], '');
                 appendCurrentTimeIfMissing([]);
                 return;
             }
 
-            setTimeOptions([{ value: '', label: 'Loading time slots...' }], '');
+            setTimeOptions([{ value: '', label: appointmentI18n.loadingSlots }], '');
 
             fetch(`${apiBase}?date=${date}&duration=${duration}&exclude_id=${appointmentId}&chair_name=${encodeURIComponent(chairName)}`)
                 .then(response => {
@@ -353,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     const normalized = normalizeSlotsPayload(data);
                     if (normalized.slots.length > 0) {
-                        const options = [{ value: '', label: 'Select time' }].concat(
+                        const options = [{ value: '', label: appointmentI18n.selectTime }].concat(
                             normalized.slots.map((slot) => ({ value: slot.value, label: slot.display }))
                         );
                         setTimeOptions(options, currentTime);
@@ -364,17 +374,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (normalized.error) {
                         setTimeOptions([{ value: '', label: normalized.error }], '');
                     } else {
-                        setTimeOptions([{ value: '', label: 'No available time slots' }], '');
+                        setTimeOptions([{ value: '', label: appointmentI18n.noSlots }], '');
                     }
                     appendCurrentTimeIfMissing(normalized.slots);
                 })
                 .catch(error => {
                     console.error('Error loading time slots:', error);
-                    setTimeOptions([{ value: '', label: 'Error loading times' }], '');
+                    setTimeOptions([{ value: '', label: appointmentI18n.loadError }], '');
                     appendCurrentTimeIfMissing([]);
                 });
         } else {
-            setTimeOptions([{ value: '', label: 'Select chair, date, and duration first' }], '');
+            setTimeOptions([{ value: '', label: appointmentI18n.selectPrerequisites }], '');
             appendCurrentTimeIfMissing([]);
         }
     }

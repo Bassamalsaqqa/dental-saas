@@ -14,24 +14,24 @@
                             </div>
                             <div>
                                 <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                    Prescription Details
+                                    <?= lang('Prescription.details_title') ?>
                                 </h1>
-                                <p class="text-gray-600">Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
+                                <p class="text-gray-600"><?= lang('Prescription.prescription_id') ?>: <?= $prescription['prescription_id'] ?? lang('Prescription.na') ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                         <?php if (!empty($prescription['patient_id'])): ?>
                         <a href="<?= base_url('patient/' . $prescription['patient_id']) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-user mr-2"></i>Back to Patient
+                            <i class="fas fa-user mr-2"></i><?= lang('Prescription.back_to_patient') ?>
                         </a>
                         <?php endif; ?>
                         <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('prescription') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-arrow-left mr-2"></i>Back to Prescriptions
+                            <i class="fas fa-arrow-left mr-2"></i><?= lang('Prescription.back_to_prescriptions') ?>
                         </a>
                         <?php if (has_permission('prescriptions', 'edit')): ?>
                         <a href="<?= base_url('prescription/' . $prescription['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-edit mr-2"></i>Edit Prescription
+                            <i class="fas fa-edit mr-2"></i><?= lang('Prescription.edit_prescription') ?>
                         </a>
                         <?php endif; ?>
                     </div>
@@ -47,27 +47,27 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-info-circle text-teal-600 mr-2"></i>
-                        Prescription Overview
+                        <?= lang('Prescription.overview') ?>
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Medication Name</label>
-                            <p class="text-gray-800 font-semibold"><?= $prescription['medication_name'] ?? 'N/A' ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.medicine_name') ?></label>
+                            <p class="text-gray-800 font-semibold"><?= $prescription['medication_name'] ?? lang('Prescription.na') ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Dosage</label>
-                            <p class="text-gray-800"><?= $prescription['dosage'] ?? 'N/A' ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.dosage') ?></label>
+                            <p class="text-gray-800"><?= $prescription['dosage'] ?? lang('Prescription.na') ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Frequency</label>
-                            <p class="text-gray-800"><?= $prescription['frequency'] ?? 'N/A' ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.frequency') ?></label>
+                            <p class="text-gray-800"><?= $prescription['frequency'] ?? lang('Prescription.na') ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Duration</label>
-                            <p class="text-gray-800"><?= $prescription['duration'] ?? 'N/A' ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.duration') ?></label>
+                            <p class="text-gray-800"><?= $prescription['duration'] ?? lang('Prescription.na') ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.status') ?></label>
                             <?php
                             $statusConfig = [
                                 'active' => ['bg' => 'bg-green-100 text-green-800', 'icon' => 'fas fa-check-circle'],
@@ -79,7 +79,15 @@
                             ?>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $status['bg'] ?>">
                                 <i class="<?= $status['icon'] ?> mr-1.5 text-xs"></i>
-                                <?= ucfirst($prescription['status']) ?>
+                                <?php
+                                $statusLabels = [
+                                    'active' => lang('Prescription.status_active'),
+                                    'expired' => lang('Prescription.status_expired'),
+                                    'cancelled' => lang('Prescription.status_cancelled'),
+                                    'pending' => lang('Prescription.status_pending'),
+                                ];
+                                ?>
+                                <?= $statusLabels[$prescription['status']] ?? lang('Prescription.status_pending') ?>
                             </span>
                         </div>
                     </div>
@@ -89,10 +97,10 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-sticky-note text-yellow-600 mr-2"></i>
-                        Instructions
+                        <?= lang('Prescription.instructions') ?>
                     </h2>
                     <div class="prose max-w-none">
-                        <p class="text-gray-700 leading-relaxed"><?= nl2br(htmlspecialchars($prescription['instructions'] ?? 'No instructions provided')) ?></p>
+                        <p class="text-gray-700 leading-relaxed"><?= nl2br(htmlspecialchars($prescription['instructions'] ?? lang('Prescription.no_instructions_provided'))) ?></p>
                     </div>
                 </div>
             </div>
@@ -104,24 +112,24 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-user text-purple-600 mr-2"></i>
-                        Patient Information
+                        <?= lang('Prescription.patient_information') ?>
                     </h2>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Patient Name</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.patient_name') ?></label>
                             <p class="text-gray-800 font-semibold"><?= htmlspecialchars($prescription['first_name'] . ' ' . $prescription['last_name']) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Phone</label>
-                            <p class="text-gray-800"><?= htmlspecialchars($prescription['phone'] ?? 'N/A') ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.phone') ?></label>
+                            <p class="text-gray-800"><?= htmlspecialchars($prescription['phone'] ?? lang('Prescription.na')) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                            <p class="text-gray-800"><?= htmlspecialchars($prescription['email'] ?? 'N/A') ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.email') ?></label>
+                            <p class="text-gray-800"><?= htmlspecialchars($prescription['email'] ?? lang('Prescription.na')) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Patient ID</label>
-                            <p class="text-gray-800"><?= htmlspecialchars($prescription['patient_id'] ?? 'N/A') ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.patient_id') ?></label>
+                            <p class="text-gray-800"><?= htmlspecialchars($prescription['patient_id'] ?? lang('Prescription.na')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -130,24 +138,24 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-calendar text-indigo-600 mr-2"></i>
-                        Timeline
+                        <?= lang('Prescription.timeline') ?>
                     </h2>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Prescribed Date</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.prescribed_date') ?></label>
                             <p class="text-gray-800"><?= formatDate($prescription['prescribed_date']) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Expiry Date</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.expiry_date') ?></label>
                             <p class="text-gray-800"><?= formatDate($prescription['expiry_date']) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Created At</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.created_at') ?></label>
                             <p class="text-gray-800"><?= formatDateTime($prescription['created_at']) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
-                            <p class="text-gray-800"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Prescription.created_by') ?></label>
+                            <p class="text-gray-800"><?= $doctorName !== '' ? lang('Prescription.doctor_prefix') . ' ' . esc($doctorName) : lang('Prescription.unknown') ?></p>
                         </div>
                     </div>
                 </div>
@@ -156,20 +164,20 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-bolt text-orange-600 mr-2"></i>
-                        Quick Actions
+                        <?= lang('Prescription.quick_actions') ?>
                     </h2>
                     <div class="space-y-3">
                         <?php if (has_permission('prescriptions', 'view')): ?>
                         <a href="<?= base_url('prescription/' . $prescription['id'] . '/print') ?>" target="_blank" class="w-full inline-flex items-center justify-center px-4 py-2 bg-teal-600 text-white text-sm font-bold rounded-xl hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-teal-500">
                             <i class="fas fa-print mr-2 text-white"></i>
-                            <span class="text-white font-bold">Print Prescription</span>
+                            <span class="text-white font-bold"><?= lang('Prescription.print_prescription') ?></span>
                         </a>
                         <?php endif; ?>
                         
                         <?php if (has_permission('prescriptions', 'delete')): ?>
                         <button onclick="deletePrescription(<?= $prescription['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-red-500">
                             <i class="fas fa-trash mr-2 text-white"></i>
-                            <span class="text-white font-bold">Delete Prescription</span>
+                            <span class="text-white font-bold"><?= lang('Prescription.delete_prescription') ?></span>
                         </button>
                         <?php endif; ?>
                     </div>
@@ -181,7 +189,7 @@
 
 <script>
 function deletePrescription(id) {
-    if (confirm('Are you sure you want to delete this prescription? All associated data will be permanently removed.')) {
+    if (confirm(<?= json_encode(lang('Prescription.delete_confirm_hard')) ?>)) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
         fetch(`<?= base_url() ?>prescription/${id}`, {
@@ -200,12 +208,12 @@ function deletePrescription(id) {
             if (data.success) {
                 window.location.href = '<?= base_url('prescription') ?>';
             } else {
-                alert('Error: ' + data.message);
+                alert(<?= json_encode(lang('Prescription.error_prefix')) ?> + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the prescription.');
+            alert(<?= json_encode(lang('Prescription.delete_error_occurred')) ?>);
         });
     }
 }

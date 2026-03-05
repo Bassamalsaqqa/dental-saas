@@ -7,12 +7,12 @@
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-3">Create New Role</h1>
-                <p class="text-gray-600 text-lg">Define a new role with specific permissions</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= lang('UserRole.createNewRoleTitle') ?></h1>
+                <p class="text-gray-600 text-lg"><?= lang('UserRole.createNewRoleSubtitle') ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Roles
+                    <i class="fas fa-arrow-left mr-2"></i><?= lang('UserRole.backToRoles') ?>
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Validation Errors</h3>
+                    <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.validationErrors') ?></h3>
                     <div class="mt-2 text-sm text-red-700">
                         <ul class="list-disc list-inside space-y-1">
                             <?php foreach (session()->getFlashdata('validation')->getErrors() as $error): ?>
@@ -46,7 +46,7 @@
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.error') ?></h3>
                     <div class="mt-2 text-sm text-red-700">
                         <p><?= session()->getFlashdata('error') ?></p>
                     </div>
@@ -65,54 +65,54 @@
                         <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
                             <i class="fas fa-user-tag text-lg"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-800">Role Information</h2>
+                        <h2 class="text-xl font-bold text-gray-800"><?= lang('UserRole.roleInformation') ?></h2>
                     </div>
 
                     <div class="space-y-6">
                         <!-- Role Name -->
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                                Role Name <span class="text-red-500">*</span>
+                                <?= lang('UserRole.roleName') ?> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
                                    id="name" 
                                    name="name" 
                                    value="<?= old('name') ?>"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                   placeholder="e.g., Practice Manager"
+                                   placeholder="<?= lang('UserRole.roleNamePlaceholder') ?>"
                                    required>
                         </div>
 
                         <!-- Role Slug -->
                         <div>
                             <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
-                                Role Slug <span class="text-red-500">*</span>
+                                <?= lang('UserRole.roleSlug') ?> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
                                    id="slug" 
                                    name="slug" 
                                    value="<?= old('slug') ?>"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                   placeholder="e.g., practice_manager"
+                                   placeholder="<?= lang('UserRole.roleSlugPlaceholder') ?>"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Used internally (lowercase, underscores only)</p>
+                            <p class="text-xs text-gray-500 mt-1"><?= lang('UserRole.roleSlugHint') ?></p>
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                                Description
+                                <?= lang('UserRole.description') ?>
                             </label>
                             <textarea id="description" 
                                       name="description" 
                                       rows="4"
                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                      placeholder="Describe the role's purpose and responsibilities"><?= old('description') ?></textarea>
+                                      placeholder="<?= lang('UserRole.roleDescriptionPlaceholder') ?>"><?= old('description') ?></textarea>
                         </div>
 
                         <!-- Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.status') ?></label>
                             <div class="flex items-center space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -120,7 +120,7 @@
                                            value="1" 
                                            <?= old('is_active', '1') == '1' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700">Active</span>
+                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.active') ?></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -128,14 +128,14 @@
                                            value="0" 
                                            <?= old('is_active') == '0' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700">Inactive</span>
+                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.inactive') ?></span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Medical Role -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Role Type</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.roleType') ?></label>
                             <div class="flex items-center space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -143,7 +143,7 @@
                                            value="1" 
                                            <?= old('is_medical') == '1' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700">Medical Role (Doctor)</span>
+                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.medicalRoleDoctor') ?></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -151,10 +151,10 @@
                                            value="0" 
                                            <?= old('is_medical', '0') == '0' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700">Non-Medical Role</span>
+                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.nonMedicalRole') ?></span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Medical roles are for doctors and medical staff who can access patient medical records</p>
+                            <p class="text-xs text-gray-500 mt-1"><?= lang('UserRole.medicalRoleHint') ?></p>
                         </div>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
                         <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
                             <i class="fas fa-shield-alt text-lg"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-800">Permissions</h2>
+                        <h2 class="text-xl font-bold text-gray-800"><?= lang('UserRole.permissions') ?></h2>
                     </div>
 
                     <!-- Permission Categories -->
@@ -206,7 +206,11 @@
                                                     <?= esc($categories[$module] ?? ucwords(str_replace('_', ' ', $module))) ?>
                                                 </h3>
                                                 <p class="text-sm text-gray-600">
-                                                    <?= count($modulePermissions) ?> permission<?= count($modulePermissions) !== 1 ? 's' : '' ?> available
+                                                    <?php if (count($modulePermissions) === 1): ?>
+                                                        <?= lang('UserRole.singlePermissionAvailable') ?>
+                                                    <?php else: ?>
+                                                        <?= lang('UserRole.permissionsAvailableCount', [count($modulePermissions)]) ?>
+                                                    <?php endif; ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -214,12 +218,12 @@
                                             <button type="button" 
                                                     onclick="selectAllPermissions('<?= $module ?>')"
                                                     class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                                                <i class="fas fa-check-double mr-1"></i>Select All
+                                                <i class="fas fa-check-double mr-1"></i><?= lang('UserRole.selectAll') ?>
                                             </button>
                                             <button type="button" 
                                                     onclick="deselectAllPermissions('<?= $module ?>')"
                                                     class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                                                <i class="fas fa-times mr-1"></i>Deselect All
+                                                <i class="fas fa-times mr-1"></i><?= lang('UserRole.deselectAll') ?>
                                             </button>
                                         </div>
                                     </div>
@@ -261,10 +265,10 @@
                                 <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                     <i class="fas fa-exclamation-triangle text-2xl text-gray-400"></i>
                                 </div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No permissions available</h3>
-                                <p class="text-gray-500 mb-6">Please sync permissions first to create roles.</p>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2"><?= lang('UserRole.noPermissionsAvailable') ?></h3>
+                                <p class="text-gray-500 mb-6"><?= lang('UserRole.syncPermissionsFirstCreate') ?></p>
                                 <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
+                                    <i class="fas fa-sync-alt mr-2"></i><?= lang('UserRole.syncPermissions') ?>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -276,10 +280,10 @@
         <!-- Form Actions -->
         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
             <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
-                Cancel
+                <?= lang('UserRole.cancel') ?>
             </a>
             <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                <i class="fas fa-save mr-2"></i>Create Role
+                <i class="fas fa-save mr-2"></i><?= lang('UserRole.createRole') ?>
             </button>
         </div>
     </form>
@@ -320,7 +324,7 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
     
     if (!name || !slug) {
         e.preventDefault();
-        alert('Please fill in all required fields.');
+        alert('<?= esc(lang('UserRole.requiredFieldsAlert'), 'js') ?>');
         return;
     }
     
@@ -328,7 +332,7 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
     const selectedPermissions = document.querySelectorAll('input[name="permissions[]"]:checked');
     if (selectedPermissions.length === 0) {
         e.preventDefault();
-        alert('Please select at least one permission for this role.');
+        alert('<?= esc(lang('UserRole.selectAtLeastOnePermissionAlert'), 'js') ?>');
         return;
     }
 });

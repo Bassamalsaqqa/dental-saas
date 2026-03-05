@@ -217,15 +217,15 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-procedures text-xl"></i>
                                 </div>
                                 <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Treatment Management</h1>
-                            <p class="text-gray-600">Manage patient treatments and procedures</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Treatment.treatment_management') ?></h1>
+                            <p class="text-gray-600"><?= lang('Treatment.treatment_management_subtitle') ?></p>
                                 </div>
                             </div>
                     <div class="flex items-center space-x-3">
                         <?php if (has_permission('treatments', 'create')): ?>
                             <a href="<?= base_url('treatment/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
-                                New Treatment
+                                <?= lang('Treatment.new_treatment') ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -254,7 +254,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                         </div>
                     </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Treatments</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Treatment.total_treatments') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-pink-900" id="totalTreatments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -263,7 +263,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-pulse"></div>
                 </div>
             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Treatment.vs_last_month') ?></p>
                             </div>
                             </div>
                         </div>
@@ -282,11 +282,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full border border-green-200">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-                                <span class="text-green-700 font-bold text-sm">Active</span>
+                                <span class="text-green-700 font-bold text-sm"><?= lang('Treatment.status_values.active') ?></span>
             </div>
                             </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Active Treatments</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Treatment.active_treatments') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-green-900" id="activeTreatments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -295,7 +295,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-3/4 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                             </div>
                         </div>
-                            <p class="text-xs text-gray-500 font-medium">Currently active</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Treatment.currently_active') ?></p>
                     </div>
                 </div>
             </div>
@@ -314,11 +314,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-trophy text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm">Completed</span>
+                                <span class="text-blue-700 font-bold text-sm"><?= lang('Treatment.status_values.completed') ?></span>
                         </div>
                     </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Completed Treatments</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Treatment.completed_treatments') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-blue-900" id="completedTreatments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -327,7 +327,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Successfully completed</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Treatment.successfully_completed') ?></p>
                 </div>
             </div>
         </div>
@@ -346,11 +346,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full border border-purple-200">
                                 <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-calendar text-purple-600 text-sm"></i>
-                                <span class="text-purple-700 font-bold text-sm">This Month</span>
+                                <span class="text-purple-700 font-bold text-sm"><?= lang('Treatment.this_month') ?></span>
                         </div>
                     </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">This Month</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Treatment.this_month') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-purple-900" id="monthlyTreatments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -375,21 +375,21 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-pink-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Treatment Registry</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= lang('Treatment.treatment_registry') ?></h3>
                         </div>
                         <div class="flex items-center space-x-3">
                             <!-- Export Buttons -->
                             <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
+                                <?= lang('Treatment.pdf') ?>
                             </button>
                             <button onclick="printTreatments()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= lang('Treatment.print') ?>
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
+                                <?= lang('Treatment.csv') ?>
                             </button>
                     </div>
                 </div>
@@ -404,37 +404,37 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-user text-pink-600"></i>
-                                    <span>Patient</span>
+                                    <span><?= lang('Treatment.patient') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-procedures text-pink-600"></i>
-                                    <span>Treatment</span>
+                                    <span><?= lang('Treatment.treatment') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-dollar-sign text-pink-600"></i>
-                                    <span>Cost</span>
+                                    <span><?= lang('Treatment.cost') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-pink-600"></i>
-                                    <span>Status</span>
+                                    <span><?= lang('Treatment.status') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-calendar text-pink-600"></i>
-                                    <span>Start Date</span>
+                                    <span><?= lang('Treatment.start_date') ?></span>
                                 </div>
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <div class="flex items-center space-x-2">
                                             <i class="fas fa-cogs text-pink-600"></i>
-                                    <span>Actions</span>
+                                    <span><?= lang('Treatment.actions') ?></span>
                                 </div>
                             </th>
                         </tr>
@@ -489,7 +489,7 @@ $(document).ready(function() {
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.patient_id || 'No ID'}</div>
+                                <div class="text-xs text-gray-500">${row.patient_id || '<?= esc(lang('Treatment.no_id'), 'js') ?>'}</div>
                             </div>
                         </div>
                     `;
@@ -514,7 +514,7 @@ $(document).ready(function() {
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">Treatment</div>
+                                <div class="text-xs text-gray-500"><?= esc(lang('Treatment.treatment'), 'js') ?></div>
                             </div>
                         </div>
                     `;
@@ -529,7 +529,7 @@ $(document).ready(function() {
                             <i class="fas fa-dollar-sign text-pink-600 text-xs"></i>
                             <span class="text-sm text-gray-900"><?= settings()->getCurrencySymbol() ?>${parseFloat(data).toFixed(2)}</span>
                         </div>
-                    ` : '<span class="text-gray-400 text-sm">No cost</span>';
+                    ` : '<span class="text-gray-400 text-sm"><?= esc(lang('Treatment.no_cost'), 'js') ?></span>';
                 }
             },
             {
@@ -550,11 +550,17 @@ $(document).ready(function() {
                     };
                     const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                     const iconClass = statusIcons[data] || 'fas fa-question-circle';
+                    const localizedStatus = {
+                        active: '<?= esc(lang('Treatment.status_values.active'), 'js') ?>',
+                        completed: '<?= esc(lang('Treatment.status_values.completed'), 'js') ?>',
+                        cancelled: '<?= esc(lang('Treatment.status_values.cancelled'), 'js') ?>',
+                        on_hold: '<?= esc(lang('Treatment.status_values.on_hold'), 'js') ?>'
+                    };
                     
                     return `
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
                             <i class="${iconClass} mr-1"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
+                            ${localizedStatus[data] || (data.charAt(0).toUpperCase() + data.slice(1))}
                         </span>
                     `;
                 }
@@ -585,7 +591,7 @@ $(document).ready(function() {
                     if (permissions.treatments.view) {
                         actions += `
                             <a href="<?= base_url('treatment') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-pink-600 hover:text-pink-700 rounded-md hover:bg-pink-50 transition-colors duration-200" title="View Details">
+                               class="p-2 text-pink-600 hover:text-pink-700 rounded-md hover:bg-pink-50 transition-colors duration-200" title="<?= esc(lang('Treatment.view_details'), 'attr') ?>">
                                 <i class="fas fa-eye"></i>
                             </a>`;
                     }
@@ -594,7 +600,7 @@ $(document).ready(function() {
                     if (permissions.treatments.edit) {
                         actions += `
                             <a href="<?= base_url('treatment') ?>/${data}/edit?return_to=${returnTo}" 
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Treatment">
+                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= esc(lang('Treatment.edit_treatment'), 'attr') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>`;
                     }
@@ -603,7 +609,7 @@ $(document).ready(function() {
                     if (permissions.treatments.delete) {
                         actions += `
                             <button onclick="deleteTreatment(${data})" 
-                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="Delete Treatment">
+                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="<?= esc(lang('Treatment.delete_treatment'), 'attr') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>`;
                     }
@@ -620,9 +626,9 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'pdf',
-                text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
+                text: '<i class="fas fa-file-pdf mr-2"></i><?= esc(lang('Treatment.pdf'), 'js') ?>',
                 className: 'btn-pdf',
-                title: 'Treatments Report',
+                title: '<?= esc(lang('Treatment.treatments_report'), 'js') ?>',
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
@@ -631,37 +637,37 @@ $(document).ready(function() {
             },
             {
                 extend: 'print',
-                text: '<i class="fas fa-print mr-2"></i>Print',
+                text: '<i class="fas fa-print mr-2"></i><?= esc(lang('Treatment.print'), 'js') ?>',
                 className: 'btn-print',
-                title: 'Treatments Report',
+                title: '<?= esc(lang('Treatment.treatments_report'), 'js') ?>',
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient, Treatment, Date, Status, Cost, Actions
                 }
             },
             {
                 extend: 'csv',
-                text: '<i class="fas fa-file-csv mr-2"></i>CSV',
+                text: '<i class="fas fa-file-csv mr-2"></i><?= esc(lang('Treatment.csv'), 'js') ?>',
                 className: 'btn-csv',
-                title: 'Treatments Report',
+                title: '<?= esc(lang('Treatment.treatments_report'), 'js') ?>',
                 exportOptions: {
                     columns: [0, 1, 2, 3, 4, 5] // Patient, Treatment, Date, Status, Cost, Actions
                 }
             }
         ],
         language: {
-            processing: "Loading treatments...",
+            processing: "<?= esc(lang('Treatment.loading_treatments'), 'js') ?>",
             lengthMenu: "_MENU_",
-            zeroRecords: "No treatments found",
-            info: "Showing _START_ to _END_ of _TOTAL_ treatments",
-            infoEmpty: "No treatments available",
-            infoFiltered: "(filtered from _MAX_ total treatments)",
+            zeroRecords: "<?= esc(lang('Treatment.no_treatments_found'), 'js') ?>",
+            info: "<?= esc(lang('Treatment.datatable_info'), 'js') ?>",
+            infoEmpty: "<?= esc(lang('Treatment.no_treatments_available'), 'js') ?>",
+            infoFiltered: "<?= esc(lang('Treatment.datatable_info_filtered'), 'js') ?>",
             search: "",
-            searchPlaceholder: "Search treatments...",
+            searchPlaceholder: "<?= esc(lang('Treatment.search_treatments_placeholder'), 'js') ?>",
             paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+                first: "<?= esc(lang('Treatment.first'), 'js') ?>",
+                last: "<?= esc(lang('Treatment.last'), 'js') ?>",
+                next: "<?= esc(lang('Treatment.next'), 'js') ?>",
+                previous: "<?= esc(lang('Treatment.previous'), 'js') ?>"
             }
         },
         drawCallback: function(settings) {
@@ -760,7 +766,7 @@ function exportToCSV() {
 
 // Delete treatment function
 function deleteTreatment(treatmentId) {
-    if (confirm('Are you sure you want to delete this treatment? This action cannot be undone.')) {
+    if (confirm('<?= esc(lang('Treatment.confirm_delete_treatment'), 'js') ?>')) {
         // Create form for DELETE request
         const form = document.createElement('form');
         form.method = 'POST';

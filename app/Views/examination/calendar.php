@@ -1,20 +1,21 @@
-<?= $this->extend('layouts/main_auth') ?>
+﻿<?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('Examination.' . $key, $params); ?>
 <div class="px-4 sm:px-6 lg:px-8 py-6">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
             <div class="space-y-2">
-                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Examination Calendar</h1>
-                <p class="text-gray-600 text-base lg:text-lg">View and manage examination schedules</p>
+                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900"><?= esc($tr('calendar_title')) ?></h1>
+                <p class="text-gray-600 text-base lg:text-lg"><?= esc($tr('calendar_subtitle')) ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <a href="<?= base_url('examination') ?>" class="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Examinations
+                    <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('back_to_examinations')) ?>
                 </a>
                 <a href="<?= base_url('examination/create') ?>" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                    <i class="fas fa-plus mr-2"></i>New Examination
+                    <i class="fas fa-plus mr-2"></i><?= esc($tr('new_examination')) ?>
                 </a>
             </div>
         </div>
@@ -26,7 +27,7 @@
             <!-- Loading Indicator -->
             <div id="loading-indicator" class="hidden flex items-center justify-center py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span class="ml-3 text-gray-600">Loading calendar events...</span>
+                <span class="ml-3 text-gray-600"><?= esc($tr('loading_calendar_events')) ?></span>
             </div>
 
             <!-- Calendar -->
@@ -40,7 +41,7 @@
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Examination Details</h3>
+                <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('examination_details')) ?></h3>
                 <button onclick="closeExaminationModal()" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times"></i>
                 </button>
@@ -52,10 +53,10 @@
             
             <div class="flex justify-end space-x-3 mt-6">
                 <button onclick="closeExaminationModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-                    Close
+                    <?= esc($tr('close')) ?>
                 </button>
                 <button id="editExaminationBtn" onclick="editExamination()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    Edit Examination
+                    <?= esc($tr('edit_examination')) ?>
                 </button>
             </div>
         </div>
@@ -182,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         eventDidMount: function(info) {
             // Add tooltip
-            info.el.title = `${info.event.title} - ${info.event.extendedProps.examination_type || 'Examination'}`;
+            info.el.title = `${info.event.title} - ${info.event.extendedProps.examination_type || '<?= esc($tr('examination_details'), 'js') ?>'}`;
         },
         height: 'auto',
         aspectRatio: 1.8,
@@ -213,7 +214,7 @@ function showExaminationDetails(event) {
             const span = document.createElement('span');
             const color = getStatusColor(event.extendedProps.status);
             span.className = `inline-block px-2 py-1 text-xs font-medium rounded-full bg-${color}-100 text-${color}-800`;
-            span.textContent = value || 'Scheduled';
+            span.textContent = value || '<?= esc($tr('status_scheduled'), 'js') ?>';
             div.appendChild(span);
         } else {
             const p = document.createElement('p');
@@ -227,11 +228,11 @@ function showExaminationDetails(event) {
     const mainWrapper = document.createElement('div');
     mainWrapper.className = 'space-y-3';
     
-    mainWrapper.appendChild(createDetail('Patient', event.title));
-    mainWrapper.appendChild(createDetail('Date & Time', `${event.start.toLocaleDateString()} at ${event.start.toLocaleTimeString()}`));
-    mainWrapper.appendChild(createDetail('Status', event.extendedProps.status, true));
-    mainWrapper.appendChild(createDetail('Examination Type', event.extendedProps.examination_type || 'General Examination'));
-    mainWrapper.appendChild(createDetail('Duration', (event.extendedProps.duration || 30) + ' minutes'));
+    mainWrapper.appendChild(createDetail('<?= esc($tr('detail_patient'), 'js') ?>', event.title));
+    mainWrapper.appendChild(createDetail('<?= esc($tr('detail_date_time'), 'js') ?>', `${event.start.toLocaleDateString()} <?= esc($tr('at'), 'js') ?> ${event.start.toLocaleTimeString()}`));
+    mainWrapper.appendChild(createDetail('<?= esc($tr('detail_status'), 'js') ?>', event.extendedProps.status, true));
+    mainWrapper.appendChild(createDetail('<?= esc($tr('detail_examination_type'), 'js') ?>', event.extendedProps.examination_type || '<?= esc($tr('general_examination'), 'js') ?>'));
+    mainWrapper.appendChild(createDetail('<?= esc($tr('detail_duration'), 'js') ?>', (event.extendedProps.duration || 30) + ' <?= esc($tr('minutes'), 'js') ?>'));
     
     detailsContainer.appendChild(mainWrapper);
     
@@ -261,3 +262,4 @@ function getStatusColor(status) {
 }
 </script>
 <?= $this->endSection() ?>
+

@@ -10,10 +10,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800"><?= $title ?></h1>
-            <p class="text-muted mb-0">Create a new user with roles and permissions</p>
+            <p class="text-muted mb-0"><?= lang('UserRole.createNewUserWithRolesPermissions') ?></p>
         </div>
         <a href="<?= base_url('user-management') ?>" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Users
+            <i class="fas fa-arrow-left"></i> <?= lang('UserRole.backToUsers') ?>
         </a>
     </div>
 
@@ -21,7 +21,7 @@
     <?php if (session()->getFlashdata('validation')): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle"></i>
-            <strong>Please fix the following errors:</strong>
+            <strong><?= lang('UserRole.pleaseFixFollowingErrors') ?></strong>
             <ul class="mb-0 mt-2">
                 <?php foreach (session()->getFlashdata('validation')->getErrors() as $error): ?>
                     <li><?= esc($error) ?></li>
@@ -45,41 +45,41 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">User Information</h6>
+                        <h6 class="mb-0"><?= lang('UserRole.userInformation') ?></h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <label for="first_name" class="form-label"><?= lang('UserRole.firstName') ?> <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="first_name" name="first_name" 
                                    value="<?= old('first_name') ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <label for="last_name" class="form-label"><?= lang('UserRole.lastName') ?> <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="last_name" name="last_name" 
                                    value="<?= old('last_name') ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <label for="email" class="form-label"><?= lang('UserRole.emailAddress') ?> <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" 
                                    value="<?= old('email') ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
+                            <label for="phone" class="form-label"><?= lang('UserRole.phoneNumber') ?></label>
                             <input type="tel" class="form-control" id="phone" name="phone" 
                                    value="<?= old('phone') ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <label for="password" class="form-label"><?= lang('UserRole.password') ?> <span class="text-danger">*</span></label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="form-text">Minimum 8 characters</div>
+                            <div class="form-text"><?= lang('UserRole.minimumEightCharacters') ?></div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="password_confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <label for="password_confirm" class="form-label"><?= lang('UserRole.confirmPassword') ?> <span class="text-danger">*</span></label>
                             <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
                         </div>
                     </div>
@@ -90,10 +90,10 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">Role Assignment</h6>
+                        <h6 class="mb-0"><?= lang('UserRole.roleAssignment') ?></h6>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted small mb-3">Select one or more roles for this user:</p>
+                        <p class="text-muted small mb-3"><?= lang('UserRole.selectOneOrMoreRoles') ?></p>
                         
                         <?php foreach ($roles as $role): ?>
                             <div class="form-check mb-2">
@@ -106,7 +106,7 @@
                                 <label class="form-check-label" for="role_<?= $role['id'] ?>">
                                     <strong><?= esc($role['name']) ?></strong>
                                     <?php if (!empty($role['is_clinic_role'])): ?>
-                                        <span class="badge bg-info text-dark ms-2">Clinic</span>
+                                        <span class="badge bg-info text-dark ms-2"><?= lang('UserRole.clinic') ?></span>
                                     <?php endif; ?>
                                     <?php if ($role['description']): ?>
                                         <br><small class="text-muted"><?= esc($role['description']) ?></small>
@@ -117,9 +117,9 @@
 
                         <?php if (empty($roles)): ?>
                             <div class="text-center py-3">
-                                <p class="text-muted">No roles available</p>
+                                <p class="text-muted"><?= lang('UserRole.noRolesAvailable') ?></p>
                                 <a href="<?= base_url('roles/create') ?>" class="btn btn-sm btn-outline-primary">
-                                    Create First Role
+                                    <?= lang('UserRole.createFirstRole') ?>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -131,11 +131,11 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">Individual Permissions</h6>
-                        <small class="text-muted">Optional overrides</small>
+                        <h6 class="mb-0"><?= lang('UserRole.individualPermissions') ?></h6>
+                        <small class="text-muted"><?= lang('UserRole.optionalOverrides') ?></small>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted small mb-3">Grant additional permissions beyond role permissions:</p>
+                        <p class="text-muted small mb-3"><?= lang('UserRole.grantAdditionalPermissions') ?></p>
                         
                         <div class="permission-list" style="max-height: 400px; overflow-y: auto;">
                             <?php foreach ($permissions as $module => $modulePermissions): ?>
@@ -173,10 +173,10 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <a href="<?= base_url('user-management') ?>" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> <?= lang('UserRole.cancel') ?>
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Create User
+                                <i class="fas fa-save"></i> <?= lang('UserRole.createUser') ?>
                             </button>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function validatePassword() {
         if (password.value !== passwordConfirm.value) {
-            passwordConfirm.setCustomValidity('Passwords do not match');
+            passwordConfirm.setCustomValidity(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
         } else {
             passwordConfirm.setCustomValidity('');
         }

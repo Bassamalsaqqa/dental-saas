@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors duration-300">Edit Prescription</h3>
-                                <p class="text-gray-600 font-medium">Update prescription details and instructions</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors duration-300"><?= lang('Prescription.edit_prescription') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('Prescription.edit_prescription_description') ?></p>
                             </div>
                         </div>
                         
@@ -29,12 +29,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('prescription') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back</span>
+                                <span class="relative z-10"><?= lang('Prescription.back') ?></span>
                             </a>
                             <a href="<?= base_url('prescription/' . $prescription['id'] . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-eye mr-2 relative z-10"></i>
-                                <span class="relative z-10">View Details</span>
+                                <span class="relative z-10"><?= lang('Prescription.view_details') ?></span>
                             </a>
                         </div>
                     </div>
@@ -53,11 +53,11 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-emerald-600"></i>
-                                    <span>Patient *</span>
+                                    <span><?= lang('Prescription.patient_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Search patients by name, phone, or ID...</option>
+                                        <option value=""><?= lang('Prescription.search_patients_placeholder') ?></option>
                                         <?php if (!empty($patients)): ?>
                                             <?php foreach ($patients as $patient): ?>
                                                 <option value="<?= $patient['id'] ?>" selected>
@@ -88,12 +88,12 @@
                                         <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
                                             <i class="fas fa-pills text-white"></i>
                                         </div>
-                                        <h3 class="text-xl font-bold text-gray-900">Medicines</h3>
+                                        <h3 class="text-xl font-bold text-gray-900"><?= lang('Prescription.medicines') ?></h3>
                                     </div>
                                     <button type="button" onclick="addMedicine()" class="group/btn relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
                                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                         <i class="fas fa-plus mr-2 relative z-10"></i>
-                                        <span class="relative z-10">Add Medicine</span>
+                                        <span class="relative z-10"><?= lang('Prescription.add_medicine') ?></span>
                                     </button>
                                 </div>
 
@@ -107,8 +107,8 @@
                                     <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                         <i class="fas fa-pills text-blue-500 text-2xl"></i>
                                     </div>
-                                    <p class="text-gray-600 font-medium">No medicines added yet</p>
-                                    <p class="text-sm text-gray-500">Click "Add Medicine" to start adding medications</p>
+                                    <p class="text-gray-600 font-medium"><?= lang('Prescription.no_medicines_added') ?></p>
+                                    <p class="text-sm text-gray-500"><?= lang('Prescription.click_add_medicine') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -118,7 +118,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-indigo-600"></i>
-                                    <span>Prescribed Date *</span>
+                                    <span><?= lang('Prescription.prescribed_date_required') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', $prescription['prescribed_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
@@ -137,7 +137,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar-times text-red-600"></i>
-                                    <span>Expiry Date</span>
+                                    <span><?= lang('Prescription.expiry_date') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', $prescription['expiry_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
@@ -158,14 +158,14 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-info-circle text-teal-600"></i>
-                                <span>Status *</span>
+                                <span><?= lang('Prescription.status_required') ?></span>
                             </label>
                             <div class="relative">
                                 <select name="status" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <option value="active" <?= (old('status', $prescription['status']) == 'active') ? 'selected' : '' ?>>Active</option>
-                                    <option value="expired" <?= (old('status', $prescription['status']) == 'expired') ? 'selected' : '' ?>>Expired</option>
-                                    <option value="cancelled" <?= (old('status', $prescription['status']) == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
-                                    <option value="pending" <?= (old('status', $prescription['status']) == 'pending') ? 'selected' : '' ?>>Pending</option>
+                                    <option value="active" <?= (old('status', $prescription['status']) == 'active') ? 'selected' : '' ?>><?= lang('Prescription.status_active') ?></option>
+                                    <option value="expired" <?= (old('status', $prescription['status']) == 'expired') ? 'selected' : '' ?>><?= lang('Prescription.status_expired') ?></option>
+                                    <option value="cancelled" <?= (old('status', $prescription['status']) == 'cancelled') ? 'selected' : '' ?>><?= lang('Prescription.status_cancelled') ?></option>
+                                    <option value="pending" <?= (old('status', $prescription['status']) == 'pending') ? 'selected' : '' ?>><?= lang('Prescription.status_pending') ?></option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
@@ -183,10 +183,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-teal-600"></i>
-                                <span>Instructions</span>
+                                <span><?= lang('Prescription.instructions') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Detailed instructions for taking the medication..."><?= old('instructions', $prescription['instructions']) ?></textarea>
+                                <textarea name="instructions" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions', $prescription['instructions']) ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -204,12 +204,12 @@
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('prescription/' . $prescription['id']) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('Prescription.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-save mr-2 relative z-10"></i>
-                                <span class="relative z-10">Update Prescription</span>
+                                <span class="relative z-10"><?= lang('Prescription.update_prescription') ?></span>
                             </button>
                         </div>
                     </form>
@@ -221,6 +221,20 @@
 
 <script>
 let medicineCount = 0;
+const prescriptionI18n = {
+    medicineNumber: <?= json_encode(lang('Prescription.medicine_number')) ?>,
+    medicineNameRequired: <?= json_encode(lang('Prescription.medicine_name_required')) ?>,
+    dosageRequired: <?= json_encode(lang('Prescription.dosage_required')) ?>,
+    frequencyRequired: <?= json_encode(lang('Prescription.frequency_required')) ?>,
+    durationRequired: <?= json_encode(lang('Prescription.duration_required')) ?>,
+    placeholderAmoxicillin: <?= json_encode(lang('Prescription.placeholder_amoxicillin')) ?>,
+    placeholder500mg: <?= json_encode(lang('Prescription.placeholder_500mg')) ?>,
+    placeholderTwiceDaily: <?= json_encode(lang('Prescription.placeholder_twice_daily')) ?>,
+    placeholder7Days: <?= json_encode(lang('Prescription.placeholder_7_days')) ?>,
+    searchPatientsPlaceholder: <?= json_encode(lang('Prescription.search_patients_placeholder')) ?>,
+    alertAddAtLeastOne: <?= json_encode(lang('Prescription.alert_add_at_least_one_medicine')) ?>,
+    alertFillAll: <?= json_encode(lang('Prescription.alert_fill_all_medicine_details')) ?>
+};
 
 // Parse existing medicines from the prescription data
 <?php 
@@ -263,7 +277,7 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
     
     const titleH4 = document.createElement('h4');
     titleH4.className = 'text-lg font-semibold text-gray-900';
-    titleH4.textContent = 'Medicine ' + count;
+    titleH4.textContent = prescriptionI18n.medicineNumber.replace('{number}', count);
     
     titleContainer.appendChild(iconContainer);
     titleContainer.appendChild(titleH4);
@@ -329,10 +343,10 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
         return fieldContainer;
     };
     
-    gridDiv.appendChild(createField('Medicine Name', 'fas fa-pills', `medicines[${count}][name]`, name, 'e.g., Amoxicillin', 'text-blue-600'));
-    gridDiv.appendChild(createField('Dosage', 'fas fa-weight', `medicines[${count}][dosage]`, dosage, 'e.g., 500mg', 'text-purple-600'));
-    gridDiv.appendChild(createField('Frequency', 'fas fa-clock', `medicines[${count}][frequency]`, frequency, 'e.g., Twice daily', 'text-amber-600'));
-    gridDiv.appendChild(createField('Duration', 'fas fa-calendar-alt', `medicines[${count}][duration]`, duration, 'e.g., 7 days', 'text-rose-600'));
+    gridDiv.appendChild(createField(prescriptionI18n.medicineNameRequired.replace(' *', ''), 'fas fa-pills', `medicines[${count}][name]`, name, prescriptionI18n.placeholderAmoxicillin, 'text-blue-600'));
+    gridDiv.appendChild(createField(prescriptionI18n.dosageRequired.replace(' *', ''), 'fas fa-weight', `medicines[${count}][dosage]`, dosage, prescriptionI18n.placeholder500mg, 'text-purple-600'));
+    gridDiv.appendChild(createField(prescriptionI18n.frequencyRequired.replace(' *', ''), 'fas fa-clock', `medicines[${count}][frequency]`, frequency, prescriptionI18n.placeholderTwiceDaily, 'text-amber-600'));
+    gridDiv.appendChild(createField(prescriptionI18n.durationRequired.replace(' *', ''), 'fas fa-calendar-alt', `medicines[${count}][duration]`, duration, prescriptionI18n.placeholder7Days, 'text-rose-600'));
     
     medicineItem.appendChild(gridDiv);
     
@@ -395,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             cache: true
         },
-        placeholder: 'Search patients by name, phone, or ID...',
+        placeholder: prescriptionI18n.searchPatientsPlaceholder,
         allowClear: true,
         minimumInputLength: 1,
         width: '100%'
@@ -410,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (medicineItems.length === 0) {
                 e.preventDefault();
-                alert('Please add at least one medicine.');
+                alert(prescriptionI18n.alertAddAtLeastOne);
                 return false;
             }
             
@@ -433,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!isValid) {
                 e.preventDefault();
-                alert('Please fill in all medicine details.');
+                alert(prescriptionI18n.alertFillAll);
                 return false;
             }
         });

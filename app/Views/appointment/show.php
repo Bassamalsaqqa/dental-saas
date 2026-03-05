@@ -27,8 +27,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300">Appointment Details</h3>
-                                <p class="text-gray-600 font-medium">Appointment ID: <?= $appointment['appointment_id'] ?></p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= esc(lang('UI.appointmentDetails')) ?></h3>
+                                <p class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentIdLabel')) ?> <?= $appointment['appointment_id'] ?></p>
                             </div>
                         </div>
                         
@@ -37,23 +37,23 @@
                                 <a href="<?= base_url('patient/' . $appointment['patient_id']) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                     <i class="fas fa-user mr-2 relative z-10"></i>
-                                    <span class="relative z-10">Back to Patient</span>
+                                    <span class="relative z-10"><?= esc(lang('UI.appointmentBackToPatient')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('appointment') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back to Appointments</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentBackToAppointments')) ?></span>
                             </a>
                             <a href="<?= base_url('appointment/' . $appointment['id'] . '/print') ?>" target="_blank" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-print mr-2 relative z-10"></i>
-                                <span class="relative z-10">Print</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentPrint')) ?></span>
                             </a>
                             <a href="<?= base_url('appointment/' . $appointment['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-edit mr-2 relative z-10"></i>
-                                <span class="relative z-10">Edit Appointment</span>
+                                <span class="relative z-10"><?= esc(lang('UI.appointmentEdit')) ?></span>
                             </a>
                         </div>
                     </div>
@@ -70,23 +70,23 @@
                                 <div class="relative bg-white/60 border border-white/30 rounded-2xl p-6 shadow-lg group-hover/card:shadow-xl transition-all duration-300">
                                     <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
                                         <i class="fas fa-user text-blue-600"></i>
-                                        <span>Patient Information</span>
+                                        <span><?= esc(lang('UI.appointmentPatientInfo')) ?></span>
                                     </h4>
                                     <div class="space-y-3">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Name:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentName')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Patient ID:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentPatientIdLabel')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= $appointment['patient_number'] ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Phone:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentPhoneLabel')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= $appointment['phone'] ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Email:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentEmailLabel')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= $appointment['email'] ?></span>
                                         </div>
                                     </div>
@@ -99,31 +99,31 @@
                                 <div class="relative bg-white/60 border border-white/30 rounded-2xl p-6 shadow-lg group-hover/card:shadow-xl transition-all duration-300">
                                     <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
                                         <i class="fas fa-calendar-alt text-emerald-600"></i>
-                                        <span>Appointment Details</span>
+                                        <span><?= esc(lang('UI.appointmentInfoSection')) ?></span>
                                     </h4>
                                     <div class="space-y-3">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Type:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentTypeLabel')) ?></span>
                                             <span class="text-gray-900 font-bold capitalize"><?= str_replace('_', ' ', $appointment['appointment_type']) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Chair / Room:</span>
-                                            <span class="text-gray-900 font-bold"><?= esc($appointment['chair_name'] ?? 'N/A') ?></span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentChairLabel')) ?></span>
+                                            <span class="text-gray-900 font-bold"><?= esc($appointment['chair_name'] ?? lang('UI.patientNa')) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Date:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentDateLabel')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= formatDate($appointment['appointment_date']) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Time:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentTimeLabel')) ?></span>
                                             <span class="text-gray-900 font-bold"><?= formatTime($appointment['appointment_time']) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Duration:</span>
-                                            <span class="text-gray-900 font-bold"><?= $appointment['duration'] ?> minutes</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentDurationLabel')) ?></span>
+                                            <span class="text-gray-900 font-bold"><?= $appointment['duration'] ?> <?= esc(lang('UI.patientMinutes')) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Status:</span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentStatusLabel')) ?></span>
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold <?php
                                                 switch($appointment['status']) {
                                                     case 'scheduled':
@@ -149,8 +149,8 @@
                                             </span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium">Created By:</span>
-                                            <span class="text-gray-900 font-bold"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentCreatedByLabel')) ?></span>
+                                            <span class="text-gray-900 font-bold"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : esc(lang('UI.appointmentUnknownCreator')) ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -165,13 +165,13 @@
                                 <div class="relative bg-white/60 border border-white/30 rounded-2xl p-6 shadow-lg group-hover/card:shadow-xl transition-all duration-300">
                                     <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
                                         <i class="fas fa-sticky-note text-indigo-600"></i>
-                                        <span>Notes</span>
+                                        <span><?= esc(lang('UI.patientNotesTitle')) ?></span>
                                     </h4>
                                     <div class="text-gray-700">
                                         <?php if (!empty($appointment['notes'])): ?>
                                             <p class="whitespace-pre-wrap"><?= $appointment['notes'] ?></p>
                                         <?php else: ?>
-                                            <p class="text-gray-500 italic">No notes available</p>
+                                            <p class="text-gray-500 italic"><?= esc(lang('UI.appointmentNoNotesAvailable')) ?></p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -183,14 +183,14 @@
                                 <div class="relative bg-white/60 border border-white/30 rounded-2xl p-6 shadow-lg group-hover/card:shadow-xl transition-all duration-300">
                                     <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
                                         <i class="fas fa-bolt text-amber-600"></i>
-                                        <span>Quick Actions</span>
+                                        <span><?= esc(lang('UI.appointmentQuickActions')) ?></span>
                                     </h4>
                                     <div class="space-y-3">
                                         <?php if ($appointment['status'] == 'scheduled'): ?>
                                             <button onclick="confirmAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                                 <i class="fas fa-check mr-2 relative z-10"></i>
-                                                <span class="relative z-10">Confirm Appointment</span>
+                                                <span class="relative z-10"><?= esc(lang('UI.appointmentConfirmAction')) ?></span>
                                             </button>
                                         <?php endif; ?>
                                         
@@ -198,7 +198,7 @@
                                             <button onclick="completeAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                                 <i class="fas fa-check-circle mr-2 relative z-10"></i>
-                                                <span class="relative z-10">Mark as Completed</span>
+                                                <span class="relative z-10"><?= esc(lang('UI.appointmentCompleteAction')) ?></span>
                                             </button>
                                         <?php endif; ?>
                                         
@@ -206,7 +206,7 @@
                                             <button onclick="cancelAppointment(<?= $appointment['id'] ?>)" class="w-full group/btn relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-bold rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 hover:scale-105">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                                <span class="relative z-10">Cancel Appointment</span>
+                                                <span class="relative z-10"><?= esc(lang('UI.appointmentCancelAction')) ?></span>
                                             </button>
                                         <?php endif; ?>
                                     </div>
@@ -222,7 +222,7 @@
 
 <script>
 function confirmAppointment(id) {
-    if (confirm('Are you sure you want to confirm this appointment?')) {
+    if (confirm('<?= esc(lang('UI.appointmentConfirmPrompt'), 'js') ?>')) {
         fetch(`<?= base_url('appointment') ?>/${id}/confirm`, {
             method: 'POST',
             headers: {
@@ -239,18 +239,18 @@ function confirmAppointment(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('UI.appointmentErrorPrefix'), 'js') ?>' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while confirming the appointment.');
+            alert('<?= esc(lang('UI.appointmentConfirmError'), 'js') ?>');
         });
     }
 }
 
 function completeAppointment(id) {
-    if (confirm('Are you sure you want to mark this appointment as completed?')) {
+    if (confirm('<?= esc(lang('UI.appointmentCompletePrompt'), 'js') ?>')) {
         fetch(`<?= base_url('appointment') ?>/${id}/complete`, {
             method: 'POST',
             headers: {
@@ -267,18 +267,18 @@ function completeAppointment(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('UI.appointmentErrorPrefix'), 'js') ?>' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while completing the appointment.');
+            alert('<?= esc(lang('UI.appointmentCompleteError'), 'js') ?>');
         });
     }
 }
 
 function cancelAppointment(id) {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
+    if (confirm('<?= esc(lang('UI.appointmentCancelPrompt'), 'js') ?>')) {
         fetch(`<?= base_url('appointment') ?>/${id}/cancel`, {
             method: 'POST',
             headers: {
@@ -295,12 +295,12 @@ function cancelAppointment(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('UI.appointmentErrorPrefix'), 'js') ?>' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while cancelling the appointment.');
+            alert('<?= esc(lang('UI.appointmentCancelError'), 'js') ?>');
         });
     }
 }

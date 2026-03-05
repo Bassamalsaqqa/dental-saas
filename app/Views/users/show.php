@@ -6,16 +6,16 @@
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-3">User Details</h1>
-                <p class="text-gray-600 text-lg">View user information and permissions</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= lang('UserRole.userDetails') ?></h1>
+                <p class="text-gray-600 text-lg"><?= lang('UserRole.viewUserInformationPermissions') ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <a href="<?= base_url('users') ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Users
+                    <i class="fas fa-arrow-left mr-2"></i><?= lang('UserRole.backToUsers') ?>
                 </a>
                 <?php if (has_permission('users', 'edit')): ?>
                     <a href="<?= base_url('users/' . $user->id . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-edit mr-2"></i>Edit User
+                        <i class="fas fa-edit mr-2"></i><?= lang('UserRole.editUser') ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -25,7 +25,7 @@
     <!-- User Information Card -->
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-xl font-bold text-gray-800">User Information</h3>
+            <h3 class="text-xl font-bold text-gray-800"><?= lang('UserRole.userInformation') ?></h3>
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -46,11 +46,11 @@
 
                     <!-- Contact Information -->
                     <div class="space-y-4">
-                        <h4 class="text-lg font-semibold text-gray-800">Contact Information</h4>
+                        <h4 class="text-lg font-semibold text-gray-800"><?= lang('UserRole.contactInformation') ?></h4>
                         <div class="space-y-3">
                             <div class="flex items-center space-x-3">
                                 <i class="fas fa-phone text-blue-500 w-5"></i>
-                                <span class="text-gray-700"><?= $user->phone ?? 'Not provided' ?></span>
+                                <span class="text-gray-700"><?= $user->phone ?? lang('UserRole.notProvided') ?></span>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <i class="fas fa-envelope text-green-500 w-5"></i>
@@ -64,18 +64,18 @@
                 <div class="space-y-6">
                     <!-- Status and Groups -->
                     <div class="space-y-4">
-                        <h4 class="text-lg font-semibold text-gray-800">Status & Groups</h4>
+                        <h4 class="text-lg font-semibold text-gray-800"><?= lang('UserRole.statusAndGroups') ?></h4>
                         
                         <!-- Status -->
                         <div class="flex items-center space-x-3">
-                            <span class="text-gray-600 font-medium">Status:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('UserRole.statusColon') ?></span>
                             <?php
                             $statusColors = [
                                 1 => 'bg-green-100 text-green-800',
                                 0 => 'bg-gray-100 text-gray-800'
                             ];
                             $statusColor = $statusColors[$user->active] ?? 'bg-gray-100 text-gray-800';
-                            $statusText = $user->active == 1 ? 'Active' : 'Inactive';
+                            $statusText = $user->active == 1 ? lang('UserRole.active') : lang('UserRole.inactive');
                             ?>
                             <span class="px-3 py-1 text-sm font-medium rounded-full <?= $statusColor ?>">
                                 <?= $statusText ?>
@@ -84,7 +84,7 @@
 
                         <!-- Roles -->
                         <div class="space-y-2">
-                            <span class="text-gray-600 font-medium">Roles:</span>
+                            <span class="text-gray-600 font-medium"><?= lang('UserRole.rolesColon') ?></span>
                             <div class="flex flex-wrap gap-2">
                                 <?php if (!empty($user->display_roles)): ?>
                                     <?php foreach ($user->display_roles as $role): ?>
@@ -93,9 +93,9 @@
                                             // Handle both array and object formats
                                             $roleName = '';
                                             if (is_array($role)) {
-                                                $roleName = $role['name'] ?? 'Unknown Role';
+                                                $roleName = $role['name'] ?? lang('UserRole.unknownRole');
                                             } else {
-                                                $roleName = $role->name ?? 'Unknown Role';
+                                                $roleName = $role->name ?? lang('UserRole.unknownRole');
                                             }
                                             echo ucfirst($roleName);
                                             ?>
@@ -103,7 +103,7 @@
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-800">
-                                        No Roles Assigned
+                                        <?= lang('UserRole.noRolesAssigned') ?>
                                     </span>
                                 <?php endif; ?>
                             </div>
@@ -112,27 +112,27 @@
 
                     <!-- Account Information -->
                     <div class="space-y-4">
-                        <h4 class="text-lg font-semibold text-gray-800">Account Information</h4>
+                        <h4 class="text-lg font-semibold text-gray-800"><?= lang('UserRole.accountInformation') ?></h4>
                         <div class="space-y-3">
                             <div class="flex justify-between">
-                                <span class="text-gray-600 font-medium">User ID:</span>
+                                <span class="text-gray-600 font-medium"><?= lang('UserRole.userIdColon') ?></span>
                                 <span class="text-gray-900">#<?= $user->id ?></span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600 font-medium">Created:</span>
+                                <span class="text-gray-600 font-medium"><?= lang('UserRole.createdColon') ?></span>
                                 <span class="text-gray-900">
-                                    <?= $user->created_on ? date('M j, Y g:i A', strtotime($user->created_on)) : 'N/A' ?>
+                                    <?= $user->created_on ? date('M j, Y g:i A', strtotime($user->created_on)) : lang('UserRole.na') ?>
                                 </span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600 font-medium">Last Login:</span>
+                                <span class="text-gray-600 font-medium"><?= lang('UserRole.lastLoginColon') ?></span>
                                 <span class="text-gray-900">
-                                    <?= $user->last_login ? date('M j, Y g:i A', strtotime($user->last_login)) : 'Never' ?>
+                                    <?= $user->last_login ? date('M j, Y g:i A', strtotime($user->last_login)) : lang('UserRole.never') ?>
                                 </span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600 font-medium">Last IP:</span>
-                                <span class="text-gray-900"><?= $user->ip_address ?? 'N/A' ?></span>
+                                <span class="text-gray-600 font-medium"><?= lang('UserRole.lastIpColon') ?></span>
+                                <span class="text-gray-900"><?= $user->ip_address ?? lang('UserRole.na') ?></span>
                             </div>
                         </div>
                     </div>
@@ -144,25 +144,25 @@
     <!-- Actions Card -->
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-xl font-bold text-gray-800">Actions</h3>
+            <h3 class="text-xl font-bold text-gray-800"><?= lang('UserRole.actions') ?></h3>
         </div>
         <div class="p-6">
             <div class="flex flex-wrap gap-4">
                 <?php if (has_permission('users', 'edit')): ?>
                     <a href="<?= base_url('users/' . $user->id . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-edit mr-2"></i>Edit User
+                        <i class="fas fa-edit mr-2"></i><?= lang('UserRole.editUser') ?>
                     </a>
                     <a href="<?= base_url('users/' . $user->id . '/change-password') ?>" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-key mr-2"></i>Change Password
+                        <i class="fas fa-key mr-2"></i><?= lang('UserRole.changePassword') ?>
                     </a>
                     <button onclick="toggleStatus(<?= $user->id ?>)" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
                         <i class="fas fa-toggle-on mr-2"></i>
-                        <?= $user->active == 1 ? 'Deactivate' : 'Activate' ?> User
+                        <?= $user->active == 1 ? lang('UserRole.deactivate') : lang('UserRole.activate') ?> <?= lang('UserRole.user') ?>
                     </button>
                 <?php endif; ?>
                 <?php if (has_permission('users', 'delete') && $user->id != 1): ?>
                     <button onclick="deleteUser(<?= $user->id ?>)" class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-trash mr-2"></i>Delete User
+                        <i class="fas fa-trash mr-2"></i><?= lang('UserRole.deleteUser') ?>
                     </button>
                 <?php endif; ?>
             </div>
@@ -172,7 +172,7 @@
 
 <script>
 function toggleStatus(id) {
-    if (confirm('Are you sure you want to toggle this user\'s status?')) {
+    if (confirm(<?= json_encode(lang('UserRole.confirmToggleUserStatus')) ?>)) {
         fetch(`<?= base_url('users') ?>/${id}/toggle-status`, {
             method: 'POST',
             headers: {
@@ -186,18 +186,18 @@ function toggleStatus(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert(<?= json_encode(lang('UserRole.errorPrefix')) ?> + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the user status.');
+            alert(<?= json_encode(lang('UserRole.errorUpdatingUserStatus')) ?>);
         });
     }
 }
 
 function deleteUser(id) {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (confirm(<?= json_encode(lang('UserRole.confirmDeleteUser')) ?>)) {
         fetch(`<?= base_url('users') ?>/${id}`, {
             method: 'DELETE',
             headers: {
@@ -211,12 +211,12 @@ function deleteUser(id) {
             if (data.success) {
                 window.location.href = '<?= base_url('users') ?>';
             } else {
-                alert('Error: ' + data.message);
+                alert(<?= json_encode(lang('UserRole.errorPrefix')) ?> + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the user.');
+            alert(<?= json_encode(lang('UserRole.errorDeletingUser')) ?>);
         });
     }
 }

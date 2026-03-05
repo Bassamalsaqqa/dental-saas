@@ -15,14 +15,14 @@
                 <img src="<?= esc($logoSrc) ?>" alt="<?= esc($clinic['name']) ?>" class="h-20 w-auto object-contain">
             </div>
         <?php else: ?>
-            <h1 class="text-2xl font-bold text-gray-900">PRESCRIPTION</h1>
+            <h1 class="text-2xl font-bold text-gray-900"><?= lang('Prescription.prescription_upper') ?></h1>
         <?php endif; ?>
         <div class="text-sm text-gray-600 mt-2">
             <p><?= esc($clinic['name']) ?></p>
             <p><?= esc($clinic['address']) ?></p>
-            <p>Phone: <?= esc($clinic['phone']) ?> | Email: <?= esc($clinic['email']) ?></p>
+            <p><?= lang('Prescription.phone') ?>: <?= esc($clinic['phone']) ?> | <?= lang('Prescription.email') ?>: <?= esc($clinic['email']) ?></p>
             <?php if ($clinic['website']): ?>
-            <p>Website: <?= esc($clinic['website']) ?></p>
+            <p><?= lang('Prescription.website') ?>: <?= esc($clinic['website']) ?></p>
             <?php endif; ?>
         </div>
     </div>
@@ -35,12 +35,12 @@
             <div class="bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-6 print:bg-gray-100 print:text-black">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-bold">PRESCRIPTION</h2>
-                        <p class="text-teal-100 print:text-gray-600">Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
+                        <h2 class="text-2xl font-bold"><?= lang('Prescription.prescription_upper') ?></h2>
+                        <p class="text-teal-100 print:text-gray-600"><?= lang('Prescription.prescription_id') ?>: <?= $prescription['prescription_id'] ?? lang('Prescription.na') ?></p>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm">Date: <?= formatDate($prescription['prescribed_date']) ?></p>
-                        <p class="text-sm">Expires: <?= formatDate($prescription['expiry_date']) ?></p>
+                        <p class="text-sm"><?= lang('Prescription.date') ?>: <?= formatDate($prescription['prescribed_date']) ?></p>
+                        <p class="text-sm"><?= lang('Prescription.expires') ?>: <?= formatDate($prescription['expiry_date']) ?></p>
                     </div>
                 </div>
             </div>
@@ -49,24 +49,24 @@
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-user text-teal-600 mr-2 print:hidden"></i>
-                    Patient Information
+                    <?= lang('Prescription.patient_information') ?>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-sm text-gray-600">Name:</p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.name') ?>:</p>
                         <p class="font-semibold text-gray-900"><?= $prescription['first_name'] . ' ' . $prescription['last_name'] ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Phone:</p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.phone') ?>:</p>
                         <p class="font-semibold text-gray-900"><?= $prescription['phone'] ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Email:</p>
-                        <p class="font-semibold text-gray-900"><?= $prescription['email'] ?? 'N/A' ?></p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.email') ?>:</p>
+                        <p class="font-semibold text-gray-900"><?= $prescription['email'] ?? lang('Prescription.na') ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Patient ID:</p>
-                        <p class="font-semibold text-gray-900"><?= $prescription['patient_id'] ?? 'N/A' ?></p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.patient_id') ?>:</p>
+                        <p class="font-semibold text-gray-900"><?= $prescription['patient_id'] ?? lang('Prescription.na') ?></p>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-pills text-green-600 mr-2 print:hidden"></i>
-                    Medication Information
+                    <?= lang('Prescription.medication_information') ?>
                 </h3>
                 <?php
                 // Parse medicines from JSON
@@ -86,21 +86,21 @@
                         <?php foreach ($medicines as $index => $medicine): ?>
                             <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="text-lg font-bold text-gray-900">Medicine <?= $index + 1 ?></h4>
-                                    <span class="text-sm text-gray-600 font-medium"><?= $medicine['name'] ?? 'N/A' ?></span>
+                                    <h4 class="text-lg font-bold text-gray-900"><?= lang('Prescription.medicine_number', ['number' => $index + 1]) ?></h4>
+                                    <span class="text-sm text-gray-600 font-medium"><?= $medicine['name'] ?? lang('Prescription.na') ?></span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <p class="text-sm text-gray-600 font-medium">Dosage:</p>
-                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['dosage'] ?? 'N/A' ?></p>
+                                        <p class="text-sm text-gray-600 font-medium"><?= lang('Prescription.dosage') ?>:</p>
+                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['dosage'] ?? lang('Prescription.na') ?></p>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-600 font-medium">Frequency:</p>
-                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['frequency'] ?? 'N/A' ?></p>
+                                        <p class="text-sm text-gray-600 font-medium"><?= lang('Prescription.frequency') ?>:</p>
+                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['frequency'] ?? lang('Prescription.na') ?></p>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-600 font-medium">Duration:</p>
-                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['duration'] ?? 'N/A' ?></p>
+                                        <p class="text-sm text-gray-600 font-medium"><?= lang('Prescription.duration') ?>:</p>
+                                        <p class="text-base font-semibold text-gray-900"><?= $medicine['duration'] ?? lang('Prescription.na') ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +108,7 @@
                     </div>
                 <?php else: ?>
                     <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
-                        <p class="text-gray-600 text-center">No medication information available</p>
+                        <p class="text-gray-600 text-center"><?= lang('Prescription.no_medication_information_available') ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -117,7 +117,7 @@
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-sticky-note text-amber-600 mr-2 print:hidden"></i>
-                    Instructions
+                    <?= lang('Prescription.instructions') ?>
                 </h3>
                 <div class="bg-gray-50 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
                     <p class="text-gray-800 leading-relaxed whitespace-pre-line"><?= htmlspecialchars($prescription['instructions']) ?></p>
@@ -129,23 +129,23 @@
             <div class="p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-info-circle text-blue-600 mr-2 print:hidden"></i>
-                    Prescription Details
+                    <?= lang('Prescription.details_title') ?>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <p class="text-sm text-gray-600">Prescribed Date:</p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.prescribed_date') ?>:</p>
                         <p class="font-semibold text-gray-900"><?= formatDate($prescription['prescribed_date']) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Expiry Date:</p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.expiry_date') ?>:</p>
                         <p class="font-semibold text-gray-900"><?= formatDate($prescription['expiry_date']) ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Created By:</p>
-                        <p class="font-semibold text-gray-900"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.created_by') ?>:</p>
+                        <p class="font-semibold text-gray-900"><?= $doctorName !== '' ? lang('Prescription.doctor_prefix') . ' ' . esc($doctorName) : lang('Prescription.unknown') ?></p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Status:</p>
+                        <p class="text-sm text-gray-600"><?= lang('Prescription.status') ?>:</p>
                         <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full 
                             <?php
                             $statusConfig = [
@@ -156,7 +156,15 @@
                             ];
                             echo $statusConfig[$prescription['status']] ?? $statusConfig['pending'];
                             ?>">
-                            <?= ucfirst($prescription['status']) ?>
+                            <?php
+                            $statusLabels = [
+                                'active' => lang('Prescription.status_active'),
+                                'expired' => lang('Prescription.status_expired'),
+                                'cancelled' => lang('Prescription.status_cancelled'),
+                                'pending' => lang('Prescription.status_pending')
+                            ];
+                            ?>
+                            <?= $statusLabels[$prescription['status']] ?? lang('Prescription.status_pending') ?>
                         </span>
                     </div>
                 </div>
@@ -166,8 +174,8 @@
             <div class="bg-gray-50 p-6 print:bg-white print:border-t print:border-gray-300">
                 <div class="flex justify-between items-center">
                     <div class="text-sm text-gray-600">
-                        <p>Generated on: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
-                        <p>Prescription ID: <?= $prescription['prescription_id'] ?? 'N/A' ?></p>
+                        <p><?= lang('Prescription.generated_on') ?>: <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
+                        <p><?= lang('Prescription.prescription_id') ?>: <?= $prescription['prescription_id'] ?? lang('Prescription.na') ?></p>
                     </div>
                     <div class="text-sm text-gray-600 text-right">
                         <p><?= esc($clinic['name']) ?></p>
@@ -183,17 +191,17 @@
                 <button onclick="window.print()" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
                     <div class="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                     <i class="fas fa-print mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                    <span class="relative z-10">Print Prescription</span>
+                    <span class="relative z-10"><?= lang('Prescription.print_prescription') ?></span>
                 </button>
                 <a href="<?= base_url('prescription/' . $prescription['id']) ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                     <i class="fas fa-arrow-left mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                    <span class="relative z-10">Back to Details</span>
+                    <span class="relative z-10"><?= lang('Prescription.back_to_details') ?></span>
                 </a>
                 <a href="<?= base_url('prescription') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-gray-500 to-slate-600 text-white text-sm font-bold rounded-xl shadow-2xl shadow-gray-500/25 hover:shadow-gray-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
                     <div class="absolute inset-0 bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                     <i class="fas fa-list mr-3 relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                    <span class="relative z-10">All Prescriptions</span>
+                    <span class="relative z-10"><?= lang('Prescription.all_prescriptions') ?></span>
                 </a>
             </div>
         </div>

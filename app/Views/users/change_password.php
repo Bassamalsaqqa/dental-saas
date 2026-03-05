@@ -27,8 +27,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-red-900 transition-colors duration-300">Change Password</h3>
-                                <p class="text-gray-600 font-medium">Update password for <?= ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') ?></p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-red-900 transition-colors duration-300"><?= lang('UserRole.changePassword') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('UserRole.updatePasswordFor') ?> <?= ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') ?></p>
                             </div>
                         </div>
                         
@@ -36,7 +36,7 @@
                             <a href="<?= base_url('users') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back to Users</span>
+                                <span class="relative z-10"><?= lang('UserRole.backToUsers') ?></span>
                             </a>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-user text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">User Information</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.userInformation') ?></h4>
                                 </div>
                                 
                                 <div class="flex items-center space-x-6">
@@ -82,19 +82,19 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-shield-alt text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Password Change</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.passwordChange') ?></h4>
                                 </div>
                                 
                                 <div class="space-y-8">
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-lock text-red-600"></i>
-                                            <span>Current Password *</span>
+                                            <span><?= lang('UserRole.currentPasswordRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="password" id="current_password" name="current_password" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('current_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                   placeholder="Enter current password" required>
+                                                   placeholder="<?= lang('UserRole.enterCurrentPassword') ?>" required>
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-lock text-gray-400"></i>
                                             </div>
@@ -111,12 +111,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-lock text-red-600"></i>
-                                                <span>New Password *</span>
+                                                <span><?= lang('UserRole.newPasswordRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="password" id="new_password" name="new_password" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('new_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="Enter new password" required>
+                                                       placeholder="<?= lang('UserRole.enterNewPassword') ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-lock text-gray-400"></i>
                                                 </div>
@@ -132,12 +132,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-lock text-red-600"></i>
-                                                <span>Confirm New Password *</span>
+                                                <span><?= lang('UserRole.confirmNewPasswordRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="password" id="confirm_password" name="confirm_password" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('confirm_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                       placeholder="Confirm new password" required>
+                                                       placeholder="<?= lang('UserRole.confirmNewPassword') ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-lock text-gray-400"></i>
                                                 </div>
@@ -162,36 +162,36 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-info-circle text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Password Requirements</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.passwordRequirements') ?></h4>
                                 </div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="space-y-3">
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">At least 8 characters long</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleMinLength') ?></span>
                                         </div>
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">Contains uppercase letter</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleUppercase') ?></span>
                                         </div>
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">Contains lowercase letter</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleLowercase') ?></span>
                                         </div>
                                     </div>
                                     <div class="space-y-3">
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">Contains number</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleNumber') ?></span>
                                         </div>
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">Contains special character</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleSpecialChar') ?></span>
                                         </div>
                                         <div class="flex items-center space-x-3">
                                             <i class="fas fa-check-circle text-green-500"></i>
-                                            <span class="text-sm text-gray-700">Different from current password</span>
+                                            <span class="text-sm text-gray-700"><?= lang('UserRole.passwordRuleDifferent') ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -203,12 +203,12 @@
                             <a href="<?= base_url('users') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('UserRole.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-bold rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-key mr-2 relative z-10"></i>
-                                <span class="relative z-10">Change Password</span>
+                                <span class="relative z-10"><?= lang('UserRole.changePassword') ?></span>
                             </button>
                         </div>
                     </form>
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validatePassword() {
         if (newPassword.value && confirmPassword.value) {
             if (newPassword.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity('Passwords do not match');
+                confirmPassword.setCustomValidity(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
             } else {
                 confirmPassword.setCustomValidity('');
             }
@@ -243,14 +243,14 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (newPassword.value !== confirmPassword.value) {
             e.preventDefault();
-            alert('New passwords do not match');
+            alert(<?= json_encode(lang('UserRole.newPasswordsDoNotMatch')) ?>);
             confirmPassword.focus();
             return false;
         }
         
         if (newPassword.value.length < 8) {
             e.preventDefault();
-            alert('New password must be at least 8 characters long');
+            alert(<?= json_encode(lang('UserRole.newPasswordMinLengthAlert')) ?>);
             newPassword.focus();
             return false;
         }

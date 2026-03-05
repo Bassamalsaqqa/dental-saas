@@ -33,9 +33,9 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div>
-                                <h1 class="text-3xl font-black text-gray-900">Appointment Management</h1>
+                                <h1 class="text-3xl font-black text-gray-900"><?= lang('UI.appointmentManagement') ?></h1>
                                 <div class="flex items-center space-x-4">
-                                    <p class="text-sm text-gray-600 font-medium">Schedule and manage patient appointments with precision</p>
+                                    <p class="text-sm text-gray-600 font-medium"><?= lang('UI.appointmentManagementSubtitle') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -46,26 +46,26 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-plus mr-2 relative z-10"></i>
-                                <span class="relative z-10">New Appointment</span>
+                                <span class="relative z-10"><?= lang('UI.appointmentNew') ?></span>
                             </a>
                         <?php endif; ?>
                         <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                             <a href="<?= base_url('appointment') ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-calendar-day mr-2 relative z-10"></i>
-                                <span class="relative z-10">Daily View</span>
+                                <span class="relative z-10"><?= lang('UI.appointmentDailyView') ?></span>
                             </a>
                         <?php else: ?>
                             <a href="<?= base_url('appointment') ?>?view=all" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-list mr-2 relative z-10"></i>
-                                <span class="relative z-10">View All</span>
+                                <span class="relative z-10"><?= lang('UI.appointmentViewAll') ?></span>
                             </a>
                         <?php endif; ?>
                         <a href="<?= base_url('appointment/calendar') ?>" class="group relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                             <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i class="fas fa-calendar mr-2 relative z-10"></i>
-                            <span class="relative z-10">Calendar View</span>
+                            <span class="relative z-10"><?= lang('UI.appointmentCalendarView') ?></span>
                         </a>
                     </div>
                 </div>
@@ -82,7 +82,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-check-circle text-green-400 text-xl"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-sm font-medium text-green-800">Success</h3>
+                            <h3 class="text-sm font-medium text-green-800"><?= lang('UI.appointmentSuccessTitle') ?></h3>
                             <div class="mt-2 text-sm text-green-700">
                                 <p><?= session()->getFlashdata('success') ?></p>
                             </div>
@@ -99,7 +99,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">Error</h3>
+                            <h3 class="text-sm font-medium text-red-800"><?= lang('UI.appointmentErrorTitle') ?></h3>
                             <div class="mt-2 text-sm text-red-700">
                                 <p><?= session()->getFlashdata('error') ?></p>
                             </div>
@@ -120,16 +120,16 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
                                 <h3 class="text-2xl font-black text-gray-900">
-                                    Advanced Filters
+                                    <?= lang('UI.appointmentAdvancedFilters') ?>
                                 </h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-sm">Filter and search appointments with precision</p>
+                            <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6 pt-0">
                         <!-- Date Filter -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Select Date</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSelectDate') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <input type="text" id="dateFilter" data-clinic-date="1" value="<?= $selected_date ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 font-medium">
@@ -138,25 +138,25 @@ $returnToContextEncoded = urlencode($returnToContext);
 
                         <!-- Status Filter -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Filter by Status</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentFilterByStatus') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <select id="statusFilter" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 font-medium">
-                                    <option value="">All Status</option>
-                                    <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
-                                    <option value="confirmed" <?= ($selected_status ?? '') === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
-                                    <option value="completed" <?= ($selected_status ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                    <option value="cancelled" <?= ($selected_status ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                    <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
+                                    <option value="scheduled" <?= ($selected_status ?? '') === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
+                                    <option value="confirmed" <?= ($selected_status ?? '') === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
+                                    <option value="completed" <?= ($selected_status ?? '') === 'completed' ? 'selected' : '' ?>><?= lang('UI.patientTreatmentStatusCompleted') ?></option>
+                                    <option value="cancelled" <?= ($selected_status ?? '') === 'cancelled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusCancelled') ?></option>
                                 </select>
                             </div>
                         </div>
 
                         <!-- Search Filter -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Search Patient</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearchPatient') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="Patient name or ID..." class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 font-medium">
+                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 font-medium">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
@@ -165,17 +165,17 @@ $returnToContextEncoded = urlencode($returnToContext);
 
                         <!-- Filter Actions -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex space-x-3">
                                 <button onclick="filterAppointments()" class="group/btn relative flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-filter mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                    <span class="relative z-10">Filter</span>
+                                    <span class="relative z-10"><?= lang('UI.appointmentFilterAction') ?></span>
                                 </button>
                                 <button onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                    <span class="relative z-10">Clear</span>
+                                    <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
                                 </button>
                             </div>
                         </div>
@@ -195,18 +195,18 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
-                                <h3 class="text-2xl font-black text-gray-900">Search Appointments</h3>
+                                <h3 class="text-2xl font-black text-gray-900"><?= lang('UI.appointmentSearchAppointments') ?></h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-sm">Real-time search through all appointments by patient name, phone, email, or appointment type</p>
+                            <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 pt-0">
                         <!-- Search Input -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Search</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearch') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <input type="text" id="searchInput" placeholder="Type to search patients, phone, email, or appointment type..." 
+                                <input type="text" id="searchInput" placeholder="<?= esc(lang('UI.appointmentSearchInputPlaceholder')) ?>" 
                                        value="<?= $search_term ?>" 
                                        class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 font-medium">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -218,28 +218,28 @@ $returnToContextEncoded = urlencode($returnToContext);
                         
                         <!-- Status Filter -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Status</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentStatusLabel') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <select id="statusFilter" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 font-medium">
-                                    <option value="">All Statuses</option>
-                                    <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
-                                    <option value="confirmed" <?= $selected_status === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
-                                    <option value="completed" <?= $selected_status === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                    <option value="cancelled" <?= $selected_status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                                    <option value="no_show" <?= $selected_status === 'no_show' ? 'selected' : '' ?>>No Show</option>
+                                    <option value=""><?= lang('UI.appointmentAllStatuses') ?></option>
+                                    <option value="scheduled" <?= $selected_status === 'scheduled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusScheduled') ?></option>
+                                    <option value="confirmed" <?= $selected_status === 'confirmed' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusConfirmed') ?></option>
+                                    <option value="completed" <?= $selected_status === 'completed' ? 'selected' : '' ?>><?= lang('UI.patientTreatmentStatusCompleted') ?></option>
+                                    <option value="cancelled" <?= $selected_status === 'cancelled' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusCancelled') ?></option>
+                                    <option value="no_show" <?= $selected_status === 'no_show' ? 'selected' : '' ?>><?= lang('UI.appointmentStatusNoShow') ?></option>
                                 </select>
                             </div>
                         </div>
                         
                         <!-- Search Actions -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</label>
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
                             <div class="flex space-x-3">
                                 <button onclick="clearSearch()" class="group/btn relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                    <span class="relative z-10">Clear</span>
+                                    <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
                                 </button>
                             </div>
                         </div>
@@ -260,24 +260,24 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="w-3 h-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-full animate-pulse"></div>
                                 <h3 class="text-2xl font-black text-gray-900">
                                     <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-                                        All Appointments
+                                        <?= lang('UI.appointmentAllAppointments') ?>
                                     <?php else: ?>
-                                        Appointments for <?= formatDate($selected_date) ?>
+                                        <?= lang('UI.appointmentForDate', ['date' => formatDate($selected_date)]) ?>
                                     <?php endif; ?>
                                 </h3>
                             </div>
                             <p class="text-gray-600 font-medium text-sm">
                                 <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-                                    View and manage all appointments across all dates
+                                    <?= lang('UI.appointmentAllAppointmentsSubtitle') ?>
                                 <?php else: ?>
-                                    Manage your daily appointments with advanced controls
+                                    <?= lang('UI.appointmentDailyAppointmentsSubtitle') ?>
                                 <?php endif; ?>
                             </p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-blue-700 font-bold text-sm"><?= count($appointments ?? []) ?> Appointments</span>
+                                <span class="text-blue-700 font-bold text-sm"><?= lang('UI.appointmentCountLabel', ['count' => count($appointments ?? [])]) ?></span>
                             </div>
                         </div>
                     </div>
@@ -320,7 +320,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                                     <?= formatTime($appointment['appointment_time']) ?>
                                                 </p>
                                                 <p class="text-sm text-amber-700 font-bold">
-                                                    <?= $appointment['duration'] ?> min
+                                                    <?= $appointment['duration'] ?> <?= lang('UI.appointmentMinutes') ?>
                                                 </p>
                                                 <?php if (isset($view_mode) && $view_mode === 'all'): ?>
                                                     <p class="text-xs text-amber-600 font-semibold mt-1">
@@ -340,9 +340,9 @@ $returnToContextEncoded = urlencode($returnToContext);
                                                     <?= ucfirst(str_replace('_', ' ', $appointment['appointment_type'])) ?>
                                                 </p>
                                                 <p class="text-xs text-emerald-700 font-medium">
-                                                    <?= esc($appointment['chair_name'] ?? 'Chair 1') ?>
+                                                    <?= esc($appointment['chair_name'] ?? lang('UI.appointmentChairDefault')) ?>
                                                 </p>
-                                                <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Type</p>
+                                                <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider"><?= lang('UI.appointmentTypeBadge') ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -351,10 +351,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="text-center">
                                         <?php
                                         $statusConfig = [
-                                            'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => 'Scheduled'],
-                                            'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'text-green-900', 'label' => 'Confirmed'],
-                                            'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'text-gray-900', 'label' => 'Completed'],
-                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => 'Cancelled']
+                                            'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => lang('UI.appointmentStatusScheduled')],
+                                            'confirmed' => ['bg' => 'from-green-500 to-green-600', 'text' => 'text-green-900', 'label' => lang('UI.appointmentStatusConfirmed')],
+                                            'completed' => ['bg' => 'from-gray-500 to-gray-600', 'text' => 'text-gray-900', 'label' => lang('UI.patientTreatmentStatusCompleted')],
+                                            'cancelled' => ['bg' => 'from-red-500 to-red-600', 'text' => 'text-red-900', 'label' => lang('UI.appointmentStatusCancelled')]
                                         ];
                                         $status = $statusConfig[$appointment['status']] ?? $statusConfig['scheduled'];
                                         ?>
@@ -412,12 +412,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="relative w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                                     <i class="fas fa-calendar text-gray-400 text-4xl"></i>
                                 </div>
-                                <h3 class="text-2xl font-black text-gray-900 mb-3">No appointments found</h3>
-                                <p class="text-gray-500 text-lg font-medium mb-6">No appointments scheduled for this date.</p>
+                                <h3 class="text-2xl font-black text-gray-900 mb-3"><?= lang('UI.appointmentNoAppointmentsFound') ?></h3>
+                                <p class="text-gray-500 text-lg font-medium mb-6"><?= lang('UI.appointmentNoAppointmentsForDate') ?></p>
                                 <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group/btn relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-2xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-plus mr-3 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                    <span class="relative z-10">Schedule Appointment</span>
+                                    <span class="relative z-10"><?= lang('UI.appointmentSchedule') ?></span>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -428,12 +428,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <button onclick="loadMoreAppointments()" id="loadMoreBtn" class="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                                     <i class="fas fa-chevron-down mr-3 text-xl relative z-10 group-hover:scale-110 transition-transform duration-300"></i>
-                                    <span class="relative z-10">Load More Appointments</span>
+                                    <span class="relative z-10"><?= lang('UI.appointmentLoadMore') ?></span>
                                 </button>
                                 <div id="loadMoreSpinner" class="hidden text-center py-4">
                                     <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mr-3"></div>
-                                        <span class="text-emerald-700 font-bold">Loading more appointments...</span>
+                                        <span class="text-emerald-700 font-bold"><?= lang('UI.appointmentLoadingMore') ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -455,10 +455,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-xl font-black text-gray-900">
-                                        System Status
+                                        <?= lang('UI.appointmentSystemStatus') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium text-sm">Real-time appointment system health</p>
+                                <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSystemStatusSubtitle') ?></p>
                             </div>
                         </div>
                         <div class="space-y-4 p-6 pt-0 flex-1">
@@ -471,10 +471,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Appointment Database</p>
+                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentDatabase') ?></p>
                                     <div class="flex items-center space-x-2 mt-1">
                                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-green-600 font-semibold">Online</span>
+                                        <span class="text-xs text-green-600 font-semibold"><?= lang('UI.appointmentOnline') ?></span>
                                     </div>
                                     <div class="w-full bg-green-200 rounded-full h-1.5 mt-2">
                                         <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full w-4/5 animate-pulse"></div>
@@ -491,10 +491,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Notifications</p>
+                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentNotificationsLabel') ?></p>
                                     <div class="flex items-center space-x-2 mt-1">
                                         <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-blue-600 font-semibold">Active</span>
+                                        <span class="text-xs text-blue-600 font-semibold"><?= lang('UI.appointmentActive') ?></span>
                                     </div>
                                     <div class="w-full bg-blue-200 rounded-full h-1.5 mt-2">
                                         <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-1.5 rounded-full w-3/4 animate-pulse"></div>
@@ -511,10 +511,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Calendar Sync</p>
+                                    <p class="text-sm font-bold text-gray-800"><?= lang('UI.appointmentCalendarSyncLabel') ?></p>
                                     <div class="flex items-center space-x-2 mt-1">
                                         <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-purple-600 font-semibold">Synced</span>
+                                        <span class="text-xs text-purple-600 font-semibold"><?= lang('UI.appointmentSynced') ?></span>
                                     </div>
                                     <div class="w-full bg-purple-200 rounded-full h-1.5 mt-2">
                                         <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full w-5/6 animate-pulse"></div>
@@ -534,10 +534,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-xl font-black text-gray-900">
-                                        Quick Actions
+                                        <?= lang('UI.appointmentQuickActions') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium text-sm">Common appointment tasks</p>
+                                <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentQuickActionsSubtitle') ?></p>
                             </div>
                         </div>
                         <div class="space-y-3 p-6 pt-0 flex-1">
@@ -549,8 +549,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-blue-900 transition-colors duration-300">New Appointment</p>
-                                    <p class="text-sm text-gray-500 font-medium">Schedule a new patient visit</p>
+                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-blue-900 transition-colors duration-300"><?= lang('UI.appointmentNewActionTitle') ?></p>
+                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentNewActionSubtitle') ?></p>
                                 </div>
                                 <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-blue-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
                             </a>
@@ -563,8 +563,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-emerald-900 transition-colors duration-300">Calendar View</p>
-                                    <p class="text-sm text-gray-500 font-medium">View appointments in calendar</p>
+                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-emerald-900 transition-colors duration-300"><?= lang('UI.appointmentCalendarActionTitle') ?></p>
+                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentCalendarActionSubtitle') ?></p>
                                 </div>
                                 <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-emerald-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
                             </a>
@@ -577,8 +577,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-amber-900 transition-colors duration-300">Manage Patients</p>
-                                    <p class="text-sm text-gray-500 font-medium">View and manage patient records</p>
+                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-amber-900 transition-colors duration-300"><?= lang('UI.appointmentManagePatientsTitle') ?></p>
+                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentManagePatientsSubtitle') ?></p>
                                 </div>
                                 <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-amber-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
                             </a>
@@ -591,8 +591,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-purple-900 transition-colors duration-300">Appointment Reports</p>
-                                    <p class="text-sm text-gray-500 font-medium">Generate appointment analytics</p>
+                                    <p class="text-base font-bold text-gray-900 group-hover/action:text-purple-900 transition-colors duration-300"><?= lang('UI.appointmentReportsTitle') ?></p>
+                                    <p class="text-sm text-gray-500 font-medium"><?= lang('UI.appointmentReportsSubtitle') ?></p>
                                 </div>
                                 <i class="fas fa-arrow-right text-gray-400 group-hover/action:text-purple-500 group-hover/action:translate-x-1 transition-all duration-300"></i>
                             </a>
@@ -609,7 +609,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-xl font-black text-gray-900">
-                                        Today's Schedule
+                                        <?= lang('UI.appointmentTodaySchedule') ?>
                                     </h3>
                                 </div>
                                 <p class="text-gray-600 font-medium text-sm"><?= formatDate(date('Y-m-d')) ?></p>
@@ -619,34 +619,34 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200">
                                       <div class="text-3xl font-black text-blue-900"><?= $stats['total_appointments'] ?? 0 ?></div>
-                                    <div class="text-sm font-bold text-blue-700 uppercase tracking-wider">Total</div>
+                                    <div class="text-sm font-bold text-blue-700 uppercase tracking-wider"><?= lang('UI.appointmentTotal') ?></div>
                                 </div>
                                 <div class="text-center p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
                                       <div class="text-3xl font-black text-green-900"><?= $stats['upcoming_appointments'] ?? 0 ?></div>
-                                    <div class="text-sm font-bold text-green-700 uppercase tracking-wider">Scheduled</div>
+                                    <div class="text-sm font-bold text-green-700 uppercase tracking-wider"><?= lang('UI.appointmentStatusScheduled') ?></div>
                                 </div>
                             </div>
                             
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700">Morning (9AM-12PM)</span>
-                                    <span class="font-bold text-amber-900"><?= rand(2, 5) ?> appointments</span>
+                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentMorning') ?></span>
+                                    <span class="font-bold text-amber-900"><?= rand(2, 5) ?> <?= lang('UI.appointmentEntries') ?></span>
                                 </div>
                                 <div class="w-full bg-amber-200 rounded-full h-2">
                                     <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full w-3/4 animate-pulse"></div>
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700">Afternoon (1PM-5PM)</span>
-                                    <span class="font-bold text-amber-900"><?= rand(3, 7) ?> appointments</span>
+                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentAfternoon') ?></span>
+                                    <span class="font-bold text-amber-900"><?= rand(3, 7) ?> <?= lang('UI.appointmentEntries') ?></span>
                                 </div>
                                 <div class="w-full bg-amber-200 rounded-full h-2">
                                     <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full w-5/6 animate-pulse"></div>
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="font-semibold text-gray-700">Evening (6PM-8PM)</span>
-                                    <span class="font-bold text-amber-900"><?= rand(1, 3) ?> appointments</span>
+                                    <span class="font-semibold text-gray-700"><?= lang('UI.appointmentEvening') ?></span>
+                                    <span class="font-bold text-amber-900"><?= rand(1, 3) ?> <?= lang('UI.appointmentEntries') ?></span>
                                 </div>
                                 <div class="w-full bg-amber-200 rounded-full h-2">
                                     <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full w-1/3 animate-pulse"></div>
@@ -661,6 +661,35 @@ $returnToContextEncoded = urlencode($returnToContext);
 </div>
 
 <script>
+const appointmentI18n = {
+    confirmPrompt: <?= json_encode(lang('UI.appointmentConfirmPrompt')) ?>,
+    completePrompt: <?= json_encode(lang('UI.appointmentCompletePrompt')) ?>,
+    cancelPrompt: <?= json_encode(lang('UI.appointmentCancelPrompt')) ?>,
+    deletePrompt: <?= json_encode(lang('UI.appointmentDeletePrompt')) ?>,
+    confirmSuccess: <?= json_encode(lang('UI.appointmentConfirmSuccess')) ?>,
+    completeSuccess: <?= json_encode(lang('UI.appointmentCompleteSuccess')) ?>,
+    cancelSuccess: <?= json_encode(lang('UI.appointmentCancelSuccess')) ?>,
+    deleteSuccess: <?= json_encode(lang('UI.appointmentDeleteSuccess')) ?>,
+    errorPrefix: <?= json_encode(lang('UI.appointmentErrorPrefix')) ?>,
+    confirmError: <?= json_encode(lang('UI.appointmentConfirmError')) ?>,
+    completeError: <?= json_encode(lang('UI.appointmentCompleteError')) ?>,
+    cancelError: <?= json_encode(lang('UI.appointmentCancelError')) ?>,
+    deleteError: <?= json_encode(lang('UI.appointmentDeleteError')) ?>,
+    loadMoreError: <?= json_encode(lang('UI.appointmentLoadMoreError')) ?>,
+    loadError: <?= json_encode(lang('UI.appointmentLoadError')) ?>,
+    statusScheduled: <?= json_encode(lang('UI.appointmentStatusScheduled')) ?>,
+    statusConfirmed: <?= json_encode(lang('UI.appointmentStatusConfirmed')) ?>,
+    statusCompleted: <?= json_encode(lang('UI.patientTreatmentStatusCompleted')) ?>,
+    statusCancelled: <?= json_encode(lang('UI.appointmentStatusCancelled')) ?>,
+    statusNoShow: <?= json_encode(lang('UI.appointmentStatusNoShow')) ?>,
+    minutes: <?= json_encode(lang('UI.appointmentMinutes')) ?>,
+    chairDefault: <?= json_encode(lang('UI.appointmentChairDefault')) ?>,
+    typeBadge: <?= json_encode(lang('UI.appointmentTypeBadge')) ?>,
+    statusBadge: <?= json_encode(lang('UI.appointmentStatusLabel')) ?>,
+    viewAction: <?= json_encode(lang('UI.appointmentViewAction')) ?>,
+    editAction: <?= json_encode(lang('UI.appointmentEditAction')) ?>
+};
+
 // Initialize filters on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeFilters();
@@ -731,7 +760,7 @@ function clearFilters() {
 }
 
 function confirmAppointment(id) {
-    if (confirm('Are you sure you want to confirm this appointment?')) {
+    if (confirm(appointmentI18n.confirmPrompt)) {
         fetch(`<?= base_url('appointment') ?>/${id}/confirm`, {
             method: 'POST',
             headers: {
@@ -746,21 +775,21 @@ function confirmAppointment(id) {
                 window.refreshCsrfToken(data.csrf_token);
             }
             if (data.success) {
-                showNotification('Appointment confirmed successfully!', 'success');
+                showNotification(appointmentI18n.confirmSuccess, 'success');
                 setTimeout(() => location.reload(), 1500);
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(appointmentI18n.errorPrefix + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('An error occurred while confirming the appointment', 'error');
+            showNotification(appointmentI18n.confirmError, 'error');
         });
     }
 }
 
 function completeAppointment(id) {
-    if (confirm('Are you sure you want to mark this appointment as completed?')) {
+    if (confirm(appointmentI18n.completePrompt)) {
         fetch(`<?= base_url('appointment') ?>/${id}/complete`, {
             method: 'POST',
             headers: {
@@ -775,21 +804,21 @@ function completeAppointment(id) {
                 window.refreshCsrfToken(data.csrf_token);
             }
             if (data.success) {
-                showNotification('Appointment marked as completed successfully!', 'success');
+                showNotification(appointmentI18n.completeSuccess, 'success');
                 setTimeout(() => location.reload(), 1500);
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(appointmentI18n.errorPrefix + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('An error occurred while completing the appointment', 'error');
+            showNotification(appointmentI18n.completeError, 'error');
         });
     }
 }
 
 function cancelAppointment(id) {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
+    if (confirm(appointmentI18n.cancelPrompt)) {
         fetch(`<?= base_url('appointment') ?>/${id}/cancel`, {
             method: 'POST',
             headers: {
@@ -804,21 +833,21 @@ function cancelAppointment(id) {
                 window.refreshCsrfToken(data.csrf_token);
             }
             if (data.success) {
-                showNotification('Appointment cancelled successfully!', 'success');
+                showNotification(appointmentI18n.cancelSuccess, 'success');
                 setTimeout(() => location.reload(), 1500);
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(appointmentI18n.errorPrefix + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('An error occurred while cancelling the appointment', 'error');
+            showNotification(appointmentI18n.cancelError, 'error');
         });
     }
 }
 
 function deleteAppointment(id) {
-    if (confirm('Are you sure you want to permanently delete this appointment? This action cannot be undone.')) {
+    if (confirm(appointmentI18n.deletePrompt)) {
         fetch(`<?= base_url('appointment') ?>/${id}`, {
             method: 'DELETE',
             headers: {
@@ -833,15 +862,15 @@ function deleteAppointment(id) {
                 window.refreshCsrfToken(data.csrf_token);
             }
             if (data.success) {
-                showNotification('Appointment deleted successfully!', 'success');
+                showNotification(appointmentI18n.deleteSuccess, 'success');
                 setTimeout(() => location.reload(), 1500);
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(appointmentI18n.errorPrefix + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('An error occurred while deleting the appointment', 'error');
+            showNotification(appointmentI18n.deleteError, 'error');
         });
     }
 }
@@ -1044,13 +1073,13 @@ function loadMoreAppointments() {
                 }
             } else {
                 console.error('Failed to load appointments:', data.error);
-                showNotification('Failed to load more appointments', 'error');
+                showNotification(appointmentI18n.loadMoreError, 'error');
                 currentPage--; // Revert page increment
             }
         })
         .catch(error => {
             console.error('Error loading appointments:', error);
-            showNotification('Error loading appointments', 'error');
+            showNotification(appointmentI18n.loadError, 'error');
             currentPage--; // Revert page increment
         })
         .finally(() => {
@@ -1108,11 +1137,11 @@ function createAppointmentElement(appointment) {
     
     // Status configuration
     const statusConfig = {
-        'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'text-blue-900', label: 'Scheduled' },
-        'confirmed': { bg: 'from-green-500 to-green-600', text: 'text-green-900', label: 'Confirmed' },
-        'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'text-emerald-900', label: 'Completed' },
-        'cancelled': { bg: 'from-red-500 to-red-600', text: 'text-red-900', label: 'Cancelled' },
-        'no_show': { bg: 'from-orange-500 to-orange-600', text: 'text-orange-900', label: 'No Show' }
+        'scheduled': { bg: 'from-blue-500 to-blue-600', text: 'text-blue-900', label: appointmentI18n.statusScheduled },
+        'confirmed': { bg: 'from-green-500 to-green-600', text: 'text-green-900', label: appointmentI18n.statusConfirmed },
+        'completed': { bg: 'from-emerald-500 to-emerald-600', text: 'text-emerald-900', label: appointmentI18n.statusCompleted },
+        'cancelled': { bg: 'from-red-500 to-red-600', text: 'text-red-900', label: appointmentI18n.statusCancelled },
+        'no_show': { bg: 'from-orange-500 to-orange-600', text: 'text-orange-900', label: appointmentI18n.statusNoShow }
     };
     
     const status = statusConfig[appointment.status] || statusConfig['scheduled'];
@@ -1186,7 +1215,7 @@ function createAppointmentElement(appointment) {
     
     const durationP = document.createElement('p');
     durationP.className = 'text-sm text-amber-700 font-bold';
-    durationP.textContent = appointment.duration + ' min';
+    durationP.textContent = appointment.duration + ' ' + appointmentI18n.minutes;
     
     const dateP = document.createElement('p');
     dateP.className = 'text-xs text-amber-600 font-semibold mt-1';
@@ -1216,11 +1245,11 @@ function createAppointmentElement(appointment) {
 
     const chairP = document.createElement('p');
     chairP.className = 'text-xs text-emerald-700 font-medium';
-    chairP.textContent = appointment.chair_name || 'Chair 1';
+    chairP.textContent = appointment.chair_name || appointmentI18n.chairDefault;
     
     const typeLabel = document.createElement('p');
     typeLabel.className = 'text-xs text-emerald-700 font-semibold uppercase tracking-wider';
-    typeLabel.textContent = 'Type';
+    typeLabel.textContent = appointmentI18n.typeBadge;
 
     typeContent.appendChild(typeP);
     typeContent.appendChild(chairP);
@@ -1249,7 +1278,7 @@ function createAppointmentElement(appointment) {
     const statusLabelP = document.createElement('p');
     const labelColorClass = status.text.replace('900', '700');
     statusLabelP.className = `text-xs ${labelColorClass} font-semibold uppercase tracking-wider`;
-    statusLabelP.textContent = 'Status';
+    statusLabelP.textContent = appointmentI18n.statusBadge;
 
     statusContent.appendChild(statusTextP);
     statusContent.appendChild(statusLabelP);
@@ -1275,7 +1304,7 @@ function createAppointmentElement(appointment) {
     
     const viewText = document.createElement('span');
     viewText.className = 'relative z-10';
-    viewText.textContent = 'View';
+    viewText.textContent = appointmentI18n.viewAction;
     
     viewBtn.appendChild(viewBg);
     viewBtn.appendChild(viewIcon);
@@ -1293,7 +1322,7 @@ function createAppointmentElement(appointment) {
     
     const editText = document.createElement('span');
     editText.className = 'relative z-10';
-    editText.textContent = 'Edit';
+    editText.textContent = appointmentI18n.editAction;
     
     editBtn.appendChild(editBg);
     editBtn.appendChild(editIcon);

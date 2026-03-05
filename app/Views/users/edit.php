@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300">Edit User</h3>
-                                <p class="text-gray-600 font-medium">Update user information and access permissions</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-blue-900 transition-colors duration-300"><?= lang('UserRole.editUser') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('UserRole.updateUserInformationDescription') ?></p>
                             </div>
                         </div>
                         
@@ -29,7 +29,7 @@
                             <a href="<?= base_url('users') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back to Users</span>
+                                <span class="relative z-10"><?= lang('UserRole.backToUsers') ?></span>
                             </a>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-user text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Personal Information</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.personalInformation') ?></h4>
                                 </div>
                                 
                                 <div class="space-y-8">
@@ -57,12 +57,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-user text-blue-600"></i>
-                                                <span>First Name *</span>
+                                                <span><?= lang('UserRole.firstNameRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="first_name" name="first_name" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('first_name')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                       value="<?= old('first_name', $user->first_name ?? '') ?>" placeholder="Enter first name" required>
+                                                       value="<?= old('first_name', $user->first_name ?? '') ?>" placeholder="<?= lang('UserRole.enterFirstName') ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-user text-gray-400"></i>
                                                 </div>
@@ -78,12 +78,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-user text-blue-600"></i>
-                                                <span>Last Name *</span>
+                                                <span><?= lang('UserRole.lastNameRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="text" id="last_name" name="last_name" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('last_name')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                       value="<?= old('last_name', $user->last_name ?? '') ?>" placeholder="Enter last name" required>
+                                                       value="<?= old('last_name', $user->last_name ?? '') ?>" placeholder="<?= lang('UserRole.enterLastName') ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-user text-gray-400"></i>
                                                 </div>
@@ -101,12 +101,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-envelope text-purple-600"></i>
-                                                <span>Email *</span>
+                                                <span><?= lang('UserRole.emailRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="email" id="email" name="email" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('email')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                       value="<?= old('email', $user->email ?? '') ?>" placeholder="Enter email address" required>
+                                                       value="<?= old('email', $user->email ?? '') ?>" placeholder="<?= lang('UserRole.enterEmailAddress') ?>" required>
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-envelope text-gray-400"></i>
                                                 </div>
@@ -124,12 +124,12 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-phone text-emerald-600"></i>
-                                                <span>Phone</span>
+                                                <span><?= lang('UserRole.phone') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <input type="tel" id="phone" name="phone" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('phone')) ? 'border-red-500 ring-red-500/20' : '' ?>"
-                                                       value="<?= old('phone', $user->phone ?? '') ?>" placeholder="Enter phone number">
+                                                       value="<?= old('phone', $user->phone ?? '') ?>" placeholder="<?= lang('UserRole.enterPhoneNumber') ?>">
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                     <i class="fas fa-phone text-gray-400"></i>
                                                 </div>
@@ -145,7 +145,7 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-calendar text-amber-600"></i>
-                                                <span>Hire Date *</span>
+                                                <span><?= lang('UserRole.hireDateRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                             <input type="text" id="hire_date" name="hire_date" data-clinic-date="1"
@@ -175,19 +175,19 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-shield-alt text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Account Security</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.accountSecurity') ?></h4>
                                 </div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-lock text-red-600"></i>
-                                            <span>New Password</span>
+                                            <span><?= lang('UserRole.newPassword') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="password" id="password" name="password" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                   placeholder="Enter new password (leave blank to keep current)">
+                                                   placeholder="<?= lang('UserRole.enterNewPasswordOptional') ?>">
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-lock text-gray-400"></i>
                                             </div>
@@ -203,12 +203,12 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-lock text-red-600"></i>
-                                            <span>Confirm New Password</span>
+                                            <span><?= lang('UserRole.confirmNewPassword') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="password" id="password_confirm" name="password_confirm" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password_confirm')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
-                                                   placeholder="Confirm new password">
+                                                   placeholder="<?= lang('UserRole.confirmNewPassword') ?>">
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-lock text-gray-400"></i>
                                             </div>
@@ -232,7 +232,7 @@
                                     <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-user-shield text-white text-sm"></i>
                                     </div>
-                                    <h4 class="text-xl font-bold text-gray-800">Role & Permissions</h4>
+                                    <h4 class="text-xl font-bold text-gray-800"><?= lang('UserRole.roleAndPermissions') ?></h4>
                                 </div>
                                 
                                 <div class="space-y-8">
@@ -249,16 +249,16 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-user-tag text-green-600"></i>
-                                                <span>Role *</span>
+                                                <span><?= lang('UserRole.roleRequired') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <select id="role" name="role" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('role')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                         data-searchable-select 
                                                         data-search-url="<?= base_url('api/v1/search/roles') ?>"
-                                                        data-placeholder="Search roles..."
+                                                        data-placeholder="<?= lang('UserRole.searchRoles') ?>"
                                                         required>
-                                                    <option value="">Select role</option>
+                                                    <option value=""><?= lang('UserRole.selectRole') ?></option>
                                                     <?php foreach ($roles as $key => $role): ?>
                                                         <option value="<?= $key ?>" <?= ($selectedRole == $key) ? 'selected' : '' ?>>
                                                             <?= $role ?>
@@ -280,18 +280,18 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-user-tag text-green-600"></i>
-                                                <span>Role</span>
+                                                <span><?= lang('UserRole.role') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <div class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded-xl shadow-lg text-gray-600 flex items-center">
                                                     <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
-                                                    <span>Super Admin (System Administrator - Cannot be changed)</span>
+                                                    <span><?= lang('UserRole.superAdminCannotChange') ?></span>
                                                 </div>
                                                 <input type="hidden" name="role" value="<?= $currentRoleId ?>">
                                             </div>
                                             <p class="text-blue-600 text-sm mt-2 flex items-center space-x-1">
                                                 <i class="fas fa-info-circle"></i>
-                                                <span>The system administrator role cannot be modified</span>
+                                                <span><?= lang('UserRole.systemAdminRoleCannotModify') ?></span>
                                             </p>
                                         </div>
                                         <?php endif; ?>
@@ -299,15 +299,15 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                                 <i class="fas fa-building text-green-600"></i>
-                                                <span>Department</span>
+                                                <span><?= lang('UserRole.department') ?></span>
                                             </label>
                                             <div class="relative">
                                                 <select id="department" name="department" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                                         data-searchable-select 
                                                         data-search-url="<?= base_url('api/v1/search/departments') ?>"
-                                                        data-placeholder="Search departments...">
-                                                    <option value="">Select department</option>
+                                                        data-placeholder="<?= lang('UserRole.searchDepartments') ?>">
+                                                    <option value=""><?= lang('UserRole.selectDepartment') ?></option>
                                                     <?php foreach ($departments as $key => $department): ?>
                                                         <option value="<?= $key ?>" <?= (old('department', $user->department ?? '') == $key) ? 'selected' : '' ?>>
                                                             <?= $department ?>
@@ -324,14 +324,14 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-toggle-on text-green-600"></i>
-                                            <span>Status *</span>
+                                            <span><?= lang('UserRole.statusRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <select id="status" name="status" 
                                                     class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('status')) ? 'border-red-500 ring-red-500/20' : '' ?>" required>
-                                                <option value="active" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'active') ? 'selected' : '' ?>>Active</option>
-                                                <option value="inactive" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'inactive') ? 'selected' : '' ?>>Inactive</option>
-                                                <option value="suspended" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'suspended') ? 'selected' : '' ?>>Suspended</option>
+                                                <option value="active" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'active') ? 'selected' : '' ?>><?= lang('UserRole.active') ?></option>
+                                                <option value="inactive" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'inactive') ? 'selected' : '' ?>><?= lang('UserRole.inactive') ?></option>
+                                                <option value="suspended" <?= (old('status', $user->active == 1 ? 'active' : 'inactive') == 'suspended') ? 'selected' : '' ?>><?= lang('UserRole.suspended') ?></option>
                                             </select>
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
@@ -353,12 +353,12 @@
                             <a href="<?= base_url('users') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('UserRole.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-save mr-2 relative z-10"></i>
-                                <span class="relative z-10">Update User</span>
+                                <span class="relative z-10"><?= lang('UserRole.updateUser') ?></span>
                             </button>
                         </div>
                     </form>
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validatePassword() {
         if (password.value && passwordConfirm.value) {
             if (password.value !== passwordConfirm.value) {
-                passwordConfirm.setCustomValidity('Passwords do not match');
+                passwordConfirm.setCustomValidity(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
             } else {
                 passwordConfirm.setCustomValidity('');
             }
@@ -393,14 +393,14 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (password.value && !passwordConfirm.value) {
             e.preventDefault();
-            alert('Please confirm your new password');
+            alert(<?= json_encode(lang('UserRole.pleaseConfirmNewPassword')) ?>);
             passwordConfirm.focus();
             return false;
         }
         
         if (password.value && password.value !== passwordConfirm.value) {
             e.preventDefault();
-            alert('Passwords do not match');
+            alert(<?= json_encode(lang('UserRole.passwordsDoNotMatch')) ?>);
             passwordConfirm.focus();
             return false;
         }

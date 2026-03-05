@@ -20,8 +20,8 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors duration-300">Add New Inventory Item</h3>
-                                <p class="text-gray-600 font-medium">Fill in the details to add a new item to your inventory</p>
+                                <h3 class="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors duration-300"><?= lang('Inventory.addNewInventoryItem') ?></h3>
+                                <p class="text-gray-600 font-medium"><?= lang('Inventory.addNewInventoryItemSubtitle') ?></p>
                             </div>
                         </div>
                         
@@ -29,7 +29,7 @@
                             <a href="<?= base_url('inventory') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-arrow-left mr-2 relative z-10"></i>
-                                <span class="relative z-10">Back to Inventory</span>
+                                <span class="relative z-10"><?= lang('Inventory.backToInventory') ?></span>
                             </a>
                         </div>
                     </div>
@@ -45,10 +45,10 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-tag text-emerald-600"></i>
-                                    <span>Item Name *</span>
+                                    <span><?= lang('Inventory.itemNameRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="item_name" value="<?= old('item_name') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" placeholder="Enter item name" required>
+                                    <input type="text" name="item_name" value="<?= old('item_name') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.enterItemName') ?>" required>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-tag text-gray-400"></i>
                                     </div>
@@ -64,16 +64,16 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-layer-group text-blue-600"></i>
-                                    <span>Category *</span>
+                                    <span><?= lang('Inventory.categoryRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="category" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <option value="">Select Category</option>
-                                        <option value="medication" <?= (old('category') == 'medication') ? 'selected' : '' ?>>Medication</option>
-                                        <option value="equipment" <?= (old('category') == 'equipment') ? 'selected' : '' ?>>Equipment</option>
-                                        <option value="supplies" <?= (old('category') == 'supplies') ? 'selected' : '' ?>>Supplies</option>
-                                        <option value="consumables" <?= (old('category') == 'consumables') ? 'selected' : '' ?>>Consumables</option>
-                                        <option value="other" <?= (old('category') == 'other') ? 'selected' : '' ?>>Other</option>
+                                        <option value=""><?= lang('Inventory.selectCategory') ?></option>
+                                        <option value="medication" <?= (old('category') == 'medication') ? 'selected' : '' ?>><?= lang('Inventory.categoryMedication') ?></option>
+                                        <option value="equipment" <?= (old('category') == 'equipment') ? 'selected' : '' ?>><?= lang('Inventory.categoryEquipment') ?></option>
+                                        <option value="supplies" <?= (old('category') == 'supplies') ? 'selected' : '' ?>><?= lang('Inventory.categorySupplies') ?></option>
+                                        <option value="consumables" <?= (old('category') == 'consumables') ? 'selected' : '' ?>><?= lang('Inventory.categoryConsumables') ?></option>
+                                        <option value="other" <?= (old('category') == 'other') ? 'selected' : '' ?>><?= lang('Inventory.categoryOther') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -92,10 +92,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-align-left text-purple-600"></i>
-                                <span>Description</span>
+                                <span><?= lang('Inventory.description') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Item description..."><?= old('description') ?></textarea>
+                                <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= lang('Inventory.itemDescriptionPlaceholder') ?>"><?= old('description') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -113,7 +113,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-cubes text-amber-600"></i>
-                                    <span>Quantity *</span>
+                                    <span><?= lang('Inventory.quantityRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="quantity" value="<?= old('quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
@@ -132,16 +132,16 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-ruler text-cyan-600"></i>
-                                    <span>Unit</span>
+                                    <span><?= lang('Inventory.unit') ?></span>
                                 </label>
                                 <div class="relative">
                                     <select name="unit" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl">
-                                        <option value="pieces" <?= (old('unit') == 'pieces') ? 'selected' : '' ?>>Pieces</option>
-                                        <option value="boxes" <?= (old('unit') == 'boxes') ? 'selected' : '' ?>>Boxes</option>
-                                        <option value="bottles" <?= (old('unit') == 'bottles') ? 'selected' : '' ?>>Bottles</option>
-                                        <option value="tubes" <?= (old('unit') == 'tubes') ? 'selected' : '' ?>>Tubes</option>
-                                        <option value="packs" <?= (old('unit') == 'packs') ? 'selected' : '' ?>>Packs</option>
-                                        <option value="sets" <?= (old('unit') == 'sets') ? 'selected' : '' ?>>Sets</option>
+                                        <option value="pieces" <?= (old('unit') == 'pieces') ? 'selected' : '' ?>><?= lang('Inventory.unitPieces') ?></option>
+                                        <option value="boxes" <?= (old('unit') == 'boxes') ? 'selected' : '' ?>><?= lang('Inventory.unitBoxes') ?></option>
+                                        <option value="bottles" <?= (old('unit') == 'bottles') ? 'selected' : '' ?>><?= lang('Inventory.unitBottles') ?></option>
+                                        <option value="tubes" <?= (old('unit') == 'tubes') ? 'selected' : '' ?>><?= lang('Inventory.unitTubes') ?></option>
+                                        <option value="packs" <?= (old('unit') == 'packs') ? 'selected' : '' ?>><?= lang('Inventory.unitPacks') ?></option>
+                                        <option value="sets" <?= (old('unit') == 'sets') ? 'selected' : '' ?>><?= lang('Inventory.unitSets') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
@@ -152,7 +152,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-exclamation-triangle text-rose-600"></i>
-                                    <span>Min Quantity *</span>
+                                    <span><?= lang('Inventory.minQuantityRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="min_quantity" value="<?= old('min_quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
@@ -174,7 +174,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span>Unit Price *</span>
+                                    <span><?= lang('Inventory.unitPriceRequired') ?></span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -196,18 +196,18 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-truck text-indigo-600"></i>
-                                    <span>Supplier</span>
+                                    <span><?= lang('Inventory.supplier') ?></span>
                                 </label>
                                 <div class="space-y-3">
                                     <div class="flex items-center justify-between gap-3">
-                                        <label for="supplier_id" class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Supplier Directory</label>
+                                        <label for="supplier_id" class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><?= lang('Inventory.supplierDirectory') ?></label>
                                         <div class="flex items-center gap-2">
-                                            <a href="<?= base_url('inventory/suppliers') ?>" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Manage Suppliers</a>
-                                            <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Quick Add</button>
+                                            <a href="<?= base_url('inventory/suppliers') ?>" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><?= lang('Inventory.manageSuppliers') ?></a>
+                                            <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"><?= lang('Inventory.quickAdd') ?></button>
                                         </div>
                                     </div>
                                     <select id="supplier_id" name="supplier_id" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
-                                        <option value="">No linked supplier</option>
+                                        <option value=""><?= lang('Inventory.noLinkedSupplier') ?></option>
                                         <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                             <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id') === (string) $supplier['id'] ? 'selected' : '' ?>>
                                                 <?= esc($supplier['name']) ?>
@@ -215,22 +215,22 @@
                                         <?php endforeach; ?>
                                     </select>
                                     <div class="relative">
-                                        <input type="text" name="supplier" id="supplier_text" value="<?= old('supplier') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="Custom supplier name (optional)">
+                                        <input type="text" name="supplier" id="supplier_text" value="<?= old('supplier') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.customSupplierNameOptional') ?>">
                                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                             <i class="fas fa-truck text-gray-400"></i>
                                         </div>
                                     </div>
                                     <div id="quickSupplierCreatePanel" class="hidden p-4 rounded-xl border border-indigo-100 bg-indigo-50/60 space-y-3">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <input type="text" id="quickSupplierName" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Supplier name *">
-                                            <input type="text" id="quickSupplierContact" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Contact person">
-                                            <input type="text" id="quickSupplierPhone" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Phone">
-                                            <input type="email" id="quickSupplierEmail" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="Email">
+                                            <input type="text" id="quickSupplierName" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="<?= lang('Inventory.supplierNameRequired') ?>">
+                                            <input type="text" id="quickSupplierContact" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="<?= lang('Inventory.contactPerson') ?>">
+                                            <input type="text" id="quickSupplierPhone" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="<?= lang('Inventory.phone') ?>">
+                                            <input type="email" id="quickSupplierEmail" class="w-full px-3 py-2 border border-indigo-200 rounded-lg" placeholder="<?= lang('Inventory.email') ?>">
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <p id="quickSupplierStatus" class="text-xs text-gray-600"></p>
                                             <button type="button" id="createQuickSupplierBtn" class="inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700">
-                                                <i class="fas fa-plus mr-2"></i>Create Supplier
+                                                <i class="fas fa-plus mr-2"></i><?= lang('Inventory.createSupplier') ?>
                                             </button>
                                         </div>
                                     </div>
@@ -246,14 +246,14 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-link text-amber-600"></i>
-                                    <span>Supplier Mapping (Optional)</span>
+                                    <span><?= lang('Inventory.supplierMappingOptional') ?></span>
                                 </label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input type="text" name="supplier_sku" value="<?= old('supplier_sku') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Supplier SKU">
-                                    <input type="text" name="pack_size_label" value="<?= old('pack_size_label') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Pack size (e.g. Box of 50)">
-                                    <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Preferred reorder qty">
+                                    <input type="text" name="supplier_sku" value="<?= old('supplier_sku') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.supplierSku') ?>">
+                                    <input type="text" name="pack_size_label" value="<?= old('pack_size_label') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.packSizeExample') ?>">
+                                    <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
                                     <div class="grid grid-cols-3 gap-2">
-                                        <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price') ?>" class="col-span-2 w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="Last supplier price">
+                                        <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price') ?>" class="col-span-2 w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
                                         <select name="supplier_price_currency" class="w-full px-3 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
                                             <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                                 <option value="<?= esc($currency) ?>" <?= old('supplier_price_currency', 'ILS') === $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
@@ -261,7 +261,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <p class="mt-2 text-xs text-gray-500">If a linked supplier is selected, these fields seed the preferred supplier mapping for this item.</p>
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Inventory.supplierMappingHelp') ?></p>
                             </div>
                         </div>
 
@@ -270,7 +270,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar text-orange-600"></i>
-                                    <span>Purchase Date</span>
+                                    <span><?= lang('Inventory.purchaseDate') ?></span>
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="purchase_date" data-clinic-date="1" value="<?= old('purchase_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
@@ -289,7 +289,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-calendar-times text-red-600"></i>
-                                    <span>Expiry Date</span>
+                                    <span><?= lang('Inventory.expiryDate') ?></span>
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
@@ -310,10 +310,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-map-marker-alt text-teal-600"></i>
-                                <span>Location</span>
+                                <span><?= lang('Inventory.location') ?></span>
                             </label>
                             <div class="relative">
-                                <input type="text" name="location" value="<?= old('location') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" placeholder="Storage location (e.g., Cabinet A, Shelf 2)">
+                                <input type="text" name="location" value="<?= old('location') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.storageLocationExample') ?>">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-map-marker-alt text-gray-400"></i>
                                 </div>
@@ -330,10 +330,10 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-sticky-note text-violet-600"></i>
-                                <span>Additional Notes</span>
+                                <span><?= lang('Inventory.additionalNotes') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Additional notes..."><?= old('notes') ?></textarea>
+                                <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= lang('Inventory.additionalNotesPlaceholder') ?>"><?= old('notes') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -351,12 +351,12 @@
                             <a href="<?= base_url('inventory') ?>" class="group/btn relative inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-times mr-2 relative z-10"></i>
-                                <span class="relative z-10">Cancel</span>
+                                <span class="relative z-10"><?= lang('Inventory.cancel') ?></span>
                             </a>
                             <button type="submit" class="group/btn relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-boxes mr-2 relative z-10"></i>
-                                <span class="relative z-10">Add Item</span>
+                                <span class="relative z-10"><?= lang('Inventory.addItem') ?></span>
                             </button>
                         </div>
                     </form>
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         createBtn.addEventListener('click', async function() {
             const name = (document.getElementById('quickSupplierName')?.value || '').trim();
             if (!name) {
-                statusEl.textContent = 'Supplier name is required.';
+                statusEl.textContent = '<?= lang('Inventory.supplierNameRequiredMessage') ?>';
                 statusEl.className = 'text-xs text-red-600';
                 return;
             }
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('email', document.getElementById('quickSupplierEmail')?.value || '');
 
             createBtn.disabled = true;
-            statusEl.textContent = 'Creating supplier...';
+            statusEl.textContent = '<?= lang('Inventory.creatingSupplier') ?>';
             statusEl.className = 'text-xs text-indigo-700';
 
             try {
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 const data = await response.json();
                 if (!response.ok || !data.success || !data.supplier) {
-                    throw new Error(data.message || 'Failed to create supplier');
+                    throw new Error(data.message || '<?= lang('Inventory.failedToCreateSupplier') ?>');
                 }
 
                 const option = document.createElement('option');
@@ -419,11 +419,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 supplierSelect.value = String(data.supplier.id);
                 if (supplierText) supplierText.value = data.supplier.name;
 
-                statusEl.textContent = data.duplicate ? 'Supplier already existed and was selected.' : 'Supplier created and selected.';
+                statusEl.textContent = data.duplicate ? '<?= lang('Inventory.supplierAlreadyExistedSelected') ?>' : '<?= lang('Inventory.supplierCreatedSelected') ?>';
                 statusEl.className = 'text-xs text-emerald-700';
                 panel.classList.add('hidden');
             } catch (error) {
-                statusEl.textContent = error.message || 'Failed to create supplier.';
+                statusEl.textContent = error.message || '<?= lang('Inventory.failedToCreateSupplierWithPeriod') ?>';
                 statusEl.className = 'text-xs text-red-600';
             } finally {
                 createBtn.disabled = false;

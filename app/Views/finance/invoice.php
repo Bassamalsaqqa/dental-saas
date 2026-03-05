@@ -62,11 +62,11 @@
                         
                         <!-- Invoice Details -->
                         <div class="text-right">
-                            <h2 class="text-3xl font-bold text-blue-600 mb-2">INVOICE</h2>
+                            <h2 class="text-3xl font-bold text-blue-600 mb-2"><?= lang('Finance.invoiceUpper') ?></h2>
                             <div class="bg-gray-50 p-3 rounded-lg border">
                                 <div class="space-y-1 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="font-semibold text-gray-700">Invoice #:</span>
+                                        <span class="font-semibold text-gray-700"><?= lang('Finance.invoiceNumberLabel') ?>:</span>
                                         <span class="text-gray-900"><?= $finance['transaction_id'] ?></span>
                                     </div>
                                     <div class="flex justify-between">
@@ -74,7 +74,7 @@
                                         <span class="text-gray-900"><?= formatDate($finance['created_at']) ?></span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="font-semibold text-gray-700">Due Date:</span>
+                                        <span class="font-semibold text-gray-700"><?= lang('Finance.dueDate') ?>:</span>
                                         <span class="text-gray-900"><?= $finance['due_date'] ? formatDate($finance['due_date']) : 'N/A' ?></span>
                                     </div>
                                     <div class="flex justify-between items-center pt-2 border-t">
@@ -100,7 +100,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <!-- Bill To -->
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">BILL TO</h3>
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.billTo') ?></h3>
                         <div class="space-y-2">
                             <p class="text-lg font-semibold text-gray-900"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
                             <p class="text-sm text-gray-600">Patient ID: <?= $patient['patient_id'] ?></p>
@@ -115,21 +115,21 @@
 
                     <!-- Transaction Details -->
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">TRANSACTION DETAILS</h3>
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.transactionDetails') ?></h3>
                         <div class="space-y-2">
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Service Type:</span> <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Payment Method:</span> <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Created By:</span> <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.serviceTypeLabel') ?>:</span> <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.paymentMethodLabel') ?>:</span> <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.createdByLabel') ?>:</span> <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Currency:</span> <?= esc($baseCurrency) ?></p>
                             <?php if ($isConverted): ?>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Original:</span> <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></p>
                             <p class="text-sm text-gray-600"><span class="font-semibold">Exchange Rate:</span> <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
                             <?php endif; ?>
                             <?php if (!empty($check_attachment)): ?>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Check Scan:</span> <a class="text-blue-600" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">Download</a></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.checkScanLabel') ?>:</span> <a class="text-blue-600" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener"><?= lang('Finance.download') ?></a></p>
                             <?php endif; ?>
                             <?php if ($examination): ?>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Related Examination:</span> <?= $examination['examination_id'] ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.relatedExaminationLabel') ?>:</span> <?= $examination['examination_id'] ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -137,7 +137,7 @@
 
                 <!-- Service Details Table -->
                 <div class="mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">SERVICE DETAILS</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.serviceDetailsUpper') ?></h3>
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
@@ -197,10 +197,10 @@
                 <div class="mb-8">
                     <div class="flex justify-end">
                         <div class="w-80">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">PAYMENT SUMMARY</h3>
+                            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.paymentSummary') ?></h3>
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Service Amount:</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.serviceAmountLabel') ?>:</span>
                                     <span class="text-sm font-semibold text-gray-900"><?= formatCurrency($finance['amount']) ?></span>
                                 </div>
                                 <?php if ($isConverted): ?>
@@ -212,7 +212,7 @@
                                 
                                 <?php if ($finance['discount_amount'] > 0): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-green-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Discount:</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.discountLabel') ?>:</span>
                                     <span class="text-sm font-semibold text-green-600">-<?= formatCurrency($finance['discount_amount']) ?></span>
                                 </div>
                                 <?php endif; ?>
@@ -226,18 +226,18 @@
 
                                 <?php if ($finance['transaction_type'] === 'invoice'): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-emerald-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Amount Paid:</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.amountPaidLabel') ?>:</span>
                                     <span class="text-sm font-semibold text-emerald-700"><?= formatCurrency($finance['amount_paid'] ?? 0) ?></span>
                                 </div>
                                 <div class="flex justify-between items-center py-2 px-3 bg-red-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Balance Due:</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.balanceDueLabel') ?>:</span>
                                     <span class="text-sm font-semibold text-red-700"><?= formatCurrency($finance['balance_due'] ?? $totalAmount) ?></span>
                                 </div>
                                 <?php endif; ?>
                                 
                                 <div class="border-t-2 border-gray-400 pt-3">
                                     <div class="flex justify-between items-center py-3 px-3 bg-blue-50 rounded-lg">
-                                        <span class="text-lg font-bold text-gray-900">TOTAL AMOUNT:</span>
+                                        <span class="text-lg font-bold text-gray-900"><?= lang('Finance.totalAmountUpper') ?>:</span>
                                         <span class="text-xl font-bold text-blue-600"><?= formatCurrency($totalAmount) ?></span>
                                     </div>
                                 </div>
@@ -249,7 +249,7 @@
                 <?php if (!empty($payments)): ?>
                 <!-- Payment History -->
                 <div class="mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">PAYMENT HISTORY</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.paymentHistory') ?></h3>
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
@@ -290,7 +290,7 @@
                 <!-- Payment Information -->
                 <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <h4 class="text-sm font-bold text-gray-700 mb-2">PAYMENT METHOD</h4>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.paymentMethodUpper') ?></h4>
                         <p class="text-sm text-gray-600"><?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
                     </div>
                     
@@ -300,7 +300,7 @@
                     </div>
                     
                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <h4 class="text-sm font-bold text-gray-700 mb-2">PAYMENT STATUS</h4>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.paymentStatusUpper') ?></h4>
                         <p class="text-sm text-gray-600"><?= ucfirst($finance['payment_status']) ?></p>
                     </div>
                 </div>
@@ -319,7 +319,7 @@
                 <div class="border-t-2 border-gray-400 pt-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-3">PAYMENT INSTRUCTIONS</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-3"><?= lang('Finance.paymentInstructions') ?></h4>
                             <div class="text-xs text-gray-600 space-y-1">
                                 <p>• Payment is due within 30 days of invoice date</p>
                                 <p>• Late payments may incur additional charges</p>
@@ -327,9 +327,9 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <h4 class="text-sm font-bold text-gray-700 mb-3">THANK YOU</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-3"><?= lang('Finance.thankYouUpper') ?></h4>
                             <p class="text-xs text-gray-600 mb-1">We appreciate your business and look forward to serving you again.</p>
-                            <p class="text-xs text-gray-500">Invoice generated on <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
+                            <p class="text-xs text-gray-500"><?= lang('Finance.invoiceGeneratedOn') ?> <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                         </div>
                     </div>
                 </div>

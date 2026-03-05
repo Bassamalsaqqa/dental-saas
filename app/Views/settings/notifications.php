@@ -4,8 +4,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Notification Preferences</h1>
-            <p class="text-gray-600 mt-1">Manage your personal notification settings for this clinic.</p>
+            <h1 class="text-3xl font-bold text-gray-900"><?= lang('TenantMisc.notificationPreferences') ?></h1>
+            <p class="text-gray-600 mt-1"><?= lang('TenantMisc.notificationPreferencesDesc') ?></p>
         </div>
     </div>
 
@@ -16,11 +16,11 @@
             <!-- System Notifications -->
             <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-bell text-blue-500 mr-2"></i> System Alerts
+                    <i class="fas fa-bell text-blue-500 mr-2"></i> <?= lang('TenantMisc.systemAlerts') ?>
                 </h3>
                 <div class="space-y-4">
                     <label class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                        <span class="text-gray-700 font-medium">Email Notifications</span>
+                        <span class="text-gray-700 font-medium"><?= lang('TenantMisc.emailNotifications') ?></span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="preferences[email_notifications]" id="email_notifications" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-blue-600" value="1" <?= ($notification_settings['email_notifications'] ?? true) ? 'checked' : '' ?>/>
                             <label for="email_notifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
@@ -28,7 +28,7 @@
                     </label>
 
                     <label class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                        <span class="text-gray-700 font-medium">SMS Notifications</span>
+                        <span class="text-gray-700 font-medium"><?= lang('TenantMisc.smsNotifications') ?></span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="preferences[sms_notifications]" id="sms_notifications" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-blue-600" value="1" <?= ($notification_settings['sms_notifications'] ?? false) ? 'checked' : '' ?>/>
                             <label for="sms_notifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
@@ -40,11 +40,11 @@
             <!-- Operational Alerts -->
             <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-tasks text-green-500 mr-2"></i> Operational Alerts
+                    <i class="fas fa-tasks text-green-500 mr-2"></i> <?= lang('TenantMisc.operationalAlerts') ?>
                 </h3>
                 <div class="space-y-4">
                      <label class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                        <span class="text-gray-700 font-medium">New Appointment Created</span>
+                        <span class="text-gray-700 font-medium"><?= lang('TenantMisc.newAppointmentCreated') ?></span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="preferences[appointment_created]" id="appointment_created" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-blue-600" value="1" <?= ($notification_settings['appointment_created'] ?? true) ? 'checked' : '' ?>/>
                             <label for="appointment_created" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
@@ -52,7 +52,7 @@
                     </label>
 
                     <label class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                        <span class="text-gray-700 font-medium">Low Stock Alerts</span>
+                        <span class="text-gray-700 font-medium"><?= lang('TenantMisc.lowStockAlerts') ?></span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="preferences[low_stock_alerts]" id="low_stock_alerts" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:translate-x-full checked:border-blue-600" value="1" <?= ($notification_settings['low_stock_alerts'] ?? true) ? 'checked' : '' ?>/>
                             <label for="low_stock_alerts" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
@@ -63,7 +63,7 @@
 
             <div class="flex justify-end pt-6 border-t border-gray-100">
                 <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
-                    Save Preferences
+                    <?= lang('TenantMisc.savePreferences') ?>
                 </button>
             </div>
         </form>

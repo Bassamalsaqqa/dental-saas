@@ -6,15 +6,15 @@
     <!-- Page Header -->
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
         <div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-3">Appointment Calendar</h1>
-            <p class="text-gray-600 text-lg">View and manage appointments in calendar format</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= esc(lang('UI.appointmentCalendarTitle')) ?></h1>
+            <p class="text-gray-600 text-lg"><?= esc(lang('UI.appointmentCalendarSubtitle')) ?></p>
         </div>
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <a href="<?= base_url('appointment') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                <i class="fas fa-list mr-2"></i>List View
+                <i class="fas fa-list mr-2"></i><?= esc(lang('UI.appointmentListView')) ?>
             </a>
             <a href="<?= base_url('appointment/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                <i class="fas fa-plus mr-2"></i>New Appointment
+                <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.appointmentNew')) ?>
             </a>
         </div>
     </div>
@@ -24,13 +24,13 @@
         <div class="p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Calendar View</h3>
-                    <p class="text-sm text-gray-600">Click on any date to view or create appointments</p>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= esc(lang('UI.appointmentCalendarView')) ?></h3>
+                    <p class="text-sm text-gray-600"><?= esc(lang('UI.appointmentCalendarHint')) ?></p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div id="loading-indicator" class="hidden flex items-center space-x-2 text-blue-600">
                         <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span class="text-sm">Loading appointments...</span>
+                        <span class="text-sm"><?= esc(lang('UI.appointmentLoadingAppointments')) ?></span>
                     </div>
                 </div>
             </div>
@@ -43,29 +43,29 @@
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
         <div class="p-6">
             <div class="mb-4">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">Status Legend</h3>
-                <p class="text-sm text-gray-600">Appointment status color coding</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-2"><?= esc(lang('UI.appointmentStatusLegend')) ?></h3>
+                <p class="text-sm text-gray-600"><?= esc(lang('UI.appointmentStatusLegendHint')) ?></p>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span class="text-sm text-gray-600">Scheduled</span>
+                    <span class="text-sm text-gray-600"><?= esc(lang('UI.appointmentStatusScheduled')) ?></span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-green-500 rounded"></div>
-                    <span class="text-sm text-gray-600">Confirmed</span>
+                    <span class="text-sm text-gray-600"><?= esc(lang('UI.appointmentStatusConfirmed')) ?></span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-gray-500 rounded"></div>
-                    <span class="text-sm text-gray-600">Completed</span>
+                    <span class="text-sm text-gray-600"><?= esc(lang('UI.dashboardCompleted')) ?></span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-red-500 rounded"></div>
-                    <span class="text-sm text-gray-600">Cancelled</span>
+                    <span class="text-sm text-gray-600"><?= esc(lang('UI.appointmentStatusCancelled')) ?></span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-yellow-500 rounded"></div>
-                    <span class="text-sm text-gray-600">No Show</span>
+                    <span class="text-sm text-gray-600"><?= esc(lang('UI.appointmentStatusNoShow')) ?></span>
                 </div>
             </div>
         </div>
@@ -82,6 +82,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const appointmentI18n = {
+        loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
+        statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>'
+    };
     
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -152,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error loading calendar events:', error);
                 
                 // Show error message
-                showError('Failed to load appointments. Please try again.');
+                showError(appointmentI18n.loadFailed);
                 
                 failureCallback(error);
             })
@@ -174,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDidMount: function(info) {
             // Add tooltip with appointment details
             const event = info.event;
-            const tooltip = `${event.title}\nStatus: ${event.extendedProps.status}\nClick to view details`;
+            const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
         height: 600,
