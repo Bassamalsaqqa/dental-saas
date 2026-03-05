@@ -605,6 +605,9 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('testWhatsAppChannel', 'Settings::testWhatsAppChannel', ['filter' => 'permission:settings:edit']);
 });
 
+// Quick UI language switch (tenant plane)
+$routes->post('language/switch', 'Settings::switchLanguage', ['filter' => ['auth', 'tenant', 'subscription']]);
+
 // --------------------------------------------------------------------
 // Control Plane Routes (RBAC & Platform Admin)
 // --------------------------------------------------------------------

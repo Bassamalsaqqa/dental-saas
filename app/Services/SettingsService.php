@@ -205,9 +205,9 @@ class SettingsService
         
         // Apply user's currency position preference
         if ($position === 'after') {
-            return $formattedAmount . ' ' . $symbol;
+            return $this->normalizeToLatinDigits($formattedAmount . ' ' . $symbol);
         } else {
-            return $symbol . $formattedAmount;
+            return $this->normalizeToLatinDigits($symbol . $formattedAmount);
         }
     }
 
@@ -234,7 +234,7 @@ class SettingsService
                 $date = new \DateTime($date);
             }
 
-            return $date->format($format);
+            return $this->normalizeToLatinDigits($date->format($format));
         } catch (\Exception $e) {
             log_message('error', 'Error formatting date: ' . $e->getMessage() . ' for date: ' . $date);
             return $date; // Return original value if formatting fails
@@ -270,7 +270,7 @@ class SettingsService
                 $time = new \DateTime($time);
             }
 
-            return $time->format($formatToUse);
+            return $this->normalizeToLatinDigits($time->format($formatToUse));
         } catch (\Exception $e) {
             log_message('error', 'Error formatting time: ' . $e->getMessage() . ' for time: ' . $time);
             return $time; // Return original value if formatting fails
@@ -290,11 +290,24 @@ class SettingsService
             $dateFormatted = $this->formatDate($datetime, $dateFormat);
             $timeFormatted = $this->formatTime($datetime, $timeFormat);
 
-            return $dateFormatted . ' ' . $timeFormatted;
+            return $this->normalizeToLatinDigits($dateFormatted . ' ' . $timeFormatted);
         } catch (\Exception $e) {
             log_message('error', 'Error formatting datetime: ' . $e->getMessage() . ' for datetime: ' . $datetime);
             return $datetime; // Return original value if formatting fails
         }
+    }
+
+    /**
+     * Force Western numerals (0-9) even in Arabic UI.
+     */
+    private function normalizeToLatinDigits(string $value): string
+    {
+        return strtr($value, [
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+        ]);
     }
 
     /**

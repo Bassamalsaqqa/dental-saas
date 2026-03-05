@@ -28,7 +28,7 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Patients</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTotalPatients') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-blue-900">
                                     <?= $stats['total_patients'] ?? 0 ?>
@@ -37,7 +37,7 @@
                                     <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardVsLastMonth') ?></p>
                         </div>
                     </div>
                 </div>
@@ -56,11 +56,11 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-calendar text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm">Today</span>
+                                <span class="text-blue-700 font-bold text-sm"><?= lang('UI.dashboardToday') ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Today's Examinations</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayExaminations') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-emerald-900">
                                     <?= $stats['today_examinations'] ?? 0 ?>
@@ -88,11 +88,11 @@
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 rounded-full border border-amber-200">
                                 <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-clock text-amber-600 text-sm"></i>
-                                <span class="text-amber-700 font-bold text-sm">Scheduled</span>
+                                <span class="text-amber-700 font-bold text-sm"><?= lang('UI.dashboardScheduled') ?></span>
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Today's Appointments</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayAppointments') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-amber-900">
                                     <?= $stats['today_appointments'] ?? 0 ?>
@@ -101,7 +101,7 @@
                                     <div class="w-4/5 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Appointments</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('UI.menuAppointments') ?></p>
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Revenue</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTotalRevenue') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-purple-900">
                                     <?= formatCurrencyAbbreviated($stats['total_revenue'] ?? 0) ?>
@@ -133,7 +133,7 @@
                                     <div class="w-5/6 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">vs last month</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardVsLastMonth') ?></p>
                         </div>
                     </div>
                 </div>
@@ -152,14 +152,14 @@
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-xl font-black text-gray-900">
-                                        Monthly Revenue
+                                        <?= lang('UI.dashboardMonthlyRevenue') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium text-sm">Revenue trends over the past 6 months</p>
+                                <p class="text-gray-600 font-medium text-sm"><?= lang('UI.dashboardRevenueTrends') ?></p>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-2 rounded-xl border border-blue-200">
                                 <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
-                                <span class="text-blue-700 font-bold text-xs">Revenue</span>
+                                <span class="text-blue-700 font-bold text-xs"><?= lang('UI.dashboardRevenue') ?></span>
                             </div>
                         </div>
                         <div class="relative h-64 p-6 pt-0 flex-1">
@@ -178,14 +178,14 @@
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-2xl font-black text-gray-900">
-                                        Treatment Distribution
+                                        <?= lang('UI.dashboardTreatmentDistribution') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium">Breakdown of treatment types</p>
+                                <p class="text-gray-600 font-medium"><?= lang('UI.dashboardTreatmentBreakdown') ?></p>
                             </div>
                             <div class="text-right bg-gradient-to-r from-emerald-50 to-cyan-50 px-6 py-4 rounded-2xl border border-emerald-200">
                                 <p class="text-3xl font-black text-emerald-900">100%</p>
-                                <p class="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Total Treatments</p>
+                                <p class="text-xs text-emerald-600 font-semibold uppercase tracking-wider"><?= lang('UI.dashboardTotalTreatments') ?></p>
                             </div>
                         </div>
                         <div class="relative h-80 p-6 pt-0 flex-1">
@@ -209,13 +209,13 @@
                                 <div class="flex items-center space-x-2">
                                     <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-lg font-black text-gray-900">
-                                        Recent Patients
+                                        <?= lang('UI.dashboardRecentPatients') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium text-xs">Latest patient registrations</p>
+                                <p class="text-gray-600 font-medium text-xs"><?= lang('UI.dashboardLatestPatientRegistrations') ?></p>
                             </div>
                             <a href="<?= base_url('patient') ?>" class="group/link relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 text-sm font-semibold rounded-2xl border border-blue-200 hover:border-blue-300 transition-all duration-200 hover:scale-105">
-                                <span class="relative z-10">View All</span>
+                                <span class="relative z-10"><?= lang('UI.dashboardViewAll') ?></span>
                                 <i class="fas fa-arrow-right ml-2 text-xs relative z-10 group-hover/link:translate-x-1 transition-transform duration-300"></i>
                             </a>
             </div>
@@ -233,7 +233,7 @@
                                             <p class="text-sm font-bold text-gray-900 truncate group-hover/item:text-blue-900 transition-colors duration-300">
                                                 <?= $patient['first_name'] . ' ' . $patient['last_name'] ?>
                                             </p>
-                                            <p class="text-xs text-gray-500 font-medium">ID: <?= $patient['patient_id'] ?></p>
+                                            <p class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardPatientId') ?>: <?= $patient['patient_id'] ?></p>
                                         </div>
                                         <div class="text-right space-y-1">
                                             <span class="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full font-semibold">
@@ -241,7 +241,7 @@
                                             </span>
                                             <div class="flex items-center justify-end space-x-1">
                                                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                                                <span class="text-xs text-green-600 font-semibold">Active</span>
+                                                <span class="text-xs text-green-600 font-semibold"><?= lang('UI.dashboardActive') ?></span>
                                             </div>
                                         </div>
                                     </a>
@@ -251,7 +251,7 @@
                                     <div class="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-transform duration-300">
                                         <i class="fas fa-users text-gray-400 text-3xl"></i>
                                     </div>
-                                    <p class="text-gray-500 text-base font-medium">No recent patients</p>
+                                    <p class="text-gray-500 text-base font-medium"><?= lang('UI.dashboardNoRecentPatients') ?></p>
             </div>
                             <?php endif; ?>
         </div>
@@ -267,13 +267,13 @@
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-2xl font-black text-gray-900">
-                                        Upcoming Appointments
+                                        <?= lang('UI.dashboardUpcomingAppointments') ?>
                                     </h3>
                 </div>
-                                <p class="text-gray-600 font-medium">Today's scheduled appointments</p>
+                                <p class="text-gray-600 font-medium"><?= lang('UI.dashboardTodayScheduledAppointments') ?></p>
                             </div>
                             <a href="<?= base_url('appointment') ?>" class="group/link relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-700 hover:text-amber-800 text-sm font-semibold rounded-2xl border border-amber-200 hover:border-amber-300 transition-all duration-200 hover:scale-105">
-                                <span class="relative z-10">View All</span>
+                                <span class="relative z-10"><?= lang('UI.dashboardViewAll') ?></span>
                                 <i class="fas fa-arrow-right ml-2 text-xs relative z-10 group-hover/link:translate-x-1 transition-transform duration-300"></i>
                             </a>
                         </div>
@@ -304,7 +304,7 @@
                                     <div class="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-transform duration-300">
                                         <i class="fas fa-calendar text-gray-400 text-3xl"></i>
                                     </div>
-                                    <p class="text-gray-500 text-base font-medium">No upcoming appointments</p>
+                                    <p class="text-gray-500 text-base font-medium"><?= lang('UI.dashboardNoUpcomingAppointments') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -320,13 +320,13 @@
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full animate-pulse"></div>
                                     <h3 class="text-2xl font-black text-gray-900">
-                                        Recent Examinations
+                                        <?= lang('UI.dashboardRecentExaminations') ?>
                                     </h3>
                             </div>
-                                <p class="text-gray-600 font-medium">Latest patient examinations</p>
+                                <p class="text-gray-600 font-medium"><?= lang('UI.dashboardLatestPatientExaminations') ?></p>
                             </div>
                             <a href="<?= base_url('examination') ?>" class="group/link relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-50 to-cyan-50 hover:from-emerald-100 hover:to-cyan-100 text-emerald-700 hover:text-emerald-800 text-sm font-semibold rounded-2xl border border-emerald-200 hover:border-emerald-300 transition-all duration-200 hover:scale-105">
-                                <span class="relative z-10">View All</span>
+                                <span class="relative z-10"><?= lang('UI.dashboardViewAll') ?></span>
                                 <i class="fas fa-arrow-right ml-2 text-xs relative z-10 group-hover/link:translate-x-1 transition-transform duration-300"></i>
                             </a>
                         </div>
@@ -352,7 +352,7 @@
                                             </span>
                                             <div class="flex items-center justify-end space-x-1">
                                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                                <span class="text-xs text-green-600 font-semibold">Completed</span>
+                                                <span class="text-xs text-green-600 font-semibold"><?= lang('UI.dashboardCompleted') ?></span>
                                             </div>
                                         </div>
                                     </a>
@@ -362,7 +362,7 @@
                                     <div class="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-transform duration-300">
                                         <i class="fas fa-stethoscope text-gray-400 text-3xl"></i>
                                     </div>
-                                    <p class="text-gray-500 text-base font-medium">No recent examinations</p>
+                                    <p class="text-gray-500 text-base font-medium"><?= lang('UI.dashboardNoRecentExaminations') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -381,10 +381,10 @@
                             <div class="flex items-center space-x-2">
                                 <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
                                 <h3 class="text-lg font-black text-gray-900">
-                                    Quick Actions
+                                    <?= lang('UI.dashboardQuickActions') ?>
                                 </h3>
                             </div>
-                            <p class="text-gray-600 font-medium text-xs">Common tasks and shortcuts for efficient workflow</p>
+                            <p class="text-gray-600 font-medium text-xs"><?= lang('UI.dashboardQuickActionsDesc') ?></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 pt-0">
@@ -395,8 +395,8 @@
                                 <i class="fas fa-user-plus text-lg text-white"></i>
                             </div>
                             <div class="relative z-10 text-center space-y-1">
-                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-blue-900 transition-colors duration-300">Add Patient</span>
-                                <span class="text-xs text-gray-500 font-medium">Register new patient</span>
+                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-blue-900 transition-colors duration-300"><?= lang('UI.dashboardAddPatient') ?></span>
+                                <span class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardRegisterNewPatient') ?></span>
                             </div>
                         </a>
 
@@ -407,8 +407,8 @@
                                 <i class="fas fa-stethoscope text-lg text-white"></i>
                             </div>
                             <div class="relative z-10 text-center space-y-1">
-                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-emerald-900 transition-colors duration-300">New Examination</span>
-                                <span class="text-xs text-gray-500 font-medium">Start examination</span>
+                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-emerald-900 transition-colors duration-300"><?= lang('UI.dashboardNewExamination') ?></span>
+                                <span class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardStartExamination') ?></span>
                             </div>
                         </a>
 
@@ -419,8 +419,8 @@
                                 <i class="fas fa-calendar-plus text-lg text-white"></i>
                             </div>
                             <div class="relative z-10 text-center space-y-1">
-                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-amber-900 transition-colors duration-300">Book Appointment</span>
-                                <span class="text-xs text-gray-500 font-medium">Schedule visit</span>
+                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-amber-900 transition-colors duration-300"><?= lang('UI.dashboardBookAppointment') ?></span>
+                                <span class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardScheduleVisit') ?></span>
                             </div>
                         </a>
 
@@ -431,8 +431,8 @@
                                 <i class="fas fa-receipt text-lg text-white"></i>
                             </div>
                             <div class="relative z-10 text-center space-y-1">
-                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-purple-900 transition-colors duration-300">Create Invoice</span>
-                                <span class="text-xs text-gray-500 font-medium">Generate billing</span>
+                                <span class="text-sm font-bold text-gray-900 group-hover/action:text-purple-900 transition-colors duration-300"><?= lang('UI.dashboardCreateInvoice') ?></span>
+                                <span class="text-xs text-gray-500 font-medium"><?= lang('UI.dashboardGenerateBilling') ?></span>
                             </div>
                         </a>
                     </div>
@@ -444,6 +444,30 @@
 </div>
 
 <script>
+const dashboardI18n = {
+    revenue: '<?= esc(lang('UI.dashboardRevenue'), 'js') ?>',
+    monthJan: '<?= esc(lang('UI.monthJan'), 'js') ?>',
+    monthFeb: '<?= esc(lang('UI.monthFeb'), 'js') ?>',
+    monthMar: '<?= esc(lang('UI.monthMar'), 'js') ?>',
+    monthApr: '<?= esc(lang('UI.monthApr'), 'js') ?>',
+    monthMay: '<?= esc(lang('UI.monthMay'), 'js') ?>',
+    monthJun: '<?= esc(lang('UI.monthJun'), 'js') ?>',
+    monthJul: '<?= esc(lang('UI.monthJul'), 'js') ?>',
+    monthAug: '<?= esc(lang('UI.monthAug'), 'js') ?>',
+    monthSep: '<?= esc(lang('UI.monthSep'), 'js') ?>',
+    monthOct: '<?= esc(lang('UI.monthOct'), 'js') ?>',
+    monthNov: '<?= esc(lang('UI.monthNov'), 'js') ?>',
+    monthDec: '<?= esc(lang('UI.monthDec'), 'js') ?>',
+    treatCleaning: '<?= esc(lang('UI.treatCleaning'), 'js') ?>',
+    treatExtraction: '<?= esc(lang('UI.treatExtraction'), 'js') ?>',
+    treatFilling: '<?= esc(lang('UI.treatFilling'), 'js') ?>',
+    treatCrown: '<?= esc(lang('UI.treatCrown'), 'js') ?>',
+    treatRootCanal: '<?= esc(lang('UI.treatRootCanal'), 'js') ?>',
+    treatOrthodontic: '<?= esc(lang('UI.treatOrthodontic'), 'js') ?>',
+    treatImplant: '<?= esc(lang('UI.treatImplant'), 'js') ?>',
+    treatOther: '<?= esc(lang('UI.treatOther'), 'js') ?>'
+};
+
 // Revenue Chart
 const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 fetch('<?= base_url('dashboard/chart-data') ?>')
@@ -456,7 +480,7 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
     })
     .then(data => {
         console.log('Chart data received:', data);
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [dashboardI18n.monthJan, dashboardI18n.monthFeb, dashboardI18n.monthMar, dashboardI18n.monthApr, dashboardI18n.monthMay, dashboardI18n.monthJun, dashboardI18n.monthJul, dashboardI18n.monthAug, dashboardI18n.monthSep, dashboardI18n.monthOct, dashboardI18n.monthNov, dashboardI18n.monthDec];
         const revenueData = new Array(12).fill(0);
         
         // Map the monthly revenue data
@@ -476,7 +500,7 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
             data: {
                 labels: months,
                 datasets: [{
-                    label: 'Revenue',
+                    label: dashboardI18n.revenue,
                     data: revenueData,
                     borderColor: '#0284c7',
                     backgroundColor: 'rgba(2, 132, 199, 0.1)',
@@ -512,9 +536,9 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
         const revenueChart = new Chart(revenueCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                labels: [dashboardI18n.monthJan, dashboardI18n.monthFeb, dashboardI18n.monthMar, dashboardI18n.monthApr, dashboardI18n.monthMay, dashboardI18n.monthJun, dashboardI18n.monthJul, dashboardI18n.monthAug, dashboardI18n.monthSep, dashboardI18n.monthOct, dashboardI18n.monthNov, dashboardI18n.monthDec],
                 datasets: [{
-                    label: 'Revenue',
+                    label: dashboardI18n.revenue,
                     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     borderColor: '#0284c7',
                     backgroundColor: 'rgba(2, 132, 199, 0.1)',
@@ -559,7 +583,7 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
         const treatmentChart = new Chart(treatmentCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Cleaning', 'Extraction', 'Filling', 'Crown', 'Root Canal', 'Orthodontic', 'Implant', 'Other'],
+                labels: [dashboardI18n.treatCleaning, dashboardI18n.treatExtraction, dashboardI18n.treatFilling, dashboardI18n.treatCrown, dashboardI18n.treatRootCanal, dashboardI18n.treatOrthodontic, dashboardI18n.treatImplant, dashboardI18n.treatOther],
                 datasets: [{
                     data: data.treatment_types ? data.treatment_types.map(item => item.count || 0) : [0, 0, 0, 0, 0, 0, 0, 0],
                     backgroundColor: [
@@ -591,7 +615,7 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
         const treatmentChart = new Chart(treatmentCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Cleaning', 'Extraction', 'Filling', 'Crown', 'Root Canal', 'Orthodontic', 'Implant', 'Other'],
+                labels: [dashboardI18n.treatCleaning, dashboardI18n.treatExtraction, dashboardI18n.treatFilling, dashboardI18n.treatCrown, dashboardI18n.treatRootCanal, dashboardI18n.treatOrthodontic, dashboardI18n.treatImplant, dashboardI18n.treatOther],
                 datasets: [{
                     data: [0, 0, 0, 0, 0, 0, 0, 0],
                     backgroundColor: [
@@ -624,7 +648,7 @@ fetch('<?= base_url('dashboard/chart-data') ?>')
         const treatmentChart = new Chart(treatmentCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Cleaning', 'Extraction', 'Filling', 'Crown', 'Root Canal', 'Orthodontic', 'Implant', 'Other'],
+                labels: [dashboardI18n.treatCleaning, dashboardI18n.treatExtraction, dashboardI18n.treatFilling, dashboardI18n.treatCrown, dashboardI18n.treatRootCanal, dashboardI18n.treatOrthodontic, dashboardI18n.treatImplant, dashboardI18n.treatOther],
                 datasets: [{
                     data: [0, 0, 0, 0, 0, 0, 0, 0],
                     backgroundColor: [

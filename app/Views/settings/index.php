@@ -83,16 +83,16 @@
                     <i class="fas fa-cog text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">System Settings</h1>
-                    <p class="text-gray-600">Configure your dental management system</p>
+                    <h1 class="text-3xl font-bold text-gray-900"><?= lang('UI.systemSettings') ?></h1>
+                    <p class="text-gray-600"><?= lang('UI.settingsConfigureSystem') ?></p>
                 </div>
             </div>
         </div>
 
         <nav class="mb-4 flex items-center space-x-1 text-sm text-gray-500" id="settings-breadcrumb">
-            <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors">Home</a>
+            <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
-            <span class="text-gray-700 font-medium">Settings</span>
+            <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
             <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-2" style="display:none"></i>
             <span id="breadcrumb-tab" class="text-gray-900 font-semibold"></span>
             <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-3" style="display:none"></i>
@@ -104,31 +104,31 @@
             <!-- Left Sidebar -->
             <div class="lg:w-80 flex-shrink-0">
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 p-6 sticky top-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-6"><?= lang('UI.settingsMenu') ?></h3>
                     <nav class="space-y-2">
                         <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-building w-5 h-5 mr-3"></i> Clinic Profile
+                            <i class="fas fa-building w-5 h-5 mr-3"></i> <?= lang('UI.settingsClinicProfile') ?>
                         </button>
                         <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i> Subscription
+                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i> <?= lang('UI.settingsSubscription') ?>
                         </button>
                         <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-cog w-5 h-5 mr-3"></i> System
+                            <i class="fas fa-cog w-5 h-5 mr-3"></i> <?= lang('UI.settingsSystemTab') ?>
                         </button>
                         <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-clock w-5 h-5 mr-3"></i> Operations
+                            <i class="fas fa-clock w-5 h-5 mr-3"></i> <?= lang('UI.settingsOperations') ?>
                         </button>
                         <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> Kiosk
+                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> <?= lang('UI.settingsKiosk') ?>
                         </button>
                         <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-database w-5 h-5 mr-3"></i> Backup &amp; Restore
+                            <i class="fas fa-database w-5 h-5 mr-3"></i> <?= lang('UI.settingsBackupRestore') ?>
                         </button>
                         
                         <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
-                            <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
+                            <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><?= lang('UI.settingsCommunications') ?></h4>
                             <button onclick="showSettingsTab('communications')" id="tab-communications" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> Communications
+                                <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> <?= lang('UI.settingsCommunications') ?>
                             </button>
                         </div>
 

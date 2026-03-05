@@ -134,6 +134,16 @@
         [dir="rtl"] #main-header i.mr-4, [dir="rtl"] #main-content i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
         [dir="rtl"] #main-header i.mr-5, [dir="rtl"] #main-content i.mr-5 { margin-right: 0 !important; margin-left: 1.25rem !important; }
         [dir="rtl"] #main-header i.mr-6, [dir="rtl"] #main-content i.mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
+        /* Keep technical fields LTR in RTL locales */
+        [dir="rtl"] input[type="tel"],
+        [dir="rtl"] input[type="email"],
+        [dir="rtl"] input[type="url"],
+        [dir="rtl"] input[data-force-ltr="1"],
+        [dir="rtl"] textarea[data-force-ltr="1"] {
+            direction: ltr !important;
+            text-align: left !important;
+            unicode-bidi: plaintext;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -406,6 +416,15 @@
                 
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center space-x-4" id="header-right">
+                    <form action="<?= base_url('language/switch') ?>" method="post" class="flex items-center space-x-2">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="return_to" value="<?= esc(current_url(true)->__toString()) ?>">
+                        <label for="quick-language-switch" class="text-xs text-gray-500 font-semibold whitespace-nowrap"><?= lang('UI.settingsLanguage') ?></label>
+                        <select id="quick-language-switch" name="ui_language" onchange="this.form.submit()" class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white/80 text-gray-700">
+                            <option value="en" <?= (($locale ?? 'en') === 'en') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageEn') ?></option>
+                            <option value="ar" <?= (($locale ?? 'en') === 'ar') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageAr') ?></option>
+                        </select>
+                    </form>
                     <?php if (session()->get('is_impersonating')): ?>
                     <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
                         <?= csrf_field() ?>

@@ -277,6 +277,33 @@ class Settings extends BaseController
         }
     }
 
+    /**
+     * Quick language switch from header.
+     * Updates session locale immediately and persists per-clinic setting when available.
+     */
+    public function switchLanguage()
+    {
+        $locale = strtolower(trim((string) $this->request->getPost('ui_language')));
+        if (!in_array($locale, ['en', 'ar'], true)) {
+            return redirect()->back()->with('error', 'Invalid language selection.');
+        }
+
+        session()->set('ui_locale', $locale);
+
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId > 0) {
+            $this->saveSettings(['ui_language' => $locale]);
+            $this->settingsService->reloadSettings();
+        }
+
+        $returnTo = trim((string) $this->request->getPost('return_to'));
+        if ($returnTo !== '') {
+            return redirect()->to($returnTo);
+        }
+
+        return redirect()->back();
+    }
+
     public function updateWorkingHours()
     {
         $maxChairCount = $this->getMaxBookingChairs();
