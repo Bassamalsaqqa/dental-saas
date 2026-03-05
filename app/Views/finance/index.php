@@ -198,7 +198,7 @@ $returnToContextEncoded = urlencode($returnToContext);
 }
 </style>
 
-<!-- Enhanced Finance Management with Advanced Design -->
+<!-- Enhanced <?= lang('Finance.financeManagement') ?> with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -217,8 +217,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-dollar-sign text-xl"></i>
                                 </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Finance Management</h1>
-                            <p class="text-gray-600">Manage financial transactions and billing</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
+                            <p class="text-gray-600"><?= lang('Finance.financeManagementHelp') ?></p>
                             </div>
                             </div>
                     <div class="flex items-center space-x-3">
@@ -248,7 +248,7 @@ $returnToContextEncoded = urlencode($returnToContext);
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                <!-- Gross Collections Card -->
+                <!-- <?= lang('Finance.grossCollections') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -266,7 +266,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Gross Collections</p>
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.grossCollections') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-3xl font-black text-green-900" id="totalRevenue">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -275,12 +275,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Patient-side collections</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.patient') ?>-side collections</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Provider Payable Card -->
+                <!-- <?= lang('Finance.providerPayable') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-yellow-500/10 group-hover:shadow-yellow-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -294,11 +294,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full border border-yellow-200">
                                 <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
-                                <span class="text-yellow-700 font-bold text-sm">Pending</span>
+                                <span class="text-yellow-700 font-bold text-sm"><?= lang('Finance.pending') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Provider Payable</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.providerPayable') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-yellow-900" id="pendingPayments">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -307,12 +307,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-3/4 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Outstanding to providers</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.outstandingToProviders') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Net Clinic Revenue Card -->
+                <!-- <?= lang('Finance.netClinicRevenue') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -326,11 +326,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-calendar text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm">This Month</span>
+                                <span class="text-blue-700 font-bold text-sm"><?= lang('Finance.thisMonth') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Net Clinic Revenue</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netClinicRevenue') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-blue-900" id="monthlyIncome">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -339,12 +339,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">After provider split</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.afterProviderSplit') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Outstanding Invoices Card -->
+                <!-- <?= lang('Finance.outstandingInvoices') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-pink-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 group-hover:shadow-red-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -358,11 +358,11 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-pink-100 px-4 py-2 rounded-full border border-red-200">
                                 <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                                 <i class="fas fa-exclamation-triangle text-red-600 text-sm"></i>
-                                <span class="text-red-700 font-bold text-sm">Overdue</span>
+                                <span class="text-red-700 font-bold text-sm"><?= lang('Finance.overdue') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Outstanding Invoices</p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.outstandingInvoices') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-red-900" id="outstandingInvoices">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -371,7 +371,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Need attention</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.needAttention') ?></p>
                         </div>
                     </div>
                 </div>
@@ -387,7 +387,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Financial Transactions</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= lang('Finance.financialTransactions') ?></h3>
                                 </div>
                                 <div class="flex items-center space-x-3">
                             <!-- Export Buttons -->
@@ -416,43 +416,43 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-receipt text-green-600"></i>
-                                            <span>Transaction ID</span>
+                                            <span><?= lang('Finance.transactionId') ?></span>
                             </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-user text-green-600"></i>
-                                            <span>Patient</span>
+                                            <span><?= lang('Finance.patient') ?></span>
                         </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-tag text-green-600"></i>
-                                            <span>Type</span>
+                                            <span><?= lang('Finance.type') ?></span>
                     </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-dollar-sign text-green-600"></i>
-                                            <span>Total</span>
+                                            <span><?= lang('Finance.total') ?></span>
                                 </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-info-circle text-green-600"></i>
-                                            <span>Status</span>
+                                            <span><?= lang('Finance.status') ?></span>
                             </div>
                                     </th>
                                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-calendar text-green-600"></i>
-                                            <span>Date</span>
+                                            <span><?= lang('Finance.date') ?></span>
                             </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-cogs text-green-600"></i>
-                                            <span>Actions</span>
+                                            <span><?= lang('Finance.actions') ?></span>
                         </div>
                                     </th>
                                 </tr>
@@ -463,7 +463,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                             <div class="flex items-center justify-center space-x-2">
                                                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                                                <span>Loading transactions...</span>
+                                                <span><?= lang('Finance.loadingTransactions') ?></span>
                                 </div>
                                         </td>
                                     </tr>
@@ -485,488 +485,34 @@ $returnToContextEncoded = urlencode($returnToContext);
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
-<script>
-// Global variables
-let transactionsTable;
-
-// Client-side currency formatting function
-function formatCurrency(amount) {
-    // Get currency symbol and position from server-side settings
-    const currencySymbol = '<?= $currency_symbol ?>';
-    const currencyPosition = '<?= $currency_position ?>';
-    
-    const formattedAmount = parseFloat(amount).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-    
-    // Apply currency position setting
-    if (currencyPosition === 'after') {
-        return formattedAmount + ' ' + currencySymbol;
-    } else {
-        return currencySymbol + formattedAmount;
-    }
-}
-
-// Client-side abbreviated currency formatting function
-function formatCurrencyAbbreviated(amount) {
-    const currencySymbol = '<?= $currency_symbol ?>';
-    const currencyPosition = '<?= $currency_position ?>';
-    
-    if (typeof amount !== 'number') {
-        amount = parseFloat(amount) || 0;
-    }
-    
-    let formattedAmount;
-    if (amount >= 1000000) {
-        formattedAmount = (amount / 1000000).toFixed(1) + 'M';
-    } else if (amount >= 1000) {
-        formattedAmount = (amount / 1000).toFixed(1) + 'k';
-    } else {
-        formattedAmount = Math.round(amount).toString();
-    }
-    
-    if (currencyPosition === 'after') {
-        return formattedAmount + ' ' + currencySymbol;
-    } else {
-        return currencySymbol + formattedAmount;
-    }
-}
-
-$(document).ready(function() {
-    // Initialize DataTable with server-side processing
-    transactionsTable = $('#transactionsTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '<?= base_url('finance/getFinancesData') ?>',
-            type: 'POST',
-            data: function(d) {
-                // Add CSRF token to body
-                d[window.csrfConfig.name] = window.getCsrfToken();
-                // Add any additional filters here if needed
-                return d;
-            },
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(window.csrfConfig.header, window.getCsrfToken());
-            },
-            complete: function(xhr) {
-                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
-                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
-                }
-            },
-            error: function(xhr, error, thrown) {
-                console.error('DataTables Ajax error:', {
-                    xhr: xhr,
-                    error: error,
-                    thrown: thrown,
-                    responseText: xhr.responseText,
-                    status: xhr.status,
-                    statusText: xhr.statusText
-                });
-                
-                // Refresh token on error too
-                if (xhr.responseJSON && xhr.responseJSON.csrf_token) {
-                    window.refreshCsrfToken(xhr.responseJSON.csrf_token);
-                }
-                
-                let errorMessage = 'Error loading data';
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.error) {
-                        errorMessage = response.error;
-                    }
-                } catch (e) {
-                    errorMessage = xhr.responseText || 'Unknown error';
-                }
-                
-                // Show error message
-                const tbody = document.getElementById('transactionsTableBody');
-                if (tbody) {
-                    const tr = document.createElement('tr');
-                    const td = document.createElement('td');
-                    td.setAttribute('colspan', '6');
-                    td.className = 'px-6 py-4 text-center text-red-500';
-                    
-                    const flexDiv = document.createElement('div');
-                    flexDiv.className = 'flex items-center justify-center space-x-2';
-                    
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-exclamation-triangle';
-                    
-                    const span = document.createElement('span');
-                    span.textContent = errorMessage;
-                    
-                    flexDiv.appendChild(icon);
-                    flexDiv.appendChild(span);
-                    td.appendChild(flexDiv);
-                    tr.appendChild(td);
-                    
-                    tbody.replaceChildren(tr);
-                }
-            }
-        },
-        columns: [
-            { 
-                data: 'transaction_id',
-                name: 'transaction_id',
-                render: function(data, type, row) {
-                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    const identityHtml = `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-receipt text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">Transaction ID</div>
-                            </div>
-                        </div>
-                    `;
-                    if (permissions.finance.view) {
-                        return `
-                            <a href="<?= base_url('finance') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-green-50/60 transition-colors duration-200 cursor-pointer">
-                                ${identityHtml}
-                            </a>
-                        `;
-                    }
-                    return identityHtml;
-                }
-            },
-            { 
-                data: 'patient_name',
-                name: 'patient_name',
-                render: function(data, type, row) {
-                    const isExpense = row.transaction_type === 'expense';
-                    const iconWrap = isExpense ? 'bg-rose-100' : 'bg-green-100';
-                    const icon = isExpense ? 'fas fa-building' : 'fas fa-user';
-                    const iconColor = isExpense ? 'text-rose-600' : 'text-green-600';
-                    const subtitle = isExpense
-                        ? (row.expense_category ? row.expense_category.replace(/_/g, ' ') : 'Expense payee')
-                        : (row.patient_id || 'No ID');
-                    return `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 ${iconWrap} rounded-lg flex items-center justify-center">
-                                <i class="${icon} ${iconColor} text-sm"></i>
-                        </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${subtitle}</div>
-                            </div>
-                        </div>
-                    `;
-                }
-            },
-            { 
-                data: 'transaction_type',
-                name: 'transaction_type',
-                render: function(data, type, row) {
-                    const typeColors = {
-                        'payment': 'bg-green-100 text-green-800',
-                        'invoice': 'bg-blue-100 text-blue-800',
-                        'refund': 'bg-red-100 text-red-800',
-                        'adjustment': 'bg-yellow-100 text-yellow-800',
-                        'expense': 'bg-rose-100 text-rose-800'
-                    };
-                    const typeIcons = {
-                        'payment': 'fas fa-credit-card',
-                        'invoice': 'fas fa-file-invoice',
-                        'refund': 'fas fa-undo',
-                        'adjustment': 'fas fa-adjust',
-                        'expense': 'fas fa-receipt'
-                    };
-                    const colorClass = typeColors[data] || 'bg-gray-100 text-gray-800';
-                    const iconClass = typeIcons[data] || 'fas fa-tag';
-                    
-                    return `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
-                            <i class="${iconClass} mr-1"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
-                        </span>
-                    `;
-                }
-            },
-            { 
-                data: 'amount',
-                name: 'amount',
-                render: function(data, type, row) {
-                    const isPositive = data >= 0;
-                    const colorClass = isPositive ? 'text-green-600' : 'text-red-600';
-                    const iconClass = isPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
-                    const originalLine = row.has_original_currency_delta
-                        ? `<div class="text-xs text-gray-500">${row.amount_original_formatted} @ ${parseFloat(row.exchange_rate || 1).toFixed(4)}</div>`
-                        : '';
-                    
-                    return `
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <i class="${iconClass} ${colorClass} text-xs"></i>
-                                <span class="text-sm font-medium ${colorClass}">${row.amount_formatted || formatCurrency(Math.abs(data))}</span>
-                            </div>
-                            ${originalLine}
-                        </div>
-                    `;
-                }
-            },
-            { 
-                data: 'payment_status',
-                name: 'payment_status',
-                render: function(data, type, row) {
-                    const statusColors = {
-                        'paid': 'bg-green-100 text-green-800',
-                        'pending': 'bg-yellow-100 text-yellow-800',
-                        'partial': 'bg-blue-100 text-blue-800',
-                        'overdue': 'bg-red-100 text-red-800',
-                        'cancelled': 'bg-gray-100 text-gray-800'
-                    };
-                    const statusIcons = {
-                        'paid': 'fas fa-check-circle',
-                        'pending': 'fas fa-clock',
-                        'partial': 'fas fa-adjust',
-                        'overdue': 'fas fa-exclamation-triangle',
-                        'cancelled': 'fas fa-times-circle'
-                    };
-                    const colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
-                    const iconClass = statusIcons[data] || 'fas fa-question-circle';
-                    
-                    return `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
-                            <i class="${iconClass} mr-1"></i>
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
-                    </span>
-                    `;
-                }
-            },
-            { 
-                data: 'created_at',
-                name: 'created_at',
-                render: function(data, type, row) {
-                    return `
-                    <div class="flex items-center space-x-2">
-                            <i class="fas fa-calendar text-green-600 text-xs"></i>
-                            <span class="text-sm text-gray-900">${row.created_at_formatted || data}</span>
-                    </div>
-    `;
-                }
-            },
-            { 
-                data: 'id',
-                name: 'actions',
-                orderable: false,
-                searchable: false,
-                render: function(data, type, row) {
-                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    let actions = '<div class="flex items-center space-x-2">';
-                    
-                    // View Transaction button
-                    if (permissions.finance.view) {
-                        actions += `
-                            <a href="<?= base_url('finance') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="View Transaction">
-                                <i class="fas fa-eye"></i>
-                            </a>`;
-                    }
-
-                    // View Invoice button
-                    if (permissions.finance.view && row.transaction_type === 'invoice') {
-                        actions += `
-                            <a href="<?= base_url('finance') ?>/${data}/invoice?return_to=${returnTo}" 
-                               class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="View Invoice">
-                                <i class="fas fa-file-invoice"></i>
-                            </a>`;
-                    }
-
-                    // Add Payment button (invoices only)
-                    if (permissions.finance.edit && row.transaction_type === 'invoice') {
-                        actions += `
-                            <a href="<?= base_url('finance') ?>/${data}?return_to=${returnTo}" 
-                               class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Add Payment">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </a>`;
-                    }
-                    
-                    // Edit button
-                    if (permissions.finance.edit) {
-                        actions += `
-                            <a href="<?= base_url('finance') ?>/${data}/edit?return_to=${returnTo}" 
-                               class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Transaction">
-                                <i class="fas fa-edit"></i>
-                            </a>`;
-                    }
-                    
-                    // Delete button
-                    if (permissions.finance.delete) {
-                        actions += `
-                            <button onclick="deleteTransaction(${data})" 
-                                    class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="Delete Transaction">
-                                <i class="fas fa-trash"></i>
-                            </button>`;
-                    }
-                    
-                    actions += '</div>';
-                    return actions;
-                }
-            }
+<?php
+$financeConfig = [
+    'urls' => [
+        'data' => base_url('finance/getFinancesData'),
+        'base' => base_url('finance'),
+        'stats' => base_url('finance/stats'),
+    ],
+    'i18n' => [
+        'transactionId' => lang('Finance.transactionId'),
+        'financialTransactionsReport' => lang('Finance.financialTransactions') . ' Report',
+        'loadingTransactions' => lang('Finance.loadingTransactions'),
+        'confirmDeleteTransaction' => lang('Finance.confirmDeleteTransaction'),
+    ],
+    'currency' => [
+        'symbol' => (string) $currency_symbol,
+        'position' => (string) $currency_position,
+    ],
+    'permissions' => [
+        'finance' => [
+            'view' => (bool) has_permission('finance', 'view'),
+            'edit' => (bool) has_permission('finance', 'edit'),
+            'delete' => (bool) has_permission('finance', 'delete'),
+            'create' => (bool) has_permission('finance', 'create'),
         ],
-        dom: 'B<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
-        pageLength: 10,
-        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-        order: [[0, 'desc']],
-        buttons: [
-            {
-                extend: 'pdf',
-                text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
-                className: 'btn-pdf',
-                title: 'Financial Transactions Report',
-                orientation: 'landscape',
-                pageSize: 'A4',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Date, Patient, Type, Amount, Status, Actions
-                }
-            },
-            {
-                extend: 'print',
-                text: '<i class="fas fa-print mr-2"></i>Print',
-                className: 'btn-print',
-                title: 'Financial Transactions Report',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Date, Patient, Type, Amount, Status, Actions
-                }
-            },
-            {
-                extend: 'csv',
-                text: '<i class="fas fa-file-csv mr-2"></i>CSV',
-                className: 'btn-csv',
-                title: 'Financial Transactions Report',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5] // Date, Patient, Type, Amount, Status, Actions
-                }
-            }
-        ],
-        language: {
-            processing: "Loading transactions...",
-            lengthMenu: "_MENU_",
-            zeroRecords: "No transactions found",
-            info: "Showing _START_ to _END_ of _TOTAL_ transactions",
-            infoEmpty: "No transactions available",
-            infoFiltered: "(filtered from _MAX_ total transactions)",
-            search: "",
-            searchPlaceholder: "Search transactions...",
-            paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
-            }
-        },
-        drawCallback: function(settings) {
-            // Re-initialize tooltips if the function exists
-            if (typeof $.fn.tooltip === 'function') {
-                $('[data-toggle="tooltip"]').tooltip();
-            }
-            // Apply custom styling after each draw
-            applyDataTablesStyling();
-        }
-    });
-
-    // Apply custom DataTables styling
-    function applyDataTablesStyling() {
-        // Style length selector
-        $('.dataTables_length select').addClass('focus:ring-green-500 focus:border-green-500');
-        
-        // Style search input
-        $('.dataTables_filter input').addClass('focus:ring-green-500 focus:border-green-500');
-        
-        // Style info text
-        $('.dataTables_info').addClass('text-gray-600');
-        
-        // Style pagination buttons
-        $('.dataTables_paginate .paginate_button').each(function() {
-            if ($(this).hasClass('current')) {
-                $(this).addClass('bg-green-600 border-green-600 text-white');
-        } else {
-                $(this).addClass('hover:bg-green-50 hover:border-green-300 hover:text-green-700');
-            }
-        });
-        
-        // Style processing indicator
-        $('.dataTables_processing').addClass('border-green-200 text-green-700');
-        
-        // Style labels
-        $('.dataTables_length label, .dataTables_filter label').addClass('text-gray-700 font-semibold');
-        
-        // Style icons
-        $('.dataTables_length i, .dataTables_filter i').addClass('text-green-600');
-    }
-
-    // Load statistics
-    loadFinanceStatistics();
-
-    // Search functionality
-    $('#searchInput').on('keyup', function() {
-        transactionsTable.search(this.value).draw();
-    });
-
-    // Status filter
-    $('#statusFilter').on('change', function() {
-        transactionsTable.draw();
-        });
-    });
-
-// Load finance statistics
-function loadFinanceStatistics() {
-    $.ajax({
-        url: '<?= base_url('finance/stats') ?>',
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            $('#totalRevenue').text(data.gross_collections_formatted ? formatCurrencyAbbreviated(data.gross_collections) : formatCurrencyAbbreviated(0));
-            $('#pendingPayments').text(data.provider_payable_outstanding_formatted ? formatCurrencyAbbreviated(data.provider_payable_outstanding) : formatCurrencyAbbreviated(0));
-            $('#monthlyIncome').text(data.net_clinic_revenue_formatted ? formatCurrencyAbbreviated(data.net_clinic_revenue) : formatCurrencyAbbreviated(0));
-            $('#outstandingInvoices').text(data.outstanding_invoices || 0);
-        },
-        error: function() {
-            $('#totalRevenue').text(formatCurrencyAbbreviated(0));
-            $('#pendingPayments').text(formatCurrencyAbbreviated(0));
-            $('#monthlyIncome').text(formatCurrencyAbbreviated(0));
-            $('#outstandingInvoices').text('0');
-        }
-    });
-}
-
-// Export functions
-function exportToPDF() {
-    if (transactionsTable) {
-        transactionsTable.button('.btn-pdf').trigger();
-    }
-}
-
-function printTransactions() {
-    if (transactionsTable) {
-        transactionsTable.button('.btn-print').trigger();
-    }
-}
-
-function exportToCSV() {
-    if (transactionsTable) {
-        transactionsTable.button('.btn-csv').trigger();
-    }
-}
-
-// Delete transaction function
-function deleteTransaction(transactionId) {
-    confirmDelete('<?= base_url('finance') ?>/' + transactionId, 'Are you sure you want to delete this transaction? This action cannot be undone.');
-}
-
-// Permissions object (you'll need to populate this from your backend)
-var permissions = {
-    finance: {
-        view: <?= has_permission('finance', 'view') ? 'true' : 'false' ?>,
-        edit: <?= has_permission('finance', 'edit') ? 'true' : 'false' ?>,
-        delete: <?= has_permission('finance', 'delete') ? 'true' : 'false' ?>,
-        create: <?= has_permission('finance', 'create') ? 'true' : 'false' ?>
-    }
-};
-</script>
+    ],
+];
+?>
+<script id="finance-page-config" type="application/json"><?= json_encode($financeConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+<script src="<?= base_url('assets/js/finance-index.js') ?>?v=<?= time() ?>"></script>
 
 <?= $this->endSection() ?>
