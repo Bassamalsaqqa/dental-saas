@@ -79,7 +79,7 @@
                                 </div>
                             </div>
                             <div class="p-8 space-y-6">
-                                <form action="<?= base_url('controlplane/settings/retention') ?>" method="POST" class="space-y-6">
+                                <form action="<?= base_url('controlplane/settings/retention') ?>" method="POST" class="space-y-6" data-settings-form="true" data-saving-label="Saving retention policy...">
                                     <?= csrf_field() ?>
                                     <?php $retentionMode = $settings['retention_mode'] ?? 'latest'; ?>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
                             <div class="p-8">
-                                <form action="<?= base_url('controlplane/settings/audit-retention') ?>" method="POST" class="space-y-6">
+                                <form action="<?= base_url('controlplane/settings/audit-retention') ?>" method="POST" class="space-y-6" data-settings-form="true" data-saving-label="Saving audit policy...">
                                     <?= csrf_field() ?>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Audit log retention window (days)</label>

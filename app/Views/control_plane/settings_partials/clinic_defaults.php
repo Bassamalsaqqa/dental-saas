@@ -1,4 +1,4 @@
-                    <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-8">
+                    <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-8" data-settings-form="true" data-saving-label="Saving defaults...">
                         <?= csrf_field() ?>
                         <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
                             <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">

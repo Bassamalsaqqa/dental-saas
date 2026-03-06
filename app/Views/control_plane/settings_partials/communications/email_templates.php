@@ -45,7 +45,7 @@
                                     <?php $editorTemplate = $activeTemplate ?? null; ?>
                                     <div class="border border-slate-200 rounded-xl p-4" id="template-editor">
                                         <h4 class="text-sm font-bold text-slate-800 mb-4"><?= $editorTemplate ? 'Edit Template' : 'Create Template' ?></h4>
-                                        <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-3">
+                                        <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-3" data-settings-form="true" data-saving-label="Saving template...">
                                             <?= csrf_field() ?>
                                             <div><label class="block text-xs font-bold text-slate-500 mb-1">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required></div>
                                             <div><label class="block text-xs font-bold text-slate-500 mb-1">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>

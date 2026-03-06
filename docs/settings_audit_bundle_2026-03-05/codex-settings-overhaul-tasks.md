@@ -131,7 +131,7 @@ Acceptance:
 ## Phase 2: Shared Interaction Contract
 
 ### Task 2.1: Standardize save-state behavior
-Status: `pending`
+Status: `completed`
 
 Scope:
 - define and apply consistent save/loading/error behavior

@@ -12,7 +12,7 @@
                             </div>
                         </div>
                         <div class="p-8">
-                            <form action="<?= base_url('controlplane/settings/platform') ?>" method="POST" class="space-y-6">
+                            <form action="<?= base_url('controlplane/settings/platform') ?>" method="POST" class="space-y-6" data-settings-form="true" data-saving-label="Saving profile...">
                                 <?= csrf_field() ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="md:col-span-2">

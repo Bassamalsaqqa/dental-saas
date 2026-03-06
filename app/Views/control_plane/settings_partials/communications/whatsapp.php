@@ -18,7 +18,7 @@
                                                     <code class="text-xs font-black text-blue-600"><?= esc($s['secret_key']) ?></code>
                                                     <span class="text-[10px] font-black <?= !empty($s['missing']) ? 'text-rose-600' : 'text-emerald-600' ?>"><?= !empty($s['missing']) ? 'MISSING' : 'READY' ?></span>
                                                 </div>
-                                                <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <form action="<?= base_url('controlplane/whatsapp/rotate-secret') ?>" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-3" data-settings-form="true" data-saving-label="Rotating key...">
                                                     <?= csrf_field() ?>
                                                     <input type="hidden" name="secret_key" value="<?= esc($s['secret_key']) ?>">
                                                     <div class="relative md:col-span-1">
@@ -54,7 +54,7 @@
                                                     <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="monthly_limit" value="<?= (int) $pol['monthly_limit'] ?>" class="w-24 px-2 py-1 border border-slate-300 rounded text-xs"></td>
                                                     <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="per_hour_limit" value="<?= (int) $pol['per_hour_limit'] ?>" class="w-20 px-2 py-1 border border-slate-300 rounded text-xs"></td>
                                                     <td class="px-4 py-3">
-                                                        <form id="policy-form-<?= (int) $pol['clinic_id'] ?>" action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post">
+                                                        <form id="policy-form-<?= (int) $pol['clinic_id'] ?>" action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" data-settings-form="true" data-saving-label="Saving policy...">
                                                             <?= csrf_field() ?>
                                                             <input type="hidden" name="clinic_id" value="<?= (int) $pol['clinic_id'] ?>">
                                                             <button type="submit" class="px-3 py-1.5 bg-slate-700 text-white rounded text-xs font-semibold">Save</button>

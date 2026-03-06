@@ -187,7 +187,58 @@ function toastMessage(type, message) {
         window.showToast(type === 'success' ? 'success' : 'error', type === 'success' ? 'Success' : 'Error', message);
         return;
     }
-    alert(message);
+
+    let container = document.getElementById('control-settings-toast');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'control-settings-toast';
+        container.className = 'fixed top-5 right-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all';
+        document.body.appendChild(container);
+    }
+
+    container.className = `fixed top-5 right-5 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl transition-all ${
+        type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+    }`;
+    container.textContent = message;
+    clearTimeout(container._hideTimer);
+    container._hideTimer = setTimeout(() => {
+        container.remove();
+    }, 3500);
+}
+
+function setButtonLoading(button, loading, label = 'Saving...') {
+    if (!button) return;
+
+    if (loading) {
+        button.dataset.originalText = button.innerHTML;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${label}`;
+        button.disabled = true;
+        button.classList.add('opacity-75', 'cursor-not-allowed');
+        return;
+    }
+
+    button.innerHTML = button.dataset.originalText || button.innerHTML;
+    button.disabled = false;
+    button.classList.remove('opacity-75', 'cursor-not-allowed');
+}
+
+function bindManagedForms() {
+    document.querySelectorAll('form[data-settings-form="true"]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                form.reportValidity();
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (!submitButton) {
+                return;
+            }
+
+            setButtonLoading(submitButton, true, form.dataset.savingLabel || 'Saving...');
+        });
+    });
 }
 
 function initRetentionControls() {
@@ -312,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initRetentionControls();
     bindPruneActions();
+    bindManagedForms();
 
     document.querySelectorAll('input[name="default_working_days[]"]').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
