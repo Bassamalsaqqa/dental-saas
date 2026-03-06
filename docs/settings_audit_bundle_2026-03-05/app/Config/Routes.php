@@ -1,0 +1,673 @@
+<?php
+
+use CodeIgniter\Router\RouteCollection;
+
+/**
+ * @var RouteCollection $routes
+ */
+
+// --------------------------------------------------------------------
+// Control Plane Entry/Exit (SaaS)
+// --------------------------------------------------------------------
+
+// 1. Entry & Gateways (No Global Mode required, strict SuperAdmin check in controller)
+$routes->group('controlplane', function ($routes) {
+    $routes->get('/', 'ControlPlane\Entry::index'); // P5-18c
+    $routes->post('enter', 'ControlPlane::enter');
+    $routes->post('impersonation/exit', 'ControlPlane::exitImpersonation'); // CP-GLASS-08
+});
+
+// 2. Protected Surfaces (Requires Global Mode via Filter)
+    $routes->group('controlplane', ['filter' => 'controlplane'], function ($routes) {
+        $routes->get('dashboard', 'ControlPlane\Dashboard::index'); // P5-11-UX
+        $routes->get('clinics', 'ControlPlane\Clinics::index'); // CP-UX-20
+        $routes->post('clinics', 'ControlPlane\Clinics::index'); // CP-GLASS-06
+        $routes->get('clinics/(:num)', 'ControlPlane\Clinics::show/$1'); // CP-UX-20 detail
+        $routes->post('clinics/(:num)/subscription/start', 'ControlPlane\Clinics::startSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/extend', 'ControlPlane\Clinics::extendSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/cancel', 'ControlPlane\Clinics::cancelSubscription/$1');
+        $routes->post('clinics/(:num)/subscription/update-dates', 'ControlPlane\Clinics::updateSubscriptionDates/$1');
+        $routes->post('clinics/(:num)/terminate', 'ControlPlane\Clinics::terminate/$1');
+        $routes->post('clinics/(:num)/delete', 'ControlPlane\Clinics::delete/$1'); // CP-GLASS-09
+        $routes->post('clinics/(:num)/reset-admin-password', 'ControlPlane\Clinics::resetAdminPassword/$1');
+        $routes->post('clinics/(:num)/suspend', 'ControlPlane\Clinics::suspend/$1');
+        $routes->post('clinics/(:num)/reactivate', 'ControlPlane\Clinics::reactivate/$1');
+        $routes->get('plans', 'ControlPlane\Plans::index'); // CP-UX-22
+        $routes->get('plans/create', 'ControlPlane\Plans::create'); // CP-UX-23
+        $routes->post('plans', 'ControlPlane\Plans::store'); // CP-UX-23
+        $routes->get('plans/(:num)/edit', 'ControlPlane\Plans::edit/$1');
+        $routes->post('plans/(:num)', 'ControlPlane\Plans::update/$1');
+        $routes->post('plans/(:num)/toggle', 'ControlPlane\Plans::toggle/$1');
+        $routes->post('plans/(:num)/delete', 'ControlPlane\Plans::delete/$1');
+        $routes->get('plan-requests', 'ControlPlane\PlanRequests::index'); // CP-UX-24c
+        $routes->post('plan-requests', 'ControlPlane\PlanRequests::store'); // CP-UX-24
+        $routes->post('plan-requests/(:num)/approve', 'ControlPlane\PlanRequests::approve/$1');
+        $routes->post('plan-requests/(:num)/reject', 'ControlPlane\PlanRequests::reject/$1');
+        $routes->post('plan-requests/(:num)/delete', 'ControlPlane\PlanRequests::delete/$1');
+        $routes->get('invoices', 'ControlPlane\Invoices::index');
+        $routes->get('invoices/create', 'ControlPlane\Invoices::create');
+        $routes->post('invoices', 'ControlPlane\Invoices::store');
+        $routes->get('invoices/(:num)', 'ControlPlane\Invoices::show/$1');
+        $routes->post('invoices/(:num)/mark-paid', 'ControlPlane\Invoices::markPaid/$1');
+        $routes->post('invoices/(:num)/email', 'ControlPlane\Invoices::email/$1');
+        $routes->post('invoices/(:num)/delete', 'ControlPlane\Invoices::delete/$1');
+        $routes->get('search/global', 'ControlPlane\Search::global'); // CP-GLASS-03, CP-SEARCH-01
+        $routes->post('impersonate', 'ControlPlane\Clinics::impersonate'); // CP-IMP-01
+        
+        // Users Management (New)
+        $routes->group('users', function($routes) {
+            $routes->get('/', 'ControlPlane\Users::index');
+            $routes->post('/', 'ControlPlane\Users::index'); // DataTables
+            $routes->get('(:num)', 'ControlPlane\Users::show/$1');
+            $routes->post('(:num)/memberships/add', 'ControlPlane\Users::addMembership/$1');
+            $routes->post('(:num)/memberships/(:num)/update-role', 'ControlPlane\Users::updateMembershipRole/$1/$2');
+            $routes->post('(:num)/memberships/(:num)/remove', 'ControlPlane\Users::removeMembership/$1/$2');
+            $routes->post('(:num)/reset-password', 'ControlPlane\Users::resetPassword/$1');
+            $routes->post('(:num)/toggle-status', 'ControlPlane\Users::toggleStatus/$1');
+            $routes->post('(:num)/delete', 'ControlPlane\Users::delete/$1');
+        });
+        
+        // Activity Log (New)
+        $routes->get('activity-log', 'ControlPlane\ActivityLog::index');
+        $routes->get('activity-log/api', 'ControlPlane\ActivityLog::api');
+        $routes->get('activity-log/export', 'ControlPlane\ActivityLog::export');
+
+        $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
+        $routes->get('whatsapp', 'ControlPlane\WhatsApp::index');
+        $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
+        $routes->get('email-templates', static function () {
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates'), 301);
+        }); // CP-UX-25-MODULAR
+        $routes->post('exit', 'ControlPlane::exit');
+        $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
+        $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');
+        $routes->post('settings/platform', 'ControlPlane\Settings::updatePlatform');
+        $routes->post('settings/retention', 'ControlPlane\Settings::updateRetention');
+        $routes->post('settings/retention/prune', 'ControlPlane\Settings::pruneExports');
+        $routes->post('settings/audit-retention', 'ControlPlane\Settings::updateAuditRetention');
+        $routes->post('settings/audit-retention/prune', 'ControlPlane\Settings::pruneAuditLogs');
+        $routes->post('settings/tenant-defaults', 'ControlPlane\Settings::updateTenantDefaults');
+        $routes->post('whatsapp/rotate-secret', 'ControlPlane\WhatsApp::rotateSecret');
+        $routes->post('whatsapp/policy', 'ControlPlane\WhatsApp::updatePolicy');
+        $routes->post('whatsapp/emergency-pause', 'ControlPlane\WhatsApp::setEmergencyPause');
+
+        // Legacy onboarding alias to avoid 404 on /controlplane/clinic/create
+        $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic'); // CP-UX-02b
+        $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic'); // CP-UX-02b
+    
+    // Onboarding (P5-11)
+    $routes->group('onboarding', function($routes) {
+        $routes->get('clinic/create', 'ControlPlane\Onboarding::createClinic');
+        $routes->post('clinic/create', 'ControlPlane\Onboarding::processCreateClinic');
+    });
+});
+
+// --------------------------------------------------------------------
+// Authentication routes
+// --------------------------------------------------------------------
+$routes->group('auth', function ($routes) {
+    $routes->get('/', 'Auth::index');
+    $routes->get('login', 'Auth::login');
+    $routes->post('login', 'Auth::login');
+    $routes->get('logout', 'Auth::logout');
+    $routes->post('logout', 'Auth::logout');
+    $routes->get('forgot-password', 'Auth::forgot_password');
+    $routes->post('forgot-password', 'Auth::forgot_password');
+    $routes->get('reset-password/(:any)', 'Auth::reset_password/$1');
+    $routes->post('reset-password/(:any)', 'Auth::reset_password/$1');
+    $routes->get('change-password', 'Auth::change_password');
+    $routes->post('change-password', 'Auth::change_password');
+    $routes->get('activate/(:num)/(:any)', 'Auth::activate/$1/$2');
+    $routes->get('activate/(:num)', 'Auth::activate/$1');
+    $routes->get('deactivate/(:num)', 'Auth::deactivate/$1');
+    $routes->post('deactivate/(:num)', 'Auth::deactivate/$1');
+    $routes->get('create-user', 'Auth::create_user');
+    $routes->post('create-user', 'Auth::create_user');
+    $routes->get('edit-user/(:num)', 'Auth::edit_user/$1');
+    $routes->post('edit-user/(:num)', 'Auth::edit_user/$1');
+    $routes->get('create-group', 'Auth::create_group');
+    $routes->post('create-group', 'Auth::create_group');
+    $routes->get('edit-group/(:num)', 'Auth::edit_group/$1');
+    $routes->post('edit-group/(:num)', 'Auth::edit_group/$1');
+});
+
+// Logout route (outside auth group for easy access)
+$routes->get('logout', 'Auth::logout');
+$routes->post('logout', 'Auth::logout');
+
+// Root entrypoint (auth-aware redirect)
+$routes->get('/', 'Home::index');
+
+// --------------------------------------------------------------------
+// Public Webhooks (Outside /api/v1; no apiv1 auth filter)
+// --------------------------------------------------------------------
+$routes->group('webhooks', function ($routes) {
+    $routes->get('whatsapp', 'Webhooks\WhatsAppWebhook::challenge');
+    $routes->post('whatsapp', 'Webhooks\WhatsAppWebhook::events');
+});
+
+// --------------------------------------------------------------------
+// Kiosk Check-In (Public)
+// --------------------------------------------------------------------
+$routes->group('kiosk', function ($routes) {
+    $routes->get('(:segment)/check-in', 'Kiosk::checkIn/$1');
+    $routes->get('(:segment)/check-in/reset', 'Kiosk::reset/$1');
+    $routes->post('(:segment)/unlock', 'Kiosk::unlock/$1');
+    $routes->post('(:segment)/lookup', 'Kiosk::lookup/$1');
+    $routes->post('(:segment)/confirm', 'Kiosk::confirm/$1');
+    $routes->post('(:segment)/update-details', 'Kiosk::updateDetails/$1');
+    $routes->post('(:segment)/sign-contract', 'Kiosk::signContract/$1');
+});
+
+// --------------------------------------------------------------------
+// Clinic Selection Wall (Auth Only)
+// --------------------------------------------------------------------
+$routes->group('clinic', ['filter' => 'auth'], function($routes) {
+    $routes->get('select', 'ClinicSelector::select');
+    $routes->post('select', 'ClinicSelector::processSelect');
+    $routes->get('no-clinic', 'ClinicSelector::noClinic');
+    $routes->post('switch', 'ClinicSelector::switchClinic');
+    $routes->get('switch/(:num)', 'ClinicSelector::switch/$1');
+});
+
+// --------------------------------------------------------------------
+// Tenant Plane Routes
+// --------------------------------------------------------------------
+
+// Dashboard routes
+$routes->group('dashboard', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Dashboard::index', ['filter' => 'permission:dashboard:view']);
+    $routes->get('stats', 'Dashboard::getStats', ['filter' => 'permission:dashboard:view']);
+    $routes->get('chart-data', 'Dashboard::getChartData', ['filter' => 'permission:dashboard:view']);
+});
+
+// Patient routes
+$routes->group('patient', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Patient::index', ['filter' => 'permission:patients:view']);
+    $routes->get('create', 'Patient::create', ['filter' => 'permission:patients:create']);
+    $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
+    $routes->get('search', 'Patient::search', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)', 'Patient::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/edit', 'Patient::edit/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
+    $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
+    $routes->get('(:num)/data', 'Patient::getPatientData/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/attachments/upload', 'Patient::uploadAttachment/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/attachments/(:num)/delete', 'Patient::deleteAttachment/$1/$2', ['filter' => 'permission:patients:edit']);
+    $routes->get('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
+    $routes->post('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
+    $routes->get('get-statistics', 'Patient::getStatistics', ['filter' => 'permission:patients:view']);
+});
+
+
+// Patient routes (plural alias)
+$routes->group('patients', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Patient::index', ['filter' => 'permission:patients:view']);
+    $routes->get('create', 'Patient::create', ['filter' => 'permission:patients:create']);
+    $routes->post('store', 'Patient::store', ['filter' => 'permission:patients:create']);
+    $routes->get('search', 'Patient::search', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)', 'Patient::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/edit', 'Patient::edit/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/update', 'Patient::update/$1', ['filter' => 'permission:patients:edit']);
+    $routes->delete('(:num)', 'Patient::delete/$1', ['filter' => 'permission:patients:delete']);
+    $routes->get('(:num)/data', 'Patient::getPatientData/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/attachments/upload', 'Patient::uploadAttachment/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/attachments/(:num)/delete', 'Patient::deleteAttachment/$1/$2', ['filter' => 'permission:patients:edit']);
+    $routes->get('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
+    $routes->post('get-data', 'Patient::getData', ['filter' => 'permission:patients:view']);
+    $routes->get('get-statistics', 'Patient::getStatistics', ['filter' => 'permission:patients:view']);
+});
+
+// Treatment Contract routes (Tenant Plane)
+$routes->group('contracts', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('create/(:num)', 'TreatmentContracts::create/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('create/(:num)', 'TreatmentContracts::store/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/edit', 'TreatmentContracts::edit/$1', ['filter' => 'permission:patients:edit']);
+    $routes->post('(:num)/update', 'TreatmentContracts::update/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)', 'TreatmentContracts::show/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/sign', 'TreatmentContracts::sign/$1', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/print', 'TreatmentContracts::print/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('(:num)/delete', 'TreatmentContracts::delete/$1', ['filter' => 'permission:patients:edit']);
+});
+
+// Examination routes
+$routes->group('examination', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Examination::index', ['filter' => 'permission:examinations:view']);
+    $routes->get('create', 'Examination::create', ['filter' => 'permission:examinations:create']);
+    $routes->post('store', 'Examination::store', ['filter' => 'permission:examinations:create']);
+    $routes->get('calendar', 'Examination::calendar', ['filter' => 'permission:examinations:view']);
+    $routes->get('calendar-events', 'Examination::getCalendarEvents', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)', 'Examination::show/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)/edit', 'Examination::edit/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->post('(:num)/update', 'Examination::update/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->post('(:num)/complete', 'Examination::complete/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->get('(:num)/print', 'Examination::print/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)/duplicate', 'Examination::duplicate/$1', ['filter' => 'permission:examinations:create']);
+    $routes->delete('(:num)/delete', 'Examination::delete/$1', ['filter' => 'permission:examinations:delete']);
+    $routes->post('update-tooth-condition', 'Examination::updateToothCondition', ['filter' => 'permission:examinations:edit']);
+    $routes->get('(:num)/data', 'Examination::getExaminationData/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('by-date', 'Examination::getExaminationsByDate', ['filter' => 'permission:examinations:view']);
+    $routes->post('getExaminationsData', 'Examination::getExaminationsData', ['filter' => 'permission:examinations:view']);
+    $routes->get('getExaminationsData', 'Examination::getExaminationsData', ['filter' => 'permission:examinations:view']);
+    $routes->get('getExaminationStats', 'Examination::getExaminationStats', ['filter' => 'permission:examinations:view']);
+});
+
+// Examination routes (plural alias)
+$routes->group('examinations', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Examination::index', ['filter' => 'permission:examinations:view']);
+    $routes->get('create', 'Examination::create', ['filter' => 'permission:examinations:create']);
+    $routes->post('store', 'Examination::store', ['filter' => 'permission:examinations:create']);
+    $routes->get('calendar', 'Examination::calendar', ['filter' => 'permission:examinations:view']);
+    $routes->get('calendar-events', 'Examination::getCalendarEvents', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)', 'Examination::show/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)/edit', 'Examination::edit/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->post('(:num)/update', 'Examination::update/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->post('(:num)/complete', 'Examination::complete/$1', ['filter' => 'permission:examinations:edit']);
+    $routes->get('(:num)/print', 'Examination::print/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('(:num)/duplicate', 'Examination::duplicate/$1', ['filter' => 'permission:examinations:create']);
+    $routes->delete('(:num)/delete', 'Examination::delete/$1', ['filter' => 'permission:examinations:delete']);
+    $routes->post('update-tooth-condition', 'Examination::updateToothCondition', ['filter' => 'permission:examinations:edit']);
+    $routes->get('(:num)/data', 'Examination::getExaminationData/$1', ['filter' => 'permission:examinations:view']);
+    $routes->get('by-date', 'Examination::getExaminationsByDate', ['filter' => 'permission:examinations:view']);
+    $routes->post('getExaminationsData', 'Examination::getExaminationsData', ['filter' => 'permission:examinations:view']);
+    $routes->get('getExaminationsData', 'Examination::getExaminationsData', ['filter' => 'permission:examinations:view']);
+    $routes->get('getExaminationStats', 'Examination::getExaminationStats', ['filter' => 'permission:examinations:view']);
+});
+
+// Odontogram routes
+$routes->group('odontogram', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Odontogram::list', ['filter' => 'permission:patients:view']);
+    $routes->post('get-patients-data', 'Odontogram::getPatientsData', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)', 'Odontogram::index/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('update-tooth', 'Odontogram::updateTooth', ['filter' => 'permission:patients:edit']);
+    $routes->get('tooth-condition', 'Odontogram::getToothCondition', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)/data', 'Odontogram::getOdontogramData/$1', ['filter' => 'permission:patients:view']);
+    $routes->post('reset-tooth', 'Odontogram::resetTooth', ['filter' => 'permission:patients:edit']);
+    $routes->get('(:num)/export', 'Odontogram::export/$1', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)/print', 'Odontogram::print/$1', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)/pdf', 'Odontogram::pdf/$1', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)/download-pdf', 'Odontogram::downloadPdf/$1', ['filter' => 'permission:patients:view']);
+});
+
+// Finance routes
+$routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Finance::index', ['filter' => 'permission:finance:view']);
+    $routes->get('income/create', 'Finance::create', ['filter' => 'permission:finance:create']);
+    $routes->get('create', 'Finance::create', ['filter' => 'permission:finance:create']);
+    $routes->post('store', 'Finance::store', ['filter' => 'permission:finance:create']);
+    $routes->get('expenses/create', 'Finance::createExpense', ['filter' => 'permission:finance:create']);
+    $routes->post('expenses/store', 'Finance::storeExpense', ['filter' => 'permission:finance:create']);
+    $routes->get('reports', 'Finance::reports', ['filter' => 'permission:finance:reports']);
+    $routes->get('(:num)/invoice', 'Finance::generateInvoice/$1', ['filter' => 'permission:finance:view']);
+    $routes->get('(:num)', 'Finance::show/$1', ['filter' => 'permission:finance:view']);
+    $routes->get('(:num)/edit', 'Finance::edit/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/update', 'Finance::update/$1', ['filter' => 'permission:finance:edit']);
+    $routes->delete('(:num)', 'Finance::delete/$1', ['filter' => 'permission:finance:delete']);
+    $routes->post('(:num)/mark-paid', 'Finance::markAsPaid/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/payments', 'Finance::addInvoicePayment/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/payments/refund', 'Finance::refundInvoicePayment/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/payments/(:num)/void', 'Finance::voidInvoicePayment/$1/$2', ['filter' => 'permission:finance:edit']);
+    $routes->post('(:num)/close-balance', 'Finance::closeInvoiceBalance/$1', ['filter' => 'permission:finance:edit']);
+    $routes->get('stats', 'Finance::getFinanceStats', ['filter' => 'permission:finance:view']);
+    $routes->get('monthly-revenue', 'Finance::getMonthlyRevenue', ['filter' => 'permission:finance:view']);
+    $routes->get('payouts', 'Finance::providerPayouts', ['filter' => 'permission:finance:view']);
+    $routes->post('payouts/data', 'Finance::getProviderPayoutsData', ['filter' => 'permission:finance:view']);
+    $routes->post('payouts/(:num)/payments', 'Finance::addProviderPayoutPayment/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('payouts/(:num)/mark-paid', 'Finance::markProviderPayoutPaid/$1', ['filter' => 'permission:finance:edit']);
+    $routes->post('getFinancesData', 'Finance::getFinancesData', ['filter' => 'permission:finance:view']);
+    $routes->get('getFinancesData', 'Finance::getFinancesData', ['filter' => 'permission:finance:view']);
+    $routes->get('export', 'Finance::export', ['filter' => 'permission:finance:export']);
+    $routes->post('bulk-mark-paid', 'Finance::bulkMarkAsPaid', ['filter' => 'permission:finance:edit']);
+    $routes->post('bulk-delete', 'Finance::bulkDelete', ['filter' => 'permission:finance:delete']);
+});
+
+// Appointment routes
+$routes->group('appointment', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Appointment::index', ['filter' => 'permission:appointments:view']);
+    $routes->get('create', 'Appointment::create', ['filter' => 'permission:appointments:create']);
+    $routes->post('store', 'Appointment::store', ['filter' => 'permission:appointments:create']);
+    $routes->get('calendar', 'Appointment::calendar', ['filter' => 'permission:appointments:calendar']);
+    $routes->get('(:num)/print', 'Appointment::print/$1', ['filter' => 'permission:appointments:view']);
+    $routes->get('(:num)', 'Appointment::show/$1', ['filter' => 'permission:appointments:view']);
+    $routes->get('(:num)/edit', 'Appointment::edit/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/update', 'Appointment::update/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->delete('(:num)', 'Appointment::delete/$1', ['filter' => 'permission:appointments:delete']);
+    $routes->post('(:num)/confirm', 'Appointment::confirm/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/complete', 'Appointment::complete/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/cancel', 'Appointment::cancel/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->get('available-time-slots', 'Appointment::getAvailableTimeSlots', ['filter' => 'permission:appointments:view']);
+    $routes->get('calendar-events', 'Appointment::getCalendarEvents', ['filter' => 'permission:appointments:view']);
+});
+
+// Appointment routes (plural alias)
+$routes->group('appointments', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Appointment::index', ['filter' => 'permission:appointments:view']);
+    $routes->get('create', 'Appointment::create', ['filter' => 'permission:appointments:create']);
+    $routes->post('store', 'Appointment::store', ['filter' => 'permission:appointments:create']);
+    $routes->get('calendar', 'Appointment::calendar', ['filter' => 'permission:appointments:calendar']);
+    $routes->get('(:num)/print', 'Appointment::print/$1', ['filter' => 'permission:appointments:view']);
+    $routes->get('(:num)', 'Appointment::show/$1', ['filter' => 'permission:appointments:view']);
+    $routes->get('(:num)/edit', 'Appointment::edit/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/update', 'Appointment::update/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->delete('(:num)', 'Appointment::delete/$1', ['filter' => 'permission:appointments:delete']);
+    $routes->post('(:num)/confirm', 'Appointment::confirm/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/complete', 'Appointment::complete/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->post('(:num)/cancel', 'Appointment::cancel/$1', ['filter' => 'permission:appointments:edit']);
+    $routes->get('available-time-slots', 'Appointment::getAvailableTimeSlots', ['filter' => 'permission:appointments:view']);
+    $routes->get('calendar-events', 'Appointment::getCalendarEvents', ['filter' => 'permission:appointments:view']);
+});
+
+// Treatment routes
+$routes->group('treatment', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Treatment::index', ['filter' => 'permission:treatments:view']);
+    $routes->get('create', 'Treatment::create', ['filter' => 'permission:treatments:create']);
+    $routes->post('store', 'Treatment::store', ['filter' => 'permission:treatments:create']);
+    $routes->get('(:num)/print', 'Treatment::print/$1', ['filter' => 'permission:treatments:view']);
+    $routes->get('(:num)', 'Treatment::show/$1', ['filter' => 'permission:treatments:view']);
+    $routes->get('(:num)/edit', 'Treatment::edit/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->post('(:num)/update', 'Treatment::update/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->delete('(:num)', 'Treatment::delete/$1', ['filter' => 'permission:treatments:delete']);
+    $routes->post('(:num)/complete', 'Treatment::complete/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->get('stats', 'Treatment::getTreatmentStats', ['filter' => 'permission:treatments:view']);
+    $routes->get('get-treatments', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->post('get-treatments', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->post('getTreatmentsData', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->get('getTreatmentsData', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+});
+
+// Treatment routes (plural alias)
+$routes->group('treatments', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Treatment::index', ['filter' => 'permission:treatments:view']);
+    $routes->get('create', 'Treatment::create', ['filter' => 'permission:treatments:create']);
+    $routes->post('store', 'Treatment::store', ['filter' => 'permission:treatments:create']);
+    $routes->get('(:num)/print', 'Treatment::print/$1', ['filter' => 'permission:treatments:view']);
+    $routes->get('(:num)', 'Treatment::show/$1', ['filter' => 'permission:treatments:view']);
+    $routes->get('(:num)/edit', 'Treatment::edit/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->post('(:num)/update', 'Treatment::update/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->delete('(:num)', 'Treatment::delete/$1', ['filter' => 'permission:treatments:delete']);
+    $routes->post('(:num)/complete', 'Treatment::complete/$1', ['filter' => 'permission:treatments:edit']);
+    $routes->get('stats', 'Treatment::getTreatmentStats', ['filter' => 'permission:treatments:view']);
+    $routes->get('get-treatments', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->post('get-treatments', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->post('getTreatmentsData', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+    $routes->get('getTreatmentsData', 'Treatment::getTreatmentsData', ['filter' => 'permission:treatments:view']);
+});
+
+// Prescription routes
+$routes->group('prescription', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Prescription::index', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('create', 'Prescription::create', ['filter' => 'permission:prescriptions:create']);
+    $routes->post('store', 'Prescription::store', ['filter' => 'permission:prescriptions:create']);
+    $routes->get('stats', 'Prescription::getPrescriptionStats', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('get-prescriptions', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+    $routes->post('get-prescriptions', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+    $routes->post('remove/(:num)', 'Prescription::delete/$1', ['filter' => 'permission:prescriptions:delete']);
+    $routes->get('(:num)/print', 'Prescription::print/$1', ['filter' => 'permission:prescriptions:print']);
+    $routes->get('(:num)/edit', 'Prescription::edit/$1', ['filter' => 'permission:prescriptions:edit']);
+    $routes->post('(:num)/update', 'Prescription::update/$1', ['filter' => 'permission:prescriptions:edit']);
+    $routes->delete('(:num)', 'Prescription::delete/$1', ['filter' => 'permission:prescriptions:delete']);
+    $routes->get('(:num)', 'Prescription::show/$1', ['filter' => 'permission:prescriptions:view']);
+    $routes->post('getPrescriptionsData', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('getPrescriptionsData', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+});
+
+// Prescription routes (plural alias)
+$routes->group('prescriptions', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Prescription::index', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('create', 'Prescription::create', ['filter' => 'permission:prescriptions:create']);
+    $routes->post('store', 'Prescription::store', ['filter' => 'permission:prescriptions:create']);
+    $routes->get('(:num)/print', 'Prescription::print/$1', ['filter' => 'permission:prescriptions:print']);
+    $routes->get('(:num)', 'Prescription::show/$1', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('(:num)/edit', 'Prescription::edit/$1', ['filter' => 'permission:prescriptions:edit']);
+    $routes->post('(:num)/update', 'Prescription::update/$1', ['filter' => 'permission:prescriptions:edit']);
+    $routes->delete('(:num)', 'Prescription::delete/$1', ['filter' => 'permission:prescriptions:delete']);
+    $routes->get('stats', 'Prescription::getPrescriptionStats', ['filter' => 'permission:prescriptions:view']);
+    $routes->get('get-prescriptions', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+    $routes->post('get-prescriptions', 'Prescription::getPrescriptionsData', ['filter' => 'permission:prescriptions:view']);
+});
+
+// Reports routes
+$routes->group('reports', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Reports::index', ['filter' => 'permission:reports:view']);
+    $routes->get('chart-data', 'Reports::getChartData', ['filter' => 'permission:reports:view']);
+    $routes->get('detail-data', 'Reports::getDetailData', ['filter' => 'permission:reports:view']);
+    $routes->get('export', 'Reports::export', ['filter' => 'permission:reports:export']);
+    $routes->post('export', 'Reports::export', ['filter' => 'permission:reports:export']);
+});
+
+// Inventory routes
+$routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    // Specific routes first (before generic (:num) routes)
+    $routes->get('usage', 'Inventory::usage', ['filter' => 'permission:inventory:view']);
+    $routes->get('templates', 'Inventory::templates', ['filter' => 'permission:inventory:view']);
+    $routes->post('templates/import', 'Inventory::importTemplates', ['filter' => 'permission:inventory:create']);
+    $routes->get('movements', 'Inventory::movements', ['filter' => 'permission:inventory:view']);
+    $routes->get('reorder-list', 'Inventory::reorderList', ['filter' => 'permission:inventory:view']);
+    $routes->post('reorder-list/add', 'Inventory::addToReorder', ['filter' => 'permission:inventory:edit']);
+    $routes->post('reorder-list/(:num)/contacted', 'Inventory::markReorderSupplierContacted/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('reorder-list/(:num)/status', 'Inventory::updateReorderItemStatus/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('reorder-list/(:num)/delete', 'Inventory::deleteReorderItem/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('record-usage', 'Inventory::recordUsage', ['filter' => 'permission:inventory:edit']);
+    $routes->get('suppliers', 'Inventory::suppliers', ['filter' => 'permission:inventory:view']);
+    $routes->post('suppliers/store', 'Inventory::storeSupplier', ['filter' => 'permission:inventory:edit']);
+    $routes->post('suppliers/quick-create', 'Inventory::quickCreateSupplier', ['filter' => 'permission:inventory:edit']);
+    $routes->get('usage-history', 'Inventory::usageHistory', ['filter' => 'permission:inventory:view']);
+    $routes->get('usage-details/(:num)', 'Inventory::usageDetails/$1', ['filter' => 'permission:inventory:view']);
+    $routes->get('usage-print/(:num)', 'Inventory::usagePrint/$1', ['filter' => 'permission:inventory:view']);
+    $routes->get('inventory/usage-print/(:num)', 'Inventory::usagePrint/$1', ['filter' => 'permission:inventory:view']);
+
+    // Server-side processing routes
+    $routes->post('getInventoryData', 'Inventory::getInventoryData', ['filter' => 'permission:inventory:view']);
+    $routes->get('getInventoryData', 'Inventory::getInventoryData', ['filter' => 'permission:inventory:view']);
+    $routes->post('getInventoryStats', 'Inventory::getInventoryStats', ['filter' => 'permission:inventory:view']);
+    $routes->get('getInventoryStats', 'Inventory::getInventoryStats', ['filter' => 'permission:inventory:view']);
+    $routes->post('getUsageHistoryData', 'Inventory::getUsageHistoryData', ['filter' => 'permission:inventory:view']);
+    $routes->get('getUsageHistoryData', 'Inventory::getUsageHistoryData', ['filter' => 'permission:inventory:view']);
+    $routes->post('getLowStockData', 'Inventory::getLowStockData', ['filter' => 'permission:inventory:view']);
+    $routes->get('getLowStockData', 'Inventory::getLowStockData', ['filter' => 'permission:inventory:view']);
+    $routes->get('low-stock', 'Inventory::lowStock', ['filter' => 'permission:inventory:view']);
+    $routes->get('expired', 'Inventory::expired', ['filter' => 'permission:inventory:view']);
+    $routes->get('stats', 'Inventory::getInventoryStats', ['filter' => 'permission:inventory:view']);
+
+    // Generic routes last
+    $routes->get('/', 'Inventory::index', ['filter' => 'permission:inventory:view']);
+    $routes->get('create', 'Inventory::create', ['filter' => 'permission:inventory:create']);
+    $routes->post('store', 'Inventory::store', ['filter' => 'permission:inventory:create']);
+    $routes->get('(:num)', 'Inventory::show/$1', ['filter' => 'permission:inventory:view']);
+    $routes->get('(:num)/edit', 'Inventory::edit/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('(:num)/update', 'Inventory::update/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('(:num)/supplier-link', 'Inventory::upsertSupplierLink/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('(:num)/supplier-link/(:num)/delete', 'Inventory::deleteSupplierLink/$1/$2', ['filter' => 'permission:inventory:edit']);
+    $routes->delete('(:num)', 'Inventory::delete/$1', ['filter' => 'permission:inventory:delete']);
+    $routes->post('(:num)/adjust', 'Inventory::adjust/$1', ['filter' => 'permission:inventory:edit']);
+    $routes->post('(:num)/receive', 'Inventory::receiveStock/$1', ['filter' => 'permission:inventory:edit']);
+});
+
+// Users routes
+$routes->get('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);
+$routes->post('users/check-email', 'Users::checkEmail', ['filter' => 'auth']);
+$routes->group('users', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Users::index', ['filter' => 'permission:users:view']);
+    $routes->get('create', 'Users::create', ['filter' => 'permission:users:create']);
+    $routes->post('store', 'Users::store', ['filter' => 'permission:users:create']);
+    $routes->get('stats', 'Users::getUserStats', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)', 'Users::show/$1', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)/edit', 'Users::edit/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update', 'Users::update/$1', ['filter' => 'permission:users:edit']);
+    $routes->delete('(:num)', 'Users::delete/$1', ['filter' => 'permission:users:delete']);
+    $routes->get('(:num)/change-password', 'Users::changePassword/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update-password', 'Users::updatePassword/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/toggle-status', 'Users::toggleStatus/$1', ['filter' => 'permission:users:edit']);
+    // RBAC AJAX methods
+    $routes->post('assign-role', 'Users::assignRole', ['filter' => 'permission:users:edit']);
+    $routes->post('remove-role', 'Users::removeRole', ['filter' => 'permission:users:edit']);
+    $routes->post('grant-permission', 'Users::grantPermission', ['filter' => 'permission:users:edit']);
+    $routes->post('revoke-permission', 'Users::revokePermission', ['filter' => 'permission:users:edit']);
+    $routes->post('get-permissions', 'Users::getUserPermissionsAjax', ['filter' => 'permission:users:view']);
+});
+
+// Roles routes
+$routes->group('roles', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'RoleController::index', ['filter' => 'permission:users:view']);
+    $routes->get('create', 'RoleController::create', ['filter' => 'permission:users:create']);
+    $routes->post('store', 'RoleController::store', ['filter' => 'permission:users:create']);
+    $routes->get('stats', 'RoleController::stats', ['filter' => 'permission:users:view']);
+    $routes->get('sync', 'RoleController::sync', ['filter' => 'permission:users:edit']);
+    $routes->get('(:num)', 'RoleController::show/$1', ['filter' => 'permission:users:view']);
+    $routes->get('(:num)/edit', 'RoleController::edit/$1', ['filter' => 'permission:users:edit']);
+    $routes->post('(:num)/update', 'RoleController::update/$1', ['filter' => 'permission:users:edit']);
+    $routes->delete('(:num)', 'RoleController::delete/$1', ['filter' => 'permission:users:delete']);
+    $routes->post('(:num)/toggle-status', 'RoleController::toggleStatus/$1', ['filter' => 'permission:users:edit']);
+    $routes->get('(:num)/permissions', 'RoleController::getPermissions/$1', ['filter' => 'permission:users:view']);
+});
+
+$routes->group('controlplane/roles', ['filter' => ['auth', 'controlplane']], function ($routes) {
+    $routes->get('/', 'RoleController::index');
+    $routes->get('create', 'RoleController::create');
+    $routes->post('store', 'RoleController::store');
+    $routes->get('stats', 'RoleController::stats');
+    $routes->get('sync', 'RoleController::sync');
+    $routes->get('(:num)', 'RoleController::show/$1');
+    $routes->get('(:num)/edit', 'RoleController::edit/$1');
+    $routes->post('(:num)/update', 'RoleController::update/$1');
+    $routes->delete('(:num)', 'RoleController::delete/$1');
+    $routes->post('(:num)/toggle-status', 'RoleController::toggleStatus/$1');
+    $routes->get('(:num)/permissions', 'RoleController::getPermissions/$1');
+});
+
+
+
+// Notifications routes (accessible to all authenticated users - Tenant Plane)
+$routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('notifications', static function () {
+        return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
+    });
+    $routes->get('notifications/update', static function () {
+        return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
+    });
+    $routes->get('notifications/ledger', 'NotificationLedger::index', ['filter' => 'permission:settings:view']); // New
+    $routes->post('notifications/ledger/retry/(:num)', 'NotificationLedger::retry/$1', ['filter' => 'permission:settings:edit']); // New
+    $routes->get('api/notifications', 'Notifications::api');
+    $routes->post('notifications/mark-read', 'Notifications::markAsRead');
+    $routes->post('notifications/mark-read/(:num)', 'Notifications::markAsRead/$1');
+    $routes->delete('notifications/delete/(:num)', 'Notifications::delete/$1');
+});
+
+// Activity Log routes (accessible to all authenticated users - Tenant Plane)
+$routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('activity-log', 'ActivityLog::index');
+    $routes->get('activity-log/api', 'ActivityLog::api');
+    $routes->get('activity-log/export', 'ActivityLog::export');
+});
+
+// File routes (Tenant Plane)
+$routes->group('file', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('download/(:num)', 'FileController::download/$1');
+});
+
+// Profile routes (P5-11-UX)
+$routes->get('profile', 'Profile::index', ['filter' => ['auth', 'tenant', 'subscription']]);
+$routes->group('profile', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Profile::index');
+    $routes->post('update', 'Profile::update');
+    $routes->post('change-password', 'Profile::changePassword');
+});
+
+// Settings routes (Tenant Plane)
+$routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
+    $routes->get('/', 'Settings::index', ['filter' => 'permission:settings:view']);
+    $routes->post('update', 'Settings::update', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateClinic', 'Settings::updateClinic', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateKiosk', 'Settings::updateKiosk', ['filter' => 'permission:settings:edit']);
+    $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings:edit']);
+    $routes->get('backup', 'Settings::backup', ['filter' => 'permission:settings:view']);
+    $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);
+    $routes->post('restore', 'Settings::restore', ['filter' => 'permission:settings:edit']);
+    $routes->get('download-backup/(:segment)', 'Settings::downloadBackup/$1', ['filter' => 'permission:settings:view']);
+    $routes->get('security', 'Settings::security', ['filter' => 'permission:settings:view']);
+    $routes->post('security/update', 'Settings::updateSecurity', ['filter' => 'permission:settings:edit']);
+    $routes->get('notification-settings', 'Settings::notifications', ['filter' => 'permission:settings:view']);
+    $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
+    
+    // Notification Channels (P5-09a)
+    $routes->get('channels', 'Settings::channels', ['filter' => 'permission:settings:view']);
+    $routes->get('kiosk', 'Settings::kiosk', ['filter' => 'permission:settings:view']);
+    $routes->get('email', 'Settings::email', ['filter' => 'permission:settings:view']);
+    $routes->get('sms', 'Settings::sms', ['filter' => 'permission:settings:view']);
+    $routes->get('whatsapp', 'Settings::whatsapp', ['filter' => 'permission:settings:view']);
+    $routes->post('updateChannelStatus', 'Settings::updateChannelStatus', ['filter' => 'permission:settings:edit']); // Gated by global_mode inside
+    $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
+    $routes->post('getChannelConfig', 'Settings::getChannelConfig', ['filter' => 'permission:settings:edit']);
+    $routes->post('testWhatsAppChannel', 'Settings::testWhatsAppChannel', ['filter' => 'permission:settings:edit']);
+});
+
+// Quick UI language switch (tenant plane)
+$routes->post('language/switch', 'Settings::switchLanguage', ['filter' => ['auth', 'tenant', 'subscription']]);
+
+// --------------------------------------------------------------------
+// Control Plane Routes (RBAC & Platform Admin)
+// --------------------------------------------------------------------
+
+// RBAC Sync routes (Control Plane)
+$routes->group('rbac', ['filter' => 'controlplane'], function ($routes) {
+    $routes->get('sync', 'SyncController::sync');
+    $routes->get('status', 'SyncController::status');
+    $routes->get('init', 'SyncController::init');
+    $routes->get('setup', function () {
+        return view('rbac/setup');
+    });
+});
+
+
+// API routes (Tenant Plane)
+$routes->group('api', function ($routes) {
+    $routes->get('session-token', 'Api\\Auth::sessionToken', ['filter' => ['auth', 'tenant', 'subscription']]);
+
+    $routes->group('v1', ['filter' => 'apiv1'], function ($routes) {
+        // Patients
+        $routes->get('patients', 'Api\Patient::index', ['filter' => 'permission:patients:view']);
+        $routes->get('patients/(:segment)', 'Api\Patient::show/$1', ['filter' => 'permission:patients:view']);
+        $routes->post('patients', 'Api\Patient::create', ['filter' => 'permission:patients:create']);
+        $routes->put('patients/(:segment)', 'Api\Patient::update/$1', ['filter' => 'permission:patients:edit']);
+        $routes->delete('patients/(:segment)', 'Api\Patient::delete/$1', ['filter' => 'permission:patients:delete']);
+
+        // Examinations
+        $routes->get('examinations', 'Api\Examination::index', ['filter' => 'permission:examinations:view']);
+        $routes->get('examinations/(:segment)', 'Api\Examination::show/$1', ['filter' => 'permission:examinations:view']);
+        $routes->post('examinations', 'Api\Examination::create', ['filter' => 'permission:examinations:create']);
+        $routes->put('examinations/(:segment)', 'Api\Examination::update/$1', ['filter' => 'permission:examinations:edit']);
+        $routes->delete('examinations/(:segment)', 'Api\Examination::delete/$1', ['filter' => 'permission:examinations:delete']);
+
+        // Appointments
+        $routes->get('appointments', 'Api\Appointment::index', ['filter' => 'permission:appointments:view']);
+        $routes->get('appointments/(:segment)', 'Api\Appointment::show/$1', ['filter' => 'permission:appointments:view']);
+        $routes->post('appointments', 'Api\Appointment::create', ['filter' => 'permission:appointments:create']);
+        $routes->put('appointments/(:segment)', 'Api\Appointment::update/$1', ['filter' => 'permission:appointments:edit']);
+        $routes->delete('appointments/(:segment)', 'Api\Appointment::delete/$1', ['filter' => 'permission:appointments:delete']);
+
+        // Finances
+        $routes->get('finances', 'Api\Finance::index', ['filter' => 'permission:finance:view']);
+        $routes->get('finances/(:segment)', 'Api\Finance::show/$1', ['filter' => 'permission:finance:view']);
+        $routes->post('finances', 'Api\Finance::create', ['filter' => 'permission:finance:create']);
+        $routes->put('finances/(:segment)', 'Api\Finance::update/$1', ['filter' => 'permission:finance:edit']);
+        $routes->delete('finances/(:segment)', 'Api\Finance::delete/$1', ['filter' => 'permission:finance:delete']);
+
+        // Search endpoints (stateless v1)
+        $routes->group('search', function ($routes) {
+            $routes->get('patients', 'Api\V1\Search::patients', ['filter' => 'permission:patients:view']);
+            $routes->get('users', 'Api\V1\Search::users', ['filter' => 'permission:users:view']);
+            $routes->get('examinations', 'Api\V1\Search::examinations', ['filter' => 'permission:examinations:view']);
+            $routes->get('treatments', 'Api\V1\Search::treatments', ['filter' => 'permission:treatments:view']);
+            $routes->get('inventory', 'Api\V1\Search::inventory', ['filter' => 'permission:inventory:view']);
+            $routes->get('medications', 'Api\V1\Search::medications', ['filter' => 'permission:prescriptions:view']);
+            $routes->get('treatment-types', 'Api\V1\Search::treatmentTypes', ['filter' => 'permission:treatments:view']);
+            $routes->get('departments', 'Api\V1\Search::departments', ['filter' => 'permission:users:view']);
+            $routes->get('roles', 'Api\V1\Search::roles', ['filter' => 'permission:users:view']);
+        });
+    });
+
+});

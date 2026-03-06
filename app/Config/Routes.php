@@ -583,14 +583,22 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateSystem', 'Settings::updateSystem', ['filter' => 'permission:settings:edit']);
     $routes->post('updateWorkingHours', 'Settings::updateWorkingHours', ['filter' => 'permission:settings:edit']);
     $routes->post('updateKiosk', 'Settings::updateKiosk', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateRetention', 'Settings::updateRetention', ['filter' => 'permission:settings:edit']);
     $routes->post('plan-request', 'Settings::requestPlan', ['filter' => 'permission:settings:edit']);
-    $routes->get('backup', 'Settings::backup', ['filter' => 'permission:settings:view']);
+    $routes->get('backup', static function () {
+        return redirect()->to('/settings?tab=backup', 301);
+    }, ['filter' => 'permission:settings:view']);
     $routes->post('create-backup', 'Settings::createBackup', ['filter' => 'permission:settings:edit']);
     $routes->post('restore', 'Settings::restore', ['filter' => 'permission:settings:edit']);
     $routes->get('download-backup/(:segment)', 'Settings::downloadBackup/$1', ['filter' => 'permission:settings:view']);
-    $routes->get('security', 'Settings::security', ['filter' => 'permission:settings:view']);
+    $routes->get('security', static function () {
+        return redirect()->to('/settings?tab=system', 301);
+    }, ['filter' => 'permission:settings:view']);
     $routes->post('security/update', 'Settings::updateSecurity', ['filter' => 'permission:settings:edit']);
-    $routes->get('notification-settings', 'Settings::notifications', ['filter' => 'permission:settings:view']);
+    $routes->get('notification-settings', static function () {
+        return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
+    }, ['filter' => 'permission:settings:view']);
+    $routes->post('updateNotifications', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
     $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
     
     // Notification Channels (P5-09a)

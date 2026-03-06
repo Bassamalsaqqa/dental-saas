@@ -1,0 +1,561 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\SettingsModel;
+
+class SettingsService
+{
+    protected $settingsModel;
+    protected $settings;
+    protected $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+        'JPY' => '¥',
+        'CAD' => 'C$',
+        'AUD' => 'A$',
+        'CHF' => 'CHF',
+        'CNY' => '¥',
+        'SEK' => 'kr',
+        'NOK' => 'kr',
+        'DKK' => 'kr',
+        'PLN' => 'zł',
+        'CZK' => 'Kč',
+        'HUF' => 'Ft',
+        'RUB' => '₽',
+        'INR' => '₹',
+        'BRL' => 'R$',
+        'MXN' => '$',
+        'KRW' => '₩',
+        'SGD' => 'S$',
+        'HKD' => 'HK$',
+        'NZD' => 'NZ$',
+        'TRY' => '₺',
+        'ZAR' => 'R',
+        'AED' => 'د.إ',
+        'SAR' => 'ر.س',
+        'QAR' => 'ر.ق',
+        'KWD' => 'د.ك',
+        'BHD' => 'د.ب',
+        'OMR' => 'ر.ع.',
+        'JOD' => 'د.ا',
+        'LBP' => 'ل.ل',
+        'EGP' => 'ج.م',
+        'ILS' => '₪',
+        'THB' => '฿',
+        'MYR' => 'RM',
+        'IDR' => 'Rp',
+        'PHP' => '₱',
+        'VND' => '₫',
+        'PKR' => '₨',
+        'BDT' => '৳',
+        'LKR' => '₨',
+        'NPR' => '₨',
+        'MMK' => 'K',
+        'KHR' => '៛',
+        'LAK' => '₭',
+        'BND' => 'B$',
+        'FJD' => 'FJ$',
+        'TOP' => 'T$',
+        'WST' => 'WS$',
+        'VUV' => 'Vt',
+        'SBD' => 'SI$',
+        'PGK' => 'K',
+        'ARS' => '$',
+        'CLP' => '$',
+        'COP' => '$',
+        'PEN' => 'S/',
+        'UYU' => '$U',
+        'BOB' => 'Bs',
+        'PYG' => '₲',
+        'VES' => 'Bs.S',
+        'GYD' => 'G$',
+        'SRD' => 'Sr$',
+        'TTD' => 'TT$',
+        'JMD' => 'J$',
+        'BBD' => 'Bds$',
+        'BZD' => 'BZ$',
+        'XCD' => 'EC$',
+        'DOP' => 'RD$',
+        'HTG' => 'G',
+        'CUP' => '$',
+        'CRC' => '₡',
+        'GTQ' => 'Q',
+        'HNL' => 'L',
+        'NIO' => 'C$',
+        'PAB' => 'B/.',
+        'SVC' => '₡',
+        'BMD' => 'BD$',
+        'KYD' => 'CI$',
+        'AWG' => 'ƒ',
+        'ANG' => 'ƒ',
+        'BSD' => 'B$',
+        'RON' => 'lei',
+        'BGN' => 'лв',
+        'HRK' => 'kn',
+        'RSD' => 'дин',
+        'MKD' => 'ден',
+        'BAM' => 'КМ',
+        'ALL' => 'L',
+        'ISK' => 'kr',
+        'MDL' => 'L',
+        'UAH' => '₴',
+        'BYN' => 'Br',
+        'GEL' => '₾',
+        'AMD' => '֏',
+        'AZN' => '₼',
+        'KZT' => '₸',
+        'KGS' => 'с',
+        'TJS' => 'SM',
+        'TMT' => 'T',
+        'UZS' => 'сўм',
+        'MNT' => '₮',
+        'AFN' => '؋',
+        'IRR' => '﷼',
+        'IQD' => 'د.ع',
+        'SYP' => 'ل.س',
+        'YER' => '﷼',
+        'LYD' => 'ل.د',
+        'TND' => 'د.ت',
+        'DZD' => 'د.ج',
+        'MAD' => 'د.م.',
+        'ETB' => 'Br',
+        'KES' => 'KSh',
+        'UGX' => 'USh',
+        'TZS' => 'TSh',
+        'RWF' => 'RF',
+        'MWK' => 'MK',
+        'ZMW' => 'ZK',
+        'BWP' => 'P',
+        'SZL' => 'L',
+        'LSL' => 'L',
+        'NAD' => 'N$',
+        'AOA' => 'Kz',
+        'MZN' => 'MT',
+        'MGA' => 'Ar',
+        'MUR' => '₨',
+        'SCR' => '₨',
+        'KMF' => 'CF',
+        'DJF' => 'Fdj',
+        'SOS' => 'S',
+        'ERN' => 'Nfk',
+        'STN' => 'Db',
+        'CVE' => '$',
+        'GMD' => 'D',
+        'GHS' => '₵',
+        'NGN' => '₦',
+        'XOF' => 'CFA',
+        'XAF' => 'FCFA'
+    ];
+
+    public function __construct()
+    {
+        $this->settingsModel = new SettingsModel();
+        $this->loadSettings();
+    }
+
+    /**
+     * Load all settings from database
+     */
+    private function loadSettings()
+    {
+        try {
+            $session = service('session');
+            $activeClinicId = $session ? $session->get('active_clinic_id') : null;
+
+            if ($activeClinicId) {
+                $this->settings = $this->settingsModel->getAllSettings();
+                return;
+            }
+
+            // No tenant context yet (e.g., auth/clinic selection). Use global settings without tenant scoping.
+            $this->settings = $this->settingsModel->withoutTenantScope()->getGlobalSettings();
+        } catch (\Exception $e) {
+            log_message('error', 'Error loading settings: ' . $e->getMessage());
+            $this->settings = [];
+        }
+    }
+
+    /**
+     * Get a specific setting value
+     */
+    public function get($key, $default = null)
+    {
+        return $this->settings[$key] ?? $default;
+    }
+
+    /**
+     * Get currency symbol
+     */
+    public function getCurrencySymbol()
+    {
+        $currency = $this->get('currency', 'ILS');
+        return $this->currencySymbols[$currency] ?? '$';
+    }
+
+    /**
+     * Format currency amount
+     */
+    public function formatCurrency($amount, $showSymbol = true)
+    {
+        $symbol = $showSymbol ? $this->getCurrencySymbol() : '';
+        $formattedAmount = number_format($amount, 2);
+        $position = $this->get('currency_position', 'after');
+        
+        // Apply user's currency position preference
+        if ($position === 'after') {
+            return $this->normalizeToLatinDigits($formattedAmount . ' ' . $symbol);
+        } else {
+            return $this->normalizeToLatinDigits($symbol . $formattedAmount);
+        }
+    }
+
+    /**
+     * Format date according to user preference
+     */
+    public function formatDate($date, $format = null)
+    {
+        if (empty($date)) {
+            return '';
+        }
+
+        $format = $format ?? $this->get('date_format', 'd/m/Y');
+        
+        try {
+            // Handle Unix timestamp (integer)
+            if (is_numeric($date)) {
+                $dateObj = new \DateTime();
+                $dateObj->setTimestamp($date);
+                $date = $dateObj;
+            }
+            // Convert to DateTime object if it's a string
+            elseif (is_string($date)) {
+                $date = new \DateTime($date);
+            }
+
+            return $this->normalizeToLatinDigits($date->format($format));
+        } catch (\Exception $e) {
+            log_message('error', 'Error formatting date: ' . $e->getMessage() . ' for date: ' . $date);
+            return $date; // Return original value if formatting fails
+        }
+    }
+
+    /**
+     * Format time according to user preference
+     */
+    public function formatTime($time, $format = null)
+    {
+        if (empty($time)) {
+            return '';
+        }
+
+        $timeFormat = (string) $this->get('time_format', '12');
+        
+        if ($format) {
+            $formatToUse = $format;
+        } else {
+            $formatToUse = ($timeFormat === '24') ? 'H:i' : 'g:i A';
+        }
+
+        try {
+            // Handle Unix timestamp (integer)
+            if (is_numeric($time)) {
+                $timeObj = new \DateTime();
+                $timeObj->setTimestamp($time);
+                $time = $timeObj;
+            }
+            // Convert to DateTime object if it's a string
+            elseif (is_string($time)) {
+                $time = new \DateTime($time);
+            }
+
+            return $this->normalizeToLatinDigits($time->format($formatToUse));
+        } catch (\Exception $e) {
+            log_message('error', 'Error formatting time: ' . $e->getMessage() . ' for time: ' . $time);
+            return $time; // Return original value if formatting fails
+        }
+    }
+
+    /**
+     * Format datetime according to user preferences
+     */
+    public function formatDateTime($datetime, $dateFormat = null, $timeFormat = null)
+    {
+        if (empty($datetime)) {
+            return '';
+        }
+
+        try {
+            $dateFormatted = $this->formatDate($datetime, $dateFormat);
+            $timeFormatted = $this->formatTime($datetime, $timeFormat);
+
+            return $this->normalizeToLatinDigits($dateFormatted . ' ' . $timeFormatted);
+        } catch (\Exception $e) {
+            log_message('error', 'Error formatting datetime: ' . $e->getMessage() . ' for datetime: ' . $datetime);
+            return $datetime; // Return original value if formatting fails
+        }
+    }
+
+    /**
+     * Force Western numerals (0-9) even in Arabic UI.
+     */
+    private function normalizeToLatinDigits(string $value): string
+    {
+        return strtr($value, [
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+        ]);
+    }
+
+    /**
+     * Get timezone
+     */
+    public function getTimezone()
+    {
+        return $this->get('timezone', 'Asia/Jerusalem');
+    }
+
+    /**
+     * Convert datetime to user's timezone
+     */
+    public function convertToUserTimezone($datetime, $fromTimezone = 'UTC')
+    {
+        if (empty($datetime)) {
+            return null;
+        }
+
+        try {
+            $userTimezone = $this->getTimezone();
+            
+            if (is_string($datetime)) {
+                $datetime = new \DateTime($datetime, new \DateTimeZone($fromTimezone));
+            }
+            
+            $datetime->setTimezone(new \DateTimeZone($userTimezone));
+            
+            return $datetime;
+        } catch (\Exception $e) {
+            log_message('error', 'Timezone conversion error: ' . $e->getMessage());
+            return $datetime;
+        }
+    }
+
+    /**
+     * Get working hours
+     */
+    public function getWorkingHours()
+    {
+        return [
+            'start' => $this->get('working_hours_start', '09:00'),
+            'end' => $this->get('working_hours_end', '17:00'),
+            'days' => $this->get('working_days', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])
+        ];
+    }
+
+    /**
+     * Get appointment duration
+     */
+    public function getAppointmentDuration()
+    {
+        return (int) $this->get('appointment_duration', 30);
+    }
+
+    /**
+     * Get concurrent booking chair capacity for this clinic.
+     */
+    public function getBookingChairCount()
+    {
+        $configured = max(1, (int) $this->get('booking_chair_count', 1));
+        return min($configured, $this->getMaxBookingChairCount());
+    }
+
+    /**
+     * Get chair/room labels used by the booking UI.
+     *
+     * @return string[]
+     */
+    public function getBookingChairNames()
+    {
+        $count = $this->getBookingChairCount();
+        $names = $this->get('booking_chair_names', []);
+        if (!is_array($names)) {
+            $names = [];
+        }
+
+        $normalized = [];
+        foreach ($names as $name) {
+            $clean = trim((string) $name);
+            if ($clean !== '') {
+                $normalized[] = $clean;
+            }
+        }
+
+        for ($i = count($normalized); $i < $count; $i++) {
+            $normalized[] = 'Chair ' . ($i + 1);
+        }
+
+        return array_slice($normalized, 0, $count);
+    }
+
+    /**
+     * Get global cap for tenant booking chairs.
+     */
+    public function getMaxBookingChairCount(): int
+    {
+        $max = (int) $this->settingsModel->withoutTenantScope()->getGlobalSetting('default_booking_chair_max', 3);
+        return max(1, min(3, $max));
+    }
+
+    /**
+     * Check if a day is a working day
+     */
+    public function isWorkingDay($day)
+    {
+        $workingDays = $this->getWorkingHours()['days'];
+        return in_array(strtolower($day), $workingDays);
+    }
+
+    /**
+     * Get clinic information
+     */
+    public function getClinicInfo()
+    {
+        $clinicName = $this->get('clinic_name', '');
+        if ($clinicName === '' || $clinicName === null) {
+            $clinicId = (int) (service('session')->get('active_clinic_id') ?? 0);
+            if ($clinicId > 0) {
+                $clinic = (new \App\Models\ClinicModel())->find($clinicId);
+                $clinicName = $clinic['name'] ?? '';
+            }
+        }
+
+        return [
+            'name' => $clinicName !== '' ? $clinicName : 'Denta+ Clinic',
+            'address' => $this->get('clinic_address', '123 Dental Street, Medical District, City 12345'),
+            'phone' => $this->get('clinic_phone', '+1 (555) 123-4567'),
+            'email' => $this->get('clinic_email', 'info@dentalclinic.com'),
+            'website' => $this->get('clinic_website', 'https://dentalclinic.com'),
+            'logo_path' => $this->get('clinic_logo_path', ''),
+            'tagline' => $this->get('clinic_tagline', 'Professional Suite')
+        ];
+    }
+
+    /**
+     * Generate time slots based on working hours and appointment duration
+     */
+    public function generateTimeSlots($date = null, $excludeTimes = [])
+    {
+        $workingHours = $this->getWorkingHours();
+        $duration = $this->getAppointmentDuration();
+        
+        $timeSlots = [];
+        $startTime = strtotime($workingHours['start']);
+        $endTime = strtotime($workingHours['end']);
+        $slotDuration = $duration * 60; // Convert to seconds
+
+        for ($time = $startTime; $time < $endTime; $time += $slotDuration) {
+            $timeSlot = date('H:i', $time);
+            
+            if (!in_array($timeSlot, $excludeTimes)) {
+                $timeSlots[] = [
+                    'value' => $timeSlot,
+                    'display' => $this->formatTime($timeSlot)
+                ];
+            }
+        }
+
+        return $timeSlots;
+    }
+
+    /**
+     * Generate database backup content
+     */
+    public function generateDatabaseBackup()
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Get database config
+            $dbConfig = config('Database');
+            $defaultGroup = $dbConfig->defaultGroup;
+            $database = $dbConfig->{$defaultGroup}['database'];
+            
+            $sql = "-- Dental Management System Database Backup\n";
+            $sql .= "-- Generated on: " . date('Y-m-d H:i:s') . "\n";
+            $sql .= "-- Database: " . $database . "\n\n";
+            
+            $sql .= "SET SQL_MODE = \"NO_AUTO_VALUE_ON_ZERO\";\n";
+            $sql .= "SET AUTOCOMMIT = 0;\n";
+            $sql .= "START TRANSACTION;\n";
+            $sql .= "SET time_zone = \"+00:00\";\n\n";
+            
+            // Get all tables
+            $tables = $db->listTables();
+            
+            if (empty($tables)) {
+                log_message('error', 'No tables found in database');
+                return $sql . "-- No tables found\nCOMMIT;\n";
+            }
+            
+            foreach ($tables as $table) {
+                $sql .= "-- Table structure for table `{$table}`\n";
+                
+                try {
+                    // Get table structure
+                    $query = $db->query("SHOW CREATE TABLE `{$table}`");
+                    $result = $query->getRow();
+                    
+                    if ($result && isset($result->{'Create Table'})) {
+                        $sql .= "DROP TABLE IF EXISTS `{$table}`;\n";
+                        $sql .= $result->{'Create Table'} . ";\n\n";
+                        
+                        // Get table data
+                        $dataQuery = $db->query("SELECT * FROM `{$table}`");
+                        $rows = $dataQuery->getResultArray();
+                        
+                        if (!empty($rows)) {
+                            $sql .= "-- Data for table `{$table}`\n";
+                            
+                            foreach ($rows as $row) {
+                                $values = [];
+                                foreach ($row as $value) {
+                                    if ($value === null) {
+                                        $values[] = 'NULL';
+                                    } else {
+                                        $values[] = "'" . addslashes($value) . "'";
+                                    }
+                                }
+                                
+                                $sql .= "INSERT INTO `{$table}` VALUES (" . implode(', ', $values) . ");\n";
+                            }
+                            $sql .= "\n";
+                        }
+                    } else {
+                        log_message('error', "Could not get CREATE TABLE statement for table: {$table}");
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', "Error processing table {$table}: " . $e->getMessage());
+                    $sql .= "-- Error processing table {$table}: " . $e->getMessage() . "\n";
+                }
+            }
+            
+            $sql .= "COMMIT;\n";
+            
+            return $sql;
+        } catch (\Exception $e) {
+            log_message('error', 'Error in generateDatabaseBackup: ' . $e->getMessage());
+            return "-- Error generating backup: " . $e->getMessage() . "\n";
+        }
+    }
+
+    /**
+     * Reload settings (useful after updates)
+     */
+    public function reloadSettings()
+    {
+        $this->loadSettings();
+    }
+}

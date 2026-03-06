@@ -26,12 +26,29 @@ class Settings extends BaseController
     /**
      * Deep-link Aliases for Consolidated Settings (P5-09a-Tabs)
      */
+    public function update()
+    {
+        return redirect()->to('/settings')->with('error', 'Use the section-specific settings forms to save changes.');
+    }
+
     public function email() { return $this->index('email'); }
     public function sms() { return $this->index('sms'); }
     public function whatsapp() { return $this->index('whatsapp'); }
     public function channels() { return $this->index('channels'); }
-    public function notifications() { return $this->index('notifications'); }
+    public function notifications()
+    {
+        return redirect()->to('/settings?tab=communications&subtab=alerts');
+    }
     public function kiosk() { return $this->index('kiosk'); }
+    public function backup()
+    {
+        return redirect()->to('/settings?tab=backup');
+    }
+
+    public function security()
+    {
+        return redirect()->to('/settings?tab=system');
+    }
 
     /**
      * Main Settings Hub (Consolidated)
@@ -548,6 +565,91 @@ class Settings extends BaseController
         }
 
         return redirect()->back()->with('error', 'Membership not found');
+    }
+
+    public function createBackup()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return redirect()->back()->with('error', 'Clinic context required.');
+        }
+
+        $backupPath = WRITEPATH . 'backups' . DIRECTORY_SEPARATOR;
+        if (!is_dir($backupPath) && !mkdir($backupPath, 0775, true) && !is_dir($backupPath)) {
+            return redirect()->back()->with('error', 'Unable to create the backup directory.');
+        }
+
+        $clinicSlug = preg_replace('/[^a-z0-9]+/i', '-', strtolower((string) ($this->settingsService->get('clinic_name', 'clinic'))));
+        $clinicSlug = trim((string) $clinicSlug, '-');
+        if ($clinicSlug === '') {
+            $clinicSlug = 'clinic-' . $clinicId;
+        }
+
+        $filename = sprintf('%s-%s.sql', $clinicSlug, date('Ymd-His'));
+        $fullPath = $backupPath . $filename;
+        $content = $this->settingsService->generateDatabaseBackup();
+
+        if (file_put_contents($fullPath, $content) === false) {
+            return redirect()->back()->with('error', 'Failed to create the backup file.');
+        }
+
+        return redirect()->to('/settings?tab=backup')->with('success', 'Backup created successfully.');
+    }
+
+    public function downloadBackup(string $filename)
+    {
+        $safeFilename = basename($filename);
+        if ($safeFilename === '' || $safeFilename !== $filename) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $fullPath = WRITEPATH . 'backups' . DIRECTORY_SEPARATOR . $safeFilename;
+        if (!is_file($fullPath)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response->download($fullPath, null)->setFileName($safeFilename);
+    }
+
+    public function restore()
+    {
+        return redirect()->to('/settings?tab=backup')->with('error', 'Backup restore is not available from the web settings UI yet.');
+    }
+
+    public function updateRetention()
+    {
+        if (!session()->get('global_mode')) {
+            return redirect()->to('/settings?tab=backup')->with('error', 'Export retention policy is managed by the platform administrator.');
+        }
+
+        $rules = [
+            'retention_mode' => 'required|in_list[latest,keep_last_n,keep_x_days]',
+            'retention_last_n' => 'permit_empty|is_natural_no_zero',
+            'retention_days' => 'permit_empty|is_natural_no_zero',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $mode = (string) $this->request->getPost('retention_mode');
+        $lastN = (int) ($this->request->getPost('retention_last_n') ?: 5);
+        $days = (int) ($this->request->getPost('retention_days') ?: 30);
+
+        $saved = $this->settingsModel->setGlobalSetting('retention_mode', $mode, 'string')
+            && $this->settingsModel->setGlobalSetting('retention_last_n', $lastN, 'number')
+            && $this->settingsModel->setGlobalSetting('retention_days', $days, 'number');
+
+        if (!$saved) {
+            return redirect()->to('/settings?tab=backup')->with('error', 'Failed to update export retention policy.');
+        }
+
+        return redirect()->to('/settings?tab=backup')->with('success', 'Export retention policy updated successfully.');
+    }
+
+    public function updateSecurity()
+    {
+        return redirect()->to('/settings?tab=system')->with('error', 'Security settings are not managed from a dedicated tenant section yet.');
     }
 
     private function normalizeWhatsAppChannelConfig(array $config): array

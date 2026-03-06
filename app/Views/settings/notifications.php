@@ -10,7 +10,7 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-2xl">
-        <form action="<?= base_url('settings/updateNotifications') ?>" method="post">
+        <form action="<?= base_url('settings/notifications/update') ?>" method="post">
             <?= csrf_field() ?>
 
             <!-- System Notifications -->
