@@ -1,7 +1,7 @@
                     <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-8" data-settings-form="true" data-saving-label="Saving defaults...">
                         <?= csrf_field() ?>
-                        <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 overflow-hidden">
-                            <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
+                        <div class="control-settings-card">
+                            <div class="control-settings-header">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                                         <i class="fas fa-cog text-blue-400 text-xl"></i>
@@ -17,7 +17,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Timezone</label>
-                                        <select name="default_timezone" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required>
+                                        <select name="default_timezone" class="control-settings-field" required>
                                             <?php $defaultTimezone = $settings['default_timezone'] ?? 'Asia/Jerusalem'; ?>
                                             <option value="UTC" <?= $defaultTimezone === 'UTC' ? 'selected' : '' ?>>UTC</option>
                                             <option value="America/New_York" <?= $defaultTimezone === 'America/New_York' ? 'selected' : '' ?>>Eastern Time (ET)</option>
@@ -86,7 +86,7 @@
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date Format</label>
                                         <?php $defaultDateFormat = $settings['default_date_format'] ?? 'd/m/Y'; ?>
-                                        <select name="default_date_format" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required>
+                                        <select name="default_date_format" class="control-settings-field" required>
                                             <option value="Y-m-d" <?= $defaultDateFormat === 'Y-m-d' ? 'selected' : '' ?>>YYYY-MM-DD</option>
                                             <option value="m/d/Y" <?= $defaultDateFormat === 'm/d/Y' ? 'selected' : '' ?>>MM/DD/YYYY</option>
                                             <option value="d/m/Y" <?= $defaultDateFormat === 'd/m/Y' ? 'selected' : '' ?>>DD/MM/YYYY</option>
@@ -96,7 +96,7 @@
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Time Format</label>
                                         <?php $defaultTimeFormat = (string) ($settings['default_time_format'] ?? '12'); ?>
-                                        <select name="default_time_format" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required>
+                                        <select name="default_time_format" class="control-settings-field" required>
                                             <option value="24" <?= $defaultTimeFormat === '24' ? 'selected' : '' ?>>24 Hour</option>
                                             <option value="12" <?= $defaultTimeFormat === '12' ? 'selected' : '' ?>>12 Hour</option>
                                         </select>
@@ -105,7 +105,7 @@
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Currency</label>
                                         <?php $defaultCurrency = $settings['default_currency'] ?? 'ILS'; ?>
-                                        <select name="default_currency" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required>
+                                        <select name="default_currency" class="control-settings-field" required>
                                             <option value="ILS" <?= $defaultCurrency == 'ILS' ? 'selected' : '' ?>>ILS - Israeli Shekel (ILS)</option>
                                             <option value="USD" <?= $defaultCurrency == 'USD' ? 'selected' : '' ?>>USD - US Dollar (USD)</option>
                                             <option value="JOD" <?= $defaultCurrency == 'JOD' ? 'selected' : '' ?>>JOD - Jordanian Dinar (JOD)</option>
@@ -117,12 +117,74 @@
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Currency Position</label>
                                         <?php $defaultCurrencyPosition = $settings['default_currency_position'] ?? 'after'; ?>
-                                        <select name="default_currency_position" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required>
+                                        <select name="default_currency_position" class="control-settings-field" required>
                                             <option value="before" <?= $defaultCurrencyPosition === 'before' ? 'selected' : '' ?>>Before Amount (e.g., $100)</option>
                                             <option value="after" <?= $defaultCurrencyPosition === 'after' ? 'selected' : '' ?>>After Amount (e.g., 100$)</option>
                                         </select>
                                         <p class="text-xs text-slate-400 mt-1">Whether the symbol appears before or after the amount (for example, $120 vs 120 ILS).</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-settings-card">
+                            <div class="control-settings-header">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                        <i class="fas fa-clock text-blue-400 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-white">Working Hours</h3>
+                                        <p class="text-slate-300 text-sm">Set default operating hours and working days</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Start Time</label>
+                                        <input type="time" name="default_working_hours_start" data-clinic-time="1" value="<?= esc($settings['default_working_hours_start'] ?? '09:00') ?>" class="control-settings-field" required>
+                                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">End Time</label>
+                                        <input type="time" name="default_working_hours_end" data-clinic-time="1" value="<?= esc($settings['default_working_hours_end'] ?? '17:00') ?>" class="control-settings-field" required>
+                                        <p class="text-xs text-slate-400 mt-1">Default calendar open/close times applied to new clinics.</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Working Days</label>
+                                        <p class="text-xs text-slate-400 mt-1 mb-3">Days the clinic is open by default. Clinics can override their own schedule.</p>
+                                        <?php
+                                            $workingDefaults = $settings['default_working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                                            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                                            $dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                        ?>
+                                        <div class="grid grid-cols-7 gap-2">
+                                            <?php foreach ($days as $index => $day): ?>
+                                                <label class="flex flex-col items-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-blue-300 transition-all duration-200 <?= in_array($day, $workingDefaults, true) ? 'border-blue-500 bg-blue-50' : '' ?>">
+                                                    <input type="checkbox" name="default_working_days[]" value="<?= esc($day) ?>" <?= in_array($day, $workingDefaults, true) ? 'checked' : '' ?> class="sr-only">
+                                                    <span class="text-sm font-medium text-gray-700"><?= esc($dayLabels[$index]) ?></span>
+                                                </label>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Appointment Duration (minutes)</label>
+                                        <input type="number" name="default_appointment_duration" value="<?= esc((int) ($settings['default_appointment_duration'] ?? 30)) ?>" min="15" max="480" class="control-settings-field" required>
+                                        <p class="text-xs text-slate-400 mt-1">Initial slot length for the clinic calendar in minutes. Clinics can override after onboarding.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Clinic Max Chairs</label>
+                                        <input type="number" name="default_booking_chair_max" value="<?= esc((int) ($settings['default_booking_chair_max'] ?? 3)) ?>" min="1" max="3" class="control-settings-field" required>
+                                        <p class="text-xs text-slate-400 mt-1">Platform-level cap on concurrent appointment slots per time slot. Cannot exceed 3.</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" class="control-settings-submit">
+                                        <i class="fas fa-save mr-2"></i>Save Clinic Defaults
+                                    </button>
                                 </div>
                             </div>
                         </div>

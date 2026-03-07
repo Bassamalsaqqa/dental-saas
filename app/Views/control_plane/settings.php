@@ -1,13 +1,128 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
+<style>
+    .control-settings-menu-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #475569;
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+    .control-settings-menu-btn:hover {
+        background: rgba(59, 130, 246, 0.08);
+        color: #0f172a;
+    }
+    .control-settings-menu-btn i {
+        margin-right: 0.75rem;
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+    .control-settings-menu-btn.is-active {
+        background: linear-gradient(135deg, #3b82f6, #4f46e5);
+        color: #fff;
+        box-shadow: 0 18px 38px rgba(59, 130, 246, 0.18);
+    }
+    .control-settings-menu-btn.is-active i {
+        color: rgba(255, 255, 255, 0.82);
+    }
+    .control-settings-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 1rem;
+        box-shadow: 0 18px 40px rgba(59, 130, 246, 0.10);
+        overflow: hidden;
+    }
+    .control-settings-header {
+        background: linear-gradient(90deg, #334155, #0f172a);
+        padding: 2rem;
+    }
+    .control-settings-field {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        color: #334155;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .control-settings-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    }
+    .control-settings-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #3b82f6, #4f46e5);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 14px 32px rgba(59, 130, 246, 0.20);
+        transition: all 0.2s ease;
+    }
+    .control-settings-submit:hover {
+        filter: brightness(0.97);
+    }
+    .control-settings-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .control-settings-secondary:hover {
+        background: #f8fafc;
+    }
+    .control-settings-subtab {
+        padding: 0.625rem 1rem;
+        border-bottom: 2px solid transparent;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        white-space: nowrap;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.2s ease;
+    }
+    .control-settings-subtab:hover {
+        color: #334155;
+    }
+    [dir="rtl"] #control-settings-breadcrumb {
+        direction: rtl;
+    }
+    [dir="rtl"] #control-settings-breadcrumb .fa-chevron-right::before {
+        content: "\f053";
+    }
+    [dir="rtl"] .control-settings-menu-btn {
+        text-align: right;
+    }
+    [dir="rtl"] .control-settings-menu-btn i {
+        margin-right: 0 !important;
+        margin-left: 0.75rem !important;
+    }
+</style>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-gray-600/10 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-zinc-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
     </div>
 
-    <div class="container mx-auto relative z-10 px-4 py-6">
+    <div class="container mx-auto relative z-10 px-6 py-8">
         <div class="mb-8">
             <div class="bg-white/90 backdrop-blur-xl border border-white/40 rounded-2xl p-6 shadow-xl shadow-blue-500/10">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -62,23 +177,26 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="lg:w-72 flex-shrink-0">
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 p-6 sticky top-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6 px-2">Settings Menu</h3>
-                    <nav class="space-y-1">
-                        <button onclick="showTab('platform')" id="nav-platform" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
-                            <i class="fas fa-id-badge w-5 h-5 mr-3 text-white/80"></i>
+                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 p-6 sticky top-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
+                    <nav class="space-y-2">
+                        <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
+                            <i class="fas fa-id-badge w-5 h-5"></i>
                             Platform Profile
                         </button>
-                        <button onclick="showTab('clinic-defaults')" id="nav-clinic-defaults" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-clinic-medical w-5 h-5 mr-3 text-slate-400"></i>
+                        <button onclick="showTab('clinic-defaults')" id="nav-clinic-defaults" class="control-settings-menu-btn">
+                            <i class="fas fa-clinic-medical w-5 h-5"></i>
                             Clinic Defaults
                         </button>
-                        <button onclick="showTab('governance')" id="nav-governance" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-shield-alt w-5 h-5 mr-3 text-slate-400"></i>
+                        <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
+                            <i class="fas fa-shield-alt w-5 h-5"></i>
                             Governance
                         </button>
-                        <button onclick="showTab('communications')" id="nav-communications" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
-                            <i class="fas fa-satellite-dish w-5 h-5 mr-3 text-slate-400"></i>
+                        <div class="pt-4 pb-2 border-t border-slate-100 mt-4">
+                            <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
+                        </div>
+                        <button onclick="showTab('communications')" id="nav-communications" class="control-settings-menu-btn">
+                            <i class="fas fa-satellite-dish w-5 h-5"></i>
                             Communications
                         </button>
                     </nav>
@@ -144,25 +262,11 @@ function showTab(tabName, options = {}) {
     }
 
     const navButtons = document.querySelectorAll('[id^="nav-"]');
-    navButtons.forEach(btn => {
-        btn.className = 'w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900';
-        const icon = btn.querySelector('i');
-        if (icon) {
-            icon.classList.remove('text-slate-300', 'text-white/80');
-            icon.classList.add('text-slate-400');
-        }
-    });
+    navButtons.forEach(btn => btn.classList.remove('is-active'));
 
     const activeBtn = document.getElementById('nav-' + tabName);
-    const activeClass = 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg';
-
     if (activeBtn) {
-        activeBtn.className = `w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 ${activeClass}`;
-        const activeIcon = activeBtn.querySelector('i');
-        if (activeIcon) {
-            activeIcon.classList.remove('text-slate-400');
-            activeIcon.classList.add('text-white/80');
-        }
+        activeBtn.classList.add('is-active');
     }
 
     const breadcrumbTab = document.getElementById('control-breadcrumb-tab');

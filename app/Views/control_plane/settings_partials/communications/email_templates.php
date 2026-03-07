@@ -11,18 +11,18 @@
                                     <input type="hidden" name="subtab" value="email-templates">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search</label>
-                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="w-64 px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" placeholder="Search templates...">
+                                        <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="control-settings-field w-64" placeholder="Search templates...">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
-                                        <select name="status" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all">
+                                        <select name="status" class="control-settings-field">
                                             <?php $currentTemplateStatus = $templateFilters['status'] ?? ''; ?>
                                             <option value="" <?= $currentTemplateStatus === '' ? 'selected' : '' ?>>All</option>
                                             <option value="active" <?= $currentTemplateStatus === 'active' ? 'selected' : '' ?>>Active</option>
                                             <option value="draft" <?= $currentTemplateStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
                                         </select>
                                     </div>
-                                    <button type="submit" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all">Apply</button>
+                                    <button type="submit" class="control-settings-submit">Apply</button>
                                 </form>
 
                                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -47,19 +47,19 @@
                                         <h4 class="text-sm font-bold text-slate-800 mb-4"><?= $editorTemplate ? 'Edit Template' : 'Create Template' ?></h4>
                                         <form action="<?= base_url('controlplane/settings/email-templates' . ($editorTemplate ? '/' . (int) $editorTemplate['id'] : '')) ?>" method="post" class="space-y-3" data-settings-form="true" data-saving-label="Saving template...">
                                             <?= csrf_field() ?>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject</label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HTML Body</label><textarea name="body_html" rows="6" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
-                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Text Body</label><textarea name="body_text" rows="4" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Name</label><input type="text" name="name" value="<?= esc($editorTemplate['name'] ?? '') ?>" class="control-settings-field" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Slug</label><input type="text" name="slug" value="<?= esc($editorTemplate['slug'] ?? '') ?>" class="control-settings-field"></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject</label><input type="text" name="subject" value="<?= esc($editorTemplate['subject'] ?? '') ?>" class="control-settings-field" required></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HTML Body</label><textarea name="body_html" rows="6" class="control-settings-field"><?= esc($editorTemplate['body_html'] ?? '') ?></textarea></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Text Body</label><textarea name="body_text" rows="4" class="control-settings-field"><?= esc($editorTemplate['body_text'] ?? '') ?></textarea></div>
                                             <div>
                                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
-                                                <select name="status" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all">
+                                                <select name="status" class="control-settings-field">
                                                     <option value="draft" <?= (($editorTemplate['status'] ?? 'draft') === 'draft') ? 'selected' : '' ?>>Draft</option>
                                                     <option value="active" <?= (($editorTemplate['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active</option>
                                                 </select>
                                             </div>
-                                            <button type="submit" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all">Save Template</button>
+                                            <button type="submit" class="control-settings-submit">Save Template</button>
                                         </form>
                                     </div>
                                 </div>
