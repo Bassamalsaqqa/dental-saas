@@ -598,7 +598,6 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->get('notification-settings', static function () {
         return redirect()->to('/settings?tab=communications&subtab=alerts', 301);
     }, ['filter' => 'permission:settings:view']);
-    $routes->post('updateNotifications', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
     $routes->post('notifications/update', 'Settings::updateNotifications', ['filter' => 'permission:settings:edit']);
     
     // Notification Channels (P5-09a)

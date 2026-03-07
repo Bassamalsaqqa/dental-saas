@@ -1,5 +1,5 @@
                 <div id="tab-communications" class="settings-content hidden">
-                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                    <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 overflow-hidden">
                         <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -36,10 +36,10 @@
                                 </a>
                             </div>
                             <div class="flex space-x-1 overflow-x-auto pb-0">
-                                <button onclick="showCommsSubTab('email-templates')" id="comms-subtab-email-templates" class="comms-subtab px-5 py-2.5 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                                <button onclick="showCommsSubTab('email-templates')" id="comms-subtab-email-templates" class="comms-subtab px-5 py-2.5 text-sm font-semibold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
                                     <i class="fas fa-envelope-open-text mr-2"></i>Email Templates
                                 </button>
-                                <button onclick="showCommsSubTab('whatsapp')" id="comms-subtab-whatsapp" class="comms-subtab px-5 py-2.5 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                                <button onclick="showCommsSubTab('whatsapp')" id="comms-subtab-whatsapp" class="comms-subtab px-5 py-2.5 text-sm font-semibold rounded-t-lg whitespace-nowrap border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
                                     <i class="fab fa-whatsapp mr-2"></i>WhatsApp
                                 </button>
                             </div>

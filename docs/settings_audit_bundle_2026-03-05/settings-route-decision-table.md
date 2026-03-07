@@ -21,7 +21,6 @@ Legend:
 | `/settings/updateKiosk` | POST | `Settings::updateKiosk` | live | canonical | Kiosk save |
 | `/settings/plan-request` | POST | `Settings::requestPlan` | live | canonical | Subscription request flow |
 | `/settings/notifications/update` | POST | `Settings::updateNotifications` | live | canonical | Canonical alerts preferences save |
-| `/settings/updateNotifications` | POST | `Settings::updateNotifications` | live | alias | Temporary compatibility alias for legacy form actions |
 | `/settings/notification-settings` | GET | redirect closure | live | redirect | Redirect to `/settings?tab=communications&subtab=alerts` |
 | `/settings/channels` | GET | `Settings::channels` | live | alias | Deep-link alias into communications |
 | `/settings/email` | GET | `Settings::email` | live | alias | Deep-link alias into communications |

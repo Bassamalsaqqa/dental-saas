@@ -35,10 +35,6 @@ class Settings extends BaseController
     public function sms() { return $this->index('sms'); }
     public function whatsapp() { return $this->index('whatsapp'); }
     public function channels() { return $this->index('channels'); }
-    public function notifications()
-    {
-        return redirect()->to('/settings?tab=communications&subtab=alerts');
-    }
     public function kiosk() { return $this->index('kiosk'); }
     public function backup()
     {

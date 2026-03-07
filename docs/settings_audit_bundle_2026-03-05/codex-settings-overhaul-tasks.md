@@ -164,7 +164,7 @@ Scope:
 - keep RTL/LTR spacing parity
 
 ### Task 3.2: Retire or isolate legacy tenant settings screens
-Status: `pending`
+Status: `completed`
 
 Scope:
 - once compatibility window is satisfied, either remove legacy views or leave only explicit redirect shims
@@ -172,7 +172,7 @@ Scope:
 ## Phase 4: Control-Plane Settings Parity
 
 ### Task 4.1: Align control-plane settings tokens with tenant settings
-Status: `pending`
+Status: `completed`
 
 Scope:
 - typography, spacing, inputs, button hierarchy, tabs, empty states
@@ -196,7 +196,7 @@ Status: `completed`
 ## Phase 6: Verification and Retirement
 
 ### Task 6.1: Browser verification matrix
-Status: `pending`
+Status: `completed`
 
 Scope:
 - deep links
@@ -207,7 +207,7 @@ Scope:
 - compatibility redirects
 
 ### Task 6.2: Final legacy path retirement
-Status: `pending`
+Status: `completed`
 
 Scope:
 - remove compatibility aliases only after all canonical paths are verified and documented

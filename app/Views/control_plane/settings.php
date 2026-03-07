@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 relative overflow-hidden">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-gray-600/10 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-zinc-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -9,10 +9,10 @@
 
     <div class="container mx-auto relative z-10 px-4 py-6">
         <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+            <div class="bg-white/90 backdrop-blur-xl border border-white/40 rounded-2xl p-6 shadow-xl shadow-blue-500/10">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-slate-700 to-gray-800 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-cogs text-xl"></i>
                         </div>
                         <div>
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Global Mode</span>
+                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Global Mode</span>
                         <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Live Settings</span>
                     </div>
                 </div>
@@ -62,11 +62,11 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="lg:w-72 flex-shrink-0">
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 sticky top-6">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Settings Menu</h3>
+                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 p-6 sticky top-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 px-2">Settings Menu</h3>
                     <nav class="space-y-1">
-                        <button onclick="showTab('platform')" id="nav-platform" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 bg-gradient-to-r from-slate-700 to-gray-800 text-white shadow-md">
-                            <i class="fas fa-id-badge w-5 h-5 mr-3 text-slate-300"></i>
+                        <button onclick="showTab('platform')" id="nav-platform" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
+                            <i class="fas fa-id-badge w-5 h-5 mr-3 text-white/80"></i>
                             Platform Profile
                         </button>
                         <button onclick="showTab('clinic-defaults')" id="nav-clinic-defaults" class="w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
@@ -154,7 +154,7 @@ function showTab(tabName, options = {}) {
     });
 
     const activeBtn = document.getElementById('nav-' + tabName);
-    const activeClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg';
+    const activeClass = 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg';
 
     if (activeBtn) {
         activeBtn.className = `w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 ${activeClass}`;

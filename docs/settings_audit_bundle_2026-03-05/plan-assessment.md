@@ -19,25 +19,23 @@ The strongest improvements in this assessment are the following:
 
 Those are all good corrections and should be kept.
 
-## Critical Correction: Legacy Notifications Are Still Live
+## Critical Correction: Legacy Notifications Cleanup Is Mostly Done
 
-The assessment overstates how far tenant settings cleanup has already gone.
-
-It implies that the legacy notifications routes already redirect to the communications alerts subtab. That is not the current state of the codebase.
+The earlier assessment used stale route assumptions. In the current repository, tenant notifications are already funneled into the consolidated communications alerts subtab.
 
 Current live behavior:
 
-- `GET /settings/notification-settings` still maps to `Settings::notifications`
-- `POST /settings/notifications/update` still maps to `Settings::updateNotifications`
-- `Settings::notifications()` still exists as a live controller method and currently delegates into the main settings surface
+- `GET /settings/notification-settings` redirects to `/settings?tab=communications&subtab=alerts`
+- `POST /settings/notifications/update` remains the canonical alerts preferences save
+- the former standalone view has been retired and is no longer part of the live app surface
 
 Relevant code references:
 
-- [app/Config/Routes.php](C:\xampp\htdocs\dental-saas\app\Config\Routes.php:593)
-- [app/Config/Routes.php](C:\xampp\htdocs\dental-saas\app\Config\Routes.php:594)
-- [app/Controllers/Settings.php](C:\xampp\htdocs\dental-saas\app\Controllers\Settings.php:33)
+- [app/Config/Routes.php](C:\xampp\htdocs\dental-saas\app\Config\Routes.php)
+- [app/Controllers/Settings.php](C:\xampp\htdocs\dental-saas\app\Controllers\Settings.php)
+- [app/Views/settings/partials/communications/alerts.php](C:\xampp\htdocs\dental-saas\app\Views\settings\partials\communications\alerts.php)
 
-This means the legacy notification surface has not been fully retired yet. The overhaul plan must treat it as an active compatibility path that still needs an explicit keep/redirect/remove decision.
+This means the remaining legacy-retirement work is smaller than the assessment implied. The overhaul should now treat notifications as a mostly-completed consolidation and avoid reintroducing a second standalone surface.
 
 ## Additional Repo-Specific Clarifications
 
@@ -86,7 +84,7 @@ Before design work starts, produce a table for every settings-related route with
 
 This is especially important for:
 
-- tenant legacy notifications paths
+- tenant compatibility and redirect paths that still exist after consolidation
 - control-plane settings-adjacent operational paths
 - any route whose UI has been folded into another settings tab or subtab
 
@@ -121,14 +119,14 @@ Each one should define:
 
 ### 4. Legacy Retirement Must Explicitly Cover Both GET and POST
 
-For legacy notification settings in tenant plane, retirement is not complete unless the plan names both of these:
+For legacy notification settings in tenant plane, retirement should explicitly account for both of these:
 
 - `GET /settings/notification-settings`
 - `POST /settings/notifications/update`
 
 The implementation must decide whether they:
 
-- remain as compatibility aliases
+- remain as compatibility endpoints
 - redirect to canonical settings URLs
 - or are removed after a transition window
 
