@@ -1,5 +1,5 @@
                             <div id="comms-panel-whatsapp" data-section-title="WhatsApp Configuration" class="comms-panel hidden space-y-6">
-                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                                <div id="section-whatsapp-live-operations" data-section-title="Live Operations" class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
                                     <div>
                                         <h4 class="font-bold text-emerald-800 text-sm">WhatsApp Live Operations</h4>
                                         <p class="text-xs text-emerald-600 mt-0.5">Real-time delivery stats, journal, and opt-out monitoring</p>
@@ -9,7 +9,7 @@
                                     </a>
                                 </div>
 
-                                <div class="pt-2 border-t border-slate-100">
+                                <div id="section-whatsapp-api-credentials" data-section-title="API Credentials" class="pt-2 border-t border-slate-100">
                                     <h4 class="text-sm font-bold text-slate-800 mb-3">API Credentials</h4>
                                     <div class="space-y-4">
                                         <?php foreach (($wa_secrets ?? []) as $s): ?>
@@ -33,7 +33,7 @@
                                     </div>
                                 </div>
 
-                                <div class="pt-2 border-t border-slate-100">
+                                <div id="section-whatsapp-rate-limits" data-section-title="Tenant Rate Limits" class="pt-2 border-t border-slate-100">
                                     <h4 class="text-sm font-bold text-slate-800 mb-3">Tenant Rate Limits</h4>
                                     <div class="overflow-x-auto border border-slate-200 rounded-xl">
                                         <table class="w-full text-sm">

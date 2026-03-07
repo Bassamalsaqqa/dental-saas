@@ -386,7 +386,17 @@ function renderSectionLinks() {
     }
 
     const sections = Array.from(visibleTab.querySelectorAll('[data-section-title]'))
-        .filter((section) => !section.classList.contains('hidden'));
+        .filter((section) => {
+            if (section.classList.contains('hidden')) {
+                return false;
+            }
+
+            if (!section.id || !section.dataset.sectionTitle) {
+                return false;
+            }
+
+            return section.offsetParent !== null;
+        });
 
     container.innerHTML = sections.map((section) => {
         const title = section.dataset.sectionTitle || '';
