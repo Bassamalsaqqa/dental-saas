@@ -12,6 +12,18 @@
                             </div>
                         </div>
                         <div class="border-b border-gray-100 px-8 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6">
+                                <div class="rounded-2xl border border-sky-100 bg-sky-50 px-5 py-4">
+                                    <p class="text-[11px] font-black uppercase tracking-widest text-sky-600">Channels</p>
+                                    <p class="mt-2 text-sm font-semibold text-slate-900">Configure clinic delivery endpoints</p>
+                                    <p class="mt-1 text-xs text-slate-500">Email, SMS, WhatsApp, and personal alerts now live inside one communications section.</p>
+                                </div>
+                                <div class="rounded-2xl border border-violet-100 bg-violet-50 px-5 py-4">
+                                    <p class="text-[11px] font-black uppercase tracking-widest text-violet-600">Behavior</p>
+                                    <p class="mt-2 text-sm font-semibold text-slate-900">Settings are grouped by channel</p>
+                                    <p class="mt-1 text-xs text-slate-500">Use the tabs below to move between availability, credentials, templates, and personal notification preferences.</p>
+                                </div>
+                            </div>
                             <div class="flex space-x-1 overflow-x-auto pb-0">
                                 <button onclick="showSubTab('channels')" id="subtab-channels" class="subtab-btn px-4 py-2 text-sm font-semibold rounded-t-lg whitespace-nowrap">
                                     <i class="fas fa-th-large mr-1"></i><?= lang('UI.settingsChannels') ?>

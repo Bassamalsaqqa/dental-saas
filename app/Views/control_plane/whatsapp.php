@@ -65,14 +65,25 @@ $activeTab = $active_tab ?? 'dashboard';
         </div>
     </div>
 
-    <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
-        <div>
-            <h4 class="font-bold text-slate-700 text-sm">Secrets &amp; Policies moved to Settings</h4>
-            <p class="text-xs text-slate-500 mt-0.5">API credentials and tenant rate limits are now in Global Configuration</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+            <div>
+                <h4 class="font-bold text-slate-700 text-sm">Secrets &amp; Policies moved to Settings</h4>
+                <p class="text-xs text-slate-500 mt-0.5">API credentials and tenant rate limits are now in Global Configuration</p>
+            </div>
+            <a href="<?= base_url('controlplane/settings?tab=communications&subtab=whatsapp') ?>" class="px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-all">
+                <i class="fas fa-cog mr-1.5"></i>Go to Settings
+            </a>
         </div>
-        <a href="<?= base_url('controlplane/settings?tab=communications&subtab=whatsapp') ?>" class="px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-all">
-            <i class="fas fa-cog mr-1.5"></i>Go to Settings
-        </a>
+        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+            <div>
+                <h4 class="font-bold text-amber-800 text-sm">Operations Console</h4>
+                <p class="text-xs text-amber-700 mt-0.5">Open shared runtime tooling and platform health checks</p>
+            </div>
+            <a href="<?= base_url('controlplane/operations') ?>" class="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-xl hover:bg-amber-700 transition-all">
+                <i class="fas fa-arrow-up-right-from-square mr-1.5"></i>Open Ops
+            </a>
+        </div>
     </div>
 
     <!-- Tab: Dashboard -->

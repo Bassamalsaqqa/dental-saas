@@ -37,6 +37,28 @@
         </div>
 
         <div class="mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <a href="<?= base_url('controlplane/settings') ?>" class="group rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-blue-200">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-widest text-blue-600">Configuration</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">Back to global settings</p>
+                            <p class="mt-1 text-xs text-slate-500">Review platform profile, clinic defaults, governance, and communications settings.</p>
+                        </div>
+                        <i class="fas fa-arrow-up-right-from-square text-blue-600 group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+                <a href="<?= base_url('controlplane/settings?tab=communications&subtab=whatsapp') ?>" class="group rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-emerald-300">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-widest text-emerald-600">Communications Settings</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">Manage WhatsApp policies and secrets</p>
+                            <p class="mt-1 text-xs text-slate-500">Operational health lives here, but configuration still belongs in the settings shell.</p>
+                        </div>
+                        <i class="fas fa-arrow-up-right-from-square text-emerald-600 group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+            </div>
             <div class="flex gap-2 p-1.5 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm inline-flex">
                 <button onclick="showOpsTab('health')" id="ops-btn-health" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200">
                     <i class="fas fa-heartbeat mr-2"></i>System Health

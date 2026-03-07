@@ -157,7 +157,7 @@ Acceptance:
 ## Phase 3: Tenant Settings Refinement
 
 ### Task 3.1: Tighten tenant settings visual consistency
-Status: `pending`
+Status: `completed`
 
 Scope:
 - unify cards, tab buttons, section headers, and CTA hierarchy
@@ -179,7 +179,7 @@ Scope:
 - preserve plane-specific IA
 
 ### Task 4.2: Clarify settings-adjacent links
-Status: `pending`
+Status: `completed`
 
 Scope:
 - settings should link to operations surfaces cleanly
@@ -188,10 +188,10 @@ Scope:
 ## Phase 5: Settings-Adjacent Surface Cleanup
 
 ### Task 5.1: Control-plane operations discoverability cleanup
-Status: `pending`
+Status: `completed`
 
 ### Task 5.2: Control-plane WhatsApp config/ops bridge cleanup
-Status: `pending`
+Status: `completed`
 
 ## Phase 6: Verification and Retirement
 
