@@ -99,6 +99,30 @@
             <span id="breadcrumb-subtab" class="text-gray-900 font-semibold"></span>
         </nav>
 
+        <?php $settingsErrors = session('errors'); ?>
+        <?php if (session('error') || (!empty($settingsErrors) && is_array($settingsErrors))): ?>
+            <div id="settings-validation-summary" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 text-rose-600">
+                        <i class="fas fa-circle-exclamation"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-sm font-bold">Please review the highlighted settings and try again.</p>
+                        <?php if (session('error')): ?>
+                            <p class="text-sm"><?= esc(session('error')) ?></p>
+                        <?php endif; ?>
+                        <?php if (!empty($settingsErrors) && is_array($settingsErrors)): ?>
+                            <ul class="list-disc space-y-1 ps-5 text-sm">
+                                <?php foreach ($settingsErrors as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Settings Layout with Sidebar -->
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Left Sidebar -->
@@ -296,6 +320,10 @@ function setFieldError(input, message) {
         errorEl.classList.add('hidden');
     }
     return true;
+}
+
+function clearSettingsSummary() {
+    document.getElementById('settings-validation-summary')?.remove();
 }
 
 function validateField(input, rules = {}) {
@@ -624,6 +652,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape') {
             closeConfirmModal();
         }
+    });
+
+    document.querySelectorAll('input, select, textarea').forEach((field) => {
+        field.addEventListener('input', () => {
+            if (field.classList.contains('border-red-400')) {
+                setFieldError(field, '');
+            }
+            clearSettingsSummary();
+        });
+        field.addEventListener('change', () => {
+            if (field.classList.contains('border-red-400')) {
+                setFieldError(field, '');
+            }
+            clearSettingsSummary();
+        });
     });
 
     const kioskToggle = document.querySelector('.kiosk-toggle');

@@ -36,6 +36,30 @@
             <span id="control-breadcrumb-tab" class="text-gray-900 font-semibold"></span>
         </nav>
 
+        <?php $controlSettingsErrors = session('errors'); ?>
+        <?php if (session('error') || (!empty($controlSettingsErrors) && is_array($controlSettingsErrors))): ?>
+            <div id="control-settings-feedback" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 text-rose-600">
+                        <i class="fas fa-circle-exclamation"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-sm font-bold">Please review the highlighted settings and try again.</p>
+                        <?php if (session('error')): ?>
+                            <p class="text-sm"><?= esc(session('error')) ?></p>
+                        <?php endif; ?>
+                        <?php if (!empty($controlSettingsErrors) && is_array($controlSettingsErrors)): ?>
+                            <ul class="list-disc space-y-1 ps-5 text-sm">
+                                <?php foreach ($controlSettingsErrors as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="lg:w-72 flex-shrink-0">
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 sticky top-6">
@@ -224,9 +248,32 @@ function setButtonLoading(button, loading, label = 'Saving...') {
 
 function bindManagedForms() {
     document.querySelectorAll('form[data-settings-form="true"]').forEach((form) => {
+        const trackedFields = form.querySelectorAll('input, select, textarea');
+
+        trackedFields.forEach((field) => {
+            const syncFieldState = () => {
+                field.classList.remove('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                if (!field.checkValidity()) {
+                    return;
+                }
+
+                document.getElementById('control-settings-feedback')?.remove();
+            };
+
+            field.addEventListener('input', syncFieldState);
+            field.addEventListener('change', syncFieldState);
+        });
+
         form.addEventListener('submit', (event) => {
             if (!form.checkValidity()) {
                 event.preventDefault();
+                trackedFields.forEach((field) => {
+                    if (typeof field.checkValidity === 'function' && !field.checkValidity()) {
+                        field.classList.add('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                    } else {
+                        field.classList.remove('border-rose-400', 'focus:border-rose-500', 'focus:ring-rose-100');
+                    }
+                });
                 form.reportValidity();
                 return;
             }

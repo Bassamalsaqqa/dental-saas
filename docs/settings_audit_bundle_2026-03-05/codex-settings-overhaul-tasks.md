@@ -145,7 +145,7 @@ Acceptance:
 - each settings interaction type follows one consistent pattern
 
 ### Task 2.2: Standardize inline validation and summary feedback
-Status: `pending`
+Status: `completed`
 
 Scope:
 - ensure invalid fields and save failures communicate clearly
