@@ -1,5 +1,5 @@
                 <div id="tab-platform" class="settings-content">
-                    <div class="control-settings-card">
+                    <div id="section-platform-profile" data-section-title="Platform Profile" class="control-settings-card">
                         <div class="control-settings-header">
                             <div class="flex items-center space-x-4">
                                 <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">

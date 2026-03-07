@@ -1,6 +1,6 @@
                     <form action="<?= base_url('controlplane/settings/tenant-defaults') ?>" method="POST" class="space-y-8" data-settings-form="true" data-saving-label="Saving defaults...">
                         <?= csrf_field() ?>
-                        <div class="control-settings-card">
+                        <div id="section-clinic-defaults-system" data-section-title="System Preferences" class="control-settings-card">
                             <div class="control-settings-header">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -127,7 +127,7 @@
                             </div>
                         </div>
 
-                        <div class="control-settings-card">
+                        <div id="section-clinic-defaults-hours" data-section-title="Working Hours" class="control-settings-card">
                             <div class="control-settings-header">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">

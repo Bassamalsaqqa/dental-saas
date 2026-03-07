@@ -1,6 +1,6 @@
                 <div id="tab-governance" class="settings-content hidden">
                     <div class="space-y-8">
-                        <div class="control-settings-card">
+                        <div id="section-governance-retention" data-section-title="Export Retention Policy" class="control-settings-card">
                             <div class="control-settings-header">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -59,7 +59,7 @@
                             </div>
                         </div>
 
-                        <div class="control-settings-card">
+                        <div id="section-governance-audit" data-section-title="Audit Retention" class="control-settings-card">
                             <div class="control-settings-header">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -91,7 +91,7 @@
                             </div>
                         </div>
 
-                        <div class="control-settings-card p-8">
+                        <div id="section-governance-features" data-section-title="Feature Governance" class="control-settings-card p-8">
                             <div class="flex items-start justify-between flex-wrap gap-6">
                                 <div>
                                     <h4 class="text-lg font-bold text-slate-900">Feature Governance</h4>

@@ -1,4 +1,4 @@
-                            <div id="comms-panel-email-templates" class="comms-panel space-y-6">
+                            <div id="comms-panel-email-templates" data-section-title="Email Templates" class="comms-panel space-y-6">
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50"><p class="text-xs text-slate-500">Total</p><p class="text-2xl font-black text-slate-900"><?= number_format($templateStats['total'] ?? 0) ?></p></div>
                                     <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50"><p class="text-xs text-emerald-600">Active</p><p class="text-2xl font-black text-emerald-700"><?= number_format($templateStats['active'] ?? 0) ?></p></div>

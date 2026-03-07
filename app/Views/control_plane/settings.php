@@ -43,6 +43,13 @@
         background: linear-gradient(90deg, #334155, #0f172a);
         padding: 2rem;
     }
+    .control-settings-header h3,
+    .control-settings-header h4 {
+        color: #fff !important;
+    }
+    .control-settings-header p {
+        color: rgba(226, 232, 240, 0.92) !important;
+    }
     .control-settings-field {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -102,6 +109,35 @@
     .control-settings-subtab:hover {
         color: #334155;
     }
+    .control-settings-sections {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    .control-settings-section-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        transition: all 0.2s ease;
+    }
+    .control-settings-section-link:hover {
+        background: #fff;
+        color: #1d4ed8;
+        border-color: rgba(59, 130, 246, 0.24);
+    }
+    .control-settings-section-link i {
+        color: #3b82f6;
+        font-size: 0.75rem;
+    }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;
     }
@@ -150,6 +186,7 @@
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span id="control-breadcrumb-tab" class="text-gray-900 font-semibold"></span>
         </nav>
+        <div id="control-settings-sections" class="control-settings-sections"></div>
 
         <?php $controlSettingsErrors = session('errors'); ?>
         <?php if (session('error') || (!empty($controlSettingsErrors) && is_array($controlSettingsErrors))): ?>
@@ -274,6 +311,8 @@ function showTab(tabName, options = {}) {
         breadcrumbTab.textContent = tabNames[tabName] || '';
     }
 
+    renderSectionLinks();
+
     if (options.updateUrl === false) {
         return;
     }
@@ -300,6 +339,8 @@ function showCommsSubTab(name, options = {}) {
         btn.classList.add('border-blue-600', 'text-blue-600', 'bg-blue-50');
         btn.classList.remove('border-transparent', 'text-slate-500');
     }
+
+    renderSectionLinks();
 
     if (options.updateUrl === false) {
         return;
@@ -332,6 +373,26 @@ function toastMessage(type, message) {
     container._hideTimer = setTimeout(() => {
         container.remove();
     }, 3500);
+}
+
+function renderSectionLinks() {
+    const container = document.getElementById('control-settings-sections');
+    if (!container) return;
+
+    const visibleTab = document.querySelector('.settings-content:not(.hidden)');
+    if (!visibleTab) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const sections = Array.from(visibleTab.querySelectorAll('[data-section-title]'))
+        .filter((section) => !section.classList.contains('hidden'));
+
+    container.innerHTML = sections.map((section) => {
+        const title = section.dataset.sectionTitle || '';
+        const id = section.id || '';
+        return `<a href="#${id}" class="control-settings-section-link"><i class="fas fa-link"></i><span>${title}</span></a>`;
+    }).join('');
 }
 
 function setButtonLoading(button, loading, label = 'Saving...') {
@@ -515,17 +576,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initRetentionControls();
     bindPruneActions();
     bindManagedForms();
+    renderSectionLinks();
 
     document.querySelectorAll('input[name="default_working_days[]"]').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
             const label = checkbox.closest('label');
             if (!label) return;
             if (checkbox.checked) {
-                label.classList.add('border-orange-500', 'bg-orange-50');
-                label.classList.remove('border-gray-200');
+                label.classList.add('border-blue-500', 'bg-blue-50');
+                label.classList.remove('border-slate-200');
             } else {
-                label.classList.remove('border-orange-500', 'bg-orange-50');
-                label.classList.add('border-gray-200');
+                label.classList.remove('border-blue-500', 'bg-blue-50');
+                label.classList.add('border-slate-200');
             }
         });
     });
@@ -540,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('popstate', () => {
     const urlTab = new URLSearchParams(window.location.search).get('tab') || 'platform';
     showTab(urlTab, { updateUrl: false });
+    renderSectionLinks();
 });
 
 function toggleSecretVis(btn) {

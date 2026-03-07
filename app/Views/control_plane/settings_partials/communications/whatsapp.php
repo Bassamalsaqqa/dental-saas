@@ -1,4 +1,4 @@
-                            <div id="comms-panel-whatsapp" class="comms-panel hidden space-y-6">
+                            <div id="comms-panel-whatsapp" data-section-title="WhatsApp Configuration" class="comms-panel hidden space-y-6">
                                 <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
                                     <div>
                                         <h4 class="font-bold text-emerald-800 text-sm">WhatsApp Live Operations</h4>
