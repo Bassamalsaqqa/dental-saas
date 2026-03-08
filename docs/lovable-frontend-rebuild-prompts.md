@@ -1,205 +1,512 @@
-# Denta+ Lovable Frontend Rebuild Prompt Pack
+# Denta+ Frontend Rebuild Prompt Pack For Lovable
 
-## Purpose
-This file contains a complete prompt sequence for rebuilding the frontend of **Denta+** in **Lovable** from scratch while **preserving the existing backend, routes, permissions, tenant isolation, and database schema**.
+## Why This File Exists
+This file is a serious frontend rebuild brief for Lovable.
 
-The product is:
-- Brand: `Denta+`
-- Company context: `Palsync.net`
-- Region: `Ramallah, Palestine`
-- Type: `multi-tenant dental SaaS`
-- Languages: `English` and `Arabic`
-- Modes: `Tenant plane`, `Control plane`, and public `Kiosk / Auth`
+The goal is to redesign the entire Denta+ frontend from scratch while preserving:
+- the current backend routes
+- the current request/response contracts
+- the database schema
+- RBAC and permission logic
+- tenant isolation
+- control-plane isolation
+- current business logic
 
-## Non-Negotiable Constraints For Every Prompt
-Use these rules in every Lovable prompt:
+This file is intentionally detailed. Lovable needs real product context, not just page names.
 
-1. Do not change backend routes, controllers, request payloads, response shapes, permissions, or database schema.
-2. Build frontend only. Use adapters/mappers if needed, but keep backend contracts intact.
-3. Treat tenant plane and control plane as separate products with related branding, not one mixed dashboard.
-4. Support English and Arabic from day one.
-5. Arabic must be proper RTL, but:
-   - phone numbers stay left-to-right
-   - emails stay left-to-right
-   - Latin codes/IDs stay left-to-right
-   - use Arabic numerals, not Hindi/Indic numerals
-6. Keep odontogram images/assets in their original orientation. Do not mirror the rendered odontogram image in RTL.
-7. Follow professional SaaS design standards:
-   - strong hierarchy
-   - clear information architecture
-   - predictable save/cancel patterns
-   - inline validation
-   - empty states
-   - loading states
-   - responsive desktop/tablet/mobile behavior
-8. Generate production-grade UI/UX, not demo-grade glassmorphism for its own sake.
-9. Favor composable reusable patterns: app shell, page header, filters bar, table layout, detail header, form sections, drawers, modals, toasts.
-10. Make the design feel modern, premium, medical-professional, and calm.
+Each prompt below is written to give Lovable:
+- product background
+- screen purpose
+- user context
+- entity context
+- workflow expectations
+- UI/UX constraints
+- technical boundaries
+- deliverables
 
-## Recommended Execution Strategy
-Ask Lovable to work in this order:
-- Foundation
-- Shared components
-- Auth/public flows
-- Tenant shell
-- Tenant modules
-- Tenant settings and profile
-- Control-plane shell
-- Control-plane modules
-- Kiosk/public flows
-- System states and QA polish
+---
 
-## Prompt 01 - Product Foundation
+## 1. Product Summary
+
+### Name
+`Denta+`
+
+### Company Context
+`Palsync.net`
+
+### Region
+`Ramallah, Palestine`
+
+### Product Type
+Multi-tenant dental SaaS for clinics.
+
+### Product Surfaces
+1. Tenant plane: clinic-facing application.
+2. Control plane: platform super-admin application.
+3. Public / low-friction flows: auth and kiosk.
+
+### Product Tone
+The product should feel:
+- premium
+- operational
+- medically credible
+- bilingual by design
+- calm, readable, and efficient
+
+This should not feel like:
+- a generic startup dashboard
+- a decorative concept app
+- an over-glassy admin template
+- a hospital EMR that is too dense and exhausting
+
+---
+
+## 2. Critical Constraints Lovable Must Respect
+
+Use this block in every Lovable session.
+
 ```text
-Build a complete frontend design system and app architecture for a bilingual dental SaaS called Denta+ by Palsync.net, based in Ramallah, Palestine.
+You are redesigning frontend only.
+Do not require unnecessary backend or database changes.
+Preserve the current backend route structure, payloads, response shapes, permissions, tenant isolation, and control-plane isolation.
 
-Important constraints:
-- Rebuild frontend only.
-- Do not change backend routes, payloads, permissions, or database schema.
-- The product has three surfaces: tenant plane, control plane, and public kiosk/auth flows.
-- The app must support English and Arabic with proper RTL/LTR behavior.
-- Arabic must keep phone numbers, emails, IDs, and mixed-language values left-to-right.
+Important platform constraints:
+- Tenant plane requires active clinic context.
+- Control plane requires global mode and must remain isolated from tenant context.
+- RBAC permissions already exist and must be respected.
+- Existing backend routes are fixed unless frontend-only mapping is enough.
+- Do not redesign in a way that forces schema changes.
+- /api endpoints are not normal HTML screens.
+- Odontogram visuals must never be mirrored in RTL.
+- WhatsApp operational monitoring and WhatsApp configuration are separate concerns.
+```
+
+---
+
+## 3. Language and RTL Rules
+
+Use this block when prompting Lovable about bilingual behavior.
+
+```text
+The app is bilingual: English and Arabic.
+Arabic must be proper RTL.
+
+However, the following must remain left-to-right even in Arabic:
+- phone numbers
+- email addresses
+- URLs
+- invoice numbers
+- IDs
+- codes / tokens / slugs
+- mixed alphanumeric values
+
+Use Arabic numerals, not Hindi/Indic numerals.
+
+RTL quality expectations:
+- menu icon spacing must mirror correctly
+- button icon spacing must mirror correctly
+- card header spacing must mirror correctly
+- breadcrumbs must reverse correctly
+- form layouts must remain readable
+- tables must remain readable
+- data chips and badges must remain intentional, not mechanically flipped
+
+Do not mirror the odontogram image or its rendered orientation.
+```
+
+---
+
+## 4. Main Modules In The Current App
+
+### Tenant Plane
+- Dashboard
+- Patients
+- Patient create/edit/detail
+- Patient attachments
+- Patient WhatsApp identity
+- Treatment contracts
+- Examinations
+- Examination calendar
+- Appointments
+- Appointment calendar
+- Odontogram
+- Finance
+- Finance income/expense
+- Finance reports
+- Finance payouts
+- Treatments
+- Prescriptions
+- Reports
+- Inventory
+- Inventory suppliers
+- Inventory templates/import
+- Inventory usage
+- Inventory movements
+- Inventory reorder list
+- Users
+- Roles
+- Notifications
+- Notification ledger
+- Activity log
+- Profile
+- Settings
+
+### Control Plane
+- Entry / gateway
+- Dashboard
+- Clinics
+- Clinic detail
+- Plans
+- Plan create/edit
+- Plan requests
+- Invoices
+- Users
+- Activity log
+- Operations
+- WhatsApp command center
+- Settings
+- Clinic onboarding
+
+### Public / Low-Friction
+- Login
+- Forgot password
+- Reset password
+- Change password
+- Clinic selection
+- No-clinic state
+- Kiosk check-in
+- Contract signing inside kiosk flow
+
+---
+
+## 5. Primary User Types
+
+### Tenant Plane Users
+1. Dentist
+- cares about patient context, examinations, treatments, prescriptions, odontogram, contracts
+- needs focused clinical screens
+
+2. Receptionist / front desk
+- cares about appointments, patients, contact details, reminders, check-in
+- needs speed and clarity
+
+3. Clinic manager / admin
+- cares about settings, users, roles, reports, finance overview, communications
+- needs structured administrative UX
+
+4. Finance / billing operator
+- cares about income, expense, payouts, reports, finance entries, audit clarity
+- needs trustworthy forms and dense readable tables
+
+### Control Plane Users
+1. Platform super admin
+- manages clinics, plans, defaults, governance, invoices, onboarding, settings
+
+2. Platform ops / support staff
+- monitors operations, audits, WhatsApp status, clinic issues, platform tools
+
+### Public Users
+1. Patient at kiosk
+- may be stressed, older, hurried, or non-technical
+- needs low-anxiety, touch-first design
+
+---
+
+## 6. Main Data Objects Lovable Should Keep In Mind
+
+- Clinic
+- User
+- Role / permission
+- Subscription plan
+- Plan request
+- Control-plane invoice
+- Patient
+- Examination
+- Appointment
+- Odontogram
+- Treatment
+- Treatment contract
+- Prescription
+- Finance transaction
+- Provider payout
+- Inventory item
+- Inventory supplier
+- Inventory movement
+- Inventory usage record
+- Notification
+- Notification channel
+- WhatsApp identity / delivery / policy / ops state
+- Audit / activity event
+
+These relationships should influence page hierarchy, filters, summaries, and actions.
+
+---
+
+## 7. Route Families Lovable Must Not Fight
+
+Lovable should understand the route families even if the frontend layout changes.
+
+### Auth / public
+- `/auth/*`
+- `/clinic/select`
+- `/clinic/no-clinic`
+- `/kiosk/{token}/check-in`
+
+### Tenant
+- `/dashboard`
+- `/patients/*`
+- `/contracts/*`
+- `/examinations/*`
+- `/appointments/*`
+- `/odontogram/*`
+- `/finance/*`
+- `/treatments/*`
+- `/prescriptions/*`
+- `/reports/*`
+- `/inventory/*`
+- `/users/*`
+- `/roles/*`
+- `/notifications*`
+- `/activity-log`
+- `/profile`
+- `/settings*`
+
+### Control plane
+- `/controlplane/dashboard`
+- `/controlplane/clinics*`
+- `/controlplane/plans*`
+- `/controlplane/plan-requests*`
+- `/controlplane/invoices*`
+- `/controlplane/users*`
+- `/controlplane/activity-log*`
+- `/controlplane/operations`
+- `/controlplane/whatsapp`
+- `/controlplane/settings`
+- `/controlplane/clinic/create`
+
+---
+
+## 8. Product-Wide UX Principles
+
+- Lists should be searchable, filterable, and action-oriented.
+- Detail pages should begin with identity + summary.
+- Forms should be grouped into semantic sections.
+- Save feedback should be clear and immediate.
+- Validation should be both inline and form-aware.
+- Destructive actions should be separated visually from primary actions.
+- Settings should be directly linkable by section.
+- Communications configuration should be separate from communications operations.
+- Print layouts are first-class, not afterthoughts.
+- Arabic quality must look deliberate, not machine-flipped.
+
+---
+
+## 9. How To Use This File
+
+Recommended order:
+1. Prompt 00
+2. Prompt 01
+3. Prompt 02
+4. Prompt 03
+5. Prompt 04
+6. Prompt 05
+7. Prompt 06 onward by module
+8. Final synthesis prompts at the end
+
+If Lovable starts making backend assumptions, reuse the backend constraint block.
+
+---
+
+# Prompt Pack
+
+## Prompt 00 - Master Bootstrap Prompt
+```text
+You are redesigning the full frontend of Denta+, a bilingual multi-tenant dental SaaS by Palsync.net in Ramallah, Palestine.
+
+This product has three surfaces:
+1. Tenant plane for clinic staff
+2. Control plane for platform super admins
+3. Public/auth/kiosk flows
+
+Your task is frontend redesign only.
+Do not require unnecessary backend or database changes.
+Preserve routes, request/response contracts, permissions, tenant isolation, and control-plane isolation.
+
+Important realities:
+- Clinics use this app all day for patients, appointments, examinations, treatments, prescriptions, finance, reports, inventory, users, settings, and communications.
+- The control plane manages clinics, plans, invoices, defaults, governance, platform operations, and WhatsApp infrastructure.
+- The app must support English and Arabic.
+- Arabic must be proper RTL.
+- Phone numbers, emails, IDs, invoice numbers, codes, URLs, and mixed alphanumeric values must remain left-to-right in Arabic.
 - Use Arabic numerals, not Hindi numerals.
-- Odontogram images/assets must never be mirrored in RTL.
+- Odontogram visuals must never be mirrored.
+- WhatsApp operations and WhatsApp configuration are separate concerns.
 
-Deliver:
-1. Visual direction for the full product.
-2. Design tokens: colors, typography, spacing, shadows, radii, motion, icon usage.
-3. Component inventory.
-4. Separate navigation models for tenant plane and control plane.
-5. Page shell rules for list, detail, form, analytics, settings, and public pages.
-6. Validation, toast, modal, destructive action, and loading-state standards.
-7. Responsive behavior standards.
-
-Style direction:
+Design goals:
 - premium medical SaaS
-- clean and credible
-- not generic startup purple
-- not over-glassy
-- strong readability
-- high scanning efficiency
-- works in both English and Arabic
+- calm and credible
+- strong scanning efficiency
+- clean page hierarchy
+- excellent forms
+- excellent tables
+- excellent settings IA
+- responsive across desktop, tablet, and mobile
+
+Before designing modules, produce:
+1. overall design direction
+2. shell principles for tenant, control plane, and public surfaces
+3. design tokens
+4. component system
+5. RTL/LTR rules
+6. page implementation order
+
+Assume backend is fixed. The frontend must adapt to it.
 ```
 
-## Prompt 02 - Global UX Rules
+## Prompt 01 - Product Design Direction
 ```text
-Define a complete UX interaction standard for Denta+ that all pages will follow.
+Using the Denta+ context above, define the full product design direction.
 
-Include:
-- page header pattern
-- breadcrumb rules
-- primary/secondary/tertiary action hierarchy
-- save/cancel/delete patterns
-- sticky form footer rules
-- table filters and bulk action rules
-- inline validation behavior
-- validation summary behavior
-- toast behavior
-- optimistic vs non-optimistic update rules
-- empty states
-- offline/error states
-- permission-denied states
-- subscription-limited states
-- audit-friendly destructive confirmation patterns
+I want:
+- the visual personality
+- the difference between clinic-facing and platform-facing experiences
+- the right density level for each plane
+- the right emotional tone for a dental SaaS
+- what makes this product feel more professional than a generic dashboard template
 
-This must be reusable across tenant plane and control plane.
+Also define what the product must avoid:
+- generic startup-dashboard sameness
+- excessive decoration
+- weak contrast
+- weak hierarchy
+- poor RTL behavior
+- excessive whitespace that hurts workflow
+- enterprise heaviness that overwhelms smaller clinics
 ```
 
-## Prompt 03 - Bilingual and RTL System
+## Prompt 02 - Design System and Tokens
 ```text
-Create the localization and bidi UX system for Denta+ in English and Arabic.
+Create the full Denta+ design system.
+
+Return:
+- typography system
+- font strategy for English and Arabic
+- spacing scale
+- radius scale
+- shadow/elevation system
+- semantic color system
+- icon system
+- chart style system
+- card style system
+- table system
+- form control system
+- motion rules
 
 Requirements:
-- full RTL/LTR support
-- correct spacing between icons and labels in both directions
-- correct button padding and icon alignment in both directions
-- correct breadcrumb direction and separators
-- forms and tables must remain readable in Arabic
-- phone numbers, emails, URLs, codes, IDs, invoice numbers, and mixed alphanumeric values must remain left-to-right
-- use Arabic numerals, not Hindi/Indic numerals
-- odontogram visuals must not be mirrored
-
-Deliver:
-1. RTL/LTR design rules
-2. component-level bidi rules
-3. typography rules for both languages
-4. examples for nav, buttons, forms, tables, badges, cards, breadcrumbs, and data cells
+- suitable for medical and financial workflows
+- readable in English and Arabic
+- shareable across tenant plane and control plane
 ```
 
-## Prompt 04 - App Shells
+## Prompt 03 - Bilingual, RTL, and Formatting Rules
 ```text
-Design the three top-level shells for Denta+:
-1. tenant plane shell
-2. control plane shell
-3. public shell for auth and kiosk
+Define the bilingual and bidi system for Denta+.
 
-For each shell, provide:
-- sidebar/topbar strategy
+Include rules for:
+- sidebar items
+- page headers
+- breadcrumbs
+- tabs and subtabs
+- buttons with icons
+- cards
+- tables
+- filters
+- forms
+- badges and pills
+- mixed-language values
+- phone/email/code formatting
+- dates, numbers, and currencies
+
+I want concrete design guidance, not general statements.
+```
+
+## Prompt 04 - Shell Architecture
+```text
+Design the shell architecture for:
+1. tenant plane
+2. control plane
+3. public/auth/kiosk flows
+
+For each shell, define:
+- navigation model
+- sidebar vs topbar behavior
 - search placement
 - notifications placement
-- profile and clinic switcher placement where relevant
-- mobile navigation behavior
+- profile placement
+- clinic switcher behavior if relevant
 - breadcrumb strategy
-- page max-width and spacing rules
-- tab and subtab patterns
+- mobile navigation strategy
+- spacing rhythm
+- max-width rules
 
-The tenant shell should feel clinic-operational.
-The control-plane shell should feel platform-administrative.
-The public shell should feel guided and low-friction.
+The tenant shell should optimize operational speed.
+The control-plane shell should optimize oversight and governance.
+The public shell should optimize clarity and confidence.
 ```
 
-## Prompt 05 - Shared Components Library
+## Prompt 05 - Shared Component Library
 ```text
 Define the reusable component library for Denta+.
 
-Include:
-- app header
+Components must include:
+- app shell header
 - sidebar nav item
 - breadcrumb
-- stat card
+- page intro/header
+- KPI card
 - chart card
 - section card
-- data table
-- filter bar
-- empty state
-- detail hero
 - summary strip
-- form section
-- searchable select
-- date input
-- phone input
-- file upload
-- attachment list
-- timeline/audit list
-- drawer
-- modal
+- table toolbar
+- table
+- row actions
+- empty state
+- zero-results state
+- inline validation
+- validation summary
 - toast
+- modal
+- drawer
 - confirmation dialog
-- stepper
 - tab bar
 - subtab bar
-- pill filter
-- KPI row
-- printable layout
+- settings section links
+- form section
+- sticky save area
+- file upload block
+- attachment list
+- audit item
+- printable header
 
-For each component, define:
+For each component define:
 - purpose
 - anatomy
 - variants
-- RTL/LTR behavior
+- states
+- RTL rules
 - mobile behavior
 ```
 
-## Prompt 06 - Route-to-Page Mapping Strategy
+## Prompt 06 - Whole Product Information Architecture
 ```text
-Create a frontend information architecture plan for Denta+ that maps the existing backend routes to a new frontend without changing the backend.
+Using the real Denta+ scope, propose the best frontend information architecture while keeping backend contracts intact.
 
-Surfaces to include:
+Modules:
 - auth
 - clinic selection
-- tenant dashboard
+- dashboard
 - patients
-- treatment contracts
+- contracts
 - examinations
 - appointments
 - odontogram
@@ -214,25 +521,30 @@ Surfaces to include:
 - activity log
 - profile
 - settings
-- control plane dashboard
-- control plane clinics
-- control plane plans
-- control plane plan requests
-- control plane invoices
-- control plane users
-- control plane activity log
-- control plane operations
-- control plane WhatsApp
-- control plane settings
-- control plane clinic onboarding
-- kiosk check-in
+- control-plane dashboard
+- clinics
+- plans
+- plan requests
+- invoices
+- control-plane users
+- control-plane activity log
+- operations
+- WhatsApp command center
+- control-plane settings
+- clinic onboarding
+- kiosk
 
-Show the best modern IA even if it differs from the current UI, but do not require backend changes.
+For each module define:
+- primary audience
+- main user goal
+- nav placement
+- whether it is list-first, detail-first, form-first, or operations-first
+- primary actions
 ```
 
 ## Prompt 07 - Auth Experience
 ```text
-Design the full authentication experience for Denta+.
+Design the full auth experience for Denta+.
 
 Pages:
 - login
@@ -240,593 +552,485 @@ Pages:
 - reset password
 - change password
 
-Requirements:
-- premium but minimal
-- secure and serious
-- bilingual
-- clear error messaging
-- clear success states
-- mobile-friendly
-- support returning users and administrators
+Context:
+- users may be tenant staff or platform admins
+- trust matters more than theatrics
+- the design should be clear, secure, and bilingual
 
-Also define the email-friendly confirmation/success screens.
+Deliver:
+- layout concept
+- hierarchy
+- validation UX
+- error messaging
+- success messaging
+- mobile behavior
 ```
 
-## Prompt 08 - Clinic Selection and Context Switching
+## Prompt 08 - Clinic Selection and No-Clinic State
 ```text
-Design the clinic-selection flow for users who belong to multiple clinics.
+Design the clinic selection and clinic switching UX.
 
-Pages and moments:
+Context:
+- some users belong to multiple clinics
+- clinic context is required before entering the tenant app
+- some users may have no assigned clinics
+
+Design:
 - clinic selection page
-- no-clinic state
-- quick switcher in authenticated shell
+- no-clinic page
+- in-app clinic switcher pattern
 
-Requirements:
-- clearly show clinic identity, plan status, and role
-- make switching low-friction but safe
-- preserve context where possible
-- handle empty states and suspended clinics cleanly
+Show:
+- what clinic identity to display
+- what role or plan info to display
+- how switching should behave without causing confusion
 ```
 
 ## Prompt 09 - Tenant Dashboard
 ```text
-Design a modern tenant dashboard for Denta+.
+Design the tenant dashboard for Denta+.
 
-Goals:
-- daily clinic command center
-- surface appointments, revenue, examinations, recent patients, quick actions, and notifications
-- work for doctors, receptionists, and clinic admins
+Audience:
+- dentist
+- receptionist
+- clinic admin
 
-Include:
-- KPI layout
-- chart strategy
+The dashboard should act as a daily clinic command center.
+
+It should surface:
+- today's appointments
+- recent examinations
+- recent patients
+- revenue summary
+- operational alerts
 - quick actions
-- today's workload
-- alerts/reminders
-- empty states for new clinics
-- bilingual layout
-- mobile adaptation
+- notification awareness
+
+I want:
+- a layout strategy
+- hierarchy strategy
+- chart choices
+- KPI choices
+- quick action strategy
+- empty-state strategy for new clinics
 ```
 
-## Prompt 10 - Global Search and Quick Actions
+## Prompt 10 - Patients Index
 ```text
-Design a cross-app quick search and quick action experience for the tenant plane.
+Design the patients list page.
 
-It should help users jump to:
-- patients
-- appointments
-- examinations
-- treatments
-- prescriptions
-- inventory items
-- users
-- settings
+Context:
+- very high-frequency page
+- users need to find patients quickly
+- users often want to jump from patient search into appointment, examination, or edit flows
 
-Do not invent backend changes. This is a frontend discoverability layer over existing routes and search endpoints where available.
+The page should support:
+- fast search
+- useful filters
+- strong row identity
+- multilingual names
+- readable contact info
+- quick actions
+
+Deliver:
+- desktop layout
+- tablet/mobile adaptation
+- empty state
+- no-results state
+- loading state
 ```
 
-## Prompt 11 - Patient List
+## Prompt 11 - Patient Create and Edit
 ```text
-Design the patients index page for Denta+.
+Design the patient create and edit forms.
 
 Requirements:
-- fast-scanning list/table
-- strong search and filters
-- patient status visibility
-- WhatsApp/contact visibility
-- direct actions for view/edit/new exam/new appointment
-- responsive layout
-- supports Arabic and English well
-
-Also define empty state, no-results state, and skeleton state.
-```
-
-## Prompt 12 - Patient Create
-```text
-Design the create-patient flow.
-
-Requirements:
-- low-friction intake form
+- fast front-desk workflow
 - strong inline validation
-- date input UX that is unambiguous
-- phone input UX with country-aware clarity
-- prevent invalid saves
-- show clear field-level and form-level feedback
-- support Arabic and English names cleanly
+- date UX that is unambiguous
+- phone validation UX that is clear and forgiving
+- no invalid save attempts
+- support Arabic and English names
+- include medical alerts and notes
+- handle user mistakes gracefully
 
-Make this feel like a polished medical intake form, not a generic CRUD page.
+Important:
+- field errors should clear when the data is corrected
+- the form should feel polished, not like a raw CRUD form
 ```
 
-## Prompt 13 - Patient Detail
+## Prompt 12 - Patient Detail
 ```text
-Design the patient detail page as a clinical profile hub.
+Design the patient detail page as a patient command center.
 
-Include:
-- profile header
+It should unify:
+- identity
 - contact details
 - medical alerts
 - notes
 - attachments
-- related examinations
+- examinations
 - appointments
 - treatments
 - contracts
 - prescriptions
-- finance context where useful
-- WhatsApp identity block
+- finance context when useful
+- WhatsApp identity
 
-Design for fast scanning and action-taking by clinic staff.
+The page should help staff understand the patient in seconds.
+Describe the hierarchy, sections, actions, and tab strategy if any.
 ```
 
-## Prompt 14 - Patient Edit
+## Prompt 13 - Treatment Contracts
 ```text
-Design the edit-patient experience.
+Design the treatment contracts module.
 
-Requirements:
-- preserve patient context while editing
-- clear dirty-state handling
-- attachment management
-- medical alert editing
-- safe save pattern
-- validation and cancellation UX
-```
-
-## Prompt 15 - Treatment Contracts
-```text
-Design the treatment contract flow:
+Screens:
 - create contract
 - edit contract
 - view contract
 - print contract
-- sign contract flow
+- sign contract
 
-Requirements:
-- feel legally serious but readable
-- clear patient identity
-- clear financial summary
-- signature experience
-- printable and kiosk-compatible logic
+Context:
+- contracts are legally and financially important
+- must feel serious, readable, and printable
+- related to patients, treatments, pricing, signatures, and odontogram snapshots
+
+I want:
+- form structure
+- summary/review strategy
+- signing UX
+- print UX
 ```
 
-## Prompt 16 - Examinations List
+## Prompt 14 - Examinations Index and Calendar
 ```text
-Design the examinations index page.
+Design the examinations list and calendar experiences.
 
-Requirements:
-- searchable/filterable
-- support status tracking
-- surface doctor, patient, date, and follow-up context
-- provide quick open/edit/print actions
-- support calendar and list mental models
+Context:
+- used by clinical staff
+- should show patient, provider, date, status, and summary context
+- must support both list scanning and time-based planning
+
+Deliver:
+- list/index page
+- calendar page
+- filters
+- row/card actions
+- empty states
+- loading strategy
 ```
 
-## Prompt 17 - Examination Create
+## Prompt 15 - Examination Create and Edit
 ```text
-Design the create-examination flow.
+Design the create/edit examination workflow.
 
 Requirements:
-- integrate patient selection cleanly
-- support clinical notes and structured findings
-- allow smooth movement into treatment planning and odontogram-related work
-- reduce cognitive overload
-- make it efficient for repeat clinic usage all day long
-```
-
-## Prompt 18 - Examination Detail
-```text
-Design the examination detail page.
-
-Requirements:
-- clear medical summary
-- chronology and authorship
-- related treatments/contracts/prescriptions
-- print/export actions
-- strong readability for both short and long notes
-```
-
-## Prompt 19 - Examination Edit
-```text
-Design the examination edit flow.
-
-Requirements:
-- fast editing
+- patient context visible during entry
+- structured findings plus free notes
+- easy movement into treatments and odontogram-related work
+- efficient repeated use throughout the day
 - safe completion state UX
-- strong unsaved-changes handling
-- validation
-- preserve links to patient and related workflows
+
+Explain:
+- form grouping
+- context side panels if appropriate
+- save/complete patterns
+- error handling
 ```
 
-## Prompt 20 - Examination Calendar
+## Prompt 16 - Examination Detail and Print
 ```text
-Design the examination calendar view.
+Design the examination detail page and print layout.
 
 Requirements:
-- daily/weekly/monthly views
-- color system for status/provider/type
-- dense but readable event cards
-- mobile fallback pattern
-- clear drill-down to examination details
+- clinical readability
+- chronology
+- provider authorship
+- patient context
+- related treatments/prescriptions
+- print-friendly structure
 ```
 
-## Prompt 21 - Appointments List
+## Prompt 17 - Appointments Index and Calendar
 ```text
-Design the appointments index page.
+Design the appointments module list and calendar views.
+
+Audience:
+- receptionist
+- clinic admin
+- dentist
 
 Requirements:
-- support receptionist workflow
-- excellent filtering by doctor, chair, date, status
-- clear patient and appointment type visibility
-- strong quick actions
-- powerful list/calendar toggle if appropriate
+- date-first workflow support
+- doctor/chair/status filters
+- strong patient identity
+- efficient scheduling visibility
+- list and calendar experiences should feel like one system
 ```
 
-## Prompt 22 - Appointment Create
+## Prompt 18 - Appointment Create and Edit
 ```text
-Design the create-appointment flow.
+Design the appointment create/edit workflow.
 
 Requirements:
-- patient search/select
-- date/time and chair selection
-- duration clarity
-- reminder/contact hints
+- patient selection
+- provider/chair selection
+- time and duration selection
 - conflict prevention UX
-- inline validation
-- smooth save and return behavior
+- reminder/contact cues
+- smooth rescheduling UX
+- clear validation
+
+The result should feel fast and dependable.
 ```
 
-## Prompt 23 - Appointment Edit
+## Prompt 19 - Appointment Detail and Print
 ```text
-Design the edit-appointment flow.
+Design the appointment detail page and its print layout.
+
+Include:
+- patient quick profile
+- appointment metadata
+- provider/chair details
+- contact/reminder context
+- timeline or status context if useful
+- print clarity
+```
+
+## Prompt 20 - Odontogram Workspace
+```text
+Design the odontogram experience.
+
+Screens:
+- odontogram entry/list
+- odontogram workspace
+- export / print / PDF
+
+Critical constraint:
+- do not mirror the odontogram image or its rendered orientation in RTL
 
 Requirements:
-- low-friction changes
-- rescheduling clarity
-- reminder implications
-- conflict handling
-- timeline/status visibility
+- focused workspace
+- intuitive tool placement
+- clear patient context
+- clear save state
+- readable export/print layout
 ```
 
-## Prompt 24 - Appointment Detail and Print
+## Prompt 21 - Finance Home
 ```text
-Design the appointment detail page and printable appointment layout.
+Design the tenant finance home page.
+
+Context:
+- used by clinic managers and finance operators
+- should balance overview and actionability
+- should support both income and expense logic
+- provider payouts matter
+- outstanding values matter
+
+The page should surface:
+- KPIs
+- trends
+- recent activity
+- important financial actions
+- payout visibility
+```
+
+## Prompt 22 - Finance Create and Edit
+```text
+Design the finance transaction create/edit flows.
+
+Flows:
+- add income
+- add expense
+- edit transaction
 
 Requirements:
-- appointment summary
-- patient quick card
-- clinic/provider/chair details
-- reminder/contact info
-- print-optimized presentation
+- distinguish income from expense clearly
+- support patient/examination linkage where relevant
+- support attachments/check scans
+- support payment method details
+- strong validation and save-state UX
 ```
 
-## Prompt 25 - Odontogram List
+## Prompt 23 - Finance Detail, Reports, Payouts, and Invoice-Like Views
 ```text
-Design the odontogram landing/list experience.
+Design the rest of the finance module as one coherent family:
+- transaction detail
+- finance reports
+- provider payouts
+- invoice-like transaction view if useful
+
+Context:
+- backend exposes accrual and cash-aware concepts
+- payouts and outstanding payable matter
+- audit clarity matters
+
+I want:
+- page hierarchy
+- summary strategy
+- chart strategy
+- filter strategy
+- action placement
+```
+
+## Prompt 24 - Treatments Module
+```text
+Design the treatments module.
+
+Screens:
+- treatments index
+- create treatment
+- edit treatment
+- treatment detail
+- print treatment
 
 Requirements:
-- help users quickly find a patient and open the odontogram
-- show last updated and related examination context
-- work well in Arabic and English
+- strong links to patient and examination context
+- clear status visibility
+- readable clinical and billing context
+- efficient repeated workflow
 ```
 
-## Prompt 26 - Odontogram Workspace
+## Prompt 25 - Prescriptions Module
 ```text
-Design the odontogram workspace.
+Design the prescriptions module.
+
+Screens:
+- prescriptions index
+- create prescription
+- edit prescription
+- prescription detail
+- print prescription
 
 Requirements:
-- keep the odontogram asset orientation unchanged in all languages
-- provide excellent tool selection and state visibility
-- make per-tooth actions intuitive
-- support keyboard/mouse/touch reasonably
-- avoid clutter
-- provide patient context and save status
+- medication readability is critical
+- dosage and instructions must stand out
+- mixed Latin medicine names must still read cleanly in Arabic UI
+- print must be first-class
 ```
 
-## Prompt 27 - Odontogram Export / Print / PDF
-```text
-Design the odontogram export, print, and PDF-friendly views.
-
-Requirements:
-- preserve diagram orientation
-- printable clinical clarity
-- consistent headers/legend
-- bilingual-friendly labels
-```
-
-## Prompt 28 - Finance Index
-```text
-Design the tenant finance home/index page.
-
-Requirements:
-- support both income and expense operations
-- show high-level financial health
-- expose accrual vs cash-aware concepts clearly where relevant
-- surface provider payouts, revenue, expenses, outstanding values, and recent activity
-- work for clinic operators, not accountants only
-```
-
-## Prompt 29 - Finance Create Income
-```text
-Design the create-income flow.
-
-Requirements:
-- clear patient/examination linkage when relevant
-- payment method and proof handling
-- optional attachments/check scan
-- low-friction form flow
-- clean validation and success states
-```
-
-## Prompt 30 - Finance Create Expense
-```text
-Design the create-expense flow.
-
-Requirements:
-- category clarity
-- counterparty capture
-- optional attachments
-- source linkage where relevant
-- professional accounting-style clarity without overwhelming users
-```
-
-## Prompt 31 - Finance Detail and Edit
-```text
-Design the finance detail and edit experiences.
-
-Requirements:
-- preserve audit clarity
-- show source references
-- attachment handling
-- safe edit permissions
-- obvious distinction between income and expense records
-```
-
-## Prompt 32 - Finance Reports
-```text
-Design the finance reports page.
-
-Requirements:
-- support date-range analysis
-- summary cards
-- charts
-- breakdown tables
-- print/export affordances
-- clarity around cash vs accrual-style values
-```
-
-## Prompt 33 - Finance Payouts
-```text
-Design the provider payouts page and payout management UX.
-
-Requirements:
-- clearly distinguish earned share, paid cash, and outstanding payable
-- support payout tracking and payment actions
-- feel operational and reliable
-```
-
-## Prompt 34 - Treatments List
-```text
-Design the treatments index page.
-
-Requirements:
-- status visibility
-- provider/patient/date context
-- relation to examinations and plans
-- quick complete/edit/print actions
-```
-
-## Prompt 35 - Treatment Create
-```text
-Design the create-treatment flow.
-
-Requirements:
-- support structured treatment details
-- smooth connection to examination and odontogram context
-- clear pricing/provider fields
-- efficient for daily repeated use
-```
-
-## Prompt 36 - Treatment Detail / Edit / Print
-```text
-Design the treatment detail, edit, and print experiences as one cohesive UX family.
-
-Requirements:
-- clear clinical and billing context
-- status timeline
-- printable treatment summary
-- strong readability
-```
-
-## Prompt 37 - Prescriptions List
-```text
-Design the prescriptions index page.
-
-Requirements:
-- searchable and printable
-- surface patient, medication summary, prescriber, and date
-- support repeat clinical workflow
-```
-
-## Prompt 38 - Prescription Create / Edit / Detail / Print
-```text
-Design the full prescriptions module UX:
-- create
-- edit
-- detail
-- print
-
-Requirements:
-- strong medication readability
-- dosage/instruction emphasis
-- safe form UX
-- print-friendly medical layout
-```
-
-## Prompt 39 - Reports Hub
+## Prompt 26 - Reports Hub
 ```text
 Design the reports module as a reporting hub.
 
 Requirements:
-- support multiple report types
-- strong range and dimension filters
-- chart + detail table pairing
-- export-friendly UX
-- make heavy data still feel navigable
+- multiple report types
+- date-range heavy workflows
+- summary cards
+- charts
+- detail tables
+- export flows
+- good handling of empty and no-data states
+
+This should feel like a serious analytics workspace.
 ```
 
-## Prompt 40 - Inventory Overview
+## Prompt 27 - Inventory Core
 ```text
-Design the inventory index page.
+Design the inventory core screens.
 
-Requirements:
-- stock health overview
-- low stock visibility
-- reorder visibility
-- quick actions for receive, adjust, usage, suppliers
-- strong filtering/search
-```
-
-## Prompt 41 - Inventory Create / Edit / Detail
-```text
-Design the inventory item lifecycle UX:
+Screens:
+- inventory index
 - create item
 - edit item
 - item detail
+- low stock
 
 Requirements:
-- supplier relations
+- stock health visibility
+- supplier and reorder context
 - SKU/unit clarity
-- reorder metadata
 - batch/lot readiness
-- professional operational feel
+- clear actions for receive, adjust, and usage
 ```
 
-## Prompt 42 - Inventory Movements
+## Prompt 28 - Inventory Operations
 ```text
-Design the inventory movements ledger.
+Design the operational inventory screens:
+- suppliers
+- starter templates / import
+- movements ledger
+- reorder list
+- usage history
+- usage detail / usage print
 
-Requirements:
-- chronological operational ledger
-- type badges
-- source references
-- filters by item/date/type/user
-- printable/exportable behavior
+Context:
+- inventory is not only record-keeping; it drives action
+- some inventory events tie into finance logic
+
+I want layouts that help staff act quickly.
 ```
 
-## Prompt 43 - Inventory Usage
+## Prompt 29 - Users Module
 ```text
-Design the inventory usage workflow and history.
+Design the tenant users management experience.
 
-Requirements:
-- easy record-usage flow
-- support treatment/procedure linkage where relevant
-- show downstream finance linkage when COGS auto-post exists
-- readable usage history and usage detail/print views
-```
-
-## Prompt 44 - Inventory Reorder List
-```text
-Design the reorder list experience.
-
-Requirements:
-- help staff act on low stock
-- supplier contact shortcuts
-- reorder status workflow
-- compact but actionable layout
-```
-
-## Prompt 45 - Inventory Suppliers and Templates
-```text
-Design the suppliers and starter templates/import experiences.
-
-Requirements:
-- supplier directory UX
-- quick-add supplier flow
-- item-to-supplier mapping clarity
-- starter template browsing/import UX
-```
-
-## Prompt 46 - Users List
-```text
-Design the tenant users management page.
-
-Requirements:
-- searchable users table
-- status, role, department visibility
-- direct actions for view/edit/password/status
-- safe admin workflow
-```
-
-## Prompt 47 - User Create / Edit / Detail / Change Password
-```text
-Design the tenant user management flows:
+Screens:
+- users index
 - create user
 - edit user
-- view user
+- user detail
 - change password
 
 Requirements:
-- clear role assignment
-- permission-sensitive action patterns
-- safe and professional admin experience
+- clear role context
+- status visibility
+- safe security actions
+- searchable management view
+- clean distinction between profile data and security controls
 ```
 
-## Prompt 48 - Roles and Permissions
+## Prompt 30 - Roles and Permissions
 ```text
-Design the roles module.
+Design the roles and permissions module.
 
-Pages:
-- roles list
+Screens:
+- roles index
 - create role
 - edit role
 - role detail / permissions
 
-Requirements:
-- make permission complexity understandable
-- support large permission matrices
-- clear role status and scope
-- avoid overwhelming users
+Context:
+- permissions can be complex
+- the UI must make them understandable without hiding useful detail
+
+Show how permissions should be grouped, scanned, filtered, and explained.
 ```
 
-## Prompt 49 - Notifications Center
+## Prompt 31 - Notifications and Activity
 ```text
-Design the tenant notifications center and notification ledger.
+Design:
+- tenant notifications center
+- tenant notification ledger
+- tenant activity log
 
 Requirements:
-- notification inbox UX
-- read/unread handling
-- filters
-- ledger/history for system notifications
-- retry affordance where appropriate
-- useful but not noisy
+- clear distinction between live notifications and historical audit/ledger views
+- filters and search
+- readable event/timeline patterns
+- no noisy or clumsy interactions
 ```
 
-## Prompt 50 - Activity Log
+## Prompt 32 - Profile and Personal Account
 ```text
-Design the tenant activity log.
+Design the personal profile/account area.
 
 Requirements:
-- clear audit readability
-- filters by actor, action, date, entity
-- export entry points
-- no visual clutter
-```
-
-## Prompt 51 - Profile
-```text
-Design the user profile page.
-
-Requirements:
-- personal info editing
+- simple and reliable
+- update personal information
 - password change entry point
 - account context
-- clean, light administrative UX
+- no unnecessary complexity
 ```
 
-## Prompt 52 - Tenant Settings
+## Prompt 33 - Tenant Settings Information Architecture
 ```text
 Design the tenant settings experience from scratch.
 
-Sections to accommodate:
+Current scope it must support:
 - clinic profile
 - subscription
 - system
@@ -841,159 +1045,172 @@ Sections to accommodate:
 - alerts
 
 Requirements:
-- modern settings IA, not necessarily matching current implementation
-- URL-addressable sections/tabs
-- excellent discoverability
-- clean save patterns
-- no broken section links
-- bilingual and RTL-correct
-- settings should feel trustworthy and operationally safe
+- modern settings IA
+- direct section linkability
+- clean hierarchy
+- safe admin feel
+- better discoverability than a long generic settings page
 ```
 
-## Prompt 53 - Control Plane Entry and Shell
+## Prompt 34 - Tenant Settings Detailed Screens
 ```text
-Design the control-plane entry experience and control-plane shell.
+Design the detailed tenant settings screens using the IA from the previous prompt.
 
-Requirements:
-- clearly distinct from tenant plane
-- feels like platform administration
-- strong hierarchy
-- efficient navigation
-- supports dense data and operational tools
+For each section define:
+- layout
+- cards/sections
+- primary and secondary actions
+- validation expectations
+- save behavior
+- dangerous action treatment if any
+- bilingual details
+
+Give special care to:
+- system formats and language
+- working hours
+- kiosk enablement and kiosk link sharing
+- backup and restore
 ```
 
-## Prompt 54 - Control Plane Dashboard
+## Prompt 35 - Tenant Communications Settings
 ```text
-Design the control-plane dashboard.
+Design the tenant communications settings surfaces.
+
+Sections:
+- communications overview
+- channels
+- email
+- SMS
+- WhatsApp
+- alerts
+
+Context:
+- channel enablement can be plan-gated or platform-gated
+- some things are configuration
+- some things are operational status indicators
 
 Requirements:
-- platform-level KPIs
-- clinic health visibility
-- plan/subscription visibility
+- status clarity
+- test-action clarity
+- reduced confusion between platform governance, clinic configuration, and runtime behavior
+```
+
+## Prompt 36 - Control Plane Shell and Dashboard
+```text
+Design the control-plane shell and dashboard.
+
+Context:
+- used by platform admins and ops staff
+- must feel distinct from the clinic plane
+- should support denser information without becoming ugly or chaotic
+
+The dashboard should surface:
+- clinic health
+- billing and plan signals
+- onboarding/request signals
 - operational alerts
-- onboarding/revenue/admin shortcuts
+- shortcuts to top admin actions
 ```
 
-## Prompt 55 - Control Plane Clinics List
+## Prompt 37 - Control Plane Clinics
 ```text
-Design the control-plane clinics index page.
+Design the control-plane clinics module.
+
+Screens:
+- clinics index
+- clinic detail
 
 Requirements:
-- searchable/filterable tenant list
-- plan and status visibility
-- billing/subscription context
-- quick actions for impersonate, manage subscription, suspend, reactivate, detail
-- strong admin-grade scanning
+- searchable clinic roster
+- plan and subscription visibility
+- lifecycle actions like impersonate, suspend, reactivate, terminate, or delete where allowed
+- detail page should summarize commercial, operational, and access context
 ```
 
-## Prompt 56 - Control Plane Clinic Detail
+## Prompt 38 - Control Plane Plans and Plan Requests
 ```text
-Design the control-plane clinic detail page.
+Design the control-plane plan management and plan request workflows.
+
+Screens:
+- plans index
+- create/edit plan
+- plan requests queue
 
 Requirements:
-- clinic identity
-- subscription state
-- operational status
-- admin actions
-- audit and recent activity
-- safe destructive actions
-```
-
-## Prompt 57 - Control Plane Plans
-```text
-Design the control-plane plans module:
-- plans list
-- create plan
-- edit plan
-
-Requirements:
+- feature and limit clarity
 - pricing clarity
-- feature entitlement clarity
-- lifecycle actions
-- high readability for commercial configuration
+- strong admin review patterns
+- safe approve/reject actions
 ```
 
-## Prompt 58 - Control Plane Plan Requests
+## Prompt 39 - Control Plane Invoices
 ```text
-Design the plan requests workflow.
+Design the control-plane invoicing module.
 
-Requirements:
-- queue-like operational UX
-- request details
-- approve/reject/delete actions
-- strong status handling
-- clear admin accountability
-```
-
-## Prompt 59 - Control Plane Invoices
-```text
-Design the control-plane invoices module:
-- invoices list
+Screens:
+- invoices index
 - create invoice
 - invoice detail
 
 Requirements:
-- platform billing clarity
-- invoice status and actions
-- email/send/payment actions
+- strong billing clarity
+- line item readability
+- payment logging UX
+- email/send actions
+- mark-paid actions
 - safe delete behavior for allowed statuses
 ```
 
-## Prompt 60 - Control Plane Users
+## Prompt 40 - Control Plane Users and Activity Log
 ```text
-Design the control-plane users module:
-- users index
-- user detail
+Design:
+- control-plane users index
+- control-plane user detail with clinic memberships
+- control-plane activity log
 
 Requirements:
-- show memberships across clinics
-- reset password
-- toggle status
-- manage memberships and roles
-- keep it admin-efficient
+- admin-grade data density
+- strong readability
+- membership visibility
+- safe password reset and status actions
+- export-friendly activity browsing
 ```
 
-## Prompt 61 - Control Plane Activity Log
-```text
-Design the control-plane activity log.
-
-Requirements:
-- stronger operations/audit emphasis than tenant log
-- export flow
-- deep filtering
-- dense but readable
-```
-
-## Prompt 62 - Control Plane Operations Console
+## Prompt 41 - Control Plane Operations Console
 ```text
 Design the control-plane operations console.
 
+Context:
+- this is not just another settings page
+- it supports platform tooling, health, maintenance-like workflows, and enforcement visibility
+
 Requirements:
-- platform tooling and health checks
-- runtime status
-- maintenance utilities
-- plan enforcement visibility
-- feel like a serious operations surface, not a settings page
+- strong operational hierarchy
+- visible warnings and health blocks
+- tools that feel serious and controlled
+- clear distinction from configuration screens
 ```
 
-## Prompt 63 - Control Plane WhatsApp Command Center
+## Prompt 42 - Control Plane WhatsApp Command Center
 ```text
 Design the control-plane WhatsApp command center.
 
+Context:
+- this is an operations and monitoring surface
+- separate from static configuration
+- covers live delivery stats, journal/ledger, health, opt-outs, emergency pause, and operational actions
+
 Requirements:
-- live delivery stats
-- journal/ledger
-- health state
-- opt-out visibility
-- emergency pause visibility
-- clear distinction between monitoring/operations and configuration
+- clear distinction between metrics, logs, and actions
+- good dense-table readability
+- incident-friendly layout
 ```
 
-## Prompt 64 - Control Plane Settings
+## Prompt 43 - Control Plane Settings
 ```text
 Design the control-plane settings experience from scratch.
 
-Sections to support:
+Current scope:
 - platform profile
 - clinic defaults
 - governance
@@ -1002,298 +1219,176 @@ Sections to support:
 - WhatsApp configuration
 
 Requirements:
-- must feel as coherent and polished as the tenant settings experience
-- every major settings card/section should be directly linkable
+- as coherent and polished as tenant settings
+- each major section/card should be directly linkable
 - strong page hierarchy
 - readable card headers
-- professional enterprise SaaS structure
-- no broken intra-page links
+- settings grouped by administrative logic, not accidental implementation history
 ```
 
-## Prompt 65 - Control Plane Onboarding
+## Prompt 44 - Control Plane Clinic Onboarding
 ```text
-Design the create-clinic onboarding flow for control-plane admins.
+Design the control-plane clinic onboarding flow.
 
 Requirements:
-- structured multi-step or well-sectioned form
-- reduces setup mistakes
-- clear defaults, plan, admin user, and clinic identity capture
-- clean success state
+- create clinic
+- choose plan
+- assign initial admin
+- set defaults
+- reduce setup mistakes
+- provide a strong review and completion state
+
+This should feel like a fast but serious admin workflow.
 ```
 
-## Prompt 66 - Public Kiosk Check-In
+## Prompt 45 - Kiosk Self Check-In
 ```text
-Design the public kiosk self-check-in experience.
+Design the patient kiosk self-check-in experience.
 
-Requirements:
-- extremely simple for patients
-- large touch targets
-- multilingual
-- accessible in a clinic lobby
-- support appointment lookup, confirmation, details update, and contract signing
-- clear error and timeout handling
-```
-
-## Prompt 67 - Public Kiosk Subflows
-```text
-Design the kiosk subflows in detail:
-- lookup
-- unlock
+Subflows:
+- appointment lookup
+- unlock if needed
 - confirm appointment
 - update details
-- sign treatment contract
+- sign contract
 - reset session
 
 Requirements:
 - touch-first
 - low anxiety
-- clear privacy cues
-- resilient for older patients and busy reception areas
+- large controls
+- high legibility
+- suitable for a clinic lobby
+- bilingual
 ```
 
-## Prompt 68 - Print System
+## Prompt 46 - Print and Export System
 ```text
-Design a print system for Denta+ across:
+Design a unified print/export design system for Denta+.
+
+Surfaces:
 - appointments
 - examinations
 - treatments
 - prescriptions
 - contracts
 - odontogram
-- inventory usage
-- invoices
 - finance reports
+- control-plane invoices
+- inventory usage
 
 Requirements:
-- consistent headers and metadata blocks
+- consistent metadata blocks
 - clean print typography
-- clinic branding support
-- bilingual print readiness
+- clinic branding where relevant
+- bilingual readiness
+- no decorative clutter that hurts legibility
 ```
 
-## Prompt 69 - Notifications and Toast Framework
+## Prompt 47 - States, Validation, and Feedback System
 ```text
-Design the notification and toast framework for the whole app.
+Define the state and feedback system for Denta+.
 
-Requirements:
-- success/error/warning/info toasts
-- non-blocking but visible
-- queue/stack behavior
-- action toasts where appropriate
-- notification bell/dropdown behavior
-- avoids alert() patterns completely
-```
-
-## Prompt 70 - Empty, Loading, and Error States
-```text
-Design the full state system for Denta+:
-- skeleton loading
-- table loading
-- form saving
+Include:
+- loading states
+- skeletons
 - empty states
-- no-results states
-- partial failure states
-- full-page failure states
-- permission denied
-- subscription limited
-- maintenance state
+- zero-results states
+- field validation
+- form-level validation summary
+- save success states
+- error recovery patterns
+- permission denied states
+- subscription-limited states
+- destructive confirmations
+- toasts and inline notices
 
-This must be visually unified across all planes.
+This should become a product-wide standard.
 ```
 
-## Prompt 71 - Mobile and Tablet Strategy
+## Prompt 48 - Responsive and Accessibility Strategy
 ```text
-Define the responsive strategy for Denta+ across all modules.
+Define the responsive and accessibility system for Denta+.
 
 Requirements:
-- desktop-first for operational density
-- tablet usability for clinic floor usage
-- mobile usability for quick actions and essential workflows
-- explain which modules become cards, drawers, accordions, tabs, or condensed tables on smaller screens
-```
-
-## Prompt 72 - Accessibility Standard
-```text
-Create the accessibility design standard for Denta+.
-
-Include:
-- contrast
-- focus states
-- keyboard navigation
-- screen-reader semantics
-- form instructions
-- icon labeling
-- modal behavior
-- table accessibility
-- bilingual accessibility considerations
-```
-
-## Prompt 73 - Charting and Analytics Style
-```text
-Define the analytics visualization system for Denta+.
-
-Requirements:
-- charts for dashboard, finance, reports, and control-plane metrics
-- readable legends
-- color-safe data encoding
-- Arabic and English number/date handling
-- print/export compatibility considerations
-```
-
-## Prompt 74 - Destructive and Sensitive Actions
-```text
-Design the UX system for destructive or high-risk actions in Denta+.
-
-Include:
-- delete
-- suspend/reactivate
-- terminate clinic
-- rotate secret
-- emergency pause
-- reset password
-- prune retention data
-- restore/backup actions
-
-Requirements:
-- friction proportional to risk
-- confirmation copy
-- audit visibility
-- post-action feedback
-```
-
-## Prompt 75 - Form System
-```text
-Design the form system used across Denta+.
-
-Include:
-- text inputs
-- textarea
-- select/searchable select
-- date input
-- time input
-- phone input
-- money input
-- file upload
-- checkbox/radio/toggle
-- repeatable rows
-- form section headers
-- sticky save bars
-
-Requirements:
-- works beautifully in English and Arabic
-- strong validation
-- no confusing persisted error helpers after correction
-```
-
-## Prompt 76 - Table System
-```text
-Design the data table system used across Denta+.
-
-Requirements:
-- sorting
-- filters
-- bulk actions where needed
-- row actions
-- density options if useful
-- responsive degradation
-- bilingual compatibility
-- strong readability for admin/operator workflows
-```
-
-## Prompt 77 - Search and Entity Pickers
-```text
-Design the entity-search and picker experience for Denta+.
-
-Entities include:
-- patients
-- users
-- examinations
-- treatments
-- inventory
-- medications
-- departments
-- roles
-
-Requirements:
-- reusable searchable picker pattern
+- desktop-first for dense workflows
+- tablet support for clinic floor use
+- mobile-friendly key actions
+- strong focus states
 - keyboard support
-- fast result scanning
-- clear secondary metadata
+- good contrast
+- screen reader semantics
+- bilingual accessibility support
+
+Explain how major modules should adapt across breakpoints.
 ```
 
-## Prompt 78 - Timeline and Audit Components
+## Prompt 49 - Final Frontend Blueprint
 ```text
-Design timeline/audit UI patterns for Denta+.
+Now synthesize everything into a final Lovable implementation blueprint for Denta+.
 
-Use cases:
-- activity logs
-- patient history
-- finance audit context
-- WhatsApp journal/ledger
-- contract events
+Return:
+1. final design direction
+2. final design system summary
+3. tenant shell blueprint
+4. control-plane shell blueprint
+5. public/kiosk shell blueprint
+6. page-by-page sitemap
+7. component map
+8. recommended implementation order
+9. highest-risk UX flows needing extra QA
+10. summary of RTL/LTR rules
+11. summary of backend constraints the frontend must preserve
 
-Requirements:
-- readable chronology
-- actor/action/entity clarity
-- filters and grouping rules
+This output should be implementation-ready for a real frontend rebuild.
 ```
 
-## Prompt 79 - Communications UX System
+---
+
+## Appendix A - Reusable Reminder Preamble For Lovable
+
+Use this before module prompts if Lovable loses context.
+
 ```text
-Design the communications UX system that spans tenant and control plane.
-
-Include:
-- notification channels
-- email settings
-- SMS settings
-- WhatsApp settings
-- alerts
-- email templates
-- operational WhatsApp command center linkages
-
-Requirements:
-- clearly separate configuration from operations
-- reduce confusion
-- support future growth without IA collapse
+Use the previously defined Denta+ design system and product rules.
+Keep the backend intact.
+Do not invent unnecessary new endpoints.
+If you propose a better frontend information architecture than the current app, make sure it still fits on top of the existing backend route families.
+Keep bilingual and RTL behavior professional.
+Keep phone, email, URL, code, token, and ID values left-to-right in Arabic.
+Do not mirror odontogram visuals.
+Favor reusable components and operational clarity over novelty.
 ```
 
-## Prompt 80 - Final Integration Prompt
-```text
-Now synthesize everything into a final Denta+ frontend blueprint for Lovable implementation.
+## Appendix B - Suggested Execution Order
+1. Prompt 00
+2. Prompt 01
+3. Prompt 02
+4. Prompt 03
+5. Prompt 04
+6. Prompt 05
+7. Prompt 06
+8. Prompt 07-08
+9. Prompt 09-35
+10. Prompt 36-44
+11. Prompt 45
+12. Prompt 46-49
 
-Deliver:
-1. full site map for tenant plane, control plane, and public flows
-2. global design system summary
-3. page-by-page implementation order
-4. reusable component map
-5. responsive strategy summary
-6. bilingual/RTL summary
-7. frontend architecture recommendation that preserves the existing backend
-8. list of high-risk UI flows requiring extra QA
+## Appendix C - Quality Bar For Lovable Outputs
+A good Lovable response should include:
+- explicit hierarchy
+- layout reasoning
+- reusable component reasoning
+- state handling
+- RTL details
+- responsive details
+- clear workflow support
+- backend boundary awareness
 
-Do not change backend contracts or database design.
-Output should be implementation-ready for a serious frontend rebuild.
-```
-
-## Optional Use Pattern
-You can give Lovable:
-- Prompt 01 through Prompt 06 first, to establish the system
-- then one prompt per feature/module
-- then Prompt 80 as the consolidation pass
-
-## Coverage Summary
-This prompt pack covers:
-- tenant plane
-- control plane
-- auth
-- kiosk
-- settings
-- analytics
-- forms
-- tables
-- print flows
-- communications
-- bilingual UX
-- accessibility
-- responsive behavior
-
+A weak response is one that only gives:
+- generic cards and tables
+- vague statements
+- no hierarchy reasoning
+- no Arabic / RTL handling
+- no difference between tenant and control plane
+- no respect for backend boundaries
