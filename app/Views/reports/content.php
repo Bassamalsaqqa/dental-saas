@@ -1,5 +1,5 @@
 
-
+<?php $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params); ?>
 <!-- Enhanced Reports & Analytics with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -109,67 +109,67 @@
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
                 <div id="paymentMethodWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method (Finance)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('paymentMethodFinance') ?></label>
                     <select id="paymentMethodFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Methods</option>
-                        <option value="cash" <?= ($filters['payment_method'] ?? '') === 'cash' ? 'selected' : '' ?>>Cash</option>
-                        <option value="card" <?= ($filters['payment_method'] ?? '') === 'card' ? 'selected' : '' ?>>Card</option>
-                        <option value="bank_transfer" <?= ($filters['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : '' ?>>Bank Transfer</option>
-                        <option value="check" <?= ($filters['payment_method'] ?? '') === 'check' ? 'selected' : '' ?>>Check</option>
-                        <option value="insurance" <?= ($filters['payment_method'] ?? '') === 'insurance' ? 'selected' : '' ?>>Insurance</option>
-                        <option value="other" <?= ($filters['payment_method'] ?? '') === 'other' ? 'selected' : '' ?>>Other</option>
+                        <option value=""><?= $tm('allMethods') ?></option>
+                        <option value="cash" <?= ($filters['payment_method'] ?? '') === 'cash' ? 'selected' : '' ?>><?= $tm('cash') ?></option>
+                        <option value="card" <?= ($filters['payment_method'] ?? '') === 'card' ? 'selected' : '' ?>><?= $tm('card') ?></option>
+                        <option value="bank_transfer" <?= ($filters['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : '' ?>><?= $tm('bankTransfer') ?></option>
+                        <option value="check" <?= ($filters['payment_method'] ?? '') === 'check' ? 'selected' : '' ?>><?= $tm('check') ?></option>
+                        <option value="insurance" <?= ($filters['payment_method'] ?? '') === 'insurance' ? 'selected' : '' ?>><?= $tm('insurance') ?></option>
+                        <option value="other" <?= ($filters['payment_method'] ?? '') === 'other' ? 'selected' : '' ?>><?= $tm('other') ?></option>
                     </select>
                 </div>
                 <div id="paymentStatusWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Status (Finance)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('paymentStatusFinance') ?></label>
                     <select id="paymentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Statuses</option>
-                        <option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>Paid</option>
-                        <option value="pending" <?= ($filters['payment_status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
-                        <option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>>Partial</option>
-                        <option value="overdue" <?= ($filters['payment_status'] ?? '') === 'overdue' ? 'selected' : '' ?>>Overdue</option>
-                        <option value="cancelled" <?= ($filters['payment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                        <option value=""><?= $tm('allStatuses') ?></option>
+                        <option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>><?= $tm('paid') ?></option>
+                        <option value="pending" <?= ($filters['payment_status'] ?? '') === 'pending' ? 'selected' : '' ?>><?= $tm('pending') ?></option>
+                        <option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>><?= $tm('partial') ?></option>
+                        <option value="overdue" <?= ($filters['payment_status'] ?? '') === 'overdue' ? 'selected' : '' ?>><?= $tm('overdue') ?></option>
+                        <option value="cancelled" <?= ($filters['payment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $tm('cancelled') ?></option>
                     </select>
                 </div>
                 <div id="examinationTypeWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Examination Type</label>
-                    <input id="examinationTypeFilter" type="text" value="<?= esc($filters['examination_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any examination type">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('examinationType') ?></label>
+                    <input id="examinationTypeFilter" type="text" value="<?= esc($filters['examination_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="<?= esc($tm('anyExaminationType')) ?>">
                 </div>
                 <div id="appointmentStatusWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Status</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('appointmentStatus') ?></label>
                     <select id="appointmentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Statuses</option>
-                        <option value="scheduled" <?= ($filters['appointment_status'] ?? '') === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
-                        <option value="confirmed" <?= ($filters['appointment_status'] ?? '') === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
-                        <option value="completed" <?= ($filters['appointment_status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
-                        <option value="cancelled" <?= ($filters['appointment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                        <option value="no_show" <?= ($filters['appointment_status'] ?? '') === 'no_show' ? 'selected' : '' ?>>No Show</option>
-                        <option value="pending" <?= ($filters['appointment_status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+                        <option value=""><?= $tm('allStatuses') ?></option>
+                        <option value="scheduled" <?= ($filters['appointment_status'] ?? '') === 'scheduled' ? 'selected' : '' ?>><?= $tm('scheduled') ?></option>
+                        <option value="confirmed" <?= ($filters['appointment_status'] ?? '') === 'confirmed' ? 'selected' : '' ?>><?= $tm('confirmed') ?></option>
+                        <option value="completed" <?= ($filters['appointment_status'] ?? '') === 'completed' ? 'selected' : '' ?>><?= $tm('completed') ?></option>
+                        <option value="cancelled" <?= ($filters['appointment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $tm('cancelled') ?></option>
+                        <option value="no_show" <?= ($filters['appointment_status'] ?? '') === 'no_show' ? 'selected' : '' ?>><?= $tm('noShow') ?></option>
+                        <option value="pending" <?= ($filters['appointment_status'] ?? '') === 'pending' ? 'selected' : '' ?>><?= $tm('pending') ?></option>
                     </select>
                 </div>
                 <div id="appointmentTypeWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Appointment Type</label>
-                    <input id="appointmentTypeFilter" type="text" value="<?= esc($filters['appointment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any appointment type">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('appointmentType') ?></label>
+                    <input id="appointmentTypeFilter" type="text" value="<?= esc($filters['appointment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="<?= esc($tm('anyAppointmentType')) ?>">
                 </div>
                 <div id="treatmentStatusWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Treatment Status</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('treatmentStatus') ?></label>
                     <select id="treatmentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value="">All Statuses</option>
-                        <option value="planned" <?= ($filters['treatment_status'] ?? '') === 'planned' ? 'selected' : '' ?>>Planned</option>
-                        <option value="in_progress" <?= ($filters['treatment_status'] ?? '') === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                        <option value="completed" <?= ($filters['treatment_status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
-                        <option value="on_hold" <?= ($filters['treatment_status'] ?? '') === 'on_hold' ? 'selected' : '' ?>>On Hold</option>
-                        <option value="cancelled" <?= ($filters['treatment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                        <option value=""><?= $tm('allStatuses') ?></option>
+                        <option value="planned" <?= ($filters['treatment_status'] ?? '') === 'planned' ? 'selected' : '' ?>><?= $tm('planned') ?></option>
+                        <option value="in_progress" <?= ($filters['treatment_status'] ?? '') === 'in_progress' ? 'selected' : '' ?>><?= $tm('inProgress') ?></option>
+                        <option value="completed" <?= ($filters['treatment_status'] ?? '') === 'completed' ? 'selected' : '' ?>><?= $tm('completed') ?></option>
+                        <option value="on_hold" <?= ($filters['treatment_status'] ?? '') === 'on_hold' ? 'selected' : '' ?>><?= $tm('onHold') ?></option>
+                        <option value="cancelled" <?= ($filters['treatment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $tm('cancelled') ?></option>
                     </select>
                 </div>
                 <div id="treatmentTypeWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Treatment Type</label>
-                    <input id="treatmentTypeFilter" type="text" value="<?= esc($filters['treatment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="Any treatment type">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('treatmentType') ?></label>
+                    <input id="treatmentTypeFilter" type="text" value="<?= esc($filters['treatment_type'] ?? '') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90" placeholder="<?= esc($tm('anyTreatmentType')) ?>">
                 </div>
             </div>
             <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
-                    <i class="fas fa-calendar-range mr-2"></i><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?>
+                    <i class="fas fa-calendar-range mr-2"></i><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?>
                 </span>
                 <?php if (!empty($filters['patient_id'])): ?>
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
@@ -224,7 +224,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-2xl font-bold text-gray-900"><?= $reports['summary']['examinations_this_period'] ?? 0 ?></p>
-                                    <p class="text-xs text-blue-600 font-semibold"><?= $reports['summary']['total_examinations'] ?? 0 ?> total</p>
+                                    <p class="text-xs text-blue-600 font-semibold"><?= $reports['summary']['total_examinations'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
                     </div>
 
@@ -240,7 +240,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-2xl font-bold text-gray-900"><?= $reports['summary']['appointments_this_period'] ?? 0 ?></p>
-                                    <p class="text-xs text-blue-600 font-semibold"><?= $reports['summary']['total_appointments'] ?? 0 ?> total</p>
+                                    <p class="text-xs text-blue-600 font-semibold"><?= $reports['summary']['total_appointments'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
                     </div>
 
@@ -256,7 +256,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-2xl font-bold text-gray-900"><?= formatCurrency($reports['summary']['revenue_this_period'] ?? 0) ?></p>
-                                    <p class="text-xs text-blue-600 font-semibold"><?= formatCurrency($reports['summary']['total_revenue'] ?? 0) ?> total</p>
+                                    <p class="text-xs text-blue-600 font-semibold"><?= formatCurrency($reports['summary']['total_revenue'] ?? 0) ?> <?= $tm('totalLower') ?></p>
                     </div>
                 </div>
                 </div>
@@ -265,8 +265,8 @@
                     <!-- Monthly Revenue Chart -->
                     <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Monthly Revenue</h3>
-                    <p class="text-sm text-gray-600">Revenue trends over the past 6 months</p>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= $tm('monthlyRevenueTitle') ?></h3>
+                    <p class="text-sm text-gray-600"><?= $tm('monthlyRevenueDesc') ?></p>
                 </div>
                 <div class="relative h-64">
                     <canvas id="revenueChart" width="400" height="200"></canvas>
@@ -280,8 +280,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Examination Types</h3>
-                        <p class="text-sm text-gray-600">Distribution of examination types</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2"><?= $tm('examinationTypesTitle') ?></h3>
+                        <p class="text-sm text-gray-600"><?= $tm('examinationTypesDesc') ?></p>
                     </div>
                     <div class="relative h-64">
                         <canvas id="examinationChart" width="400" height="200"></canvas>
@@ -290,8 +290,8 @@
 
                     <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-6">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Appointment Status</h3>
-                        <p class="text-sm text-gray-600">Current appointment status distribution</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2"><?= $tm('appointmentStatusTitle') ?></h3>
+                        <p class="text-sm text-gray-600"><?= $tm('appointmentStatusDesc') ?></p>
                     </div>
                     <div class="relative h-64">
                         <canvas id="appointmentChart" width="400" height="200"></canvas>
@@ -304,16 +304,16 @@
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">Previous Period Comparison</h3>
-                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
+                    <h3 class="text-lg font-bold text-gray-800"><?= $tm('previousPeriodComparison') ?></h3>
+                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? $tm('previousPeriodLabel')) ?></span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <?php
                     $comparisonCards = [
-                        ['label' => 'New Patients', 'current' => (float)($reports['summary']['new_patients'] ?? 0), 'previous' => (float)($cmp['new_patients'] ?? 0), 'currency' => false],
-                        ['label' => 'Examinations', 'current' => (float)($reports['summary']['examinations_this_period'] ?? 0), 'previous' => (float)($cmp['examinations_this_period'] ?? 0), 'currency' => false],
-                        ['label' => 'Appointments', 'current' => (float)($reports['summary']['appointments_this_period'] ?? 0), 'previous' => (float)($cmp['appointments_this_period'] ?? 0), 'currency' => false],
-                        ['label' => 'Revenue', 'current' => (float)($reports['summary']['revenue_this_period'] ?? 0), 'previous' => (float)($cmp['revenue_this_period'] ?? 0), 'currency' => true],
+                        ['label' => $tm('newPatients'), 'current' => (float)($reports['summary']['new_patients'] ?? 0), 'previous' => (float)($cmp['new_patients'] ?? 0), 'currency' => false],
+                        ['label' => $tm('examinations'), 'current' => (float)($reports['summary']['examinations_this_period'] ?? 0), 'previous' => (float)($cmp['examinations_this_period'] ?? 0), 'currency' => false],
+                        ['label' => $tm('appointments'), 'current' => (float)($reports['summary']['appointments_this_period'] ?? 0), 'previous' => (float)($cmp['appointments_this_period'] ?? 0), 'currency' => false],
+                        ['label' => $tm('revenue'), 'current' => (float)($reports['summary']['revenue_this_period'] ?? 0), 'previous' => (float)($cmp['revenue_this_period'] ?? 0), 'currency' => true],
                     ];
                     foreach ($comparisonCards as $card):
                         $delta = $card['current'] - $card['previous'];
@@ -338,8 +338,22 @@
         <div class="mb-8">
                 <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg group hover:shadow-xl transition-all duration-300 p-4">
                 <div class="mb-4">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= ucfirst($report_type ?? 'Report') ?> Report</h3>
-                        <p class="text-sm text-gray-600">Detailed analysis for <?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' days')) ?></p>
+                    <?php
+                        $reportTypeKeyMap = [
+                            'overview' => 'reportOverview',
+                            'patients' => 'reportPatients',
+                            'examinations' => 'reportExaminations',
+                            'appointments' => 'reportAppointments',
+                            'finance' => 'reportFinance',
+                            'treatments' => 'reportTreatments',
+                        ];
+                        $reportTitle = isset($reportTypeKeyMap[$report_type ?? ''])
+                            ? $tm($reportTypeKeyMap[$report_type])
+                            : ucfirst((string) ($report_type ?? $tm('reportTitleSuffix')));
+                        $reportPeriodLabel = $filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'));
+                    ?>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= esc($reportTitle . ' ' . $tm('reportTitleSuffix')) ?></h3>
+                        <p class="text-sm text-gray-600"><?= esc($tm('reportDetailedAnalysis', ['period' => $reportPeriodLabel])) ?></p>
                     </div>
                     
                     <?php if ($report_type === 'patients'): ?>
@@ -351,35 +365,35 @@
                                         <i class="fas fa-users text-blue-600 text-sm"></i>
                                         <span class="text-xl font-bold text-blue-900"><?= count($reports['patients'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Total Patients</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('totalPatients') ?></p>
                                 </div>
                                 <div class="bg-emerald-50/80 rounded-lg p-3 border border-emerald-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-user-plus text-emerald-600 text-sm"></i>
                                         <span class="text-xl font-bold text-emerald-900"><?= $reports['new_vs_returning']['new'] ?? 0 ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">New</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('new') ?></p>
                                 </div>
                                 <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-user-check text-indigo-600 text-sm"></i>
                                         <span class="text-xl font-bold text-indigo-900"><?= $reports['new_vs_returning']['returning'] ?? 0 ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Returning</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('returning') ?></p>
                                 </div>
                                 <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-venus-mars text-slate-600 text-sm"></i>
                                         <span class="text-xl font-bold text-slate-800"><?= count($reports['gender_distribution'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Gender Buckets</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('genderBuckets') ?></p>
                                 </div>
                             </div>
                             <?php if (!empty($reports['gender_distribution'])): ?>
                             <div class="flex flex-wrap gap-2">
                                 <?php foreach (array_slice($reports['gender_distribution'], 0, 5) as $gender): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                                        <?= ucfirst($gender['gender']) ?>: <?= (int) $gender['count'] ?>
+                                        <?= esc(ucfirst((string) $gender['gender'])) ?>: <?= (int) $gender['count'] ?>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -395,35 +409,35 @@
                                         <i class="fas fa-stethoscope text-emerald-600 text-sm"></i>
                                         <span class="text-xl font-bold text-emerald-900"><?= count($reports['examinations'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Examinations</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('examinations') ?></p>
                                 </div>
                                 <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-layer-group text-blue-600 text-sm"></i>
                                         <span class="text-xl font-bold text-blue-900"><?= count($reports['examination_types'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('type') ?></p>
                                 </div>
                                 <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-calendar-check text-indigo-600 text-sm"></i>
                                         <span class="text-xl font-bold text-indigo-900"><?= count($reports['monthly_examinations'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Months Tracked</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('monthsTracked') ?></p>
                                 </div>
                                 <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-user text-slate-600 text-sm"></i>
-                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : $tm('all') ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('patientScope') ?></p>
                                 </div>
                             </div>
                             <?php if (!empty($reports['examination_types'])): ?>
                             <div class="flex flex-wrap gap-2">
                                 <?php foreach (array_slice($reports['examination_types'], 0, 6) as $type): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                                        <?= ucfirst($type['examination_type']) ?>: <?= (int) ($type['count'] ?? 0) ?>
+                                        <?= esc(ucfirst((string) $type['examination_type'])) ?>: <?= (int) ($type['count'] ?? 0) ?>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -439,35 +453,35 @@
                                         <i class="fas fa-calendar-check text-amber-600 text-sm"></i>
                                         <span class="text-xl font-bold text-amber-900"><?= count($reports['appointments'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Appointments</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('appointments') ?></p>
                                 </div>
                                 <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-signal text-blue-600 text-sm"></i>
                                         <span class="text-xl font-bold text-blue-900"><?= count($reports['status_distribution'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Statuses</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('statuses') ?></p>
                                 </div>
                                 <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-tags text-indigo-600 text-sm"></i>
                                         <span class="text-xl font-bold text-indigo-900"><?= count($reports['appointment_types'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('type') ?></p>
                                 </div>
                                 <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-user text-slate-600 text-sm"></i>
-                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : $tm('all') ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('patientScope') ?></p>
                                 </div>
                             </div>
                             <?php if (!empty($reports['status_distribution'])): ?>
                             <div class="flex flex-wrap gap-2">
                                 <?php foreach (array_slice($reports['status_distribution'], 0, 6) as $status): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                                        <?= ucfirst($status['status']) ?>: <?= (int) ($status['count'] ?? 0) ?>
+                                        <?= esc(ucfirst((string) $status['status'])) ?>: <?= (int) ($status['count'] ?? 0) ?>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -484,8 +498,8 @@
                                         <i class="fas fa-circle-info"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-800">Finance report basis</p>
-                                        <p class="text-sm text-slate-600">This report mixes cash collections, provider payout metrics, and operating expenses. Summary cards use the clinic base currency, while transaction detail rows include original currency and exchange rate when applicable.</p>
+                                        <p class="text-sm font-semibold text-slate-800"><?= $tm('financeReportBasisTitle') ?></p>
+                                        <p class="text-sm text-slate-600"><?= $tm('financeReportBasisDesc') ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -497,7 +511,7 @@
                                             <i class="fas fa-wallet"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Gross Collections</p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('grossCollections') ?></p>
                                             <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['gross_collections'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -508,7 +522,7 @@
                                             <i class="fas fa-user-md"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Provider Share (Accrual)</p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('providerShareAccrual') ?></p>
                                             <p class="text-xl font-bold text-blue-900"><?= formatCurrency($summary['provider_share_accrual'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -519,7 +533,7 @@
                                             <i class="fas fa-money-bill-transfer"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Provider Paid (Cash)</p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('providerPaidCash') ?></p>
                                             <p class="text-xl font-bold text-yellow-900"><?= formatCurrency($summary['provider_paid_cash'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -530,7 +544,7 @@
                                             <i class="fas fa-chart-line"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Net Clinic (Cash)</p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('netClinicCash') ?></p>
                                             <p class="text-xl font-bold text-purple-900"><?= formatCurrency($summary['net_clinic_revenue_cash'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -541,7 +555,7 @@
                                             <i class="fas fa-file-invoice-dollar"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900">Expenses (Period)</p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('expensesPeriod') ?></p>
                                             <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['total_expenses'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -550,33 +564,33 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Payable Outstanding</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('providerPayableOutstanding') ?></p>
                                     <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['provider_payable_outstanding'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Outstanding Invoices (Amount)</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('outstandingInvoicesAmount') ?></p>
                                     <p class="mt-1 text-lg font-bold text-amber-700"><?= formatCurrency($summary['pending_invoice_amount'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Transactions (Period)</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('transactionsPeriod') ?></p>
                                     <p class="mt-1 text-lg font-bold text-slate-800"><?= (int) ($summary['total_transactions'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Operating Result (Cash)</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('operatingResultCash') ?></p>
                                     <p class="mt-1 text-lg font-bold <?= ((float)($summary['operating_result_cash'] ?? 0)) >= 0 ? 'text-emerald-700' : 'text-rose-700' ?>"><?= formatCurrency($summary['operating_result_cash'] ?? 0) ?></p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Refund Count</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('refundCount') ?></p>
                                     <p class="mt-1 text-lg font-bold text-rose-700"><?= (int) ($summary['refund_count'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Refund Total</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('refundTotal') ?></p>
                                     <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['refund_total'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Discounts (Period)</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('discountsPeriod') ?></p>
                                     <p class="mt-1 text-lg font-bold text-sky-700"><?= formatCurrency($summary['discount_total'] ?? 0) ?></p>
                                 </div>
                             </div>
@@ -584,18 +598,18 @@
                             <?php $fcmp = $reports['comparison']['summary']; ?>
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="text-lg font-semibold text-gray-800">Previous Period Comparison</h4>
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('previousPeriodComparison') ?></h4>
                                     <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                                     <?php
                                     $financeCompareCards = [
-                                        ['label'=>'Gross Collections','current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
-                                        ['label'=>'Provider Share','current'=>(float)($summary['provider_share_accrual']??0),'previous'=>(float)($fcmp['provider_share_accrual']??0),'count'=>false],
-                                        ['label'=>'Provider Paid Cash','current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
-                                        ['label'=>'Expenses','current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
-                                        ['label'=>'Pending Invoices','current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
-                                        ['label'=>'Transactions','current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
+                                        ['label'=>$tm('grossCollections'),'current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
+                                        ['label'=>$tm('providerShareAccrual'),'current'=>(float)($summary['provider_share_accrual']??0),'previous'=>(float)($fcmp['provider_share_accrual']??0),'count'=>false],
+                                        ['label'=>$tm('providerPaidCash'),'current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
+                                        ['label'=>$tm('expensesPeriod'),'current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
+                                        ['label'=>$tm('outstandingInvoices'),'current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
+                                        ['label'=>$tm('transactionsPeriod'),'current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
                                     ];
                                     foreach ($financeCompareCards as $card):
                                         $delta = $card['current'] - $card['previous'];
@@ -614,7 +628,7 @@
                             <!-- Payment Methods -->
                             <?php if (!empty($reports['payment_methods'])): ?>
                             <div class="bg-gray-50/80 rounded-lg p-4">
-                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Payment Methods</h4>
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4"><?= $tm('paymentMethods') ?></h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <?php foreach ($reports['payment_methods'] as $method): ?>
                                     <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
@@ -629,8 +643,8 @@
                             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                     <div class="mb-4">
-                                        <h4 class="text-lg font-semibold text-gray-800">Payment Method Mix</h4>
-                                        <p class="text-sm text-gray-500">Click a slice to drill into matching transactions.</p>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('paymentMethodMix') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('paymentMethodMixDesc') ?></p>
                                     </div>
                                     <div class="relative h-64">
                                         <canvas id="financePaymentMethodsChart"></canvas>
@@ -638,8 +652,8 @@
                                 </div>
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                     <div class="mb-4">
-                                        <h4 class="text-lg font-semibold text-gray-800">A/R Aging Distribution</h4>
-                                        <p class="text-sm text-gray-500">Click a bucket to inspect invoices in that aging range.</p>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('arAgingDistribution') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('arAgingDistributionDesc') ?></p>
                                     </div>
                                     <div class="relative h-64">
                                         <canvas id="financeAgingChart"></canvas>
@@ -647,8 +661,8 @@
                                 </div>
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                     <div class="mb-4">
-                                        <h4 class="text-lg font-semibold text-gray-800">Provider Payout Status Mix</h4>
-                                        <p class="text-sm text-gray-500">Click a status to drill into provider payout rows.</p>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('providerPayoutStatusMix') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('providerPayoutStatusMixDesc') ?></p>
                                     </div>
                                     <div class="relative h-64">
                                         <canvas id="financeProviderStatusChart"></canvas>
@@ -656,8 +670,8 @@
                                 </div>
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm xl:col-span-3">
                                     <div class="mb-4">
-                                        <h4 class="text-lg font-semibold text-gray-800">Transaction Type Mix</h4>
-                                        <p class="text-sm text-gray-500">Click a bar to drill into transactions by type.</p>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('transactionTypeMix') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('transactionTypeMixDesc') ?></p>
                                     </div>
                                     <div class="relative h-64">
                                         <canvas id="financeTransactionTypeChart"></canvas>
@@ -670,14 +684,14 @@
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
                                     <div>
-                                        <h4 class="text-lg font-semibold text-gray-800">Accounts Receivable Aging</h4>
-                                        <p class="text-sm text-gray-500">Outstanding invoice balances bucketed by days past due (through <?= esc($filters['end_date'] ?? date('Y-m-d')) ?>)</p>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('accountsReceivableAging') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= esc($tm('accountsReceivableAgingDesc', ['date' => ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
                                     </div>
-                                    <div class="text-sm font-semibold text-rose-700">Total: <?= formatCurrency($ar['total_balance_due'] ?? 0) ?></div>
+                                    <div class="text-sm font-semibold text-rose-700"><?= $tm('totalAmount') ?>: <?= formatCurrency($ar['total_balance_due'] ?? 0) ?></div>
                                 </div>
                                 <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
                                     <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
-                                        <p class="text-xs uppercase tracking-wide text-slate-500">Current</p>
+                                        <p class="text-xs uppercase tracking-wide text-slate-500"><?= $tm('current') ?></p>
                                         <p class="text-lg font-bold text-slate-900"><?= formatCurrency($ar['current'] ?? 0) ?></p>
                                     </div>
                                     <div class="rounded-lg bg-amber-50 border border-amber-200 p-3">
@@ -697,7 +711,7 @@
                                         <p class="text-lg font-bold text-red-900"><?= formatCurrency($ar['days_91_plus'] ?? 0) ?></p>
                                     </div>
                                     <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3">
-                                        <p class="text-xs uppercase tracking-wide text-indigo-700">Invoices</p>
+                                        <p class="text-xs uppercase tracking-wide text-indigo-700"><?= $tm('invoices') ?></p>
                                         <p class="text-lg font-bold text-indigo-900"><?= (int) ($ar['invoice_count'] ?? 0) ?></p>
                                     </div>
                                 </div>
@@ -707,19 +721,19 @@
                             <?php if (!empty($reports['ar_aging_detail'])): ?>
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="text-lg font-semibold text-gray-800">A/R Aging Detail</h4>
-                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Top <?= count($reports['ar_aging_detail']) ?> open invoices</span>
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('arAgingDetail') ?></h4>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><?= esc($tm('openInvoicesTop', ['count' => count($reports['ar_aging_detail'])])) ?></span>
                                 </div>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full text-sm">
                                         <thead>
                                             <tr class="text-left text-gray-500 border-b">
-                                                <th class="py-2 pr-3">Invoice</th>
-                                                <th class="py-2 pr-3">Patient</th>
-                                                <th class="py-2 pr-3">Due Date</th>
-                                                <th class="py-2 pr-3">Days</th>
-                                                <th class="py-2 pr-3">Bucket</th>
-                                                <th class="py-2 pr-3 text-right">Balance Due</th>
+                                                <th class="py-2 pr-3"><?= $tm('invoice') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('patient') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('dueDate') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('days') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('bucket') ?></th>
+                                                <th class="py-2 pr-3 text-right"><?= $tm('balanceDue') ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100">
@@ -749,17 +763,17 @@
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <?php if (!empty($reports['provider_payout_status'])): ?>
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Provider Payout Status</h4>
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4"><?= $tm('providerPayoutStatus') ?></h4>
                                     <div class="space-y-3">
                                         <?php foreach ($reports['provider_payout_status'] as $row): ?>
                                         <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
                                             <div>
                                                 <p class="font-semibold text-gray-800"><?= esc(ucfirst($row['status'] ?? 'unknown')) ?></p>
-                                                <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts</p>
+                                                <p class="text-xs text-gray-500"><?= esc($tm('payoutsCount', ['count' => (int) ($row['payout_count'] ?? 0)])) ?></p>
                                             </div>
                                             <div class="text-right">
                                                 <p class="font-bold text-blue-700"><?= formatCurrency($row['provider_share_total'] ?? 0) ?></p>
-                                                <p class="text-xs text-rose-600">Due: <?= formatCurrency($row['balance_due_total'] ?? 0) ?></p>
+                                                <p class="text-xs text-rose-600"><?= $tm('dueShort') ?>: <?= formatCurrency($row['balance_due_total'] ?? 0) ?></p>
                                             </div>
                                         </div>
                                         <?php endforeach; ?>
@@ -769,7 +783,7 @@
 
                                 <?php if (!empty($reports['provider_payout_breakdown'])): ?>
                                 <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Top Providers by Share</h4>
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4"><?= $tm('topProvidersByShare') ?></h4>
                                     <div class="space-y-3">
                                         <?php foreach ($reports['provider_payout_breakdown'] as $row): ?>
                                         <?php
@@ -781,18 +795,18 @@
                                             <div class="flex items-center justify-between gap-3">
                                                 <div>
                                                     <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? lang('TenantMisc.unknown')) ?></p>
-                                                    <p class="text-xs text-gray-500"><?= (int) ($row['payout_count'] ?? 0) ?> payouts - Gross <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
+                                                    <p class="text-xs text-gray-500"><?= esc($tm('payoutsCount', ['count' => (int) ($row['payout_count'] ?? 0)])) ?> - <?= $tm('grossShort') ?> <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
                                                 </div>
                                                 <div class="text-right">
                                                     <p class="font-bold text-blue-700"><?= formatCurrency($share) ?></p>
-                                                    <p class="text-xs text-rose-600">Due <?= formatCurrency($row['provider_balance_total'] ?? 0) ?></p>
+                                                    <p class="text-xs text-rose-600"><?= $tm('dueShort') ?> <?= formatCurrency($row['provider_balance_total'] ?? 0) ?></p>
                                                 </div>
                                             </div>
                                             <div class="mt-2">
                                                 <div class="h-2 rounded-full bg-gray-200 overflow-hidden">
                                                     <div class="h-full bg-gradient-to-r from-blue-500 to-emerald-500" style="width: <?= (int) $pct ?>%"></div>
                                                 </div>
-                                                <div class="mt-1 text-xs text-gray-500">Paid <?= formatCurrency($paid) ?> (<?= (int) $pct ?>%)</div>
+                                                <div class="mt-1 text-xs text-gray-500"><?= $tm('paidShort') ?> <?= formatCurrency($paid) ?> (<?= (int) $pct ?>%)</div>
                                             </div>
                                         </div>
                                         <?php endforeach; ?>
@@ -811,39 +825,39 @@
                                         <i class="fas fa-tooth text-rose-600 text-sm"></i>
                                         <span class="text-xl font-bold text-rose-900"><?= count($reports['treatments'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Treatments</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('reportTreatments') ?></p>
                                 </div>
                                 <div class="bg-blue-50/80 rounded-lg p-3 border border-blue-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-tags text-blue-600 text-sm"></i>
                                         <span class="text-xl font-bold text-blue-900"><?= count($reports['treatment_types'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Types</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('type') ?></p>
                                 </div>
                                 <div class="bg-indigo-50/80 rounded-lg p-3 border border-indigo-100/60">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-wave-square text-indigo-600 text-sm"></i>
                                         <span class="text-xl font-bold text-indigo-900"><?= count($reports['status_distribution'] ?? []) ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Statuses</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('statuses') ?></p>
                                 </div>
                                 <div class="bg-slate-50 rounded-lg p-3 border border-slate-200/70">
                                     <div class="flex items-center justify-between">
                                         <i class="fas fa-user text-slate-600 text-sm"></i>
-                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : 'All' ?></span>
+                                        <span class="text-xl font-bold text-slate-800"><?= !empty($filters['patient_id']) ? '1' : $tm('all') ?></span>
                                     </div>
-                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">Patient Scope</p>
+                                    <p class="mt-1 text-xs font-semibold text-gray-700 uppercase tracking-wide"><?= $tm('patientScope') ?></p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <?php foreach (array_slice(($reports['status_distribution'] ?? []), 0, 4) as $status): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                                        <?= ucfirst($status['status']) ?>: <?= (int) ($status['count'] ?? 0) ?>
+                                        <?= esc(ucfirst((string) $status['status'])) ?>: <?= (int) ($status['count'] ?? 0) ?>
                                     </span>
                                 <?php endforeach; ?>
                                 <?php foreach (array_slice(($reports['treatment_types'] ?? []), 0, 4) as $type): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                                        <?= ucfirst($type['treatment_type']) ?>: <?= (int) ($type['count'] ?? 0) ?>
+                                        <?= esc(ucfirst((string) $type['treatment_type'])) ?>: <?= (int) ($type['count'] ?? 0) ?>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -855,8 +869,8 @@
                             <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <i class="fas fa-chart-bar text-blue-500 text-2xl"></i>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Report Data</h3>
-                    <p class="text-gray-500">This report type is under development. Please check back later.</p>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= $tm('reportData') ?></h3>
+                    <p class="text-gray-500"><?= $tm('reportUnderDevelopment') ?></p>
                         </div>
                     <?php endif; ?>
                 </div>

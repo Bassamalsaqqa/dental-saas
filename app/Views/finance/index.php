@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <?php
+$tr = static fn(string $key, array $params = []) => lang('Finance.' . $key, $params);
 $currentUri = service('request')->getUri();
 $returnToContext = ltrim($currentUri->getPath(), '/');
 $currentQuery = $currentUri->getQuery();
@@ -225,20 +226,20 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <?php if (has_permission('finance', 'create')): ?>
                             <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-circle-plus mr-2"></i>
-                                Add Income
+                                <?= esc($tr('addIncome')) ?>
                             </a>
                             <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i>
-                                Add Expense
+                                <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
                         <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-chart-bar mr-2"></i>
-                            Reports
+                            <?= esc($tr('reports')) ?>
                         </a>
                         <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
                             <i class="fas fa-hand-holding-dollar mr-2"></i>
-                            Provider Payouts
+                            <?= esc($tr('providerPayoutsNav')) ?>
                         </a>
                         </div>
                     </div>
@@ -275,7 +276,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.patient') ?>-side collections</p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('patientCollections')) ?></p>
                         </div>
                     </div>
                 </div>
@@ -393,15 +394,15 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <!-- Export Buttons -->
                             <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
+                                <?= esc($tr('exportPdf')) ?>
                             </button>
                             <button onclick="printTransactions()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= esc($tr('print')) ?>
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
+                                <?= esc($tr('exportCsv')) ?>
                             </button>
                                 </div>
             </div>
@@ -494,7 +495,7 @@ $financeConfig = [
     ],
     'i18n' => [
         'transactionId' => lang('Finance.transactionId'),
-        'financialTransactionsReport' => lang('Finance.financialTransactions') . ' Report',
+        'financialTransactionsReport' => lang('Finance.financialTransactions') . ' ' . lang('Finance.report'),
         'loadingTransactions' => lang('Finance.loadingTransactions'),
         'confirmDeleteTransaction' => lang('Finance.confirmDeleteTransaction'),
     ],

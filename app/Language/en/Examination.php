@@ -208,5 +208,7 @@ return [
     'report_id' => 'Report ID: {id}',
     'generated' => 'Generated: {datetime}',
     'print_report' => 'Print Report',
+    'pdf' => 'PDF',
+    'csv' => 'CSV',
 ];
 

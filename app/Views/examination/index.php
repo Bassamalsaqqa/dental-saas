@@ -416,7 +416,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <!-- Export Buttons -->
                             <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
+                                <?= esc($tr('pdf')) ?>
                             </button>
                             <button onclick="printExaminations()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
@@ -424,7 +424,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
+                                <?= esc($tr('csv')) ?>
                             </button>
                         </div>
                     </div>
@@ -1060,7 +1060,7 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'pdf',
-                text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
+                text: '<i class="fas fa-file-pdf mr-2"></i><?= esc($tr('pdf'), 'js') ?>',
                 className: 'btn-pdf',
                 title: i18n.examinationsReport,
                 orientation: 'landscape',
@@ -1080,7 +1080,7 @@ $(document).ready(function() {
             },
             {
                 extend: 'csv',
-                text: '<i class="fas fa-file-csv mr-2"></i>CSV',
+                text: '<i class="fas fa-file-csv mr-2"></i><?= esc($tr('csv'), 'js') ?>',
                 className: 'btn-csv',
                 title: i18n.examinationsReport,
                 exportOptions: {
