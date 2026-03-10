@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params); ?>
 
 
 <!-- DataTables CSS -->
@@ -232,41 +233,41 @@
                             <i class="fas fa-box text-xl"></i>
                         </div>
                 <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
-                    <p class="text-gray-600">Manage your dental supplies and equipment inventory</p>
+                            <h1 class="text-3xl font-bold text-gray-900"><?= esc($tr('inventoryManagement')) ?></h1>
+                    <p class="text-gray-600"><?= esc($tr('inventoryManagementSubtitle')) ?></p>
                 </div>
                     </div>
                     <div class="flex items-center space-x-3">
                     <?php if (has_permission('inventory', 'create')): ?>
                             <a href="<?= base_url('inventory/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
-                                Add New Item
+                                <?= esc($tr('addNewItem')) ?>
                         </a>
                             <a href="<?= base_url('inventory/templates') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-layer-group mr-2"></i>
-                                Starter Templates
+                                <?= esc($tr('starterTemplates')) ?>
                             </a>
                     <?php endif; ?>
                         <a href="<?= base_url('inventory/suppliers') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-truck mr-2 text-indigo-600"></i>
-                            Suppliers
+                            <?= esc($tr('suppliers')) ?>
                         </a>
                         <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200 shadow-sm">
                             <i class="fas fa-cart-shopping mr-2 text-amber-600"></i>
-                            Reorder List
+                            <?= esc($tr('reorderList')) ?>
                             <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
                         </a>
                         <a href="<?= base_url('inventory/movements') ?>" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-arrows-rotate mr-2 text-emerald-600"></i>
-                            Movements
+                            <?= esc($tr('movements')) ?>
                         </a>
                         <a href="<?= base_url('inventory/usage-history') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-history mr-2"></i>
-                            Usage History
+                            <?= esc($tr('usageHistory')) ?>
                     </a>
                         <a href="<?= base_url('inventory/low-stock') ?>" class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl border border-red-500">
                             <i class="fas fa-exclamation-triangle mr-2 text-white"></i>
-                            <span class="text-white font-bold">Low Stock Alert</span>
+                            <span class="text-white font-bold"><?= esc($tr('lowStockAlert')) ?></span>
                     </a>
                     </div>
                 </div>
@@ -281,7 +282,7 @@
                         <i class="fas fa-check-circle text-green-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-green-800">Success</h3>
+                        <h3 class="text-sm font-medium text-green-800"><?= esc($tr('success')) ?></h3>
                         <div class="mt-2 text-sm text-green-700">
                             <p><?= session()->getFlashdata('success') ?></p>
                         </div>
@@ -297,7 +298,7 @@
                         <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <h3 class="text-sm font-medium text-red-800"><?= esc($tr('error')) ?></h3>
                         <div class="mt-2 text-sm text-red-700">
                             <p><?= session()->getFlashdata('error') ?></p>
                         </div>
@@ -314,7 +315,7 @@
                         <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">Error Loading Inventory</h3>
+                        <h3 class="text-sm font-medium text-red-800"><?= esc($tr('errorLoadingInventory')) ?></h3>
                         <div class="mt-2 text-sm text-red-700">
                             <p><?= $error ?></p>
                         </div>
@@ -333,7 +334,7 @@
                                 <i class="fas fa-boxes text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Total Items</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('totalItems')) ?></p>
                                 <p class="text-3xl font-bold text-gray-900 total-items-count"><?= $total_items ?? 0 ?></p>
                             </div>
                         </div>
@@ -347,7 +348,7 @@
                                 <i class="fas fa-check-circle text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">In Stock</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('inStock')) ?></p>
                                 <p class="text-3xl font-bold text-gray-900 active-items-count"><?= $in_stock_items ?? 0 ?></p>
                             </div>
                         </div>
@@ -361,7 +362,7 @@
                                 <i class="fas fa-exclamation-triangle text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Low Stock</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('lowStock')) ?></p>
                                 <p class="text-3xl font-bold text-gray-900 low-stock-count"><?= $low_stock_items ?? 0 ?></p>
                             </div>
                         </div>
@@ -375,7 +376,7 @@
                                 <i class="fas fa-times-circle text-2xl"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600 mb-1">Out of Stock</p>
+                                <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('outOfStock')) ?></p>
                                 <p class="text-3xl font-bold text-gray-900 out-of-stock-count"><?= $out_of_stock_items ?? 0 ?></p>
                             </div>
                         </div>
@@ -393,24 +394,24 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                            <h3 class="text-lg font-semibold text-gray-900">Inventory Items</h3>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('inventoryItems')) ?></h3>
                     </div>
                         <div class="flex items-center space-x-3">
                             <div class="text-sm text-gray-600">
-                                <span class="total-items-count">0</span> items
+                                <span class="total-items-count">0</span> <?= esc($tr('items')) ?>
                     </div>
                             <!-- Export Buttons -->
                             <button onclick="exportToPDF()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-pdf mr-2 text-red-600"></i>
-                                PDF
+                                <?= esc($tr('exportToPDF')) ?>
                         </button>
                             <button onclick="printInventory()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-print mr-2 text-gray-600"></i>
-                                Print
+                                <?= esc($tr('exportToPrint')) ?>
                         </button>
                             <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                 <i class="fas fa-file-csv mr-2 text-green-600"></i>
-                                CSV
+                                <?= esc($tr('exportToCSV')) ?>
                         </button>
                     </div>
                 </div>
@@ -425,25 +426,25 @@
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-hashtag text-teal-600"></i>
-                                            <span>ID</span>
+                                            <span><?= esc($tr('id')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-box text-teal-600"></i>
-                                            <span>Item</span>
+                                            <span><?= esc($tr('item')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-tags text-teal-600"></i>
-                                            <span>Category</span>
+                                            <span><?= esc($tr('category')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-layer-group text-teal-600"></i>
-                                            <span>Quantity</span>
+                                            <span><?= esc($tr('quantity')) ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -675,7 +676,7 @@ class InventoryFilterManager {
                 
                 const title = document.createElement('h3');
                 title.className = 'text-lg font-medium text-gray-900 mb-2';
-                title.textContent = 'No items found';
+            title.textContent = '<?= esc($tr('noInventoryItemsFound'), 'js') ?>';
                 
                 const message = document.createElement('p');
                 message.className = 'text-gray-500 mb-4';
@@ -723,7 +724,7 @@ function adjustStock(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc($tr('error'), 'js') ?>: ' + data.message);
             }
         })
         .catch(error => {
@@ -768,13 +769,13 @@ function deleteItem(id) {
             }
             if (data.success) {
                 // Show success message
-                showNotification('Item deleted successfully!', 'success');
+                showNotification('<?= esc($tr('itemDeletedSuccessfully'), 'js') ?>', 'success');
                 // Reload page after a short delay
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification('<?= esc($tr('error'), 'js') ?>: ' + data.message, 'error');
                 // Restore button state
                 deleteBtn.replaceChildren(...deleteBtn._originalChildren.map(node => node.cloneNode(true)));
                 deleteBtn.disabled = false;
@@ -782,7 +783,7 @@ function deleteItem(id) {
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('An error occurred while deleting the item.', 'error');
+            showNotification('<?= esc($tr('errorDeletingItem'), 'js') ?>', 'error');
             // Restore button state
             deleteBtn.replaceChildren(...deleteBtn._originalChildren.map(node => node.cloneNode(true)));
             deleteBtn.disabled = false;
@@ -852,7 +853,7 @@ function loadInventoryStats() {
             }
         },
         error: function() {
-            console.error('Failed to load inventory statistics');
+            console.error('<?= esc($tr('failedToLoadInventoryStatistics'), 'js') ?>');
         }
     });
 }
@@ -911,7 +912,7 @@ $(document).ready(function() {
                 
                 if (json.error) {
                     console.error('Server error:', json.error);
-                    alert('Error: ' + json.error);
+                        alert('<?= esc($tr('error'), 'js') ?>: ' + json.error);
                     return [];
                 }
                 
@@ -953,7 +954,7 @@ $(document).ready(function() {
                     window.refreshCsrfToken(xhr.responseJSON.csrf_token);
                 }
                 
-                let errorMessage = 'Error loading data';
+            let errorMessage = '<?= esc($tr('errorLoadingData'), 'js') ?>';
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (response.error) {
@@ -1123,14 +1124,14 @@ $(document).ready(function() {
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         language: {
             processing: "Loading inventory data...",
-            emptyTable: "No inventory items found",
-            zeroRecords: "No matching inventory items found",
+                emptyTable: "<?= esc($tr('noInventoryItemsFound'), 'js') ?>",
+                zeroRecords: "<?= esc($tr('noMatchingInventoryItemsFound'), 'js') ?>",
             lengthMenu: "_MENU_",
             info: "Showing _START_ to _END_ of _TOTAL_ inventory items",
-            infoEmpty: "No inventory items available",
+                infoEmpty: "<?= esc($tr('noInventoryItemsAvailable'), 'js') ?>",
             infoFiltered: "(filtered from _MAX_ total inventory items)",
             search: "",
-            searchPlaceholder: "Search inventory items...",
+                searchPlaceholder: "<?= esc($tr('searchInventoryItems'), 'js') ?>",
             paginate: {
                 first: "First",
                 last: "Last",
@@ -1189,7 +1190,7 @@ function loadInventoryStats() {
             }
         },
         error: function() {
-            console.error('Failed to load inventory statistics');
+            console.error('<?= esc($tr('failedToLoadInventoryStatistics'), 'js') ?>');
         }
     });
 }
@@ -1226,7 +1227,7 @@ function generatePDF() {
         // Add generation date
         doc.setFontSize(12);
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 35);
-        doc.text(`Total Items: ${inventoryTable.page.info().recordsTotal}`, 20, 45);
+        doc.text(`<?= esc($tr('totalItems'), 'js') ?>: ${inventoryTable.page.info().recordsTotal}`, 20, 45);
         
         // Prepare table data
         const headers = ['ID', 'Item Name', 'Category', 'Quantity', 'Unit Price', 'Supplier', 'Expiry Date', 'Status'];
@@ -1273,7 +1274,7 @@ function generatePDF() {
         
     } catch (error) {
         console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
+        alert('<?= esc($tr('errorGeneratingPDF'), 'js') ?>');
     }
 }
 
@@ -1331,7 +1332,7 @@ function printInventoryTable() {
     
     const pTotal = doc.createElement('p');
     const totalStrong = doc.createElement('strong');
-    totalStrong.textContent = 'Total Items: ';
+    totalStrong.textContent = '<?= esc($tr('totalItems'), 'js') ?>: ';
     pTotal.appendChild(totalStrong);
     const totalText = inventoryTable ? inventoryTable.page.info().recordsTotal : 'N/A';
     pTotal.appendChild(doc.createTextNode(totalText));
@@ -1396,7 +1397,7 @@ function exportInventoryToCSV() {
         
     } catch (error) {
         console.error('Error exporting CSV:', error);
-        alert('Error exporting CSV. Please try again.');
+        alert('<?= esc($tr('errorExportingCSV'), 'js') ?>');
     }
 }
 

@@ -2,26 +2,27 @@
 <?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('UserRole.' . $key, $params); ?>
 <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-3">Role Management</h1>
-                <p class="text-gray-600 text-lg">Manage system roles and their permissions</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= esc($tr('roleManagement')) ?></h1>
+                <p class="text-gray-600 text-lg"><?= esc($tr('manageSystemRolesPermissions')) ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <?php if ($global_mode): ?>
                     <?php if (has_permission('settings', 'edit')): ?>
                         <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-sync-alt mr-2"></i>Sync Permissions
+                            <i class="fas fa-sync-alt mr-2"></i><?= esc($tr('syncPermissions')) ?>
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>
                 
                 <?php if (has_permission('users', 'create') || has_permission('users', 'roles')): ?>
                     <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-plus mr-2"></i>Create Role
+                        <i class="fas fa-plus mr-2"></i><?= esc($tr('createRole')) ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -36,12 +37,12 @@
                     <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">RBAC System Not Ready</h3>
+                    <h3 class="text-sm font-medium text-yellow-800"><?= esc($tr('rbacSystemNotReady')) ?></h3>
                     <div class="mt-2 text-sm text-yellow-700">
-                        <p>The role-based access control system hasn't been initialized yet. All roles will show 0 users and 0 permissions until you sync the system.</p>
+                        <p><?= esc($tr('rbacNotInitializedUsers')) ?></p>
                         <div class="mt-3">
                             <a href="<?= base_url('rbac/setup') ?>" class="inline-flex items-center px-3 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors">
-                                <i class="fas fa-cog mr-2"></i>Initialize RBAC System
+                                <i class="fas fa-cog mr-2"></i><?= esc($tr('initializeRbacSystem')) ?>
                             </a>
                         </div>
                     </div>
@@ -58,7 +59,7 @@
                     <i class="fas fa-check-circle text-green-400 text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800">Success</h3>
+                    <h3 class="text-sm font-medium text-green-800"><?= esc($tr('success')) ?></h3>
                     <div class="mt-2 text-sm text-green-700">
                         <p><?= session()->getFlashdata('success') ?></p>
                     </div>
@@ -74,7 +75,7 @@
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <h3 class="text-sm font-medium text-red-800"><?= esc($tr('error')) ?></h3>
                     <div class="mt-2 text-sm text-red-700">
                         <p><?= session()->getFlashdata('error') ?></p>
                     </div>
@@ -93,7 +94,7 @@
                             <i class="fas fa-user-tag text-2xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-600 mb-1">Total Roles</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('totalRoles')) ?></p>
                             <p class="text-3xl font-bold text-gray-900"><?= count($roles) ?></p>
                         </div>
                     </div>
@@ -107,7 +108,7 @@
                             <i class="fas fa-check-circle text-2xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-600 mb-1">Active Roles</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('activeRoles')) ?></p>
                             <p class="text-3xl font-bold text-gray-900"><?= count(array_filter($roles, function($role) { return $role['is_active'] == 1; })) ?></p>
                         </div>
                     </div>
@@ -121,7 +122,7 @@
                             <i class="fas fa-shield-alt text-2xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-600 mb-1">System Roles</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('systemRoles')) ?></p>
                             <p class="text-3xl font-bold text-gray-900"><?= count(array_filter($roles, function($role) { return $role['is_system'] == 1; })) ?></p>
                         </div>
                     </div>
@@ -135,7 +136,7 @@
                             <i class="fas fa-key text-2xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-600 mb-1">Total Permissions</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1"><?= esc($tr('totalPermissions')) ?></p>
                             <p class="text-3xl font-bold text-gray-900"><?= isset($permissions) ? count($permissions) : 0 ?></p>
                         </div>
                     </div>
@@ -168,26 +169,26 @@
                             <?php if ($role['is_active']): ?>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     <div class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></div>
-                                    Active
+                                    <?= esc($tr('active')) ?>
                                 </span>
                             <?php else: ?>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                     <div class="w-1.5 h-1.5 bg-red-400 rounded-full mr-1.5"></div>
-                                    Inactive
+                                    <?= esc($tr('inactive')) ?>
                                 </span>
                             <?php endif; ?>
                             
                             <?php if ($role['is_system']): ?>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     <i class="fas fa-shield-alt mr-1"></i>
-                                    System
+                                    <?= esc($tr('system')) ?>
                                 </span>
                             <?php endif; ?>
                             
                             <?php if (isset($role['is_medical']) && $role['is_medical']): ?>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     <i class="fas fa-stethoscope mr-1"></i>
-                                    Medical
+                                    <?= esc($tr('medical')) ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -203,11 +204,11 @@
                         <div class="flex items-center space-x-4">
                             <span class="flex items-center">
                                 <i class="fas fa-users mr-1"></i>
-                                <?= $role['user_count'] ?? 0 ?> users
+                                <?= esc($tr('usersCount', ['count' => (int) ($role['user_count'] ?? 0)])) ?>
                             </span>
                             <span class="flex items-center">
                                 <i class="fas fa-key mr-1"></i>
-                                <?= $role['permission_count'] ?? 0 ?> permissions
+                                <?= esc($tr('permissionCount', ['count' => (int) ($role['permission_count'] ?? 0)])) ?>
                             </span>
                         </div>
                     </div>
@@ -234,7 +235,7 @@
                                     <a href="<?= base_url($rolesRoute . '/' . $role['id'] . '/edit') ?>" 
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                         <i class="fas fa-edit mr-1"></i>
-                                        Edit
+                                        <?= esc($tr('edit')) ?>
                                     </a>
                                 <?php endif; ?>
                                 
@@ -242,15 +243,15 @@
                                     <button onclick="deleteRole(<?= $role['id'] ?>)" 
                                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200">
                                         <i class="fas fa-trash mr-1"></i>
-                                        Delete
+                                        <?= esc($tr('delete')) ?>
                                     </button>
                                 <?php endif; ?>
                             <?php else: ?>
                                 <span class="text-xs text-gray-400 italic">
                                     <?php if ($role['clinic_id'] === null): ?>
-                                        <i class="fas fa-lock mr-1"></i> System Role
+                                        <i class="fas fa-lock mr-1"></i> <?= esc($tr('systemRoles')) ?>
                                     <?php else: ?>
-                                        Read-only
+                                        <?= esc($tr('readOnly')) ?>
                                     <?php endif; ?>
                                 </span>
                             <?php endif; ?>
@@ -261,7 +262,7 @@
                                 <button onclick="toggleRoleStatus(<?= $role['id'] ?>, <?= $role['is_active'] ? 0 : 1 ?>)" 
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium <?= $role['is_active'] ? 'text-orange-600 bg-orange-50 hover:bg-orange-100' : 'text-green-600 bg-green-50 hover:bg-green-100' ?> rounded-lg transition-colors duration-200">
                                     <i class="fas <?= $role['is_active'] ? 'fa-pause' : 'fa-play' ?> mr-1"></i>
-                                    <?= $role['is_active'] ? 'Deactivate' : 'Activate' ?>
+                                    <?= $role['is_active'] ? esc($tr('deactivate')) : esc($tr('activate')) ?>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -277,10 +278,10 @@
             <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <i class="fas fa-user-tag text-3xl text-gray-400"></i>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No roles found</h3>
-            <p class="text-gray-500 mb-6">Get started by creating your first role.</p>
+            <h3 class="text-lg font-medium text-gray-900 mb-2"><?= esc($tr('noRolesFound')) ?></h3>
+            <p class="text-gray-500 mb-6"><?= esc($tr('getStartedCreateFirstRole')) ?></p>
             <a href="<?= base_url($rolesRoute . '/create') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-plus mr-2"></i>Create Role
+                <i class="fas fa-plus mr-2"></i><?= esc($tr('createRole')) ?>
             </a>
         </div>
     <?php endif; ?>
@@ -289,7 +290,7 @@
 <!-- JavaScript for Role Management -->
 <script>
 function deleteRole(roleId) {
-    if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
+    if (confirm('<?= esc($tr('confirmDeleteRole'), 'js') ?>')) {
         fetch(`<?= base_url($rolesRoute) ?>/${roleId}`, {
             method: 'DELETE',
             headers: {
@@ -306,19 +307,19 @@ function deleteRole(roleId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc($tr('errorPrefix'), 'js') ?>' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the role.');
+            alert('<?= esc($tr('errorDeletingRole'), 'js') ?>');
         });
     }
 }
 
 function toggleRoleStatus(roleId, newStatus) {
-    const action = newStatus ? 'activate' : 'deactivate';
-    if (confirm(`Are you sure you want to ${action} this role?`)) {
+    const action = newStatus ? '<?= esc($tr('activate'), 'js') ?>' : '<?= esc($tr('deactivate'), 'js') ?>';
+    if (confirm(`<?= esc($tr('confirmToggleRoleStatus', ['action' => '{action}']), 'js') ?>`.replace('{action}', action))) {
         fetch(`<?= base_url($rolesRoute) ?>/${roleId}/toggle-status`, {
             method: 'POST',
             headers: {
@@ -333,12 +334,12 @@ function toggleRoleStatus(roleId, newStatus) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc($tr('errorPrefix'), 'js') ?>' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the role status.');
+            alert('<?= esc($tr('errorUpdatingRoleStatus'), 'js') ?>');
         });
     }
 }

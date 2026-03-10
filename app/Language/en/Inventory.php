@@ -2,10 +2,18 @@
 
 return [
     // Page Titles
+    'inventoryManagement' => 'Inventory Management',
+    'inventoryManagementSubtitle' => 'Manage your dental supplies and equipment inventory',
     'usageHistory' => 'Usage History',
     'usageHistorySubtitle' => 'Track inventory consumption records and usage patterns',
     'inventoryItems' => 'Inventory Items',
     'lowStockItems' => 'Low Stock Items',
+    'addNewItem' => 'Add New Item',
+    'starterTemplates' => 'Starter Templates',
+    'suppliers' => 'Suppliers',
+    'reorderList' => 'Reorder List',
+    'movements' => 'Movements',
+    'lowStockAlert' => 'Low Stock Alert',
     
     // Table Headers
     'date' => 'Date',
@@ -15,6 +23,8 @@ return [
     'totalCost' => 'Total Cost',
     'recordedBy' => 'Recorded By',
     'actions' => 'Actions',
+    'id' => 'ID',
+    'item' => 'Item',
     'itemName' => 'Item Name',
     'category' => 'Category',
     'quantity' => 'Quantity',
@@ -28,8 +38,11 @@ return [
     'totalItems' => 'Total Items',
     'totalValue' => 'Total Value',
     'avgCost' => 'Avg. Cost',
+    'inStock' => 'In Stock',
     'outOfStock' => 'Out of Stock',
     'lowStock' => 'Low Stock',
+    'success' => 'Success',
+    'error' => 'Error',
     
     // Export Functions
     'exportToPDF' => 'PDF',
@@ -60,6 +73,15 @@ return [
     'tableNotReady' => 'Table not ready. Please wait for the page to load completely.',
     'errorGeneratingPDF' => 'Error generating PDF. Please try again.',
     'errorExportingCSV' => 'Error exporting CSV. Please try again.',
+    'errorLoadingInventory' => 'Error Loading Inventory',
+    'noInventoryItemsFound' => 'No inventory items found',
+    'noMatchingInventoryItemsFound' => 'No matching inventory items found',
+    'noInventoryItemsAvailable' => 'No inventory items available',
+    'searchInventoryItems' => 'Search inventory items...',
+    'itemDeletedSuccessfully' => 'Item deleted successfully!',
+    'errorDeletingItem' => 'An error occurred while deleting the item.',
+    'failedToLoadInventoryStatistics' => 'Failed to load inventory statistics',
+    'errorLoadingData' => 'Error loading data',
     
     // Report Titles
     'usageHistoryReport' => 'Usage History Report',

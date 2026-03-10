@@ -71,7 +71,7 @@
                         <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.error') ?></h3>
                         <div class="mt-2 text-sm text-red-700">
                             <p><?= session()->getFlashdata('error') ?></p>
                         </div>

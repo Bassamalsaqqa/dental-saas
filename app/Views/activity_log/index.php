@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('ActivityLog.' . $key, $params); ?>
 <!-- Activity Log Page -->
 <div class="min-h-screen">
     <div class="container mx-auto px-4 py-6">
@@ -8,15 +9,15 @@
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
                 <div class="space-y-2">
-                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Activity Log</h1>
-                    <p class="text-gray-600 text-base lg:text-lg">Track all system activities and user actions</p>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900"><?= esc($tr('title')) ?></h1>
+                    <p class="text-gray-600 text-base lg:text-lg"><?= esc($tr('subtitle')) ?></p>
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                     <button onclick="refreshActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        <i class="fas fa-sync-alt mr-2"></i><?= esc($tr('refresh')) ?>
                     </button>
                     <button onclick="exportActivities()" class="inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200">
-                        <i class="fas fa-download mr-2"></i>Export
+                        <i class="fas fa-download mr-2"></i><?= esc($tr('export')) ?>
                     </button>
                 </div>
             </div>
@@ -27,30 +28,30 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-4 lg:space-y-0">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Entity Type</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('entityType')) ?></label>
                         <select id="entityTypeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All Types</option>
+                            <option value=""><?= esc($tr('allTypes')) ?></option>
                             <?php foreach ($filters['entity_types'] as $type): ?>
                                 <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Action</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('action')) ?></label>
                         <select id="actionFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All Actions</option>
+                            <option value=""><?= esc($tr('allActions')) ?></option>
                             <?php foreach ($filters['actions'] as $action): ?>
                                 <option value="<?= $action ?>"><?= ucfirst($action) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">User</label>
-                        <input type="text" id="userFilter" placeholder="Search by user name..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('user')) ?></label>
+                        <input type="text" id="userFilter" placeholder="<?= esc($tr('searchByUserName')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="flex items-end">
                         <button onclick="applyFilters()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fas fa-filter mr-2"></i>Filter
+                            <i class="fas fa-filter mr-2"></i><?= esc($tr('filter')) ?>
                         </button>
                     </div>
                 </div>
@@ -64,14 +65,14 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Activities</h3>
+                        <h3 class="text-lg font-semibold text-gray-900"><?= esc($tr('recentActivities')) ?></h3>
                     </div>
                     <div class="flex items-center space-x-3">
                         <div class="text-sm text-gray-600">
-                            <span id="total-activities">0</span> activities
+                            <span id="total-activities">0</span> <?= esc($tr('activities')) ?>
                         </div>
                         <div class="text-sm text-gray-600">
-                            <span id="filtered-activities">0</span> filtered
+                            <span id="filtered-activities">0</span> <?= esc($tr('filtered')) ?>
                         </div>
                     </div>
                 </div>
@@ -82,12 +83,12 @@
                 <table id="activitiesTable" class="w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('activity')) ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('user')) ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('entity')) ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('description')) ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('time')) ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc($tr('ipAddress')) ?></th>
                         </tr>
                     </thead>
                     <tbody id="activitiesTableBody" class="bg-white divide-y divide-gray-200">
@@ -100,7 +101,7 @@
             <div id="loadingState" class="hidden p-8 text-center">
                 <div class="inline-flex items-center space-x-2">
                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                    <span class="text-gray-600">Loading activities...</span>
+                    <span class="text-gray-600"><?= esc($tr('loadingActivities')) ?></span>
                 </div>
             </div>
 
@@ -109,8 +110,8 @@
                 <div class="text-gray-400 mb-4">
                     <i class="fas fa-history text-4xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No activities found</h3>
-                <p class="text-gray-500">No activities match your current filters.</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2"><?= esc($tr('noActivitiesFound')) ?></h3>
+                <p class="text-gray-500"><?= esc($tr('noActivitiesMatchFilters')) ?></p>
             </div>
 
             <!-- Pagination -->
@@ -118,15 +119,15 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <button id="prevPage" class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-chevron-left mr-1"></i>Previous
+                            <i class="fas fa-chevron-left mr-1"></i><?= esc($tr('previous')) ?>
                         </button>
                         <span id="pageInfo" class="text-sm text-gray-700"></span>
                         <button id="nextPage" class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                            Next<i class="fas fa-chevron-right ml-1"></i>
+                            <?= esc($tr('next')) ?><i class="fas fa-chevron-right ml-1"></i>
                         </button>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <label class="text-sm text-gray-700">Show:</label>
+                        <label class="text-sm text-gray-700"><?= esc($tr('show')) ?></label>
                         <select id="pageSize" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="25">25</option>
                             <option value="50" selected>50</option>
@@ -197,12 +198,12 @@ function loadActivities() {
                 updatePagination();
                 updateCounts();
             } else {
-                showError(data.message || 'Failed to load activities');
+                showError(data.message || '<?= esc($tr('failedToLoadActivities'), 'js') ?>');
             }
         })
         .catch(error => {
             console.error('Error loading activities:', error);
-            showError('Failed to load activities');
+            showError('<?= esc($tr('failedToLoadActivities'), 'js') ?>');
         })
         .finally(() => {
             hideLoading();
@@ -231,7 +232,7 @@ function displayActivities(activities) {
         tdActivity.className = 'px-6 py-4 whitespace-nowrap cursor-pointer';
         tdActivity.setAttribute('role', 'button');
         tdActivity.setAttribute('tabindex', '0');
-        tdActivity.title = 'Open activity details';
+        tdActivity.title = '<?= esc($tr('openActivityDetails'), 'js') ?>';
         tdActivity.addEventListener('click', () => navigateToEntity(activity.entity_type, activity.entity_id || 'null'));
         tdActivity.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -308,7 +309,7 @@ function displayActivities(activities) {
         tdIp.className = 'px-6 py-4 whitespace-nowrap';
         const divIp = document.createElement('div');
         divIp.className = 'text-sm text-gray-500';
-        divIp.textContent = activity.ip_address || 'N/A';
+        divIp.textContent = activity.ip_address || '<?= esc($tr('notAvailable'), 'js') ?>';
         tdIp.appendChild(divIp);
 
         tr.appendChild(tdActivity);
@@ -356,7 +357,9 @@ function updatePagination() {
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= maxPage;
     
-    pageInfo.textContent = `Page ${currentPage} of ${maxPage}`;
+    pageInfo.textContent = `<?= esc($tr('pageInfo', ['current' => '{current}', 'max' => '{max}']), 'js') ?>`
+        .replace('{current}', currentPage)
+        .replace('{max}', maxPage);
     
     if (filteredActivities > 0) {
         document.getElementById('paginationContainer').classList.remove('hidden');
