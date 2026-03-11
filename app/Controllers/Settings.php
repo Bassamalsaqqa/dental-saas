@@ -294,9 +294,9 @@ class Settings extends BaseController
      * Quick language switch from header.
      * Updates session locale immediately and persists per-clinic setting when available.
      */
-    public function switchLanguage()
+    public function switchLanguage(?string $requestedLocale = null)
     {
-        $locale = strtolower(trim((string) $this->request->getPost('ui_language')));
+        $locale = strtolower(trim((string) ($requestedLocale ?? $this->request->getPost('ui_language') ?? $this->request->getGet('ui_language'))));
         if (!in_array($locale, ['en', 'ar'], true)) {
             return redirect()->back()->with('error', 'Invalid language selection.');
         }
@@ -309,7 +309,7 @@ class Settings extends BaseController
             $this->settingsService->reloadSettings();
         }
 
-        $returnTo = trim((string) $this->request->getPost('return_to'));
+        $returnTo = trim((string) ($this->request->getPost('return_to') ?? $this->request->getGet('return_to')));
         if ($returnTo !== '') {
             return redirect()->to($returnTo);
         }

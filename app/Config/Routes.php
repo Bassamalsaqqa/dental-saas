@@ -613,6 +613,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
 });
 
 // Quick UI language switch (tenant plane)
+$routes->get('language/switch/(:segment)', 'Settings::switchLanguage/$1', ['filter' => ['auth', 'tenant', 'subscription']]);
 $routes->post('language/switch', 'Settings::switchLanguage', ['filter' => ['auth', 'tenant', 'subscription']]);
 
 // --------------------------------------------------------------------
