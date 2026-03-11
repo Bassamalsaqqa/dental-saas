@@ -34,11 +34,11 @@
                             <div class="w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8">
                                 <i class="fas fa-hospital-user text-white text-3xl"></i>
                             </div>
-                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg">Clinic Gateway</h2>
-                            <p class="text-sm font-medium text-white/60 leading-relaxed">Select which clinic you'd like to manage today. Switch anytime from your dashboard.</p>
+                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg"><?= lang('UI.clinicGateway') ?></h2>
+                            <p class="text-sm font-medium text-white/60 leading-relaxed"><?= lang('UI.clinicGatewaySubtitle') ?></p>
                         </div>
                         <div class="relative z-10 pt-10">
-                            <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Multi-Clinic Access Enabled</span>
+                            <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]"><?= lang('UI.clinicMultiAccessEnabled') ?></span>
                         </div>
                     </div>
 
@@ -48,12 +48,12 @@
                              <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
                                 <i class="fas fa-hospital-user text-white text-2xl"></i>
                             </div>
-                            <h1 class="text-2xl font-black text-white tracking-tight">Select Clinic</h1>
+                            <h1 class="text-2xl font-black text-white tracking-tight"><?= lang('UI.clinicSelectTitle') ?></h1>
                         </div>
 
                         <div class="mb-8">
-                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md">Your Clinics</h3>
-                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest">Choose to continue</p>
+                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md"><?= lang('UI.clinicYourClinics') ?></h3>
+                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest"><?= lang('UI.clinicChooseToContinue') ?></p>
                         </div>
 
                         <?php if (session()->getFlashdata('error')): ?>
@@ -74,7 +74,7 @@
                                             <h3 class="text-sm font-black text-white group-hover/item:text-blue-400 transition-colors truncate drop-shadow-sm"><?= esc($clinic['clinic_name']) ?></h3>
                                             <div class="flex items-center space-x-2 mt-1">
                                                 <span class="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-                                                <p class="text-[9px] text-white/40 font-black uppercase tracking-widest">Active System</p>
+                                                <p class="text-[9px] text-white/40 font-black uppercase tracking-widest"><?= lang('UI.clinicActiveSystem') ?></p>
                                             </div>
                                         </div>
                                         <div class="ml-auto opacity-40 group-hover/item:opacity-100 transform translate-x-2 group-hover/item:translate-x-0 transition-all duration-300">
@@ -88,7 +88,7 @@
                         <div class="mt-8 text-center pt-6 border-t border-white/10 relative z-20">
                             <a href="<?= base_url('auth/logout') ?>" class="text-[10px] font-black text-white/40 hover:text-rose-400 uppercase tracking-[0.2em] transition-colors flex items-center justify-center space-x-2">
                                 <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout Account</span>
+                                <span><?= lang('UI.clinicLogoutAccount') ?></span>
                             </a>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                         </div>
                     </div>
                     <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10">
-                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1">Live Support</span>
+                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1"><?= lang('UI.clinicLiveSupport') ?></span>
                         <div class="flex items-center space-x-2">
                             <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp text-lg"></i></a>
                             <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp text-lg"></i></a>

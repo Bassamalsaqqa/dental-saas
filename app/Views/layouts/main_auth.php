@@ -403,7 +403,7 @@
             <div class="relative z-10 flex items-center justify-between transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1" id="header-left">
-                    <button class="group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                    <button class="group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="<?= esc(lang('UI.headerToggleSidebar')) ?> (Ctrl+B)">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
                     </button>
@@ -416,21 +416,46 @@
                 
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center space-x-4" id="header-right">
-                    <form action="<?= base_url('language/switch') ?>" method="post" class="flex items-center space-x-2">
+                    <form action="<?= base_url('language/switch') ?>" method="post" class="group">
                         <?= csrf_field() ?>
                         <input type="hidden" name="return_to" value="<?= esc(current_url(true)->__toString()) ?>">
-                        <label for="quick-language-switch" class="text-xs text-gray-500 font-semibold whitespace-nowrap"><?= lang('UI.settingsLanguage') ?></label>
-                        <select id="quick-language-switch" name="ui_language" onchange="this.form.submit()" class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white/80 text-gray-700">
-                            <option value="en" <?= (($locale ?? 'en') === 'en') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageEn') ?></option>
-                            <option value="ar" <?= (($locale ?? 'en') === 'ar') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageAr') ?></option>
-                        </select>
+                        <fieldset class="relative rounded-2xl border border-slate-200/80 bg-white/85 px-2 py-2 shadow-lg shadow-slate-200/40 backdrop-blur-sm">
+                            <legend class="sr-only"><?= lang('UI.settingsLanguage') ?></legend>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20">
+                                    <i class="fas fa-language text-sm"></i>
+                                </span>
+                                <div class="hidden md:block pe-2">
+                                    <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400"><?= lang('UI.settingsLanguage') ?></p>
+                                    <p class="text-xs font-semibold text-slate-600"><?= (($locale ?? 'en') === 'ar') ? lang('UI.settingsLanguageAr') : lang('UI.settingsLanguageEn') ?></p>
+                                </div>
+                                <div class="inline-flex items-center rounded-xl bg-slate-100 p-1 shadow-inner shadow-slate-200/60">
+                                    <button type="submit"
+                                            name="ui_language"
+                                            value="en"
+                                            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= (($locale ?? 'en') === 'en') ? 'bg-white text-slate-900 shadow-sm shadow-slate-300/60' : 'text-slate-500 hover:text-slate-700' ?>"
+                                            aria-pressed="<?= (($locale ?? 'en') === 'en') ? 'true' : 'false' ?>">
+                                        <span class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-slate-900/90 px-1.5 text-[10px] font-black text-white">EN</span>
+                                        <span><?= lang('UI.settingsLanguageEn') ?></span>
+                                    </button>
+                                    <button type="submit"
+                                            name="ui_language"
+                                            value="ar"
+                                            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= (($locale ?? 'en') === 'ar') ? 'bg-white text-slate-900 shadow-sm shadow-slate-300/60' : 'text-slate-500 hover:text-slate-700' ?>"
+                                            aria-pressed="<?= (($locale ?? 'en') === 'ar') ? 'true' : 'false' ?>">
+                                        <span class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-slate-900/90 px-1.5 text-[10px] font-black text-white">AR</span>
+                                        <span><?= lang('UI.settingsLanguageAr') ?></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
                     </form>
                     <?php if (session()->get('is_impersonating')): ?>
                     <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
                         <?= csrf_field() ?>
-                        <span class="text-xs font-semibold text-rose-600">Impersonating</span>
+                        <span class="text-xs font-semibold text-rose-600"><?= lang('UI.headerImpersonating') ?></span>
                         <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
-                            Exit
+                            <?= lang('UI.headerExit') ?>
                         </button>
                     </form>
                     <?php endif; ?>
@@ -461,7 +486,7 @@
                                             <div class="flex flex-col overflow-hidden">
                                                 <span class="truncate font-bold text-sm"><?= esc($m['clinic_name']) ?></span>
                                                 <span class="text-[10px] opacity-60"><?= esc($m['clinic_slug'] ?? ('ID ' . $m['clinic_id'])) ?></span>
-                                                <span class="text-[10px] opacity-60 block"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? 'Active Now' : 'Click to switch' ?></span>
+                                                <span class="text-[10px] opacity-60 block"><?= ($m['clinic_id'] == session()->get('active_clinic_id')) ? lang('UI.clinicActiveNow') : lang('UI.clinicClickToSwitch') ?></span>
                                             </div>
                                         </div>
                                         <?php if ($m['clinic_id'] == session()->get('active_clinic_id')): ?>

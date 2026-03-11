@@ -1,17 +1,18 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('Notification.' . $key, $params); ?>
 <div class="px-4 sm:px-6 lg:px-8 py-6">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
             <div class="space-y-2">
-                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900">Notifications</h1>
-                <p class="text-gray-600 text-base lg:text-lg">Stay updated with your latest activities and alerts</p>
+                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900"><?= esc($tr('title')) ?></h1>
+                <p class="text-gray-600 text-base lg:text-lg"><?= esc($tr('subtitle')) ?></p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <button onclick="markAllAsRead()" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
-                    <i class="fas fa-check-double mr-2"></i>Mark All as Read
+                    <i class="fas fa-check-double mr-2"></i><?= esc($tr('markAllAsRead')) ?>
                 </button>
             </div>
         </div>
@@ -25,8 +26,8 @@
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-bell text-gray-400 text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">No notifications yet</h3>
-                <p class="text-gray-600">You're all caught up! New notifications will appear here.</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= esc($tr('emptyTitle')) ?></h3>
+                <p class="text-gray-600"><?= esc($tr('emptyDescription')) ?></p>
             </div>
         <?php else: ?>
             <?php foreach ($notifications as $notification): ?>
@@ -65,11 +66,11 @@
                                     <!-- Actions -->
                                     <div class="flex items-center space-x-2 ml-4">
                                         <?php if (!$notification['is_read']): ?>
-                                            <button onclick="markAsRead(<?= $notification['id'] ?>)" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Mark as read">
+                                            <button onclick="markAsRead(<?= $notification['id'] ?>)" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="<?= esc($tr('markAsRead')) ?>">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <button onclick="deleteNotification(<?= $notification['id'] ?>)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete">
+                                        <button onclick="deleteNotification(<?= $notification['id'] ?>)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200" title="<?= esc($tr('delete')) ?>">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -86,7 +87,7 @@
     <?php if (!empty($notifications)): ?>
         <div class="mt-8 text-center">
             <button class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
-                <i class="fas fa-chevron-down mr-2"></i>Load More Notifications
+                <i class="fas fa-chevron-down mr-2"></i><?= esc($tr('loadMore')) ?>
             </button>
         </div>
     <?php endif; ?>
@@ -147,7 +148,7 @@ function markAllAsRead() {
 }
 
 function deleteNotification(id) {
-    if (confirm('Are you sure you want to delete this notification?')) {
+    if (confirm('<?= esc($tr('deleteConfirm'), 'js') ?>')) {
         fetch('<?= base_url('notifications/delete') ?>/' + id, {
             method: 'DELETE',
             headers: {
