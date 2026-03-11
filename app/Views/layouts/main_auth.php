@@ -416,14 +416,43 @@
                 
                 <!-- Right Section: User Info + Actions -->
                 <div class="flex items-center space-x-4" id="header-right">
-                    <form action="<?= base_url('language/switch') ?>" method="post" class="flex items-center space-x-2">
+                    <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
+                    <form action="<?= base_url('language/switch') ?>" method="post" class="hidden sm:flex items-center">
                         <?= csrf_field() ?>
                         <input type="hidden" name="return_to" value="<?= esc(current_url(true)->__toString()) ?>">
-                        <label for="quick-language-switch" class="text-xs text-gray-500 font-semibold whitespace-nowrap"><?= lang('UI.settingsLanguage') ?></label>
-                        <select id="quick-language-switch" name="ui_language" onchange="this.form.submit()" class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white/80 text-gray-700">
-                            <option value="en" <?= (($locale ?? 'en') === 'en') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageEn') ?></option>
-                            <option value="ar" <?= (($locale ?? 'en') === 'ar') ? 'selected' : '' ?>><?= lang('UI.settingsLanguageAr') ?></option>
-                        </select>
+                        <div class="flex items-center rounded-2xl border border-white/40 bg-white/70 p-1 shadow-lg shadow-blue-500/5 backdrop-blur-md">
+                            <span class="inline-flex items-center px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">
+                                <i class="fas fa-language text-[12px] text-blue-500 <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i>
+                                <?= lang('UI.settingsLanguage') ?>
+                            </span>
+                            <div class="flex items-center rounded-xl bg-slate-100/80 p-1">
+                                <button type="submit"
+                                        name="ui_language"
+                                        value="en"
+                                        class="inline-flex items-center rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25' : 'text-gray-600 hover:bg-white hover:text-gray-900' ?>">
+                                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full <?= $activeLocale === 'en' ? 'bg-white/20 text-white' : 'bg-white text-blue-600' ?>">EN</span>
+                                    <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= lang('UI.settingsLanguageEn') ?></span>
+                                </button>
+                                <button type="submit"
+                                        name="ui_language"
+                                        value="ar"
+                                        class="inline-flex items-center rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25' : 'text-gray-600 hover:bg-white hover:text-gray-900' ?>">
+                                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full <?= $activeLocale === 'ar' ? 'bg-white/20 text-white' : 'bg-white text-blue-600' ?>">AR</span>
+                                    <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= lang('UI.settingsLanguageAr') ?></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <form action="<?= base_url('language/switch') ?>" method="post" class="sm:hidden">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="return_to" value="<?= esc(current_url(true)->__toString()) ?>">
+                        <button type="submit"
+                                name="ui_language"
+                                value="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
+                                class="inline-flex h-10 items-center rounded-xl border border-white/40 bg-white/75 px-3 text-xs font-bold text-gray-700 shadow-lg shadow-blue-500/5 backdrop-blur-md transition-all duration-200 hover:bg-white hover:text-gray-900">
+                            <i class="fas fa-language text-blue-500 <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i>
+                            <?= $activeLocale === 'ar' ? lang('UI.settingsLanguageEn') : lang('UI.settingsLanguageAr') ?>
+                        </button>
                     </form>
                     <?php if (session()->get('is_impersonating')): ?>
                     <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
