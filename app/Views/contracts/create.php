@@ -35,7 +35,6 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
-<?php $tr = static fn(string $key, array $params = []) => lang('Contract.' . $key, $params); ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 contract-full-width">
     <div class="backdrop-blur-md bg-white/80 border-b border-white/20 shadow-sm">
         <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 contract-shell">
@@ -46,7 +45,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                     </div>
                     <div>
                         <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                            <?= $mode === 'edit' ? esc($tr('editTitle')) : esc($tr('createTitle')) ?>
+                            <?= $mode === 'edit' ? 'Edit Treatment Contract' : 'Create Treatment Contract' ?>
                         </h1>
                         <p class="text-gray-600 mt-1 flex items-center">
                             <i class="fas fa-user-circle mr-2 text-blue-500"></i>
@@ -60,11 +59,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                 <div class="flex flex-wrap gap-3">
                     <?php if (!empty($examination_id)): ?>
                         <a href="<?= base_url('examination/' . $examination_id) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-indigo-200 rounded-lg text-sm font-medium text-indigo-700 hover:text-indigo-900 shadow-sm hover:shadow-md transition-all duration-200">
-                            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i><?= esc($tr('backToExamination')) ?>
+                            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Examination
                         </a>
                     <?php endif; ?>
                     <a href="<?= base_url('patient/' . $patient['id']) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
-                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i><?= esc($tr('backToPatient')) ?>
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Patient
                     </a>
                 </div>
             </div>
@@ -91,31 +90,31 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <i class="fas fa-tooth text-white text-xl"></i>
                                     </div>
                                     <div>
-                                        <h3 class="text-2xl font-bold mb-1"><?= esc($tr('interactiveDentalChart')) ?></h3>
+                                        <h3 class="text-2xl font-bold mb-1">Interactive Dental Chart</h3>
                                         <p class="text-blue-100 flex items-center">
                                             <i class="fas fa-mouse-pointer mr-2"></i>
-                                            <?= esc($tr('interactiveDentalChartHelp')) ?>
+                                            Click on any tooth to view or update its condition
                                         </p>
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end gap-3">
                                     <div class="hidden md:flex items-center space-x-2 text-blue-100">
                                         <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span class="text-sm font-medium"><?= esc($tr('liveUpdates')) ?></span>
+                                        <span class="text-sm font-medium">Live Updates</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button type="button"
                                                 id="legendToggleBtn"
                                                 class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
                                             <i id="legendToggleIcon" class="fas fa-chevron-down mr-2"></i>
-                                            <span id="legendToggleText"><?= esc($tr('showLegend')) ?></span>
+                                            <span id="legendToggleText">Show Legend</span>
                                         </button>
                                         <button id="batchModeToggleBtn"
                                                 type="button"
                                                 onclick="toggleBatchMode()"
                                                 class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30 shadow-sm transition-all duration-200">
                                             <i class="fas fa-object-group mr-2"></i>
-                                            <span id="batchModeToggleText"><?= esc($tr('batchSelect')) ?></span>
+                                            <span id="batchModeToggleText">Batch Select</span>
                                         </button>
                                         <div id="batchTopControls" class="hidden items-center gap-2">
                                             <span id="batchTopCount" class="inline-flex items-center px-2.5 py-1 bg-amber-400/90 text-amber-950 rounded-full text-xs font-bold">
@@ -296,7 +295,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                             <th class="text-left py-3 px-4 font-semibold text-gray-700">Position</th>
                                             <th class="text-left py-3 px-4 font-semibold text-gray-700">Condition</th>
                                             <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-700"><?= esc($tr('treatment')) ?></th>
+                                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Treatment</th>
                                             <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
                                             <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                                         </tr>
@@ -316,7 +315,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                     <i class="fas fa-receipt text-white"></i>
                                 </div>
                                 <div>
-                                        <h3 class="text-lg font-bold"><?= esc($tr('contractSummary')) ?></h3>
+                                    <h3 class="text-lg font-bold">Contract Summary</h3>
                                     <p class="text-emerald-100 text-xs">Currency and total</p>
                                 </div>
                             </div>
@@ -360,7 +359,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <i class="fas fa-list text-white"></i>
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-bold"><?= esc($tr('treatmentItems')) ?></h3>
+                                        <h3 class="text-lg font-bold">Treatment Items</h3>
                                         <p class="text-blue-100 text-xs">Auto-filled from tooth updates or add manually</p>
                                     </div>
                                 </div>
@@ -396,7 +395,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         <i class="fas fa-pen-fancy text-white"></i>
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-bold"><?= esc($tr('contractTerms')) ?></h3>
+                                        <h3 class="text-lg font-bold">Contract Terms</h3>
                                         <p class="text-slate-200 text-xs">Optional terms, timeline, and notes</p>
                                     </div>
                                 </div>
@@ -404,33 +403,33 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                                         id="contractTermsToggleBtn"
                                         class="inline-flex items-center px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg border border-white/30">
                                     <i id="contractTermsToggleIcon" class="fas <?= $hasContractTerms ? 'fa-chevron-up' : 'fa-chevron-down' ?> mr-2"></i>
-                                            <span id="contractTermsToggleText"><?= $hasContractTerms ? esc($tr('hide')) : esc($tr('show')) ?></span>
+                                    <span id="contractTermsToggleText"><?= $hasContractTerms ? 'Hide' : 'Show' ?></span>
                                 </button>
                             </div>
                         </div>
                         <div id="contractTermsContent" class="p-6 space-y-4 bg-white/70 contract-panel-body <?= $hasContractTerms ? '' : 'hidden' ?>">
                             <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Terms &amp; Conditions</label>
-                                        <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="<?= esc($tr('optionalTermsConditions')) ?>"><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
+                                <textarea name="terms_conditions" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional terms and conditions..."><?= esc($contract['terms_conditions'] ?? '') ?></textarea>
                             </div>
                             <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Terms</label>
-                                        <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="<?= esc($tr('optionalPaymentTerms')) ?>"><?= esc($contract['payment_terms'] ?? '') ?></textarea>
+                                <textarea name="payment_terms" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional payment terms..."><?= esc($contract['payment_terms'] ?? '') ?></textarea>
                             </div>
                             <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Duration Plan</label>
-                                        <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="<?= esc($tr('optionalDurationTimeline')) ?>">
+                                <input type="text" name="duration_plan" value="<?= esc($contract['duration_plan'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional duration or timeline">
                             </div>
                             <div class="contract-input-wrap">
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
-                                        <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="<?= esc($tr('optionalNotesPatient')) ?>"><?= esc($contract['notes'] ?? '') ?></textarea>
+                                <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/90 focus:ring-2 focus:ring-slate-500 focus:border-slate-500" placeholder="Optional notes for the patient..."><?= esc($contract['notes'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end">
                         <button type="submit" class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
-                            <i class="fas fa-save mr-2"></i><?= $mode === 'edit' ? esc($tr('saveChanges')) : esc($tr('saveContractDraft')) ?>
+                            <i class="fas fa-save mr-2"></i><?= $mode === 'edit' ? 'Save Changes' : 'Save Contract Draft' ?>
                         </button>
                     </div>
                 </div>
@@ -477,11 +476,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         <textarea id="condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional description..."></textarea>
                     </div>
                     <div>
-                                <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc($tr('treatmentNotes')) ?></label>
-                                <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="<?= esc($tr('optionalTreatmentNotes')) ?>"></textarea>
+                        <label for="treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
+                        <textarea id="treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional treatment notes..."></textarea>
                     </div>
                     <div>
-                                <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc($tr('treatmentStatus')) ?></label>
+                        <label for="treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
                         <select id="treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -544,11 +543,11 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                         <textarea id="batch_condition_description" name="condition_description" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared description..."></textarea>
                     </div>
                     <div>
-                                <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc($tr('treatmentNotes')) ?></label>
-                                <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="<?= esc($tr('optionalSharedTreatmentNotes')) ?>"></textarea>
+                        <label for="batch_treatment_notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Notes</label>
+                        <textarea id="batch_treatment_notes" name="treatment_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70 resize-none" placeholder="Optional shared treatment notes..."></textarea>
                     </div>
                     <div>
-                                <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5"><?= esc($tr('treatmentStatus')) ?></label>
+                        <label for="batch_treatment_status" class="block text-sm font-semibold text-gray-700 mb-1.5">Treatment Status</label>
                         <select id="batch_treatment_status" name="treatment_status" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white/70">
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -928,7 +927,7 @@ function updateBatchUi() {
     }
 
     if (toggleText) {
-    toggleText.textContent = batchModeEnabled ? '<?= esc($tr('batchModeOn'), 'js') ?>' : '<?= esc($tr('batchSelect'), 'js') ?>';
+        toggleText.textContent = batchModeEnabled ? 'Batch Mode On' : 'Batch Select';
     }
 
     if (topControls) {
@@ -1326,7 +1325,7 @@ function updateConditionsTable() {
     tableBody.replaceChildren();
 
     if (summaryEl) {
-    summaryEl.textContent = `${conditions.length} / 32`;
+        summaryEl.textContent = `Showing ${conditions.length} teeth with conditions (out of 32 total)`;
     }
 
     if (conditions.length === 0) {
@@ -1343,7 +1342,7 @@ function updateConditionsTable() {
         title.textContent = 'All teeth are healthy!';
         const subtitle = document.createElement('div');
         subtitle.className = 'text-sm';
-    subtitle.textContent = '<?= esc($tr('noConditionsFound'), 'js') ?>';
+        subtitle.textContent = 'No conditions found for this contract.';
         wrapper.appendChild(icon);
         wrapper.appendChild(title);
         wrapper.appendChild(subtitle);
@@ -1696,7 +1695,7 @@ function attachFormHandlers() {
             termsIcon.classList.toggle('fa-chevron-up', willShow);
         }
         if (termsText) {
-    termsText.textContent = willShow ? '<?= esc($tr('hide'), 'js') ?>' : '<?= esc($tr('show'), 'js') ?>';
+            termsText.textContent = willShow ? 'Hide' : 'Show';
         }
     });
 
@@ -1709,7 +1708,7 @@ function attachFormHandlers() {
             legendToggleIcon.classList.toggle('fa-chevron-up', willShow);
         }
         if (legendToggleText) {
-    legendToggleText.textContent = willShow ? '<?= esc($tr('hideLegend'), 'js') ?>' : '<?= esc($tr('showLegend'), 'js') ?>';
+            legendToggleText.textContent = willShow ? 'Hide Legend' : 'Show Legend';
         }
     });
 }
