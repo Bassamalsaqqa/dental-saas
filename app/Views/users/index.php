@@ -298,7 +298,10 @@
         <!-- Search and Filter Controls -->
         <?php if (!empty($users)): ?>
             <div class="mt-8 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 <?= lang('UserRole.searchFilterUsers') ?></h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-search text-blue-500 <?= !empty($is_rtl) ? 'ml-2' : 'mr-2' ?>"></i>
+                    <?= lang('UserRole.searchFilterUsers') ?>
+                </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="relative">
                         <input type="text" id="userSearchInput" placeholder="<?= lang('UserRole.searchUsers') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-10">
