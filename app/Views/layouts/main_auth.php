@@ -419,42 +419,37 @@
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
                     <div class="hidden sm:flex items-center">
-                        <div class="group flex items-center gap-2 rounded-2xl border border-white/50 bg-white/80 p-1.5 shadow-xl shadow-blue-500/10 backdrop-blur-xl transition-all duration-200 hover:shadow-blue-500/15">
-                            <div class="flex h-11 items-center rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 px-3 text-gray-600">
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/25">
-                                    <i class="fas fa-language text-[13px]"></i>
-                                </span>
-                                <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?> text-[11px] font-black uppercase tracking-[0.18em] text-gray-500">
-                                    <?= lang('UI.settingsLanguage') ?>
-                                </span>
-                            </div>
-                            <div class="flex items-center rounded-xl bg-slate-100/90 p-1">
+                        <div class="inline-flex items-center rounded-2xl border border-white/50 bg-white/78 p-1 shadow-lg shadow-blue-500/10 backdrop-blur-xl">
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 text-blue-600" title="<?= esc(lang('UI.settingsLanguage'), 'attr') ?>">
+                                <i class="fas fa-language text-[13px]"></i>
+                            </span>
+                            <div class="<?= !empty($is_rtl) ? 'mr-1' : 'ml-1' ?> inline-flex items-center gap-1">
                                 <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnToUrl)) ?>"
-                                        class="inline-flex items-center rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm' ?>">
-                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full <?= $activeLocale === 'en' ? 'bg-white/20 text-white' : 'bg-white text-blue-600 shadow-sm' ?>">EN</span>
-                                    <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= lang('UI.settingsLanguageEn') ?></span>
-                                    <?php if ($activeLocale === 'en'): ?>
-                                        <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?> inline-flex h-2 w-2 rounded-full bg-white/80"></span>
-                                    <?php endif; ?>
+                                   lang="en"
+                                   hreflang="en"
+                                   aria-current="<?= $activeLocale === 'en' ? 'true' : 'false' ?>"
+                                   class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-600 hover:bg-slate-100 hover:text-gray-900' ?>">
+                                    <span>EN</span>
                                 </a>
                                 <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnToUrl)) ?>"
-                                        class="inline-flex items-center rounded-lg px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm' ?>">
-                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full <?= $activeLocale === 'ar' ? 'bg-white/20 text-white' : 'bg-white text-blue-600 shadow-sm' ?>">AR</span>
-                                    <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= lang('UI.settingsLanguageAr') ?></span>
-                                    <?php if ($activeLocale === 'ar'): ?>
-                                        <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?> inline-flex h-2 w-2 rounded-full bg-white/80"></span>
-                                    <?php endif; ?>
+                                   lang="ar"
+                                   hreflang="ar"
+                                   aria-current="<?= $activeLocale === 'ar' ? 'true' : 'false' ?>"
+                                   class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-600 hover:bg-slate-100 hover:text-gray-900' ?>">
+                                    <span><?= lang('UI.settingsLanguageAr') ?></span>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <div class="sm:hidden">
                         <a href="<?= base_url('language/switch/' . ($activeLocale === 'ar' ? 'en' : 'ar') . '?return_to=' . urlencode($returnToUrl)) ?>"
-                                class="inline-flex h-11 items-center rounded-2xl border border-white/50 bg-white/80 px-3 text-xs font-bold text-gray-700 shadow-xl shadow-blue-500/10 backdrop-blur-xl transition-all duration-200 hover:bg-white hover:text-gray-900">
-                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/25">
+                                lang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
+                                hreflang="<?= $activeLocale === 'ar' ? 'en' : 'ar' ?>"
+                                class="inline-flex h-10 items-center rounded-2xl border border-white/50 bg-white/78 px-3 text-xs font-bold text-gray-700 shadow-lg shadow-blue-500/10 backdrop-blur-xl transition-all duration-200 hover:bg-white hover:text-gray-900">
+                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm shadow-blue-500/20">
                                 <i class="fas fa-language text-[13px]"></i>
                             </span>
-                            <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= $activeLocale === 'ar' ? lang('UI.settingsLanguageEn') : lang('UI.settingsLanguageAr') ?></span>
+                            <span class="<?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?>"><?= $activeLocale === 'ar' ? 'EN' : lang('UI.settingsLanguageAr') ?></span>
                         </a>
                     </div>
                     <?php if (session()->get('is_impersonating')): ?>
