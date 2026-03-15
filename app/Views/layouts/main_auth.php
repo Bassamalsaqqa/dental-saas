@@ -733,7 +733,7 @@
     </div>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
-    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed top-20 <?= !empty($is_rtl) ? 'left-6' : 'right-6' ?> w-80 max-w-[calc(100vw-3rem)] bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important;">
+    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed top-20 w-80 max-w-[calc(100vw-3rem)] bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important; <?= !empty($is_rtl) ? 'left: 1.5rem; right: auto;' : 'right: 1.5rem; left: auto;' ?>">
         <div class="p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-900"><?= lang('UI.notifications') ?></h3>
