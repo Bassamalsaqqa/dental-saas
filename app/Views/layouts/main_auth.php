@@ -1,9 +1,70 @@
 <!DOCTYPE html>
+<?php
+    $rawPageTitle = $pageTitle ?? $title ?? ($clinic['name'] ?? 'Denta+');
+    $uri = service('uri');
+    $segments = $uri->getSegments();
+    $segment1 = strtolower((string) ($segments[0] ?? 'dashboard'));
+    $segment2 = strtolower((string) ($segments[1] ?? ''));
+    $segment3 = strtolower((string) ($segments[2] ?? ''));
+
+    $explicitTitleMap = [
+        'Dashboard' => lang('UI.menuDashboard'),
+        'Patients' => lang('UI.menuPatients'),
+        'Examinations' => lang('UI.menuExaminations'),
+        'Appointments' => lang('UI.menuAppointments'),
+        'Treatments' => lang('UI.menuTreatments'),
+        'Prescriptions' => lang('UI.menuPrescriptions'),
+        'Finance' => lang('UI.menuFinance'),
+        'Reports' => lang('UI.menuReports'),
+        'Inventory' => lang('UI.menuInventory'),
+        'Users' => lang('UI.menuUserManagement'),
+        'Roles' => lang('UI.menuRoleManagement'),
+        'Activity Log' => lang('UI.menuActivityLog'),
+        'Settings' => lang('UI.menuSettings'),
+        'Create New Treatment' => lang('Treatment.create_new_treatment'),
+        'Edit Treatment' => lang('Treatment.edit_treatment'),
+        'Treatment Management' => lang('UI.menuTreatments'),
+        'Create New Patient' => lang('UI.patientCreateTitle'),
+        'Register New Patient' => lang('UI.patientCreateTitle'),
+        'New Appointment' => lang('UI.appointmentNew'),
+        'Edit Appointment' => lang('UI.appointmentEdit'),
+        'New Examination' => lang('UI.newExamination'),
+    ];
+
+    $routeTitleMap = [
+        'dashboard' => lang('UI.menuDashboard'),
+        'patients' => lang('UI.menuPatients'),
+        'patient' => $segment2 === 'create' ? lang('UI.patientCreateTitle') : lang('UI.menuPatients'),
+        'examinations' => $segment2 === 'create' ? lang('UI.newExamination') : lang('UI.menuExaminations'),
+        'examination' => $segment2 === 'create' ? lang('UI.newExamination') : lang('UI.menuExaminations'),
+        'appointments' => $segment2 === 'create' ? lang('UI.appointmentNew') : lang('UI.menuAppointments'),
+        'appointment' => $segment2 === 'create'
+            ? lang('UI.appointmentNew')
+            : (($segment3 === 'edit' || $segment2 === 'edit') ? lang('UI.appointmentEdit') : lang('UI.menuAppointments')),
+        'treatments' => $segment2 === 'create' ? lang('Treatment.create_new_treatment') : lang('UI.menuTreatments'),
+        'treatment' => $segment2 === 'create'
+            ? lang('Treatment.create_new_treatment')
+            : (($segment3 === 'edit' || $segment2 === 'edit') ? lang('Treatment.edit_treatment') : lang('UI.menuTreatments')),
+        'prescriptions' => lang('UI.menuPrescriptions'),
+        'prescription' => lang('UI.menuPrescriptions'),
+        'finance' => lang('UI.menuFinance'),
+        'reports' => lang('UI.menuReports'),
+        'inventory' => lang('UI.menuInventory'),
+        'users' => lang('UI.menuUserManagement'),
+        'roles' => lang('UI.menuRoleManagement'),
+        'activity-log' => lang('UI.menuActivityLog'),
+        'settings' => lang('UI.menuSettings'),
+        'notifications' => lang('UI.notifications'),
+        'profile' => lang('UI.profileMenu'),
+    ];
+
+    $resolvedPageTitle = $explicitTitleMap[$rawPageTitle] ?? ($routeTitleMap[$segment1] ?? $rawPageTitle);
+?>
 <html lang="<?= esc($locale ?? 'en') ?>" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? esc($clinic['name']) ?></title>
+    <title><?= esc($resolvedPageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -410,7 +471,7 @@
                     
                     <!-- Page Title -->
                     <div class="flex items-center space-x-4">
-                        <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= $pageTitle ?? $title ?? esc($clinic['name']) ?></h2>
+                        <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
                 
@@ -672,7 +733,7 @@
     </div>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
-    <div id="notifications-dropdown" class="fixed top-20 right-6 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important;">
+    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed top-20 <?= !empty($is_rtl) ? 'left-6' : 'right-6' ?> w-80 bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important;">
         <div class="p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-900"><?= lang('UI.notifications') ?></h3>
@@ -900,6 +961,18 @@
 
 
     const notificationsApiUrl = '<?= base_url('api/notifications') ?>';
+    const notificationsUi = {
+        isRtl: document.documentElement.dir === 'rtl',
+        empty: <?= json_encode(!empty($is_rtl) ? 'لا توجد إشعارات جديدة' : 'No new notifications') ?>,
+        justNow: <?= json_encode(!empty($is_rtl) ? 'الآن' : 'Just now') ?>,
+        minuteAgo: <?= json_encode(!empty($is_rtl) ? 'منذ دقيقة' : '1 minute ago') ?>,
+        minutesAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} دقائق' : '{count} minutes ago') ?>,
+        hourAgo: <?= json_encode(!empty($is_rtl) ? 'منذ ساعة' : '1 hour ago') ?>,
+        hoursAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} ساعات' : '{count} hours ago') ?>,
+        dayAgo: <?= json_encode(!empty($is_rtl) ? 'منذ يوم' : '1 day ago') ?>,
+        daysAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} أيام' : '{count} days ago') ?>,
+        by: <?= json_encode(!empty($is_rtl) ? 'بواسطة' : 'by') ?>
+    };
 
     // Notifications toggle
     function toggleNotifications() {
@@ -1040,7 +1113,7 @@
             icon.className = 'fas fa-bell-slash text-2xl mb-2';
             
             const message = document.createElement('p');
-            message.textContent = 'No new notifications';
+            message.textContent = notificationsUi.empty;
             
             emptyState.appendChild(icon);
             emptyState.appendChild(message);
@@ -1059,7 +1132,9 @@
             };
             
             const flexDiv = document.createElement('div');
-            flexDiv.className = 'flex items-start space-x-3';
+            flexDiv.className = notificationsUi.isRtl
+                ? 'flex flex-row-reverse items-start space-x-3 space-x-reverse'
+                : 'flex items-start space-x-3';
             
             // Icon container
             const iconContainer = document.createElement('div');
@@ -1076,7 +1151,7 @@
             
             // Content container
             const contentDiv = document.createElement('div');
-            contentDiv.className = 'flex-1 min-w-0';
+            contentDiv.className = `flex-1 min-w-0 ${notificationsUi.isRtl ? 'text-right' : ''}`;
             
             const title = document.createElement('p');
             title.className = 'text-sm font-medium text-gray-900';
@@ -1097,7 +1172,7 @@
             if (notification.user_name) {
                 const user = document.createElement('p');
                 user.className = 'text-xs text-gray-500';
-                user.textContent = `by ${notification.user_name}`;
+                user.textContent = `${notificationsUi.by} ${notification.user_name}`;
                 metaDiv.appendChild(user);
             }
             
@@ -1248,15 +1323,24 @@
         const diffInMinutes = Math.floor((now - date) / (1000 * 60));
         
         if (diffInMinutes < 1) {
-            return 'Just now';
+            return notificationsUi.justNow;
         } else if (diffInMinutes < 60) {
-            return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+            if (diffInMinutes === 1) {
+                return notificationsUi.minuteAgo;
+            }
+            return notificationsUi.minutesAgo.replace('{count}', diffInMinutes);
         } else if (diffInMinutes < 1440) {
             const hours = Math.floor(diffInMinutes / 60);
-            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (hours === 1) {
+                return notificationsUi.hourAgo;
+            }
+            return notificationsUi.hoursAgo.replace('{count}', hours);
         } else {
             const days = Math.floor(diffInMinutes / 1440);
-            return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (days === 1) {
+                return notificationsUi.dayAgo;
+            }
+            return notificationsUi.daysAgo.replace('{count}', days);
         }
     }
 
