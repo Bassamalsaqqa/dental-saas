@@ -1065,7 +1065,13 @@ function syncReportFilterVisibility() {
     }
 }
 
-function applyQuickDateRange(days) {
+function applyQuickDateRange(days, force = false) {
+    const isCustomMode = (reportWorkspace.filters.date_mode || 'relative') === 'custom';
+    const hasCustomRange = Boolean(reportWorkspace.filters.custom_from && reportWorkspace.filters.custom_to);
+    if (!force && isCustomMode && hasCustomRange) {
+        return;
+    }
+
     const toIso = new Date().toISOString().slice(0, 10);
     const fromDate = new Date();
     fromDate.setDate(fromDate.getDate() - Number(days || 30));
@@ -1191,7 +1197,7 @@ document.getElementById('dateRange')?.addEventListener('change', (event) => {
     const toInput = document.getElementById('customTo');
     if (fromInput) fromInput.value = '';
     if (toInput) toInput.value = '';
-    applyQuickDateRange(event.target.value);
+    applyQuickDateRange(event.target.value, true);
 });
 syncReportFilterVisibility();
 applyQuickDateRange(document.getElementById('dateRange')?.value || '30');
