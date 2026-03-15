@@ -18,10 +18,10 @@
                                     }
                                 ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Start Time</label><input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The earliest time a new appointment can be booked.</p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">End Time</label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">The latest time a new appointment can be booked.</p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursStartTime') ?></label><input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursStartTimeHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursEndTime') ?></label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursEndTimeHelp') ?></p></div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Default Appointment Duration</label>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursAppointmentDuration') ?></label>
                                         <div class="relative">
                                             <select name="appointment_duration" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl appearance-none" required>
                                                 <?php foreach ($appointmentDurationOptions as $durationOption): ?>
@@ -32,9 +32,9 @@
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1">The default length preselected for new appointments.</p>
+                                        <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursAppointmentDurationHelp') ?></p>
                                     </div>
-                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2">Number of Chairs</label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1">Number of simultaneous appointment slots available (1-3).</p></div>
+                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p></div>
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
