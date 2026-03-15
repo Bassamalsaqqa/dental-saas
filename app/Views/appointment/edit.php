@@ -183,12 +183,18 @@
                                 </label>
                                 <div class="relative">
                                     <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" required>
-                                        <?php $defaultDuration = getAppointmentDuration(); ?>
-                                        <option value="30" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '30') ? 'selected' : '' ?>>30 <?= esc(lang('UI.patientMinutes')) ?></option>
-                                        <option value="45" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '45') ? 'selected' : '' ?>>45 <?= esc(lang('UI.patientMinutes')) ?></option>
-                                        <option value="60" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '60') ? 'selected' : '' ?>>60 <?= esc(lang('UI.patientMinutes')) ?></option>
-                                        <option value="90" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '90') ? 'selected' : '' ?>>90 <?= esc(lang('UI.patientMinutes')) ?></option>
-                                        <option value="120" <?= (old('duration', $appointment['duration'] ?? $defaultDuration) == '120') ? 'selected' : '' ?>>120 <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <?php
+                                            $defaultDuration = (int) getAppointmentDuration();
+                                            $selectedDuration = (int) old('duration', $appointment['duration'] ?? $defaultDuration);
+                                            $durationOptions = [30, 45, 60, 90, 120];
+                                            if (!in_array($selectedDuration, $durationOptions, true) && $selectedDuration > 0) {
+                                                $durationOptions[] = $selectedDuration;
+                                                sort($durationOptions, SORT_NUMERIC);
+                                            }
+                                        ?>
+                                        <?php foreach ($durationOptions as $durationOption): ?>
+                                            <option value="<?= $durationOption ?>" <?= $selectedDuration === $durationOption ? 'selected' : '' ?>><?= $durationOption ?> <?= esc(lang('UI.patientMinutes')) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
