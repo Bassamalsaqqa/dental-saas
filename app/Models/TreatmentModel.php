@@ -49,7 +49,7 @@ class TreatmentModel extends TenantAwareModel
         'treatment_type' => 'required',
         'tooth_number' => 'permit_empty|string|max_length[10]',
         'treatment_description' => 'required|min_length[10]',
-        'cost' => 'required|decimal|greater_than[0]',
+        'cost' => 'permit_empty|decimal|greater_than_equal_to[0]',
         'start_date' => 'required|valid_date',
         'estimated_duration' => 'required|integer|greater_than[0]',
         'status' => 'required|in_list[active,completed,cancelled,on_hold]',
@@ -69,9 +69,8 @@ class TreatmentModel extends TenantAwareModel
             'min_length' => 'Description must be at least 10 characters long'
         ],
         'cost' => [
-            'required' => 'Cost is required',
             'decimal' => 'Cost must be a valid decimal number',
-            'greater_than' => 'Cost must be greater than 0'
+            'greater_than_equal_to' => 'Cost cannot be negative'
         ],
         'start_date' => [
             'required' => 'Start date is required',

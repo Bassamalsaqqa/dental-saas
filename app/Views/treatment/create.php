@@ -231,7 +231,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span><?= lang('Treatment.treatment_cost_required') ?></span>
+                                    <span><?= lang('Treatment.cost') ?></span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -239,7 +239,7 @@
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
                                            class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
-                                           value="<?= old('cost') ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>" required>
+                                           value="<?= old('cost') ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>">
                                 </div>
                                 <?php if ($validation && $validation->hasError('cost')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -475,15 +475,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add some basic form validation
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
-        const cost = parseFloat(document.getElementById('cost').value);
         const duration = parseInt(document.getElementById('estimated_duration').value);
-        
-        if (cost <= 0) {
-            alert('<?= esc(lang('Treatment.alert_valid_cost_gt_zero'), 'js') ?>');
-            e.preventDefault();
-            return false;
-        }
-        
+
         if (duration <= 0) {
             alert('<?= esc(lang('Treatment.alert_valid_duration_gt_zero_days'), 'js') ?>');
             e.preventDefault();
