@@ -59,7 +59,7 @@
                                     </div>
                                     <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label><input type="number" name="booking_chair_count" value="<?= old('booking_chair_count', $settings['booking_chair_count'] ?? 1) ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p></div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
                         </div>
                     </div>
