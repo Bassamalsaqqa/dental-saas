@@ -34,11 +34,11 @@
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursWorkingDays') ?></label>
                                         <p class="text-xs text-gray-500 mt-1 mb-3"><?= lang('UI.settingsHoursWorkingDaysHelp') ?></p>
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                                        <div class="flex flex-wrap gap-2">
                                             <?php foreach ($dayKeys as $dayKey): ?>
-                                                <label class="flex items-center justify-center px-3 py-3 border-2 rounded-xl cursor-pointer transition-all duration-200 text-sm font-medium <?= in_array($dayKey, $workingDays, true) ? 'border-orange-500 bg-orange-50 text-orange-800' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/50' ?>">
+                                                <label class="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center border-2 rounded-xl cursor-pointer transition-all duration-200 text-xs sm:text-sm font-semibold <?= in_array($dayKey, $workingDays, true) ? 'border-orange-500 bg-orange-50 text-orange-800 shadow-sm' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/50' ?>">
                                                     <input type="checkbox" name="working_days[]" value="<?= esc($dayKey) ?>" <?= in_array($dayKey, $workingDays, true) ? 'checked' : '' ?> class="sr-only">
-                                                    <span><?= esc($dayLabels[$dayKey]) ?></span>
+                                                    <span class="leading-none text-center"><?= esc($dayLabels[$dayKey]) ?></span>
                                                 </label>
                                             <?php endforeach; ?>
                                         </div>
