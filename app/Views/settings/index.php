@@ -246,6 +246,8 @@ const settingsI18n = {
     toastKioskStatusFailed: '<?= esc(lang('TenantMisc.toastKioskStatusFailed'), 'js') ?>',
 };
 
+const settingsScrollStorageKey = 'tenant-settings-scroll-position';
+
 function setButtonLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
@@ -639,6 +641,46 @@ function confirmModalProceed() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const restoreSavedScrollPosition = () => {
+        try {
+            const raw = sessionStorage.getItem(settingsScrollStorageKey);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            const currentTab = new URLSearchParams(window.location.search).get('tab') || 'clinic';
+            if (saved?.path === window.location.pathname && saved?.tab === currentTab && Number.isFinite(saved?.scrollY)) {
+                window.scrollTo({ top: saved.scrollY, behavior: 'auto' });
+            }
+            sessionStorage.removeItem(settingsScrollStorageKey);
+        } catch (error) {
+            sessionStorage.removeItem(settingsScrollStorageKey);
+        }
+    };
+
+    const persistSettingsScrollPosition = () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            sessionStorage.setItem(settingsScrollStorageKey, JSON.stringify({
+                path: window.location.pathname,
+                tab: params.get('tab') || 'clinic',
+                scrollY: window.scrollY || window.pageYOffset || 0,
+            }));
+        } catch (error) {
+            // Ignore storage errors and continue submit flow.
+        }
+    };
+
+    document.querySelectorAll('.settings-tab form').forEach((form) => {
+        if (form.dataset.ajaxSubmit === 'true') {
+            return;
+        }
+
+        form.addEventListener('submit', () => {
+            persistSettingsScrollPosition();
+        });
+    });
+
     const confirmModal = document.getElementById('confirm-modal');
     if (confirmModal) {
         confirmModal.addEventListener('click', function(event) {
@@ -768,6 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initialTab === 'communications') {
         showSubTab(requestedSubTab || (fallbackTab === 'notifications' ? 'alerts' : fallbackTab) || 'channels', { updateUrl: false });
     }
+    restoreSavedScrollPosition();
 });
 
 window.addEventListener('popstate', function() {
