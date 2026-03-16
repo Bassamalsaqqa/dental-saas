@@ -352,7 +352,7 @@ class Settings extends BaseController
         if ($this->saveSettings($settingsData)) {
             $this->settingsService->reloadSettings();
             log_message('info', 'Working hours settings saved successfully');
-            return redirect()->to('/settings')->with('success', 'Working hours updated successfully!');
+            return redirect()->to('/settings?tab=hours')->with('success', 'Working hours updated successfully!');
         } else {
             log_message('error', 'Failed to save working hours settings');
             return redirect()->back()->withInput()->with('error', 'Failed to update working hours. Please try again.');

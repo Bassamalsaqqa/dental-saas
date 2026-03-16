@@ -11,15 +11,38 @@
                                 <?= csrf_field() ?>
                                 <?php
                                     $appointmentDurationOptions = [30, 45, 60, 90, 120];
-                                    $selectedAppointmentDuration = (int) ($settings['appointment_duration'] ?? 30);
+                                    $selectedAppointmentDuration = (int) old('appointment_duration', $settings['appointment_duration'] ?? 30);
                                     if (!in_array($selectedAppointmentDuration, $appointmentDurationOptions, true) && $selectedAppointmentDuration > 0) {
                                         $appointmentDurationOptions[] = $selectedAppointmentDuration;
                                         sort($appointmentDurationOptions, SORT_NUMERIC);
                                     }
+                                    $workingDays = old('working_days') ?? ($settings['working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
+                                    $dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                                    $dayLabels = [
+                                        'monday' => lang('UI.settingsDayMonday'),
+                                        'tuesday' => lang('UI.settingsDayTuesday'),
+                                        'wednesday' => lang('UI.settingsDayWednesday'),
+                                        'thursday' => lang('UI.settingsDayThursday'),
+                                        'friday' => lang('UI.settingsDayFriday'),
+                                        'saturday' => lang('UI.settingsDaySaturday'),
+                                        'sunday' => lang('UI.settingsDaySunday'),
+                                    ];
                                 ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursStartTime') ?></label><input type="time" name="working_hours_start" value="<?= $settings['working_hours_start'] ?? '09:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursStartTimeHelp') ?></p></div>
-                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursEndTime') ?></label><input type="time" name="working_hours_end" value="<?= $settings['working_hours_end'] ?? '17:00' ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursEndTimeHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursStartTime') ?></label><input type="time" name="working_hours_start" value="<?= old('working_hours_start', $settings['working_hours_start'] ?? '09:00') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursStartTimeHelp') ?></p></div>
+                                    <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursEndTime') ?></label><input type="time" name="working_hours_end" value="<?= old('working_hours_end', $settings['working_hours_end'] ?? '17:00') ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursEndTimeHelp') ?></p></div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursWorkingDays') ?></label>
+                                        <p class="text-xs text-gray-500 mt-1 mb-3"><?= lang('UI.settingsHoursWorkingDaysHelp') ?></p>
+                                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                                            <?php foreach ($dayKeys as $dayKey): ?>
+                                                <label class="flex items-center justify-center px-3 py-3 border-2 rounded-xl cursor-pointer transition-all duration-200 text-sm font-medium <?= in_array($dayKey, $workingDays, true) ? 'border-orange-500 bg-orange-50 text-orange-800' : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/50' ?>">
+                                                    <input type="checkbox" name="working_days[]" value="<?= esc($dayKey) ?>" <?= in_array($dayKey, $workingDays, true) ? 'checked' : '' ?> class="sr-only">
+                                                    <span><?= esc($dayLabels[$dayKey]) ?></span>
+                                                </label>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursAppointmentDuration') ?></label>
                                         <div class="relative">
@@ -34,7 +57,7 @@
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursAppointmentDurationHelp') ?></p>
                                     </div>
-                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label><input type="number" name="booking_chair_count" value="<?= $settings['booking_chair_count'] ?? 1 ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p></div>
+                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label><input type="number" name="booking_chair_count" value="<?= old('booking_chair_count', $settings['booking_chair_count'] ?? 1) ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p></div>
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
