@@ -68,7 +68,7 @@
 
                     <!-- Right Side -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
-                        <div class="absolute top-5 z-20 <?= !empty($is_rtl) ? 'left-5' : 'right-5' ?>">
+                        <div class="absolute top-5 z-20 <?= !empty($is_rtl) ? 'right-auto left-0 md:left-0' : 'right-5' ?>" style="<?= !empty($is_rtl) ? 'left: 0.75rem;' : '' ?>">
                             <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
                                 <a href="<?= base_url('auth/language/en?return_to=' . urlencode($returnTo)) ?>"
                                    lang="en"
