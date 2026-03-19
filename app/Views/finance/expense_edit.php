@@ -19,7 +19,7 @@ $finance = $finance ?? [];
                 </div>
                 <div class="flex gap-3">
                     <a href="<?= base_url('finance/' . (int) ($finance['id'] ?? 0)) ?>" class="inline-flex items-center px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold">
-                        <i class="fas fa-arrow-left mr-2"></i>Back
+                        <i class="fas fa-arrow-left mr-2"></i><?= lang('Finance.back') ?>
                     </a>
                 </div>
             </div>
@@ -137,4 +137,3 @@ $finance = $finance ?? [];
 </div>
 <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
 <?= $this->endSection() ?>
-

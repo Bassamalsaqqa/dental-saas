@@ -61,10 +61,10 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                        <i class="fas fa-chart-bar mr-2"></i>Reports
+                        <i class="fas fa-chart-bar mr-2"></i><?= lang('Finance.reports') ?>
                     </a>
                     <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Finance
+                        <i class="fas fa-arrow-left mr-2"></i><?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
             </div>
@@ -215,7 +215,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.notes') ?></label>
-                    <textarea id="payoutNotesInput" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="Optional"></textarea>
+                    <textarea id="payoutNotesInput" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2">
                     <button type="button" onclick="closePayoutModal()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"><?= lang('Finance.cancel') ?></button>
@@ -232,6 +232,13 @@ let payoutsTable = null;
 let payoutModalMaxAmount = 0;
 const payoutCurrencySymbol = '<?= esc($currency_symbol ?? '$') ?>';
 const payoutCurrencyPosition = '<?= esc($currency_position ?? 'before') ?>';
+const payoutStatusLabels = {
+    unpaid: '<?= esc(lang('Finance.unpaid')) ?>',
+    partial: '<?= esc(lang('Finance.partial')) ?>',
+    paid: '<?= esc(lang('Finance.paid')) ?>',
+    void: '<?= esc(lang('Finance.void')) ?>',
+    unknown: '<?= esc(lang('Finance.unknown')) ?>'
+};
 
 function formatCurrency(value) {
     const amount = Number(value || 0);
@@ -260,7 +267,7 @@ function statusBadge(status) {
         void: { cls: 'bg-gray-100 text-gray-700', icon: 'fas fa-ban' }
     };
     const config = map[normalized] || { cls: 'bg-gray-100 text-gray-700', icon: 'fas fa-circle-question' };
-    const label = normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : 'Unknown';
+    const label = payoutStatusLabels[normalized] || payoutStatusLabels.unknown;
     return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${config.cls}"><i class="${config.icon} mr-1"></i>${label}</span>`;
 }
 
@@ -320,7 +327,7 @@ $(document).ready(function () {
             {
                 data: 'patient_name',
                 render: function (data) {
-                    const patient = data && data.trim() !== '' ? data : 'N/A';
+                    const patient = data && data.trim() !== '' ? data : '<?= esc(lang('Finance.notAvailable')) ?>';
                     return `<div class="text-sm font-medium text-gray-900">${patient}</div>`;
                 }
             },
@@ -329,7 +336,7 @@ $(document).ready(function () {
                 render: function (data, type, row) {
                     const isGuest = (row.provider_type || '') === 'guest';
                     const iconClass = isGuest ? 'fas fa-user-tie text-amber-600' : 'fas fa-user-doctor text-indigo-600';
-                    const subtitle = isGuest ? 'Guest provider' : 'Clinic user';
+                    const subtitle = isGuest ? '<?= esc(lang('Finance.guestProvider')) ?>' : '<?= esc(lang('Finance.clinicUser')) ?>';
                     return `
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 ${isGuest ? 'bg-amber-100' : 'bg-indigo-100'} rounded-lg flex items-center justify-center">

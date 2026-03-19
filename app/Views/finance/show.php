@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main_auth') ?>
+﻿<?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
 <?php
@@ -15,6 +15,7 @@
     $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
     $isExpense = (($finance['transaction_type'] ?? '') === 'expense');
     $currencySymbol = settings()->getCurrencySymbol();
+    $supportsPaymentExchangeFields = !empty($supports_payment_exchange_fields);
     $paymentStatusKey = $finance['payment_status'] ?? 'pending';
     $paymentStatusLabel = lang('Finance.' . $paymentStatusKey);
     if ($paymentStatusLabel === 'Finance.' . $paymentStatusKey) {
@@ -326,7 +327,8 @@
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.status') ?></th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.method') ?></th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.recordedBy') ?></th>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.amount') ?></th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.settlement') ?></th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.amountBase') ?></th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.notes') ?></th>
                                     <?php if (has_permission('finance', 'edit')): ?>
                                     <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.actions') ?></th>
@@ -372,6 +374,23 @@
                                             <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
                                             <?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : lang('Finance.unknown') ?>
                                         </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <?php
+                                                $paymentCurrency = $payment['currency'] ?? $baseCurrency;
+                                                $paymentExchangeRate = floatval($payment['exchange_rate'] ?? 1);
+                                                $paymentOriginalAmount = isset($payment['amount_original']) ? floatval($payment['amount_original']) : floatval($payment['amount']);
+                                            ?>
+                                            <div class="flex flex-col">
+                                                <span class="font-semibold text-gray-800">
+                                                    <?= $prefix . number_format($paymentOriginalAmount, 2) ?> <?= esc($paymentCurrency) ?>
+                                                </span>
+                                                <?php if ($paymentCurrency !== $baseCurrency || abs($paymentExchangeRate - 1) > 0.0001): ?>
+                                                    <span class="text-xs text-gray-400">
+                                                        <?= lang('Finance.rateShort') ?> <?= rtrim(rtrim(number_format($paymentExchangeRate, 6), '0'), '.') ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right <?= $amountClass ?>">
                                             <?= $prefix . formatCurrency($payment['amount']) ?>
                                         </td>
@@ -395,7 +414,7 @@
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <?php $emptyColspan = has_permission('finance', 'edit') ? 7 : 6; ?>
+                                        <?php $emptyColspan = has_permission('finance', 'edit') ? 8 : 7; ?>
                                         <td colspan="<?= $emptyColspan ?>" class="px-6 py-12 text-center text-sm text-gray-400 font-medium">
                                             <?= lang('Finance.noPaymentHistory') ?>
                                         </td>
@@ -420,20 +439,58 @@
                             <form id="invoicePaymentForm" class="space-y-6">
                                 <?= csrf_field() ?>
                                 <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                                    <?= lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
+                                    <?= $supportsPaymentExchangeFields ? lang('Finance.settlementCurrencyNotice') : lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
                                 </p>
-                                <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                        <i class="fas fa-dollar-sign text-emerald-600"></i>
-                                        <span><?= lang('Finance.amountRequired') ?></span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-bold"><?= esc($currencySymbol) ?></span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-dollar-sign text-emerald-600"></i>
+                                            <span><?= lang('Finance.amountRequired') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl"
+                                                   placeholder="0.00" required>
                                         </div>
-                                        <input type="number" name="amount" step="0.01" min="0" 
-                                               class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" 
-                                               placeholder="0.00" required>
+                                    </div>
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-coins text-amber-500"></i>
+                                            <span><?= lang('Finance.currency') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <select name="currency" data-settlement-currency class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                                <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
+                                                    <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <i class="fas fa-chevron-down text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-chart-line text-indigo-600"></i>
+                                            <span><?= lang('Finance.exchangeRate') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
+                                        </div>
+                                    </div>
+                                    <div class="group/field relative md:col-span-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-scale-balanced text-slate-600"></i>
+                                            <span><?= lang('Finance.amountBase') ?> (<?= esc($baseCurrency) ?>)</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" data-settlement-base readonly
+                                                   class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl shadow-inner text-slate-700 font-semibold"
+                                                   value="0.00">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -496,20 +553,58 @@
                             <form id="invoiceRefundForm" class="space-y-6">
                                 <?= csrf_field() ?>
                                 <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                                    <?= lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
+                                    <?= $supportsPaymentExchangeFields ? lang('Finance.settlementCurrencyNotice') : lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
                                 </p>
-                                <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
-                                        <i class="fas fa-dollar-sign text-rose-600"></i>
-                                        <span><?= lang('Finance.amountRequired') ?></span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-bold"><?= esc($currencySymbol) ?></span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-dollar-sign text-rose-600"></i>
+                                            <span><?= lang('Finance.amountRequired') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
+                                                   placeholder="0.00" required>
                                         </div>
-                                        <input type="number" name="amount" step="0.01" min="0" 
-                                               class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" 
-                                               placeholder="0.00" required>
+                                    </div>
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-coins text-amber-500"></i>
+                                            <span><?= lang('Finance.currency') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <select name="currency" data-settlement-currency class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                                <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
+                                                    <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <i class="fas fa-chevron-down text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="group/field relative">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-chart-line text-indigo-600"></i>
+                                            <span><?= lang('Finance.exchangeRate') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
+                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
+                                        </div>
+                                    </div>
+                                    <div class="group/field relative md:col-span-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-scale-balanced text-slate-600"></i>
+                                            <span><?= lang('Finance.amountBase') ?> (<?= esc($baseCurrency) ?>)</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" data-settlement-base readonly
+                                                   class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl shadow-inner text-slate-700 font-semibold"
+                                                   value="0.00">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -731,6 +826,56 @@
 </div>
 
 <script>
+const financeBaseCurrency = '<?= esc($baseCurrency) ?>';
+
+function syncSettlementForm(form) {
+    if (!form) {
+        return;
+    }
+
+    const currencyInput = form.querySelector('[data-settlement-currency]');
+    const rateInput = form.querySelector('[data-settlement-rate]');
+    const amountInput = form.querySelector('input[name="amount_original"], input[name="amount"]');
+    const baseOutput = form.querySelector('[data-settlement-base]');
+    if (!amountInput || !baseOutput) {
+        return;
+    }
+
+    const currency = currencyInput ? currencyInput.value : financeBaseCurrency;
+    let rate = parseFloat(rateInput ? rateInput.value : '1');
+    if (!Number.isFinite(rate) || rate <= 0) {
+        rate = 1;
+    }
+
+    if (currency === financeBaseCurrency && rateInput) {
+        rate = 1;
+        rateInput.value = '1';
+        rateInput.readOnly = true;
+        rateInput.classList.add('bg-slate-50');
+    } else if (rateInput) {
+        rateInput.readOnly = false;
+        rateInput.classList.remove('bg-slate-50');
+    }
+
+    const amount = parseFloat(amountInput.value || '0');
+    const baseAmount = Number.isFinite(amount) ? (amount * rate) : 0;
+    baseOutput.value = baseAmount.toFixed(2);
+}
+
+function initSettlementForm(form) {
+    if (!form) {
+        return;
+    }
+
+    const watchedInputs = form.querySelectorAll('input[name="amount_original"], input[name="amount"], [data-settlement-currency], [data-settlement-rate]');
+    watchedInputs.forEach((input) => {
+        input.addEventListener('input', function () { syncSettlementForm(form); });
+        input.addEventListener('change', function () { syncSettlementForm(form); });
+    });
+
+    syncSettlementForm(form);
+}
+
 function markAsPaid(transactionId) {
     if (confirm('<?= lang('Finance.confirmMarkTransactionPaid') ?>')) {
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
@@ -830,6 +975,7 @@ function closeBalance(transactionId) {
 
 const invoicePaymentForm = document.getElementById('invoicePaymentForm');
 if (invoicePaymentForm) {
+    initSettlementForm(invoicePaymentForm);
     invoicePaymentForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(invoicePaymentForm);
@@ -873,6 +1019,7 @@ if (invoicePaymentForm) {
 
 const invoiceRefundForm = document.getElementById('invoiceRefundForm');
 if (invoiceRefundForm) {
+    initSettlementForm(invoiceRefundForm);
     invoiceRefundForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(invoiceRefundForm);
@@ -985,3 +1132,5 @@ if (providerPayoutPaymentForm) {
 }
 </script>
 <?= $this->endSection() ?>
+
+

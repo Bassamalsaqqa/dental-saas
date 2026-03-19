@@ -13,6 +13,18 @@
     $exchangeRate = $finance['exchange_rate'] ?? 1;
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
     $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
+    $paymentStatusLabel = lang('Finance.' . ($finance['payment_status'] ?? 'pending'));
+    if ($paymentStatusLabel === 'Finance.' . ($finance['payment_status'] ?? 'pending')) {
+        $paymentStatusLabel = ucfirst((string) ($finance['payment_status'] ?? 'pending'));
+    }
+    $serviceTypeLabel = lang('Finance.' . ($finance['service_type'] ?? 'other'));
+    if ($serviceTypeLabel === 'Finance.' . ($finance['service_type'] ?? 'other')) {
+        $serviceTypeLabel = ucfirst(str_replace('_', ' ', (string) ($finance['service_type'] ?? 'other')));
+    }
+    $paymentMethodLabel = lang('Finance.' . ($finance['payment_method'] ?? 'cash'));
+    if ($paymentMethodLabel === 'Finance.' . ($finance['payment_method'] ?? 'cash')) {
+        $paymentMethodLabel = ucfirst(str_replace('_', ' ', (string) ($finance['payment_method'] ?? 'cash')));
+    }
 ?>
 <!-- Professional Invoice Document -->
 <div class="min-h-screen bg-gray-100 py-8">
@@ -21,7 +33,7 @@
         <div class="mb-6 flex justify-end">
             <button onclick="window.print()" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                 <i class="fas fa-print mr-2"></i>
-                Print Invoice
+                <?= lang('Finance.printInvoice') ?>
             </button>
         </div>
 
@@ -53,9 +65,9 @@
                             </div>
                             <div class="text-sm text-gray-600 space-y-1">
                                 <p><?= esc($clinic['address']) ?></p>
-                                <p>Phone: <?= esc($clinic['phone']) ?> | Email: <?= esc($clinic['email']) ?></p>
+                                <p><?= lang('Finance.phone') ?>: <?= esc($clinic['phone']) ?> | <?= lang('Finance.email') ?>: <?= esc($clinic['email']) ?></p>
                                 <?php if ($clinic['website']): ?>
-                                <p>Website: <?= esc($clinic['website']) ?></p>
+                                <p><?= lang('Finance.website') ?>: <?= esc($clinic['website']) ?></p>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -70,21 +82,21 @@
                                         <span class="text-gray-900"><?= $finance['transaction_id'] ?></span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="font-semibold text-gray-700">Date:</span>
+                                        <span class="font-semibold text-gray-700"><?= lang('Finance.date') ?>:</span>
                                         <span class="text-gray-900"><?= formatDate($finance['created_at']) ?></span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="font-semibold text-gray-700"><?= lang('Finance.dueDate') ?>:</span>
-                                        <span class="text-gray-900"><?= $finance['due_date'] ? formatDate($finance['due_date']) : 'N/A' ?></span>
+                                        <span class="text-gray-900"><?= $finance['due_date'] ? formatDate($finance['due_date']) : lang('Finance.notAvailable') ?></span>
                                     </div>
                                     <div class="flex justify-between items-center pt-2 border-t">
-                                        <span class="font-semibold text-gray-700">Status:</span>
+                                        <span class="font-semibold text-gray-700"><?= lang('Finance.status') ?>:</span>
                                         <span class="px-3 py-1 rounded-full text-xs font-semibold
                                             <?= $finance['payment_status'] == 'paid' ? 'bg-green-100 text-green-800' : 
                                                 ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-800' :
                                                 ($finance['payment_status'] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
                                                 ($finance['payment_status'] == 'overdue' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) ?>">
-                                            <?= ucfirst($finance['payment_status']) ?>
+                                            <?= esc($paymentStatusLabel) ?>
                                         </span>
                                     </div>
                                 </div>
@@ -103,12 +115,12 @@
                         <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.billTo') ?></h3>
                         <div class="space-y-2">
                             <p class="text-lg font-semibold text-gray-900"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
-                            <p class="text-sm text-gray-600">Patient ID: <?= $patient['patient_id'] ?></p>
+                            <p class="text-sm text-gray-600"><?= lang('Finance.patientId') ?>: <?= $patient['patient_id'] ?></p>
                             <?php if ($patient['phone']): ?>
-                            <p class="text-sm text-gray-600">Phone: <?= $patient['phone'] ?></p>
+                            <p class="text-sm text-gray-600"><?= lang('Finance.phone') ?>: <?= $patient['phone'] ?></p>
                             <?php endif; ?>
                             <?php if ($patient['email']): ?>
-                            <p class="text-sm text-gray-600">Email: <?= $patient['email'] ?></p>
+                            <p class="text-sm text-gray-600"><?= lang('Finance.email') ?>: <?= $patient['email'] ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -117,13 +129,13 @@
                     <div>
                         <h3 class="text-lg font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2"><?= lang('Finance.transactionDetails') ?></h3>
                         <div class="space-y-2">
-                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.serviceTypeLabel') ?>:</span> <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.paymentMethodLabel') ?>:</span> <?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.createdByLabel') ?>:</span> <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Currency:</span> <?= esc($baseCurrency) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.serviceTypeLabel') ?>:</span> <?= esc($serviceTypeLabel) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.paymentMethodLabel') ?>:</span> <?= esc($paymentMethodLabel) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.createdByLabel') ?>:</span> <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.currency') ?>:</span> <?= esc($baseCurrency) ?></p>
                             <?php if ($isConverted): ?>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Original:</span> <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></p>
-                            <p class="text-sm text-gray-600"><span class="font-semibold">Exchange Rate:</span> <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.original') ?>:</span> <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></p>
+                            <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.exchangeRate') ?>:</span> <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
                             <?php endif; ?>
                             <?php if (!empty($check_attachment)): ?>
                             <p class="text-sm text-gray-600"><span class="font-semibold"><?= lang('Finance.checkScanLabel') ?>:</span> <a class="text-blue-600" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener"><?= lang('Finance.download') ?></a></p>
@@ -142,21 +154,21 @@
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Description</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-700">Service Type</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700">Amount</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.description') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-700"><?= lang('Finance.serviceTypeLabel') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700"><?= lang('Finance.amount') ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700">
-                                        <?= $finance['description'] ?: 'Dental service provided' ?>
+                                        <?= $finance['description'] ?: lang('Finance.defaultDentalServiceDescription') ?>
                                         <?php if ($finance['service_details']): ?>
                                         <br><span class="text-xs text-gray-500 mt-1 block"><?= $finance['service_details'] ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="border border-gray-300 px-4 py-3 text-center text-sm text-gray-700">
-                                        <?= ucfirst(str_replace('_', ' ', $finance['service_type'])) ?>
+                                        <?= esc($serviceTypeLabel) ?>
                                     </td>
                                     <td class="border border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-900">
                                         <?= formatCurrency($finance['amount']) ?>
@@ -172,21 +184,21 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center">
                         <i class="fas fa-stethoscope mr-2 text-blue-600"></i>
-                        Related Examination
+                        <?= lang('Finance.relatedExamination') ?>
                     </h3>
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                                <p><strong class="text-gray-700">Examination ID:</strong> <?= $examination['id'] ?></p>
-                                <p><strong class="text-gray-700">Date:</strong> <?= formatDate($examination['created_at']) ?></p>
+                                <p><strong class="text-gray-700"><?= lang('Finance.examinationId') ?>:</strong> <?= $examination['id'] ?></p>
+                                <p><strong class="text-gray-700"><?= lang('Finance.date') ?>:</strong> <?= formatDate($examination['created_at']) ?></p>
                             </div>
                             <div>
-                                <p><strong class="text-gray-700">Status:</strong> 
+                                <p><strong class="text-gray-700"><?= lang('Finance.status') ?>:</strong> 
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <?= ucfirst($examination['status']) ?>
+                                        <?= esc(ucfirst((string) ($examination['status'] ?? ''))) ?>
                                     </span>
                                 </p>
-                                <p><strong class="text-gray-700">Notes:</strong> <?= $examination['examination_notes'] ?: 'N/A' ?></p>
+                                <p><strong class="text-gray-700"><?= lang('Finance.notes') ?>:</strong> <?= $examination['examination_notes'] ?: lang('Finance.notAvailable') ?></p>
                             </div>
                         </div>
                     </div>
@@ -205,7 +217,7 @@
                                 </div>
                                 <?php if ($isConverted): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Original Amount:</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.originalAmount') ?>:</span>
                                     <span class="text-sm font-semibold text-gray-900"><?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?></span>
                                 </div>
                                 <?php endif; ?>
@@ -219,7 +231,7 @@
                                 
                                 <?php if ($finance['tax_amount'] > 0): ?>
                                 <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
-                                    <span class="text-sm font-medium text-gray-700">Tax (<?= number_format($taxPercent, 2) ?>%):</span>
+                                    <span class="text-sm font-medium text-gray-700"><?= lang('Finance.taxLabel') ?> (<?= number_format($taxPercent, 2) ?>%):</span>
                                     <span class="text-sm font-semibold text-gray-900"><?= formatCurrency($finance['tax_amount']) ?></span>
                                 </div>
                                 <?php endif; ?>
@@ -254,12 +266,12 @@
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Date</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Type</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Method</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Recorded By</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700">Amount</th>
-                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700">Notes</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.date') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.type') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.method') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.recordedBy') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-700"><?= lang('Finance.amount') ?></th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700"><?= lang('Finance.notes') ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -267,10 +279,10 @@
                                 <?php $type = $payment['type'] ?? 'payment'; ?>
                                 <tr>
                                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= formatDate($payment['payment_date']) ?></td>
-                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst($type) ?></td>
-                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= esc(lang('Finance.' . $type)) ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= esc(lang('Finance.' . $payment['payment_method'])) ?></td>
                                     <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
-                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : 'Unknown' ?></td>
+                                    <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700"><?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : lang('Finance.unknown') ?></td>
                                     <?php
                                         $prefix = '+';
                                         if ($type === 'refund' || $type === 'void') {
@@ -291,24 +303,24 @@
                 <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <h4 class="text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.paymentMethodUpper') ?></h4>
-                        <p class="text-sm text-gray-600"><?= ucfirst(str_replace('_', ' ', $finance['payment_method'])) ?></p>
+                        <p class="text-sm text-gray-600"><?= esc($paymentMethodLabel) ?></p>
                     </div>
                     
                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <h4 class="text-sm font-bold text-gray-700 mb-2">CURRENCY</h4>
+                        <h4 class="text-sm font-bold text-gray-700 mb-2"><?= strtoupper(lang('Finance.currency')) ?></h4>
                         <p class="text-sm text-gray-600"><?= esc($baseCurrency) ?></p>
                     </div>
                     
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <h4 class="text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.paymentStatusUpper') ?></h4>
-                        <p class="text-sm text-gray-600"><?= ucfirst($finance['payment_status']) ?></p>
+                        <p class="text-sm text-gray-600"><?= esc($paymentStatusLabel) ?></p>
                     </div>
                 </div>
 
                 <!-- Notes -->
                 <?php if ($finance['notes']): ?>
                 <div class="mb-8">
-                    <h4 class="text-sm font-bold text-gray-700 mb-3">NOTES</h4>
+                    <h4 class="text-sm font-bold text-gray-700 mb-3"><?= strtoupper(lang('Finance.notes')) ?></h4>
                     <div class="bg-yellow-50 p-4 border border-yellow-200 rounded-lg">
                         <p class="text-sm text-gray-700"><?= $finance['notes'] ?></p>
                     </div>
@@ -321,14 +333,14 @@
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-3"><?= lang('Finance.paymentInstructions') ?></h4>
                             <div class="text-xs text-gray-600 space-y-1">
-                                <p>• Payment is due within 30 days of invoice date</p>
-                                <p>• Late payments may incur additional charges</p>
-                                <p>• For questions about this invoice, contact us at (555) 123-4567</p>
+                                <p><?= lang('Finance.invoicePaymentInstruction1') ?></p>
+                                <p><?= lang('Finance.invoicePaymentInstruction2') ?></p>
+                                <p><?= lang('Finance.invoicePaymentInstruction3') ?></p>
                             </div>
                         </div>
                         <div class="text-right">
                             <h4 class="text-sm font-bold text-gray-700 mb-3"><?= lang('Finance.thankYouUpper') ?></h4>
-                            <p class="text-xs text-gray-600 mb-1">We appreciate your business and look forward to serving you again.</p>
+                            <p class="text-xs text-gray-600 mb-1"><?= lang('Finance.invoiceThankYouBody') ?></p>
                             <p class="text-xs text-gray-500"><?= lang('Finance.invoiceGeneratedOn') ?> <?= formatDateTime(date('Y-m-d H:i:s')) ?></p>
                         </div>
                     </div>

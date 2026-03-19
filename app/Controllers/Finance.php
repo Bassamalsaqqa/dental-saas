@@ -79,6 +79,67 @@ class Finance extends BaseController
         ];
     }
 
+    private function getFinanceCurrencyOptions(): array
+    {
+        return ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
+    }
+
+    private function supportsFinancePaymentExchangeFields(): bool
+    {
+        return $this->db->fieldExists('currency', 'finance_payments')
+            && $this->db->fieldExists('amount_original', 'finance_payments')
+            && $this->db->fieldExists('exchange_rate', 'finance_payments');
+    }
+
+    private function normalizeSettlementAmount(float $amountOriginal, float $exchangeRate): float
+    {
+        return round($amountOriginal * $exchangeRate, 2);
+    }
+
+    private function normalizeInvoiceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
+    {
+        $baseCurrency = (string) settings()->get('currency', 'ILS');
+        $currency = strtoupper((string) ($this->request->getPost('currency') ?: $baseCurrency));
+        if (!in_array($currency, $this->getFinanceCurrencyOptions(), true)) {
+            throw new \RuntimeException('Invalid settlement currency.');
+        }
+
+        $rawAmountOriginal = $this->request->getPost('amount_original');
+        if ($rawAmountOriginal === null || $rawAmountOriginal === '') {
+            $rawAmountOriginal = $this->request->getPost('amount');
+        }
+        $amountOriginal = round(floatval($rawAmountOriginal ?? 0), 2);
+        if ($amountOriginal <= 0) {
+            throw new \RuntimeException('Settlement amount must be greater than 0.');
+        }
+
+        $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
+        if ($currency === $baseCurrency) {
+            $exchangeRate = 1.0;
+        } elseif ($exchangeRate <= 0) {
+            throw new \RuntimeException('Exchange rate is required for non-default currency.');
+        }
+
+        $amountBase = $this->normalizeSettlementAmount($amountOriginal, $exchangeRate);
+        if ($amountBase <= 0) {
+            throw new \RuntimeException('Settlement amount must be greater than 0.');
+        }
+
+        if ($maxBaseAmount !== null && $amountBase - $maxBaseAmount > 0.0001) {
+            throw new \RuntimeException('Settlement exceeds remaining balance.');
+        }
+
+        return [
+            'currency' => $currency,
+            'amount_original' => $amountOriginal,
+            'exchange_rate' => $exchangeRate,
+            'amount_base' => $amountBase,
+            'payment_method' => (string) ($this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash')),
+            'payment_date' => $this->normalizePostedDateOnly('payment_date') ?: date('Y-m-d'),
+            'notes' => $this->request->getPost('notes'),
+        ];
+    }
+
     private function validateOwnedFinanceReferences(int $clinicId, ?int $patientId, ?int $examinationId): ?string
     {
         if ($patientId !== null && $patientId > 0) {
@@ -105,7 +166,7 @@ class Finance extends BaseController
             'finance' => $finance,
             'validation' => \Config\Services::validation(),
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'currency_options' => $this->getFinanceCurrencyOptions(),
             'expense_category_options' => $this->getExpenseCategoryOptions(),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance']),
         ];
@@ -340,7 +401,7 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'currency_options' => $this->getFinanceCurrencyOptions(),
             'selected_patient_id' => $patientId,
             'return_to' => $returnTo
         ];
@@ -673,6 +734,8 @@ class Finance extends BaseController
             'provider_payout' => $providerPayout,
             'provider_payout_payments' => $providerPayoutPayments,
             'base_currency' => settings()->get('currency', 'ILS'),
+            'currency_options' => $this->getFinanceCurrencyOptions(),
+            'supports_payment_exchange_fields' => $this->supportsFinancePaymentExchangeFields(),
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
                 ->where('entity_type', 'finance')
@@ -727,7 +790,7 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
-            'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'currency_options' => $this->getFinanceCurrencyOptions(),
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
                 ->where('entity_type', 'finance')
@@ -1163,6 +1226,18 @@ class Finance extends BaseController
             ];
         }
 
+        $paymentFxSelect = $this->supportsFinancePaymentExchangeFields()
+            ? "
+                fp.currency AS settlement_currency,
+                fp.amount_original AS settlement_amount_original,
+                fp.exchange_rate AS settlement_exchange_rate,
+            "
+            : "
+                NULL AS settlement_currency,
+                NULL AS settlement_amount_original,
+                NULL AS settlement_exchange_rate,
+            ";
+
         $invoicePaymentRows = $this->db->table('finance_payments fp')
             ->select("
                 fp.id,
@@ -1171,6 +1246,7 @@ class Finance extends BaseController
                 fp.payment_date,
                 fp.notes,
                 fp.amount,
+                {$paymentFxSelect}
                 f.transaction_id AS invoice_transaction_id,
                 f.currency,
                 p.first_name AS patient_first_name,
@@ -1205,9 +1281,9 @@ class Finance extends BaseController
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? null,
                 'category' => null,
-                'currency' => $row['currency'] ?: $baseCurrency,
-                'exchange_rate' => 1.0,
-                'amount_original' => null,
+                'currency' => $row['settlement_currency'] ?: ($row['currency'] ?: $baseCurrency),
+                'exchange_rate' => floatval($row['settlement_exchange_rate'] ?? 1),
+                'amount_original' => isset($row['settlement_amount_original']) ? floatval($row['settlement_amount_original']) : null,
                 'amount_base' => $amountBase,
                 'signed_amount_base' => $signedAmount,
             ];
@@ -1701,36 +1777,25 @@ class Finance extends BaseController
                 ]);
             }
 
-            $amount = floatval($this->request->getPost('amount'));
-            if ($amount <= 0) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Payment amount must be greater than 0.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
             $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
             $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
             $remaining = max(0, $totalAmount - $paidTotal);
-
-            if ($amount > $remaining) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Payment exceeds remaining balance.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
+            $settlement = $this->normalizeInvoiceSettlementInput($finance, $remaining);
 
             $paymentData = [
                 'finance_id' => $finance['id'],
-                'amount' => $amount,
+                'amount' => $settlement['amount_base'],
                 'type' => 'payment',
-                'payment_method' => $this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash'),
-                'payment_date' => $this->request->getPost('payment_date') ?? date('Y-m-d'),
-                'notes' => $this->request->getPost('notes'),
+                'payment_method' => $settlement['payment_method'],
+                'payment_date' => $settlement['payment_date'],
+                'notes' => $settlement['notes'],
                 'created_by' => $this->resolveActorUserId()
             ];
+            if ($this->supportsFinancePaymentExchangeFields()) {
+                $paymentData['currency'] = $settlement['currency'];
+                $paymentData['amount_original'] = $settlement['amount_original'];
+                $paymentData['exchange_rate'] = $settlement['exchange_rate'];
+            }
 
             if (!$this->financePaymentModel->insert($paymentData)) {
                 return $this->response->setJSON([
@@ -1774,23 +1839,9 @@ class Finance extends BaseController
                 ]);
             }
 
-            $amount = floatval($this->request->getPost('amount'));
-            if ($amount <= 0) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Refund amount must be greater than 0.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
             $netPaid = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
-            if ($amount > $netPaid) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Refund exceeds paid amount.',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
+            $settlement = $this->normalizeInvoiceSettlementInput($finance, $netPaid);
+            $amount = $settlement['amount_base'];
 
             $relatedPaymentId = (int) ($this->request->getPost('related_payment_id') ?? 0);
             if ($relatedPaymentId) {
@@ -1820,14 +1871,19 @@ class Finance extends BaseController
 
             $refundData = [
                 'finance_id' => $finance['id'],
-                'amount' => $amount,
+                'amount' => $settlement['amount_base'],
                 'type' => 'refund',
-                'payment_method' => $this->request->getPost('payment_method') ?: ($finance['payment_method'] ?? 'cash'),
-                'payment_date' => $this->request->getPost('payment_date') ?? date('Y-m-d'),
-                'notes' => $this->request->getPost('notes'),
+                'payment_method' => $settlement['payment_method'],
+                'payment_date' => $settlement['payment_date'],
+                'notes' => $settlement['notes'],
                 'related_payment_id' => $relatedPaymentId ?: null,
                 'created_by' => $this->resolveActorUserId()
             ];
+            if ($this->supportsFinancePaymentExchangeFields()) {
+                $refundData['currency'] = $settlement['currency'];
+                $refundData['amount_original'] = $settlement['amount_original'];
+                $refundData['exchange_rate'] = $settlement['exchange_rate'];
+            }
 
             if (!$this->financePaymentModel->insert($refundData)) {
                 return $this->response->setJSON([
@@ -1904,6 +1960,13 @@ class Finance extends BaseController
                 'related_payment_id' => $paymentId,
                 'created_by' => $this->resolveActorUserId()
             ];
+            if ($this->supportsFinancePaymentExchangeFields()) {
+                $voidRate = floatval($payment['exchange_rate'] ?? 1);
+                $voidRate = $voidRate > 0 ? $voidRate : 1;
+                $voidData['currency'] = $payment['currency'] ?? settings()->get('currency', 'ILS');
+                $voidData['exchange_rate'] = $voidRate;
+                $voidData['amount_original'] = round($remaining / $voidRate, 2);
+            }
 
             if (!$this->financePaymentModel->insert($voidData)) {
                 return $this->response->setJSON([
@@ -1965,15 +2028,22 @@ class Finance extends BaseController
                 $notes .= ': ' . $reason;
             }
 
-            if (!$this->financePaymentModel->insert([
+            $adjustmentData = [
                 'finance_id' => $finance['id'],
                 'amount' => $remaining,
                 'type' => 'adjustment',
                 'payment_method' => $finance['payment_method'] ?? 'other',
                 'payment_date' => date('Y-m-d'),
                 'notes' => $notes,
-                'created_by' => $this->resolveActorUserId()
-            ])) {
+                'created_by' => $this->resolveActorUserId(),
+            ];
+            if ($this->supportsFinancePaymentExchangeFields()) {
+                $adjustmentData['currency'] = settings()->get('currency', 'ILS');
+                $adjustmentData['amount_original'] = $remaining;
+                $adjustmentData['exchange_rate'] = 1;
+            }
+
+            if (!$this->financePaymentModel->insert($adjustmentData)) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Failed to close invoice balance.',
@@ -2522,7 +2592,7 @@ class Finance extends BaseController
                         continue;
                     }
 
-                    $this->financePaymentModel->insert([
+                    $paymentData = [
                         'finance_id' => $financeId,
                         'amount' => $remaining,
                         'type' => 'payment',
@@ -2530,7 +2600,15 @@ class Finance extends BaseController
                         'payment_date' => $today,
                         'notes' => 'Bulk mark as paid',
                         'created_by' => $this->resolveActorUserId()
-                    ]);
+                    ];
+                    if ($this->supportsFinancePaymentExchangeFields()) {
+                        $baseCurrency = settings()->get('currency', 'ILS');
+                        $paymentData['currency'] = $baseCurrency;
+                        $paymentData['amount_original'] = $remaining;
+                        $paymentData['exchange_rate'] = 1;
+                    }
+
+                    $this->financePaymentModel->insert($paymentData);
                     $this->syncInvoicePaymentStatus($financeId, $clinicId);
                     $updated++;
                     continue;
