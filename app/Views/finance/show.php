@@ -14,6 +14,31 @@
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
     $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
     $isExpense = (($finance['transaction_type'] ?? '') === 'expense');
+    $currencySymbol = settings()->getCurrencySymbol();
+    $paymentStatusKey = $finance['payment_status'] ?? 'pending';
+    $paymentStatusLabel = lang('Finance.' . $paymentStatusKey);
+    if ($paymentStatusLabel === 'Finance.' . $paymentStatusKey) {
+        $paymentStatusLabel = ucfirst($paymentStatusKey);
+    }
+    $transactionTypeKey = $finance['transaction_type'] ?? 'transaction';
+    $transactionTypeLabel = lang('Finance.' . $transactionTypeKey);
+    if ($transactionTypeLabel === 'Finance.' . $transactionTypeKey) {
+        $transactionTypeLabel = ucfirst(str_replace('_', ' ', $transactionTypeKey));
+    }
+    $serviceTypeKey = $finance['service_type'] ?? 'other';
+    $serviceTypeLabel = lang('Finance.' . $serviceTypeKey);
+    if ($serviceTypeLabel === 'Finance.' . $serviceTypeKey) {
+        $serviceTypeLabel = ucfirst(str_replace('_', ' ', $serviceTypeKey));
+    }
+    $expenseCategoryMap = [
+        'rent' => ['en' => 'Rent', 'ar' => 'إيجار'],
+        'utilities' => ['en' => 'Utilities', 'ar' => 'مرافق'],
+        'supplies' => ['en' => 'Supplies', 'ar' => 'مستلزمات'],
+        'marketing' => ['en' => 'Marketing', 'ar' => 'تسويق'],
+        'miscellaneous' => ['en' => 'Miscellaneous', 'ar' => 'متفرقات'],
+    ];
+    $expenseCategoryKey = $finance['expense_category'] ?? 'miscellaneous';
+    $expenseCategoryLabel = $expenseCategoryMap[$expenseCategoryKey][service('request')->getLocale()] ?? ucfirst(str_replace('_', ' ', $expenseCategoryKey));
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -62,7 +87,7 @@
                             <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
                                 <?= number_format($totalAmount, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
                             </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Amount</div>
+                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.totalAmount') ?></div>
                         </div>
                     </div>
                     
@@ -70,9 +95,9 @@
                         <div class="text-center">
                             <div class="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center">
                                 <i class="fas fa-exchange-alt mr-2 text-blue-500/50 group-hover:rotate-180 transition-transform duration-500"></i>
-                                <?= ucfirst(str_replace('_', ' ', $finance['transaction_type'])) ?>
+                                <?= esc($transactionTypeLabel) ?>
                             </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Transaction Type</div>
+                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.transactionType') ?></div>
                         </div>
                     </div>
 
@@ -85,10 +110,10 @@
                                         ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' : 
                                         ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
                                     <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
-                                    <?= ucfirst($finance['payment_status']) ?>
+                                    <?= esc($paymentStatusLabel) ?>
                                 </span>
                             </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Status</div>
+                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paymentStatusUpper') ?></div>
                         </div>
                     </div>
                 </div>
@@ -100,10 +125,10 @@
                             <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
                                 <i class="fas fa-list-ul"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Details & Breakdown</h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.detailsBreakdown') ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            <?= $isExpense ? ucfirst(str_replace('_', ' ', (string)($finance['expense_category'] ?? 'miscellaneous'))) : ucfirst(str_replace('_', ' ', $finance['service_type'])) ?>
+                            <?= esc($isExpense ? $expenseCategoryLabel : $serviceTypeLabel) ?>
                         </span>
                     </div>
                     <div class="p-6">
@@ -111,14 +136,14 @@
                             <!-- Description -->
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= $isExpense ? 'Expense Description' : 'Service Description' ?></label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= $isExpense ? lang('Finance.expenseDescription') : lang('Finance.serviceDescription') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
-                                        <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">No description provided</span>' ?>
+                                        <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">' . esc(lang('Finance.noDescriptionProvided')) . '</span>' ?>
                                     </div>
                                 </div>
                                 <?php if ($isExpense && !empty($finance['counterparty_name'])): ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1">Payee / Vendor</label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.payeeVendor') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
                                         <?= esc($finance['counterparty_name']) ?>
                                     </div>
@@ -126,16 +151,16 @@
                                 <?php endif; ?>
                                 <?php if (!empty($finance['service_details'])): ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1">Technical Details</label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.technicalDetails') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= nl2br(htmlspecialchars($finance['service_details'])) ?>
                                     </div>
                                 </div>
                                 <?php endif; ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1">Created By</label>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.createdByLabel') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
-                                        <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?>
+                                        <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?>
                                     </div>
                                 </div>
                             </div>
@@ -144,12 +169,12 @@
                             <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 shadow-inner">
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center text-sm">
-                                        <span class="text-gray-600 font-medium">Subtotal</span>
-                                        <span class="font-bold text-gray-900"><?= number_format($finance['amount'], 2) ?></span>
+                                        <span class="text-gray-600 font-medium"><?= lang('Finance.subtotal') ?></span>
+                                        <span class="font-bold text-gray-900"><?= number_format($finance['amount'], 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <?php if ($isConverted): ?>
                                     <div class="flex justify-between items-center text-xs text-gray-500">
-                                        <span class="font-medium">Original</span>
+                                        <span class="font-medium"><?= lang('Finance.original') ?></span>
                                         <span class="font-semibold">
                                             <?= number_format($amountOriginal, 2) ?> <?= esc($finance['currency']) ?>
                                             @ <?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?>
@@ -158,18 +183,18 @@
                                     <?php endif; ?>
                                     <?php if ($finance['discount_amount'] > 0): ?>
                                     <div class="flex justify-between items-center text-sm text-rose-600">
-                                        <span class="font-medium">Discount</span>
-                                        <span class="font-bold">-<?= number_format($finance['discount_amount'], 2) ?></span>
+                                        <span class="font-medium"><?= lang('Finance.discount') ?></span>
+                                        <span class="font-bold">-<?= number_format($finance['discount_amount'], 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($finance['tax_amount'] > 0): ?>
                                     <div class="flex justify-between items-center text-sm text-gray-600">
-                                        <span class="font-medium">Tax (<?= number_format($taxPercent, 2) ?>%)</span>
-                                        <span class="font-bold">+<?= number_format($finance['tax_amount'], 2) ?></span>
+                                        <span class="font-medium"><?= lang('Finance.taxPercent') ?> (<?= number_format($taxPercent, 2) ?>%)</span>
+                                        <span class="font-bold">+<?= number_format($finance['tax_amount'], 2) ?> <?= esc($baseCurrency) ?></span>
                                     </div>
                                     <?php endif; ?>
                                     <div class="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
-                                        <span class="text-lg font-bold text-gray-800">Total</span>
+                                        <span class="text-lg font-bold text-gray-800"><?= lang('Finance.total') ?></span>
                                         <span class="text-2xl font-bold text-gray-900">
                                             <?= number_format($totalAmount, 2) ?> <span class="text-sm font-normal text-gray-500"><?= esc($baseCurrency) ?></span>
                                         </span>
@@ -178,12 +203,12 @@
                                     <?php if ($finance['transaction_type'] === 'invoice'): ?>
                                         <div class="pt-4 mt-4 border-t border-gray-200 border-dashed space-y-3">
                                             <div class="flex justify-between items-center text-sm">
-                                                <span class="text-emerald-600 font-bold">Paid to Date</span>
-                                                <span class="text-emerald-700 font-bold"><?= number_format($finance['amount_paid'] ?? 0, 2) ?></span>
+                                                <span class="text-emerald-600 font-bold"><?= lang('Finance.paidToDate') ?></span>
+                                                <span class="text-emerald-700 font-bold"><?= number_format($finance['amount_paid'] ?? 0, 2) ?> <?= esc($baseCurrency) ?></span>
                                             </div>
                                             <div class="flex justify-between items-center text-sm bg-rose-50 p-3 rounded-lg border border-rose-100 shadow-sm">
-                                                <span class="text-rose-600 font-bold uppercase tracking-wider">Balance Due</span>
-                                                <span class="text-rose-700 text-xl font-bold"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?></span>
+                                                <span class="text-rose-600 font-bold uppercase tracking-wider"><?= lang('Finance.balanceDue') ?></span>
+                                                <span class="text-rose-700 text-xl font-bold"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?> <?= esc($baseCurrency) ?></span>
                                             </div>
                                         </div>
                                     <?php endif; ?>
@@ -200,7 +225,7 @@
                             <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
                                 <i class="fas fa-hand-holding-dollar"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Provider Split</h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.providerSplit') ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                             <?= ($provider_payout['status'] ?? 'unpaid') === 'paid' ? 'bg-emerald-100 text-emerald-700' : (($provider_payout['status'] ?? 'unpaid') === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') ?>">
@@ -211,41 +236,41 @@
                         <?php
                             $providerDisplayName = trim(($provider_payout['provider_first_name'] ?? '') . ' ' . ($provider_payout['provider_last_name'] ?? ''));
                             if ($providerDisplayName === '') {
-                                $providerDisplayName = $provider_payout['provider_name_snapshot'] ?? 'Guest Provider';
+                                $providerDisplayName = $provider_payout['provider_name_snapshot'] ?? lang('Finance.guestProvider');
                             }
                         ?>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider</p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.provider') ?></p>
                                 <p class="mt-1 font-bold text-gray-900"><?= esc($providerDisplayName) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Gross</p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.grossCollected') ?></p>
                                 <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout['gross_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Provider Share</p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.providerShare') ?></p>
                                 <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout['provider_share_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Clinic Net</p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.clinicNet') ?></p>
                                 <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout['clinic_share_amount'] ?? 0) ?></p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-emerald-700 font-semibold">Paid to Provider</p>
+                                <p class="text-xs uppercase tracking-wide text-emerald-700 font-semibold"><?= lang('Finance.paidToProvider') ?></p>
                                 <p class="mt-1 font-bold text-emerald-800"><?= formatCurrency($provider_payout['provider_paid_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-rose-200 bg-rose-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-rose-700 font-semibold">Balance Due</p>
+                                <p class="text-xs uppercase tracking-wide text-rose-700 font-semibold"><?= lang('Finance.balanceDue') ?></p>
                                 <p class="mt-1 font-bold text-rose-800"><?= formatCurrency($provider_payout['provider_balance_due'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Split Rule</p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.splitRule') ?></p>
                                 <p class="mt-1 font-bold text-gray-900">
-                                    <?= ucfirst($provider_payout['split_mode'] ?? 'percent') ?>:
+                                    <?= lang('Finance.' . ($provider_payout['split_mode'] ?? 'percentage')) ?>:
                                     <?= esc($provider_payout['split_value'] ?? 0) ?><?= ($provider_payout['split_mode'] ?? '') === 'percent' ? '%' : '' ?>
                                 </p>
                             </div>
@@ -254,25 +279,25 @@
                         <?php if (floatval($provider_payout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
                         <form id="providerPayoutPaymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Amount</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.amount') ?></label>
                                 <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($provider_payout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Method</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.method') ?></label>
                                 <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    <option value="cash">Cash</option>
-                                    <option value="card">Card</option>
-                                    <option value="bank_transfer">Bank Transfer</option>
-                                    <option value="check">Check</option>
-                                    <option value="other">Other</option>
+                                    <option value="cash"><?= lang('Finance.cash') ?></option>
+                                    <option value="card"><?= lang('Finance.card') ?></option>
+                                    <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
+                                    <option value="check"><?= lang('Finance.check') ?></option>
+                                    <option value="other"><?= lang('Finance.other') ?></option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.date') ?></label>
                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                             </div>
                             <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                <i class="fas fa-plus mr-2"></i>Record Payout
+                                <i class="fas fa-plus mr-2"></i><?= lang('Finance.recordProviderPayout') ?>
                             </button>
                         </form>
                         <?php endif; ?>
@@ -288,8 +313,8 @@
                             <i class="fas fa-history"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800">Payments Ledger</h3>
-                            <p class="text-xs text-gray-500">History of Settlements</p>
+                            <h3 class="text-xl font-bold text-gray-800"><?= lang('Finance.paymentsLedger') ?></h3>
+                            <p class="text-xs text-gray-500"><?= lang('Finance.historyOfSettlements') ?></p>
                         </div>
                     </div>
                     
@@ -297,14 +322,14 @@
                         <table class="min-w-full divide-y divide-gray-100">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Method</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Recorded By</th>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Notes</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.date') ?></th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.status') ?></th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.method') ?></th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.recordedBy') ?></th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.amount') ?></th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.notes') ?></th>
                                     <?php if (has_permission('finance', 'edit')): ?>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.actions') ?></th>
                                     <?php endif; ?>
                                 </tr>
                             </thead>
@@ -337,26 +362,30 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $typeClass ?>">
-                                                <?= ucfirst($type) ?>
+                                                <?= lang('Finance.' . $type) ?>
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                            <?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>
+                                            <?= lang('Finance.' . $payment['payment_method']) ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                             <?php $paymentCreator = trim(($payment['creator_first_name'] ?? '') . ' ' . ($payment['creator_last_name'] ?? '')); ?>
-                                            <?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : 'Unknown' ?>
+                                            <?= $paymentCreator !== '' ? 'Dr. ' . esc($paymentCreator) : lang('Finance.unknown') ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right <?= $amountClass ?>">
-                                            <?= $prefix . number_format($payment['amount'], 2) ?>
+                                            <?= $prefix . formatCurrency($payment['amount']) ?>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs italic">
-                                            <?= $payment['notes'] ? esc($payment['notes']) : '<span class="text-slate-300">—</span>' ?>
+                                            <?php if (!empty($payment['notes'])): ?>
+                                                <?= esc($payment['notes']) ?>
+                                            <?php else: ?>
+                                                <span class="text-slate-300">&mdash;</span>
+                                            <?php endif; ?>
                                         </td>
                                         <?php if (has_permission('finance', 'edit')): ?>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <?php if ($type === 'payment'): ?>
-                                                <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="text-gray-400 hover:text-rose-600 transition-colors" title="Void Payment">
+                                                <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="text-gray-400 hover:text-rose-600 transition-colors" title="<?= esc(lang('Finance.voidPayment')) ?>">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             <?php endif; ?>
@@ -368,7 +397,7 @@
                                     <tr>
                                         <?php $emptyColspan = has_permission('finance', 'edit') ? 7 : 6; ?>
                                         <td colspan="<?= $emptyColspan ?>" class="px-6 py-12 text-center text-sm text-gray-400 font-medium">
-                                            No payment history found for this invoice.
+                                            <?= lang('Finance.noPaymentHistory') ?>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -385,19 +414,22 @@
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                                 <i class="fas fa-plus-circle text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Record Payment</h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.recordPayment') ?></h2>
                         </div>
                         <div class="p-6">
                             <form id="invoicePaymentForm" class="space-y-6">
                                 <?= csrf_field() ?>
+                                <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                                    <?= lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
+                                </p>
                                 <div class="group/field relative">
                                     <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                         <i class="fas fa-dollar-sign text-emerald-600"></i>
-                                        <span>Amount *</span>
+                                        <span><?= lang('Finance.amountRequired') ?></span>
                                     </label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-bold">$</span>
+                                            <span class="text-gray-500 font-bold"><?= esc($currencySymbol) ?></span>
                                         </div>
                                         <input type="number" name="amount" step="0.01" min="0" 
                                                class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" 
@@ -408,15 +440,15 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-credit-card text-blue-600"></i>
-                                            <span>Method *</span>
+                                            <span><?= lang('Finance.methodRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <select name="payment_method" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl appearance-none">
-                                                <option value="cash">Cash</option>
-                                                <option value="card">Card</option>
-                                                <option value="bank_transfer">Transfer</option>
-                                                <option value="check">Check</option>
-                                                <option value="other">Other</option>
+                                                <option value="cash"><?= lang('Finance.cash') ?></option>
+                                                <option value="card"><?= lang('Finance.card') ?></option>
+                                                <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
+                                                <option value="check"><?= lang('Finance.check') ?></option>
+                                                <option value="other"><?= lang('Finance.other') ?></option>
                                             </select>
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
@@ -426,7 +458,7 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-calendar-alt text-rose-600"></i>
-                                            <span>Date *</span>
+                                            <span><?= lang('Finance.dateRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
@@ -437,16 +469,16 @@
                                 <div class="group/field relative">
                                     <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                         <i class="fas fa-sticky-note text-purple-600"></i>
-                                        <span>Notes</span>
+                                        <span><?= lang('Finance.notes') ?></span>
                                     </label>
                                     <div class="relative">
                                         <textarea name="notes" rows="2" 
                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" 
-                                                  placeholder="Optional notes..."></textarea>
+                                                  placeholder="<?= esc(lang('Finance.optionalNotesPlaceholder')) ?>"></textarea>
                                     </div>
                                 </div>
                                 <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                                    <i class="fas fa-check-double mr-2"></i> Post Settlement
+                                    <i class="fas fa-check-double mr-2"></i><?= lang('Finance.postSettlement') ?>
                                 </button>
                             </form>
                         </div>
@@ -458,19 +490,22 @@
                             <div class="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
                                 <i class="fas fa-undo-alt text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Record Refund</h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.recordRefund') ?></h2>
                         </div>
                         <div class="p-6">
                             <form id="invoiceRefundForm" class="space-y-6">
                                 <?= csrf_field() ?>
+                                <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                                    <?= lang('Finance.settlementBaseCurrencyNotice') ?> <span class="font-semibold"><?= esc($baseCurrency) ?></span>.
+                                </p>
                                 <div class="group/field relative">
                                     <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                         <i class="fas fa-dollar-sign text-rose-600"></i>
-                                        <span>Amount *</span>
+                                        <span><?= lang('Finance.amountRequired') ?></span>
                                     </label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-bold">$</span>
+                                            <span class="text-gray-500 font-bold"><?= esc($currencySymbol) ?></span>
                                         </div>
                                         <input type="number" name="amount" step="0.01" min="0" 
                                                class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" 
@@ -481,15 +516,15 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-credit-card text-blue-600"></i>
-                                            <span>Method *</span>
+                                            <span><?= lang('Finance.methodRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <select name="payment_method" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl appearance-none">
-                                                <option value="cash">Cash</option>
-                                                <option value="card">Card</option>
-                                                <option value="bank_transfer">Transfer</option>
-                                                <option value="check">Check</option>
-                                                <option value="other">Other</option>
+                                                <option value="cash"><?= lang('Finance.cash') ?></option>
+                                                <option value="card"><?= lang('Finance.card') ?></option>
+                                                <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
+                                                <option value="check"><?= lang('Finance.check') ?></option>
+                                                <option value="other"><?= lang('Finance.other') ?></option>
                                             </select>
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
@@ -499,7 +534,7 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-calendar-alt text-amber-600"></i>
-                                            <span>Date *</span>
+                                            <span><?= lang('Finance.dateRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
@@ -510,16 +545,16 @@
                                 <div class="group/field relative">
                                     <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                         <i class="fas fa-sticky-note text-rose-600"></i>
-                                        <span>Reason</span>
+                                        <span><?= lang('Finance.reason') ?></span>
                                     </label>
                                     <div class="relative">
                                         <textarea name="notes" rows="2" 
                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl resize-none" 
-                                                  placeholder="Justification..."></textarea>
+                                                  placeholder="<?= esc(lang('Finance.refundReasonPlaceholder')) ?>"></textarea>
                                     </div>
                                 </div>
                                 <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-rose-500/25 hover:shadow-rose-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                                    <i class="fas fa-reply-all mr-2"></i> Process Reversal
+                                    <i class="fas fa-reply-all mr-2"></i><?= lang('Finance.processReversal') ?>
                                 </button>
                             </form>
                         </div>
@@ -532,7 +567,7 @@
                 <!-- Additional Notes -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-sticky-note mr-3 text-yellow-600"></i> Administrative Notes
+                        <i class="fas fa-sticky-note mr-3 text-yellow-600"></i><?= lang('Finance.administrativeNotes') ?>
                     </h2>
                     <div class="text-gray-700 leading-relaxed bg-yellow-50 p-4 rounded-xl border border-yellow-100">
                         <?= nl2br(htmlspecialchars($finance['notes'])) ?>
@@ -548,27 +583,27 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-bolt text-orange-600 mr-2"></i>
-                        Quick Actions
+                        <?= lang('Finance.quickActions') ?>
                     </h2>
                     <div class="space-y-3">
                         <?php if ($finance['payment_status'] != 'paid'): ?>
                             <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-green-500">
-                                <i class="fas fa-check-circle mr-2 text-white"></i> Mark as Paid
+                                <i class="fas fa-check-circle mr-2 text-white"></i><?= lang('Finance.markAsPaid') ?>
                             </button>
                         <?php endif; ?>
                         <?php if (($finance['transaction_type'] ?? '') === 'invoice' && floatval($finance['balance_due'] ?? 0) > 0): ?>
                             <button onclick="closeBalance(<?= (int) $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-xl hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-amber-500">
-                                <i class="fas fa-scale-balanced mr-2 text-white"></i> Close Balance (Credit)
+                                <i class="fas fa-scale-balanced mr-2 text-white"></i><?= lang('Finance.closeBalanceCredit') ?>
                             </button>
                         <?php endif; ?>
                         
                         <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-blue-500">
-                            <i class="fas fa-file-invoice mr-2 text-white"></i> Export Invoice
+                            <i class="fas fa-file-invoice mr-2 text-white"></i><?= lang('Finance.exportInvoice') ?>
                         </a>
 
                         <?php if (has_permission('finance', 'delete')): ?>
                         <button onclick="deleteFinance(<?= $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-red-500">
-                            <i class="fas fa-trash-alt mr-2 text-white"></i> Delete Ledger
+                            <i class="fas fa-trash-alt mr-2 text-white"></i><?= lang('Finance.deleteLedger') ?>
                         </button>
                         <?php endif; ?>
                     </div>
@@ -579,7 +614,7 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-user text-purple-600 mr-2"></i>
-                        Patient Information
+                        <?= lang('Finance.patientInformation') ?>
                     </h2>
                     <div class="flex flex-col items-center text-center mb-6">
                         <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-xl group-hover:scale-110 transition-transform mb-4">
@@ -589,11 +624,11 @@
                             <div class="text-lg font-bold text-gray-800">
                                 <?= $patient['first_name'] . ' ' . $patient['last_name'] ?>
                             </div>
-                            <div class="text-sm text-gray-500">ID: <?= $patient['patient_id'] ?></div>
+                            <div class="text-sm text-gray-500"><?= lang('Finance.idLabel') ?>: <?= $patient['patient_id'] ?></div>
                         </div>
                     </div>
                     <a href="<?= base_url('patient/' . $patient['id']) ?>" class="block w-full text-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-bold rounded-xl transition-all duration-300">
-                        View Profile
+                        <?= lang('Finance.viewProfile') ?>
                     </a>
                 </div>
                 <?php endif; ?>
@@ -602,37 +637,37 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 text-sm group hover:shadow-2xl transition-all duration-500">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-info-circle text-gray-600 mr-2"></i>
-                        Metadata
+                        <?= lang('Finance.metadata') ?>
                     </h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Standard Method</label>
-                            <p class="text-gray-800 font-semibold"><?= ucfirst($finance['payment_method']) ?></p>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.standardMethod') ?></label>
+                            <p class="text-gray-800 font-semibold"><?= lang('Finance.' . $finance['payment_method']) ?></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Currency</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.currency') ?></label>
                             <p class="text-gray-800 font-semibold">
                                 <?= esc($baseCurrency) ?>
                                 <?php if ($isConverted): ?>
-                                    <span class="text-xs text-gray-500">from <?= esc($finance['currency']) ?></span>
+                                    <span class="text-xs text-gray-500"><?= lang('Finance.fromCurrency') ?> <?= esc($finance['currency']) ?></span>
                                 <?php endif; ?>
                             </p>
                         </div>
                         <?php if ($isConverted): ?>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Exchange Rate</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.exchangeRate') ?></label>
                             <p class="text-gray-800 font-semibold"><?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($check_attachment)): ?>
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-600">Check Scan</label>
+                            <label class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></label>
                             <div class="flex flex-wrap items-center gap-3">
                                 <a class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-download mr-2"></i>Download
+                                    <i class="fas fa-download mr-2"></i><?= lang('Finance.download') ?>
                                 </a>
                                 <a class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-eye mr-2"></i>View
+                                    <i class="fas fa-eye mr-2"></i><?= lang('Finance.view') ?>
                                 </a>
                             </div>
                             <?php
@@ -640,27 +675,27 @@
                             ?>
                             <?php if ($isImage): ?>
                                 <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
-                                    <img src="<?= base_url('file/download/' . $check_attachment['id']) ?>" alt="Check Scan Preview" class="max-h-56 w-auto rounded-lg">
+                                    <img src="<?= base_url('file/download/' . $check_attachment['id']) ?>" alt="<?= esc(lang('Finance.checkScanPreview')) ?>" class="max-h-56 w-auto rounded-lg">
                                 </div>
                             <?php else: ?>
-                                <p class="text-xs text-gray-500">Preview available for images only. Use View to open the file.</p>
+                                <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Due Date</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.dueDate') ?></label>
                             <p class="text-rose-600 font-bold"><?= formatDate($finance['due_date']) ?></p>
                         </div>
                         <?php endif; ?>
                          <?php if (!empty($finance['paid_date'])): ?>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Settlement Date</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.settlementDate') ?></label>
                             <p class="text-emerald-600 font-bold"><?= formatDate($finance['paid_date']) ?></p>
                         </div>
                         <?php endif; ?>
                         <div class="pt-4 border-t border-gray-100">
-                            <p class="text-[10px] text-gray-400">Last Updated: <?= formatDateTime($finance['updated_at']) ?></p>
+                            <p class="text-[10px] text-gray-400"><?= lang('Finance.lastUpdated') ?>: <?= formatDateTime($finance['updated_at']) ?></p>
                         </div>
                     </div>
                 </div>
@@ -670,7 +705,7 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-stethoscope text-emerald-600 mr-2"></i>
-                        Clinical Link
+                        <?= lang('Finance.clinicalLink') ?>
                     </h2>
                     <div class="flex items-center space-x-4 mb-4">
                         <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shadow-inner group-hover:bg-emerald-100 transition-colors">
@@ -681,12 +716,12 @@
                                 <?= formatDate($examination['examination_date']) ?>
                             </div>
                             <div class="text-xs text-gray-500">
-                                Status: <?= ucfirst($examination['status']) ?>
+                                <?= lang('Finance.status') ?>: <?= ucfirst($examination['status']) ?>
                             </div>
                         </div>
                     </div>
                     <a href="<?= base_url('examination/' . $examination['id']) ?>" class="block w-full text-center px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-sm font-bold rounded-xl transition-all duration-300">
-                        View Clinical Record
+                        <?= lang('Finance.viewClinicalRecord') ?>
                     </a>
                 </div>
                 <?php endif; ?>
@@ -801,7 +836,7 @@ if (invoicePaymentForm) {
         const btn = this.querySelector('button[type="submit"]');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = 'Processing...';
+        btn.textContent = '<?= esc(lang('Finance.processing')) ?>';
 
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -822,14 +857,14 @@ if (invoicePaymentForm) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while adding the payment.');
+            alert('<?= esc(lang('Finance.errorAddingPayment')) ?>');
             btn.disabled = false;
             btn.textContent = originalText;
         });
@@ -844,7 +879,7 @@ if (invoiceRefundForm) {
         const btn = this.querySelector('button[type="submit"]');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = 'Processing...';
+        btn.textContent = '<?= esc(lang('Finance.processing')) ?>';
 
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
@@ -865,14 +900,14 @@ if (invoiceRefundForm) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while recording the refund.');
+            alert('<?= esc(lang('Finance.errorRecordingRefund')) ?>');
             btn.disabled = false;
             btn.textContent = originalText;
         });
@@ -880,10 +915,10 @@ if (invoiceRefundForm) {
 }
 
 function voidPayment(paymentId) {
-    if (!confirm('Void this payment? This will reverse the payment in the ledger.')) {
+    if (!confirm('<?= esc(lang('Finance.confirmVoidPayment')) ?>')) {
         return;
     }
-    const reason = prompt('Reason for voiding this payment (optional):') || '';
+    const reason = prompt('<?= esc(lang('Finance.voidReasonPrompt')) ?>') || '';
     const formData = new FormData();
     formData.append('notes', reason);
 
@@ -906,12 +941,12 @@ function voidPayment(paymentId) {
         if (data.success) {
             location.reload();
         } else {
-            alert('Error: ' + data.message);
+            alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while voiding the payment.');
+        alert('<?= esc(lang('Finance.errorVoidingPayment')) ?>');
     });
 }
 
@@ -939,12 +974,12 @@ if (providerPayoutPaymentForm) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error: ' + data.message);
+                alert('<?= esc(lang('Finance.errorPrefix')) ?>: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while recording provider payout.');
+            alert('<?= esc(lang('Finance.errorRecordingProviderPayout')) ?>');
         });
     });
 }

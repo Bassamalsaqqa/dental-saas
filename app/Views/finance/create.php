@@ -127,7 +127,7 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-file-medical text-indigo-600"></i>
-                                <span>Examination</span>
+                                <span><?= lang('Finance.examination') ?></span>
                             </label>
                             <div class="relative">
                                 <select name="examination_id" id="examinationSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl"
@@ -308,7 +308,7 @@
                                 <span><?= lang('Finance.serviceDetails') ?></span>
                             </label>
                             <div class="relative">
-                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="Details about the service provided..."><?= old('service_details') ?></textarea>
+                                <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
                                 <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -356,12 +356,12 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-receipt text-emerald-600"></i>
-                                <span>Total (<?= esc($base_currency ?? 'ILS') ?>)</span>
+                                <span><?= lang('Finance.total') ?> (<?= esc($base_currency ?? 'ILS') ?>)</span>
                             </label>
                             <div class="relative">
                                 <input type="text" id="totalAmountLive" readonly class="w-full px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-lg text-emerald-700 font-bold" value="0.00">
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">Total = <?= lang('Finance.convertedAmount') ?> - Discount + Tax</p>
+                            <p class="text-xs text-gray-500 mt-2"><?= lang('Finance.totalFormulaHelp') ?></p>
                         </div>
 
                         <!-- <?= lang('Finance.providerSplit') ?> -->
@@ -404,7 +404,7 @@
                                         </select>
                                     </div>
                                     <div id="providerGuestWrap">
-                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProvider') ?> Name</label>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
                                         <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc(old('provider_name_snapshot')) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
                                     </div>
                                 </div>
