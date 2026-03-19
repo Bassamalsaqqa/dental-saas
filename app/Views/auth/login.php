@@ -7,10 +7,15 @@
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="description" content="Professional dental management system login - Secure access to your practice.">
+    <meta name="description" content="<?= esc(lang('Auth.login_meta_description')) ?>">
     <meta name="theme-color" content="#0284c7">
 </head>
 <body class="h-screen relative flex flex-col overflow-hidden text-slate-900 antialiased font-sans">
+    <?php
+        $clinicName = (string) ($clinic['name'] ?? 'Denta+');
+        $welcomeHeading = strtr(lang('Auth.login_welcome'), ['{clinic}' => $clinicName]);
+    ?>
+    <a href="#login-main" class="skip-link"><?= esc(lang('Auth.login_submit_btn')) ?> / <?= esc(lang('Auth.login_heading')) ?></a>
     
     <!-- Professional Background -->
     <div class="fixed inset-0 z-0">
@@ -21,7 +26,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
+    <main id="login-main" class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
         <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
                 <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
@@ -37,17 +42,17 @@
                             <div class="w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-8">
                                 <i class="fas fa-tooth text-white text-3xl"></i>
                             </div>
-                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg">Welcome back to <?= esc($clinic['name']) ?></h2>
-                            <p class="text-sm font-medium text-white/60 leading-relaxed mb-6">Manage your clinic with precision and care.</p>
+                            <h2 class="text-3xl font-black text-white leading-tight mb-4 drop-shadow-lg"><?= esc($welcomeHeading) ?></h2>
+                            <p class="text-sm font-medium text-white/70 leading-relaxed mb-6"><?= esc(lang('Auth.login_tagline')) ?></p>
                             
                             <div class="space-y-4">
                                 <div class="flex items-center space-x-3 text-white/70">
                                     <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center shadow-sm"><i class="fas fa-check text-[10px] text-blue-400"></i></div>
-                                    <span class="text-xs font-bold uppercase tracking-widest">Real-time Scheduling</span>
+                                    <span class="text-xs font-bold tracking-wider"><?= esc(lang('Auth.login_feature_scheduling')) ?></span>
                                 </div>
                                 <div class="flex items-center space-x-3 text-white/70">
                                     <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-sm"><i class="fas fa-check text-[10px] text-emerald-400"></i></div>
-                                    <span class="text-xs font-bold uppercase tracking-widest">Digital Records</span>
+                                    <span class="text-xs font-bold tracking-wider"><?= esc(lang('Auth.login_feature_records')) ?></span>
                                 </div>
                             </div>
                         </div>
@@ -55,7 +60,7 @@
                         <div class="relative z-10 pt-10">
                             <div class="flex items-center space-x-2">
                                 <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">System Secure & Active</span>
+                                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]"><?= esc(lang('Auth.login_system_secure')) ?></span>
                             </div>
                         </div>
                     </div>
@@ -66,12 +71,12 @@
                              <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
                                 <i class="fas fa-tooth text-white text-2xl"></i>
                             </div>
-                            <h1 class="text-2xl font-black text-white tracking-tight"><?= esc($clinic['name']) ?></h1>
+                            <h1 class="text-2xl font-black text-white tracking-tight"><?= esc($clinicName) ?></h1>
                         </div>
 
                         <div class="mb-8">
-                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md">Sign In</h3>
-                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest">Enter credentials below</p>
+                            <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md"><?= esc(lang('Auth.login_heading')) ?></h3>
+                            <p class="text-sm font-medium text-white/65"><?= esc(lang('Auth.login_enter_credentials')) ?></p>
                         </div>
 
                         <?php if (session()->getFlashdata('success') || session()->getFlashdata('message')): ?>
@@ -84,22 +89,25 @@
                         <?= form_open('auth/login', ['class' => 'space-y-6 relative z-20', 'novalidate' => true]) ?>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-2">
-                                    <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2">Identity</label>
+                                    <label for="identity" class="block text-sm font-semibold text-white/85"><?= esc(lang('Auth.login_identity_label')) ?></label>
                                     <div class="relative group/input">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-user text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => 'Email']) ?>
+                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/35 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_identity_placeholder'), 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false']) ?>
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label for="password" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2">Security</label>
+                                    <label for="password" class="block text-sm font-semibold text-white/85"><?= esc(lang('Auth.login_password_label')) ?></label>
                                     <div class="relative group/input">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-lock text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => 'Password']) ?>
+                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-20 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/35 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_password_placeholder'), 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off']) ?>
+                                        <button type="button" class="absolute inset-y-0 right-0 px-4 text-[11px] font-bold text-white/60 hover:text-white transition-colors" data-password-toggle aria-label="<?= esc(lang('Auth.login_show_password')) ?>" aria-pressed="false">
+                                            <?= esc(lang('Auth.login_show_password')) ?>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -111,16 +119,16 @@
                                         <div class="w-5 h-5 bg-white/10 border-2 border-white/20 rounded-lg peer-checked:border-blue-500 transition-all duration-300 flex items-center justify-center peer-checked:[&_i]:scale-100">
                                             <i class="fas fa-check text-blue-500 text-[12px] font-black transform scale-0 transition-transform duration-300"></i>
                                         </div>
-                                        <span class="ml-3 text-[11px] font-bold text-white/70 group-hover:text-white transition-colors">Remember</span>
+                                        <span class="ml-3 text-[11px] font-bold text-white/70 group-hover:text-white transition-colors"><?= esc(lang('Auth.login_remember_label')) ?></span>
                                     </div>
                                 </label>
-                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest">
-                                    Forgot?
+                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                                    <?= esc(lang('Auth.login_forgot_short')) ?>
                                 </a>
                             </div>
 
                             <button type="submit" class="w-full py-4 backdrop-blur-md bg-blue-500/30 border border-blue-400/30 text-white font-black rounded-2xl shadow-xl hover:bg-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3 group/btn">
-                                <span class="text-sm uppercase tracking-widest drop-shadow-sm">Authorize Session</span>
+                                <span class="text-sm tracking-wide drop-shadow-sm"><?= esc(lang('Auth.login_submit_cta')) ?></span>
                                 <i class="fas fa-chevron-right text-[10px] transform group-hover/btn:translate-x-1 transition-transform"></i>
                             </button>
                         <?= form_close() ?>
@@ -146,7 +154,7 @@
                         </div>
                     </div>
                     <div class="flex items-center bg-black/20 rounded-2xl p-1.5 px-3 border border-white/10">
-                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1">Live Concierge</span>
+                        <span class="hidden lg:inline-block text-[10px] font-black text-white/40 uppercase tracking-widest mr-4 ml-1"><?= esc(lang('Auth.login_live_concierge')) ?></span>
                         <div class="flex items-center space-x-2">
                             <a href="https://wa.me/970599350450" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
                             <a href="https://wa.me/972569885000" target="_blank" class="w-9 h-9 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all duration-300"><i class="fab fa-whatsapp"></i></a>
@@ -185,6 +193,23 @@
         }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .skip-link {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+            transform: translateY(-150%);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.92);
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 700;
+            transition: transform 0.2s ease;
+        }
+        .skip-link:focus {
+            transform: translateY(0);
+        }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-card-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-footer-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
@@ -203,6 +228,22 @@
         [dir="rtl"] i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
         [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
         [dir="rtl"] .text-left { text-align: right !important; }
+        [dir="rtl"] .skip-link { left: auto; right: 1rem; }
     </style>
+    <script>
+        document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('input[type=\"password\"], input[type=\"text\"]');
+                if (!input) {
+                    return;
+                }
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                this.textContent = isPassword ? '<?= esc(lang('Auth.login_hide_password')) ?>' : '<?= esc(lang('Auth.login_show_password')) ?>';
+                this.setAttribute('aria-label', isPassword ? '<?= esc(lang('Auth.login_hide_password')) ?>' : '<?= esc(lang('Auth.login_show_password')) ?>');
+                this.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+            });
+        });
+    </script>
 </body>
 </html>

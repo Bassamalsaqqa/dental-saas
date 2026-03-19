@@ -19,16 +19,30 @@
 
 return [
 	// Errors
-	'error_security' => 'This form post did not pass our security checks.',
+	'error_security' => 'فشل هذا الطلب في اجتياز فحوصات الأمان.',
 
 	// Login
-	'login_heading'         => 'Login',
-	'login_subheading'      => 'Please login with your email/username and password below.',
-	'login_identity_label'  => 'Email/Username:',
-	'login_password_label'  => 'Password:',
-	'login_remember_label'  => 'Remember Me:',
-	'login_submit_btn'      => 'Login',
-	'login_forgot_password' => 'Forgot your password?',
+	'login_heading'         => 'تسجيل الدخول',
+	'login_subheading'      => 'أدخل اسم المستخدم أو البريد الإلكتروني وكلمة المرور للوصول إلى مساحة عمل العيادة.',
+	'login_identity_label'  => 'اسم المستخدم أو البريد الإلكتروني',
+	'login_password_label'  => 'كلمة المرور',
+	'login_remember_label'  => 'إبقائي مسجلاً للدخول',
+	'login_submit_btn'      => 'تسجيل الدخول',
+	'login_forgot_password' => 'هل نسيت كلمة المرور؟',
+	'login_meta_description' => 'تسجيل دخول آمن إلى منصة Denta+ لإدارة العيادات.',
+	'login_welcome' => 'مرحباً بعودتك إلى {clinic}',
+	'login_tagline' => 'أدر عيادتك بوضوح وسرعة وتحكم.',
+	'login_feature_scheduling' => 'جدولة فورية',
+	'login_feature_records' => 'سجلات رقمية',
+	'login_system_secure' => 'النظام آمن ونشط',
+	'login_enter_credentials' => 'أدخل بيانات الدخول أدناه',
+	'login_identity_placeholder' => 'اسم المستخدم أو البريد الإلكتروني',
+	'login_password_placeholder' => 'كلمة المرور',
+	'login_forgot_short' => 'نسيت كلمة المرور؟',
+	'login_submit_cta' => 'دخول إلى النظام',
+	'login_live_concierge' => 'التواصل المباشر',
+	'login_show_password' => 'إظهار',
+	'login_hide_password' => 'إخفاء',
 
 	// Index
 	'index_heading'           => 'Users',
