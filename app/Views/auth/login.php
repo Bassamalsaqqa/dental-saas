@@ -14,8 +14,9 @@
     <?php
         $clinicName = (string) ($clinic['name'] ?? 'Denta+');
         $welcomeHeading = strtr(lang('Auth.login_welcome'), ['{clinic}' => $clinicName]);
+        $returnTo = current_url() . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+        $activeLocale = strtolower((string) ($locale ?? service('request')->getLocale() ?? 'en'));
     ?>
-    <a href="#login-main" class="skip-link"><?= esc(lang('Auth.login_submit_btn')) ?> / <?= esc(lang('Auth.login_heading')) ?></a>
     
     <!-- Professional Background -->
     <div class="fixed inset-0 z-0">
@@ -26,7 +27,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <main id="login-main" class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
+    <main class="relative z-10 flex-grow flex items-center justify-center px-4 py-4 md:py-8">
         <div class="w-full max-w-4xl max-h-full animate-card-entry">
             <div class="group relative">
                 <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
@@ -67,6 +68,23 @@
 
                     <!-- Right Side -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+                        <div class="absolute top-5 <?= !empty($is_rtl) ? 'left-5' : 'right-5' ?>">
+                            <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
+                                <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnTo)) ?>"
+                                   lang="en"
+                                   hreflang="en"
+                                   class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
+                                    EN
+                                </a>
+                                <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnTo)) ?>"
+                                   lang="ar"
+                                   hreflang="ar"
+                                   class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
+                                    AR
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="md:hidden flex flex-col items-center mb-8">
                              <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
                                 <i class="fas fa-tooth text-white text-2xl"></i>
@@ -89,25 +107,22 @@
                         <?= form_open('auth/login', ['class' => 'space-y-6 relative z-20', 'novalidate' => true]) ?>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-2">
-                                    <label for="identity" class="block text-sm font-semibold text-white/85"><?= esc(lang('Auth.login_identity_label')) ?></label>
+                                    <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2"><?= esc(lang('Auth.login_identity_label')) ?></label>
                                     <div class="relative group/input">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-user text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/35 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_identity_placeholder'), 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false']) ?>
+                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_identity_placeholder'), 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false']) ?>
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label for="password" class="block text-sm font-semibold text-white/85"><?= esc(lang('Auth.login_password_label')) ?></label>
+                                    <label for="password" class="text-[10px] font-black text-white/60 uppercase tracking-widest ml-2"><?= esc(lang('Auth.login_password_label')) ?></label>
                                     <div class="relative group/input">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-lock text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-20 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/35 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_password_placeholder'), 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off']) ?>
-                                        <button type="button" class="absolute inset-y-0 right-0 px-4 text-[11px] font-bold text-white/60 hover:text-white transition-colors" data-password-toggle aria-label="<?= esc(lang('Auth.login_show_password')) ?>" aria-pressed="false">
-                                            <?= esc(lang('Auth.login_show_password')) ?>
-                                        </button>
+                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_password_placeholder'), 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off']) ?>
                                     </div>
                                 </div>
                             </div>
@@ -122,13 +137,13 @@
                                         <span class="ml-3 text-[11px] font-bold text-white/70 group-hover:text-white transition-colors"><?= esc(lang('Auth.login_remember_label')) ?></span>
                                     </div>
                                 </label>
-                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                                <a href="<?= base_url('auth/forgot-password') ?>" class="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest">
                                     <?= esc(lang('Auth.login_forgot_short')) ?>
                                 </a>
                             </div>
 
                             <button type="submit" class="w-full py-4 backdrop-blur-md bg-blue-500/30 border border-blue-400/30 text-white font-black rounded-2xl shadow-xl hover:bg-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center space-x-3 group/btn">
-                                <span class="text-sm tracking-wide drop-shadow-sm"><?= esc(lang('Auth.login_submit_cta')) ?></span>
+                                <span class="text-sm uppercase tracking-widest drop-shadow-sm"><?= esc(lang('Auth.login_submit_cta')) ?></span>
                                 <i class="fas fa-chevron-right text-[10px] transform group-hover/btn:translate-x-1 transition-transform"></i>
                             </button>
                         <?= form_close() ?>
@@ -193,23 +208,6 @@
         }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-        .skip-link {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            z-index: 50;
-            transform: translateY(-150%);
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            background: rgba(15, 23, 42, 0.92);
-            color: #fff;
-            font-size: 0.875rem;
-            font-weight: 700;
-            transition: transform 0.2s ease;
-        }
-        .skip-link:focus {
-            transform: translateY(0);
-        }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-card-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-footer-entry { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
@@ -228,22 +226,6 @@
         [dir="rtl"] i.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
         [dir="rtl"] i.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
         [dir="rtl"] .text-left { text-align: right !important; }
-        [dir="rtl"] .skip-link { left: auto; right: 1rem; }
     </style>
-    <script>
-        document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const input = this.parentElement.querySelector('input[type=\"password\"], input[type=\"text\"]');
-                if (!input) {
-                    return;
-                }
-                const isPassword = input.getAttribute('type') === 'password';
-                input.setAttribute('type', isPassword ? 'text' : 'password');
-                this.textContent = isPassword ? '<?= esc(lang('Auth.login_hide_password')) ?>' : '<?= esc(lang('Auth.login_show_password')) ?>';
-                this.setAttribute('aria-label', isPassword ? '<?= esc(lang('Auth.login_hide_password')) ?>' : '<?= esc(lang('Auth.login_show_password')) ?>');
-                this.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
-            });
-        });
-    </script>
 </body>
 </html>
