@@ -214,6 +214,23 @@ class Auth extends BaseController
 		}
 	}
 
+	public function switchLanguage(?string $requestedLocale = null)
+	{
+		$locale = strtolower(trim((string) ($requestedLocale ?? $this->request->getGet('ui_language') ?? $this->request->getPost('ui_language'))));
+		if (!in_array($locale, ['en', 'ar'], true)) {
+			return redirect()->back()->with('message', lang('Auth.error_security'));
+		}
+
+		$this->session->set('ui_locale', $locale);
+
+		$returnTo = trim((string) ($this->request->getGet('return_to') ?? $this->request->getPost('return_to')));
+		if ($returnTo !== '') {
+			return redirect()->to($returnTo);
+		}
+
+		return redirect()->back();
+	}
+
 	/**
 	 * Log the user out
 	 *

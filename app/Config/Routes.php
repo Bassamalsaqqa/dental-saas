@@ -109,6 +109,7 @@ $routes->group('auth', function ($routes) {
     $routes->get('/', 'Auth::index');
     $routes->get('login', 'Auth::login');
     $routes->post('login', 'Auth::login');
+    $routes->get('language/(:segment)', 'Auth::switchLanguage/$1');
     $routes->get('logout', 'Auth::logout');
     $routes->post('logout', 'Auth::logout');
     $routes->get('forgot-password', 'Auth::forgot_password');

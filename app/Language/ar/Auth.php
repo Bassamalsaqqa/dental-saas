@@ -39,7 +39,7 @@ return [
 	'login_identity_placeholder' => 'اسم المستخدم أو البريد الإلكتروني',
 	'login_password_placeholder' => 'كلمة المرور',
 	'login_forgot_short' => 'نسيت كلمة المرور؟',
-	'login_submit_cta' => 'دخول إلى النظام',
+	'login_submit_cta' => 'تسجيل الدخول',
 	'login_live_concierge' => 'التواصل المباشر',
 	'login_show_password' => 'إظهار',
 	'login_hide_password' => 'إخفاء',

@@ -70,13 +70,13 @@
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
                         <div class="absolute top-5 <?= !empty($is_rtl) ? 'left-5' : 'right-5' ?>">
                             <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
-                                <a href="<?= base_url('language/switch/en?return_to=' . urlencode($returnTo)) ?>"
+                                <a href="<?= base_url('auth/language/en?return_to=' . urlencode($returnTo)) ?>"
                                    lang="en"
                                    hreflang="en"
                                    class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
                                     EN
                                 </a>
-                                <a href="<?= base_url('language/switch/ar?return_to=' . urlencode($returnTo)) ?>"
+                                <a href="<?= base_url('auth/language/ar?return_to=' . urlencode($returnTo)) ?>"
                                    lang="ar"
                                    hreflang="ar"
                                    class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
@@ -94,7 +94,7 @@
 
                         <div class="mb-8">
                             <h3 class="text-2xl font-black text-white mb-2 drop-shadow-md"><?= esc(lang('Auth.login_heading')) ?></h3>
-                            <p class="text-sm font-medium text-white/65"><?= esc(lang('Auth.login_enter_credentials')) ?></p>
+                            <p class="text-sm font-bold text-white/50 uppercase tracking-widest"><?= esc(lang('Auth.login_enter_credentials')) ?></p>
                         </div>
 
                         <?php if (session()->getFlashdata('success') || session()->getFlashdata('message')): ?>
