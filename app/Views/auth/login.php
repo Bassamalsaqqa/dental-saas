@@ -108,20 +108,20 @@
                                 <div class="space-y-2">
                                     <label for="identity" class="text-[10px] font-black text-white/60 uppercase tracking-widest <?= !empty($is_rtl) ? 'mr-2 text-right' : 'ml-2' ?>"><?= esc(lang('Auth.login_identity_label')) ?></label>
                                     <div class="relative group/input">
-                                        <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-user text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($identity + ['class' => 'w-full ' . (!empty($is_rtl) ? 'pr-11 pl-4 text-right' : 'pl-11 pr-4') . ' py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_identity_placeholder'), 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false']) ?>
+                                        <?= form_input($identity + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium text-left', 'placeholder' => '', 'autocomplete' => 'username', 'autocapitalize' => 'off', 'spellcheck' => 'false', 'dir' => 'ltr', 'inputmode' => 'email']) ?>
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
                                     <label for="password" class="text-[10px] font-black text-white/60 uppercase tracking-widest <?= !empty($is_rtl) ? 'mr-2 text-right' : 'ml-2' ?>"><?= esc(lang('Auth.login_password_label')) ?></label>
                                     <div class="relative group/input">
-                                        <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <i class="fas fa-lock text-white/40 group-focus-within/input:text-blue-400 transition-colors"></i>
                                         </div>
-                                        <?= form_input($password + ['class' => 'w-full ' . (!empty($is_rtl) ? 'pr-11 pl-4 text-right' : 'pl-11 pr-4') . ' py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium', 'placeholder' => lang('Auth.login_password_placeholder'), 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off']) ?>
+                                        <?= form_input($password + ['class' => 'w-full pl-11 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium text-left', 'placeholder' => '', 'autocomplete' => 'current-password', 'spellcheck' => 'false', 'autocapitalize' => 'off', 'autocorrect' => 'off', 'dir' => 'ltr']) ?>
                                     </div>
                                 </div>
                             </div>
