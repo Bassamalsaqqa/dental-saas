@@ -33,22 +33,6 @@
                 <div class="relative glass-card border border-white/20 rounded-[2.5rem] shadow-2xl shadow-black/60 transition-all duration-500 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
                     
                     <div class="absolute inset-0 sandy-texture pointer-events-none z-0"></div>
-                    <div class="absolute top-5 z-20 <?= !empty($is_rtl) ? 'left-5' : 'right-5' ?>">
-                        <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
-                            <a href="<?= base_url('auth/language/en?return_to=' . urlencode($returnTo)) ?>"
-                               lang="en"
-                               hreflang="en"
-                               class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
-                                EN
-                            </a>
-                            <a href="<?= base_url('auth/language/ar?return_to=' . urlencode($returnTo)) ?>"
-                               lang="ar"
-                               hreflang="ar"
-                               class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
-                                AR
-                            </a>
-                        </div>
-                    </div>
 
                     <!-- Left Side -->
                     <div class="relative z-10 hidden md:flex md:w-5/12 bg-white/5 <?= !empty($is_rtl) ? 'border-l' : 'border-r' ?> border-white/10 p-10 flex-col justify-between overflow-hidden">
@@ -84,6 +68,22 @@
 
                     <!-- Right Side -->
                     <div class="relative z-10 w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+                        <div class="absolute top-5 z-20 <?= !empty($is_rtl) ? 'left-5' : 'right-5' ?>">
+                            <div class="inline-flex items-center rounded-2xl border border-white/15 bg-black/20 p-1 backdrop-blur-md shadow-lg">
+                                <a href="<?= base_url('auth/language/en?return_to=' . urlencode($returnTo)) ?>"
+                                   lang="en"
+                                   hreflang="en"
+                                   class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
+                                    EN
+                                </a>
+                                <a href="<?= base_url('auth/language/ar?return_to=' . urlencode($returnTo)) ?>"
+                                   lang="ar"
+                                   hreflang="ar"
+                                   class="inline-flex min-w-[52px] items-center justify-center rounded-xl px-3 py-2 text-xs font-bold transition-all duration-200 <?= $activeLocale === 'ar' ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white' ?>">
+                                    AR
+                                </a>
+                            </div>
+                        </div>
                         <div class="md:hidden flex flex-col items-center mb-8">
                              <div class="w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-4">
                                 <i class="fas fa-tooth text-white text-2xl"></i>
