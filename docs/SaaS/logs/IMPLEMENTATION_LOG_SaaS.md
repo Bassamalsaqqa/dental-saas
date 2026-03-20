@@ -1633,3 +1633,21 @@
     - `php spark routes | findstr /I "controlplane/whatsapp webhooks/whatsapp settings/testWhatsAppChannel whatsapp-identity"` -> expected routes listed
     - `php spark whatsapp:ops-check --hours 24 --json` -> `status: PASS`
 - **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-WORKFLOWS-2026-03-20.md`
+
+### Task: WHATSAPP-PHASE6-05 Tenant Trigger Toggles
+- **Date:** 2026-03-20
+- **Status:** Completed
+- **Description:** Added tenant-level on/off controls for WhatsApp workflow types so each clinic can independently enable or disable appointment reminders, appointment confirmations, examination follow-up, and payment reminders.
+- **Actions:**
+    - Added tenant settings route `POST /settings/updateWhatsAppAutomationSettings`.
+    - Extended tenant WhatsApp settings UI with per-flow toggles backed by `whatsapp_tenant_policies.trigger_toggles_json`.
+    - Updated `WhatsAppWorkflowService` to fail closed on disabled triggers before enqueueing workflow notifications.
+    - Added PHPUnit coverage for persisted tenant trigger toggles in `tests/unit/WhatsAppPhase5EndpointsTest.php`.
+- **Verification:**
+    - `php -l app/Controllers/Settings.php` -> `No syntax errors detected`
+    - `php -l app/Services/WhatsAppWorkflowService.php` -> `No syntax errors detected`
+    - `php -l app/Views/settings/partials/communications/whatsapp.php` -> `No syntax errors detected`
+    - `php -l app/Config/Routes.php` -> `No syntax errors detected`
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (34 tests, 162 assertions)`
+    - `php spark routes | findstr /I "updateWhatsAppAutomationSettings testWhatsAppChannel"` -> route listed
+- **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-WORKFLOWS-2026-03-20.md`

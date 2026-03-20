@@ -21,6 +21,7 @@ class WhatsAppWorkflowService
     protected ClinicModel $clinicModel;
     protected WhatsAppTenantPolicyModel $policyModel;
     protected \CodeIgniter\Database\BaseConnection $db;
+    protected array $policyCache = [];
 
     public function __construct()
     {
@@ -37,6 +38,10 @@ class WhatsAppWorkflowService
 
     public function queueAppointmentConfirmation(int $clinicId, int $appointmentId, ?int $actorUserId = null): array
     {
+        if (!$this->isTriggerEnabled($clinicId, 'appointment_confirmation')) {
+            return $this->skipped('TRIGGER_DISABLED');
+        }
+
         $appointment = $this->appointmentModel->withoutTenantScope()
             ->where('clinic_id', $clinicId)
             ->find($appointmentId);
@@ -74,6 +79,10 @@ class WhatsAppWorkflowService
 
     public function queueFollowUpForCompletedExamination(int $clinicId, int $examinationId, ?int $actorUserId = null): array
     {
+        if (!$this->isTriggerEnabled($clinicId, 'follow_up')) {
+            return $this->skipped('TRIGGER_DISABLED');
+        }
+
         $examination = $this->examinationModel->withoutTenantScope()
             ->where('clinic_id', $clinicId)
             ->find($examinationId);
@@ -109,6 +118,10 @@ class WhatsAppWorkflowService
 
     public function queueInvoicePaymentReminder(int $clinicId, int $financeId, ?int $actorUserId = null, ?string $workflowSuffix = null): array
     {
+        if (!$this->isTriggerEnabled($clinicId, 'payment_reminder')) {
+            return $this->skipped('TRIGGER_DISABLED');
+        }
+
         $finance = $this->financeModel->withoutTenantScope()
             ->where('clinic_id', $clinicId)
             ->find($financeId);
@@ -160,6 +173,10 @@ class WhatsAppWorkflowService
 
         foreach ($clinicIds as $currentClinicId) {
             $summary['clinics']++;
+            if (!$this->isTriggerEnabled($currentClinicId, 'appointment_reminder')) {
+                continue;
+            }
+
             $leadMinutes = $this->resolveReminderLeadMinutes($currentClinicId);
             $windowStart = date('Y-m-d H:i:s');
             $windowEnd = date('Y-m-d H:i:s', time() + ($leadMinutes * 60));
@@ -328,9 +345,51 @@ class WhatsAppWorkflowService
 
     private function resolveReminderLeadMinutes(int $clinicId): int
     {
-        $policy = $this->policyModel->withoutTenantScope()->where('clinic_id', $clinicId)->first();
+        $policy = $this->resolveTenantPolicy($clinicId);
         $leadMinutes = (int) ($policy['reminder_lead_time_minutes'] ?? 1440);
         return max(15, min($leadMinutes, 10080));
+    }
+
+    private function isTriggerEnabled(int $clinicId, string $triggerKey): bool
+    {
+        $defaults = $this->defaultTriggerToggles();
+        if (!array_key_exists($triggerKey, $defaults)) {
+            return true;
+        }
+
+        $policy = $this->resolveTenantPolicy($clinicId);
+        $toggles = $policy['trigger_toggles_json'] ?? [];
+        if (is_string($toggles)) {
+            $toggles = json_decode($toggles, true);
+        }
+
+        if (!is_array($toggles)) {
+            $toggles = [];
+        }
+
+        return (int) ($toggles[$triggerKey] ?? $defaults[$triggerKey]) === 1;
+    }
+
+    private function resolveTenantPolicy(int $clinicId): array
+    {
+        if (!array_key_exists($clinicId, $this->policyCache)) {
+            $this->policyCache[$clinicId] = $this->policyModel
+                ->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->first() ?? [];
+        }
+
+        return $this->policyCache[$clinicId];
+    }
+
+    private function defaultTriggerToggles(): array
+    {
+        return [
+            'appointment_reminder' => 1,
+            'appointment_confirmation' => 1,
+            'follow_up' => 1,
+            'payment_reminder' => 1,
+        ];
     }
 
     private function formatMoney(float $amount): string

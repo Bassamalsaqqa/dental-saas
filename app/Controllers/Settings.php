@@ -9,6 +9,7 @@ use App\Models\PlanAuditModel;
 use App\Models\PlanModel;
 use App\Models\PlanRequestModel;
 use App\Models\SettingsModel;
+use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\SettingsService;
 use App\Services\PlanGuard;
 
@@ -104,6 +105,7 @@ class Settings extends BaseController
         $waConfig = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
         $waConfig = $this->normalizeWhatsAppChannelConfig($waConfig);
         $waFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false);
+        $waPolicy = $this->getWhatsAppPolicySettings($clinicId);
 
         // Support for Superadmin Registry View
         $clinics = [];
@@ -135,6 +137,7 @@ class Settings extends BaseController
             'sms_config' => $smsConfig,
             'wa_config' => $waConfig,
             'wa_feature_enabled' => $waFeatureEnabled,
+            'wa_policy' => $waPolicy,
             'notification_settings' => $this->getNotificationSettings(),
             'is_global' => $isGlobal
         ];
@@ -581,6 +584,51 @@ class Settings extends BaseController
         return $this->response->setJSON(['success' => true, 'message' => 'WhatsApp channel is ready for dispatch and signed webhooks.']);
     }
 
+    public function updateWhatsAppAutomationSettings()
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if ($clinicId <= 0) {
+            return redirect()->back()->with('error', 'Clinic context required.');
+        }
+
+        $policyModel = new WhatsAppTenantPolicyModel();
+        $existing = $policyModel->withoutTenantScope()->where('clinic_id', $clinicId)->first() ?? [];
+        $defaults = $this->getDefaultWhatsAppTriggerToggles();
+        $input = $this->request->getPost('trigger_toggles');
+        $input = is_array($input) ? $input : [];
+
+        $toggles = [];
+        foreach (array_keys($defaults) as $key) {
+            $toggles[$key] = array_key_exists($key, $input) ? 1 : 0;
+        }
+
+        $payload = [
+            'clinic_id' => $clinicId,
+            'daily_limit' => (int) ($existing['daily_limit'] ?? 50),
+            'monthly_limit' => (int) ($existing['monthly_limit'] ?? 1000),
+            'per_patient_daily_limit' => (int) ($existing['per_patient_daily_limit'] ?? 3),
+            'per_hour_limit' => (int) ($existing['per_hour_limit'] ?? 20),
+            'suspended' => (int) ($existing['suspended'] ?? 0),
+            'suspended_reason' => $existing['suspended_reason'] ?? null,
+            'reminder_lead_time_minutes' => (int) ($existing['reminder_lead_time_minutes'] ?? 1440),
+            'trigger_toggles_json' => json_encode($toggles, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        ];
+
+        if (!empty($existing['id'])) {
+            $saved = $policyModel->withoutTenantScope()->update((int) $existing['id'], $payload);
+        } else {
+            $saved = $policyModel->withoutTenantScope()->insert($payload);
+        }
+
+        if (!$saved) {
+            return redirect()->to('/settings?tab=communications&subtab=whatsapp')
+                ->with('error', 'Failed to update WhatsApp automation settings.');
+        }
+
+        return redirect()->to('/settings?tab=communications&subtab=whatsapp')
+            ->with('success', 'WhatsApp automation settings updated.');
+    }
+
     public function updateNotifications()
     {
         $userId = session()->get('user_id');
@@ -765,6 +813,51 @@ class Settings extends BaseController
             return array_merge($defaults, json_decode($membership['preferences'], true));
         }
         return $defaults;
+    }
+
+    private function getDefaultWhatsAppTriggerToggles(): array
+    {
+        return [
+            'appointment_reminder' => 1,
+            'appointment_confirmation' => 1,
+            'follow_up' => 1,
+            'payment_reminder' => 1,
+        ];
+    }
+
+    private function getWhatsAppPolicySettings(int $clinicId): array
+    {
+        $defaults = [
+            'daily_limit' => 50,
+            'monthly_limit' => 1000,
+            'per_patient_daily_limit' => 3,
+            'per_hour_limit' => 20,
+            'suspended' => 0,
+            'suspended_reason' => null,
+            'reminder_lead_time_minutes' => 1440,
+            'trigger_toggles_json' => $this->getDefaultWhatsAppTriggerToggles(),
+        ];
+
+        $policy = (new WhatsAppTenantPolicyModel())
+            ->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->first();
+
+        if (!is_array($policy)) {
+            return $defaults;
+        }
+
+        $triggers = $policy['trigger_toggles_json'] ?? null;
+        if (is_string($triggers)) {
+            $triggers = json_decode($triggers, true);
+        }
+        if (!is_array($triggers)) {
+            $triggers = [];
+        }
+
+        return array_merge($defaults, $policy, [
+            'trigger_toggles_json' => array_merge($this->getDefaultWhatsAppTriggerToggles(), $triggers),
+        ]);
     }
 
     private function getBackups()

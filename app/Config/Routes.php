@@ -611,6 +611,7 @@ $routes->group('settings', ['filter' => ['auth', 'tenant', 'subscription']], fun
     $routes->post('updateChannelConfig', 'Settings::updateChannelConfig', ['filter' => 'permission:settings:edit']);
     $routes->post('getChannelConfig', 'Settings::getChannelConfig', ['filter' => 'permission:settings:edit']);
     $routes->post('testWhatsAppChannel', 'Settings::testWhatsAppChannel', ['filter' => 'permission:settings:edit']);
+    $routes->post('updateWhatsAppAutomationSettings', 'Settings::updateWhatsAppAutomationSettings', ['filter' => 'permission:settings:edit']);
 });
 
 // Quick UI language switch (tenant plane)

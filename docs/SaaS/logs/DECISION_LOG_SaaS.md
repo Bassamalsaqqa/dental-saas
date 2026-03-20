@@ -51,3 +51,8 @@
 - Decision: Appointment confirmations, queued appointment reminders, completed-exam follow-up, and invoice payment reminders enqueue WhatsApp notifications through `NotificationService` with `message_template_key` / `template_vars`; domain workflows do not call the provider directly.
 - Rationale: Preserves fail-closed governance, plan/channel gating, webhook correlation, retry policy, and auditable delivery state through the unified notification ledger.
 - Impact: New product flows use `WhatsAppWorkflowService` plus `whatsapp:queue-product-flows`; future WhatsApp business events should follow the same enqueue-only pattern.
+
+## 2026-03-20 - Tenant WhatsApp Workflow Toggles Live in Tenant Policy
+- Decision: Clinic-level enable/disable switches for WhatsApp workflow types are stored in `whatsapp_tenant_policies.trigger_toggles_json`, not in channel config or per-user notification preferences.
+- Rationale: These switches govern tenant-wide automated patient messaging behavior, so they belong with tenant policy controls rather than personal alert preferences or transport credentials.
+- Impact: Tenant settings can disable appointment, follow-up, or payment WhatsApp flows independently while keeping the WhatsApp channel configured and available.

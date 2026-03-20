@@ -34,6 +34,7 @@
 4. Product workflow wiring
 - Added `app/Services/WhatsAppWorkflowService.php`
 - Added `app/Commands/WhatsAppQueueProductFlows.php` (`whatsapp:queue-product-flows`)
+- Added tenant-level per-flow automation toggles in tenant settings, persisted through `whatsapp_tenant_policies.trigger_toggles_json`
 - Wired product events:
   - appointment confirmation on create/update in `app/Controllers/Appointment.php`
   - follow-up when examination status changes to `completed` in `app/Controllers/Examination.php`
@@ -71,12 +72,12 @@
 - Result: all commands listed
 
 ### Route presence
-- `php spark routes | findstr /I "controlplane/whatsapp webhooks/whatsapp settings/testWhatsAppChannel whatsapp-identity"`
-- Result: expected control-plane, webhook, readiness-test, and patient identity routes listed
+- `php spark routes | findstr /I "controlplane/whatsapp webhooks/whatsapp settings/testWhatsAppChannel settings/updateWhatsAppAutomationSettings whatsapp-identity"`
+- Result: expected control-plane, webhook, readiness-test, tenant automation-settings, and patient identity routes listed
 
 ### Existing WhatsApp test bundle
 - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php`
-- Result: `OK (33 tests, 156 assertions)`
+- Result: `OK (34 tests, 162 assertions)`
 
 ### Phase 6 ops-readiness check
 - `php spark whatsapp:ops-check --hours 24 --json`

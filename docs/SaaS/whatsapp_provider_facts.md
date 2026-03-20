@@ -346,6 +346,7 @@ Verified implementation status at this revision:
   - template-aware settings/runtime fallback support
   - template-first workflow enqueue service + queue command for appointment/payment reminder flows
   - appointment/examination/finance product hooks enqueue template-aware ledger notifications
+  - tenant-level per-flow enable/disable toggles stored in `whatsapp_tenant_policies.trigger_toggles_json`
 
 Historical note:
 - Earlier revisions of this file were written before implementation started.

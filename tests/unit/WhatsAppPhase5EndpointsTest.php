@@ -127,6 +127,48 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
         }
     }
 
+    public function testWhatsAppTenantPolicyPersistsTriggerToggles(): void
+    {
+        $clinicId = $this->findAnyClinicId();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No clinic row found for WhatsApp trigger toggle test.');
+        }
+
+        $policyModel = new WhatsAppTenantPolicyModel();
+        $original = $policyModel->getByClinicForControlPlane((int) $clinicId);
+
+        try {
+            $saved = $policyModel->upsertForControlPlane((int) $clinicId, [
+                'trigger_toggles_json' => json_encode([
+                    'appointment_reminder' => 1,
+                    'appointment_confirmation' => 0,
+                    'follow_up' => 0,
+                    'payment_reminder' => 1,
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ]);
+            $this->assertNotFalse($saved);
+
+            $updated = $policyModel->getByClinicForControlPlane((int) $clinicId);
+            $this->assertIsArray($updated);
+
+            $toggles = $updated['trigger_toggles_json'] ?? [];
+            if (is_string($toggles)) {
+                $toggles = json_decode($toggles, true);
+            }
+
+            $this->assertSame(1, (int) ($toggles['appointment_reminder'] ?? 0));
+            $this->assertSame(0, (int) ($toggles['appointment_confirmation'] ?? 1));
+            $this->assertSame(0, (int) ($toggles['follow_up'] ?? 1));
+            $this->assertSame(1, (int) ($toggles['payment_reminder'] ?? 0));
+        } finally {
+            if (is_array($original)) {
+                $policyModel->upsertForControlPlane((int) $clinicId, $original);
+            } else {
+                $this->db->table('whatsapp_tenant_policies')->where('clinic_id', $clinicId)->delete();
+            }
+        }
+    }
+
     public function testPatientWhatsAppIdentityRejectsInvalidNumber(): void
     {
         $clinicId = $this->findAnyClinicId();
