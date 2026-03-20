@@ -532,14 +532,53 @@ class Settings extends BaseController
         }
 
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
-        $channelModel = new \App\Models\ClinicNotificationChannelModel();
-        $channel = $channelModel->where('clinic_id', $clinicId)->where('channel_type', 'whatsapp')->first();
-
-        if (!$channel || empty($channel['configured_by_clinic'])) {
-            return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is not configured.']);
+        if ($clinicId <= 0) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Tenant context is required.']);
         }
 
-        return $this->response->setJSON(['success' => true, 'message' => 'WhatsApp configuration is structurally valid.']);
+        $channelModel = new \App\Models\ClinicNotificationChannelModel();
+        $channel = $channelModel->where('clinic_id', $clinicId)->where('channel_type', 'whatsapp')->first();
+        $channelConfig = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
+
+        if (!$channel || empty($channel['configured_by_clinic'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is not configured for this clinic.']);
+        }
+
+        if (empty($channel['enabled_by_superadmin'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp is disabled by the platform administrator.']);
+        }
+
+        if (empty($channel['validated'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is saved but not validated yet.']);
+        }
+
+        $phoneNumberId = trim((string) ($channelConfig['phone_number_id'] ?? $channelConfig['wa_phone_number_id'] ?? ''));
+        if ($phoneNumberId === '') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Phone Number ID is missing from the clinic WhatsApp configuration.']);
+        }
+
+        $planGuard = new \App\Services\PlanGuard();
+        if (!$planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Your current plan does not allow WhatsApp notifications.']);
+        }
+
+        $secretModel = new \App\Models\PlatformSecretModel();
+        $missingSecrets = [];
+        foreach (['wa_access_token', 'wa_app_secret', 'wa_verify_token'] as $secretKey) {
+            $value = $secretModel->getSecret($secretKey);
+            if (!is_string($value) || trim($value) === '') {
+                $missingSecrets[] = $secretKey;
+            }
+        }
+
+        if (!empty($missingSecrets)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Platform secret configuration is incomplete: ' . implode(', ', $missingSecrets) . '.',
+            ]);
+        }
+
+        return $this->response->setJSON(['success' => true, 'message' => 'WhatsApp channel is ready for dispatch and signed webhooks.']);
     }
 
     public function updateNotifications()
@@ -650,16 +689,27 @@ class Settings extends BaseController
 
     private function normalizeWhatsAppChannelConfig(array $config): array
     {
+        $decode = static fn(string $value): string => json_decode('"' . $value . '"') ?? '';
         $defaults = [
-            'appointment_reminder' => 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}.',
-            'appointment_confirmation' => 'تم تأكيد موعدكم بتاريخ {{appointment_date}} الساعة {{appointment_time}}.',
-            'follow_up' => 'نأمل أنكم بخير. هذه متابعة من العيادة بخصوص زيارتكم الأخيرة.',
-            'payment_reminder' => 'تذكير من العيادة: يوجد رصيد مستحق بقيمة {{amount}}.',
+            'appointment_reminder' => $decode('\\u062a\\u0630\\u0643\\u064a\\u0631 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629: \\u0644\\u062f\\u064a\\u0643\\u0645 \\u0645\\u0648\\u0639\\u062f \\u0628\\u062a\\u0627\\u0631\\u064a\\u062e {{appointment_date}} \\u0627\\u0644\\u0633\\u0627\\u0639\\u0629 {{appointment_time}}. \\u0644\\u0644\\u0645\\u062a\\u0627\\u0628\\u0639\\u0629 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u0631\\u062f \\u0639\\u0644\\u0649 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0631\\u0633\\u0627\\u0644\\u0629.'),
+            'appointment_confirmation' => $decode('\\u062a\\u0645 \\u062a\\u0623\\u0643\\u064a\\u062f \\u0645\\u0648\\u0639\\u062f\\u0643\\u0645 \\u0628\\u062a\\u0627\\u0631\\u064a\\u062e {{appointment_date}} \\u0627\\u0644\\u0633\\u0627\\u0639\\u0629 {{appointment_time}}. \\u0646\\u062a\\u0637\\u0644\\u0639 \\u0644\\u062e\\u062f\\u0645\\u062a\\u0643\\u0645.'),
+            'follow_up' => $decode('\\u0646\\u0623\\u0645\\u0644 \\u0623\\u0646\\u0643\\u0645 \\u0628\\u062e\\u064a\\u0631. \\u0647\\u0630\\u0647 \\u0645\\u062a\\u0627\\u0628\\u0639\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629 \\u0628\\u062e\\u0635\\u0648\\u0635 \\u0632\\u064a\\u0627\\u0631\\u062a\\u0643\\u0645 \\u0627\\u0644\\u0623\\u062e\\u064a\\u0631\\u0629. \\u0644\\u0623\\u064a \\u0627\\u0633\\u062a\\u0641\\u0633\\u0627\\u0631 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u0631\\u062f \\u0639\\u0644\\u0649 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0631\\u0633\\u0627\\u0644\\u0629.'),
+            'payment_reminder' => $decode('\\u062a\\u0630\\u0643\\u064a\\u0631 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629: \\u064a\\u0648\\u062c\\u062f \\u0631\\u0635\\u064a\\u062f \\u0645\\u0633\\u062a\\u062d\\u0642 \\u0628\\u0642\\u064a\\u0645\\u0629 {{amount}}. \\u0644\\u0644\\u062a\\u0641\\u0627\\u0635\\u064a\\u0644 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u062a\\u0648\\u0627\\u0635\\u0644 \\u0645\\u0639\\u0646\\u0627 \\u0639\\u0628\\u0631 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0645\\u062d\\u0627\\u062f\\u062b\\u0629.'),
         ];
-
-        $templates = $config['message_templates'] ?? $defaults;
+        $templates = is_array($config['message_templates'] ?? null) ? $config['message_templates'] : [];
+        foreach ($defaults as $key => $defaultText) {
+            $value = trim((string) ($templates[$key] ?? ''));
+            $templates[$key] = $value !== '' ? $value : $defaultText;
+        }
+        $fallback = is_array($config['fallback_template'] ?? null) ? $config['fallback_template'] : [];
         return [
-            'phone_number_id' => $config['phone_number_id'] ?? '',
+            'phone_number_id' => trim((string) ($config['phone_number_id'] ?? '')),
+            'api_version' => trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? '')),
+            'fallback_template' => [
+                'name' => trim((string) ($fallback['name'] ?? '')),
+                'language' => trim((string) ($fallback['language'] ?? 'ar')),
+                'components' => is_array($fallback['components'] ?? null) ? $fallback['components'] : [],
+            ],
             'message_templates' => $templates,
         ];
     }
@@ -767,3 +817,4 @@ class Settings extends BaseController
         return $bytes . ' bytes';
     }
 }
+

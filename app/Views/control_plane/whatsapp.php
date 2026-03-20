@@ -242,7 +242,12 @@ function copyToClipboard(text) {
 function showToast(message) {
     const toast = document.createElement('div');
     toast.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white text-[10px] font-black rounded-2xl shadow-2xl z-[100] copy-toast border border-white/10 uppercase tracking-widest';
-    toast.innerHTML = `<i class="fas fa-check-circle text-emerald-400 mr-2"></i> ${message}`;
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle text-emerald-400 mr-2';
+    const label = document.createElement('span');
+    label.textContent = message;
+    toast.appendChild(icon);
+    toast.appendChild(label);
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
 }

@@ -1610,3 +1610,26 @@
     - `php -l app/Controllers/BaseController.php` -> `No syntax errors detected`
     - `php -l app/Controllers/Patient.php` -> `No syntax errors detected`
 - **Verification Doc:** `docs/SaaS/verification/PATIENT-DOB-DATE-UX-2026-03-01.md`
+
+### Task: WHATSAPP-PHASE6-04 Workflow Hardening + UI Debt Removal
+- **Date:** 2026-03-20
+- **Status:** Completed
+- **Description:** Aligned the tenant readiness endpoint with the documented WhatsApp prerequisites, fixed tenant WhatsApp template/settings drift, removed remaining WhatsApp UI debt, and wired template-first product workflows without bypassing the notification ledger.
+- **Actions:**
+    - Hardened `Settings::testWhatsAppChannel()` to verify clinic context, channel registry flags, plan feature gate, tenant `phone_number_id`, and required platform secrets.
+    - Replaced fragile Arabic WhatsApp template defaults with encoding-safe Unicode-decoded defaults in controller and tenant settings surfaces.
+    - Removed `innerHTML` toast rendering from `app/Views/control_plane/whatsapp.php`.
+    - Replaced patient WhatsApp number `prompt()` / `alert()` UX with a modal-based editor and inline error handling in `app/Views/patient/partials/whatsapp_identity.php`.
+    - Added `app/Services/WhatsAppWorkflowService.php` to centralize template-first enqueue flows.
+    - Added `whatsapp:queue-product-flows` command for queued appointment reminders and invoice payment reminders.
+    - Wired template-aware WhatsApp enqueue hooks into:
+      - `Appointment::store()` / `Appointment::update()`
+      - `Examination::update()` on transition to `completed`
+      - `Finance::store()` for invoices with outstanding balance
+- **Verification:**
+    - `php -l` passed for all modified controllers, views, service, and command files.
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (33 tests, 156 assertions)`
+    - `php spark list | findstr /I "whatsapp:queue-product-flows whatsapp:ops-check notifications:dispatch"` -> commands listed
+    - `php spark routes | findstr /I "controlplane/whatsapp webhooks/whatsapp settings/testWhatsAppChannel whatsapp-identity"` -> expected routes listed
+    - `php spark whatsapp:ops-check --hours 24 --json` -> `status: PASS`
+- **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-WORKFLOWS-2026-03-20.md`

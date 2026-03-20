@@ -256,12 +256,29 @@ function setButtonLoading(btn, loading) {
             btn.form.reportValidity();
             return;
         }
-        btn.dataset.originalText = btn.innerHTML;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${settingsI18n.saving}`;
+        const existingIcon = btn.querySelector('i');
+        btn.dataset.originalText = btn.textContent.trim();
+        btn.dataset.originalIconClass = existingIcon ? existingIcon.className : '';
+        btn.replaceChildren();
+
+        const spinner = document.createElement('i');
+        spinner.className = 'fas fa-spinner fa-spin mr-2';
+        btn.appendChild(spinner);
+        btn.appendChild(document.createTextNode(settingsI18n.saving));
         btn.disabled = true;
         btn.classList.add('opacity-75', 'cursor-not-allowed');
     } else {
-        btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+        const originalText = btn.dataset.originalText || btn.textContent.trim();
+        const originalIconClass = btn.dataset.originalIconClass || '';
+
+        btn.replaceChildren();
+        if (originalIconClass) {
+            const icon = document.createElement('i');
+            icon.className = originalIconClass;
+            btn.appendChild(icon);
+            btn.appendChild(document.createTextNode(' '));
+        }
+        btn.appendChild(document.createTextNode(originalText));
         btn.disabled = false;
         btn.classList.remove('opacity-75', 'cursor-not-allowed');
     }
@@ -538,11 +555,20 @@ function saveWhatsAppConfig(event) {
 }
 
 function resetTemplatesToDefault() {
-    const defaults = { appointment_reminder: "ØªØ°ÙƒÙŠØ± Ù…Ù† Ø§Ù„Ø¹ÙŠØ§Ø¯Ø©: Ù„Ø¯ÙŠÙƒÙ… Ù…ÙˆØ¹Ø¯ Ø¨ØªØ§Ø±ÙŠØ® {{appointment_date}} Ø§Ù„Ø³Ø§Ø¹Ø© {{appointment_time}}.", appointment_confirmation: "ØªÙ… ØªØ£ÙƒÙŠØ¯ Ù…ÙˆØ¹Ø¯ÙƒÙ… Ø¨ØªØ§Ø±ÙŠØ® {{appointment_date}} Ø§Ù„Ø³Ø§Ø¹Ø© {{appointment_time}}.", follow_up: "Ù†Ø£Ù…Ù„ Ø£Ù†ÙƒÙ… Ø¨Ø®ÙŠØ±. Ù‡Ø°Ù‡ Ù…ØªØ§Ø¨Ø¹Ø© Ù…Ù† Ø§Ù„Ø¹ÙŠØ§Ø¯Ø© Ø¨Ø®ØµÙˆØµ Ø²ÙŠØ§Ø±ØªÙƒÙ… Ø§Ù„Ø£Ø®ÙŠØ±Ø©.", payment_reminder: "ØªØ°ÙƒÙŠØ± Ù…Ù† Ø§Ù„Ø¹ÙŠØ§Ø¯Ø©: ÙŠÙˆØ¬Ø¯ Ø±ØµÙŠØ¯ Ù…Ø³ØªØ­Ù‚ Ø¨Ù‚ÙŠÙ…Ø© {{amount}}." };
-    Object.entries(defaults).forEach(([k,v]) => { const el = document.getElementById('tmpl_' + k); if(el) el.value = v; });
+    const defaults = <?= json_encode([
+        'appointment_reminder' => json_decode('"\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u0644\u062f\u064a\u0643\u0645 \u0645\u0648\u0639\u062f \u0628\u062a\u0627\u0631\u064a\u062e {{appointment_date}} \u0627\u0644\u0633\u0627\u0639\u0629 {{appointment_time}}. \u0644\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u064a\u0631\u062c\u0649 \u0627\u0644\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629."'),
+        'appointment_confirmation' => json_decode('"\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0645\u0648\u0639\u062f\u0643\u0645 \u0628\u062a\u0627\u0631\u064a\u062e {{appointment_date}} \u0627\u0644\u0633\u0627\u0639\u0629 {{appointment_time}}. \u0646\u062a\u0637\u0644\u0639 \u0644\u062e\u062f\u0645\u062a\u0643\u0645."'),
+        'follow_up' => json_decode('"\u0646\u0623\u0645\u0644 \u0623\u0646\u0643\u0645 \u0628\u062e\u064a\u0631. \u0647\u0630\u0647 \u0645\u062a\u0627\u0628\u0639\u0629 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629 \u0628\u062e\u0635\u0648\u0635 \u0632\u064a\u0627\u0631\u062a\u0643\u0645 \u0627\u0644\u0623\u062e\u064a\u0631\u0629. \u0644\u0623\u064a \u0627\u0633\u062a\u0641\u0633\u0627\u0631 \u064a\u0631\u062c\u0649 \u0627\u0644\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629."'),
+        'payment_reminder' => json_decode('"\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u064a\u0648\u062c\u062f \u0631\u0635\u064a\u062f \u0645\u0633\u062a\u062d\u0642 \u0628\u0642\u064a\u0645\u0629 {{amount}}. \u0644\u0644\u062a\u0641\u0627\u0635\u064a\u0644 \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0647\u0630\u0647 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0629."'),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    Object.entries(defaults).forEach(([k, v]) => {
+        const el = document.getElementById('tmpl_' + k);
+        if (el) {
+            el.value = v;
+        }
+    });
     window.showToast?.('success', settingsI18n.toastUpdated, settingsI18n.toastTemplatesDefaultLoaded);
 }
-
 function copyKioskLink() {
     const input = document.getElementById('kioskLinkInput');
     if (!input || !input.value) {

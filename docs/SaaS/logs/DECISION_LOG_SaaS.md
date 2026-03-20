@@ -46,3 +46,8 @@
   - Current release includes global locale/dir support, tenant UI language setting (`ui_language`), and localized tenant/control-plane shell.
   - Default behavior remains English unless tenant language is explicitly changed.
   - Full in-page/module translation remains an explicit follow-up phase.
+
+## 2026-03-20 - WhatsApp Product Flows Stay Template-First and Ledger-Backed
+- Decision: Appointment confirmations, queued appointment reminders, completed-exam follow-up, and invoice payment reminders enqueue WhatsApp notifications through `NotificationService` with `message_template_key` / `template_vars`; domain workflows do not call the provider directly.
+- Rationale: Preserves fail-closed governance, plan/channel gating, webhook correlation, retry policy, and auditable delivery state through the unified notification ledger.
+- Impact: New product flows use `WhatsAppWorkflowService` plus `whatsapp:queue-product-flows`; future WhatsApp business events should follow the same enqueue-only pattern.

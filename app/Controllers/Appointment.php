@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AppointmentModel;
 use App\Models\PatientModel;
 use App\Services\ActivityLogger;
+use App\Services\WhatsAppWorkflowService;
 
 class Appointment extends BaseController
 {
@@ -12,6 +13,7 @@ class Appointment extends BaseController
     protected $patientModel;
     protected $activityLogger;
     protected $storageService;
+    protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
     public function __construct() 
     {
@@ -19,6 +21,7 @@ class Appointment extends BaseController
         $this->patientModel = new PatientModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
+        $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
 
     public function index()
@@ -283,6 +286,15 @@ class Appointment extends BaseController
                 $appointmentId,
                 "New {$appointmentData['appointment_type']} appointment scheduled for {$patientName} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
+
+            try {
+                $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $appointmentId, $currentUserId);
+            } catch (\Throwable $e) {
+                log_message('warning', 'WhatsApp appointment confirmation enqueue failed for appointment_id={appointment_id}: {message}', [
+                    'appointment_id' => $appointmentId,
+                    'message' => substr($e->getMessage(), 0, 255),
+                ]);
+            }
             
             $returnTo = $this->resolveCreateReturnTo((int) $appointmentData['patient_id'], $this->request->getPost('examination_id'), $this->request->getPost('return_to'));
             if ($returnTo) {
@@ -465,6 +477,16 @@ class Appointment extends BaseController
                 $id,
                 "Appointment updated for {$patientName} - {$appointmentData['appointment_type']} on " . formatDate($appointmentData['appointment_date']) . " at " . formatTime($appointmentData['appointment_time'])
             );
+
+            try {
+                $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+                $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $id, $actorUserId);
+            } catch (\Throwable $e) {
+                log_message('warning', 'WhatsApp appointment confirmation re-enqueue failed for appointment_id={appointment_id}: {message}', [
+                    'appointment_id' => $id,
+                    'message' => substr($e->getMessage(), 0, 255),
+                ]);
+            }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
             if ($returnTo) {

@@ -12,6 +12,7 @@ use App\Models\ProviderPayoutModel;
 use App\Models\ProviderPayoutPaymentModel;
 use App\Models\UserModel;
 use App\Services\ActivityLogger;
+use App\Services\WhatsAppWorkflowService;
 use App\Libraries\ApiRuntimeContext;
 
 class Finance extends BaseController
@@ -28,6 +29,7 @@ class Finance extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $db;
+    protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
     public function __construct()
     {
@@ -43,6 +45,7 @@ class Finance extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
+        $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
 
     private function resolveActorUserId(): int
@@ -640,6 +643,17 @@ class Finance extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Failed to create financial transaction.');
             }
             $this->db->transCommit();
+
+            if ($transactionType === 'invoice' && $balanceDue > 0) {
+                try {
+                    $this->whatsAppWorkflowService->queueInvoicePaymentReminder((int) $clinicId, (int) $financeId, $this->resolveActorUserId(), 'created');
+                } catch (\Throwable $e) {
+                    log_message('warning', 'WhatsApp invoice reminder enqueue failed for finance_id={finance_id}: {message}', [
+                        'finance_id' => $financeId,
+                        'message' => substr($e->getMessage(), 0, 255),
+                    ]);
+                }
+            }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'finance']);
             if ($returnTo !== null && !empty($financeData['patient_id'])) {

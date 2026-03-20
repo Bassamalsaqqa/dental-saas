@@ -348,6 +348,14 @@ Phase 4: webhook ingestion + delivery state + STOP/opt-out + BSUID persistence
 Phase 5: control-plane/tenant UI + observability
 Phase 6: pilot rollout with conservative caps and progressive expansion
 
+Current execution note (2026-03-20):
+- template-first workflow enqueueing is now wired for:
+  - appointment confirmations on create/update
+  - queued due appointment reminders via `whatsapp:queue-product-flows`
+  - follow-up messages when examinations transition to `completed`
+  - invoice payment reminders on invoice creation and queued due-payment reminder sweeps
+- remaining Phase 6 work is now focused on alerting/runbook hardening, rollout operations, and broader workflow coverage beyond the currently wired product events
+
 ## 16) Verification Checklist
 
 Repo validation commands:

@@ -9,6 +9,7 @@ use App\Models\TreatmentModel;
 use App\Models\TreatmentContractModel;
 use App\Services\ActivityLogger;
 use App\Services\PlanGuard;
+use App\Services\WhatsAppWorkflowService;
 
 class Examination extends BaseController
 {
@@ -20,6 +21,7 @@ class Examination extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $db;
+    protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class Examination extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
+        $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
 
     public function index()
@@ -274,6 +277,8 @@ class Examination extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
+        $previousStatus = (string) ($examination['status'] ?? '');
+
         // Only load the specific patient for this examination (scoped)
         $patient = $this->patientModel->where('clinic_id', $clinicId)->find($examination['patient_id']);
 
@@ -374,6 +379,18 @@ class Examination extends BaseController
                 $id,
                 "Examination updated for {$patientName} - {$examinationData['examination_type']} - Status: {$examinationData['status']}"
             );
+
+            if ($previousStatus !== 'completed' && (string) ($examinationData['status'] ?? '') === 'completed') {
+                try {
+                    $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+                    $this->whatsAppWorkflowService->queueFollowUpForCompletedExamination((int) $clinicId, (int) $id, $actorUserId);
+                } catch (\Throwable $e) {
+                    log_message('warning', 'WhatsApp follow-up enqueue failed for examination_id={examination_id}: {message}', [
+                        'examination_id' => $id,
+                        'message' => substr($e->getMessage(), 0, 255),
+                    ]);
+                }
+            }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
             if ($returnTo) {

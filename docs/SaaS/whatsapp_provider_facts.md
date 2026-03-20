@@ -1,6 +1,6 @@
 # WhatsApp Provider Facts and Implementation Context (Audit-Grade)
 
-Last updated: 2026-02-15
+Last updated: 2026-03-20
 Owner: Engineering
 Audience: Implementation team, security reviewers, architecture auditors
 Status: Canonical provider/context registry for WhatsApp feature work
@@ -74,8 +74,8 @@ SaaS governance baseline:
 - `app/Models/ControlPlaneAuditModel.php`
 - `app/Database/Migrations/2026-01-16-220000_CreateControlPlaneAudits.php`
 
-## 4.2 Confirmed gaps (not implemented yet)
-The following entities are absent in migrations/schema and must be created for WhatsApp architecture:
+## 4.2 Current implemented WhatsApp foundation (repo-verified as of 2026-03-20)
+The following entities now exist in code and migrations:
 - `notification_attempts`
 - `whatsapp_delivery_events`
 - `patient_whatsapp`
@@ -83,8 +83,29 @@ The following entities are absent in migrations/schema and must be created for W
 - `whatsapp_tenant_policies`
 - `platform_secrets`
 
-No `webhooks/whatsapp` routes currently exist.
-No unified multi-channel dispatcher command exists yet.
+The following routes/commands now exist:
+- `GET /webhooks/whatsapp`
+- `POST /webhooks/whatsapp`
+- `notifications:dispatch`
+- `whatsapp:ops-check`
+- `whatsapp:seed-local-test`
+
+The following implementation surfaces now exist:
+- outbound transport client: `app/Services/WhatsAppClient.php`
+- WhatsApp dispatcher driver: `app/Services/NotificationDrivers/WhatsAppDriver.php`
+- unified dispatcher: `app/Services/DispatchService.php`
+- signed webhook controller: `app/Controllers/Webhooks/WhatsAppWebhook.php`
+- tenant settings readiness/config surfaces
+- patient WhatsApp identity UI
+- control-plane WhatsApp operations surface
+
+## 4.3 Remaining gaps (still not fully implemented)
+- template-first business workflow wiring now exists for appointment confirmations, queued appointment reminders, completed-exam follow-up, and invoice payment reminders, but broader coverage across recalls/campaign-style workflows is still incomplete
+- Phase 6 alerting/runbook automation is still lighter than a production-grade monitored rollout
+- planned explicit helper classes were not split out as separate files:
+  - `WhatsAppQuotaGuard`
+  - `WhatsAppPolicy`
+  - `WhatsAppNumberResolver`
 
 ## 4.3 Known schema drift bug (must fix first)
 - `notifications.status` enum currently: `pending|blocked|failed`
@@ -312,24 +333,34 @@ rg -n "config_encrypted|encrypter->encrypt|encrypter->decrypt" app\Models\Clinic
 - add a dated section under `Appendix A: Fact Revision Log`
 - move impacted facts between `P1/P2/P3`
 
-## 11) Current Worktree Status (as of this document)
-At document generation time, the WhatsApp planning docs are present and untracked in git:
-- `docs/WHATSAPP_IMPLEMENTATION_PLAN.md`
-- `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`
-- `docs/PLAN_AUDIT_V4_FINAL.md`
-- this file: `docs/SaaS/whatsapp_provider_facts.md`
+## 11) Current Implementation State (as of this document)
+This file now serves two purposes:
+- provider/context registry for stable design facts
+- implementation-state checkpoint for reviewers returning to the codebase later
 
-No implementation code for WhatsApp transport/webhooks has been added yet.
+Verified implementation status at this revision:
+- WhatsApp implementation exists through Phase 5
+- Phase 6 has partial rollout hardening:
+  - ops-readiness command
+  - live pilot evidence
+  - template-aware settings/runtime fallback support
+  - template-first workflow enqueue service + queue command for appointment/payment reminder flows
+  - appointment/examination/finance product hooks enqueue template-aware ledger notifications
+
+Historical note:
+- Earlier revisions of this file were written before implementation started.
+- Any statement in older revisions implying that transport/webhooks were not yet implemented is superseded by the current codebase state and verification docs under `docs/SaaS/verification/`.
 
 ## 12) What Is In Scope vs Out of Scope
 
 In scope for current planning phase:
 - architecture, schema design, policy defaults, route/security model, migration path
 
-Out of scope until implementation starts:
+Out of scope until fully productized:
 - production Meta credential provisioning
 - tenant onboarding content/legal template approval
-- end-to-end delivery tests against live WABA
+- fully automated template-first workflow coverage across all business events
+- external alerting/integration beyond the local ops-readiness command and dashboard views
 
 ## 13) Risk Register (Condensed)
 
@@ -349,16 +380,25 @@ R5: Secret leakage
 - Mitigation: encrypted secret store + rotation audit events
 
 ## 14) Mandatory Pre-Implementation Checklist
-Before writing WhatsApp feature code, reviewers must confirm:
-1. Phase 0 migration for `notifications` status/lock is approved.
-2. Unified dispatcher cutover strategy is approved.
-3. Provider facts file reviewed and accepted with current confidence labels.
-4. Security review accepts webhook signature model.
-5. Product review accepts ambiguous-number manual fallback behavior.
+Before extending WhatsApp further, reviewers must confirm:
+1. Current implementation state is reviewed against:
+   - `docs/SaaS/verification/WHATSAPP-CHECKPOINT-2026-02-26.md`
+   - `docs/SaaS/verification/WHATSAPP-PHASE5-UI-OPS.md`
+   - `docs/SaaS/verification/WHATSAPP-PHASE6-OPS-READINESS-2026-03-01.md`
+   - `docs/SaaS/verification/WHATSAPP-PHASE6-LIVE-PILOT-2026-03-01.md`
+   - `docs/SaaS/verification/WHATSAPP-TEMPLATES-SETTINGS-2026-03-01.md`
+2. Provider facts in this file are still acceptable for current rollout decisions.
+3. Security review still accepts webhook signature model and secret handling.
+4. Product review accepts template-first delivery for out-of-session messaging.
+5. Workflow wiring changes preserve fail-closed tenant isolation and auditable notification ledger behavior.
+6. The latest workflow verification doc is reviewed:
+   - `docs/SaaS/verification/WHATSAPP-PHASE6-WORKFLOWS-2026-03-20.md`
 
 ## Appendix A: Fact Revision Log
 - 2026-02-15: Initial version created. Consolidated codebase status + provider fact confidence model.
 - 2026-02-15 (revision): Upgraded WF-001 and WF-002 from `P2` to `P1`; clarified `wa_verify_token` as required for webhook registration challenge.
+- 2026-03-20: Updated implementation-state sections to reflect the repo after Phases 1-5 and partial Phase 6 rollout hardening.
+- 2026-03-20 (revision): Added workflow wiring status for appointment, follow-up, and finance reminders; aligned readiness endpoint expectations and verification references.
 
 ## Appendix B: External Sources Referenced
 Primary/official-ish accessible in this environment:
