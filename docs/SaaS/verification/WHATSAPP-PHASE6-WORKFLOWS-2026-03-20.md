@@ -38,6 +38,7 @@
 - Wired product events:
   - appointment confirmation on create/update in `app/Controllers/Appointment.php`
   - follow-up when examination status changes to `completed` in `app/Controllers/Examination.php`
+  - no-show follow-up when appointment status changes to `no_show` in `app/Controllers/Appointment.php`
   - invoice payment reminder on invoice creation in `app/Controllers/Finance.php`
   - queued due appointment reminders and queued due invoice-payment reminders via `whatsapp:queue-product-flows`
 - Workflow notifications enqueue template-aware payloads using:
@@ -71,6 +72,11 @@
 - `php spark list | findstr /I "whatsapp:queue-product-flows whatsapp:ops-check notifications:dispatch"`
 - Result: all commands listed
 
+## Important operational note
+- For the queued reminder flows to run automatically in production, host cron should run in this order:
+  1. `php spark whatsapp:queue-product-flows`
+  2. `php spark notifications:dispatch --channel whatsapp`
+
 ### Route presence
 - `php spark routes | findstr /I "controlplane/whatsapp webhooks/whatsapp settings/testWhatsAppChannel settings/updateWhatsAppAutomationSettings whatsapp-identity"`
 - Result: expected control-plane, webhook, readiness-test, tenant automation-settings, and patient identity routes listed
@@ -78,6 +84,10 @@
 ### Existing WhatsApp test bundle
 - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php`
 - Result: `OK (34 tests, 162 assertions)`
+
+### Expanded WhatsApp + plan-gate regression bundle
+- `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php tests\unit\ControlPlanePlansTest.php`
+- Result: `OK (36 tests, 169 assertions)`
 
 ### Phase 6 ops-readiness check
 - `php spark whatsapp:ops-check --hours 24 --json`

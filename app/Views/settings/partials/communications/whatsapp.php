@@ -6,6 +6,7 @@
                         'appointment_reminder' => $isArabic ? $decode('\u062a\u0630\u0643\u064a\u0631 \u0628\u0627\u0644\u0645\u0648\u0639\u062f') : 'Appointment Reminder',
                         'appointment_confirmation' => $isArabic ? $decode('\u062a\u0623\u0643\u064a\u062f \u0627\u0644\u0645\u0648\u0639\u062f') : 'Appointment Confirmation',
                         'follow_up' => $isArabic ? $decode('\u0631\u0633\u0627\u0644\u0629 \u0645\u062a\u0627\u0628\u0639\u0629') : 'Follow-Up Message',
+                        'no_show_follow_up' => $isArabic ? $decode('\u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0645\u0648\u0639\u062f \u0627\u0644\u0641\u0627\u0626\u062a') : 'No-Show Follow-Up',
                         'payment_reminder' => $isArabic ? $decode('\u062a\u0630\u0643\u064a\u0631 \u0628\u0627\u0644\u062f\u0641\u0639') : 'Payment Reminder',
                     ];
                     $toggleCopy = $isArabic
@@ -25,6 +26,8 @@
                             'appointment_confirmation_help' => $decode('\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u062a\u0623\u0643\u064a\u062f \u0639\u0646\u062f \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0645\u0648\u0639\u062f \u0623\u0648 \u062a\u062d\u062f\u064a\u062b\u0647.'),
                             'follow_up_label' => $decode('\u0631\u0633\u0627\u0626\u0644 \u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629'),
                             'follow_up_help' => $decode('\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0645\u062a\u0627\u0628\u0639\u0629 \u0639\u0646\u062f \u0627\u0643\u062a\u0645\u0627\u0644 \u0627\u0644\u0641\u062d\u0635.'),
+                            'no_show_follow_up_label' => $decode('\u0645\u062a\u0627\u0628\u0639\u0627\u062a \u0627\u0644\u0645\u0648\u0627\u0639\u064a\u062f \u0627\u0644\u0641\u0627\u0626\u062a\u0629'),
+                            'no_show_follow_up_help' => $decode('\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0639\u0646\u062f \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u0645\u0648\u0639\u062f \u0643\u062d\u0627\u0644\u0629 \u0639\u062f\u0645 \u062d\u0636\u0648\u0631.'),
                             'payment_reminder_label' => $decode('\u062a\u0630\u0643\u064a\u0631\u0627\u062a \u0627\u0644\u062f\u0641\u0639'),
                             'payment_reminder_help' => $decode('\u0625\u0631\u0633\u0627\u0644 \u062a\u0630\u0643\u064a\u0631 \u0639\u0646\u062f \u0648\u062c\u0648\u062f \u0631\u0635\u064a\u062f \u0645\u0633\u062a\u062d\u0642 \u0639\u0644\u0649 \u0627\u0644\u0641\u0627\u062a\u0648\u0631\u0629.'),
                         ]
@@ -44,6 +47,8 @@
                             'appointment_confirmation_help' => 'Send a confirmation when an appointment is created or updated.',
                             'follow_up_label' => 'Examination Follow-Ups',
                             'follow_up_help' => 'Send a follow-up message when an examination is completed.',
+                            'no_show_follow_up_label' => 'No-Show Follow-Ups',
+                            'no_show_follow_up_help' => 'Send a recovery message when an appointment is marked as no-show.',
                             'payment_reminder_label' => 'Payment Reminders',
                             'payment_reminder_help' => 'Send a reminder when an invoice still has an outstanding balance.',
                         ];
@@ -121,6 +126,13 @@
                                                 <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['follow_up_help']) ?></p>
                                             </div>
                                             <input type="checkbox" name="trigger_toggles[follow_up]" value="1" class="ui-toggle" <?= !empty($triggerToggles['follow_up']) ? 'checked' : '' ?>>
+                                        </div>
+                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
+                                            <div>
+                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['no_show_follow_up_label']) ?></p>
+                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['no_show_follow_up_help']) ?></p>
+                                            </div>
+                                            <input type="checkbox" name="trigger_toggles[no_show_follow_up]" value="1" class="ui-toggle" <?= !empty($triggerToggles['no_show_follow_up']) ? 'checked' : '' ?>>
                                         </div>
                                         <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
                                             <div>

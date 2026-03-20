@@ -267,6 +267,13 @@
                                         </label>
                                         <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
                                             <div class="flex items-center h-5">
+                                                <input type="checkbox" name="features[notifications][whatsapp][enabled]" <?= !empty($features['notifications']['whatsapp']['enabled']) ? 'checked' : '' ?> 
+                                                       class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
+                                            </div>
+                                            <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">WhatsApp Notifications</div>
+                                        </label>
+                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
+                                            <div class="flex items-center h-5">
                                                 <input type="checkbox" name="features[attachments][enabled]" <?= !empty($features['attachments']['enabled']) ? 'checked' : '' ?> 
                                                        class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
                                             </div>

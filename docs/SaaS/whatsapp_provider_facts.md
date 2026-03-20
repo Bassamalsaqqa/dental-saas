@@ -100,7 +100,7 @@ The following implementation surfaces now exist:
 - control-plane WhatsApp operations surface
 
 ## 4.3 Remaining gaps (still not fully implemented)
-- template-first business workflow wiring now exists for appointment confirmations, queued appointment reminders, completed-exam follow-up, and invoice payment reminders, but broader coverage across recalls/campaign-style workflows is still incomplete
+- template-first business workflow wiring now exists for appointment confirmations, queued appointment reminders, completed-exam follow-up, no-show follow-up, and invoice payment reminders, but broader coverage across recalls/campaign-style workflows is still incomplete
 - Phase 6 alerting/runbook automation is still lighter than a production-grade monitored rollout
 - planned explicit helper classes were not split out as separate files:
   - `WhatsAppQuotaGuard`
@@ -346,7 +346,10 @@ Verified implementation status at this revision:
   - template-aware settings/runtime fallback support
   - template-first workflow enqueue service + queue command for appointment/payment reminder flows
   - appointment/examination/finance product hooks enqueue template-aware ledger notifications
-  - tenant-level per-flow enable/disable toggles stored in `whatsapp_tenant_policies.trigger_toggles_json`
+- tenant-level per-flow enable/disable toggles stored in `whatsapp_tenant_policies.trigger_toggles_json`
+- production reminder automation requires host cron in this order:
+  1. `php spark whatsapp:queue-product-flows`
+  2. `php spark notifications:dispatch --channel whatsapp`
 
 Historical note:
 - Earlier revisions of this file were written before implementation started.

@@ -143,6 +143,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                     'appointment_reminder' => 1,
                     'appointment_confirmation' => 0,
                     'follow_up' => 0,
+                    'no_show_follow_up' => 1,
                     'payment_reminder' => 1,
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]);
@@ -159,6 +160,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             $this->assertSame(1, (int) ($toggles['appointment_reminder'] ?? 0));
             $this->assertSame(0, (int) ($toggles['appointment_confirmation'] ?? 1));
             $this->assertSame(0, (int) ($toggles['follow_up'] ?? 1));
+            $this->assertSame(1, (int) ($toggles['no_show_follow_up'] ?? 0));
             $this->assertSame(1, (int) ($toggles['payment_reminder'] ?? 0));
         } finally {
             if (is_array($original)) {

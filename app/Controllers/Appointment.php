@@ -409,6 +409,11 @@ class Appointment extends BaseController
             return redirect()->to('/clinic/select');
         }
 
+        $existingAppointment = $this->appointmentModel->findByClinic($clinicId, $id);
+        if (!$existingAppointment) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Appointment not found');
+        }
+
         $appointment = $this->appointmentModel->findByClinic($clinicId, $id);
         
         if (!$appointment) {
@@ -481,8 +486,14 @@ class Appointment extends BaseController
             try {
                 $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
                 $this->whatsAppWorkflowService->queueAppointmentConfirmation((int) $clinicId, (int) $id, $actorUserId);
+                if (
+                    (string) ($existingAppointment['status'] ?? '') !== 'no_show'
+                    && (string) ($appointmentData['status'] ?? '') === 'no_show'
+                ) {
+                    $this->whatsAppWorkflowService->queueNoShowFollowUp((int) $clinicId, (int) $id, $actorUserId);
+                }
             } catch (\Throwable $e) {
-                log_message('warning', 'WhatsApp appointment confirmation re-enqueue failed for appointment_id={appointment_id}: {message}', [
+                log_message('warning', 'WhatsApp appointment workflow enqueue failed for appointment_id={appointment_id}: {message}', [
                     'appointment_id' => $id,
                     'message' => substr($e->getMessage(), 0, 255),
                 ]);

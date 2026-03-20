@@ -547,7 +547,13 @@ function saveSmsConfig(event) {
 function saveWhatsAppConfig(event) {
     const btn = event?.currentTarget || null;
     setButtonLoading(btn, true);
-    const messageTemplates = { appointment_reminder: document.getElementById('tmpl_appointment_reminder').value, appointment_confirmation: document.getElementById('tmpl_appointment_confirmation').value, follow_up: document.getElementById('tmpl_follow_up').value, payment_reminder: document.getElementById('tmpl_payment_reminder').value };
+    const messageTemplates = {
+        appointment_reminder: document.getElementById('tmpl_appointment_reminder').value,
+        appointment_confirmation: document.getElementById('tmpl_appointment_confirmation').value,
+        follow_up: document.getElementById('tmpl_follow_up').value,
+        no_show_follow_up: document.getElementById('tmpl_no_show_follow_up').value,
+        payment_reminder: document.getElementById('tmpl_payment_reminder').value
+    };
     const config = { phone_number_id: document.getElementById('wa_phone_number_id').value, message_templates: messageTemplates };
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=whatsapp&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
     .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', settingsI18n.toastSaved, data.message || ''); else window.showToast?.('error', settingsI18n.toastError, data.message || settingsI18n.toastSomethingWrong); })
@@ -559,6 +565,7 @@ function resetTemplatesToDefault() {
         'appointment_reminder' => json_decode('"\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u0644\u062f\u064a\u0643\u0645 \u0645\u0648\u0639\u062f \u0628\u062a\u0627\u0631\u064a\u062e {{appointment_date}} \u0627\u0644\u0633\u0627\u0639\u0629 {{appointment_time}}. \u0644\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u064a\u0631\u062c\u0649 \u0627\u0644\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629."'),
         'appointment_confirmation' => json_decode('"\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0645\u0648\u0639\u062f\u0643\u0645 \u0628\u062a\u0627\u0631\u064a\u062e {{appointment_date}} \u0627\u0644\u0633\u0627\u0639\u0629 {{appointment_time}}. \u0646\u062a\u0637\u0644\u0639 \u0644\u062e\u062f\u0645\u062a\u0643\u0645."'),
         'follow_up' => json_decode('"\u0646\u0623\u0645\u0644 \u0623\u0646\u0643\u0645 \u0628\u062e\u064a\u0631. \u0647\u0630\u0647 \u0645\u062a\u0627\u0628\u0639\u0629 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629 \u0628\u062e\u0635\u0648\u0635 \u0632\u064a\u0627\u0631\u062a\u0643\u0645 \u0627\u0644\u0623\u062e\u064a\u0631\u0629. \u0644\u0623\u064a \u0627\u0633\u062a\u0641\u0633\u0627\u0631 \u064a\u0631\u062c\u0649 \u0627\u0644\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629."'),
+        'no_show_follow_up' => json_decode('"\u0644\u0627\u062d\u0638\u0646\u0627 \u0623\u0646\u0643\u0645 \u0641\u0627\u062a\u0643\u0645 \u0645\u0648\u0639\u062f \u0627\u0644\u064a\u0648\u0645. \u0625\u0630\u0627 \u0631\u063a\u0628\u062a\u0645 \u0628\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062c\u062f\u0648\u0644\u0629 \u064a\u0631\u062c\u0649 \u0627\u0644\u0631\u062f \u0639\u0644\u0649 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629 \u0623\u0648 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0644\u062d\u062c\u0632 \u0645\u0648\u0639\u062f \u062c\u062f\u064a\u062f."'),
         'payment_reminder' => json_decode('"\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u064a\u0648\u062c\u062f \u0631\u0635\u064a\u062f \u0645\u0633\u062a\u062d\u0642 \u0628\u0642\u064a\u0645\u0629 {{amount}}. \u0644\u0644\u062a\u0641\u0627\u0635\u064a\u0644 \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0647\u0630\u0647 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0629."'),
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     Object.entries(defaults).forEach(([k, v]) => {

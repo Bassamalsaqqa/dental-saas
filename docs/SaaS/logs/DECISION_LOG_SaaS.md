@@ -56,3 +56,13 @@
 - Decision: Clinic-level enable/disable switches for WhatsApp workflow types are stored in `whatsapp_tenant_policies.trigger_toggles_json`, not in channel config or per-user notification preferences.
 - Rationale: These switches govern tenant-wide automated patient messaging behavior, so they belong with tenant policy controls rather than personal alert preferences or transport credentials.
 - Impact: Tenant settings can disable appointment, follow-up, or payment WhatsApp flows independently while keeping the WhatsApp channel configured and available.
+
+## 2026-03-20 - WhatsApp Remains a Commercial Plan Feature
+- Decision: WhatsApp must remain exposed in the control-plane plan editor under `notifications.whatsapp.enabled`.
+- Rationale: Tenant-side operational controls must not bypass commercial entitlement; feature availability remains plan-governed.
+- Impact: Plan create/edit now carries an explicit WhatsApp notification gate alongside email and SMS.
+
+## 2026-03-20 - No-Show Follow-Up Is the Next Valid Workflow Toggle
+- Decision: Added `no_show_follow_up` as a tenant-configurable WhatsApp workflow, but did not add recall/campaign toggles.
+- Rationale: `no_show` is a real appointment state with an existing domain event hook; recall/campaign flows are not yet implemented in the current codebase.
+- Impact: Tenant settings expose only workflow toggles that map to real executable behavior.

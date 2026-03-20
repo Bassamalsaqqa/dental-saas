@@ -353,8 +353,15 @@ Current execution note (2026-03-20):
   - appointment confirmations on create/update
   - queued due appointment reminders via `whatsapp:queue-product-flows`
   - follow-up messages when examinations transition to `completed`
+  - no-show recovery messages when appointments are marked `no_show`
   - invoice payment reminders on invoice creation and queued due-payment reminder sweeps
 - remaining Phase 6 work is now focused on alerting/runbook hardening, rollout operations, and broader workflow coverage beyond the currently wired product events
+
+Important operational note
+For the queued reminder flows to run automatically in production, host cron should run in this order:
+
+1. `php spark whatsapp:queue-product-flows`
+2. `php spark notifications:dispatch --channel whatsapp`
 
 ## 16) Verification Checklist
 

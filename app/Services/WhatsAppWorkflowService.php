@@ -116,6 +116,42 @@ class WhatsAppWorkflowService
         );
     }
 
+    public function queueNoShowFollowUp(int $clinicId, int $appointmentId, ?int $actorUserId = null): array
+    {
+        if (!$this->isTriggerEnabled($clinicId, 'no_show_follow_up')) {
+            return $this->skipped('TRIGGER_DISABLED');
+        }
+
+        $appointment = $this->appointmentModel->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->find($appointmentId);
+        if (!$appointment) {
+            return $this->skipped('APPOINTMENT_NOT_FOUND');
+        }
+
+        if ((string) ($appointment['status'] ?? '') !== 'no_show') {
+            return $this->skipped('APPOINTMENT_NOT_NO_SHOW');
+        }
+
+        $patient = $this->patientModel->withoutTenantScope()
+            ->where('clinic_id', $clinicId)
+            ->find((int) ($appointment['patient_id'] ?? 0));
+        if (!$patient) {
+            return $this->skipped('PATIENT_NOT_FOUND');
+        }
+
+        $workflowKey = sprintf('no_show_follow_up:%d:%s', $appointmentId, date('Y-m-d'));
+
+        return $this->enqueuePatientTemplate(
+            $clinicId,
+            $patient,
+            'no_show_follow_up',
+            $this->buildAppointmentTemplateVars($patient, $appointment),
+            $workflowKey,
+            $actorUserId
+        );
+    }
+
     public function queueInvoicePaymentReminder(int $clinicId, int $financeId, ?int $actorUserId = null, ?string $workflowSuffix = null): array
     {
         if (!$this->isTriggerEnabled($clinicId, 'payment_reminder')) {
@@ -388,6 +424,7 @@ class WhatsAppWorkflowService
             'appointment_reminder' => 1,
             'appointment_confirmation' => 1,
             'follow_up' => 1,
+            'no_show_follow_up' => 1,
             'payment_reminder' => 1,
         ];
     }

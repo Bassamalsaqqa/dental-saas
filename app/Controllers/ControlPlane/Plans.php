@@ -280,6 +280,7 @@ class Plans extends BaseController
             'notifications' => [
                 'email' => ['enabled' => true],
                 'sms' => ['enabled' => false],
+                'whatsapp' => ['enabled' => false],
             ],
         ];
     }
@@ -317,6 +318,7 @@ class Plans extends BaseController
             'notifications' => [
                 'email' => ['enabled' => !empty($featuresInput['notifications']['email']['enabled'])],
                 'sms' => ['enabled' => !empty($featuresInput['notifications']['sms']['enabled'])],
+                'whatsapp' => ['enabled' => !empty($featuresInput['notifications']['whatsapp']['enabled'])],
             ],
         ];
 

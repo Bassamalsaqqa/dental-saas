@@ -1651,3 +1651,20 @@
     - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php` -> `OK (34 tests, 162 assertions)`
     - `php spark routes | findstr /I "updateWhatsAppAutomationSettings testWhatsAppChannel"` -> route listed
 - **Verification Doc:** `docs/SaaS/verification/WHATSAPP-PHASE6-WORKFLOWS-2026-03-20.md`
+
+### Task: WHATSAPP-PHASE6-06 Plan Gate + No-Show Toggle + Runbook Note
+- **Date:** 2026-03-20
+- **Status:** Completed
+- **Description:** Exposed WhatsApp as an explicit control-plane plan feature, added the next concrete tenant workflow toggle (`no_show_follow_up`), corrected built-in Arabic fallback templates, and documented the required production cron order.
+- **Actions:**
+    - Added `notifications.whatsapp.enabled` to control-plane plan defaults, payload building, and plan form UI.
+    - Added `no_show_follow_up` to tenant WhatsApp trigger toggles and settings copy.
+    - Wired `Appointment::update()` to enqueue a no-show follow-up when status transitions to `no_show`.
+    - Corrected WhatsApp driver's built-in Arabic fallback templates to use canonical decoded Arabic text.
+    - Documented the production cron order:
+      - `php spark whatsapp:queue-product-flows`
+      - `php spark notifications:dispatch --channel whatsapp`
+- **Verification:**
+    - `php -l` passed for modified controllers, services, views, tests, and docs-adjacent PHP files.
+    - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php tests\unit\ControlPlanePlansTest.php` -> `OK (36 tests, 169 assertions)`
+    - Added direct unit coverage for control-plane plan defaults and form exposure.
