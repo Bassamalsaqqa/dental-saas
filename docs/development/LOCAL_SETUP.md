@@ -97,6 +97,11 @@ Notes:
     npm run build
     ```
 *   Hostinger does not run this build step automatically. The built file `public/assets/css/tailwind.css` must be deployed along with your PHP/view changes.
+*   For the standard Hostinger workflow on this project, use:
+    ```bash
+    npm run release:hostinger
+    ```
+    This rebuilds Tailwind and prints a short deployment reminder.
 
 ## 5. Security Note
 

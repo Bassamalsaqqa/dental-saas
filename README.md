@@ -289,6 +289,16 @@ Common steps:
 3. Import SQL dump (`democa_dental_saas_schema_superadmin.sql`).
 4. Ensure `.htaccess` `RewriteBase` matches host root (often `/`).
 
+Before uploading code after UI/Tailwind changes, run:
+```
+npm run release:hostinger
+```
+
+This will:
+- rebuild `public/assets/css/tailwind.css`
+- tell you whether the compiled CSS changed
+- remind you to deploy the rebuilt CSS together with your PHP changes
+
 If `/auth/login` 404s:
 - Check `RewriteBase` and docroot.
 
