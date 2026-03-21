@@ -57,14 +57,11 @@ RewriteEngine On
 # This MUST be before other rewrite rules.
 RewriteRule ^(app|system|tests|writable|scripts|docs|lib|src|vendor|node_modules)/ - [F,L]
 
-# Handle assets (CSS, JS, images) - serve them directly from public directory
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Canonical public asset aliases.
+# Runtime assets must come from public/assets and public/uploads only.
+# Keep these aliases unconditional so a stray repo-root assets/ or uploads/
+# tree can never override the real public files.
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
-
-# Handle uploads (e.g., clinic logos) - serve them directly from public/uploads
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
 
 # Handle all other requests through the root index.php

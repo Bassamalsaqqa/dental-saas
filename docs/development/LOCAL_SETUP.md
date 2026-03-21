@@ -80,6 +80,24 @@ Point your virtual host's **Document Root** to the `public/` directory.
 *   In development, if you must use the root, ensure `.htaccess` is active.
 *   For this local XAMPP setup, the app is typically reached at `https://localhost/dental-saas/`.
 
+## 4.1 Frontend Asset Pipeline
+
+The app's canonical frontend asset tree is:
+
+```text
+src/input.css -> public/assets/css/tailwind.css
+```
+
+Notes:
+*   The browser requests `/assets/...`, but the repo root `.htaccess` aliases that URL to `public/assets/...`.
+*   `public/assets/` is the only runtime asset source of truth.
+*   If you change Tailwind classes in views or edit `src/input.css`, rebuild before testing/deploying:
+    ```bash
+    npm install
+    npm run build
+    ```
+*   Hostinger does not run this build step automatically. The built file `public/assets/css/tailwind.css` must be deployed along with your PHP/view changes.
+
 ## 5. Security Note
 
 *   Never commit your `.env` file.

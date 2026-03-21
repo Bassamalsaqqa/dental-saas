@@ -175,6 +175,14 @@ Navigate to:
 
 The Control Plane requires `global_mode` (set via superadmin session).
 
+### Frontend Assets
+- Canonical runtime assets live in `public/assets/`.
+- Tailwind source is `src/input.css`.
+- Tailwind build output is `public/assets/css/tailwind.css`.
+- URL paths still use `/assets/...`; the root `.htaccess` aliases that to `public/assets/...`.
+- Do not edit a repo-root `assets/` folder. That path is legacy and not the runtime source of truth.
+- Hostinger does not run the Node/Tailwind build for you. If you change Tailwind classes or `src/input.css`, run `npm run build` locally and deploy the updated `public/assets/css/tailwind.css` with your PHP changes.
+
 ---
 
 ## 11) Control Plane
