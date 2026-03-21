@@ -535,7 +535,7 @@
                             <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                         </div>
 
-                        <div id="clinicSwitcherMenu" class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform origin-top-right transition-all">
+                        <div id="clinicSwitcherMenu" class="absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-3 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden transform transition-all">
                             <div class="p-4 border-b border-gray-50 bg-gray-50/50">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]"><?= lang('UI.switchClinic') ?></p>
                             </div>
@@ -631,7 +631,7 @@
                         </div>
                         
                         <!-- User Menu Dropdown -->
-                        <div id="userMenu" class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 hidden z-50">
+                        <div id="userMenu" class="absolute <?= !empty($is_rtl) ? 'left-0 origin-top-left' : 'right-0 origin-top-right' ?> mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 hidden z-50">
                             <div class="p-4 border-b border-gray-100">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
