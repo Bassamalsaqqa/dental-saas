@@ -102,17 +102,24 @@ Control Plane operators can impersonate a clinic. Session is regenerated on tran
 - **Database:** MySQL 8.x
 - **Frontend:** PHP views + Tailwind CSS
 - **JS:** Vanilla + jQuery (some pages)
-- **Container:** MySQL docker in dev (optional)
+- **Container:** Docker MySQL available for dump/export workflows (optional)
 
 ---
 
 ## 6) Local Setup (Windows / XAMPP)
 1. Clone repo into XAMPP htdocs:
    `C:\xampp\htdocs\dental-saas`
-2. Start Apache + MySQL (or use provided Docker MySQL).
+2. Start XAMPP Apache + MySQL.
 3. Create the database:
    - `democa_dental_saas`
 4. Import SQL (see section 9).
+5. Use XAMPP MySQL as the default local runtime DB:
+   - host: `127.0.0.1`
+   - port: `3306`
+   - user: `root`
+   - password: blank
+
+Docker MySQL remains optional for regenerating dumps or comparing data, but it is not required to run the app locally on this machine.
 
 ---
 
@@ -120,19 +127,20 @@ Control Plane operators can impersonate a clinic. Session is regenerated on tran
 Copy `.env.example` to `.env` and set:
 ```
 CI_ENVIRONMENT = development
-app.baseURL = 'http://localhost/dental-saas/'
+app.baseURL = 'https://localhost/dental-saas/'
 database.default.hostname = 127.0.0.1
 database.default.database = democa_dental_saas
 database.default.username = root
-database.default.password = root
+database.default.password =
 database.default.DBDriver = MySQLi
-database.default.port = 3307
+database.default.port = 3306
 encryption.key = <your_key>
 session.cookieName = 'ci_session_saas'
 ```
 Notes:
 - `app.baseURL` must match your docroot mapping.
 - `session.cookieName` is set to avoid collisions.
+- If you intentionally use the Docker MySQL container instead, switch the DB port back to `3307` and password to `root`.
 
 ---
 
@@ -153,12 +161,17 @@ There is a maintained SQL dump with the superadmin user:
 
 Import it into a fresh database if you need a complete schema + admin user.
 
+To regenerate that dump from the local Docker MySQL container:
+```bash
+cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas --ignore-table=democa_dental_saas.control_plane_invoices --ignore-table=democa_dental_saas.control_plane_invoice_payments > democa_dental_saas_schema_superadmin.sql"
+```
+
 ---
 
 ## 10) Running the App
 Navigate to:
-- Tenant login: `http://localhost/dental-saas/auth/login`
-- Control Plane entry: `http://localhost/dental-saas/controlplane`
+- Tenant login: `https://localhost/dental-saas/auth/login`
+- Control Plane entry: `https://localhost/dental-saas/controlplane`
 
 The Control Plane requires `global_mode` (set via superadmin session).
 
