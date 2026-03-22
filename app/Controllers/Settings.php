@@ -12,6 +12,7 @@ use App\Models\SettingsModel;
 use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\SettingsService;
 use App\Services\PlanGuard;
+use App\Services\WhatsAppTemplateRegistryService;
 use App\Services\WhatsAppTriggerCatalog;
 
 class Settings extends BaseController
@@ -19,12 +20,14 @@ class Settings extends BaseController
     protected $settingsModel;
     protected $settingsService;
     protected WhatsAppTriggerCatalog $whatsAppTriggerCatalog;
+    protected WhatsAppTemplateRegistryService $whatsAppTemplateRegistry;
 
     public function __construct()
     {
         $this->settingsModel = new SettingsModel();
         $this->settingsService = service('settings');
         $this->whatsAppTriggerCatalog = new WhatsAppTriggerCatalog();
+        $this->whatsAppTemplateRegistry = new WhatsAppTemplateRegistryService();
     }
 
     /**
@@ -105,8 +108,7 @@ class Settings extends BaseController
 
         $smsConfig = $channelModel->getConfig($clinicId, 'sms') ?? [];
         
-        $waConfig = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
-        $waConfig = $this->normalizeWhatsAppChannelConfig($waConfig);
+        $waConfig = $this->normalizeWhatsAppChannelConfig($channelModel->getConfig($clinicId, 'whatsapp') ?? []);
         $waFeatureEnabled = $planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false);
         $waPolicy = $this->getWhatsAppPolicySettings($clinicId);
 
@@ -504,7 +506,10 @@ class Settings extends BaseController
             }
 
             if ($channelType === 'whatsapp') {
-                $config = $this->normalizeWhatsAppChannelConfig($config ?? []);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'WhatsApp template configuration is managed from control plane. Clinics can only manage trigger enable/disable settings.',
+                ]);
             }
 
             $channelModel->setConfig($clinicId, $channelType, $config ?? []);
@@ -545,7 +550,6 @@ class Settings extends BaseController
 
         $channelModel = new \App\Models\ClinicNotificationChannelModel();
         $channel = $channelModel->where('clinic_id', $clinicId)->where('channel_type', 'whatsapp')->first();
-        $channelConfig = $channelModel->getConfig($clinicId, 'whatsapp') ?? [];
 
         if (!$channel || empty($channel['configured_by_clinic'])) {
             return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is not configured for this clinic.']);
@@ -559,9 +563,9 @@ class Settings extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'WhatsApp channel is saved but not validated yet.']);
         }
 
-        $phoneNumberId = trim((string) ($channelConfig['phone_number_id'] ?? $channelConfig['wa_phone_number_id'] ?? ''));
+        $phoneNumberId = trim((string) ((new PlatformSecretModel())->getSecret('wa_phone_number_id') ?? ''));
         if ($phoneNumberId === '') {
-            return $this->response->setJSON(['success' => false, 'message' => 'Phone Number ID is missing from the clinic WhatsApp configuration.']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Phone Number ID is missing from the platform WhatsApp configuration.']);
         }
 
         $planGuard = new \App\Services\PlanGuard();
@@ -741,31 +745,14 @@ class Settings extends BaseController
 
     private function normalizeWhatsAppChannelConfig(array $config): array
     {
-        $decode = static fn(string $value): string => json_decode('"' . $value . '"') ?? '';
-        $defaults = [
-            'appointment_reminder' => $decode('\\u062a\\u0630\\u0643\\u064a\\u0631 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629: \\u0644\\u062f\\u064a\\u0643\\u0645 \\u0645\\u0648\\u0639\\u062f \\u0628\\u062a\\u0627\\u0631\\u064a\\u062e {{appointment_date}} \\u0627\\u0644\\u0633\\u0627\\u0639\\u0629 {{appointment_time}}. \\u0644\\u0644\\u0645\\u062a\\u0627\\u0628\\u0639\\u0629 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u0631\\u062f \\u0639\\u0644\\u0649 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0631\\u0633\\u0627\\u0644\\u0629.'),
-            'appointment_confirmation' => $decode('\\u062a\\u0645 \\u062a\\u0623\\u0643\\u064a\\u062f \\u0645\\u0648\\u0639\\u062f\\u0643\\u0645 \\u0628\\u062a\\u0627\\u0631\\u064a\\u062e {{appointment_date}} \\u0627\\u0644\\u0633\\u0627\\u0639\\u0629 {{appointment_time}}. \\u0646\\u062a\\u0637\\u0644\\u0639 \\u0644\\u062e\\u062f\\u0645\\u062a\\u0643\\u0645.'),
-            'follow_up' => $decode('\\u0646\\u0623\\u0645\\u0644 \\u0623\\u0646\\u0643\\u0645 \\u0628\\u062e\\u064a\\u0631. \\u0647\\u0630\\u0647 \\u0645\\u062a\\u0627\\u0628\\u0639\\u0629 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629 \\u0628\\u062e\\u0635\\u0648\\u0635 \\u0632\\u064a\\u0627\\u0631\\u062a\\u0643\\u0645 \\u0627\\u0644\\u0623\\u062e\\u064a\\u0631\\u0629. \\u0644\\u0623\\u064a \\u0627\\u0633\\u062a\\u0641\\u0633\\u0627\\u0631 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u0631\\u062f \\u0639\\u0644\\u0649 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0631\\u0633\\u0627\\u0644\\u0629.'),
-            'no_show_follow_up' => $decode('\\u0644\\u0627\\u062d\\u0638\\u0646\\u0627 \\u0623\\u0646\\u0643\\u0645 \\u0641\\u0627\\u062a\\u0643\\u0645 \\u0645\\u0648\\u0639\\u062f \\u0627\\u0644\\u064a\\u0648\\u0645. \\u0625\\u0630\\u0627 \\u0631\\u063a\\u0628\\u062a\\u0645 \\u0628\\u0625\\u0639\\u0627\\u062f\\u0629 \\u0627\\u0644\\u062c\\u062f\\u0648\\u0644\\u0629 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u0631\\u062f \\u0639\\u0644\\u0649 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0631\\u0633\\u0627\\u0644\\u0629 \\u0623\\u0648 \\u0627\\u0644\\u062a\\u0648\\u0627\\u0635\\u0644 \\u0645\\u0639\\u0646\\u0627 \\u0644\\u062d\\u062c\\u0632 \\u0645\\u0648\\u0639\\u062f \\u062c\\u062f\\u064a\\u062f.'),
-            'payment_reminder' => $decode('\\u062a\\u0630\\u0643\\u064a\\u0631 \\u0645\\u0646 \\u0627\\u0644\\u0639\\u064a\\u0627\\u062f\\u0629: \\u064a\\u0648\\u062c\\u062f \\u0631\\u0635\\u064a\\u062f \\u0645\\u0633\\u062a\\u062d\\u0642 \\u0628\\u0642\\u064a\\u0645\\u0629 {{amount}}. \\u0644\\u0644\\u062a\\u0641\\u0627\\u0635\\u064a\\u0644 \\u064a\\u0631\\u062c\\u0649 \\u0627\\u0644\\u062a\\u0648\\u0627\\u0635\\u0644 \\u0645\\u0639\\u0646\\u0627 \\u0639\\u0628\\u0631 \\u0647\\u0630\\u0647 \\u0627\\u0644\\u0645\\u062d\\u0627\\u062f\\u062b\\u0629.'),
-        ];
-        $templates = is_array($config['message_templates'] ?? null) ? $config['message_templates'] : [];
-        foreach ($defaults as $key => $defaultText) {
-            $value = trim((string) ($templates[$key] ?? ''));
-            $templates[$key] = $value !== '' ? $value : $defaultText;
-        }
-        $fallback = is_array($config['fallback_template'] ?? null) ? $config['fallback_template'] : [];
-        $triggerTemplates = $this->whatsAppTriggerCatalog->normalizeTriggerTemplateConfig($config['trigger_templates'] ?? []);
+        $globalConfig = $this->whatsAppTemplateRegistry->getGlobalConfig();
+        $platformPhoneNumberId = trim((string) ((new PlatformSecretModel())->getSecret('wa_phone_number_id') ?? ''));
         return [
-            'phone_number_id' => trim((string) ($config['phone_number_id'] ?? '')),
+            'phone_number_id' => $platformPhoneNumberId,
             'api_version' => trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? '')),
-            'fallback_template' => [
-                'name' => trim((string) ($fallback['name'] ?? '')),
-                'language' => trim((string) ($fallback['language'] ?? 'ar')),
-                'components' => is_array($fallback['components'] ?? null) ? $fallback['components'] : [],
-            ],
-            'message_templates' => $templates,
-            'trigger_templates' => $triggerTemplates,
+            'fallback_template' => $globalConfig['fallback_template'],
+            'trigger_templates' => $globalConfig['trigger_templates'],
+            'managed_by_control_plane' => true,
         ];
     }
 

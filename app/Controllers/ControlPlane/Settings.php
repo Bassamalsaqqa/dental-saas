@@ -11,16 +11,19 @@ use App\Models\SettingsModel;
 use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\ControlPlaneAuditService;
 use App\Services\RetentionService;
+use App\Services\WhatsAppTemplateRegistryService;
 
 class Settings extends BaseController
 {
     protected $auditService;
     protected $settingsModel;
+    protected WhatsAppTemplateRegistryService $whatsAppTemplateRegistry;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
         $this->settingsModel = new SettingsModel();
+        $this->whatsAppTemplateRegistry = new WhatsAppTemplateRegistryService();
     }
     /**
      * GET /controlplane/settings
@@ -94,6 +97,8 @@ class Settings extends BaseController
             ];
         }
 
+        $waGlobalTemplates = $this->whatsAppTemplateRegistry->getGlobalConfig();
+
         return view('control_plane/settings', [
             'title' => 'Settings',
             'settings' => $settings,
@@ -111,7 +116,62 @@ class Settings extends BaseController
             ],
             'wa_secrets' => $waSecrets,
             'wa_policies' => $waPolicies,
+            'wa_global_templates' => $waGlobalTemplates,
+            'wa_trigger_catalog' => (new \App\Services\WhatsAppTriggerCatalog())->all(),
         ]);
+    }
+
+    /**
+     * POST /controlplane/settings/whatsapp-templates
+     */
+    public function updateWhatsAppTemplates()
+    {
+        $triggerCatalog = (new \App\Services\WhatsAppTriggerCatalog())->all();
+        $triggerTemplates = [];
+
+        foreach ($triggerCatalog as $triggerKey => $meta) {
+            $bodyKeysRaw = trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.body_param_keys'));
+            $bodyKeys = array_values(array_filter(array_map(
+                static fn(string $value): string => trim($value),
+                explode(',', $bodyKeysRaw)
+            ), static fn(string $value): bool => $value !== ''));
+
+            $triggerTemplates[$triggerKey] = [
+                'name' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.name')),
+                'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
+                'header_param_key' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.header_param_key')),
+                'body_param_keys' => $bodyKeys,
+                'button_type' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_type')),
+                'button_index' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_index')),
+                'button_param_key' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_param_key')),
+            ];
+        }
+
+        $fallbackTemplate = [
+            'name' => trim((string) $this->request->getPost('fallback_template.name')),
+            'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
+            'components' => [],
+        ];
+
+        $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate);
+
+        if (!$saved) {
+            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+                ->with('error', 'Failed to update global WhatsApp templates.');
+        }
+
+        $this->auditService->logEvent('controlplane_whatsapp_templates_updated', [
+            'route' => '/controlplane/settings/whatsapp-templates',
+            'method' => 'POST',
+            'metadata' => [
+                'trigger_count' => count($triggerTemplates),
+                'fallback_name' => $fallbackTemplate['name'],
+                'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
+            ],
+        ]);
+
+        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            ->with('success', 'Global WhatsApp templates updated.');
     }
 
     /**

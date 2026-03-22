@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Models\AppointmentModel;
-use App\Models\ClinicNotificationChannelModel;
 use App\Models\ClinicModel;
 use App\Models\ExaminationModel;
 use App\Models\FinanceModel;
 use App\Models\NotificationModel;
 use App\Models\PatientModel;
+use App\Models\SettingsModel;
 use App\Models\WhatsAppTenantPolicyModel;
 
 class WhatsAppWorkflowService
@@ -20,12 +20,12 @@ class WhatsAppWorkflowService
     protected FinanceModel $financeModel;
     protected PatientModel $patientModel;
     protected ClinicModel $clinicModel;
-    protected ClinicNotificationChannelModel $channelModel;
+    protected SettingsModel $settingsModel;
     protected WhatsAppTenantPolicyModel $policyModel;
     protected WhatsAppTriggerCatalog $triggerCatalog;
+    protected WhatsAppTemplateRegistryService $templateRegistry;
     protected \CodeIgniter\Database\BaseConnection $db;
     protected array $policyCache = [];
-    protected array $channelConfigCache = [];
 
     public function __construct()
     {
@@ -36,9 +36,10 @@ class WhatsAppWorkflowService
         $this->financeModel = new FinanceModel();
         $this->patientModel = new PatientModel();
         $this->clinicModel = new ClinicModel();
-        $this->channelModel = new ClinicNotificationChannelModel();
+        $this->settingsModel = new SettingsModel();
         $this->policyModel = new WhatsAppTenantPolicyModel();
         $this->triggerCatalog = new WhatsAppTriggerCatalog();
+        $this->templateRegistry = new WhatsAppTemplateRegistryService();
         $this->db = \Config\Database::connect();
     }
 
@@ -116,7 +117,7 @@ class WhatsAppWorkflowService
             [
                 'patient_name' => trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))),
                 'examination_date' => formatDate((string) ($examination['examination_date'] ?? '')),
-            ],
+            ] + $this->buildClinicTemplateVars($clinicId),
             $workflowKey,
             $actorUserId
         );
@@ -202,7 +203,7 @@ class WhatsAppWorkflowService
                 'amount' => $this->formatMoney($balanceDue),
                 'due_date' => !empty($finance['due_date']) ? formatDate((string) $finance['due_date']) : '',
                 'invoice_number' => (string) ($finance['transaction_id'] ?? ('INV-' . $financeId)),
-            ],
+            ] + $this->buildClinicTemplateVars($clinicId),
             $workflowKey,
             $actorUserId
         );
@@ -373,7 +374,41 @@ class WhatsAppWorkflowService
             'patient_name' => trim((string) (($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))),
             'appointment_date' => formatDate((string) ($appointment['appointment_date'] ?? '')),
             'appointment_time' => formatTime((string) ($appointment['appointment_time'] ?? '')),
+        ] + $this->buildClinicTemplateVars((int) ($appointment['clinic_id'] ?? 0));
+    }
+
+    private function buildClinicTemplateVars(int $clinicId): array
+    {
+        $vars = [
+            'clinic_name' => '',
+            'clinic_phone' => '',
+            'clinic_address' => '',
         ];
+
+        if ($clinicId <= 0) {
+            return $vars;
+        }
+
+        $settingsRows = $this->settingsModel
+            ->withoutTenantScope()
+            ->select('setting_key, setting_value')
+            ->where('clinic_id', $clinicId)
+            ->whereIn('setting_key', ['clinic_name', 'clinic_phone', 'clinic_address'])
+            ->findAll();
+
+        foreach ($settingsRows as $row) {
+            $key = (string) ($row['setting_key'] ?? '');
+            if (array_key_exists($key, $vars)) {
+                $vars[$key] = trim((string) ($row['setting_value'] ?? ''));
+            }
+        }
+
+        if ($vars['clinic_name'] === '') {
+            $clinic = $this->clinicModel->find($clinicId);
+            $vars['clinic_name'] = trim((string) ($clinic['name'] ?? ''));
+        }
+
+        return $vars;
     }
 
     private function resolveClinicIds(?int $clinicId = null): array
@@ -432,8 +467,7 @@ class WhatsAppWorkflowService
 
     private function buildTriggerPayload(int $clinicId, string $triggerKey, array $templateVars): array
     {
-        $channelConfig = $this->resolveChannelConfig($clinicId);
-        $triggerTemplates = $channelConfig['trigger_templates'] ?? [];
+        $triggerTemplates = $this->templateRegistry->getGlobalTriggerTemplates();
         $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : null;
         if ($triggerConfig === null) {
             return ['ok' => false, 'reason' => 'TRIGGER_TEMPLATE_CONFIG_MISSING'];
@@ -458,18 +492,6 @@ class WhatsAppWorkflowService
                 'template_source' => 'workflow_trigger',
             ],
         ];
-    }
-
-    private function resolveChannelConfig(int $clinicId): array
-    {
-        if (!array_key_exists($clinicId, $this->channelConfigCache)) {
-            $rawConfig = $this->channelModel->withoutTenantScope()->getConfig($clinicId, 'whatsapp') ?? [];
-            $this->channelConfigCache[$clinicId] = [
-                'trigger_templates' => $this->triggerCatalog->normalizeTriggerTemplateConfig($rawConfig['trigger_templates'] ?? []),
-            ];
-        }
-
-        return $this->channelConfigCache[$clinicId];
     }
 
     private function buildTemplateComponents(array $triggerConfig, array $templateVars): array

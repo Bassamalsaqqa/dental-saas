@@ -6,6 +6,15 @@ class WhatsAppTriggerCatalog
 {
     public const STRATEGY_TEMPLATE_ONLY = 'template_only';
 
+    private function commonAvailableVars(): array
+    {
+        return [
+            'clinic_name' => 'Clinic display name',
+            'clinic_phone' => 'Clinic primary phone number',
+            'clinic_address' => 'Clinic address',
+        ];
+    }
+
     public function all(): array
     {
         return [
@@ -19,7 +28,7 @@ class WhatsAppTriggerCatalog
                     'patient_name' => 'Patient full name',
                     'appointment_date' => 'Localized appointment date',
                     'appointment_time' => 'Localized appointment time',
-                ],
+                ] + $this->commonAvailableVars(),
             ],
             'appointment_confirmation' => [
                 'label' => 'Appointment Confirmation',
@@ -31,7 +40,7 @@ class WhatsAppTriggerCatalog
                     'patient_name' => 'Patient full name',
                     'appointment_date' => 'Localized appointment date',
                     'appointment_time' => 'Localized appointment time',
-                ],
+                ] + $this->commonAvailableVars(),
             ],
             'follow_up' => [
                 'label' => 'Examination Follow-Up',
@@ -42,7 +51,7 @@ class WhatsAppTriggerCatalog
                 'available_vars' => [
                     'patient_name' => 'Patient full name',
                     'examination_date' => 'Localized examination date',
-                ],
+                ] + $this->commonAvailableVars(),
             ],
             'no_show_follow_up' => [
                 'label' => 'No-Show Follow-Up',
@@ -54,7 +63,7 @@ class WhatsAppTriggerCatalog
                     'patient_name' => 'Patient full name',
                     'appointment_date' => 'Localized appointment date',
                     'appointment_time' => 'Localized appointment time',
-                ],
+                ] + $this->commonAvailableVars(),
             ],
             'payment_reminder' => [
                 'label' => 'Payment Reminder',
@@ -67,7 +76,7 @@ class WhatsAppTriggerCatalog
                     'amount' => 'Outstanding balance with currency symbol',
                     'due_date' => 'Localized due date if present',
                     'invoice_number' => 'Invoice/public reference number',
-                ],
+                ] + $this->commonAvailableVars(),
             ],
         ];
     }

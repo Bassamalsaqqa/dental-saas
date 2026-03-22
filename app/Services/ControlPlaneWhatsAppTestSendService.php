@@ -8,6 +8,7 @@ use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationAttemptModel;
 use App\Models\NotificationModel;
 use App\Models\PlatformSecretModel;
+use App\Models\SettingsModel;
 use App\Services\WhatsAppTriggerCatalog;
 
 class ControlPlaneWhatsAppTestSendService
@@ -20,6 +21,8 @@ class ControlPlaneWhatsAppTestSendService
     protected DispatchService $dispatchService;
     protected PlanGuard $planGuard;
     protected WhatsAppTriggerCatalog $triggerCatalog;
+    protected WhatsAppTemplateRegistryService $templateRegistry;
+    protected SettingsModel $settingsModel;
 
     public function __construct()
     {
@@ -31,6 +34,8 @@ class ControlPlaneWhatsAppTestSendService
         $this->dispatchService = new DispatchService();
         $this->planGuard = new PlanGuard();
         $this->triggerCatalog = new WhatsAppTriggerCatalog();
+        $this->templateRegistry = new WhatsAppTemplateRegistryService();
+        $this->settingsModel = new SettingsModel();
     }
 
     public function send(array $input, ?int $actorUserId = null): array
@@ -50,8 +55,6 @@ class ControlPlaneWhatsAppTestSendService
             ->where('clinic_id', $clinicId)
             ->where('channel_type', 'whatsapp')
             ->first();
-        $channelConfig = $this->channelModel->withoutTenantScope()->getConfig($clinicId, 'whatsapp') ?? [];
-
         if (!$channel || empty($channel['configured_by_clinic'])) {
             return $this->fail('WhatsApp channel is not configured for the selected clinic.');
         }
@@ -68,7 +71,7 @@ class ControlPlaneWhatsAppTestSendService
             return $this->fail('The selected clinic plan does not allow WhatsApp notifications.');
         }
 
-        $secretErrors = $this->validatePlatformSecrets($channelConfig);
+        $secretErrors = $this->validatePlatformSecrets();
         if (!empty($secretErrors)) {
             return $this->fail(implode(' ', $secretErrors));
         }
@@ -78,7 +81,7 @@ class ControlPlaneWhatsAppTestSendService
             return $this->fail('Enter a valid WhatsApp number in international format (example: +970599999999) or a valid BSUID/parent BSUID.');
         }
 
-        $payloadResult = $this->buildPayload($input, $channelConfig);
+        $payloadResult = $this->buildPayload($input, $clinicId);
         if (!$payloadResult['ok']) {
             return $this->fail((string) $payloadResult['message']);
         }
@@ -141,7 +144,7 @@ class ControlPlaneWhatsAppTestSendService
         ];
     }
 
-    private function validatePlatformSecrets(array $channelConfig): array
+    private function validatePlatformSecrets(): array
     {
         $errors = [];
 
@@ -152,10 +155,9 @@ class ControlPlaneWhatsAppTestSendService
             }
         }
 
-        $configuredPhoneNumberId = trim((string) ($channelConfig['phone_number_id'] ?? $channelConfig['wa_phone_number_id'] ?? ''));
         $globalPhoneNumberId = trim((string) ($this->platformSecretModel->getSecret('wa_phone_number_id') ?? ''));
-        if ($configuredPhoneNumberId === '' && $globalPhoneNumberId === '') {
-            $errors[] = 'WhatsApp Phone Number ID is missing from both clinic config and platform secrets.';
+        if ($globalPhoneNumberId === '') {
+            $errors[] = 'WhatsApp Phone Number ID is missing from platform secrets.';
         }
 
         return $errors;
@@ -186,7 +188,7 @@ class ControlPlaneWhatsAppTestSendService
         ];
     }
 
-    private function buildPayload(array $input, array $channelConfig): array
+    private function buildPayload(array $input, int $clinicId): array
     {
         $mode = strtolower(trim((string) ($input['send_mode'] ?? 'text')));
         if (!in_array($mode, ['text', 'template'], true)) {
@@ -223,21 +225,21 @@ class ControlPlaneWhatsAppTestSendService
         }
 
         $templateName = trim((string) ($input['template_name'] ?? ''));
-        $templateLanguage = trim((string) ($input['template_language'] ?? 'en_US'));
+        $templateLanguage = trim((string) ($input['template_language'] ?? WhatsAppTemplateRegistryService::FORCED_LANGUAGE));
 
         if ($templateSource === 'fallback') {
-            $fallback = is_array($channelConfig['fallback_template'] ?? null) ? $channelConfig['fallback_template'] : [];
+            $fallback = $this->templateRegistry->getGlobalFallbackTemplate();
             $templateName = trim((string) ($fallback['name'] ?? ''));
-            $templateLanguage = trim((string) ($fallback['language'] ?? 'ar'));
+            $templateLanguage = trim((string) ($fallback['language'] ?? WhatsAppTemplateRegistryService::FORCED_LANGUAGE));
             if ($templateName === '') {
                 return [
                     'ok' => false,
-                    'message' => 'The selected clinic does not have a fallback template configured.',
+                    'message' => 'The control plane does not have a fallback template configured.',
                 ];
             }
         } elseif ($templateSource === 'trigger_template') {
             $triggerKey = trim((string) ($input['trigger_key'] ?? ''));
-            $triggerTemplates = $this->triggerCatalog->normalizeTriggerTemplateConfig($channelConfig['trigger_templates'] ?? []);
+            $triggerTemplates = $this->templateRegistry->getGlobalTriggerTemplates();
             $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : null;
             if ($triggerConfig === null) {
                 return [
@@ -251,11 +253,11 @@ class ControlPlaneWhatsAppTestSendService
             if ($templateName === '') {
                 return [
                     'ok' => false,
-                    'message' => 'The selected clinic does not have an approved template configured for that trigger.',
+                    'message' => 'The control plane does not have an approved template configured for that trigger.',
                 ];
             }
 
-            $templateVars = $this->buildTriggerTemplateVarsFromGuidedInput($triggerConfig, $input);
+            $templateVars = $this->buildTriggerTemplateVarsFromGuidedInput($clinicId, $triggerConfig, $input);
             $components = $this->buildTriggerTemplateComponents($triggerConfig, $templateVars);
 
             return [
@@ -277,7 +279,7 @@ class ControlPlaneWhatsAppTestSendService
         }
 
         if ($templateLanguage === '') {
-            $templateLanguage = $templateSource === 'fallback' ? 'ar' : 'en_US';
+            $templateLanguage = WhatsAppTemplateRegistryService::FORCED_LANGUAGE;
         }
 
         $componentsJson = trim((string) ($input['template_components_json'] ?? ''));
@@ -316,9 +318,9 @@ class ControlPlaneWhatsAppTestSendService
         ];
     }
 
-    private function buildTriggerTemplateVarsFromGuidedInput(array $triggerConfig, array $input): array
+    private function buildTriggerTemplateVarsFromGuidedInput(int $clinicId, array $triggerConfig, array $input): array
     {
-        $vars = [];
+        $vars = $this->buildClinicTemplateVars($clinicId);
 
         $headerText = trim((string) ($input['template_header_text'] ?? ''));
         $headerParamKey = trim((string) ($triggerConfig['header_param_key'] ?? ''));
@@ -345,6 +347,40 @@ class ControlPlaneWhatsAppTestSendService
         $buttonParamKey = trim((string) ($triggerConfig['button_param_key'] ?? ''));
         if ($buttonValue !== '' && $buttonParamKey !== '') {
             $vars[$buttonParamKey] = $buttonValue;
+        }
+
+        return $vars;
+    }
+
+    private function buildClinicTemplateVars(int $clinicId): array
+    {
+        $vars = [
+            'clinic_name' => '',
+            'clinic_phone' => '',
+            'clinic_address' => '',
+        ];
+
+        if ($clinicId <= 0) {
+            return $vars;
+        }
+
+        $settingsRows = $this->settingsModel
+            ->withoutTenantScope()
+            ->select('setting_key, setting_value')
+            ->where('clinic_id', $clinicId)
+            ->whereIn('setting_key', ['clinic_name', 'clinic_phone', 'clinic_address'])
+            ->findAll();
+
+        foreach ($settingsRows as $row) {
+            $key = (string) ($row['setting_key'] ?? '');
+            if (array_key_exists($key, $vars)) {
+                $vars[$key] = trim((string) ($row['setting_value'] ?? ''));
+            }
+        }
+
+        if ($vars['clinic_name'] === '') {
+            $clinic = $this->clinicModel->find($clinicId);
+            $vars['clinic_name'] = trim((string) ($clinic['name'] ?? ''));
         }
 
         return $vars;

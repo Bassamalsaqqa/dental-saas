@@ -82,6 +82,7 @@ $routes->group('controlplane', function ($routes) {
         $routes->post('exit', 'ControlPlane::exit');
         $routes->post('settings/email-templates', 'ControlPlane\Settings::storeEmailTemplate');
         $routes->post('settings/email-templates/(:num)', 'ControlPlane\Settings::updateEmailTemplate/$1');
+        $routes->post('settings/whatsapp-templates', 'ControlPlane\Settings::updateWhatsAppTemplates');
         $routes->post('settings/platform', 'ControlPlane\Settings::updatePlatform');
         $routes->post('settings/retention', 'ControlPlane\Settings::updateRetention');
         $routes->post('settings/retention/prune', 'ControlPlane\Settings::pruneExports');

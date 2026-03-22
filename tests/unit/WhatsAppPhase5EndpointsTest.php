@@ -5,7 +5,9 @@ namespace Tests\Unit;
 use App\Models\ClinicNotificationChannelModel;
 use App\Models\PatientModel;
 use App\Models\PlatformSecretModel;
+use App\Models\SettingsModel;
 use App\Models\WhatsAppTenantPolicyModel;
+use App\Services\WhatsAppTemplateRegistryService;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\FeatureTestTrait;
 
@@ -56,12 +58,34 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
         $session->set('active_clinic_id', $clinicId);
 
         $channelModel = new ClinicNotificationChannelModel();
+        $secretModel = new PlatformSecretModel();
+        $settingsModel = new SettingsModel();
         $originalConfig = $channelModel->getConfig((int) $clinicId, 'whatsapp');
+        $originalPhoneNumberId = $secretModel->getSecret('wa_phone_number_id');
+        $originalTriggers = $settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES, null);
+        $originalFallback = $settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE, null);
+
         try {
             $channelModel->setConfig((int) $clinicId, 'whatsapp', [
-                'phone_number_id' => '1234567890',
                 'api_version' => 'v22.0',
             ]);
+            $secretModel->setSecret('wa_phone_number_id', '1234567890', 1, 'phpunit');
+            $settingsModel->setGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES, [
+                'appointment_reminder' => [
+                    'name' => 'appointment_reminder_ar_v1',
+                    'language' => 'ar',
+                    'header_param_key' => 'clinic_name',
+                    'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time', 'clinic_name'],
+                    'button_type' => '',
+                    'button_index' => '0',
+                    'button_param_key' => '',
+                ],
+            ], 'json', 'phpunit');
+            $settingsModel->setGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE, [
+                'name' => 'general_reengagement_ar',
+                'language' => 'ar',
+                'components' => [],
+            ], 'json', 'phpunit');
         } finally {
             $session->set('active_clinic_id', $originalClinicId);
         }
@@ -80,15 +104,17 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             $json = json_decode((string) $response->getJSON(), true);
             $this->assertIsArray($json);
             $this->assertSame('1234567890', (string) ($json['config']['phone_number_id'] ?? ''));
+            $this->assertTrue((bool) ($json['config']['managed_by_control_plane'] ?? false));
             $this->assertSame('ar', (string) ($json['config']['fallback_template']['language'] ?? ''));
+            $this->assertSame('general_reengagement_ar', (string) ($json['config']['fallback_template']['name'] ?? ''));
             $this->assertSame('template_only', (string) ($json['config']['trigger_templates']['appointment_reminder']['strategy'] ?? ''));
             $this->assertSame(
-                ['patient_name', 'appointment_date', 'appointment_time'],
+                ['patient_name', 'appointment_date', 'appointment_time', 'clinic_name'],
                 array_values($json['config']['trigger_templates']['appointment_reminder']['body_param_keys'] ?? [])
             );
             $this->assertSame(
-                'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
-                (string) ($json['config']['message_templates']['appointment_reminder'] ?? '')
+                'appointment_reminder_ar_v1',
+                (string) ($json['config']['trigger_templates']['appointment_reminder']['name'] ?? '')
             );
         } finally {
             $session->set('active_clinic_id', $clinicId);
@@ -101,10 +127,52 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                         ->where('channel_type', 'whatsapp')
                         ->delete();
                 }
+
+                if (is_string($originalPhoneNumberId) && $originalPhoneNumberId !== '') {
+                    $secretModel->setSecret('wa_phone_number_id', $originalPhoneNumberId, 1, 'phpunit-restore');
+                }
+
+                $settingsModel->setGlobalSetting(
+                    WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES,
+                    is_array($originalTriggers) ? $originalTriggers : [],
+                    'json',
+                    'phpunit-restore'
+                );
+                $settingsModel->setGlobalSetting(
+                    WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE,
+                    is_array($originalFallback) ? $originalFallback : [],
+                    'json',
+                    'phpunit-restore'
+                );
             } finally {
                 $session->set('active_clinic_id', $originalClinicId);
             }
         }
+    }
+
+    public function testSettingsUpdateChannelConfigRejectsWhatsAppTenantTemplateMutation(): void
+    {
+        $clinicId = $this->findAnyClinicId();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No clinic row found for updateChannelConfig test.');
+        }
+
+        $response = $this->postWithCsrf(
+            '/settings/updateChannelConfig',
+            [
+                'channel_type' => 'whatsapp',
+                'action' => 'save_config',
+                'config_json' => json_encode(['template_name' => 'tenant_owned'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ],
+            ['active_clinic_id' => $clinicId],
+            ['X-Requested-With' => 'XMLHttpRequest']
+        );
+
+        $response->assertStatus(200);
+        $response->assertJSONFragment([
+            'success' => false,
+            'message' => 'WhatsApp template configuration is managed from control plane. Clinics can only manage trigger enable/disable settings.',
+        ]);
     }
 
     public function testPatientWhatsAppIdentityRequiresAjax(): void
@@ -386,7 +454,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                 'send_mode' => 'template',
                 'template_name' => 'approved_template',
                 'template_language' => 'en_US',
-                'template_components_json' => '{\"bad-json\"',
+                'template_components_json' => '{"bad-json"',
             ],
             ['user_id' => 1]
         );
@@ -449,6 +517,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
     {
         $this->withRoutes([
             ['POST', 'settings/getChannelConfig', 'Settings::getChannelConfig'],
+            ['POST', 'settings/updateChannelConfig', 'Settings::updateChannelConfig'],
             ['POST', 'settings/testWhatsAppChannel', 'Settings::testWhatsAppChannel'],
             ['POST', 'patient/(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1'],
             ['POST', 'controlplane/whatsapp/rotate-secret', 'ControlPlane\WhatsApp::rotateSecret'],

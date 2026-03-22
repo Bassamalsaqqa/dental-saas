@@ -1749,3 +1749,38 @@
     - `vendor\bin\phpunit --filter WhatsAppTriggerCatalogTest` -> `OK (2 tests, 26 assertions)` with existing no-coverage-driver warning.
     - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 48 assertions)` with existing no-coverage-driver warning.
     - `php spark whatsapp:ops-check` -> `Overall status: PASS`
+
+### Task: WHATSAPP-PHASE6-10 Global Arabic Template Ownership + Clinic Variable Injection
+- **Date:** 2026-03-22
+- **Status:** Completed
+- **Description:** Reworked WhatsApp template ownership so templates are centrally managed in control plane, Arabic-only across all clinics, while clinic-specific identity fields are injected at send time. Removed tenant-owned template editing from the clinic settings surface and kept per-trigger enable/disable controls per clinic.
+- **Actions:**
+    - Added `app/Services/WhatsAppTemplateRegistryService.php` as the canonical storage layer for:
+      - `whatsapp_global_trigger_templates`
+      - `whatsapp_global_fallback_template`
+    - Forced global WhatsApp template language to `ar` and normalized registry reads/writes through the trigger catalog.
+    - Updated `WhatsAppTriggerCatalog` to expose shared clinic variables for every workflow trigger:
+      - `clinic_name`
+      - `clinic_phone`
+      - `clinic_address`
+    - Updated `WhatsAppWorkflowService` and `ControlPlaneWhatsAppTestSendService` to inject clinic variables into workflow payload assembly and guided trigger-template tests.
+    - Changed tenant `Settings` WhatsApp config normalization so clinics receive read-only control-plane-managed template metadata plus the platform phone number id.
+    - Blocked tenant-side WhatsApp template mutation in `Settings::updateChannelConfig`; clinics can now manage only trigger toggles.
+    - Added control-plane settings UI for shared Arabic WhatsApp templates with per-trigger approved template mapping and fallback template management.
+    - Rebuilt tenant WhatsApp settings UI into a clinic-facing operations view that explains the shared sender/template model and leaves only per-trigger workflow toggles editable.
+    - Added tests for the global template registry and for the tenant-side rejection path when attempting to edit WhatsApp template ownership from clinic settings.
+- **Verification:**
+    - `php -l app/Services/WhatsAppTemplateRegistryService.php`
+    - `php -l app/Services/WhatsAppWorkflowService.php`
+    - `php -l app/Services/ControlPlaneWhatsAppTestSendService.php`
+    - `php -l app/Controllers/Settings.php`
+    - `php -l app/Controllers/ControlPlane/Settings.php`
+    - `php -l app/Views/settings/partials/communications/whatsapp.php`
+    - `php -l app/Views/control_plane/settings_partials/communications/whatsapp.php`
+    - `php -l tests/unit/WhatsAppPhase5EndpointsTest.php`
+    - `php -l tests/unit/WhatsAppTemplateRegistryServiceTest.php`
+    - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest` -> `OK (2 tests, 10 assertions)` with existing no-coverage-driver warning.
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (13 tests, 53 assertions)` with existing no-coverage-driver warning.
+    - `vendor\bin\phpunit --filter WhatsAppTriggerCatalogTest` -> `OK (2 tests, 26 assertions)` with existing no-coverage-driver warning.
+    - `php spark whatsapp:ops-check` -> `Overall status: PASS`
+    - Browser verification on `https://localhost/dental-saas/controlplane/settings?tab=communications&subtab=whatsapp` confirmed the new control-plane template management surface renders with per-trigger mappings and clinic-variable guidance.
