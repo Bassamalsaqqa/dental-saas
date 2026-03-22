@@ -1693,3 +1693,28 @@
     - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 46 assertions)` with existing no-coverage-driver warning.
     - `php spark whatsapp:ops-check` -> `Overall status: PASS`
 
+
+### Task: WHATSAPP-PHASE6-08 Operator Console UX + Actionable Delivery Audit
+- **Date:** 2026-03-22
+- **Status:** Completed
+- **Description:** Reworked the control-plane WhatsApp operations surface into an operator-grade command center that explains BSUID identity fields, highlights out-of-session failures, and shows detailed delivery/audit context per message instead of raw internal rows.
+- **Actions:**
+    - Expanded `NotificationAttemptModel::getControlPlaneRecentWhatsAppAttempts()` to join the notification ledger and patient identity fields so the page can show recipient, payload, and terminal notification state.
+    - Extended 24-hour aggregate stats with `read` counts and explicit `131047` session-window failure counts.
+    - Rebuilt `ControlPlane\WhatsApp::index()` data shaping to provide:
+      - actionable attempt rows
+      - needs-attention queue
+      - status mix summary
+      - parsed webhook summaries
+      - explicit operator guidance for BSUIDs and the 24-hour session rule
+    - Replaced the old WhatsApp view with a clearer two-surface layout:
+      - `Overview` for triage and recent activity
+      - `Audit Log` for detailed attempts, webhook trail, and opt-outs
+    - Added per-message delivery status visibility (`sent`, `delivered`, `read`, `failed`, etc.) and failure guidance on both overview and audit log tables.
+- **Verification:**
+    - `php -l app\Controllers\ControlPlane\WhatsApp.php`
+    - `php -l app\Models\NotificationAttemptModel.php`
+    - `php -l app\Views\control_plane\whatsapp.php`
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 46 assertions)` with existing no-coverage-driver warning.
+    - Browser verification with Playwright against `https://localhost/dental-saas/controlplane/whatsapp` covering both `Overview` and `Audit Log` tabs.
+    - `php spark whatsapp:ops-check` -> `Overall status: PASS`

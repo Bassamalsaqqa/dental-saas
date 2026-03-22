@@ -51,22 +51,35 @@ class WhatsApp extends BaseController
         $attemptCounts = $attemptModel->getControlPlaneWhatsAppCountsSince($since);
         $events24h = $eventModel->countSinceProcessed($since);
         $optouts24h = $optoutModel->countSince($since);
+        $recentAttempts = $attemptModel->getControlPlaneRecentWhatsAppAttempts(50);
+        $recentEvents = $eventModel->getRecentEvents(50);
+        $recentOptouts = $optoutModel->getControlPlaneRecentOptouts(50);
 
         $failureRate = $attemptCounts['total'] > 0
             ? round(($attemptCounts['failed'] / $attemptCounts['total']) * 100, 2)
             : 0.0;
 
+        $attemptConsole = $this->buildAttemptConsole($recentAttempts);
+        $webhookConsole = $this->buildWebhookConsole($recentEvents);
+        $optoutConsole = $this->buildOptoutConsole($recentOptouts);
+
         return $this->view('control_plane/whatsapp', [
             'title' => 'WhatsApp Operations',
             'active_tab' => $requestedTab,
-            'recent_attempts' => $attemptModel->getControlPlaneRecentWhatsAppAttempts(50),
-            'recent_events' => $eventModel->getRecentEvents(50),
-            'recent_optouts' => $optoutModel->getControlPlaneRecentOptouts(50),
+            'recent_attempts' => $attemptConsole['rows'],
+            'recent_events' => $webhookConsole['rows'],
+            'recent_optouts' => $optoutConsole,
+            'recent_stream' => array_slice($attemptConsole['rows'], 0, 8),
+            'needs_attention' => array_slice($attemptConsole['issues'], 0, 8),
+            'status_breakdown' => $attemptConsole['status_breakdown'],
+            'operator_guidance' => $this->buildOperatorGuidance(),
             'test_send_clinics' => $this->getTestSendClinics(),
             'stats' => [
                 'attempts_24h_total' => $attemptCounts['total'],
                 'attempts_24h_failed' => $attemptCounts['failed'],
                 'attempts_24h_sentish' => $attemptCounts['sentish'],
+                'attempts_24h_read' => $attemptCounts['read'] ?? 0,
+                'attempts_24h_session_restricted' => $attemptCounts['session_restricted'] ?? 0,
                 'failure_rate_24h' => $failureRate,
                 'events_24h' => $events24h,
                 'optouts_24h' => $optouts24h,
@@ -315,5 +328,398 @@ class WhatsApp extends BaseController
             ->where('clinic_notification_channels.validated', 1)
             ->orderBy('clinics.name', 'ASC')
             ->findAll();
+    }
+
+    private function buildAttemptConsole(array $rows): array
+    {
+        $items = [];
+        $issues = [];
+        $statusBreakdown = [
+            'pending' => 0,
+            'sent' => 0,
+            'delivered' => 0,
+            'read' => 0,
+            'failed' => 0,
+            'blocked' => 0,
+        ];
+
+        foreach ($rows as $row) {
+            $notificationPayload = $this->decodeJson((string) ($row['payload_json'] ?? ''));
+            $recipient = $this->formatRecipient($row);
+            $content = $this->describePayload($notificationPayload);
+            $attemptStatus = strtolower((string) ($row['status'] ?? 'pending'));
+            $notificationStatus = strtolower((string) ($row['notification_status'] ?? 'pending'));
+            $effectiveStatus = $this->resolveEffectiveStatus($notificationStatus, $attemptStatus);
+            $statusMeta = $this->statusMeta($effectiveStatus);
+            $deliveryMeta = $this->deriveDeliveryMeta($row);
+            $timestamps = $this->formatTimeline((string) ($row['created_at'] ?? ''));
+            $failure = $this->describeFailure($row);
+
+            $item = [
+                'attempt_id' => (int) ($row['id'] ?? 0),
+                'notification_id' => (int) ($row['notification_id'] ?? 0),
+                'clinic_name' => (string) ($row['clinic_name'] ?? 'Unknown clinic'),
+                'recipient' => $recipient,
+                'content' => $content,
+                'attempt_status' => $attemptStatus,
+                'notification_status' => $notificationStatus,
+                'effective_status' => $effectiveStatus,
+                'status_meta' => $statusMeta,
+                'delivery_meta' => $deliveryMeta,
+                'provider_message_id' => (string) ($row['provider_message_id'] ?? ''),
+                'error_code' => (string) ($row['error_code'] ?? ''),
+                'error_message' => (string) ($row['error_message'] ?? ''),
+                'failure_reason' => (string) ($row['notification_failure_reason'] ?? ''),
+                'failure' => $failure,
+                'created_at' => (string) ($row['created_at'] ?? ''),
+                'created_label' => $timestamps['date_time'],
+                'created_relative' => $timestamps['relative'],
+            ];
+
+            $items[] = $item;
+            $statusBreakdown[$effectiveStatus] = ($statusBreakdown[$effectiveStatus] ?? 0) + 1;
+
+            if ($failure['kind'] !== 'none') {
+                $issues[] = $item;
+            }
+        }
+
+        return [
+            'rows' => $items,
+            'issues' => $issues,
+            'status_breakdown' => $statusBreakdown,
+        ];
+    }
+
+    private function buildWebhookConsole(array $rows): array
+    {
+        $items = [];
+
+        foreach ($rows as $row) {
+            $payload = $this->decodeJson((string) ($row['payload_json'] ?? ''));
+            $summary = $this->summarizeWebhookEvent((string) ($row['event_type'] ?? ''), $payload);
+            $timestamps = $this->formatTimeline((string) ($row['processed_at'] ?? ''));
+
+            $items[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'event_type' => (string) ($row['event_type'] ?? 'unknown'),
+                'summary' => $summary,
+                'processed_at' => (string) ($row['processed_at'] ?? ''),
+                'processed_label' => $timestamps['date_time'],
+                'processed_relative' => $timestamps['relative'],
+                'payload_json' => (string) ($row['payload_json'] ?? '{}'),
+                'payload_pretty' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            ];
+        }
+
+        return ['rows' => $items];
+    }
+
+    private function buildOptoutConsole(array $rows): array
+    {
+        $items = [];
+
+        foreach ($rows as $row) {
+            $timestamps = $this->formatTimeline((string) ($row['created_at'] ?? ''));
+            $items[] = [
+                'clinic_name' => (string) ($row['clinic_name'] ?? 'Unknown clinic'),
+                'wa_number' => (string) ($row['wa_number'] ?? ''),
+                'bsuid' => (string) ($row['bsuid'] ?? ''),
+                'parent_bsuid' => (string) ($row['parent_bsuid'] ?? ''),
+                'created_at' => (string) ($row['created_at'] ?? ''),
+                'created_label' => $timestamps['date_time'],
+                'created_relative' => $timestamps['relative'],
+            ];
+        }
+
+        return $items;
+    }
+
+    private function buildOperatorGuidance(): array
+    {
+        return [
+            [
+                'title' => 'BSUID, parent BSUID, and username',
+                'body' => 'These identifiers come from Meta webhook traffic. The app stores them automatically when WhatsApp sends inbound messages, status payloads, or user_id_update events. Many clinics will never need to look at them directly unless you are debugging recipient identity changes.',
+            ],
+            [
+                'title' => '24-hour session window',
+                'body' => 'Free-form text messages work only inside the active customer service window. If a send fails with Meta code 131047, the operator should send an approved template or wait for the customer to reply first.',
+            ],
+            [
+                'title' => 'Template-first testing',
+                'body' => 'Use template mode for out-of-session testing and for production-grade business-initiated messaging. Use text mode only when you explicitly know the contact has reopened the conversation window.',
+            ],
+        ];
+    }
+
+    private function decodeJson(string $json): array
+    {
+        if ($json === '') {
+            return [];
+        }
+
+        $decoded = json_decode($json, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private function formatRecipient(array $row): array
+    {
+        $recipientType = (string) ($row['recipient_type'] ?? 'external');
+        $recipientAddress = trim((string) ($row['recipient_address'] ?? ''));
+        $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+        $recipientId = (int) ($row['recipient_id'] ?? 0);
+
+        if ($recipientType === 'patient') {
+            return [
+                'label' => $patientName !== '' ? $patientName : ('Patient #' . $recipientId),
+                'secondary' => $recipientAddress !== '' ? $this->formatRecipientAddress($recipientAddress) : ('Patient record #' . $recipientId),
+            ];
+        }
+
+        return [
+            'label' => $this->formatRecipientAddress($recipientAddress),
+            'secondary' => $recipientType === 'external' ? 'External test recipient' : ucfirst($recipientType),
+        ];
+    }
+
+    private function formatRecipientAddress(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return 'Unknown recipient';
+        }
+
+        if (preg_match('/^\d{8,15}$/', $value)) {
+            return '+' . $value;
+        }
+
+        return $value;
+    }
+
+    private function describePayload(array $payload): array
+    {
+        $templateName = trim((string) ($payload['template_name'] ?? ''));
+        if ($templateName !== '') {
+            $templateLanguage = trim((string) ($payload['template_language'] ?? ''));
+            $templateSource = trim((string) ($payload['template_source'] ?? 'explicit'));
+
+            return [
+                'kind' => 'template',
+                'title' => $templateName,
+                'subtitle' => strtoupper($templateLanguage !== '' ? $templateLanguage : 'N/A') . ' · ' . ($templateSource === 'fallback' ? 'Clinic fallback template' : 'Explicit template'),
+                'preview' => $this->templatePreview($payload),
+            ];
+        }
+
+        $message = trim((string) ($payload['message'] ?? $payload['body'] ?? ''));
+        return [
+            'kind' => 'text',
+            'title' => 'Free-form text',
+            'subtitle' => 'Session-window send',
+            'preview' => $message !== '' ? mb_strimwidth($message, 0, 120, '...') : 'No message body recorded',
+        ];
+    }
+
+    private function templatePreview(array $payload): string
+    {
+        $components = $payload['template_components'] ?? [];
+        if (!is_array($components) || $components === []) {
+            return 'No explicit template parameters recorded';
+        }
+
+        $parts = [];
+        foreach ($components as $component) {
+            if (!is_array($component)) {
+                continue;
+            }
+            $type = strtolower((string) ($component['type'] ?? 'component'));
+            $parameters = $component['parameters'] ?? [];
+            if (!is_array($parameters)) {
+                $parameters = [];
+            }
+            $rendered = [];
+            foreach ($parameters as $parameter) {
+                if (!is_array($parameter)) {
+                    continue;
+                }
+                $rendered[] = (string) ($parameter['text'] ?? $parameter['payload'] ?? '');
+            }
+            $rendered = array_values(array_filter($rendered, static fn(string $value): bool => trim($value) !== ''));
+            if ($rendered !== []) {
+                $parts[] = ucfirst($type) . ': ' . implode(' · ', $rendered);
+            }
+        }
+
+        return $parts !== [] ? implode(' | ', $parts) : 'Template parameters recorded';
+    }
+
+    private function resolveEffectiveStatus(string $notificationStatus, string $attemptStatus): string
+    {
+        foreach ([$notificationStatus, $attemptStatus] as $status) {
+            if (in_array($status, ['read', 'delivered', 'sent', 'pending', 'blocked'], true)) {
+                return $status;
+            }
+            if (in_array($status, ['failed', 'failed_permanent', 'rate_limited'], true)) {
+                return 'failed';
+            }
+        }
+
+        return 'pending';
+    }
+
+    private function statusMeta(string $status): array
+    {
+        return match ($status) {
+            'read' => ['label' => 'Read', 'class' => 'bg-emerald-100 text-emerald-800 border-emerald-200'],
+            'delivered' => ['label' => 'Delivered', 'class' => 'bg-teal-100 text-teal-800 border-teal-200'],
+            'sent' => ['label' => 'Sent', 'class' => 'bg-blue-100 text-blue-800 border-blue-200'],
+            'blocked' => ['label' => 'Blocked', 'class' => 'bg-amber-100 text-amber-800 border-amber-200'],
+            'failed' => ['label' => 'Failed', 'class' => 'bg-rose-100 text-rose-800 border-rose-200'],
+            default => ['label' => 'Pending', 'class' => 'bg-slate-100 text-slate-700 border-slate-200'],
+        };
+    }
+
+    private function deriveDeliveryMeta(array $row): array
+    {
+        $providerMessageId = trim((string) ($row['provider_message_id'] ?? ''));
+        if ($providerMessageId !== '') {
+            return [
+                'label' => 'Provider message id',
+                'value' => $providerMessageId,
+            ];
+        }
+
+        $errorCode = trim((string) ($row['error_code'] ?? ''));
+        if ($errorCode !== '') {
+            return [
+                'label' => 'Provider error code',
+                'value' => $errorCode,
+            ];
+        }
+
+        return [
+            'label' => 'Dispatcher state',
+            'value' => strtoupper((string) ($row['status'] ?? 'pending')),
+        ];
+    }
+
+    private function describeFailure(array $row): array
+    {
+        $errorCode = trim((string) ($row['error_code'] ?? ''));
+        $errorMessage = trim((string) ($row['error_message'] ?? ''));
+        $failureReason = trim((string) ($row['notification_failure_reason'] ?? ''));
+
+        if ($errorCode === '131047') {
+            return [
+                'kind' => 'session_window',
+                'title' => 'Outside the 24-hour customer service window',
+                'detail' => 'Use an approved template or wait for the customer to reply before retrying free-form text.',
+            ];
+        }
+
+        if ($failureReason === 'WHATSAPP_RECIPIENT_OPTOUT') {
+            return [
+                'kind' => 'optout',
+                'title' => 'Recipient opted out',
+                'detail' => 'Do not retry until the customer explicitly opts back in.',
+            ];
+        }
+
+        if ($errorCode !== '') {
+            return [
+                'kind' => 'provider_error',
+                'title' => 'Provider rejected the send',
+                'detail' => trim('Code ' . $errorCode . ($errorMessage !== '' ? ': ' . $errorMessage : '')),
+            ];
+        }
+
+        if ($failureReason !== '') {
+            return [
+                'kind' => 'workflow_error',
+                'title' => 'Notification failed before delivery',
+                'detail' => $failureReason,
+            ];
+        }
+
+        return [
+            'kind' => 'none',
+            'title' => '',
+            'detail' => '',
+        ];
+    }
+
+    private function summarizeWebhookEvent(string $eventType, array $payload): array
+    {
+        $normalizedType = strtolower($eventType);
+
+        if (str_starts_with($normalizedType, 'status:')) {
+            $errors = $payload['errors'][0] ?? [];
+            return [
+                'title' => ucfirst(substr($eventType, 7)) . ' webhook',
+                'detail' => trim((string) ($errors['title'] ?? $errors['message'] ?? 'Delivery status update received from Meta.')),
+                'code' => (string) ($errors['code'] ?? ''),
+                'subject' => (string) ($payload['recipient_id'] ?? $payload['to'] ?? ''),
+            ];
+        }
+
+        if ($normalizedType === 'message:inbound') {
+            return [
+                'title' => 'Inbound message',
+                'detail' => mb_strimwidth((string) ($payload['text']['body'] ?? 'Inbound WhatsApp message received.'), 0, 120, '...'),
+                'code' => '',
+                'subject' => (string) ($payload['from'] ?? $payload['wa_id'] ?? ''),
+            ];
+        }
+
+        if ($normalizedType === 'user_id_update') {
+            return [
+                'title' => 'Identity update',
+                'detail' => 'Meta sent a BSUID / parent BSUID update for an existing WhatsApp contact.',
+                'code' => '',
+                'subject' => (string) ($payload['user_id'] ?? $payload['parent_user_id'] ?? ''),
+            ];
+        }
+
+        return [
+            'title' => ucfirst(str_replace(':', ' ', $eventType)),
+            'detail' => 'Webhook event stored for audit and replay.',
+            'code' => '',
+            'subject' => '',
+        ];
+    }
+
+    private function formatTimeline(string $timestamp): array
+    {
+        if ($timestamp === '') {
+            return [
+                'date_time' => 'Unknown time',
+                'relative' => '',
+            ];
+        }
+
+        $unix = strtotime($timestamp);
+        if ($unix === false) {
+            return [
+                'date_time' => $timestamp,
+                'relative' => '',
+            ];
+        }
+
+        $delta = time() - $unix;
+        if ($delta < 60) {
+            $relative = 'just now';
+        } elseif ($delta < 3600) {
+            $relative = floor($delta / 60) . 'm ago';
+        } elseif ($delta < 86400) {
+            $relative = floor($delta / 3600) . 'h ago';
+        } else {
+            $relative = floor($delta / 86400) . 'd ago';
+        }
+
+        return [
+            'date_time' => date('Y-m-d H:i:s', $unix),
+            'relative' => $relative,
+        ];
     }
 }

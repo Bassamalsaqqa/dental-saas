@@ -37,8 +37,10 @@ class NotificationAttemptModel extends TenantAwareModel
         $limit = max(1, min($limit, 200));
 
         return $this->withoutTenantScope()
-            ->select('notification_attempts.*, clinics.name AS clinic_name')
+            ->select("notification_attempts.*, clinics.name AS clinic_name, notifications.status AS notification_status, notifications.failure_reason AS notification_failure_reason, notifications.recipient_type, notifications.recipient_id, notifications.recipient_address, notifications.payload_json, notifications.initiated_by_user_id, patients.first_name AS patient_first_name, patients.last_name AS patient_last_name")
             ->join('clinics', 'clinics.id = notification_attempts.clinic_id', 'left')
+            ->join('notifications', 'notifications.id = notification_attempts.notification_id', 'left')
+            ->join('patients', "patients.id = notifications.recipient_id AND notifications.recipient_type = 'patient' AND patients.clinic_id = notifications.clinic_id", 'left')
             ->where('notification_attempts.channel_type', 'whatsapp')
             ->orderBy('notification_attempts.id', 'DESC')
             ->limit($limit)
@@ -64,10 +66,24 @@ class NotificationAttemptModel extends TenantAwareModel
             ->whereIn('status', ['sent', 'delivered', 'read'])
             ->countAllResults();
 
+        $read = $this->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->where('created_at >=', $since)
+            ->where('status', 'read')
+            ->countAllResults();
+
+        $sessionRestricted = $this->withoutTenantScope()
+            ->where('channel_type', 'whatsapp')
+            ->where('created_at >=', $since)
+            ->where('error_code', '131047')
+            ->countAllResults();
+
         return [
             'total' => (int) $total,
             'failed' => (int) $failed,
             'sentish' => (int) $sent,
+            'read' => (int) $read,
+            'session_restricted' => (int) $sessionRestricted,
         ];
     }
 }
