@@ -2,6 +2,7 @@
 $waGlobalTemplates = is_array($wa_global_templates ?? null) ? $wa_global_templates : [];
 $waGlobalTriggerTemplates = is_array($waGlobalTemplates['trigger_templates'] ?? null) ? $waGlobalTemplates['trigger_templates'] : [];
 $waGlobalFallback = is_array($waGlobalTemplates['fallback_template'] ?? null) ? $waGlobalTemplates['fallback_template'] : [];
+$waGlobalTriggerToggles = is_array($waGlobalTemplates['trigger_toggles'] ?? null) ? $waGlobalTemplates['trigger_toggles'] : [];
 $waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog : [];
 ?>
 
@@ -43,11 +44,35 @@ $waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog 
                 </div>
             </div>
 
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                        <h5 class="text-sm font-bold text-slate-900">Platform trigger master switches</h5>
+                        <p class="mt-1 text-xs text-slate-500">This is the platform-wide rollout layer. A trigger must be enabled here, allowed by the clinic plan, and enabled for the individual clinic before automated sends can run.</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-indigo-700">Master Layer</span>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                        <?php $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1; ?>
+                        <label class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 gap-4">
+                            <div>
+                                <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                            </div>
+                            <input type="checkbox" name="global_trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $platformEnabled ? 'checked' : '' ?>>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
             <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
                 <?php
                 $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
                 $bodyParamKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
                 $availableVars = is_array($triggerMeta['available_vars'] ?? null) ? $triggerMeta['available_vars'] : [];
+                $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
                 ?>
                 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -55,7 +80,12 @@ $waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog 
                             <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                             <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
                         </div>
-                        <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">Template Required</span>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700">Template Required</span>
+                            <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' ?>">
+                                <?= $platformEnabled ? 'Platform Enabled' : 'Platform Disabled' ?>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="mt-4 grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -141,36 +171,104 @@ $waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog 
     </div>
 
     <div id="section-whatsapp-rate-limits" data-section-title="Tenant Rate Limits" class="pt-2 border-t border-slate-100">
-        <h4 class="text-sm font-bold text-slate-800 mb-3">Tenant Rate Limits</h4>
-        <div class="overflow-x-auto border border-slate-200 rounded-xl">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Clinic</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Daily</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Monthly</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Per Hour</th>
-                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">Action</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                <?php foreach (($wa_policies ?? []) as $pol): ?>
-                    <tr>
-                        <td class="px-4 py-3"><?= esc($pol['clinic_name']) ?></td>
-                        <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="daily_limit" value="<?= (int) $pol['daily_limit'] ?>" class="control-settings-field w-20 px-2 py-1 text-xs"></td>
-                        <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="monthly_limit" value="<?= (int) $pol['monthly_limit'] ?>" class="control-settings-field w-24 px-2 py-1 text-xs"></td>
-                        <td class="px-4 py-3"><input type="number" form="policy-form-<?= (int) $pol['clinic_id'] ?>" name="per_hour_limit" value="<?= (int) $pol['per_hour_limit'] ?>" class="control-settings-field w-20 px-2 py-1 text-xs"></td>
-                        <td class="px-4 py-3">
-                            <form id="policy-form-<?= (int) $pol['clinic_id'] ?>" action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" data-settings-form="true" data-saving-label="Saving policy...">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="clinic_id" value="<?= (int) $pol['clinic_id'] ?>">
-                                <button type="submit" class="control-settings-submit px-4 py-2 text-xs">Save</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+        <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+                <h4 class="text-sm font-bold text-slate-800">Clinic rollout and rate controls</h4>
+                <p class="text-xs text-slate-500 mt-1">Each clinic still provides its own clinic profile details in tenant settings. Use this control-plane section to decide which clinics can run each workflow and what rate limits apply.</p>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600">Clinic Layer</span>
+        </div>
+
+        <div class="space-y-4">
+            <?php foreach (($wa_policies ?? []) as $pol): ?>
+                <?php
+                $clinicToggles = $pol['trigger_toggles_json'] ?? [];
+                if (is_string($clinicToggles)) {
+                    $clinicToggles = json_decode($clinicToggles, true);
+                }
+                $clinicToggles = is_array($clinicToggles) ? $clinicToggles : [];
+                ?>
+                <form id="policy-form-<?= (int) $pol['clinic_id'] ?>" action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-5" data-settings-form="true" data-saving-label="Saving policy...">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="clinic_id" value="<?= (int) $pol['clinic_id'] ?>">
+
+                    <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                        <div>
+                            <p class="text-base font-bold text-slate-900"><?= esc($pol['clinic_name']) ?></p>
+                            <p class="mt-1 text-xs text-slate-500">Control clinic-specific rollout and throughput here. Template content remains shared and Arabic-only at the platform level.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= !empty($pol['suspended']) ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700' ?>">
+                                <?= !empty($pol['suspended']) ? 'Emergency Paused' : 'Dispatch Active' ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-[0.12em]">Daily</label>
+                            <input type="number" name="daily_limit" value="<?= (int) $pol['daily_limit'] ?>" class="control-settings-field mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-[0.12em]">Monthly</label>
+                            <input type="number" name="monthly_limit" value="<?= (int) $pol['monthly_limit'] ?>" class="control-settings-field mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-[0.12em]">Per Hour</label>
+                            <input type="number" name="per_hour_limit" value="<?= (int) $pol['per_hour_limit'] ?>" class="control-settings-field mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-[0.12em]">Reminder Lead (Minutes)</label>
+                            <input type="number" name="reminder_lead_time_minutes" value="<?= (int) ($pol['reminder_lead_time_minutes'] ?? 1440) ?>" class="control-settings-field mt-2 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Clinic trigger switches</p>
+                                <p class="mt-1 text-xs text-slate-500">These switches only apply if the clinic plan includes WhatsApp and the platform master switch for the trigger is enabled.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                            <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                                <?php
+                                $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                $clinicEnabled = (int) ($clinicToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                ?>
+                                <label class="flex items-center justify-between rounded-2xl border border-white bg-white px-4 py-4 gap-4">
+                                    <div>
+                                        <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                        <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                        <?php if (!$platformEnabled): ?>
+                                            <p class="mt-2 text-[11px] font-bold text-rose-600 uppercase tracking-[0.12em]">Platform-disabled</p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $clinicEnabled ? 'checked' : '' ?> <?= !$platformEnabled ? 'disabled' : '' ?>>
+                                </label>
+                                <?php if (!$platformEnabled && $clinicEnabled): ?>
+                                    <input type="hidden" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1">
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-[auto,1fr,auto] gap-4 items-end">
+                        <label class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <input type="checkbox" name="suspended" value="1" class="ui-toggle" <?= !empty($pol['suspended']) ? 'checked' : '' ?>>
+                            <span class="text-sm font-bold text-slate-800">Emergency pause clinic</span>
+                        </label>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-[0.12em]">Pause reason</label>
+                            <input type="text" name="suspended_reason" value="<?= esc($pol['suspended_reason'] ?? '') ?>" class="control-settings-field mt-2 text-sm" placeholder="Optional reason shown in audit trail">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="control-settings-submit px-4 py-2 text-xs">Save Clinic Policy</button>
+                        </div>
+                    </div>
+                </form>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>

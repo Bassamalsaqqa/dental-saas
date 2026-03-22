@@ -8,6 +8,7 @@ class WhatsAppTemplateRegistryService
 {
     public const SETTINGS_KEY_TRIGGER_TEMPLATES = 'whatsapp_global_trigger_templates';
     public const SETTINGS_KEY_FALLBACK_TEMPLATE = 'whatsapp_global_fallback_template';
+    public const SETTINGS_KEY_TRIGGER_TOGGLES = 'whatsapp_global_trigger_toggles';
     public const FORCED_LANGUAGE = 'ar';
 
     protected SettingsModel $settingsModel;
@@ -24,7 +25,32 @@ class WhatsAppTemplateRegistryService
         return [
             'trigger_templates' => $this->getGlobalTriggerTemplates(),
             'fallback_template' => $this->getGlobalFallbackTemplate(),
+            'trigger_toggles' => $this->getGlobalTriggerToggles(),
         ];
+    }
+
+    public function getGlobalTriggerToggles(): array
+    {
+        $stored = $this->settingsModel->getGlobalSetting(self::SETTINGS_KEY_TRIGGER_TOGGLES, []);
+        $defaults = $this->triggerCatalog->defaultTriggerToggles();
+        $stored = is_array($stored) ? $stored : [];
+
+        $toggles = [];
+        foreach ($defaults as $triggerKey => $default) {
+            $toggles[$triggerKey] = (int) ($stored[$triggerKey] ?? $default) === 1 ? 1 : 0;
+        }
+
+        return $toggles;
+    }
+
+    public function isGlobalTriggerEnabled(string $triggerKey): bool
+    {
+        $toggles = $this->getGlobalTriggerToggles();
+        if (!array_key_exists($triggerKey, $toggles)) {
+            return true;
+        }
+
+        return (int) $toggles[$triggerKey] === 1;
     }
 
     public function getGlobalTriggerTemplates(): array
@@ -51,11 +77,16 @@ class WhatsAppTemplateRegistryService
         ];
     }
 
-    public function saveGlobalConfig(array $triggerTemplates, array $fallbackTemplate): bool
+    public function saveGlobalConfig(array $triggerTemplates, array $fallbackTemplate, array $triggerToggles = []): bool
     {
         $normalizedTriggers = $this->triggerCatalog->normalizeTriggerTemplateConfig($triggerTemplates);
         foreach ($normalizedTriggers as $triggerKey => $config) {
             $normalizedTriggers[$triggerKey]['language'] = self::FORCED_LANGUAGE;
+        }
+
+        $normalizedToggles = [];
+        foreach ($this->triggerCatalog->defaultTriggerToggles() as $triggerKey => $default) {
+            $normalizedToggles[$triggerKey] = (int) ($triggerToggles[$triggerKey] ?? $default) === 1 ? 1 : 0;
         }
 
         $normalizedFallback = [
@@ -78,6 +109,13 @@ class WhatsAppTemplateRegistryService
             'Global WhatsApp fallback template managed by control plane.'
         );
 
-        return $savedTriggers && $savedFallback;
+        $savedToggles = $this->settingsModel->setGlobalSetting(
+            self::SETTINGS_KEY_TRIGGER_TOGGLES,
+            $normalizedToggles,
+            'json',
+            'Global WhatsApp trigger master switches managed by control plane.'
+        );
+
+        return $savedTriggers && $savedFallback && $savedToggles;
     }
 }

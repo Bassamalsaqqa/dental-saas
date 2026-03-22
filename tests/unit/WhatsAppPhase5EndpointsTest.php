@@ -64,6 +64,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
         $originalPhoneNumberId = $secretModel->getSecret('wa_phone_number_id');
         $originalTriggers = $settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES, null);
         $originalFallback = $settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE, null);
+        $originalGlobalToggles = $settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TOGGLES, null);
 
         try {
             $channelModel->setConfig((int) $clinicId, 'whatsapp', [
@@ -86,6 +87,13 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                 'language' => 'ar',
                 'components' => [],
             ], 'json', 'phpunit');
+            $settingsModel->setGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TOGGLES, [
+                'appointment_reminder' => 1,
+                'appointment_confirmation' => 0,
+                'follow_up' => 1,
+                'no_show_follow_up' => 1,
+                'payment_reminder' => 1,
+            ], 'json', 'phpunit');
         } finally {
             $session->set('active_clinic_id', $originalClinicId);
         }
@@ -107,6 +115,8 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             $this->assertTrue((bool) ($json['config']['managed_by_control_plane'] ?? false));
             $this->assertSame('ar', (string) ($json['config']['fallback_template']['language'] ?? ''));
             $this->assertSame('general_reengagement_ar', (string) ($json['config']['fallback_template']['name'] ?? ''));
+            $this->assertSame(1, (int) ($json['config']['global_trigger_toggles']['appointment_reminder'] ?? 0));
+            $this->assertSame(0, (int) ($json['config']['global_trigger_toggles']['appointment_confirmation'] ?? 1));
             $this->assertSame('template_only', (string) ($json['config']['trigger_templates']['appointment_reminder']['strategy'] ?? ''));
             $this->assertSame(
                 ['patient_name', 'appointment_date', 'appointment_time', 'clinic_name'],
@@ -141,6 +151,12 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                 $settingsModel->setGlobalSetting(
                     WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE,
                     is_array($originalFallback) ? $originalFallback : [],
+                    'json',
+                    'phpunit-restore'
+                );
+                $settingsModel->setGlobalSetting(
+                    WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TOGGLES,
+                    is_array($originalGlobalToggles) ? $originalGlobalToggles : [],
                     'json',
                     'phpunit-restore'
                 );
@@ -365,6 +381,12 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
                     'per_hour_limit' => 22,
                     'reminder_lead_time_minutes' => 60,
                     'suspended' => 0,
+                    'trigger_toggles' => [
+                        'appointment_reminder' => '1',
+                        'appointment_confirmation' => '1',
+                        'follow_up' => '0',
+                        'payment_reminder' => '1',
+                    ],
                 ],
                 ['user_id' => 1]
             );
@@ -375,6 +397,15 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             $this->assertIsArray($afterUpdate);
             $this->assertSame(55, (int) $afterUpdate['daily_limit']);
             $this->assertSame(1111, (int) $afterUpdate['monthly_limit']);
+            $toggles = $afterUpdate['trigger_toggles_json'] ?? [];
+            if (is_string($toggles)) {
+                $toggles = json_decode($toggles, true);
+            }
+            $this->assertIsArray($toggles);
+            $this->assertSame(1, (int) ($toggles['appointment_reminder'] ?? 0));
+            $this->assertSame(1, (int) ($toggles['appointment_confirmation'] ?? 0));
+            $this->assertSame(0, (int) ($toggles['follow_up'] ?? 1));
+            $this->assertSame(0, (int) ($toggles['no_show_follow_up'] ?? 1));
 
             $pauseResponse = $this->postWithCsrf(
                 '/controlplane/whatsapp/emergency-pause',

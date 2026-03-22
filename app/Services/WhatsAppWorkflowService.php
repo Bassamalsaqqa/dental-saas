@@ -24,6 +24,7 @@ class WhatsAppWorkflowService
     protected WhatsAppTenantPolicyModel $policyModel;
     protected WhatsAppTriggerCatalog $triggerCatalog;
     protected WhatsAppTemplateRegistryService $templateRegistry;
+    protected PlanGuard $planGuard;
     protected \CodeIgniter\Database\BaseConnection $db;
     protected array $policyCache = [];
 
@@ -40,6 +41,7 @@ class WhatsAppWorkflowService
         $this->policyModel = new WhatsAppTenantPolicyModel();
         $this->triggerCatalog = new WhatsAppTriggerCatalog();
         $this->templateRegistry = new WhatsAppTemplateRegistryService();
+        $this->planGuard = new PlanGuard();
         $this->db = \Config\Database::connect();
     }
 
@@ -435,7 +437,19 @@ class WhatsAppWorkflowService
             return true;
         }
 
+        if (!$this->planGuard->isFeatureEnabled($clinicId, 'notifications.whatsapp.enabled', false)) {
+            return false;
+        }
+
+        if (!$this->templateRegistry->isGlobalTriggerEnabled($triggerKey)) {
+            return false;
+        }
+
         $policy = $this->resolveTenantPolicy($clinicId);
+        if ((int) ($policy['suspended'] ?? 0) === 1) {
+            return false;
+        }
+
         $toggles = $policy['trigger_toggles_json'] ?? [];
         if (is_string($toggles)) {
             $toggles = json_decode($toggles, true);

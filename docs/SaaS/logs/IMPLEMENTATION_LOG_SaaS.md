@@ -1784,3 +1784,46 @@
     - `vendor\bin\phpunit --filter WhatsAppTriggerCatalogTest` -> `OK (2 tests, 26 assertions)` with existing no-coverage-driver warning.
     - `php spark whatsapp:ops-check` -> `Overall status: PASS`
     - Browser verification on `https://localhost/dental-saas/controlplane/settings?tab=communications&subtab=whatsapp` confirmed the new control-plane template management surface renders with per-trigger mappings and clinic-variable guidance.
+
+### Task: WHATSAPP-PHASE6-11 Platform Master Switches + Clinic-Level Rollout Controls
+- **Date:** 2026-03-22
+- **Status:** Completed
+- **Description:** Tightened the WhatsApp operating model into three explicit layers of authority: plan feature gate, platform master switch per trigger, and clinic-level trigger switches. Simplified the settings surfaces so template ownership remains central while clinic identity remains local to each tenant.
+- **Actions:**
+    - Extended `app/Services/WhatsAppTemplateRegistryService.php` with a new global settings registry for `whatsapp_global_trigger_toggles`.
+    - Updated `WhatsAppWorkflowService` so an automated trigger now runs only when:
+      - the clinic plan includes `notifications.whatsapp.enabled`
+      - the platform master switch for that trigger is enabled
+      - the clinic-level trigger toggle is enabled
+      - the clinic is not emergency-paused
+    - Updated control-plane WhatsApp settings to include platform-wide master switches for all five Arabic templates/triggers.
+    - Reworked the control-plane clinic policy area so each clinic now has:
+      - per-trigger rollout switches
+      - rate limits
+      - reminder lead time
+      - emergency pause state
+      - audit-backed save action in one card
+    - Updated `ControlPlane\WhatsApp::updatePolicy()` to persist clinic trigger toggles alongside rate limits and suspension state.
+    - Updated tenant WhatsApp settings to show:
+      - platform trigger availability
+      - explicit guidance on where templates are edited
+      - an in-page link back to the tenant `Clinic Profile` tab where clinic name/phone/address are maintained
+    - Updated tenant WhatsApp config normalization so clinics receive the platform master-switch state in addition to shared template metadata.
+    - Added/updated tests for:
+      - global trigger toggle registry defaults and persistence
+      - tenant config exposure of global trigger toggles
+      - control-plane clinic policy persistence for trigger toggles
+- **Verification:**
+    - `php -l app/Services/WhatsAppTemplateRegistryService.php`
+    - `php -l app/Services/WhatsAppWorkflowService.php`
+    - `php -l app/Controllers/ControlPlane/Settings.php`
+    - `php -l app/Controllers/ControlPlane/WhatsApp.php`
+    - `php -l app/Controllers/Settings.php`
+    - `php -l app/Views/control_plane/settings_partials/communications/whatsapp.php`
+    - `php -l app/Views/settings/partials/communications/whatsapp.php`
+    - `php -l tests/unit/WhatsAppTemplateRegistryServiceTest.php`
+    - `php -l tests/unit/WhatsAppPhase5EndpointsTest.php`
+    - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest`
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest`
+    - `php spark whatsapp:ops-check`
+    - `npm run build`

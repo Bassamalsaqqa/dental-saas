@@ -607,7 +607,7 @@ class Settings extends BaseController
 
         $toggles = [];
         foreach (array_keys($defaults) as $key) {
-            $toggles[$key] = array_key_exists($key, $input) ? 1 : 0;
+            $toggles[$key] = !empty($input[$key]) ? 1 : 0;
         }
 
         $payload = [
@@ -752,6 +752,7 @@ class Settings extends BaseController
             'api_version' => trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? '')),
             'fallback_template' => $globalConfig['fallback_template'],
             'trigger_templates' => $globalConfig['trigger_templates'],
+            'global_trigger_toggles' => $globalConfig['trigger_toggles'],
             'managed_by_control_plane' => true,
         ];
     }

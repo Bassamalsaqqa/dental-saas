@@ -147,13 +147,20 @@ class Settings extends BaseController
             ];
         }
 
+        $globalTriggerTogglesInput = $this->request->getPost('global_trigger_toggles');
+        $globalTriggerTogglesInput = is_array($globalTriggerTogglesInput) ? $globalTriggerTogglesInput : [];
+        $globalTriggerToggles = [];
+        foreach (array_keys($triggerCatalog) as $triggerKey) {
+            $globalTriggerToggles[$triggerKey] = !empty($globalTriggerTogglesInput[$triggerKey]) ? 1 : 0;
+        }
+
         $fallbackTemplate = [
             'name' => trim((string) $this->request->getPost('fallback_template.name')),
             'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
             'components' => [],
         ];
 
-        $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate);
+        $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate, $globalTriggerToggles);
 
         if (!$saved) {
             return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
@@ -165,6 +172,7 @@ class Settings extends BaseController
             'method' => 'POST',
             'metadata' => [
                 'trigger_count' => count($triggerTemplates),
+                'enabled_trigger_count' => count(array_filter($globalTriggerToggles, static fn (int $value): bool => $value === 1)),
                 'fallback_name' => $fallbackTemplate['name'],
                 'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
             ],

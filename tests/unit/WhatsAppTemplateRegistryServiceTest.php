@@ -26,12 +26,14 @@ final class WhatsAppTemplateRegistryServiceTest extends CIUnitTestCase
         $this->assertSame('ar', (string) ($config['fallback_template']['language'] ?? ''));
         $this->assertSame('ar', (string) ($config['trigger_templates']['appointment_reminder']['language'] ?? ''));
         $this->assertSame('template_only', (string) ($config['trigger_templates']['appointment_reminder']['strategy'] ?? ''));
+        $this->assertSame(1, (int) ($config['trigger_toggles']['appointment_reminder'] ?? 0));
     }
 
     public function testSaveGlobalConfigNormalizesArabicTemplates(): void
     {
         $originalTriggers = $this->settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES, null);
         $originalFallback = $this->settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE, null);
+        $originalToggles = $this->settingsModel->getGlobalSetting(WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TOGGLES, null);
 
         try {
             $saved = $this->service->saveGlobalConfig(
@@ -50,7 +52,11 @@ final class WhatsAppTemplateRegistryServiceTest extends CIUnitTestCase
                     'name' => 'general_reengagement_ar',
                     'language' => 'en_US',
                     'components' => [],
-                ]
+                ],
+                [
+                    'appointment_reminder' => 1,
+                    'appointment_confirmation' => 0,
+                ],
             );
 
             $this->assertTrue($saved);
@@ -64,6 +70,8 @@ final class WhatsAppTemplateRegistryServiceTest extends CIUnitTestCase
             );
             $this->assertSame('general_reengagement_ar', (string) ($config['fallback_template']['name'] ?? ''));
             $this->assertSame('ar', (string) ($config['fallback_template']['language'] ?? ''));
+            $this->assertSame(1, (int) ($config['trigger_toggles']['appointment_reminder'] ?? 0));
+            $this->assertSame(0, (int) ($config['trigger_toggles']['appointment_confirmation'] ?? 1));
         } finally {
             $this->settingsModel->setGlobalSetting(
                 WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TEMPLATES,
@@ -74,6 +82,12 @@ final class WhatsAppTemplateRegistryServiceTest extends CIUnitTestCase
             $this->settingsModel->setGlobalSetting(
                 WhatsAppTemplateRegistryService::SETTINGS_KEY_FALLBACK_TEMPLATE,
                 is_array($originalFallback) ? $originalFallback : [],
+                'json',
+                'phpunit-restore'
+            );
+            $this->settingsModel->setGlobalSetting(
+                WhatsAppTemplateRegistryService::SETTINGS_KEY_TRIGGER_TOGGLES,
+                is_array($originalToggles) ? $originalToggles : [],
                 'json',
                 'phpunit-restore'
             );

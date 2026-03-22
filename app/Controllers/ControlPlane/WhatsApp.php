@@ -262,6 +262,23 @@ class WhatsApp extends BaseController
             'suspended_reason' => null,
         ];
 
+        $toggleDefaults = $this->triggerCatalog->defaultTriggerToggles();
+        $existingToggles = $existing['trigger_toggles_json'] ?? [];
+        if (is_string($existingToggles)) {
+            $existingToggles = json_decode($existingToggles, true);
+        }
+        $existingToggles = is_array($existingToggles) ? $existingToggles : [];
+        $toggleInput = $this->request->getPost('trigger_toggles');
+        if (is_array($toggleInput)) {
+            $toggles = [];
+            foreach (array_keys($toggleDefaults) as $triggerKey) {
+                $toggles[$triggerKey] = !empty($toggleInput[$triggerKey]) ? 1 : 0;
+            }
+        } else {
+            $toggles = array_merge($toggleDefaults, $existingToggles);
+        }
+        $payload['trigger_toggles_json'] = json_encode($toggles, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         $reason = trim((string) $this->request->getPost('suspended_reason'));
         if ($payload['suspended'] === 1 && $reason !== '') {
             $payload['suspended_reason'] = $reason;
@@ -277,6 +294,7 @@ class WhatsApp extends BaseController
             'metadata' => [
                 'clinic_id' => $clinicId,
                 'suspended' => $payload['suspended'],
+                'enabled_trigger_count' => count(array_filter($toggles, static fn (int $value): bool => $value === 1)),
             ],
         ]);
 

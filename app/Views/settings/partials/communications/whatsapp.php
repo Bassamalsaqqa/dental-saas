@@ -5,6 +5,7 @@
     $waManaged = !empty($wa_config['managed_by_control_plane']);
     $triggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog : [];
     $triggerTemplates = is_array($wa_config['trigger_templates'] ?? null) ? $wa_config['trigger_templates'] : [];
+    $globalTriggerToggles = is_array($wa_config['global_trigger_toggles'] ?? null) ? $wa_config['global_trigger_toggles'] : [];
     $triggerToggles = is_array($wa_policy['trigger_toggles_json'] ?? null) ? $wa_policy['trigger_toggles_json'] : [];
     ?>
 
@@ -48,6 +49,18 @@
                 </div>
             </div>
 
+            <div class="rounded-2xl border border-blue-100 bg-blue-50/70 p-5">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h4 class="font-bold text-slate-900"><?= $isArabic ? $decode('\u0645\u0646 \u0623\u064a\u0646 \u0623\u0639\u062f\u0644 \u0627\u0644\u0642\u0648\u0627\u0644\u0628 \u0648\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0639\u064a\u0627\u062f\u0629\u061f') : 'Where do I edit templates and clinic details?' ?></h4>
+                        <p class="mt-1 text-xs text-slate-600"><?= $isArabic ? $decode('\u0627\u0644\u0642\u0648\u0627\u0644\u0628 \u064a\u0639\u062f\u0644\u0647\u0627 \u0633\u0648\u0628\u0631 \u0623\u062f\u0645\u0646 \u0645\u0631\u0643\u0632\u064a\u0627. \u0623\u0645\u0627 \u0627\u0633\u0645 \u0627\u0644\u0639\u064a\u0627\u062f\u0629 \u0648\u0647\u0627\u062a\u0641\u0647\u0627 \u0648\u0639\u0646\u0648\u0627\u0646\u0647\u0627 \u0641\u062a\u062d\u062f\u062b\u0647\u0627 \u0645\u0646 \u062a\u0628\u0648\u064a\u0628 \u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0639\u064a\u0627\u062f\u0629.') : 'Template names and structure are edited once in control plane. Your clinic name, phone, and address come from the Clinic Profile tab in tenant settings.' ?></p>
+                    </div>
+                    <a href="<?= base_url('settings?tab=clinic') ?>" class="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-sm font-black text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all">
+                        <i class="fas fa-building mr-2"></i><?= $isArabic ? $decode('\u0627\u0641\u062a\u062d \u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0639\u064a\u0627\u062f\u0629') : 'Open Clinic Profile' ?>
+                    </a>
+                </div>
+            </div>
+
             <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
@@ -84,6 +97,7 @@
                         <?php
                         $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : [];
                         $bodyKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
+                        $platformEnabled = (int) ($globalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
                         ?>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                             <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -91,7 +105,10 @@
                                     <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                     <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                 </div>
-                                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600"><?= esc($triggerConfig['name'] ?? 'Not configured') ?></span>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600"><?= esc($triggerConfig['name'] ?? 'Not configured') ?></span>
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' ?>"><?= $platformEnabled ? ($isArabic ? $decode('\u0645\u0641\u0639\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform enabled') : ($isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform disabled') ?></span>
+                                </div>
                             </div>
 
                             <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -123,14 +140,23 @@
                 <div class="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
                     <div class="space-y-4">
                         <?php foreach ($triggerCatalog as $triggerKey => $triggerMeta): ?>
-                            <?php $triggerEnabled = (int) ($triggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1; ?>
+                            <?php
+                            $platformEnabled = (int) ($globalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                            $triggerEnabled = (int) ($triggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                            ?>
                             <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4 gap-4">
                                 <div>
                                     <p class="font-bold text-gray-800"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                     <p class="mt-1 text-xs text-gray-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                    <?php if (!$platformEnabled): ?>
+                                        <p class="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-rose-600"><?= $isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0645\u0631\u0643\u0632\u064a\u0627 \u0645\u0646 \u0627\u0644\u0643\u0648\u0646\u062a\u0631\u0648\u0644 \u0628\u0644\u064a\u0646') : 'Disabled globally by control plane' ?></p>
+                                    <?php endif; ?>
                                 </div>
-                                <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $triggerEnabled ? 'checked' : '' ?>>
+                                <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $triggerEnabled ? 'checked' : '' ?> <?= !$platformEnabled ? 'disabled' : '' ?>>
                             </div>
+                            <?php if (!$platformEnabled && $triggerEnabled): ?>
+                                <input type="hidden" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1">
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
