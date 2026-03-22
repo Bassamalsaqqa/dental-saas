@@ -547,6 +547,7 @@ function saveSmsConfig(event) {
 function saveWhatsAppConfig(event) {
     const btn = event?.currentTarget || null;
     setButtonLoading(btn, true);
+    const triggerKeys = ['appointment_reminder', 'appointment_confirmation', 'follow_up', 'no_show_follow_up', 'payment_reminder'];
     const messageTemplates = {
         appointment_reminder: document.getElementById('tmpl_appointment_reminder').value,
         appointment_confirmation: document.getElementById('tmpl_appointment_confirmation').value,
@@ -554,7 +555,20 @@ function saveWhatsAppConfig(event) {
         no_show_follow_up: document.getElementById('tmpl_no_show_follow_up').value,
         payment_reminder: document.getElementById('tmpl_payment_reminder').value
     };
-    const config = { phone_number_id: document.getElementById('wa_phone_number_id').value, message_templates: messageTemplates };
+    const triggerTemplates = {};
+    triggerKeys.forEach((key) => {
+        const bodyKeysRaw = document.getElementById(`trigger_tmpl_body_${key}`)?.value || '';
+        triggerTemplates[key] = {
+            name: document.getElementById(`trigger_tmpl_name_${key}`)?.value || '',
+            language: document.getElementById(`trigger_tmpl_lang_${key}`)?.value || 'ar',
+            header_param_key: document.getElementById(`trigger_tmpl_header_${key}`)?.value || '',
+            body_param_keys: bodyKeysRaw.split(',').map((value) => value.trim()).filter((value) => value !== ''),
+            button_type: document.getElementById(`trigger_tmpl_button_type_${key}`)?.value || '',
+            button_index: document.getElementById(`trigger_tmpl_button_index_${key}`)?.value || '0',
+            button_param_key: document.getElementById(`trigger_tmpl_button_key_${key}`)?.value || '',
+        };
+    });
+    const config = { phone_number_id: document.getElementById('wa_phone_number_id').value, message_templates: messageTemplates, trigger_templates: triggerTemplates };
     fetch('<?= base_url('settings/updateChannelConfig') ?>', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', [csrfHeader]: csrfToken }, body: `channel_type=whatsapp&config_json=${encodeURIComponent(JSON.stringify(config))}&action=save_config` })
     .then(res => res.json()).then(data => { if(data.success) window.showToast?.('success', settingsI18n.toastSaved, data.message || ''); else window.showToast?.('error', settingsI18n.toastError, data.message || settingsI18n.toastSomethingWrong); })
     .finally(() => setButtonLoading(btn, false));

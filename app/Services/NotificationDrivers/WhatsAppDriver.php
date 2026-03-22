@@ -59,13 +59,6 @@ class WhatsAppDriver
         $payload = $this->preparePayload($payload, $channelConfig);
         $transport = $this->sendPayload($clinicId, $channelConfig, $recipient, $payload);
 
-        if ((string) ($transport['error_code'] ?? '') === '131047') {
-            $fallbackResult = $this->tryFallbackTemplateSend($clinicId, $channelConfig, $recipient, $payload);
-            if ($fallbackResult !== null) {
-                $transport = $fallbackResult;
-            }
-        }
-
         $attemptStatus = (string) ($transport['attempt_status'] ?? 'failed_permanent');
         $notificationStatus = !empty($transport['retryable']) ? 'failed' : ($attemptStatus === 'sent' ? 'sent' : 'failed');
         if (($transport['failure_reason'] ?? null) === 'WA_131026_AMBIGUOUS_UNDELIVERABLE') {
@@ -140,31 +133,6 @@ class WhatsAppDriver
             'payment_reminder' => $decode('\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u064a\u0648\u062c\u062f \u0631\u0635\u064a\u062f \u0645\u0633\u062a\u062d\u0642 \u0628\u0642\u064a\u0645\u0629 {{amount}}. \u0644\u0644\u062a\u0641\u0627\u0635\u064a\u0644 \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0647\u0630\u0647 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0629.'),
         ];
     }
-    private function tryFallbackTemplateSend(int $clinicId, array $channelConfig, array $recipient, array $payload): ?array
-    {
-        $fallback = $channelConfig['fallback_template'] ?? [];
-        if (!is_array($fallback)) {
-            return null;
-        }
-
-        $templateName = trim((string) ($fallback['name'] ?? ''));
-        if ($templateName === '') {
-            return null;
-        }
-
-        $languageCode = trim((string) ($fallback['language'] ?? 'ar'));
-        if ($languageCode === '') {
-            $languageCode = 'ar';
-        }
-
-        $components = $payload['template_components'] ?? $fallback['components'] ?? [];
-        if (!is_array($components)) {
-            $components = [];
-        }
-
-        return $this->client->sendTemplate($clinicId, $channelConfig, $recipient, $templateName, $languageCode, $components);
-    }
-
     private function replacePlaceholders(string $template, array $vars): string
     {
         if ($template === '' || empty($vars)) {

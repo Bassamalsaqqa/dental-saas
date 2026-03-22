@@ -8,6 +8,7 @@ use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationAttemptModel;
 use App\Models\NotificationModel;
 use App\Models\PlatformSecretModel;
+use App\Services\WhatsAppTriggerCatalog;
 
 class ControlPlaneWhatsAppTestSendService
 {
@@ -18,6 +19,7 @@ class ControlPlaneWhatsAppTestSendService
     protected NotificationAttemptModel $attemptModel;
     protected DispatchService $dispatchService;
     protected PlanGuard $planGuard;
+    protected WhatsAppTriggerCatalog $triggerCatalog;
 
     public function __construct()
     {
@@ -28,6 +30,7 @@ class ControlPlaneWhatsAppTestSendService
         $this->attemptModel = new NotificationAttemptModel();
         $this->dispatchService = new DispatchService();
         $this->planGuard = new PlanGuard();
+        $this->triggerCatalog = new WhatsAppTriggerCatalog();
     }
 
     public function send(array $input, ?int $actorUserId = null): array
@@ -212,7 +215,7 @@ class ControlPlaneWhatsAppTestSendService
         }
 
         $templateSource = strtolower(trim((string) ($input['template_source'] ?? 'explicit')));
-        if (!in_array($templateSource, ['explicit', 'fallback'], true)) {
+        if (!in_array($templateSource, ['explicit', 'fallback', 'trigger_template'], true)) {
             return [
                 'ok' => false,
                 'message' => 'Template source is invalid.',
@@ -232,6 +235,40 @@ class ControlPlaneWhatsAppTestSendService
                     'message' => 'The selected clinic does not have a fallback template configured.',
                 ];
             }
+        } elseif ($templateSource === 'trigger_template') {
+            $triggerKey = trim((string) ($input['trigger_key'] ?? ''));
+            $triggerTemplates = $this->triggerCatalog->normalizeTriggerTemplateConfig($channelConfig['trigger_templates'] ?? []);
+            $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : null;
+            if ($triggerConfig === null) {
+                return [
+                    'ok' => false,
+                    'message' => 'Select a valid workflow trigger template.',
+                ];
+            }
+
+            $templateName = trim((string) ($triggerConfig['name'] ?? ''));
+            $templateLanguage = trim((string) ($triggerConfig['language'] ?? 'ar')) ?: 'ar';
+            if ($templateName === '') {
+                return [
+                    'ok' => false,
+                    'message' => 'The selected clinic does not have an approved template configured for that trigger.',
+                ];
+            }
+
+            $templateVars = $this->buildTriggerTemplateVarsFromGuidedInput($triggerConfig, $input);
+            $components = $this->buildTriggerTemplateComponents($triggerConfig, $templateVars);
+
+            return [
+                'ok' => true,
+                'mode' => 'template',
+                'payload' => [
+                    'workflow_trigger' => $triggerKey,
+                    'template_name' => $templateName,
+                    'template_language' => $templateLanguage,
+                    'template_components' => $components,
+                    'template_source' => 'trigger_template',
+                ],
+            ];
         } elseif ($templateName === '') {
             return [
                 'ok' => false,
@@ -277,6 +314,93 @@ class ControlPlaneWhatsAppTestSendService
                 'template_source' => $templateSource,
             ],
         ];
+    }
+
+    private function buildTriggerTemplateVarsFromGuidedInput(array $triggerConfig, array $input): array
+    {
+        $vars = [];
+
+        $headerText = trim((string) ($input['template_header_text'] ?? ''));
+        $headerParamKey = trim((string) ($triggerConfig['header_param_key'] ?? ''));
+        if ($headerText !== '' && $headerParamKey !== '') {
+            $vars[$headerParamKey] = $headerText;
+        }
+
+        $bodyParamsRaw = str_replace(["\r\n", "\r"], "\n", (string) ($input['template_body_params'] ?? ''));
+        $bodyParams = array_values(array_filter(array_map(
+            static fn(string $line): string => trim($line),
+            explode("\n", $bodyParamsRaw)
+        ), static fn(string $line): bool => $line !== ''));
+
+        $bodyParamKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
+        foreach ($bodyParamKeys as $index => $key) {
+            $cleanKey = trim((string) $key);
+            if ($cleanKey === '' || !array_key_exists($index, $bodyParams)) {
+                continue;
+            }
+            $vars[$cleanKey] = $bodyParams[$index];
+        }
+
+        $buttonValue = trim((string) ($input['template_button_value'] ?? ''));
+        $buttonParamKey = trim((string) ($triggerConfig['button_param_key'] ?? ''));
+        if ($buttonValue !== '' && $buttonParamKey !== '') {
+            $vars[$buttonParamKey] = $buttonValue;
+        }
+
+        return $vars;
+    }
+
+    private function buildTriggerTemplateComponents(array $triggerConfig, array $templateVars): array
+    {
+        $components = [];
+
+        $headerParamKey = trim((string) ($triggerConfig['header_param_key'] ?? ''));
+        if ($headerParamKey !== '' && array_key_exists($headerParamKey, $templateVars)) {
+            $components[] = [
+                'type' => 'header',
+                'parameters' => [[
+                    'type' => 'text',
+                    'text' => (string) $templateVars[$headerParamKey],
+                ]],
+            ];
+        }
+
+        $bodyParameters = [];
+        foreach (($triggerConfig['body_param_keys'] ?? []) as $key) {
+            $cleanKey = trim((string) $key);
+            if ($cleanKey === '' || !array_key_exists($cleanKey, $templateVars)) {
+                continue;
+            }
+
+            $bodyParameters[] = [
+                'type' => 'text',
+                'text' => (string) $templateVars[$cleanKey],
+            ];
+        }
+
+        if ($bodyParameters !== []) {
+            $components[] = [
+                'type' => 'body',
+                'parameters' => $bodyParameters,
+            ];
+        }
+
+        $buttonParamKey = trim((string) ($triggerConfig['button_param_key'] ?? ''));
+        $buttonType = trim((string) ($triggerConfig['button_type'] ?? ''));
+        if ($buttonParamKey !== '' && $buttonType !== '' && array_key_exists($buttonParamKey, $templateVars)) {
+            $parameterType = $buttonType === 'url' ? 'text' : 'payload';
+            $parameter = ['type' => $parameterType];
+            $parameter[$parameterType === 'text' ? 'text' : 'payload'] = (string) $templateVars[$buttonParamKey];
+
+            $components[] = [
+                'type' => 'button',
+                'sub_type' => $buttonType,
+                'index' => ctype_digit((string) ($triggerConfig['button_index'] ?? '0')) ? (string) $triggerConfig['button_index'] : '0',
+                'parameters' => [$parameter],
+            ];
+        }
+
+        return $components;
     }
 
     private function buildGuidedTemplateComponents(array $input): array
@@ -329,7 +453,7 @@ class ControlPlaneWhatsAppTestSendService
                 'index' => $buttonIndex,
                 'parameters' => [[
                     'type' => $parameterType,
-                    $parameterType === 'url' ? 'text' : 'payload' => $buttonValue,
+                    $parameterType === 'text' ? 'text' : 'payload' => $buttonValue,
                 ]],
             ];
         }

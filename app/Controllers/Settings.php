@@ -12,16 +12,19 @@ use App\Models\SettingsModel;
 use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\SettingsService;
 use App\Services\PlanGuard;
+use App\Services\WhatsAppTriggerCatalog;
 
 class Settings extends BaseController
 {
     protected $settingsModel;
     protected $settingsService;
+    protected WhatsAppTriggerCatalog $whatsAppTriggerCatalog;
 
     public function __construct()
     {
         $this->settingsModel = new SettingsModel();
         $this->settingsService = service('settings');
+        $this->whatsAppTriggerCatalog = new WhatsAppTriggerCatalog();
     }
 
     /**
@@ -138,6 +141,7 @@ class Settings extends BaseController
             'wa_config' => $waConfig,
             'wa_feature_enabled' => $waFeatureEnabled,
             'wa_policy' => $waPolicy,
+            'wa_trigger_catalog' => $this->whatsAppTriggerCatalog->all(),
             'notification_settings' => $this->getNotificationSettings(),
             'is_global' => $isGlobal
         ];
@@ -751,6 +755,7 @@ class Settings extends BaseController
             $templates[$key] = $value !== '' ? $value : $defaultText;
         }
         $fallback = is_array($config['fallback_template'] ?? null) ? $config['fallback_template'] : [];
+        $triggerTemplates = $this->whatsAppTriggerCatalog->normalizeTriggerTemplateConfig($config['trigger_templates'] ?? []);
         return [
             'phone_number_id' => trim((string) ($config['phone_number_id'] ?? '')),
             'api_version' => trim((string) ($config['api_version'] ?? $config['graph_api_version'] ?? '')),
@@ -760,6 +765,7 @@ class Settings extends BaseController
                 'components' => is_array($fallback['components'] ?? null) ? $fallback['components'] : [],
             ],
             'message_templates' => $templates,
+            'trigger_templates' => $triggerTemplates,
         ];
     }
 
@@ -818,13 +824,7 @@ class Settings extends BaseController
 
     private function getDefaultWhatsAppTriggerToggles(): array
     {
-        return [
-            'appointment_reminder' => 1,
-            'appointment_confirmation' => 1,
-            'follow_up' => 1,
-            'no_show_follow_up' => 1,
-            'payment_reminder' => 1,
-        ];
+        return $this->whatsAppTriggerCatalog->defaultTriggerToggles();
     }
 
     private function getWhatsAppPolicySettings(int $clinicId): array

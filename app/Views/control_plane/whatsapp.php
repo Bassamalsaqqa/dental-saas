@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/main_control_plane') ?>
+ï»¿<?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
 <?php
@@ -11,6 +11,13 @@ $recentAttempts = $recent_attempts ?? [];
 $recentEvents = $recent_events ?? [];
 $recentOptouts = $recent_optouts ?? [];
 $operatorGuidance = $operator_guidance ?? [];
+$triggerCatalog = is_array($trigger_catalog ?? null) ? $trigger_catalog : [];
+$initialTab = 'overview';
+if (old('send_mode') !== null || old('target_number') !== null || old('clinic_id') !== null) {
+    $initialTab = 'send';
+} elseif (is_string(session('success')) && str_contains(session('success'), 'WhatsApp test send')) {
+    $initialTab = 'activity';
+}
 ?>
 
 <style>
@@ -96,7 +103,7 @@ $operatorGuidance = $operator_guidance ?? [];
                                     <span class="text-xs text-slate-400">#<?= (int) $item['notification_id'] ?>/<?= (int) $item['attempt_id'] ?></span>
                                 </div>
                                 <div class="mt-2 text-sm font-black text-slate-900"><?= esc($item['recipient']['label']) ?></div>
-                                <div class="mt-1 text-xs text-slate-500"><?= esc($item['content']['title']) ?> · <?= esc($item['content']['subtitle']) ?></div>
+                                <div class="mt-1 text-xs text-slate-500"><?= esc($item['content']['title']) ?> | <?= esc($item['content']['subtitle']) ?></div>
                                 <div class="mt-3 text-sm font-semibold text-rose-700"><?= esc($item['failure']['title']) ?></div>
                                 <div class="mt-1 text-xs leading-6 text-slate-500"><?= esc($item['failure']['detail']) ?></div>
                             </div>
@@ -176,6 +183,7 @@ $operatorGuidance = $operator_guidance ?? [];
                             <select id="wa-template-source" name="template_source" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900">
                                 <option value="explicit" <?= old('template_source', 'explicit') === 'explicit' ? 'selected' : '' ?>>Use explicit template name</option>
                                 <option value="fallback" <?= old('template_source') === 'fallback' ? 'selected' : '' ?>>Use clinic fallback template</option>
+                                <option value="trigger_template" <?= old('template_source') === 'trigger_template' ? 'selected' : '' ?>>Use configured workflow trigger template</option>
                             </select>
                         </div>
                         <div id="wa-template-name-wrap">
@@ -188,6 +196,30 @@ $operatorGuidance = $operator_guidance ?? [];
                         </div>
                     </div>
 
+                    <div id="wa-trigger-template-wrap" class="hidden space-y-4 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5">
+                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
+                            <div>
+                                <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-emerald-800">Workflow trigger</label>
+                                <select id="wa-trigger-key" name="trigger_key" class="w-full rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900">
+                                    <option value="">Select configured workflow</option>
+                                    <?php foreach ($triggerCatalog as $triggerKey => $triggerMeta): ?>
+                                        <option value="<?= esc($triggerKey) ?>" data-label="<?= esc($triggerMeta['label'] ?? $triggerKey) ?>" data-description="<?= esc($triggerMeta['description'] ?? '') ?>" data-vars="<?= esc(json_encode($triggerMeta['available_vars'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?>" <?= old('trigger_key') === $triggerKey ? 'selected' : '' ?>><?= esc($triggerMeta['label'] ?? $triggerKey) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-200 bg-white/80 p-4 text-xs leading-6 text-slate-600">
+                                <div class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">How this works</div>
+                                <p class="mt-2">The operator console will load the approved template already mapped to this workflow in tenant settings. Use this to test the exact automated path the clinic will use outside the session window.</p>
+                            </div>
+                        </div>
+                        <div id="wa-trigger-summary" class="hidden rounded-2xl border border-emerald-200 bg-white p-4">
+                            <div class="text-sm font-black text-slate-900" id="wa-trigger-summary-title"></div>
+                            <div class="mt-1 text-xs leading-6 text-slate-500" id="wa-trigger-summary-description"></div>
+                            <div class="mt-3 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Available variables</div>
+                            <div id="wa-trigger-summary-vars" class="mt-2 flex flex-wrap gap-2 text-xs text-slate-600"></div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Header text parameter</label>
@@ -196,6 +228,25 @@ $operatorGuidance = $operator_guidance ?? [];
                         <div>
                             <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Body parameters</label>
                             <textarea name="template_body_params" rows="4" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900" placeholder="One parameter per line&#10;2026-03-22&#10;10:00"><?= esc(old('template_body_params')) ?></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                        <div>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Button type</label>
+                            <select name="template_button_type" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900">
+                                <option value="" <?= old('template_button_type') === '' ? 'selected' : '' ?>>No button</option>
+                                <option value="quick_reply" <?= old('template_button_type', 'quick_reply') === 'quick_reply' ? 'selected' : '' ?>>Quick reply</option>
+                                <option value="url" <?= old('template_button_type') === 'url' ? 'selected' : '' ?>>URL button</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Button index</label>
+                            <input type="text" name="template_button_index" value="<?= esc(old('template_button_index', '0')) ?>" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Button value</label>
+                            <input type="text" name="template_button_value" value="<?= esc(old('template_button_value')) ?>" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900" placeholder="Optional button payload or URL suffix">
                         </div>
                     </div>
 
@@ -230,7 +281,7 @@ $operatorGuidance = $operator_guidance ?? [];
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="wa-chip <?= esc($item['status_meta']['class']) ?>"><span class="wa-dot bg-current"></span><?= esc($item['status_meta']['label']) ?></span>
                                     <span class="text-xs font-black text-slate-500"><?= esc($item['clinic_name']) ?></span>
-                                    <span class="text-xs text-slate-400">Notification #<?= (int) $item['notification_id'] ?> · Attempt #<?= (int) $item['attempt_id'] ?></span>
+                                    <span class="text-xs text-slate-400">Notification #<?= (int) $item['notification_id'] ?> | Attempt #<?= (int) $item['attempt_id'] ?></span>
                                 </div>
                                 <div class="text-sm font-black text-slate-900"><?= esc($item['recipient']['label']) ?></div>
                                 <div class="text-xs text-slate-500"><?= esc($item['recipient']['secondary']) ?></div>
@@ -247,7 +298,7 @@ $operatorGuidance = $operator_guidance ?? [];
                                     <div class="mt-3 border-t border-slate-200 pt-3 text-rose-700 font-semibold"><?= esc($item['failure']['title']) ?></div>
                                     <div class="mt-1 leading-6 text-slate-500"><?= esc($item['failure']['detail']) ?></div>
                                 <?php endif; ?>
-                                <div class="mt-3 border-t border-slate-200 pt-3 text-slate-500"><?= esc($item['created_label']) ?> · <?= esc($item['created_relative']) ?></div>
+                                <div class="mt-3 border-t border-slate-200 pt-3 text-slate-500"><?= esc($item['created_label']) ?> | <?= esc($item['created_relative']) ?></div>
                             </div>
                         </div>
                     </div>
@@ -306,9 +357,9 @@ $operatorGuidance = $operator_guidance ?? [];
                         <?php foreach ($recentOptouts as $optout): ?>
                             <tr>
                                 <td><div class="font-black text-slate-900"><?= esc($optout['clinic_name']) ?></div></td>
-                                <td><div class="wa-code text-slate-700"><?= esc($optout['wa_number'] !== '' ? '+' . preg_replace('/\D+/', '', $optout['wa_number']) : '—') ?></div></td>
-                                <td><div class="wa-code text-slate-700"><?= esc($optout['bsuid'] !== '' ? $optout['bsuid'] : '—') ?></div></td>
-                                <td><div class="wa-code text-slate-700"><?= esc($optout['parent_bsuid'] !== '' ? $optout['parent_bsuid'] : '—') ?></div></td>
+                                <td><div class="wa-code text-slate-700"><?= esc($optout['wa_number'] !== '' ? '+' . preg_replace('/\D+/', '', $optout['wa_number']) : 'â€”') ?></div></td>
+                                <td><div class="wa-code text-slate-700"><?= esc($optout['bsuid'] !== '' ? $optout['bsuid'] : 'â€”') ?></div></td>
+                                <td><div class="wa-code text-slate-700"><?= esc($optout['parent_bsuid'] !== '' ? $optout['parent_bsuid'] : 'â€”') ?></div></td>
                                 <td><div class="text-sm font-black text-slate-900"><?= esc($optout['created_label']) ?></div><div class="mt-1 text-xs text-slate-500"><?= esc($optout['created_relative']) ?></div></td>
                             </tr>
                         <?php endforeach; ?>
@@ -355,13 +406,19 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 1800);
 }
 document.addEventListener('DOMContentLoaded', () => {
-    showWATab('overview');
+    showWATab('<?= esc($initialTab) ?>');
     const sendMode = document.getElementById('wa-test-send-mode');
     const textFields = document.getElementById('wa-test-text-fields');
     const templateFields = document.getElementById('wa-test-template-fields');
     const templateSource = document.getElementById('wa-template-source');
     const templateNameWrap = document.getElementById('wa-template-name-wrap');
     const templateLanguageWrap = document.getElementById('wa-template-language-wrap');
+    const triggerTemplateWrap = document.getElementById('wa-trigger-template-wrap');
+    const triggerKey = document.getElementById('wa-trigger-key');
+    const triggerSummary = document.getElementById('wa-trigger-summary');
+    const triggerSummaryTitle = document.getElementById('wa-trigger-summary-title');
+    const triggerSummaryDescription = document.getElementById('wa-trigger-summary-description');
+    const triggerSummaryVars = document.getElementById('wa-trigger-summary-vars');
     const syncSendModeFields = () => {
         if (!sendMode || !textFields || !templateFields) return;
         const templateMode = sendMode.value === 'template';
@@ -369,14 +426,41 @@ document.addEventListener('DOMContentLoaded', () => {
         templateFields.classList.toggle('hidden', !templateMode);
     };
     const syncTemplateSourceFields = () => {
-        if (!templateSource || !templateNameWrap || !templateLanguageWrap) return;
+        if (!templateSource || !templateNameWrap || !templateLanguageWrap || !triggerTemplateWrap) return;
         const fallbackMode = templateSource.value === 'fallback';
-        templateNameWrap.classList.toggle('hidden', fallbackMode);
-        templateLanguageWrap.classList.toggle('hidden', fallbackMode);
+        const triggerTemplateMode = templateSource.value === 'trigger_template';
+        templateNameWrap.classList.toggle('hidden', fallbackMode || triggerTemplateMode);
+        templateLanguageWrap.classList.toggle('hidden', fallbackMode || triggerTemplateMode);
+        triggerTemplateWrap.classList.toggle('hidden', !triggerTemplateMode);
+    };
+    const syncTriggerSummary = () => {
+        if (!triggerKey || !triggerSummary || !triggerSummaryTitle || !triggerSummaryDescription || !triggerSummaryVars) return;
+        const option = triggerKey.options[triggerKey.selectedIndex];
+        if (!option || !option.value) {
+            triggerSummary.classList.add('hidden');
+            triggerSummaryTitle.textContent = '';
+            triggerSummaryDescription.textContent = '';
+            triggerSummaryVars.replaceChildren();
+            return;
+        }
+        triggerSummary.classList.remove('hidden');
+        triggerSummaryTitle.textContent = option.dataset.label || option.value;
+        triggerSummaryDescription.textContent = option.dataset.description || "This workflow will use the clinic's approved template mapping.";
+        let vars = {};
+        try { vars = option.dataset.vars ? JSON.parse(option.dataset.vars) : {}; } catch (e) { vars = {}; }
+            triggerSummaryVars.replaceChildren();
+        Object.entries(vars).forEach(([key, label]) => {
+            const chip = document.createElement('span');
+            chip.className = 'rounded-full border border-slate-200 bg-slate-50 px-3 py-1';
+            chip.textContent = `${key}: ${label}`;
+            triggerSummaryVars.appendChild(chip);
+        });
     };
     if (sendMode) { sendMode.addEventListener('change', syncSendModeFields); syncSendModeFields(); }
     if (templateSource) { templateSource.addEventListener('change', syncTemplateSourceFields); syncTemplateSourceFields(); }
+    if (triggerKey) { triggerKey.addEventListener('change', syncTriggerSummary); syncTriggerSummary(); }
 });
 </script>
 
 <?= $this->endSection() ?>
+

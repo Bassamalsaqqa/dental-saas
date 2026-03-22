@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AppointmentModel;
+use App\Models\ClinicNotificationChannelModel;
 use App\Models\ClinicModel;
 use App\Models\ExaminationModel;
 use App\Models\FinanceModel;
@@ -19,9 +20,12 @@ class WhatsAppWorkflowService
     protected FinanceModel $financeModel;
     protected PatientModel $patientModel;
     protected ClinicModel $clinicModel;
+    protected ClinicNotificationChannelModel $channelModel;
     protected WhatsAppTenantPolicyModel $policyModel;
+    protected WhatsAppTriggerCatalog $triggerCatalog;
     protected \CodeIgniter\Database\BaseConnection $db;
     protected array $policyCache = [];
+    protected array $channelConfigCache = [];
 
     public function __construct()
     {
@@ -32,7 +36,9 @@ class WhatsAppWorkflowService
         $this->financeModel = new FinanceModel();
         $this->patientModel = new PatientModel();
         $this->clinicModel = new ClinicModel();
+        $this->channelModel = new ClinicNotificationChannelModel();
         $this->policyModel = new WhatsAppTenantPolicyModel();
+        $this->triggerCatalog = new WhatsAppTriggerCatalog();
         $this->db = \Config\Database::connect();
     }
 
@@ -67,7 +73,7 @@ class WhatsAppWorkflowService
             (string) ($appointment['appointment_time'] ?? '')
         );
 
-        return $this->enqueuePatientTemplate(
+        return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'appointment_confirmation',
@@ -103,7 +109,7 @@ class WhatsAppWorkflowService
 
         $workflowKey = sprintf('follow_up:%d', $examinationId);
 
-        return $this->enqueuePatientTemplate(
+        return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'follow_up',
@@ -142,7 +148,7 @@ class WhatsAppWorkflowService
 
         $workflowKey = sprintf('no_show_follow_up:%d:%s', $appointmentId, date('Y-m-d'));
 
-        return $this->enqueuePatientTemplate(
+        return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'no_show_follow_up',
@@ -187,7 +193,7 @@ class WhatsAppWorkflowService
             $workflowSuffix ?: date('Y-m-d')
         );
 
-        return $this->enqueuePatientTemplate(
+        return $this->enqueueWorkflowTemplate(
             $clinicId,
             $patient,
             'payment_reminder',
@@ -243,7 +249,7 @@ class WhatsAppWorkflowService
                     (string) ($row['appointment_time'] ?? '')
                 );
 
-                $result = $this->enqueuePatientTemplate(
+                $result = $this->enqueueWorkflowTemplate(
                     $currentClinicId,
                     $patient,
                     'appointment_reminder',
@@ -298,10 +304,10 @@ class WhatsAppWorkflowService
         return $summary;
     }
 
-    private function enqueuePatientTemplate(
+    private function enqueueWorkflowTemplate(
         int $clinicId,
         array $patient,
-        string $templateKey,
+        string $triggerKey,
         array $templateVars,
         string $workflowKey,
         ?int $actorUserId = null
@@ -315,6 +321,11 @@ class WhatsAppWorkflowService
             return $this->skipped('DUPLICATE_WORKFLOW');
         }
 
+        $workflowPayload = $this->buildTriggerPayload($clinicId, $triggerKey, $templateVars);
+        if (!$workflowPayload['ok']) {
+            return $this->skipped((string) ($workflowPayload['reason'] ?? 'TRIGGER_TEMPLATE_INVALID'));
+        }
+
         try {
             $result = $this->notificationService->enqueue(
                 $clinicId,
@@ -324,11 +335,7 @@ class WhatsAppWorkflowService
                     'id' => $patientId,
                     'address' => null,
                 ]],
-                [
-                    'message_template_key' => $templateKey,
-                    'template_vars' => $templateVars,
-                    'workflow_key' => $workflowKey,
-                ],
+                $workflowPayload['payload'] + ['workflow_key' => $workflowKey],
                 $actorUserId
             );
 
@@ -337,10 +344,10 @@ class WhatsAppWorkflowService
                 'result' => $result,
             ];
         } catch (\Throwable $e) {
-            log_message('warning', 'WhatsApp workflow enqueue skipped for clinic_id={clinic_id} patient_id={patient_id} template={template}: {message}', [
+            log_message('warning', 'WhatsApp workflow enqueue skipped for clinic_id={clinic_id} patient_id={patient_id} trigger={trigger}: {message}', [
                 'clinic_id' => $clinicId,
                 'patient_id' => $patientId,
-                'template' => $templateKey,
+                'trigger' => $triggerKey,
                 'message' => substr($e->getMessage(), 0, 255),
             ]);
 
@@ -388,7 +395,7 @@ class WhatsAppWorkflowService
 
     private function isTriggerEnabled(int $clinicId, string $triggerKey): bool
     {
-        $defaults = $this->defaultTriggerToggles();
+        $defaults = $this->triggerCatalog->defaultTriggerToggles();
         if (!array_key_exists($triggerKey, $defaults)) {
             return true;
         }
@@ -420,13 +427,107 @@ class WhatsAppWorkflowService
 
     private function defaultTriggerToggles(): array
     {
+        return $this->triggerCatalog->defaultTriggerToggles();
+    }
+
+    private function buildTriggerPayload(int $clinicId, string $triggerKey, array $templateVars): array
+    {
+        $channelConfig = $this->resolveChannelConfig($clinicId);
+        $triggerTemplates = $channelConfig['trigger_templates'] ?? [];
+        $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : null;
+        if ($triggerConfig === null) {
+            return ['ok' => false, 'reason' => 'TRIGGER_TEMPLATE_CONFIG_MISSING'];
+        }
+
+        $templateName = trim((string) ($triggerConfig['name'] ?? ''));
+        if ($templateName === '') {
+            return ['ok' => false, 'reason' => 'TRIGGER_TEMPLATE_NAME_MISSING'];
+        }
+
+        $templateLanguage = trim((string) ($triggerConfig['language'] ?? 'ar')) ?: 'ar';
+        $templateComponents = $this->buildTemplateComponents($triggerConfig, $templateVars);
+
         return [
-            'appointment_reminder' => 1,
-            'appointment_confirmation' => 1,
-            'follow_up' => 1,
-            'no_show_follow_up' => 1,
-            'payment_reminder' => 1,
+            'ok' => true,
+            'payload' => [
+                'workflow_trigger' => $triggerKey,
+                'template_name' => $templateName,
+                'template_language' => $templateLanguage,
+                'template_components' => $templateComponents,
+                'template_vars' => $templateVars,
+                'template_source' => 'workflow_trigger',
+            ],
         ];
+    }
+
+    private function resolveChannelConfig(int $clinicId): array
+    {
+        if (!array_key_exists($clinicId, $this->channelConfigCache)) {
+            $rawConfig = $this->channelModel->withoutTenantScope()->getConfig($clinicId, 'whatsapp') ?? [];
+            $this->channelConfigCache[$clinicId] = [
+                'trigger_templates' => $this->triggerCatalog->normalizeTriggerTemplateConfig($rawConfig['trigger_templates'] ?? []),
+            ];
+        }
+
+        return $this->channelConfigCache[$clinicId];
+    }
+
+    private function buildTemplateComponents(array $triggerConfig, array $templateVars): array
+    {
+        $components = [];
+
+        $headerParamKey = trim((string) ($triggerConfig['header_param_key'] ?? ''));
+        if ($headerParamKey !== '' && array_key_exists($headerParamKey, $templateVars)) {
+            $components[] = [
+                'type' => 'header',
+                'parameters' => [[
+                    'type' => 'text',
+                    'text' => (string) $templateVars[$headerParamKey],
+                ]],
+            ];
+        }
+
+        $bodyParamKeys = $triggerConfig['body_param_keys'] ?? [];
+        if (is_array($bodyParamKeys) && $bodyParamKeys !== []) {
+            $parameters = [];
+            foreach ($bodyParamKeys as $key) {
+                $cleanKey = trim((string) $key);
+                if ($cleanKey === '' || !array_key_exists($cleanKey, $templateVars)) {
+                    continue;
+                }
+
+                $parameters[] = [
+                    'type' => 'text',
+                    'text' => (string) $templateVars[$cleanKey],
+                ];
+            }
+
+            if ($parameters !== []) {
+                $components[] = [
+                    'type' => 'body',
+                    'parameters' => $parameters,
+                ];
+            }
+        }
+
+        $buttonParamKey = trim((string) ($triggerConfig['button_param_key'] ?? ''));
+        $buttonType = trim((string) ($triggerConfig['button_type'] ?? ''));
+        if ($buttonParamKey !== '' && $buttonType !== '' && array_key_exists($buttonParamKey, $templateVars)) {
+            $parameterType = $buttonType === 'url' ? 'text' : 'payload';
+            $parameter = [
+                'type' => $parameterType,
+            ];
+            $parameter[$parameterType === 'text' ? 'text' : 'payload'] = (string) $templateVars[$buttonParamKey];
+
+            $components[] = [
+                'type' => 'button',
+                'sub_type' => $buttonType,
+                'index' => ctype_digit((string) ($triggerConfig['button_index'] ?? '0')) ? (string) $triggerConfig['button_index'] : '0',
+                'parameters' => [$parameter],
+            ];
+        }
+
+        return $components;
     }
 
     private function formatMoney(float $amount): string

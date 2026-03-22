@@ -81,6 +81,11 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             $this->assertIsArray($json);
             $this->assertSame('1234567890', (string) ($json['config']['phone_number_id'] ?? ''));
             $this->assertSame('ar', (string) ($json['config']['fallback_template']['language'] ?? ''));
+            $this->assertSame('template_only', (string) ($json['config']['trigger_templates']['appointment_reminder']['strategy'] ?? ''));
+            $this->assertSame(
+                ['patient_name', 'appointment_date', 'appointment_time'],
+                array_values($json['config']['trigger_templates']['appointment_reminder']['body_param_keys'] ?? [])
+            );
             $this->assertSame(
                 'تذكير من العيادة: لديكم موعد بتاريخ {{appointment_date}} الساعة {{appointment_time}}. للمتابعة يرجى الرد على هذه الرسالة.',
                 (string) ($json['config']['message_templates']['appointment_reminder'] ?? '')

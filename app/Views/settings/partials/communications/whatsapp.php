@@ -1,4 +1,4 @@
-                <div id="sub-whatsapp" class="sub-tab-panel hidden">
+﻿                <div id="sub-whatsapp" class="sub-tab-panel hidden">
                     <?php
                     $decode = static fn(string $value): string => json_decode('"' . $value . '"') ?? '';
                     $isArabic = service('request')->getLocale() === 'ar';
@@ -53,6 +53,8 @@
                             'payment_reminder_help' => 'Send a reminder when an invoice still has an outstanding balance.',
                         ];
                     $triggerToggles = is_array($wa_policy['trigger_toggles_json'] ?? null) ? $wa_policy['trigger_toggles_json'] : [];
+                    $triggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog : [];
+                    $triggerTemplateConfig = is_array($wa_config['trigger_templates'] ?? null) ? $wa_config['trigger_templates'] : [];
                     ?>
                     <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 overflow-hidden">
                         <div class="bg-gradient-to-r from-slate-700 to-slate-900 p-8 flex justify-between items-center">
@@ -92,6 +94,85 @@
                                 </div>
                             </div>
 
+                            <div class="pt-6 border-t border-gray-100">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h4 class="font-bold text-gray-900"><?= $isArabic ? $decode('\u0627\u0644\u0642\u0648\u0627\u0644\u0628 \u0627\u0644\u0645\u0639\u062a\u0645\u062f\u0629 \u0644\u0644\u0645\u062d\u0631\u0643\u0627\u062a') : 'Approved Trigger Templates' ?></h4>
+                                        <p class="mt-1 text-xs text-gray-500"><?= $isArabic ? $decode('\u062d\u062f\u062f \u0627\u0633\u0645 \u0642\u0627\u0644\u0628 Meta \u0627\u0644\u0645\u0639\u062a\u0645\u062f \u0644\u0643\u0644 \u0645\u062d\u0631\u0643 \u0645\u0646 \u0645\u062d\u0631\u0643\u0627\u062a \u0627\u0644\u0639\u064a\u0627\u062f\u0629. \u0627\u0644\u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0622\u0644\u064a \u064a\u0639\u0645\u0644 \u0628\u0627\u0644\u0642\u0648\u0627\u0644\u0628 \u0641\u0642\u0637.') : 'Map each automated workflow to its approved Meta template. Automated clinic workflows now run template-first.' ?></p>
+                                    </div>
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-600"><?= $isArabic ? $decode('\u0642\u0648\u0627\u0644\u0628 \u0641\u0642\u0637') : 'Template only' ?></span>
+                                </div>
+
+                                <div class="mt-4 space-y-4">
+                                    <?php foreach ($triggerCatalog as $triggerKey => $triggerMeta): ?>
+                                        <?php
+                                        $triggerConfig = is_array($triggerTemplateConfig[$triggerKey] ?? null) ? $triggerTemplateConfig[$triggerKey] : [];
+                                        $availableVars = is_array($triggerMeta['available_vars'] ?? null) ? $triggerMeta['available_vars'] : [];
+                                        $bodyParamKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : ($triggerMeta['body_param_keys'] ?? []);
+                                        ?>
+                                        <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+                                            <div class="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                                                <div>
+                                                    <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                                    <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                                </div>
+                                                <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-600"><?= esc(($triggerMeta['strategy'] ?? 'template_only') === 'template_only' ? 'Template only' : ($triggerMeta['strategy'] ?? 'template_only')) ?></span>
+                                            </div>
+
+                                            <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0627\u0633\u0645 \u0627\u0644\u0642\u0627\u0644\u0628') : 'Approved template name' ?></label>
+                                                    <input type="text" id="trigger_tmpl_name_<?= esc($triggerKey) ?>" value="<?= esc($triggerConfig['name'] ?? '') ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="<?= esc($triggerKey) ?>_v1">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0631\u0645\u0632 \u0627\u0644\u0644\u063a\u0629') : 'Template language code' ?></label>
+                                                    <input type="text" id="trigger_tmpl_lang_<?= esc($triggerKey) ?>" value="<?= esc($triggerConfig['language'] ?? 'ar') ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="ar">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631 \u0627\u0644\u0631\u0623\u0633') : 'Header variable key' ?></label>
+                                                    <input type="text" id="trigger_tmpl_header_<?= esc($triggerKey) ?>" value="<?= esc($triggerConfig['header_param_key'] ?? '') ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="<?= $isArabic ? $decode('\u0627\u062e\u062a\u064a\u0627\u0631\u064a') : 'Optional' ?>">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631\u0627\u062a \u0627\u0644\u062c\u0633\u0645') : 'Body variable keys' ?></label>
+                                                    <input type="text" id="trigger_tmpl_body_<?= esc($triggerKey) ?>" value="<?= esc(implode(', ', $bodyParamKeys)) ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="<?= esc(implode(', ', $triggerMeta['body_param_keys'] ?? [])) ?>">
+                                                    <p class="mt-1 text-[11px] text-slate-500"><?= $isArabic ? $decode('\u0627\u0641\u0635\u0644 \u0627\u0644\u0645\u062a\u063a\u064a\u0631\u0627\u062a \u0628\u0641\u0648\u0627\u0635\u0644 \u0648\u062d\u0627\u0641\u0638 \u0639\u0644\u0649 \u062a\u0631\u062a\u064a\u0628\u0647\u0627 \u0641\u064a Meta.') : 'Comma-separated variable keys. Keep the same order used in Meta.' ?></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0646\u0648\u0639 \u0632\u0631 \u0627\u0644\u0642\u0627\u0644\u0628') : 'Button type' ?></label>
+                                                    <select id="trigger_tmpl_button_type_<?= esc($triggerKey) ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900">
+                                                        <option value="" <?= ($triggerConfig['button_type'] ?? '') === '' ? 'selected' : '' ?>><?= $isArabic ? $decode('\u0628\u062f\u0648\u0646 \u0632\u0631') : 'No button binding' ?></option>
+                                                        <option value="quick_reply" <?= ($triggerConfig['button_type'] ?? '') === 'quick_reply' ? 'selected' : '' ?>>Quick reply</option>
+                                                        <option value="url" <?= ($triggerConfig['button_type'] ?? '') === 'url' ? 'selected' : '' ?>>URL</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0641\u0647\u0631\u0633 \u0627\u0644\u0632\u0631') : 'Button index' ?></label>
+                                                    <input type="text" id="trigger_tmpl_button_index_<?= esc($triggerKey) ?>" value="<?= esc($triggerConfig['button_index'] ?? '0') ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="0">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-600"><?= $isArabic ? $decode('\u0645\u062a\u063a\u064a\u0631 \u0632\u0631 \u0627\u0644\u0642\u0627\u0644\u0628') : 'Button variable key' ?></label>
+                                                    <input type="text" id="trigger_tmpl_button_key_<?= esc($triggerKey) ?>" value="<?= esc($triggerConfig['button_param_key'] ?? '') ?>" class="mt-1 w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-slate-900" placeholder="<?= $isArabic ? $decode('\u0627\u062e\u062a\u064a\u0627\u0631\u064a') : 'Optional' ?>">
+                                                </div>
+                                            </div>
+
+                                            <?php if ($availableVars !== []): ?>
+                                                <div class="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-3">
+                                                    <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500"><?= $isArabic ? $decode('\u0627\u0644\u0645\u062a\u063a\u064a\u0631\u0627\u062a \u0627\u0644\u0645\u062a\u0627\u062d\u0629') : 'Available variables' ?></p>
+                                                    <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
+                                                        <?php foreach ($availableVars as $varKey => $varHelp): ?>
+                                                            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1"><span class="font-bold"><?= esc($varKey) ?></span> · <?= esc($varHelp) ?></span>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+
                             <form action="<?= base_url('settings/updateWhatsAppAutomationSettings') ?>" method="POST" class="pt-6 border-t border-gray-100 space-y-4">
                                 <?= csrf_field() ?>
                                 <div>
@@ -106,41 +187,22 @@
                                     </div>
 
                                     <div class="space-y-4">
-                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
-                                            <div>
-                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['appointment_reminder_label']) ?></p>
-                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['appointment_reminder_help']) ?></p>
+                                        <?php foreach ($triggerCatalog as $triggerKey => $triggerMeta): ?>
+                                            <?php
+                                            $labelCopyKey = $triggerKey . '_label';
+                                            $helpCopyKey = $triggerKey . '_help';
+                                            $triggerLabel = $toggleCopy[$labelCopyKey] ?? ($triggerMeta['label'] ?? $triggerKey);
+                                            $triggerHelp = $toggleCopy[$helpCopyKey] ?? ($triggerMeta['description'] ?? '');
+                                            $triggerEnabled = (int) ($triggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                            ?>
+                                            <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
+                                                <div>
+                                                    <p class="font-bold text-gray-800"><?= esc($triggerLabel) ?></p>
+                                                    <p class="mt-1 text-xs text-gray-500"><?= esc($triggerHelp) ?></p>
+                                                </div>
+                                                <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $triggerEnabled ? 'checked' : '' ?>>
                                             </div>
-                                            <input type="checkbox" name="trigger_toggles[appointment_reminder]" value="1" class="ui-toggle" <?= !empty($triggerToggles['appointment_reminder']) ? 'checked' : '' ?>>
-                                        </div>
-                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
-                                            <div>
-                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['appointment_confirmation_label']) ?></p>
-                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['appointment_confirmation_help']) ?></p>
-                                            </div>
-                                            <input type="checkbox" name="trigger_toggles[appointment_confirmation]" value="1" class="ui-toggle" <?= !empty($triggerToggles['appointment_confirmation']) ? 'checked' : '' ?>>
-                                        </div>
-                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
-                                            <div>
-                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['follow_up_label']) ?></p>
-                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['follow_up_help']) ?></p>
-                                            </div>
-                                            <input type="checkbox" name="trigger_toggles[follow_up]" value="1" class="ui-toggle" <?= !empty($triggerToggles['follow_up']) ? 'checked' : '' ?>>
-                                        </div>
-                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
-                                            <div>
-                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['no_show_follow_up_label']) ?></p>
-                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['no_show_follow_up_help']) ?></p>
-                                            </div>
-                                            <input type="checkbox" name="trigger_toggles[no_show_follow_up]" value="1" class="ui-toggle" <?= !empty($triggerToggles['no_show_follow_up']) ? 'checked' : '' ?>>
-                                        </div>
-                                        <div class="flex items-center justify-between rounded-2xl border border-white/70 bg-white px-4 py-4">
-                                            <div>
-                                                <p class="font-bold text-gray-800"><?= esc($toggleCopy['payment_reminder_label']) ?></p>
-                                                <p class="text-xs text-gray-500 mt-1"><?= esc($toggleCopy['payment_reminder_help']) ?></p>
-                                            </div>
-                                            <input type="checkbox" name="trigger_toggles[payment_reminder]" value="1" class="ui-toggle" <?= !empty($triggerToggles['payment_reminder']) ? 'checked' : '' ?>>
-                                        </div>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
 
@@ -153,3 +215,4 @@
                         </div>
                     </div>
                 </div>
+

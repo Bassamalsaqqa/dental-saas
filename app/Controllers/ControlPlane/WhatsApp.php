@@ -11,6 +11,7 @@ use App\Models\WhatsAppOptoutModel;
 use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\ControlPlaneAuditService;
 use App\Services\ControlPlaneWhatsAppTestSendService;
+use App\Services\WhatsAppTriggerCatalog;
 
 class WhatsApp extends BaseController
 {
@@ -22,20 +23,22 @@ class WhatsApp extends BaseController
     ];
 
     protected ControlPlaneAuditService $auditService;
+    protected WhatsAppTriggerCatalog $triggerCatalog;
 
     public function __construct()
     {
         $this->auditService = new ControlPlaneAuditService();
+        $this->triggerCatalog = new WhatsAppTriggerCatalog();
     }
 
-    public function index(string $activeTab = 'dashboard')
+    public function index(string $activeTab = 'overview')
     {
         $requestedTab = strtolower((string) ($this->request->getGet('tab') ?? $activeTab));
         if (in_array($requestedTab, ['secrets', 'policies'], true)) {
             return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'));
         }
-        if (!in_array($requestedTab, ['dashboard', 'journal'], true)) {
-            $requestedTab = 'dashboard';
+        if (!in_array($requestedTab, ['overview', 'send', 'activity', 'webhooks', 'optouts', 'reference'], true)) {
+            $requestedTab = 'overview';
         }
 
         $this->auditService->logEvent('surface_get', [
@@ -74,6 +77,7 @@ class WhatsApp extends BaseController
             'status_breakdown' => $attemptConsole['status_breakdown'],
             'operator_guidance' => $this->buildOperatorGuidance(),
             'test_send_clinics' => $this->getTestSendClinics(),
+            'trigger_catalog' => $this->triggerCatalog->all(),
             'stats' => [
                 'attempts_24h_total' => $attemptCounts['total'],
                 'attempts_24h_failed' => $attemptCounts['failed'],
@@ -94,9 +98,10 @@ class WhatsApp extends BaseController
             'target_number' => 'required|max_length[32]',
             'send_mode' => 'required|in_list[text,template]',
             'message' => 'permit_empty|max_length[2000]',
-            'template_source' => 'permit_empty|in_list[explicit,fallback]',
+            'template_source' => 'permit_empty|in_list[explicit,fallback,trigger_template]',
             'template_name' => 'permit_empty|max_length[120]',
             'template_language' => 'permit_empty|max_length[20]',
+            'trigger_key' => 'permit_empty|max_length[64]',
             'template_components_json' => 'permit_empty|max_length[4000]',
             'template_header_text' => 'permit_empty|max_length[120]',
             'template_body_params' => 'permit_empty|max_length[2000]',
@@ -119,6 +124,7 @@ class WhatsApp extends BaseController
             'template_source' => trim((string) $this->request->getPost('template_source')),
             'template_name' => trim((string) $this->request->getPost('template_name')),
             'template_language' => trim((string) $this->request->getPost('template_language')),
+            'trigger_key' => trim((string) $this->request->getPost('trigger_key')),
             'template_components_json' => trim((string) $this->request->getPost('template_components_json')),
             'template_header_text' => trim((string) $this->request->getPost('template_header_text')),
             'template_body_params' => (string) $this->request->getPost('template_body_params'),
@@ -503,11 +509,18 @@ class WhatsApp extends BaseController
         if ($templateName !== '') {
             $templateLanguage = trim((string) ($payload['template_language'] ?? ''));
             $templateSource = trim((string) ($payload['template_source'] ?? 'explicit'));
+            $workflowTrigger = trim((string) ($payload['workflow_trigger'] ?? ''));
+            $triggerMeta = $workflowTrigger !== '' ? ($this->triggerCatalog->all()[$workflowTrigger] ?? null) : null;
+            $sourceLabel = match ($templateSource) {
+                'fallback' => 'Clinic fallback template',
+                'workflow_trigger', 'trigger_template' => (string) ($triggerMeta['label'] ?? 'Workflow template'),
+                default => 'Explicit template',
+            };
 
             return [
                 'kind' => 'template',
                 'title' => $templateName,
-                'subtitle' => strtoupper($templateLanguage !== '' ? $templateLanguage : 'N/A') . ' · ' . ($templateSource === 'fallback' ? 'Clinic fallback template' : 'Explicit template'),
+                'subtitle' => strtoupper($templateLanguage !== '' ? $templateLanguage : 'N/A') . ' | ' . $sourceLabel,
                 'preview' => $this->templatePreview($payload),
             ];
         }
@@ -547,7 +560,7 @@ class WhatsApp extends BaseController
             }
             $rendered = array_values(array_filter($rendered, static fn(string $value): bool => trim($value) !== ''));
             if ($rendered !== []) {
-                $parts[] = ucfirst($type) . ': ' . implode(' · ', $rendered);
+                $parts[] = ucfirst($type) . ': ' . implode(' | ', $rendered);
             }
         }
 
@@ -723,3 +736,5 @@ class WhatsApp extends BaseController
         ];
     }
 }
+
+

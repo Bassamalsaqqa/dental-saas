@@ -1718,3 +1718,34 @@
     - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 46 assertions)` with existing no-coverage-driver warning.
     - Browser verification with Playwright against `https://localhost/dental-saas/controlplane/whatsapp` covering both `Overview` and `Audit Log` tabs.
     - `php spark whatsapp:ops-check` -> `Overall status: PASS`
+
+### Task: WHATSAPP-PHASE6-09 Template-First Trigger Catalog + Operator Trigger Testing
+- **Date:** 2026-03-22
+- **Status:** Completed
+- **Description:** Finished the template-first hardening pass for automated WhatsApp workflows by centralizing trigger metadata, exposing per-trigger approved template bindings in tenant settings, removing implicit transport fallback behavior, and reconnecting control-plane operators to the exact workflow template path used in production.
+- **Actions:**
+    - Added `app/Services/WhatsAppTriggerCatalog.php` as the canonical trigger registry for:
+      - `appointment_confirmation`
+      - `appointment_reminder`
+      - `follow_up`
+      - `no_show_follow_up`
+      - `payment_reminder`
+    - Normalized WhatsApp tenant channel config so each trigger has explicit template metadata (`name`, `language`, variable mapping, button mapping) in addition to the existing per-trigger enable/disable toggles.
+    - Updated tenant WhatsApp settings UI to manage approved template bindings per trigger while keeping trigger toggles independent.
+    - Reworked `WhatsAppWorkflowService` so workflow sends are template-first and fail closed when a trigger template mapping is missing instead of relying on free-form text fallback.
+    - Tightened `WhatsAppDriver` so transport only sends templates when explicitly requested and no longer performs implicit 131047 fallback behavior.
+    - Extended the control-plane live test send flow to support `trigger_template` mode, letting operators test the exact configured workflow template path from `/controlplane/whatsapp`.
+    - Improved control-plane activity labeling so workflow-template sends identify their trigger source instead of appearing as generic explicit templates.
+- **Verification:**
+    - `php -l app/Controllers/Settings.php`
+    - `php -l app/Controllers/ControlPlane/WhatsApp.php`
+    - `php -l app/Services/ControlPlaneWhatsAppTestSendService.php`
+    - `php -l app/Services/NotificationDrivers/WhatsAppDriver.php`
+    - `php -l app/Services/WhatsAppTriggerCatalog.php`
+    - `php -l app/Services/WhatsAppWorkflowService.php`
+    - `php -l app/Views/control_plane/whatsapp.php`
+    - `php -l tests/unit/WhatsAppPhase5EndpointsTest.php`
+    - `php -l tests/unit/WhatsAppTriggerCatalogTest.php`
+    - `vendor\bin\phpunit --filter WhatsAppTriggerCatalogTest` -> `OK (2 tests, 26 assertions)` with existing no-coverage-driver warning.
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 48 assertions)` with existing no-coverage-driver warning.
+    - `php spark whatsapp:ops-check` -> `Overall status: PASS`
