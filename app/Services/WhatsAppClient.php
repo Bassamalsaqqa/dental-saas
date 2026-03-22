@@ -30,23 +30,27 @@ class WhatsAppClient
      * - Uses platform secret `wa_access_token` for outbound sends (Phase 3)
      * - `wa_app_secret` is a separate secret for webhook signature verification (Phase 4)
      */
-    public function sendText(int $clinicId, array $channelConfig, string $to, string $messageBody): array
+    public function sendText(int $clinicId, array $channelConfig, array $recipient, string $messageBody): array
     {
-        $requestBody = [
+        $requestBody = $this->buildRecipientRequestBody($recipient);
+        if (($requestBody['error'] ?? null) !== null) {
+            return $this->terminalFailure((string) $requestBody['error'], (string) ($requestBody['message'] ?? 'Invalid WhatsApp recipient.'));
+        }
+
+        $requestBody = array_merge($requestBody, [
             'messaging_product' => 'whatsapp',
             'recipient_type' => 'individual',
-            'to' => $to,
             'type' => 'text',
             'text' => [
                 'preview_url' => false,
                 'body' => $messageBody,
             ],
-        ];
+        ]);
 
         return $this->sendRequest($clinicId, $channelConfig, $requestBody);
     }
 
-    public function sendTemplate(int $clinicId, array $channelConfig, string $to, string $templateName, string $languageCode = 'en_US', array $components = []): array
+    public function sendTemplate(int $clinicId, array $channelConfig, array $recipient, string $templateName, string $languageCode = 'en_US', array $components = []): array
     {
         $templateName = trim($templateName);
         if ($templateName === '') {
@@ -55,10 +59,14 @@ class WhatsAppClient
 
         $languageCode = trim($languageCode) !== '' ? trim($languageCode) : 'en_US';
 
-        $requestBody = [
+        $requestBody = $this->buildRecipientRequestBody($recipient);
+        if (($requestBody['error'] ?? null) !== null) {
+            return $this->terminalFailure((string) $requestBody['error'], (string) ($requestBody['message'] ?? 'Invalid WhatsApp recipient.'));
+        }
+
+        $requestBody = array_merge($requestBody, [
             'messaging_product' => 'whatsapp',
             'recipient_type' => 'individual',
-            'to' => $to,
             'type' => 'template',
             'template' => [
                 'name' => $templateName,
@@ -66,13 +74,39 @@ class WhatsAppClient
                     'code' => $languageCode,
                 ],
             ],
-        ];
+        ]);
 
         if (!empty($components)) {
             $requestBody['template']['components'] = $components;
         }
 
         return $this->sendRequest($clinicId, $channelConfig, $requestBody);
+    }
+
+    private function buildRecipientRequestBody(array $recipient): array
+    {
+        $waNumber = trim((string) ($recipient['wa_number'] ?? ''));
+        $bsuid = trim((string) ($recipient['bsuid'] ?? ''));
+        $parentBsuid = trim((string) ($recipient['parent_bsuid'] ?? ''));
+
+        $requestBody = [];
+        if ($waNumber !== '') {
+            $requestBody['to'] = $waNumber;
+        }
+
+        $recipientId = $bsuid !== '' ? $bsuid : $parentBsuid;
+        if ($recipientId !== '') {
+            $requestBody['recipient'] = $recipientId;
+        }
+
+        if (empty($requestBody['to']) && empty($requestBody['recipient'])) {
+            return [
+                'error' => 'WA_RECIPIENT_MISSING',
+                'message' => 'WhatsApp recipient must include a phone number or business-scoped identifier.',
+            ];
+        }
+
+        return $requestBody;
     }
 
     private function classifyResponse(ResponseInterface $response): array

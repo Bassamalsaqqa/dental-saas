@@ -115,13 +115,13 @@ $activeTab = $active_tab ?? 'dashboard';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Target Number</label>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Target Number or BSUID</label>
                     <input
                         type="text"
                         name="target_number"
                         value="<?= esc(old('target_number')) ?>"
                         class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
-                        placeholder="+970599999999"
+                        placeholder="+970599999999 or bsuid_123"
                         required
                     >
                 </div>
@@ -144,41 +144,111 @@ $activeTab = $active_tab ?? 'dashboard';
                 ><?= esc(old('message')) ?></textarea>
             </div>
 
-            <div id="wa-test-template-fields" class="grid grid-cols-1 lg:grid-cols-3 gap-4 hidden">
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Name</label>
-                    <input
-                        type="text"
-                        name="template_name"
-                        value="<?= esc(old('template_name')) ?>"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
-                        placeholder="appointment_reminder_v1"
-                    >
+            <div id="wa-test-template-fields" class="space-y-5 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Source</label>
+                        <select id="wa-template-source" name="template_source" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900">
+                            <option value="explicit" <?= old('template_source', 'explicit') === 'explicit' ? 'selected' : '' ?>>Explicit template</option>
+                            <option value="fallback" <?= old('template_source') === 'fallback' ? 'selected' : '' ?>>Clinic fallback template</option>
+                        </select>
+                    </div>
+                    <div id="wa-template-name-wrap">
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Name</label>
+                        <input
+                            type="text"
+                            name="template_name"
+                            value="<?= esc(old('template_name')) ?>"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                            placeholder="appointment_reminder_v1"
+                        >
+                    </div>
+                    <div id="wa-template-language-wrap">
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Language</label>
+                        <input
+                            type="text"
+                            name="template_language"
+                            value="<?= esc(old('template_language', 'en_US')) ?>"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                            placeholder="en_US"
+                        >
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Language</label>
-                    <input
-                        type="text"
-                        name="template_language"
-                        value="<?= esc(old('template_language', 'en_US')) ?>"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
-                        placeholder="en_US"
-                    >
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Header Text Parameter</label>
+                        <input
+                            type="text"
+                            name="template_header_text"
+                            value="<?= esc(old('template_header_text')) ?>"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                            placeholder="Optional header text"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Body Parameters</label>
+                        <textarea
+                            name="template_body_params"
+                            rows="4"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-900"
+                            placeholder="One parameter per line&#10;2026-03-22&#10;10:00"
+                        ><?= esc(old('template_body_params')) ?></textarea>
+                    </div>
                 </div>
-                <div class="lg:col-span-3">
-                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Components JSON</label>
-                    <textarea
-                        name="template_components_json"
-                        rows="5"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-xs font-mono text-slate-900"
-                        placeholder='[{"type":"body","parameters":[{"type":"text","text":"2026-03-22"},{"type":"text","text":"10:00"}]}]'
-                    ><?= esc(old('template_components_json')) ?></textarea>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Button Type</label>
+                        <select name="template_button_type" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900">
+                            <option value="">No button parameter</option>
+                            <option value="quick_reply" <?= old('template_button_type') === 'quick_reply' ? 'selected' : '' ?>>Quick reply</option>
+                            <option value="url" <?= old('template_button_type') === 'url' ? 'selected' : '' ?>>URL suffix</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Button Index</label>
+                        <input
+                            type="text"
+                            name="template_button_index"
+                            value="<?= esc(old('template_button_index', '0')) ?>"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                            placeholder="0"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Button Value</label>
+                        <input
+                            type="text"
+                            name="template_button_value"
+                            value="<?= esc(old('template_button_value')) ?>"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                            placeholder="Optional button payload or URL suffix"
+                        >
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h4 class="text-sm font-black text-slate-900">Advanced Components Override</h4>
+                            <p class="mt-1 text-xs text-slate-500">Leave this empty for guided operator mode. If you paste JSON here, it overrides the guided fields above.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <textarea
+                            name="template_components_json"
+                            rows="5"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-xs font-mono text-slate-900"
+                            placeholder='[{"type":"body","parameters":[{"type":"text","text":"2026-03-22"},{"type":"text","text":"10:00"}]}]'
+                        ><?= esc(old('template_components_json')) ?></textarea>
+                    </div>
                 </div>
             </div>
 
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2">
                 <p class="text-xs text-slate-500">
-                    Use text mode only inside the 24-hour session window. Use template mode when validating approved Meta templates or out-of-session delivery.
+                    Use text mode only inside the 24-hour session window. Use template mode when validating approved Meta templates or out-of-session delivery. Guided fields cover the common operator path; advanced JSON is optional.
                 </p>
                 <button type="submit" class="inline-flex items-center px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-black hover:bg-emerald-700 transition-all">
                     <i class="fab fa-whatsapp mr-2"></i>Send Test Message
@@ -361,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendMode = document.getElementById('wa-test-send-mode');
     const textFields = document.getElementById('wa-test-text-fields');
     const templateFields = document.getElementById('wa-test-template-fields');
+    const templateSource = document.getElementById('wa-template-source');
+    const templateNameWrap = document.getElementById('wa-template-name-wrap');
+    const templateLanguageWrap = document.getElementById('wa-template-language-wrap');
 
     const syncSendModeFields = () => {
         if (!sendMode || !textFields || !templateFields) {
@@ -375,6 +448,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sendMode) {
         sendMode.addEventListener('change', syncSendModeFields);
         syncSendModeFields();
+    }
+
+    const syncTemplateSourceFields = () => {
+        if (!templateSource || !templateNameWrap || !templateLanguageWrap) {
+            return;
+        }
+
+        const fallbackMode = templateSource.value === 'fallback';
+        templateNameWrap.classList.toggle('hidden', fallbackMode);
+        templateLanguageWrap.classList.toggle('hidden', fallbackMode);
+    };
+
+    if (templateSource) {
+        templateSource.addEventListener('change', syncTemplateSourceFields);
+        syncTemplateSourceFields();
     }
 });
 </script>

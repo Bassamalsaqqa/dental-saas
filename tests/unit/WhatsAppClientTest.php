@@ -83,11 +83,39 @@ final class WhatsAppClientTest extends CIUnitTestCase
     {
         $client = new WhatsAppClient();
 
-        $result = $client->sendTemplate(19, ['phone_number_id' => '123'], '972500000000', '   ');
+        $result = $client->sendTemplate(19, ['phone_number_id' => '123'], ['wa_number' => '972500000000'], '   ');
 
         $this->assertSame('failed_permanent', $result['attempt_status']);
         $this->assertSame('WA_TEMPLATE_NAME_MISSING', $result['error_code']);
         $this->assertFalse($result['retryable']);
+    }
+
+    public function testBuildRecipientRequestBodyUsesDedicatedRecipientFieldForBsuid(): void
+    {
+        $client = new WhatsAppClient();
+
+        $result = $this->invokePrivateMethod($client, 'buildRecipientRequestBody', [[
+            'wa_number' => null,
+            'bsuid' => 'bsuid_abc123',
+            'parent_bsuid' => null,
+        ]]);
+
+        $this->assertArrayNotHasKey('to', $result);
+        $this->assertSame('bsuid_abc123', $result['recipient']);
+    }
+
+    public function testBuildRecipientRequestBodyKeepsPhoneNumberAndRecipientWhenBothExist(): void
+    {
+        $client = new WhatsAppClient();
+
+        $result = $this->invokePrivateMethod($client, 'buildRecipientRequestBody', [[
+            'wa_number' => '972500000000',
+            'bsuid' => 'bsuid_abc123',
+            'parent_bsuid' => null,
+        ]]);
+
+        $this->assertSame('972500000000', $result['to']);
+        $this->assertSame('bsuid_abc123', $result['recipient']);
     }
 
     private function invokePrivateMethod(object $object, string $method, array $args = [])
@@ -99,4 +127,3 @@ final class WhatsAppClientTest extends CIUnitTestCase
         return $target->invokeArgs($object, $args);
     }
 }
-

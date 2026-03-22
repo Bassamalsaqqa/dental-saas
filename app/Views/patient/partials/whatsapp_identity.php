@@ -93,6 +93,18 @@ if ($waStatus === 'verified') {
                         <p class="text-gray-900 font-mono text-xs" dir="ltr"><?= esc($wa['bsuid']) ?></p>
                     </div>
                 <?php endif; ?>
+                <?php if (!empty($wa['parent_bsuid'])): ?>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Parent BSUID</label>
+                        <p class="text-gray-900 font-mono text-xs" dir="ltr"><?= esc($wa['parent_bsuid']) ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($wa['username'])): ?>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">WhatsApp Username</label>
+                        <p class="text-gray-900 font-mono text-xs" dir="ltr">@<?= esc(ltrim((string) $wa['username'], '@')) ?></p>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="mt-4 flex flex-wrap gap-2">
                 <?php if (has_permission('patients', 'edit')): ?>

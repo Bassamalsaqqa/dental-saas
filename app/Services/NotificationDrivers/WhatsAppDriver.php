@@ -51,16 +51,16 @@ class WhatsAppDriver
             ];
         }
 
-        if ($this->isOptedOut($clinicId, $recipient['wa_number'], $recipient['bsuid'])) {
+        if ($this->isOptedOut($clinicId, $recipient['wa_number'], $recipient['bsuid'], $recipient['parent_bsuid'] ?? null)) {
             return $this->blocked('WHATSAPP_RECIPIENT_OPTOUT', 'Recipient has opted out of WhatsApp messaging.');
         }
 
         $payload = json_decode((string) ($notification['payload_json'] ?? '{}'), true) ?? [];
         $payload = $this->preparePayload($payload, $channelConfig);
-        $transport = $this->sendPayload($clinicId, $channelConfig, (string) $recipient['to'], $payload);
+        $transport = $this->sendPayload($clinicId, $channelConfig, $recipient, $payload);
 
         if ((string) ($transport['error_code'] ?? '') === '131047') {
-            $fallbackResult = $this->tryFallbackTemplateSend($clinicId, $channelConfig, (string) $recipient['to'], $payload);
+            $fallbackResult = $this->tryFallbackTemplateSend($clinicId, $channelConfig, $recipient, $payload);
             if ($fallbackResult !== null) {
                 $transport = $fallbackResult;
             }
@@ -140,7 +140,7 @@ class WhatsAppDriver
             'payment_reminder' => $decode('\u062a\u0630\u0643\u064a\u0631 \u0645\u0646 \u0627\u0644\u0639\u064a\u0627\u062f\u0629: \u064a\u0648\u062c\u062f \u0631\u0635\u064a\u062f \u0645\u0633\u062a\u062d\u0642 \u0628\u0642\u064a\u0645\u0629 {{amount}}. \u0644\u0644\u062a\u0641\u0627\u0635\u064a\u0644 \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0647\u0630\u0647 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0629.'),
         ];
     }
-    private function tryFallbackTemplateSend(int $clinicId, array $channelConfig, string $to, array $payload): ?array
+    private function tryFallbackTemplateSend(int $clinicId, array $channelConfig, array $recipient, array $payload): ?array
     {
         $fallback = $channelConfig['fallback_template'] ?? [];
         if (!is_array($fallback)) {
@@ -162,7 +162,7 @@ class WhatsAppDriver
             $components = [];
         }
 
-        return $this->client->sendTemplate($clinicId, $channelConfig, $to, $templateName, $languageCode, $components);
+        return $this->client->sendTemplate($clinicId, $channelConfig, $recipient, $templateName, $languageCode, $components);
     }
 
     private function replacePlaceholders(string $template, array $vars): string
@@ -190,13 +190,13 @@ class WhatsAppDriver
         return strtr($template, $replacePairs);
     }
 
-    private function sendPayload(int $clinicId, array $channelConfig, string $to, array $payload): array
+    private function sendPayload(int $clinicId, array $channelConfig, array $recipient, array $payload): array
     {
         $templateName = trim((string) ($payload['template_name'] ?? ''));
         if ($templateName !== '') {
             $languageCode = trim((string) ($payload['template_language'] ?? 'en_US'));
             $components = is_array($payload['template_components'] ?? null) ? $payload['template_components'] : [];
-            return $this->client->sendTemplate($clinicId, $channelConfig, $to, $templateName, $languageCode, $components);
+            return $this->client->sendTemplate($clinicId, $channelConfig, $recipient, $templateName, $languageCode, $components);
         }
 
         $messageBody = trim((string) ($payload['message'] ?? $payload['body'] ?? ''));
@@ -204,7 +204,7 @@ class WhatsAppDriver
             return $this->failedPermanent('WA_MESSAGE_BODY_MISSING', 'WhatsApp payload requires message/body text or template_name.');
         }
 
-        return $this->client->sendText($clinicId, $channelConfig, $to, $messageBody);
+        return $this->client->sendText($clinicId, $channelConfig, $recipient, $messageBody);
     }
 
     private function resolveRecipient(array $notification, int $clinicId): array
@@ -228,9 +228,9 @@ class WhatsAppDriver
 
             return [
                 'ok' => true,
-                'to' => $normalized['to'],
                 'wa_number' => $normalized['wa_number'],
                 'bsuid' => $normalized['bsuid'],
+                'parent_bsuid' => null,
             ];
         }
 
@@ -259,9 +259,9 @@ class WhatsAppDriver
                 if ($normalized !== null) {
                     return [
                         'ok' => true,
-                        'to' => $normalized['to'],
                         'wa_number' => $normalized['wa_number'],
                         'bsuid' => $bsuid !== '' ? $bsuid : ($normalized['bsuid'] ?? null),
+                        'parent_bsuid' => trim((string) ($row['parent_bsuid'] ?? '')) ?: null,
                     ];
                 }
             }
@@ -269,9 +269,19 @@ class WhatsAppDriver
             if ($bsuid !== '') {
                 return [
                     'ok' => true,
-                    'to' => $bsuid,
-                    'wa_number' => null,
+                    'wa_number' => $waNumber !== '' ? $waNumber : null,
                     'bsuid' => $bsuid,
+                    'parent_bsuid' => trim((string) ($row['parent_bsuid'] ?? '')) ?: null,
+                ];
+            }
+
+            $parentBsuid = trim((string) ($row['parent_bsuid'] ?? ''));
+            if ($parentBsuid !== '') {
+                return [
+                    'ok' => true,
+                    'wa_number' => $waNumber !== '' ? $waNumber : null,
+                    'bsuid' => null,
+                    'parent_bsuid' => $parentBsuid,
                 ];
             }
 
@@ -296,7 +306,7 @@ class WhatsAppDriver
         ];
     }
 
-    private function isOptedOut(int $clinicId, ?string $waNumber, ?string $bsuid): bool
+    private function isOptedOut(int $clinicId, ?string $waNumber, ?string $bsuid, ?string $parentBsuid = null): bool
     {
         $builder = $this->optoutModel->where('clinic_id', $clinicId);
 
@@ -311,6 +321,14 @@ class WhatsAppDriver
                 $builder->orWhere('bsuid', $bsuid);
             } else {
                 $builder->where('bsuid', $bsuid);
+                $hasLookup = true;
+            }
+        }
+        if (!empty($parentBsuid)) {
+            if ($hasLookup) {
+                $builder->orWhere('parent_bsuid', $parentBsuid);
+            } else {
+                $builder->where('parent_bsuid', $parentBsuid);
                 $hasLookup = true;
             }
         }
@@ -333,7 +351,6 @@ class WhatsAppDriver
         // If it contains alphabetic chars or starts with '@', treat as username/BSUID-like identifier.
         if (preg_match('/[A-Za-z_@]/', $value)) {
             return [
-                'to' => $value,
                 'wa_number' => null,
                 'bsuid' => $value,
             ];
@@ -345,7 +362,6 @@ class WhatsAppDriver
         }
 
         return [
-            'to' => $digits,
             'wa_number' => $digits,
             'bsuid' => null,
         ];

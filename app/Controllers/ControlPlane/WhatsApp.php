@@ -81,9 +81,15 @@ class WhatsApp extends BaseController
             'target_number' => 'required|max_length[32]',
             'send_mode' => 'required|in_list[text,template]',
             'message' => 'permit_empty|max_length[2000]',
+            'template_source' => 'permit_empty|in_list[explicit,fallback]',
             'template_name' => 'permit_empty|max_length[120]',
             'template_language' => 'permit_empty|max_length[20]',
             'template_components_json' => 'permit_empty|max_length[4000]',
+            'template_header_text' => 'permit_empty|max_length[120]',
+            'template_body_params' => 'permit_empty|max_length[2000]',
+            'template_button_type' => 'permit_empty|in_list[quick_reply,url]',
+            'template_button_index' => 'permit_empty|is_natural',
+            'template_button_value' => 'permit_empty|max_length[512]',
         ];
 
         if (!$this->validate($rules)) {
@@ -97,9 +103,15 @@ class WhatsApp extends BaseController
             'target_number' => trim((string) $this->request->getPost('target_number')),
             'send_mode' => trim((string) $this->request->getPost('send_mode')),
             'message' => trim((string) $this->request->getPost('message')),
+            'template_source' => trim((string) $this->request->getPost('template_source')),
             'template_name' => trim((string) $this->request->getPost('template_name')),
             'template_language' => trim((string) $this->request->getPost('template_language')),
             'template_components_json' => trim((string) $this->request->getPost('template_components_json')),
+            'template_header_text' => trim((string) $this->request->getPost('template_header_text')),
+            'template_body_params' => (string) $this->request->getPost('template_body_params'),
+            'template_button_type' => trim((string) $this->request->getPost('template_button_type')),
+            'template_button_index' => trim((string) $this->request->getPost('template_button_index')),
+            'template_button_value' => trim((string) $this->request->getPost('template_button_value')),
         ];
 
         $service = new ControlPlaneWhatsAppTestSendService();

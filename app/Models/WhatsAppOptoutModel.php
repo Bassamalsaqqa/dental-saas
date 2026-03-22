@@ -15,6 +15,7 @@ class WhatsAppOptoutModel extends TenantAwareModel
         'patient_id',
         'wa_number',
         'bsuid',
+        'parent_bsuid',
         'source',
         'created_at',
     ];

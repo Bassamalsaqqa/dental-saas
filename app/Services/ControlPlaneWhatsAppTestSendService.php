@@ -72,10 +72,10 @@ class ControlPlaneWhatsAppTestSendService
 
         $recipient = $this->normalizeTargetNumber((string) ($input['target_number'] ?? ''));
         if ($recipient === null) {
-            return $this->fail('Enter a valid WhatsApp number in international format (example: +970599999999).');
+            return $this->fail('Enter a valid WhatsApp number in international format (example: +970599999999) or a valid BSUID/parent BSUID.');
         }
 
-        $payloadResult = $this->buildPayload($input);
+        $payloadResult = $this->buildPayload($input, $channelConfig);
         if (!$payloadResult['ok']) {
             return $this->fail((string) $payloadResult['message']);
         }
@@ -165,6 +165,13 @@ class ControlPlaneWhatsAppTestSendService
             return null;
         }
 
+        if (preg_match('/[A-Za-z_@]/', $raw)) {
+            return [
+                'address' => $raw,
+                'display' => $raw,
+            ];
+        }
+
         $digits = preg_replace('/\D+/', '', $raw);
         if (!is_string($digits) || $digits === '' || strlen($digits) < 8 || strlen($digits) > 15) {
             return null;
@@ -176,7 +183,7 @@ class ControlPlaneWhatsAppTestSendService
         ];
     }
 
-    private function buildPayload(array $input): array
+    private function buildPayload(array $input, array $channelConfig): array
     {
         $mode = strtolower(trim((string) ($input['send_mode'] ?? 'text')));
         if (!in_array($mode, ['text', 'template'], true)) {
@@ -204,17 +211,36 @@ class ControlPlaneWhatsAppTestSendService
             ];
         }
 
+        $templateSource = strtolower(trim((string) ($input['template_source'] ?? 'explicit')));
+        if (!in_array($templateSource, ['explicit', 'fallback'], true)) {
+            return [
+                'ok' => false,
+                'message' => 'Template source is invalid.',
+            ];
+        }
+
         $templateName = trim((string) ($input['template_name'] ?? ''));
-        if ($templateName === '') {
+        $templateLanguage = trim((string) ($input['template_language'] ?? 'en_US'));
+
+        if ($templateSource === 'fallback') {
+            $fallback = is_array($channelConfig['fallback_template'] ?? null) ? $channelConfig['fallback_template'] : [];
+            $templateName = trim((string) ($fallback['name'] ?? ''));
+            $templateLanguage = trim((string) ($fallback['language'] ?? 'ar'));
+            if ($templateName === '') {
+                return [
+                    'ok' => false,
+                    'message' => 'The selected clinic does not have a fallback template configured.',
+                ];
+            }
+        } elseif ($templateName === '') {
             return [
                 'ok' => false,
                 'message' => 'Template name is required for template test sends.',
             ];
         }
 
-        $templateLanguage = trim((string) ($input['template_language'] ?? 'en_US'));
         if ($templateLanguage === '') {
-            $templateLanguage = 'en_US';
+            $templateLanguage = $templateSource === 'fallback' ? 'ar' : 'en_US';
         }
 
         $componentsJson = trim((string) ($input['template_components_json'] ?? ''));
@@ -237,6 +263,8 @@ class ControlPlaneWhatsAppTestSendService
             }
 
             $components = $decoded;
+        } else {
+            $components = $this->buildGuidedTemplateComponents($input);
         }
 
         return [
@@ -246,8 +274,67 @@ class ControlPlaneWhatsAppTestSendService
                 'template_name' => $templateName,
                 'template_language' => $templateLanguage,
                 'template_components' => $components,
+                'template_source' => $templateSource,
             ],
         ];
+    }
+
+    private function buildGuidedTemplateComponents(array $input): array
+    {
+        $components = [];
+
+        $headerText = trim((string) ($input['template_header_text'] ?? ''));
+        if ($headerText !== '') {
+            $components[] = [
+                'type' => 'header',
+                'parameters' => [[
+                    'type' => 'text',
+                    'text' => $headerText,
+                ]],
+            ];
+        }
+
+        $bodyParamsRaw = str_replace(["\r\n", "\r"], "\n", (string) ($input['template_body_params'] ?? ''));
+        $bodyParams = array_values(array_filter(array_map(
+            static fn(string $line): string => trim($line),
+            explode("\n", $bodyParamsRaw)
+        ), static fn(string $line): bool => $line !== ''));
+
+        if (!empty($bodyParams)) {
+            $components[] = [
+                'type' => 'body',
+                'parameters' => array_map(static fn(string $value): array => [
+                    'type' => 'text',
+                    'text' => $value,
+                ], $bodyParams),
+            ];
+        }
+
+        $buttonValue = trim((string) ($input['template_button_value'] ?? ''));
+        if ($buttonValue !== '') {
+            $buttonType = strtolower(trim((string) ($input['template_button_type'] ?? 'quick_reply')));
+            if (!in_array($buttonType, ['quick_reply', 'url'], true)) {
+                $buttonType = 'quick_reply';
+            }
+
+            $buttonIndex = trim((string) ($input['template_button_index'] ?? '0'));
+            if ($buttonIndex === '' || !ctype_digit($buttonIndex)) {
+                $buttonIndex = '0';
+            }
+
+            $parameterType = $buttonType === 'url' ? 'text' : 'payload';
+            $components[] = [
+                'type' => 'button',
+                'sub_type' => $buttonType,
+                'index' => $buttonIndex,
+                'parameters' => [[
+                    'type' => $parameterType,
+                    $parameterType === 'url' ? 'text' : 'payload' => $buttonValue,
+                ]],
+            ];
+        }
+
+        return $components;
     }
 
     private function fail(string $message): array

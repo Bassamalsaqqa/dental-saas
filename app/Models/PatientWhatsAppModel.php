@@ -15,6 +15,8 @@ class PatientWhatsAppModel extends TenantAwareModel
         'patient_id',
         'wa_number',
         'bsuid',
+        'parent_bsuid',
+        'username',
         'resolution_status',
         'verified_at',
         'last_error_code',

@@ -1,6 +1,6 @@
 # WhatsApp Provider Facts and Implementation Context (Audit-Grade)
 
-Last updated: 2026-03-20
+Last updated: 2026-03-22
 Owner: Engineering
 Audience: Implementation team, security reviewers, architecture auditors
 Status: Canonical provider/context registry for WhatsApp feature work
@@ -213,16 +213,28 @@ Fact ML-003
 
 Fact ID-001
 - Statement: 2026 username model introduces BSUID-style identifier in business integrations.
-- Confidence: `P2-Secondary`
+- Confidence: `P1-Primary`
 - Sources:
-  - Twilio key concepts page (rollout note): https://www.twilio.com/docs/whatsapp/key-concepts
-  - Supporting industry reporting (non-primary)
+  - Meta Business Messaging docs: https://developers.facebook.com/documentation/business-messaging/whatsapp/business-scoped-user-ids
 - Engineering decision:
   - Add `bsuid` field from v1 in `patient_whatsapp`
   - Support webhook resolution path by `provider_message_id` then `wa_number` then `bsuid`
   - Store BSUID whenever present
+  - Support `parent_user_id`/parent BSUID storage alongside BSUID
+  - Treat BSUID/parent BSUID as dedicated identifiers, not phone numbers
+  - Outbound requests must use Meta's dedicated `recipient` field for BSUID-style identifiers
 
 Fact ID-002
+- Statement: Meta webhooks can now include `user_id`, `parent_user_id`, and `username`, and `wa_id` may be absent when username mode is active.
+- Confidence: `P1-Primary`
+- Sources:
+  - Meta Business Messaging docs: https://developers.facebook.com/documentation/business-messaging/whatsapp/business-scoped-user-ids
+- Engineering decision:
+  - Webhook ingestion must persist `user_id`, `parent_user_id`, and `username` when available
+  - Lookup/update flows must not assume `wa_id` is always present
+  - Add support for `user_id_update` webhooks to keep stored identifiers current
+
+Fact ID-003
 - Statement: exact rollout milestones/countries and final deadlines can change.
 - Confidence: `P3-Pending`
 - Engineering decision:

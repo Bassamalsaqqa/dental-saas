@@ -1669,3 +1669,27 @@
     - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php tests\unit\ControlPlanePlansTest.php` -> `OK (36 tests, 169 assertions)`
     - Added direct unit coverage for control-plane plan defaults and form exposure.
 
+### Task: WHATSAPP-PHASE6-07 Guided Operator + BSUID Compliance Hardening
+- **Date:** 2026-03-22
+- **Status:** Completed
+- **Description:** Brought the WhatsApp implementation into line with Meta's current business-scoped user ID model, added operator-friendly guided template sending in control plane, and hardened identity persistence so future username/BSUID rollout changes do not break recipient resolution.
+- **Actions:**
+    - Updated `WhatsAppClient` so BSUID-style identifiers are sent via Meta's dedicated `recipient` field instead of being misused as phone-number `to` values.
+    - Extended `patient_whatsapp` with `parent_bsuid` and `username`, and `whatsapp_optouts` with `parent_bsuid`.
+    - Added migration `2026-03-22-120000_AddWhatsAppScopedIdentityFields`.
+    - Extended webhook ingestion to:
+      - persist `user_id`, `parent_user_id`, and `username` from inbound/status payloads
+      - process `user_id_update` callbacks
+      - update tenant opt-out lookups using `wa_number`, `bsuid`, or `parent_bsuid`
+    - Reworked control-plane live test send UI into a guided operator flow with:
+      - explicit vs clinic-fallback template source
+      - guided body/header/button parameter inputs
+      - optional advanced JSON override only when needed
+    - Updated SQL dump and provider facts registry to reflect Meta's official BSUID guidance.
+- **Verification:**
+    - `php -l` passed for modified services, controllers, views, migration, and tests.
+    - `php spark migrate` -> migration applied successfully.
+    - `vendor\bin\phpunit --filter WhatsAppWebhookTest` -> `OK (19 tests, 101 assertions)` with existing no-coverage-driver warning.
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest` -> `OK (12 tests, 46 assertions)` with existing no-coverage-driver warning.
+    - `php spark whatsapp:ops-check` -> `Overall status: PASS`
+

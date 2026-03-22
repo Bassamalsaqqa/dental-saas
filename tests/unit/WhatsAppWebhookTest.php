@@ -6,6 +6,7 @@ use App\Controllers\Webhooks\WhatsAppWebhook;
 use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationAttemptModel;
 use App\Models\NotificationModel;
+use App\Models\PatientWhatsAppModel;
 use App\Models\PlatformSecretModel;
 use App\Models\WhatsAppDeliveryEventModel;
 use App\Models\WhatsAppOptoutModel;
@@ -363,7 +364,7 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         $secretModel->setSecret('wa_verify_token', $testVerifyToken, null, 'phpunit challenge test');
 
         try {
-            $response = $this->get('/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=' . rawurlencode($testVerifyToken) . '&hub.challenge=123456789');
+            $response = $this->get('/webhooks/whatsapp?hub_mode=subscribe&hub_verify_token=' . rawurlencode($testVerifyToken) . '&hub_challenge=123456789');
 
             $response->assertStatus(200);
             $this->assertSame('123456789', (string) $response->response()->getBody());
@@ -850,6 +851,185 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         }
     }
 
+    public function testWebhookEventsEndpointPersistsScopedIdentifiersFromInboundMessage(): void
+    {
+        [$clinicId, $phoneNumberId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0 || $phoneNumberId === '') {
+            $this->markTestSkipped('No resolvable WhatsApp channel config found for inbound identity test.');
+        }
+
+        $patientId = $this->findPatientWithoutWhatsAppIdentity($clinicId);
+        if ($patientId <= 0) {
+            $this->markTestSkipped('No patient without WhatsApp identity found for inbound identity test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $waNumberDigits = '9725' . substr((string) time(), -6) . random_int(10, 99);
+        $providerEventId = 'phpunit-message-id-' . substr(bin2hex(random_bytes(6)), 0, 12);
+        $bsuid = 'bsuid_' . substr(bin2hex(random_bytes(6)), 0, 10);
+        $parentBsuid = 'pbsuid_' . substr(bin2hex(random_bytes(6)), 0, 10);
+        $username = 'patient_' . substr(bin2hex(random_bytes(3)), 0, 6);
+
+        $patientWhatsAppModel = new PatientWhatsAppModel();
+        $eventModel = new WhatsAppDeliveryEventModel();
+
+        try {
+            $patientWhatsAppModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'patient_id' => $patientId,
+                'wa_number' => $waNumberDigits,
+                'resolution_status' => 'pending',
+            ]);
+
+            $payloadArray = [
+                'object' => 'whatsapp_business_account',
+                'entry' => [[
+                    'id' => 'entry-identity-message',
+                    'changes' => [[
+                        'field' => 'messages',
+                        'value' => [
+                            'metadata' => ['phone_number_id' => $phoneNumberId],
+                            'contacts' => [[
+                                'wa_id' => $waNumberDigits,
+                                'profile' => ['name' => 'PHPUnit User'],
+                            ]],
+                            'messages' => [[
+                                'id' => $providerEventId,
+                                'from' => $waNumberDigits,
+                                'type' => 'text',
+                                'text' => ['body' => 'hello'],
+                                'user_id' => $bsuid,
+                                'parent_user_id' => $parentBsuid,
+                                'username' => $username,
+                            ]],
+                        ],
+                    ]],
+                ]],
+            ];
+            $payload = json_encode($payloadArray);
+            $this->assertIsString($payload);
+            $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+            $response = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $response->assertStatus(200);
+
+            $row = $patientWhatsAppModel->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->where('patient_id', $patientId)
+                ->first();
+
+            $this->assertIsArray($row);
+            $this->assertSame($bsuid, (string) ($row['bsuid'] ?? ''));
+            $this->assertSame($parentBsuid, (string) ($row['parent_bsuid'] ?? ''));
+            $this->assertSame($username, (string) ($row['username'] ?? ''));
+            $this->assertSame('verified', (string) ($row['resolution_status'] ?? ''));
+
+            $eventRows = $eventModel->where('provider_event_id', $providerEventId)->findAll();
+            $this->assertCount(1, $eventRows);
+        } finally {
+            $patientWhatsAppModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('patient_id', $patientId)->delete();
+            $eventModel->where('provider_event_id', $providerEventId)->delete();
+        }
+    }
+
+    public function testWebhookEventsEndpointProcessesUserIdUpdateWebhook(): void
+    {
+        [$clinicId, $phoneNumberId] = $this->findResolvableWhatsAppChannelForWebhookTest();
+        if ($clinicId <= 0 || $phoneNumberId === '') {
+            $this->markTestSkipped('No resolvable WhatsApp channel config found for user_id_update test.');
+        }
+
+        $patientId = $this->findPatientWithoutWhatsAppIdentity($clinicId);
+        if ($patientId <= 0) {
+            $this->markTestSkipped('No patient without WhatsApp identity found for user_id_update test.');
+        }
+
+        $appSecret = $this->ensureWebhookAppSecretForTests();
+        $waNumberDigits = '9725' . substr((string) time(), -6) . random_int(10, 99);
+        $previousBsuid = 'old_' . substr(bin2hex(random_bytes(6)), 0, 10);
+        $currentBsuid = 'new_' . substr(bin2hex(random_bytes(6)), 0, 10);
+        $previousParentBsuid = 'pold_' . substr(bin2hex(random_bytes(6)), 0, 10);
+        $currentParentBsuid = 'pnew_' . substr(bin2hex(random_bytes(6)), 0, 10);
+
+        $patientWhatsAppModel = new PatientWhatsAppModel();
+        $eventModel = new WhatsAppDeliveryEventModel();
+        $providerEventId = '';
+
+        try {
+            $patientWhatsAppModel->withoutTenantScope()->insert([
+                'clinic_id' => $clinicId,
+                'patient_id' => $patientId,
+                'wa_number' => $waNumberDigits,
+                'bsuid' => $previousBsuid,
+                'parent_bsuid' => $previousParentBsuid,
+                'resolution_status' => 'pending',
+            ]);
+
+            $payloadArray = [
+                'object' => 'whatsapp_business_account',
+                'entry' => [[
+                    'id' => 'entry-user-id-update',
+                    'changes' => [[
+                        'field' => 'user_id_update',
+                        'value' => [
+                            'metadata' => ['phone_number_id' => $phoneNumberId],
+                            'wa_id' => $waNumberDigits,
+                            'user_id_update' => [
+                                'user_id' => [
+                                    'previous' => $previousBsuid,
+                                    'current' => $currentBsuid,
+                                ],
+                                'parent_user_id' => [
+                                    'previous' => $previousParentBsuid,
+                                    'current' => $currentParentBsuid,
+                                ],
+                            ],
+                        ],
+                    ]],
+                ]],
+            ];
+            $payload = json_encode($payloadArray);
+            $this->assertIsString($payload);
+            $providerEventId = substr(hash('sha256', 'user_id_update|0|0|' . json_encode($payloadArray['entry'][0]['changes'][0]['value'])), 0, 40);
+            $signature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+
+            $response = $this
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-Hub-Signature-256' => $signature,
+                ])
+                ->withBody($payload)
+                ->post('/webhooks/whatsapp');
+
+            $response->assertStatus(200);
+            $json = json_decode((string) $response->getJSON(), true);
+            $this->assertIsArray($json);
+            $this->assertSame(1, $json['summary']['identity_updates'] ?? null);
+
+            $row = $patientWhatsAppModel->withoutTenantScope()
+                ->where('clinic_id', $clinicId)
+                ->where('patient_id', $patientId)
+                ->first();
+
+            $this->assertIsArray($row);
+            $this->assertSame($currentBsuid, (string) ($row['bsuid'] ?? ''));
+            $this->assertSame($currentParentBsuid, (string) ($row['parent_bsuid'] ?? ''));
+            $this->assertSame('verified', (string) ($row['resolution_status'] ?? ''));
+        } finally {
+            $patientWhatsAppModel->withoutTenantScope()->where('clinic_id', $clinicId)->where('patient_id', $patientId)->delete();
+            if ($providerEventId !== '') {
+                $eventModel->where('provider_event_id', $providerEventId)->delete();
+            }
+        }
+    }
+
     private function invokePrivateMethodLocal(object $object, string $method, array $args = [])
     {
         $reflection = new \ReflectionClass($object);
@@ -925,5 +1105,20 @@ final class WhatsAppWebhookTest extends CIUnitTestCase
         }
 
         return [0, ''];
+    }
+
+    private function findPatientWithoutWhatsAppIdentity(int $clinicId): int
+    {
+        $row = \Config\Database::connect('tests')
+            ->table('patients p')
+            ->select('p.id')
+            ->join('patient_whatsapp pw', 'pw.patient_id = p.id AND pw.clinic_id = p.clinic_id', 'left')
+            ->where('p.clinic_id', $clinicId)
+            ->where('pw.id IS NULL', null, false)
+            ->orderBy('p.id', 'ASC')
+            ->get(1)
+            ->getRowArray();
+
+        return (int) ($row['id'] ?? 0);
     }
 }
