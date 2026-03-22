@@ -19,6 +19,7 @@ Follow these steps to set up your local development environment.
 2.  Open `.env` and configure your local settings:
     *   Set `CI_ENVIRONMENT = development` to enable debugging.
     *   Configure `database.default.*` with your local DB credentials.
+    *   Leave `app.baseURL` commented unless you need a fixed production-style origin. Auto-detection is safer for localhost subfolders and tunnels.
 3.  Generate an encryption key:
     ```bash
     php spark key:generate
@@ -79,6 +80,7 @@ Point your virtual host's **Document Root** to the `public/` directory.
 *   **NEVER** use the repository root as the document root in production.
 *   In development, if you must use the root, ensure `.htaccess` is active.
 *   For this local XAMPP setup, the app is typically reached at `https://localhost/dental-saas/`.
+*   If you expose local through a tunnel, keep the origin as `https://localhost/dental-saas` and let the app detect the public hostname from forwarded headers.
 
 ## 4.1 Frontend Asset Pipeline
 

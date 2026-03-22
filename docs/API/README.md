@@ -141,9 +141,9 @@ DoD
 
 Verify (verbatim)
 - `php spark filter:check GET api/v1/patients`
-- `curl.exe -i http://saas.dental.local/api/v1/patients`
-- `curl.exe -i -H "Authorization: Bearer <TOKEN>" http://saas.dental.local/api/v1/patients`
-- `curl.exe -i -H "Authorization: Bearer <TOKEN>" -H "X-Clinic-Id: <id>" http://saas.dental.local/api/v1/patients`
+- `curl.exe -i http://localhost/dental-saas/api/v1/patients`
+- `curl.exe -i -H "Authorization: Bearer <TOKEN>" http://localhost/dental-saas/api/v1/patients`
+- `curl.exe -i -H "Authorization: Bearer <TOKEN>" -H "X-Clinic-Id: <id>" http://localhost/dental-saas/api/v1/patients`
 
 Rollback
 - Revert API error mapping changes.
@@ -174,7 +174,7 @@ Status (2026-01-21)
 
 Verify (verbatim)
 - `php spark filter:check GET api/search/patients`
-- `curl.exe -i http://saas.dental.local/api/search/patients`
+- `curl.exe -i http://localhost/dental-saas/api/search/patients`
 - Log pattern: `LEGACY_API_ACCESS route=/api/search/patients method=GET user_id=<id|none> clinic_id=<id|none> ip=<ip> ua="<ua>"`
 
 Rollback
@@ -191,7 +191,7 @@ Status (2026-01-21)
 - SKIPPED. Legacy routes were removed after UI migration; gate phase is no longer applicable.
 
 Verify (verbatim)
-- `curl.exe -i http://saas.dental.local/api/search/patients`
+- `curl.exe -i http://localhost/dental-saas/api/search/patients`
 - `php spark filter:check GET api/search/patients`
 
 Rollback
@@ -228,3 +228,4 @@ Rollback
 - Restore routes from prior revision.
 
 ---
+

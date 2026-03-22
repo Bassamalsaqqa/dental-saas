@@ -101,9 +101,10 @@ This log summarizes implemented work at the task level and points to verificatio
   - `app/Controllers/Api/V1/Search.php`
   - `docs/API_CONTRACT.md`
 - Verification (paste verbatim outputs):
-  - `curl.exe -i http://saas.dental.local/api/v1/search/patients`
-  - `curl.exe -i -H "Authorization: Bearer <TOKEN>" http://saas.dental.local/api/v1/search/patients`
-  - `curl.exe -i -H "Authorization: Bearer <TOKEN>" -H "X-Clinic-Id: 1" "http://saas.dental.local/api/v1/search/patients?q=a"`
-  - `curl.exe -i http://saas.dental.local/api/search/patients`
+  - `curl.exe -i http://localhost/dental-saas/api/v1/search/patients`
+  - `curl.exe -i -H "Authorization: Bearer <TOKEN>" http://localhost/dental-saas/api/v1/search/patients`
+  - `curl.exe -i -H "Authorization: Bearer <TOKEN>" -H "X-Clinic-Id: 1" "http://localhost/dental-saas/api/v1/search/patients?q=a"`
+  - `curl.exe -i http://localhost/dental-saas/api/search/patients`
   - `php spark filter:check GET api/v1/search/patients`
   - `php spark filter:check POST api/v1/search/patients`
+

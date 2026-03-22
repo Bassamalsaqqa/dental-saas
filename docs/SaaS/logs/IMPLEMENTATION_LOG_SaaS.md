@@ -602,13 +602,13 @@
 ### Verification
 - `docs/SaaS/verification/UI-AUTH-01.md`
 
-## [2026-01-20] Apache SSL vhost snippet for saas.dental.local (APACHE-SSL-01)
+## [2026-01-20] Apache SSL vhost snippet for localhost (APACHE-SSL-01)
 **Tasks:** APACHE-SSL-01
 **Author:** Codex
 **Status:** Complete
 
 ### Changes
-- **Docs:** Added an SSL vhost snippet for `saas.dental.local` that points DocumentRoot to `public/`, enables AllowOverride, and forwards Authorization.
+- **Docs:** Added an SSL vhost snippet for `localhost` that points DocumentRoot to `public/`, enables AllowOverride, and forwards Authorization.
 - **Verification:** Captured pre-fix diagnostics and provided owner-run post-fix steps in `docs/SaaS/verification/APACHE-SSL-01.md`.
 
 ### Verification
@@ -620,8 +620,8 @@
 **Status:** Complete
 
 ### Changes
-- **Docs:** Added APACHE-SSL-02 verification guide with pre-fix evidence and post-fix steps for `saas.dental.local` SSL vhost routing.
-- **Snippet:** Reaffirmed SNI-correct vhost block in `docs/SaaS/apache/vhost-saas.dental.local-ssl.conf`.
+- **Docs:** Added APACHE-SSL-02 verification guide with pre-fix evidence and post-fix steps for `localhost` SSL vhost routing.
+- **Snippet:** Reaffirmed SNI-correct vhost block in `docs/SaaS/apache/vhost-localhost-ssl.conf`.
 
 ### Verification
 - `docs/SaaS/verification/APACHE-SSL-02.md`
@@ -1668,3 +1668,4 @@
     - `php -l` passed for modified controllers, services, views, tests, and docs-adjacent PHP files.
     - `vendor\bin\phpunit.bat --no-coverage tests\unit\WhatsAppWebhookTest.php tests\unit\WhatsAppClientTest.php tests\unit\DispatchServiceTest.php tests\unit\WhatsAppPhase5EndpointsTest.php tests\unit\ControlPlanePlansTest.php` -> `OK (36 tests, 169 assertions)`
     - Added direct unit coverage for control-plane plan defaults and form exposure.
+

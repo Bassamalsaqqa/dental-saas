@@ -4,12 +4,12 @@ Goal: Centralize CSRF injection + refresh for all non-GET jQuery AJAX requests (
 
 ### Pre-fix failure (token present but 403)
 ```bat
-curl "https://saas.dental.local/patient/get-data" ^
+curl "https://localhost/dental-saas/patient/get-data" ^
   -H "Accept: application/json, text/javascript, */*; q=0.01" ^
   -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
   -b "ci_session_saas=<REDACTED>; csrf_cookie_name=<REDACTED>" ^
-  -H "Origin: https://saas.dental.local" ^
-  -H "Referer: https://saas.dental.local/patients" ^
+  -H "Origin: https://localhost/dental-saas" ^
+  -H "Referer: https://localhost/dental-saas/patients" ^
   -H "X-CSRF-TOKEN: <REDACTED>" ^
   -H "X-Requested-With: XMLHttpRequest" ^
   --data-raw "draw=2&...&csrf_test_name=<REDACTED>" ^
@@ -59,15 +59,15 @@ curl "https://saas.dental.local/patient/get-data" ^
 
 ### SSL sanity (verbatim)
 ```bat
-C:\xampp\apache\bin\httpd.exe -S | findstr /I ":443 saas.dental.local"
+C:\xampp\apache\bin\httpd.exe -S | findstr /I ":443 localhost"
 ```
 ```
 *:443                  is a NameVirtualHost
-         port 443 namevhost saas.dental.local (C:/xampp/apache/conf/extra/httpd-ssl.conf:291)
+         port 443 namevhost localhost (C:/xampp/apache/conf/extra/httpd-ssl.conf:291)
 ```
 
 ```bat
-curl.exe -k -i https://saas.dental.local/auth/login | findstr /I "HTTP/"
+curl.exe -k -i https://localhost/dental-saas/auth/login | findstr /I "HTTP/"
 ```
 ```
 HTTP/1.1 200 OK
@@ -88,12 +88,12 @@ Paste evidence:
 
 ### Positive test: Patients DataTables (copy-as-cURL)
 ```bat
-curl "https://saas.dental.local/patient/get-data" ^
+curl "https://localhost/dental-saas/patient/get-data" ^
   -H "Accept: application/json, text/javascript, */*; q=0.01" ^
   -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
   -b "csrf_cookie_name=<REDACTED>; ci_session_saas=<REDACTED>" ^
-  -H "Origin: https://saas.dental.local" ^
-  -H "Referer: https://saas.dental.local/patients" ^
+  -H "Origin: https://localhost/dental-saas" ^
+  -H "Referer: https://localhost/dental-saas/patients" ^
   -H "X-CSRF-TOKEN: <REDACTED>" ^
   -H "X-Requested-With: XMLHttpRequest" ^
   --data-raw "draw=1&...&csrf_test_name=<REDACTED>" ^
@@ -123,10 +123,10 @@ curl "https://saas.dental.local/patient/get-data" ^
 
 ### Additional JSON refresh evidence (non-DataTables)
 ```bat
-curl "https://saas.dental.local/patient/get-statistics" ^
+curl "https://localhost/dental-saas/patient/get-statistics" ^
   -H "Accept: application/json, text/javascript, */*; q=0.01" ^
   -b "ci_session_saas=<REDACTED>; csrf_cookie_name=<REDACTED>" ^
-  -H "Referer: https://saas.dental.local/patients" ^
+  -H "Referer: https://localhost/dental-saas/patients" ^
   -H "X-Requested-With: XMLHttpRequest" ^
   --insecure
 ```
@@ -146,12 +146,12 @@ Pick another DataTables screen (Appointments/Finance/Inventory/etc):
 
 Paste evidence:
 ```
-curl "https://saas.dental.local/finance/getFinancesData" ^
+curl "https://localhost/dental-saas/finance/getFinancesData" ^
   -H "Accept: application/json, text/javascript, */*; q=0.01" ^
   -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
   -b "csrf_cookie_name=<REDACTED>; ci_session_saas=<REDACTED>" ^
-  -H "Origin: https://saas.dental.local" ^
-  -H "Referer: https://saas.dental.local/finance" ^
+  -H "Origin: https://localhost/dental-saas" ^
+  -H "Referer: https://localhost/dental-saas/finance" ^
   -H "X-CSRF-TOKEN: <REDACTED>" ^
   -H "X-Requested-With: XMLHttpRequest" ^
   --data-raw "draw=1&...&csrf_test_name=<REDACTED>" ^
@@ -199,12 +199,12 @@ Paste evidence:
 <paste curl without token>
 ```
 ```
-curl "https://saas.dental.local/finance/getFinancesData" ^
+curl "https://localhost/dental-saas/finance/getFinancesData" ^
   -H "Accept: application/json, text/javascript, */*; q=0.01" ^
   -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" ^
   -b "csrf_cookie_name=<REDACTED>; ci_session_saas=<REDACTED>" ^
-  -H "Origin: https://saas.dental.local" ^
-  -H "Referer: https://saas.dental.local/finance" ^
+  -H "Origin: https://localhost/dental-saas" ^
+  -H "Referer: https://localhost/dental-saas/finance" ^
   -H "X-Requested-With: XMLHttpRequest" ^
   --data-raw "draw=1&columns%5B0%5D%5Bdata%5D=transaction_id&columns%5B0%5D%5Bname%5D=transaction_id&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=true&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=patient_name&columns%5B1%5D%5Bname%5D=patient_name&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=transaction_type&columns%5B2%5D%5Bname%5D=transaction_type&columns%5B2%5D%5Bsearchable%5D=true&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B3%5D%5Bdata%5D=amount&columns%5B3%5D%5Bname%5D=amount&columns%5B3%5D%5Bsearchable%5D=true&columns%5B3%5D%5Borderable%5D=true&columns%5B3%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B3%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B4%5D%5Bdata%5D=payment_status&columns%5B4%5D%5Bname%5D=payment_status&columns%5B4%5D%5Bsearchable%5D=true&columns%5B4%5D%5Borderable%5D=true&columns%5B4%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B4%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B5%5D%5Bdata%5D=created_at&columns%5B5%5D%5Bname%5D=created_at&columns%5B5%5D%5Bsearchable%5D=true&columns%5B5%5D%5Borderable%5D=true&columns%5B5%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B5%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B6%5D%5Bdata%5D=id&columns%5B6%5D%5Bname%5D=actions&columns%5B6%5D%5Bsearchable%5D=false&columns%5B6%5D%5Borderable%5D=false&columns%5B6%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B6%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=desc&start=0&length=10&search%5Bvalue%5D=&search%5Bregex%5D=false" ^
   --insecure
@@ -219,3 +219,4 @@ curl "https://saas.dental.local/finance/getFinancesData" ^
     "line": 262
 }
 ```
+

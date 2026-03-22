@@ -21,9 +21,10 @@ class App extends BaseConfig
     public function __construct()
     {
         parent::__construct();
-        
-        // Auto-detect baseURL from environment or server variables
-        $this->baseURL = $this->getBaseURL(); 
+
+        // Resolve a host-aware base URL that works for localhost, production,
+        // and reverse-proxied tunnel hosts without swapping code.
+        $this->baseURL = $this->getBaseURL();
 
         // Allow demo mode to be configured via .env
         $this->demo = filter_var(env('app.demo', $this->demo), FILTER_VALIDATE_BOOL);
@@ -31,26 +32,126 @@ class App extends BaseConfig
     
     private function getBaseURL(): string
     {
-        // First, check if baseURL is set in environment variable
-        if (!empty($_ENV['app.baseURL'])) {
-            return rtrim($_ENV['app.baseURL'], '/') . '/';
+        $configuredBaseURL = env('app.baseURL');
+        $requestHost       = $this->detectRequestHost();
+
+        if (is_string($configuredBaseURL) && trim($configuredBaseURL) !== '') {
+            if ($this->shouldUseConfiguredBaseURL($configuredBaseURL, $requestHost)) {
+                return $this->normalizeBaseURL($configuredBaseURL);
+            }
         }
-        
-        // Auto-detect from current request
-        $protocol = 'http';
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-            $protocol = 'https';
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-            $protocol = 'https';
-        } elseif (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) {
-            $protocol = 'https';
+
+        return $this->detectRequestBaseURL($requestHost);
+    }
+
+    private function shouldUseConfiguredBaseURL(string $configuredBaseURL, ?string $requestHost): bool
+    {
+        $configuredHost = parse_url($configuredBaseURL, PHP_URL_HOST);
+
+        if (! is_string($configuredHost) || $configuredHost === '') {
+            return false;
         }
-        
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $script_name = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
-        
-        return $protocol . '://' . $host . $script_name . '/';
-    } 
+
+        if ($requestHost === null || $requestHost === '') {
+            return true;
+        }
+
+        if (strcasecmp($configuredHost, $requestHost) === 0) {
+            return true;
+        }
+
+        return ! $this->isLocalHostname($configuredHost);
+    }
+
+    private function detectRequestBaseURL(?string $requestHost = null): string
+    {
+        $protocol = $this->detectRequestScheme();
+        $host     = $requestHost ?? $this->detectRequestHost() ?? 'localhost';
+        $basePath = $this->detectBasePath();
+
+        return $protocol . '://' . $host . $basePath;
+    }
+
+    private function detectRequestScheme(): string
+    {
+        if (! empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+            return 'https';
+        }
+
+        $forwardedProto = $this->readForwardedHeader('HTTP_X_FORWARDED_PROTO');
+        if ($forwardedProto !== null && strtolower($forwardedProto) === 'https') {
+            return 'https';
+        }
+
+        if (! empty($_SERVER['SERVER_PORT']) && (string) $_SERVER['SERVER_PORT'] === '443') {
+            return 'https';
+        }
+
+        return 'http';
+    }
+
+    private function detectRequestHost(): ?string
+    {
+        $forwardedHost = $this->readForwardedHeader('HTTP_X_FORWARDED_HOST');
+        if ($forwardedHost !== null && $forwardedHost !== '') {
+            return $forwardedHost;
+        }
+
+        if (! empty($_SERVER['HTTP_HOST'])) {
+            return trim((string) $_SERVER['HTTP_HOST']);
+        }
+
+        return null;
+    }
+
+    private function detectBasePath(): string
+    {
+        $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+        $basePath   = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+
+        if ($basePath === '' || $basePath === '.') {
+            return '/';
+        }
+
+        return $basePath . '/';
+    }
+
+    private function readForwardedHeader(string $key): ?string
+    {
+        $value = $_SERVER[$key] ?? null;
+
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        return trim(explode(',', $value)[0]);
+    }
+
+    private function normalizeBaseURL(string $baseURL): string
+    {
+        return rtrim(trim($baseURL), '/') . '/';
+    }
+
+    private function isLocalHostname(string $hostname): bool
+    {
+        $hostname = strtolower($hostname);
+
+        if ($hostname === 'localhost' || $hostname === '::1') {
+            return true;
+        }
+
+        if (str_ends_with($hostname, '.local')) {
+            return true;
+        }
+
+        return filter_var($hostname, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) !== false
+            && (
+                str_starts_with($hostname, '127.')
+                || str_starts_with($hostname, '10.')
+                || str_starts_with($hostname, '192.168.')
+                || preg_match('/^172\.(1[6-9]|2\d|3[0-1])\./', $hostname) === 1
+            );
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

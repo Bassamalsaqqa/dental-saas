@@ -75,7 +75,7 @@ App\Filters\PermissionFilter:patients → App\Filters\ApiV1AuthFilter → CodeIg
 ## 6) Runtime Evidence (curl)
 
 ### 6.1 Unauthenticated (no Bearer)
-Command: `curl.exe -i http://saas.dental.local/api/v1/patients`
+Command: `curl.exe -i http://localhost/dental-saas/api/v1/patients`
 ```http
 HTTP/1.1 401 Unauthorized
 Date: Tue, 20 Jan 2026 21:07:43 GMT
@@ -98,7 +98,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 6.2 Valid Bearer (not 401)
-Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/patients`
+Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/patients`
 ```http
 HTTP/1.1 200 OK
 Date: Tue, 20 Jan 2026 21:07:43 GMT
@@ -168,7 +168,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 6.3 Invalid Bearer (401)
-Command: `curl.exe -i -H "Authorization: Bearer invalid" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/patients`
+Command: `curl.exe -i -H "Authorization: Bearer invalid" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/patients`
 ```http
 HTTP/1.1 401 Unauthorized
 Date: Tue, 20 Jan 2026 21:07:44 GMT
@@ -190,3 +190,4 @@ Content-Type: application/json; charset=UTF-8
     }
 }
 ```
+

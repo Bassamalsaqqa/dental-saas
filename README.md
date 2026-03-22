@@ -127,7 +127,6 @@ Docker MySQL remains optional for regenerating dumps or comparing data, but it i
 Copy `.env.example` to `.env` and set:
 ```
 CI_ENVIRONMENT = development
-app.baseURL = 'https://localhost/dental-saas/'
 database.default.hostname = 127.0.0.1
 database.default.database = democa_dental_saas
 database.default.username = root
@@ -138,7 +137,8 @@ encryption.key = <your_key>
 session.cookieName = 'ci_session_saas'
 ```
 Notes:
-- `app.baseURL` must match your docroot mapping.
+- Set `app.baseURL` explicitly in production.
+- For local development and tunnel testing, you can leave `app.baseURL` unset and let the app auto-detect the current host and subfolder.
 - `session.cookieName` is set to avoid collisions.
 - If you intentionally use the Docker MySQL container instead, switch the DB port back to `3307` and password to `root`.
 
@@ -309,7 +309,7 @@ If `/auth/login` 404s:
 - Ensure migration files are saved as UTF‑8 without BOM.
 
 **404 on tenant routes**
-- Confirm `app.baseURL` and `.htaccess`.
+- Confirm `.htaccess` and your effective `app.baseURL` strategy.
 - Ensure rewrite rules are active.
 
 **Plan gate blocks features**

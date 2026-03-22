@@ -60,7 +60,7 @@ App\Filters\PermissionFilter:patients → App\Filters\ApiV1AuthFilter → CodeIg
 
 ### Evidence: v1 search requires Bearer
 ```bat
-curl.exe -i http://saas.dental.local/api/v1/search/patients?q=a
+curl.exe -i http://localhost/dental-saas/api/v1/search/patients?q=a
 ```
 ```
 HTTP/1.1 401 Unauthorized
@@ -84,7 +84,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ```bat
-curl.exe -i -H "Cookie: ci_session_saas=<REDACTED>" http://saas.dental.local/api/v1/search/patients?q=a
+curl.exe -i -H "Cookie: ci_session_saas=<REDACTED>" http://localhost/dental-saas/api/v1/search/patients?q=a
 ```
 ```
 HTTP/1.1 401 Unauthorized
@@ -109,7 +109,7 @@ Content-Type: application/json; charset=UTF-8
 
 ### Evidence: session token issuance (30 minutes)
 ```bat
-curl.exe -i -H "X-Forwarded-Proto: https" -H "Cookie: ci_session_saas=<REDACTED>" http://saas.dental.local/api/session-token
+curl.exe -i -H "X-Forwarded-Proto: https" -H "Cookie: ci_session_saas=<REDACTED>" http://localhost/dental-saas/api/session-token
 ```
 ```
 HTTP/1.1 200 OK
@@ -125,7 +125,7 @@ X-Download-Options: noopen
 X-Permitted-Cross-Domain-Policies: none
 Referrer-Policy: same-origin
 Debugbar-Time: 1768944447.067904
-Debugbar-Link: https://saas.dental.local/?debugbar_time=1768944447.067904
+Debugbar-Link: https://localhost/dental-saas/?debugbar_time=1768944447.067904
 Set-Cookie: csrf_cookie_name=<REDACTED>; expires=Tue, 20 Jan 2026 23:27:27 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=Lax
 Content-Length: 216
 Content-Type: application/json; charset=UTF-8
@@ -139,7 +139,7 @@ Content-Type: application/json; charset=UTF-8
 
 ### Evidence: Bearer + X-Clinic-Id required
 ```bat
-curl.exe -i -H "Authorization: Bearer <REDACTED>" http://saas.dental.local/api/v1/search/patients?q=a
+curl.exe -i -H "Authorization: Bearer <REDACTED>" http://localhost/dental-saas/api/v1/search/patients?q=a
 ```
 ```
 HTTP/1.1 422 Unprocessable Content
@@ -163,7 +163,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ```bat
-curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/search/patients?q=a
+curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/search/patients?q=a
 ```
 ```
 HTTP/1.1 200 OK
@@ -220,7 +220,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ```bat
-curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/patients
+curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/patients
 ```
 ```
 HTTP/1.1 200 OK
@@ -291,13 +291,14 @@ Content-Type: application/json; charset=UTF-8
 
 ### Evidence: v1 remains stateless (no Set-Cookie)
 ```bat
-curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/search/patients?q=a | findstr /I "Set-Cookie"
+curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/search/patients?q=a | findstr /I "Set-Cookie"
 ```
 ```
 ```
 
 ```bat
-curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/patients | findstr /I "Set-Cookie"
+curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/patients | findstr /I "Set-Cookie"
 ```
 ```
 ```
+

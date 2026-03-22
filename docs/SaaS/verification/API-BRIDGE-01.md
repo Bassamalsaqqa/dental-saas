@@ -30,7 +30,7 @@ no matches
 ## 3) Runtime Evidence (Bearer-only)
 
 ### 3.1 No Bearer (401)
-Command: `curl.exe -i http://saas.dental.local/api/v1/search/patients?q=a`
+Command: `curl.exe -i http://localhost/dental-saas/api/v1/search/patients?q=a`
 ```http
 HTTP/1.1 401 Unauthorized
 Date: Tue, 20 Jan 2026 21:14:43 GMT
@@ -53,7 +53,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 3.2 Cookie-only (401)
-Command: `curl.exe -i -H "Cookie: ci_session_saas=<REDACTED>" http://saas.dental.local/api/v1/search/patients?q=a`
+Command: `curl.exe -i -H "Cookie: ci_session_saas=<REDACTED>" http://localhost/dental-saas/api/v1/search/patients?q=a`
 ```http
 HTTP/1.1 401 Unauthorized
 Date: Tue, 20 Jan 2026 21:14:44 GMT
@@ -76,7 +76,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 3.3 Bearer without clinic (422)
-Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" http://saas.dental.local/api/v1/search/patients?q=a`
+Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" http://localhost/dental-saas/api/v1/search/patients?q=a`
 ```http
 HTTP/1.1 422 Unprocessable Content
 Date: Tue, 20 Jan 2026 21:14:52 GMT
@@ -99,7 +99,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 3.4 Bearer + clinic (200)
-Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/search/patients?q=a`
+Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/search/patients?q=a`
 ```http
 HTTP/1.1 200 OK
 Date: Tue, 20 Jan 2026 21:14:54 GMT
@@ -155,7 +155,7 @@ Content-Type: application/json; charset=UTF-8
 ```
 
 ### 3.5 Bearer sanity (patients)
-Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://saas.dental.local/api/v1/patients`
+Command: `curl.exe -i -H "Authorization: Bearer <REDACTED>" -H "X-Clinic-Id: 1" http://localhost/dental-saas/api/v1/patients`
 ```http
 HTTP/1.1 200 OK
 Date: Tue, 20 Jan 2026 21:14:56 GMT
@@ -225,3 +225,4 @@ Content-Type: application/json; charset=UTF-8
 
 ## 4) Transitional Note
 Tenant UI cookie-only calls to `/api/v1/search/*` will now return 401 until UI is updated to send Bearer tokens.
+
