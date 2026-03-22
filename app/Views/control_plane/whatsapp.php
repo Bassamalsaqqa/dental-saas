@@ -86,6 +86,107 @@ $activeTab = $active_tab ?? 'dashboard';
         </div>
     </div>
 
+    <div class="glass-card rounded-2xl p-6 border border-slate-100 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div class="max-w-2xl">
+                <h3 class="font-bold text-slate-900">Live Test Send</h3>
+                <p class="mt-1 text-sm text-slate-500">
+                    Enqueue a single WhatsApp test notification through the real ledger and dispatcher.
+                    The send is pinned to one clinic, audited in control-plane logs, and still respects tenant readiness and plan gates.
+                </p>
+            </div>
+            <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wide">
+                Real pipeline, no manual SQL
+            </div>
+        </div>
+
+        <form method="post" action="<?= base_url('controlplane/whatsapp/send-test') ?>" class="mt-6 space-y-5">
+            <?= csrf_field() ?>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Clinic</label>
+                    <select name="clinic_id" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900" required>
+                        <option value="">Select ready clinic</option>
+                        <?php foreach (($test_send_clinics ?? []) as $clinic): ?>
+                            <option value="<?= (int) $clinic['clinic_id'] ?>" <?= old('clinic_id') == $clinic['clinic_id'] ? 'selected' : '' ?>>
+                                <?= esc($clinic['clinic_name']) ?> (ID <?= (int) $clinic['clinic_id'] ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Target Number</label>
+                    <input
+                        type="text"
+                        name="target_number"
+                        value="<?= esc(old('target_number')) ?>"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                        placeholder="+970599999999"
+                        required
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Mode</label>
+                    <select id="wa-test-send-mode" name="send_mode" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900">
+                        <option value="text" <?= old('send_mode', 'text') === 'text' ? 'selected' : '' ?>>Text</option>
+                        <option value="template" <?= old('send_mode') === 'template' ? 'selected' : '' ?>>Template</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="wa-test-text-fields" class="space-y-2">
+                <label class="block text-xs font-black uppercase tracking-wider text-slate-500">Message Body</label>
+                <textarea
+                    name="message"
+                    rows="4"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-900"
+                    placeholder="Manual control-plane test message"
+                ><?= esc(old('message')) ?></textarea>
+            </div>
+
+            <div id="wa-test-template-fields" class="grid grid-cols-1 lg:grid-cols-3 gap-4 hidden">
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Name</label>
+                    <input
+                        type="text"
+                        name="template_name"
+                        value="<?= esc(old('template_name')) ?>"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                        placeholder="appointment_reminder_v1"
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Language</label>
+                    <input
+                        type="text"
+                        name="template_language"
+                        value="<?= esc(old('template_language', 'en_US')) ?>"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900"
+                        placeholder="en_US"
+                    >
+                </div>
+                <div class="lg:col-span-3">
+                    <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Template Components JSON</label>
+                    <textarea
+                        name="template_components_json"
+                        rows="5"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-xs font-mono text-slate-900"
+                        placeholder='[{"type":"body","parameters":[{"type":"text","text":"2026-03-22"},{"type":"text","text":"10:00"}]}]'
+                    ><?= esc(old('template_components_json')) ?></textarea>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2">
+                <p class="text-xs text-slate-500">
+                    Use text mode only inside the 24-hour session window. Use template mode when validating approved Meta templates or out-of-session delivery.
+                </p>
+                <button type="submit" class="inline-flex items-center px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-black hover:bg-emerald-700 transition-all">
+                    <i class="fab fa-whatsapp mr-2"></i>Send Test Message
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Tab: Dashboard -->
     <div id="dashboard-tab" class="wa-tab space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -256,6 +357,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const startTab = '<?= $active_tab ?? 'dashboard' ?>';
     showWATab(startTab);
     showJournalSubTab('attempts');
+
+    const sendMode = document.getElementById('wa-test-send-mode');
+    const textFields = document.getElementById('wa-test-text-fields');
+    const templateFields = document.getElementById('wa-test-template-fields');
+
+    const syncSendModeFields = () => {
+        if (!sendMode || !textFields || !templateFields) {
+            return;
+        }
+
+        const templateMode = sendMode.value === 'template';
+        textFields.classList.toggle('hidden', templateMode);
+        templateFields.classList.toggle('hidden', !templateMode);
+    };
+
+    if (sendMode) {
+        sendMode.addEventListener('change', syncSendModeFields);
+        syncSendModeFields();
+    }
 });
 </script>
 

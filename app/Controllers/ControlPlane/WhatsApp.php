@@ -3,13 +3,14 @@
 namespace App\Controllers\ControlPlane;
 
 use App\Controllers\BaseController;
-use App\Models\ClinicModel;
+use App\Models\ClinicNotificationChannelModel;
 use App\Models\NotificationAttemptModel;
 use App\Models\PlatformSecretModel;
 use App\Models\WhatsAppDeliveryEventModel;
 use App\Models\WhatsAppOptoutModel;
 use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\ControlPlaneAuditService;
+use App\Services\ControlPlaneWhatsAppTestSendService;
 
 class WhatsApp extends BaseController
 {
@@ -39,7 +40,7 @@ class WhatsApp extends BaseController
 
         $this->auditService->logEvent('surface_get', [
             'route' => '/controlplane/whatsapp',
-            'tab' => $requestedTab
+            'tab' => $requestedTab,
         ]);
 
         $attemptModel = new NotificationAttemptModel();
@@ -61,6 +62,7 @@ class WhatsApp extends BaseController
             'recent_attempts' => $attemptModel->getControlPlaneRecentWhatsAppAttempts(50),
             'recent_events' => $eventModel->getRecentEvents(50),
             'recent_optouts' => $optoutModel->getControlPlaneRecentOptouts(50),
+            'test_send_clinics' => $this->getTestSendClinics(),
             'stats' => [
                 'attempts_24h_total' => $attemptCounts['total'],
                 'attempts_24h_failed' => $attemptCounts['failed'],
@@ -70,6 +72,92 @@ class WhatsApp extends BaseController
                 'optouts_24h' => $optouts24h,
             ],
         ]);
+    }
+
+    public function sendTest()
+    {
+        $rules = [
+            'clinic_id' => 'required|is_natural_no_zero',
+            'target_number' => 'required|max_length[32]',
+            'send_mode' => 'required|in_list[text,template]',
+            'message' => 'permit_empty|max_length[2000]',
+            'template_name' => 'permit_empty|max_length[120]',
+            'template_language' => 'permit_empty|max_length[20]',
+            'template_components_json' => 'permit_empty|max_length[4000]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->to(base_url('controlplane/whatsapp'))
+                ->withInput()
+                ->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $input = [
+            'clinic_id' => (int) $this->request->getPost('clinic_id'),
+            'target_number' => trim((string) $this->request->getPost('target_number')),
+            'send_mode' => trim((string) $this->request->getPost('send_mode')),
+            'message' => trim((string) $this->request->getPost('message')),
+            'template_name' => trim((string) $this->request->getPost('template_name')),
+            'template_language' => trim((string) $this->request->getPost('template_language')),
+            'template_components_json' => trim((string) $this->request->getPost('template_components_json')),
+        ];
+
+        $service = new ControlPlaneWhatsAppTestSendService();
+        $result = $service->send($input, session()->get('user_id') ? (int) session()->get('user_id') : null);
+
+        $auditMetadata = [
+            'clinic_id' => $input['clinic_id'],
+            'send_mode' => $input['send_mode'],
+            'target_number' => $input['target_number'],
+            'ok' => $result['ok'] ?? false,
+        ];
+
+        if (!$result['ok']) {
+            $auditMetadata['message'] = $result['message'] ?? 'Unknown failure';
+            $this->auditService->logEvent('controlplane_whatsapp_test_send', [
+                'route' => '/controlplane/whatsapp/send-test',
+                'method' => 'POST',
+                'metadata' => $auditMetadata,
+            ]);
+
+            return redirect()->to(base_url('controlplane/whatsapp'))
+                ->withInput()
+                ->with('error', (string) $result['message']);
+        }
+
+        $notification = $result['notification'];
+        $attempt = $result['attempt'] ?? null;
+        $auditMetadata['notification_id'] = (int) ($notification['id'] ?? 0);
+        $auditMetadata['notification_status'] = (string) ($notification['status'] ?? 'unknown');
+        $auditMetadata['attempt_id'] = (int) ($attempt['id'] ?? 0);
+        $auditMetadata['attempt_status'] = (string) ($attempt['status'] ?? 'none');
+        $auditMetadata['provider_message_id'] = (string) ($attempt['provider_message_id'] ?? '');
+
+        $this->auditService->logEvent('controlplane_whatsapp_test_send', [
+            'route' => '/controlplane/whatsapp/send-test',
+            'method' => 'POST',
+            'metadata' => $auditMetadata,
+        ]);
+
+        $status = strtoupper((string) ($notification['status'] ?? 'pending'));
+        $attemptSuffix = '';
+        if (!empty($attempt['provider_message_id'])) {
+            $attemptSuffix = ' Provider message id: ' . $attempt['provider_message_id'] . '.';
+        } elseif (!empty($attempt['error_code'])) {
+            $attemptSuffix = ' Error code: ' . $attempt['error_code'] . '.';
+        }
+
+        $successMessage = sprintf(
+            'WhatsApp test send queued for clinic %s to %s. Notification #%d status: %s.%s',
+            (string) ($result['clinic']['name'] ?? ('#' . $input['clinic_id'])),
+            (string) ($result['recipient']['display'] ?? $input['target_number']),
+            (int) ($notification['id'] ?? 0),
+            $status,
+            $attemptSuffix
+        );
+
+        return redirect()->to(base_url('controlplane/whatsapp'))
+            ->with('success', $successMessage);
     }
 
     public function rotateSecret()
@@ -199,5 +287,21 @@ class WhatsApp extends BaseController
 
         return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
             ->with('success', $suspend ? 'Emergency pause enabled.' : 'Emergency pause cleared.');
+    }
+
+    private function getTestSendClinics(): array
+    {
+        $channelModel = new ClinicNotificationChannelModel();
+
+        return $channelModel
+            ->withoutTenantScope()
+            ->select('clinic_notification_channels.clinic_id, clinics.name AS clinic_name, clinic_notification_channels.provider_type, clinic_notification_channels.last_tested_at')
+            ->join('clinics', 'clinics.id = clinic_notification_channels.clinic_id', 'left')
+            ->where('clinic_notification_channels.channel_type', 'whatsapp')
+            ->where('clinic_notification_channels.enabled_by_superadmin', 1)
+            ->where('clinic_notification_channels.configured_by_clinic', 1)
+            ->where('clinic_notification_channels.validated', 1)
+            ->orderBy('clinics.name', 'ASC')
+            ->findAll();
     }
 }

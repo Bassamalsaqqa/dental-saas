@@ -74,6 +74,7 @@ $routes->group('controlplane', function ($routes) {
 
         $routes->get('operations', 'ControlPlane\Operations::index'); // P5-19
         $routes->get('whatsapp', 'ControlPlane\WhatsApp::index');
+        $routes->post('whatsapp/send-test', 'ControlPlane\WhatsApp::sendTest');
         $routes->get('settings', 'ControlPlane\Settings::index'); // P5-19
         $routes->get('email-templates', static function () {
             return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates'), 301);

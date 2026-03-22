@@ -336,6 +336,65 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
         }
     }
 
+    public function testControlPlaneSendTestRejectsInvalidClinicId(): void
+    {
+        $beforeCount = $this->db->table('notifications')
+            ->where('channel_type', 'whatsapp')
+            ->countAllResults();
+
+        $response = $this->postWithCsrf(
+            '/controlplane/whatsapp/send-test',
+            [
+                'clinic_id' => 0,
+                'target_number' => '+970599350450',
+                'send_mode' => 'text',
+                'message' => 'phpunit text',
+            ],
+            ['user_id' => 1]
+        );
+
+        $response->assertStatus(302);
+
+        $afterCount = $this->db->table('notifications')
+            ->where('channel_type', 'whatsapp')
+            ->countAllResults();
+
+        $this->assertSame($beforeCount, $afterCount);
+    }
+
+    public function testControlPlaneSendTestRejectsInvalidTemplateComponentsJsonBeforeEnqueue(): void
+    {
+        $clinicId = $this->findAnyClinicId();
+        if ($clinicId <= 0) {
+            $this->markTestSkipped('No clinic row found for control-plane send-test validation.');
+        }
+
+        $beforeCount = $this->db->table('notifications')
+            ->where('channel_type', 'whatsapp')
+            ->countAllResults();
+
+        $response = $this->postWithCsrf(
+            '/controlplane/whatsapp/send-test',
+            [
+                'clinic_id' => $clinicId,
+                'target_number' => '+970599350450',
+                'send_mode' => 'template',
+                'template_name' => 'approved_template',
+                'template_language' => 'en_US',
+                'template_components_json' => '{\"bad-json\"',
+            ],
+            ['user_id' => 1]
+        );
+
+        $response->assertStatus(302);
+
+        $afterCount = $this->db->table('notifications')
+            ->where('channel_type', 'whatsapp')
+            ->countAllResults();
+
+        $this->assertSame($beforeCount, $afterCount);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -388,6 +447,7 @@ final class WhatsAppPhase5EndpointsTest extends CIUnitTestCase
             ['POST', 'settings/testWhatsAppChannel', 'Settings::testWhatsAppChannel'],
             ['POST', 'patient/(:num)/whatsapp-identity', 'Patient::saveWhatsAppIdentity/$1'],
             ['POST', 'controlplane/whatsapp/rotate-secret', 'ControlPlane\WhatsApp::rotateSecret'],
+            ['POST', 'controlplane/whatsapp/send-test', 'ControlPlane\WhatsApp::sendTest'],
             ['POST', 'controlplane/whatsapp/policy', 'ControlPlane\WhatsApp::updatePolicy'],
             ['POST', 'controlplane/whatsapp/emergency-pause', 'ControlPlane\WhatsApp::setEmergencyPause'],
         ]);
