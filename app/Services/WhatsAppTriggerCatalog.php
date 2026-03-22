@@ -21,6 +21,7 @@ class WhatsAppTriggerCatalog
             'appointment_reminder' => [
                 'label' => 'Appointment Reminder',
                 'description' => 'Sent before a scheduled appointment based on the clinic reminder lead time.',
+                'suggested_template_name' => 'appointment_reminder_ar_v1',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -33,6 +34,7 @@ class WhatsAppTriggerCatalog
             'appointment_confirmation' => [
                 'label' => 'Appointment Confirmation',
                 'description' => 'Sent when an appointment is created or materially updated.',
+                'suggested_template_name' => 'appointment_confirmation_ar_v1',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -45,6 +47,7 @@ class WhatsAppTriggerCatalog
             'follow_up' => [
                 'label' => 'Examination Follow-Up',
                 'description' => 'Sent after an examination is marked completed.',
+                'suggested_template_name' => 'follow_up_ar_v1',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'examination_date'],
@@ -56,6 +59,7 @@ class WhatsAppTriggerCatalog
             'no_show_follow_up' => [
                 'label' => 'No-Show Follow-Up',
                 'description' => 'Sent after an appointment is marked no-show.',
+                'suggested_template_name' => 'no_show_follow_up_ar_v1',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -68,6 +72,7 @@ class WhatsAppTriggerCatalog
             'payment_reminder' => [
                 'label' => 'Payment Reminder',
                 'description' => 'Sent when an invoice still has an outstanding balance.',
+                'suggested_template_name' => 'payment_reminder_ar_v1',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'amount', 'due_date', 'invoice_number'],

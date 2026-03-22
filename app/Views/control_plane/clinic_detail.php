@@ -1,6 +1,51 @@
 <?= $this->extend('layouts/main_control_plane') ?>
 
 <?= $this->section('content') ?>
+<?php
+$waPolicy = is_array($wa_policy ?? null) ? $wa_policy : [];
+$waPolicyToggles = is_array($wa_policy_toggles ?? null) ? $wa_policy_toggles : [];
+$waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog : [];
+$waGlobalTemplates = is_array($wa_global_templates ?? null) ? $wa_global_templates : [];
+$waGlobalTriggerTemplates = is_array($waGlobalTemplates['trigger_templates'] ?? null) ? $waGlobalTemplates['trigger_templates'] : [];
+$waGlobalTriggerToggles = is_array($waGlobalTemplates['trigger_toggles'] ?? null) ? $waGlobalTemplates['trigger_toggles'] : [];
+$clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_settings_snapshot : [];
+?>
+<style>
+    .ui-toggle {
+        appearance: none;
+        width: 3.5rem;
+        height: 2rem;
+        border-radius: 9999px;
+        background: #dbeafe;
+        position: relative;
+        cursor: pointer;
+        transition: all .2s ease;
+        border: 1px solid rgba(59,130,246,.18);
+    }
+    .ui-toggle::before {
+        content: '';
+        position: absolute;
+        top: .2rem;
+        left: .2rem;
+        width: 1.4rem;
+        height: 1.4rem;
+        border-radius: 9999px;
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(15,23,42,.16);
+        transition: all .2s ease;
+    }
+    .ui-toggle:checked {
+        background: linear-gradient(135deg,#10b981,#059669);
+        border-color: transparent;
+    }
+    .ui-toggle:checked::before {
+        transform: translateX(1.45rem);
+    }
+    .ui-toggle:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+</style>
 <div class="px-6 py-8">
     <!-- Page Header -->
     <div class="mb-8">
@@ -278,6 +323,107 @@
                             <p>No invoices found.</p>
                         </div>
                     <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fab fa-whatsapp text-emerald-600 mr-2"></i>
+                        WhatsApp Rollout
+                    </h3>
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full <?= !empty($wa_feature_enabled) ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' ?>">
+                        <?= !empty($wa_feature_enabled) ? 'Plan Enabled' : 'Plan Disabled' ?>
+                    </span>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-emerald-600">Clinic Name In Messages</p>
+                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_name'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_name'] : ($clinic['name'] ?? 'Not set')) ?></p>
+                        </div>
+                        <div class="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-blue-600">Clinic Phone In Messages</p>
+                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_phone'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_phone'] : 'Not set') ?></p>
+                        </div>
+                        <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-amber-600">Clinic Address In Messages</p>
+                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_address'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_address'] : 'Not set') ?></p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                        <p class="text-sm font-semibold text-gray-900">Template ownership</p>
+                        <p class="mt-1 text-sm text-gray-600">The 5 Arabic WhatsApp templates are edited centrally in control plane settings. This clinic page only controls whether each template-trigger is allowed to run for this clinic, plus rate limits and emergency pause.</p>
+                    </div>
+
+                    <form action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" class="space-y-6">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="clinic_id" value="<?= (int) $clinic['id'] ?>">
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Daily Limit</label>
+                                <input type="number" name="daily_limit" value="<?= (int) ($waPolicy['daily_limit'] ?? 50) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Monthly Limit</label>
+                                <input type="number" name="monthly_limit" value="<?= (int) ($waPolicy['monthly_limit'] ?? 1000) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Per Hour Limit</label>
+                                <input type="number" name="per_hour_limit" value="<?= (int) ($waPolicy['per_hour_limit'] ?? 20) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Reminder Lead (Minutes)</label>
+                                <input type="number" name="reminder_lead_time_minutes" value="<?= (int) ($waPolicy['reminder_lead_time_minutes'] ?? 1440) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                            <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                                <?php
+                                $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                $clinicEnabled = (int) ($waPolicyToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
+                                $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                                ?>
+                                <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="font-bold text-gray-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                            <p class="mt-1 text-xs text-gray-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                            <p class="mt-3 text-xs font-semibold text-gray-700">Template: <span class="font-mono"><?= esc($displayTemplateName) ?></span></p>
+                                            <?php if (!$platformEnabled): ?>
+                                                <p class="mt-2 text-[11px] font-bold uppercase tracking-wider text-rose-600">Disabled globally in control plane settings</p>
+                                            <?php endif; ?>
+                                        </div>
+                                        <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $clinicEnabled ? 'checked' : '' ?> <?= !$platformEnabled || empty($wa_feature_enabled) ? 'disabled' : '' ?>>
+                                    </div>
+                                    <?php if ((!$platformEnabled || empty($wa_feature_enabled)) && $clinicEnabled): ?>
+                                        <input type="hidden" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1">
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-[auto,1fr,auto] gap-4 items-end pt-2 border-t border-gray-100">
+                            <label class="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                                <input type="checkbox" name="suspended" value="1" class="ui-toggle" <?= !empty($waPolicy['suspended']) ? 'checked' : '' ?>>
+                                <span class="text-sm font-bold text-gray-800">Emergency Pause Clinic</span>
+                            </label>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pause Reason</label>
+                                <input type="text" name="suspended_reason" value="<?= esc($waPolicy['suspended_reason'] ?? '') ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Optional reason for audit trail">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 shadow-md transition-colors">
+                                    Save WhatsApp Policy
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
 

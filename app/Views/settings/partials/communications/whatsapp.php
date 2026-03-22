@@ -98,6 +98,8 @@
                         $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : [];
                         $bodyKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
                         $platformEnabled = (int) ($globalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                        $suggestedTemplateName = (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                        $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : $suggestedTemplateName;
                         ?>
                         <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                             <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -106,8 +108,11 @@
                                     <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600"><?= esc($triggerConfig['name'] ?? 'Not configured') ?></span>
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600"><?= esc($displayTemplateName) ?></span>
                                     <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' ?>"><?= $platformEnabled ? ($isArabic ? $decode('\u0645\u0641\u0639\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform enabled') : ($isArabic ? $decode('\u0645\u0639\u0637\u0644 \u0639\u0644\u0649 \u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0645\u0646\u0635\u0629') : 'Platform disabled') ?></span>
+                                    <?php if (trim((string) ($triggerConfig['name'] ?? '')) === ''): ?>
+                                        <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-amber-700"><?= $isArabic ? $decode('\u0627\u0633\u0645 \u0627\u0641\u062a\u0631\u0627\u0636\u064a') : 'Starter default' ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 

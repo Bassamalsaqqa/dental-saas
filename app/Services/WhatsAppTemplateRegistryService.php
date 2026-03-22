@@ -10,6 +10,7 @@ class WhatsAppTemplateRegistryService
     public const SETTINGS_KEY_FALLBACK_TEMPLATE = 'whatsapp_global_fallback_template';
     public const SETTINGS_KEY_TRIGGER_TOGGLES = 'whatsapp_global_trigger_toggles';
     public const FORCED_LANGUAGE = 'ar';
+    public const SUGGESTED_FALLBACK_TEMPLATE = 'general_reengagement_ar_v1';
 
     protected SettingsModel $settingsModel;
     protected WhatsAppTriggerCatalog $triggerCatalog;
@@ -74,6 +75,7 @@ class WhatsAppTemplateRegistryService
             'name' => trim((string) ($stored['name'] ?? '')),
             'language' => self::FORCED_LANGUAGE,
             'components' => is_array($stored['components'] ?? null) ? $stored['components'] : [],
+            'suggested_name' => self::SUGGESTED_FALLBACK_TEMPLATE,
         ];
     }
 

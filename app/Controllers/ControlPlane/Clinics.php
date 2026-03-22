@@ -8,7 +8,12 @@ use App\Models\ClinicUserModel;
 use App\Models\ClinicSubscriptionModel;
 use App\Models\PlanModel;
 use App\Models\ControlPlaneInvoiceModel;
+use App\Models\SettingsModel;
+use App\Models\WhatsAppTenantPolicyModel;
 use App\Services\ControlPlaneAuditService;
+use App\Services\PlanGuard;
+use App\Services\WhatsAppTemplateRegistryService;
+use App\Services\WhatsAppTriggerCatalog;
 use App\Libraries\IonAuth;
 
 class Clinics extends BaseController
@@ -291,6 +296,37 @@ class Clinics extends BaseController
         $invoiceStats['outstanding'] = round($invoiceStats['outstanding'], 2);
         $invoiceStats['revenue_month'] = round($invoiceStats['revenue_month'], 2);
 
+        $settingsModel = new SettingsModel();
+        $clinicSettingsRows = $settingsModel->withoutTenantScope()
+            ->select('setting_key, setting_value, setting_type')
+            ->where('clinic_id', $id)
+            ->whereIn('setting_key', ['clinic_name', 'clinic_phone', 'clinic_address'])
+            ->findAll();
+        $clinicSettings = [
+            'clinic_name' => '',
+            'clinic_phone' => '',
+            'clinic_address' => '',
+        ];
+        foreach ($clinicSettingsRows as $row) {
+            $key = (string) ($row['setting_key'] ?? '');
+            if (!array_key_exists($key, $clinicSettings)) {
+                continue;
+            }
+            $clinicSettings[$key] = (string) ($row['setting_value'] ?? '');
+        }
+
+        $waPolicyModel = new WhatsAppTenantPolicyModel();
+        $waTriggerCatalog = new WhatsAppTriggerCatalog();
+        $waTemplateRegistry = new WhatsAppTemplateRegistryService();
+        $waPolicy = $waPolicyModel->getByClinicForControlPlane($id) ?? [];
+        $waPolicyToggles = $waPolicy['trigger_toggles_json'] ?? [];
+        if (is_string($waPolicyToggles)) {
+            $waPolicyToggles = json_decode($waPolicyToggles, true);
+        }
+        $waPolicyToggles = is_array($waPolicyToggles) ? array_merge($waTriggerCatalog->defaultTriggerToggles(), $waPolicyToggles) : $waTriggerCatalog->defaultTriggerToggles();
+        $waFeatureEnabled = (new PlanGuard())->isFeatureEnabled($id, 'notifications.whatsapp.enabled', false);
+        $waGlobalConfig = $waTemplateRegistry->getGlobalConfig();
+
         return view('control_plane/clinic_detail', [
             'title' => 'Clinic Overview',
             'clinic' => $clinic,
@@ -299,6 +335,12 @@ class Clinics extends BaseController
             'plans' => $planModel->where('status', 'active')->orderBy('name', 'ASC')->findAll(),
             'invoices' => $invoices,
             'invoiceStats' => $invoiceStats,
+            'clinic_settings_snapshot' => $clinicSettings,
+            'wa_policy' => $waPolicy,
+            'wa_policy_toggles' => $waPolicyToggles,
+            'wa_trigger_catalog' => $waTriggerCatalog->all(),
+            'wa_global_templates' => $waGlobalConfig,
+            'wa_feature_enabled' => $waFeatureEnabled,
         ]);
     }
 

@@ -1827,3 +1827,40 @@
     - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest`
     - `php spark whatsapp:ops-check`
     - `npm run build`
+
+## [2026-03-22 20:40] - WhatsApp Template Prefill And Clinic-Page Rollout Controls
+- **Status:** Completed
+- **Description:** Made the centralized WhatsApp template model understandable by pre-filling starter Arabic template names and moved clinic-specific rollout controls out of global WhatsApp settings into each clinic’s control-plane detail page.
+- **Actions:**
+    - Added suggested starter template names to the canonical trigger catalog for all five WhatsApp workflows.
+    - Added a suggested fallback template name to the global registry so the control-plane form no longer appears empty on first use.
+    - Updated `Control Plane > Settings > Communications > WhatsApp` so each template field shows a pre-filled starter value when no approved Meta template has been saved yet.
+    - Updated the tenant WhatsApp settings page so clinics can see the intended template structure instead of blank read-only fields, with explicit "starter default" labeling when the value is only a suggestion.
+    - Removed clinic rollout editing from the global control-plane WhatsApp settings page and replaced it with links to each clinic detail page.
+    - Extended `ControlPlane\Clinics::show()` to load:
+      - clinic profile values used inside shared templates (`clinic_name`, `clinic_phone`, `clinic_address`)
+      - clinic WhatsApp rollout policy
+      - clinic trigger toggles
+      - global template/toggle state
+      - plan gate status
+    - Added a dedicated "WhatsApp Rollout" card to `control_plane/clinic_detail.php` containing:
+      - clinic message identity snapshot
+      - rate limits
+      - reminder lead time
+      - emergency pause
+      - one toggle per WhatsApp trigger/template
+      - visibility of the centrally managed template name used by each trigger
+- **Verification:**
+    - `php -l app/Controllers/ControlPlane/Clinics.php`
+    - `php -l app/Services/WhatsAppTemplateRegistryService.php`
+    - `php -l app/Services/WhatsAppTriggerCatalog.php`
+    - `php -l app/Views/control_plane/clinic_detail.php`
+    - `php -l app/Views/control_plane/settings_partials/communications/whatsapp.php`
+    - `php -l app/Views/settings/partials/communications/whatsapp.php`
+    - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest`
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest`
+    - `php spark routes | findstr /I "controlplane/whatsapp controlplane/clinics"`
+    - Playwright verification on:
+      - `/controlplane/settings?tab=communications&subtab=whatsapp`
+      - `/controlplane/clinics/21`
+    - `npm run build`
