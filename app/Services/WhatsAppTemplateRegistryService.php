@@ -11,6 +11,7 @@ class WhatsAppTemplateRegistryService
     public const SETTINGS_KEY_TRIGGER_TOGGLES = 'whatsapp_global_trigger_toggles';
     public const FORCED_LANGUAGE = 'ar';
     public const SUGGESTED_FALLBACK_TEMPLATE = 'general_reengagement_ar_v1';
+    public const SUGGESTED_FALLBACK_BODY = "مرحباً {{patient_name}}\nيسعدنا تواصلكم مع {{clinic_name}}.\nللحجز أو الاستفسار يرجى التواصل معنا على {{clinic_phone}}.";
 
     protected SettingsModel $settingsModel;
     protected WhatsAppTriggerCatalog $triggerCatalog;
@@ -76,6 +77,7 @@ class WhatsAppTemplateRegistryService
             'language' => self::FORCED_LANGUAGE,
             'components' => is_array($stored['components'] ?? null) ? $stored['components'] : [],
             'suggested_name' => self::SUGGESTED_FALLBACK_TEMPLATE,
+            'reference_body_text' => trim((string) ($stored['reference_body_text'] ?? self::SUGGESTED_FALLBACK_BODY)),
         ];
     }
 
@@ -95,6 +97,7 @@ class WhatsAppTemplateRegistryService
             'name' => trim((string) ($fallbackTemplate['name'] ?? '')),
             'language' => self::FORCED_LANGUAGE,
             'components' => is_array($fallbackTemplate['components'] ?? null) ? $fallbackTemplate['components'] : [],
+            'reference_body_text' => trim((string) ($fallbackTemplate['reference_body_text'] ?? self::SUGGESTED_FALLBACK_BODY)),
         ];
 
         $savedTriggers = $this->settingsModel->setGlobalSetting(

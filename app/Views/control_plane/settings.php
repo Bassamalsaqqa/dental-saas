@@ -4,24 +4,27 @@
 <style>
     .control-settings-menu-btn {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
+        gap: 0.85rem;
+        padding: 0.95rem 1rem;
+        border-radius: 1rem;
         font-size: 0.875rem;
         font-weight: 500;
         color: #475569;
         transition: all 0.2s ease;
         text-align: left;
+        border: 1px solid transparent;
     }
     .control-settings-menu-btn:hover {
-        background: rgba(59, 130, 246, 0.08);
+        background: rgba(59, 130, 246, 0.06);
         color: #0f172a;
+        border-color: rgba(59, 130, 246, 0.12);
     }
     .control-settings-menu-btn i {
-        margin-right: 0.75rem;
         color: #94a3b8;
         transition: color 0.2s ease;
+        margin-top: 0.15rem;
     }
     .control-settings-menu-btn.is-active {
         background: linear-gradient(135deg, #3b82f6, #4f46e5);
@@ -30,6 +33,18 @@
     }
     .control-settings-menu-btn.is-active i {
         color: rgba(255, 255, 255, 0.82);
+    }
+    .control-settings-menu-copy span {
+        display: block;
+    }
+    .control-settings-menu-copy span:last-child {
+        margin-top: 0.15rem;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        color: #94a3b8;
+    }
+    .control-settings-menu-btn.is-active .control-settings-menu-copy span:last-child {
+        color: rgba(255, 255, 255, 0.78);
     }
     .control-settings-card {
         background: rgba(255, 255, 255, 0.92);
@@ -149,7 +164,7 @@
     }
     [dir="rtl"] .control-settings-menu-btn i {
         margin-right: 0 !important;
-        margin-left: 0.75rem !important;
+        margin-left: 0 !important;
     }
 </style>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
@@ -158,7 +173,7 @@
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-zinc-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
     </div>
 
-    <div class="container mx-auto relative z-10 px-6 py-8">
+    <div class="mx-auto max-w-[1600px] relative z-10 px-6 py-8">
         <div class="mb-8">
             <div class="bg-white/90 backdrop-blur-xl border border-white/40 rounded-2xl p-6 shadow-xl shadow-blue-500/10">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -212,35 +227,47 @@
             </div>
         <?php endif; ?>
 
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
             <div class="lg:w-72 flex-shrink-0">
                 <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 p-6 sticky top-8">
                     <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
                     <nav class="space-y-2">
                         <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
                             <i class="fas fa-id-badge w-5 h-5"></i>
-                            Platform Profile
+                            <span class="control-settings-menu-copy">
+                                <span>Platform Profile</span>
+                                <span>Brand, support channels, and app-wide identity.</span>
+                            </span>
                         </button>
                         <button onclick="showTab('clinic-defaults')" id="nav-clinic-defaults" class="control-settings-menu-btn">
                             <i class="fas fa-clinic-medical w-5 h-5"></i>
-                            Clinic Defaults
+                            <span class="control-settings-menu-copy">
+                                <span>Clinic Defaults</span>
+                                <span>Default tenant bootstrap values and working assumptions.</span>
+                            </span>
                         </button>
                         <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
                             <i class="fas fa-shield-alt w-5 h-5"></i>
-                            Governance
+                            <span class="control-settings-menu-copy">
+                                <span>Governance</span>
+                                <span>Retention, audit policy, and control-plane enforcement.</span>
+                            </span>
                         </button>
                         <div class="pt-4 pb-2 border-t border-slate-100 mt-4">
                             <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
                         </div>
                         <button onclick="showTab('communications')" id="nav-communications" class="control-settings-menu-btn">
                             <i class="fas fa-satellite-dish w-5 h-5"></i>
-                            Communications
+                            <span class="control-settings-menu-copy">
+                                <span>Communications</span>
+                                <span>Email templates, WhatsApp templates, secrets, and rollout.</span>
+                            </span>
                         </button>
                     </nav>
                 </div>
             </div>
 
-            <div class="flex-1">
+            <div class="flex-1 w-full max-w-6xl">
                 <?= $this->include('control_plane/settings_partials/platform') ?>
                 <?= $this->include('control_plane/settings_partials/clinic_defaults') ?>
                 <?= $this->include('control_plane/settings_partials/governance') ?>

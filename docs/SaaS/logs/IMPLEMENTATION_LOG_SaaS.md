@@ -1864,3 +1864,36 @@
       - `/controlplane/settings?tab=communications&subtab=whatsapp`
       - `/controlplane/clinics/21`
     - `npm run build`
+
+## [2026-03-23 09:55] - WhatsApp Settings UX Refactor And Starter Template Drafts
+- **Status:** Completed
+- **Description:** Refactored the control-plane WhatsApp settings surface into task-based tabs and added editable Arabic starter template drafts so operators can understand and maintain the five shared templates without guessing the structure.
+- **Actions:**
+    - Extended `WhatsAppTriggerCatalog` with per-trigger Arabic starter content, header text, operator notes, and reference button text.
+    - Extended `WhatsAppTemplateRegistryService` fallback handling with starter fallback reference copy.
+    - Updated `ControlPlane\Settings::updateWhatsAppTemplates()` to persist operator-facing reference fields alongside the real template routing metadata.
+    - Rebuilt `control_plane/settings_partials/communications/whatsapp.php` into four internal tabs:
+      - Overview
+      - Templates
+      - Rollout
+      - Credentials
+    - Replaced low-level WhatsApp fields with full template cards that now show:
+      - approved Meta template name
+      - reference header text
+      - editable Arabic reference body
+      - button structure
+      - available variables
+      - operator notes
+    - Tightened the control-plane settings shell in `control_plane/settings.php` with:
+      - clearer left navigation copy
+      - more structured descriptions per settings group
+      - constrained content width so long configuration pages read more like a proper settings console
+- **Verification:**
+    - `php -l app/Views/control_plane/settings.php`
+    - `php -l app/Views/control_plane/settings_partials/communications/whatsapp.php`
+    - `php -l app/Controllers/ControlPlane/Settings.php`
+    - `php -l app/Services/WhatsAppTriggerCatalog.php`
+    - `php -l app/Services/WhatsAppTemplateRegistryService.php`
+    - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest`
+    - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest`
+    - `npm run build`

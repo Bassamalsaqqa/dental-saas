@@ -144,20 +144,27 @@ class Settings extends BaseController
                 'button_type' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_type')),
                 'button_index' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_index')),
                 'button_param_key' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.button_param_key')),
+                'reference_header_text' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.reference_header_text')),
+                'reference_body_text' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.reference_body_text')),
+                'reference_button_text' => trim((string) $this->request->getPost('trigger_templates.' . $triggerKey . '.reference_button_text')),
             ];
         }
 
         $globalTriggerTogglesInput = $this->request->getPost('global_trigger_toggles');
-        $globalTriggerTogglesInput = is_array($globalTriggerTogglesInput) ? $globalTriggerTogglesInput : [];
-        $globalTriggerToggles = [];
-        foreach (array_keys($triggerCatalog) as $triggerKey) {
-            $globalTriggerToggles[$triggerKey] = !empty($globalTriggerTogglesInput[$triggerKey]) ? 1 : 0;
+        if (is_array($globalTriggerTogglesInput)) {
+            $globalTriggerToggles = [];
+            foreach (array_keys($triggerCatalog) as $triggerKey) {
+                $globalTriggerToggles[$triggerKey] = !empty($globalTriggerTogglesInput[$triggerKey]) ? 1 : 0;
+            }
+        } else {
+            $globalTriggerToggles = $this->whatsAppTemplateRegistry->getGlobalTriggerToggles();
         }
 
         $fallbackTemplate = [
             'name' => trim((string) $this->request->getPost('fallback_template.name')),
             'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
             'components' => [],
+            'reference_body_text' => trim((string) $this->request->getPost('fallback_template.reference_body_text')),
         ];
 
         $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate, $globalTriggerToggles);

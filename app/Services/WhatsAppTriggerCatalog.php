@@ -15,6 +15,11 @@ class WhatsAppTriggerCatalog
         ];
     }
 
+    private function starterBody(string $text): string
+    {
+        return trim($text);
+    }
+
     public function all(): array
     {
         return [
@@ -22,6 +27,10 @@ class WhatsAppTriggerCatalog
                 'label' => 'Appointment Reminder',
                 'description' => 'Sent before a scheduled appointment based on the clinic reminder lead time.',
                 'suggested_template_name' => 'appointment_reminder_ar_v1',
+                'reference_body_text' => $this->starterBody("مرحباً {{patient_name}}\nنذكركم بأن لديكم موعداً في {{clinic_name}} بتاريخ {{appointment_date}} الساعة {{appointment_time}}.\nللاستفسار: {{clinic_phone}}"),
+                'reference_header_text' => 'تذكير بموعدك',
+                'reference_button_text' => '',
+                'operator_notes' => 'Use for pre-appointment reminders. Keep the patient name, date, and time in the same placeholder order approved in Meta.',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -35,6 +44,10 @@ class WhatsAppTriggerCatalog
                 'label' => 'Appointment Confirmation',
                 'description' => 'Sent when an appointment is created or materially updated.',
                 'suggested_template_name' => 'appointment_confirmation_ar_v1',
+                'reference_body_text' => $this->starterBody("مرحباً {{patient_name}}\nتم تأكيد موعدكم في {{clinic_name}} بتاريخ {{appointment_date}} الساعة {{appointment_time}}.\nإذا احتجتم إلى تعديل الموعد يمكنكم التواصل معنا على {{clinic_phone}}."),
+                'reference_header_text' => 'تأكيد الموعد',
+                'reference_button_text' => '',
+                'operator_notes' => 'Use when a new appointment is booked or materially changed. Keep wording simple and operational.',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -48,6 +61,10 @@ class WhatsAppTriggerCatalog
                 'label' => 'Examination Follow-Up',
                 'description' => 'Sent after an examination is marked completed.',
                 'suggested_template_name' => 'follow_up_ar_v1',
+                'reference_body_text' => $this->starterBody("مرحباً {{patient_name}}\nشكراً لزيارتكم {{clinic_name}} بتاريخ {{examination_date}}.\nإذا احتجتم إلى متابعة أو استفسار يمكنكم التواصل معنا على {{clinic_phone}}."),
+                'reference_header_text' => 'متابعة بعد الزيارة',
+                'reference_button_text' => '',
+                'operator_notes' => 'Use for simple post-visit follow-up. Keep it one-way and informational.',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'examination_date'],
@@ -60,6 +77,10 @@ class WhatsAppTriggerCatalog
                 'label' => 'No-Show Follow-Up',
                 'description' => 'Sent after an appointment is marked no-show.',
                 'suggested_template_name' => 'no_show_follow_up_ar_v1',
+                'reference_body_text' => $this->starterBody("مرحباً {{patient_name}}\nلاحظنا عدم حضوركم لموعد {{clinic_name}} بتاريخ {{appointment_date}} الساعة {{appointment_time}}.\nإذا رغبتم بإعادة الحجز يرجى التواصل معنا على {{clinic_phone}}."),
+                'reference_header_text' => 'متابعة عدم الحضور',
+                'reference_button_text' => '',
+                'operator_notes' => 'Use after a missed appointment. Keep the tone neutral and operational.',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
@@ -73,6 +94,10 @@ class WhatsAppTriggerCatalog
                 'label' => 'Payment Reminder',
                 'description' => 'Sent when an invoice still has an outstanding balance.',
                 'suggested_template_name' => 'payment_reminder_ar_v1',
+                'reference_body_text' => $this->starterBody("مرحباً {{patient_name}}\nيوجد رصيد مستحق بقيمة {{amount}} على فاتورة رقم {{invoice_number}} لدى {{clinic_name}}.\nتاريخ الاستحقاق: {{due_date}}.\nللاستفسار يرجى التواصل معنا على {{clinic_phone}}."),
+                'reference_header_text' => 'تذكير دفعة مستحقة',
+                'reference_button_text' => '',
+                'operator_notes' => 'Use for one-way payment reminders. Keep amount, due date, and invoice number in the approved order.',
                 'default_enabled' => 1,
                 'strategy' => self::STRATEGY_TEMPLATE_ONLY,
                 'body_param_keys' => ['patient_name', 'amount', 'due_date', 'invoice_number'],
@@ -110,6 +135,9 @@ class WhatsAppTriggerCatalog
                 'button_type' => '',
                 'button_index' => '0',
                 'button_param_key' => '',
+                'reference_body_text' => (string) ($definition['reference_body_text'] ?? ''),
+                'reference_header_text' => (string) ($definition['reference_header_text'] ?? ''),
+                'reference_button_text' => (string) ($definition['reference_button_text'] ?? ''),
             ];
         }
 
@@ -144,6 +172,9 @@ class WhatsAppTriggerCatalog
                     ? (string) ($current['button_index'] ?? '0')
                     : '0',
                 'button_param_key' => trim((string) ($current['button_param_key'] ?? $defaultConfig['button_param_key'])),
+                'reference_body_text' => trim((string) ($current['reference_body_text'] ?? $defaultConfig['reference_body_text'])),
+                'reference_header_text' => trim((string) ($current['reference_header_text'] ?? $defaultConfig['reference_header_text'])),
+                'reference_button_text' => trim((string) ($current['reference_button_text'] ?? $defaultConfig['reference_button_text'])),
             ];
 
             if ($rawConfig[$triggerKey]['body_param_keys'] === []) {
