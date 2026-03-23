@@ -48,7 +48,7 @@
                         <i class="fas fa-arrow-up-right-from-square text-blue-600 group-hover:translate-x-0.5 transition-transform"></i>
                     </div>
                 </a>
-                <a href="<?= base_url('controlplane/settings?tab=communications&subtab=whatsapp') ?>" class="group rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-emerald-300">
+                <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="group rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm transition-all hover:shadow-md hover:border-emerald-300">
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <p class="text-[11px] font-black uppercase tracking-widest text-emerald-600">Communications Settings</p>

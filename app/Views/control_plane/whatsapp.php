@@ -380,7 +380,7 @@ if (old('send_mode') !== null || old('target_number') !== null || old('clinic_id
             <div class="wa-card rounded-3xl p-6">
                 <h2 class="text-lg font-black text-slate-900">Useful operator links</h2>
                 <div class="mt-4 space-y-3">
-                    <a href="<?= base_url('controlplane/settings?tab=communications&subtab=whatsapp') ?>" class="block rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 hover:border-slate-300">Open WhatsApp settings</a>
+                    <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="block rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 hover:border-slate-300">Open WhatsApp settings</a>
                     <a href="<?= base_url('controlplane/operations') ?>" class="block rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 hover:border-slate-300">Open operations console</a>
                 </div>
             </div>

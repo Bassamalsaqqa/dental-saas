@@ -150,9 +150,20 @@
                         </button>
                         
                         <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
-                            <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><?= lang('UI.settingsCommunications') ?></h4>
-                            <button onclick="showSettingsTab('communications')" id="tab-communications" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-satellite-dish w-5 h-5 mr-3"></i> <?= lang('UI.settingsCommunications') ?>
+                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fas fa-th-large w-5 h-5 mr-3"></i> <?= lang('UI.settingsChannels') ?>
+                            </button>
+                            <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fas fa-envelope w-5 h-5 mr-3"></i> <?= lang('UI.settingsEmail') ?>
+                            </button>
+                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fas fa-sms w-5 h-5 mr-3"></i> <?= lang('UI.settingsSms') ?>
+                            </button>
+                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fab fa-whatsapp w-5 h-5 mr-3"></i> <?= lang('UI.settingsWhatsApp') ?>
+                            </button>
+                            <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
+                                <i class="fas fa-user-cog w-5 h-5 mr-3"></i> <?= lang('UI.settingsMyAlerts') ?>
                             </button>
                         </div>
 
@@ -214,6 +225,11 @@ const settingsI18n = {
     tabKiosk: '<?= esc(lang('UI.settingsKiosk'), 'js') ?>',
     tabBackup: '<?= esc(lang('UI.settingsBackupRestore'), 'js') ?>',
     tabCommunications: '<?= esc(lang('UI.settingsCommunications'), 'js') ?>',
+    tabChannels: '<?= esc(lang('UI.settingsChannels'), 'js') ?>',
+    tabEmail: '<?= esc(lang('UI.settingsEmail'), 'js') ?>',
+    tabSms: '<?= esc(lang('UI.settingsSms'), 'js') ?>',
+    tabWhatsapp: '<?= esc(lang('UI.settingsWhatsApp'), 'js') ?>',
+    tabAlerts: '<?= esc(lang('UI.settingsMyAlerts'), 'js') ?>',
     subChannels: '<?= esc(lang('UI.settingsChannels'), 'js') ?>',
     subEmail: '<?= esc(lang('UI.settingsEmail'), 'js') ?>',
     subSms: '<?= esc(lang('UI.settingsSms'), 'js') ?>',
@@ -373,14 +389,11 @@ function validateField(input, rules = {}) {
 function showSettingsTab(tabName, options = {}) {
     console.log('Switching to settings tab:', tabName);
     const communicationTabs = ['channels', 'email', 'sms', 'whatsapp', 'notifications', 'alerts'];
-    const isLegacyCommunicationTab = communicationTabs.includes(tabName);
-    let communicationSubTab = null;
-    if (isLegacyCommunicationTab) {
-        communicationSubTab = (tabName === 'notifications' || tabName === 'alerts') ? 'alerts' : tabName;
-        tabName = 'communications';
-    }
+    const isCommunicationTab = communicationTabs.includes(tabName);
+    const resolvedCommunicationTab = (tabName === 'notifications' || tabName === 'alerts') ? 'alerts' : tabName;
+    const targetTabId = isCommunicationTab ? 'communications' : tabName;
 
-    if (!document.getElementById(tabName + '-tab')) {
+    if (!document.getElementById(targetTabId + '-tab')) {
         tabName = 'clinic';
     }
 
@@ -393,7 +406,7 @@ function showSettingsTab(tabName, options = {}) {
         btn.classList.add('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
     });
 
-    const targetTab = document.getElementById(tabName + '-tab');
+    const targetTab = document.getElementById((communicationTabs.includes(tabName) ? 'communications' : tabName) + '-tab');
     if (targetTab) {
         targetTab.classList.remove('hidden');
     }
@@ -412,6 +425,11 @@ function showSettingsTab(tabName, options = {}) {
         kiosk: settingsI18n.tabKiosk,
         backup: settingsI18n.tabBackup,
         communications: settingsI18n.tabCommunications,
+        channels: settingsI18n.tabChannels,
+        email: settingsI18n.tabEmail,
+        sms: settingsI18n.tabSms,
+        whatsapp: settingsI18n.tabWhatsapp,
+        alerts: settingsI18n.tabAlerts,
     };
     const breadcrumbTab = document.getElementById('breadcrumb-tab');
     const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
@@ -423,15 +441,11 @@ function showSettingsTab(tabName, options = {}) {
     if (sep2) {
         sep2.style.display = tabNames[tabName] ? '' : 'none';
     }
-    if (tabName !== 'communications') {
-        if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
-        if (sep3) sep3.style.display = 'none';
-    }
+    if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
+    if (sep3) sep3.style.display = 'none';
 
-    if (tabName === 'communications') {
-        const params = new URLSearchParams(window.location.search);
-        const requestedSubtab = communicationSubTab || params.get('subtab') || 'channels';
-        showSubTab(requestedSubtab, { updateUrl: false });
+    if (communicationTabs.includes(tabName)) {
+        showSubTab(resolvedCommunicationTab, { updateUrl: false });
     }
 
     if (options.updateUrl === false) {
@@ -439,13 +453,8 @@ function showSettingsTab(tabName, options = {}) {
     }
 
     const url = new URL(window.location.href);
-    if (tabName === 'communications') {
-        url.searchParams.set('tab', 'communications');
-        url.searchParams.set('subtab', communicationSubTab || url.searchParams.get('subtab') || 'channels');
-    } else {
-        url.searchParams.set('tab', tabName);
-        url.searchParams.delete('subtab');
-    }
+    url.searchParams.set('tab', tabName);
+    url.searchParams.delete('subtab');
     history.pushState(null, '', url.toString());
 }
 
@@ -464,29 +473,18 @@ function showSubTab(name, options = {}) {
         activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
     }
 
-    const subNames = {
-        channels: settingsI18n.subChannels,
-        email: settingsI18n.subEmail,
-        sms: settingsI18n.subSms,
-        whatsapp: settingsI18n.subWhatsapp,
-        alerts: settingsI18n.subAlerts,
-    };
     const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
     const sep3 = document.getElementById('breadcrumb-sep-3');
-    if (breadcrumbSubTab) {
-        breadcrumbSubTab.textContent = subNames[normalizedName] || '';
-    }
-    if (sep3) {
-        sep3.style.display = subNames[normalizedName] ? '' : 'none';
-    }
+    if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
+    if (sep3) sep3.style.display = 'none';
 
     if (options.updateUrl === false) {
         return;
     }
 
     const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'communications');
-    url.searchParams.set('subtab', normalizedName);
+    url.searchParams.set('tab', normalizedName);
+    url.searchParams.delete('subtab');
     history.pushState(null, '', url.toString());
 }
 
@@ -804,28 +802,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const requestedSubTab = params.get('subtab');
     const fallbackTab = '<?= $active_tab ?? 'clinic' ?>';
     let initialTab = requestedTab || fallbackTab;
-    if (requestedTab === 'communications' || ['channels', 'email', 'sms', 'whatsapp', 'notifications', 'alerts'].includes(initialTab)) {
-        initialTab = 'communications';
+    if (requestedTab === 'communications') {
+        initialTab = requestedSubTab || 'channels';
     }
     showSettingsTab(initialTab, { updateUrl: false });
-    if (initialTab === 'communications') {
-        showSubTab(requestedSubTab || (fallbackTab === 'notifications' ? 'alerts' : fallbackTab) || 'channels', { updateUrl: false });
-    }
     restoreSavedScrollPosition();
 });
 
 window.addEventListener('popstate', function() {
     const params = new URLSearchParams(window.location.search);
     const requestedTab = params.get('tab');
-    const requestedSubTab = params.get('subtab');
     let targetTab = requestedTab || 'clinic';
     if (requestedTab === 'communications') {
-        targetTab = 'communications';
+        targetTab = params.get('subtab') || 'channels';
     }
     showSettingsTab(targetTab, { updateUrl: false });
-    if (targetTab === 'communications') {
-        showSubTab(requestedSubTab || 'channels', { updateUrl: false });
-    }
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

@@ -101,7 +101,7 @@
                                     <a href="<?= base_url('controlplane/plans') ?>" class="control-settings-submit">
                                         <i class="fas fa-layer-group mr-2"></i>Manage Plans
                                     </a>
-                                    <a href="<?= base_url('controlplane/settings?tab=communications&subtab=email-templates') ?>" class="control-settings-secondary">
+                                    <a href="<?= base_url('controlplane/settings?tab=email-templates') ?>" class="control-settings-secondary">
                                         <i class="fas fa-envelope mr-2"></i>Email Templates
                                     </a>
                                 </div>

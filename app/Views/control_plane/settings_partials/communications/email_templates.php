@@ -7,8 +7,7 @@
                                 </div>
 
                                 <form id="section-email-template-filters" data-section-title="Template Filters" method="get" action="<?= base_url('controlplane/settings') ?>" class="flex flex-wrap gap-3 items-end">
-                                    <input type="hidden" name="tab" value="communications">
-                                    <input type="hidden" name="subtab" value="email-templates">
+                                    <input type="hidden" name="tab" value="email-templates">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search</label>
                                         <input type="text" name="q" value="<?= esc($templateFilters['q'] ?? '') ?>" class="control-settings-field w-64" placeholder="Search templates...">
@@ -33,7 +32,7 @@
                                                 <div class="p-6 text-sm text-slate-500">No templates found.</div>
                                             <?php else: ?>
                                                 <?php foreach ($templates as $template): ?>
-                                                    <a href="<?= base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . (int) $template['id']) ?>" class="block p-4 hover:bg-slate-50 transition-colors">
+                                                    <a href="<?= base_url('controlplane/settings?tab=email-templates&template_id=' . (int) $template['id']) ?>" class="block p-4 hover:bg-slate-50 transition-colors">
                                                         <p class="text-sm font-semibold text-slate-900"><?= esc($template['name']) ?></p>
                                                         <p class="text-xs text-slate-500"><?= esc($template['slug']) ?></p>
                                                     </a>

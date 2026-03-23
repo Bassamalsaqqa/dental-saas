@@ -239,11 +239,18 @@
                                 <span>Brand, support channels, and app-wide identity.</span>
                             </span>
                         </button>
-                        <button onclick="showTab('clinic-defaults')" id="nav-clinic-defaults" class="control-settings-menu-btn">
+                        <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
                             <i class="fas fa-clinic-medical w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
-                                <span>Clinic Defaults</span>
-                                <span>Default tenant bootstrap values and working assumptions.</span>
+                                <span>System Preferences</span>
+                                <span>Default tenant locale, currency, and display assumptions.</span>
+                            </span>
+                        </button>
+                        <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
+                            <i class="fas fa-clock w-5 h-5"></i>
+                            <span class="control-settings-menu-copy">
+                                <span>Working Hours</span>
+                                <span>Default schedule and slot behavior for new clinics.</span>
                             </span>
                         </button>
                         <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
@@ -253,14 +260,18 @@
                                 <span>Retention, audit policy, and control-plane enforcement.</span>
                             </span>
                         </button>
-                        <div class="pt-4 pb-2 border-t border-slate-100 mt-4">
-                            <h4 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Communications</h4>
-                        </div>
-                        <button onclick="showTab('communications')" id="nav-communications" class="control-settings-menu-btn">
-                            <i class="fas fa-satellite-dish w-5 h-5"></i>
+                        <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
+                            <i class="fas fa-envelope-open-text w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
-                                <span>Communications</span>
-                                <span>Email templates, WhatsApp templates, secrets, and rollout.</span>
+                                <span>Email Templates</span>
+                                <span>System-wide email template library and editor.</span>
+                            </span>
+                        </button>
+                        <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
+                            <i class="fab fa-whatsapp w-5 h-5"></i>
+                            <span class="control-settings-menu-copy">
+                                <span>WhatsApp Templates</span>
+                                <span>Shared Arabic templates, rollout switches, and credentials.</span>
                             </span>
                         </button>
                     </nav>
@@ -305,24 +316,35 @@
 function showTab(tabName, options = {}) {
     const tabNames = {
         platform: 'Platform Profile',
-        'clinic-defaults': 'Clinic Defaults',
+        'system-preferences': 'System Preferences',
+        'working-hours': 'Working Hours',
         governance: 'Governance',
-        communications: 'Communications',
+        'email-templates': 'Email Templates',
+        'whatsapp-templates': 'WhatsApp Templates',
     };
-    if (!document.getElementById('tab-' + tabName)) {
+    const communicationTabs = ['email-templates', 'whatsapp-templates'];
+    const tabAliases = {
+        'system-preferences': 'system-preferences',
+        'working-hours': 'working-hours',
+    };
+    const isCommunicationTab = communicationTabs.includes(tabName);
+    const targetTabId = isCommunicationTab ? 'communications' : (tabAliases[tabName] || tabName);
+
+    if (!document.getElementById('tab-' + targetTabId)) {
         tabName = 'platform';
     }
 
+    const resolvedTargetTabId = communicationTabs.includes(tabName) ? 'communications' : (tabAliases[tabName] || tabName);
+
     document.querySelectorAll('.settings-content').forEach(el => el.classList.add('hidden'));
 
-    const target = document.getElementById('tab-' + tabName);
+    const target = document.getElementById('tab-' + resolvedTargetTabId);
     if (target) {
         target.classList.remove('hidden');
     }
 
-    if (tabName === 'communications') {
-        const subtab = new URLSearchParams(window.location.search).get('subtab') || 'email-templates';
-        showCommsSubTab(subtab, { updateUrl: false });
+    if (communicationTabs.includes(tabName)) {
+        showCommsSubTab(tabName, { updateUrl: false });
     }
 
     const navButtons = document.querySelectorAll('[id^="nav-"]');
@@ -346,26 +368,15 @@ function showTab(tabName, options = {}) {
 
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tabName);
-    if (tabName !== 'communications') {
-        url.searchParams.delete('subtab');
-    }
+    url.searchParams.delete('subtab');
     history.pushState(null, '', url.toString());
 }
 
 function showCommsSubTab(name, options = {}) {
     document.querySelectorAll('.comms-panel').forEach(panel => panel.classList.add('hidden'));
-    document.querySelectorAll('.comms-subtab').forEach(btn => {
-        btn.classList.remove('border-blue-600', 'text-blue-600', 'bg-blue-50');
-        btn.classList.add('border-transparent', 'text-slate-500');
-    });
 
     const panel = document.getElementById('comms-panel-' + name);
     if (panel) panel.classList.remove('hidden');
-    const btn = document.getElementById('comms-subtab-' + name);
-    if (btn) {
-        btn.classList.add('border-blue-600', 'text-blue-600', 'bg-blue-50');
-        btn.classList.remove('border-transparent', 'text-slate-500');
-    }
 
     renderSectionLinks();
 
@@ -373,8 +384,8 @@ function showCommsSubTab(name, options = {}) {
         return;
     }
     const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'communications');
-    url.searchParams.set('subtab', name);
+    url.searchParams.set('tab', name);
+    url.searchParams.delete('subtab');
     history.pushState(null, '', url.toString());
 }
 
@@ -604,8 +615,11 @@ function closeConfirmModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlTab = new URLSearchParams(window.location.search).get('tab');
-    if (urlTab && document.getElementById(`tab-${urlTab}`)) {
-        showTab(urlTab, { updateUrl: false });
+    const legacySubtab = new URLSearchParams(window.location.search).get('subtab');
+    const legacyTabMap = { 'clinic-defaults': 'system-preferences' };
+    const normalizedTab = urlTab === 'communications' ? (legacySubtab || 'email-templates') : (legacyTabMap[urlTab] || urlTab);
+    if (normalizedTab && (document.getElementById(`tab-${normalizedTab}`) || ['email-templates', 'whatsapp-templates'].includes(normalizedTab))) {
+        showTab(normalizedTab, { updateUrl: false });
     } else {
         showTab('platform', { updateUrl: false });
     }
@@ -637,8 +651,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('popstate', () => {
-    const urlTab = new URLSearchParams(window.location.search).get('tab') || 'platform';
-    showTab(urlTab, { updateUrl: false });
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get('tab') || 'platform';
+    const legacyTabMap = { 'clinic-defaults': 'system-preferences' };
+    const normalizedTab = requestedTab === 'communications' ? (params.get('subtab') || 'email-templates') : (legacyTabMap[requestedTab] || requestedTab);
+    showTab(normalizedTab, { updateUrl: false });
     renderSectionLinks();
 });
 

@@ -170,7 +170,7 @@ class Settings extends BaseController
         $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate, $globalTriggerToggles);
 
         if (!$saved) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', 'Failed to update global WhatsApp templates.');
         }
 
@@ -185,7 +185,7 @@ class Settings extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+        return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
             ->with('success', 'Global WhatsApp templates updated.');
     }
 
@@ -408,7 +408,12 @@ class Settings extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=clinic-defaults'))
+        $redirectTab = trim((string) $this->request->getPost('redirect_tab'));
+        if (!in_array($redirectTab, ['system-preferences', 'working-hours'], true)) {
+            $redirectTab = 'system-preferences';
+        }
+
+        return redirect()->to(base_url('controlplane/settings?tab=' . $redirectTab))
             ->with('success', 'Clinic defaults updated for new clinics.');
     }
 
@@ -572,7 +577,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $templateId, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . $templateId . '#template-editor'))
+        return redirect()->to(base_url('controlplane/settings?tab=email-templates&template_id=' . $templateId . '#template-editor'))
             ->with('success', 'Email template created.');
     }
 
@@ -623,7 +628,7 @@ class Settings extends BaseController
             'metadata' => ['template_id' => $id, 'slug' => $slug],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=email-templates&template_id=' . $id . '#template-editor'))
+        return redirect()->to(base_url('controlplane/settings?tab=email-templates&template_id=' . $id . '#template-editor'))
             ->with('success', 'Email template updated.');
     }
 }

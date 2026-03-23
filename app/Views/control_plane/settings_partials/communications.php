@@ -35,14 +35,6 @@
                                     </div>
                                 </a>
                             </div>
-                            <div class="flex space-x-1 overflow-x-auto pb-0">
-                                <button onclick="showCommsSubTab('email-templates')" id="comms-subtab-email-templates" class="comms-subtab control-settings-subtab">
-                                    <i class="fas fa-envelope-open-text mr-2"></i>Email Templates
-                                </button>
-                                <button onclick="showCommsSubTab('whatsapp')" id="comms-subtab-whatsapp" class="comms-subtab control-settings-subtab">
-                                    <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                                </button>
-                            </div>
                         </div>
 
                         <div class="p-8">

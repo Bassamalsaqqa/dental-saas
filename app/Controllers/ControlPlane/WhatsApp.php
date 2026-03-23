@@ -35,7 +35,7 @@ class WhatsApp extends BaseController
     {
         $requestedTab = strtolower((string) ($this->request->getGet('tab') ?? $activeTab));
         if (in_array($requestedTab, ['secrets', 'policies'], true)) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'));
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'));
         }
         if (!in_array($requestedTab, ['overview', 'send', 'activity', 'webhooks', 'optouts', 'reference'], true)) {
             $requestedTab = 'overview';
@@ -198,12 +198,12 @@ class WhatsApp extends BaseController
         $rotationNote = trim((string) $this->request->getPost('rotation_note'));
 
         if (!in_array($secretKey, self::ALLOWED_SECRET_KEYS, true)) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', 'Invalid secret key.');
         }
 
         if ($newValue === '') {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', 'Secret value is required.');
         }
 
@@ -223,7 +223,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+        return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
             ->with('success', 'Secret rotated successfully.');
     }
 
@@ -231,7 +231,7 @@ class WhatsApp extends BaseController
     {
         $clinicId = (int) $this->request->getPost('clinic_id');
         if ($clinicId <= 0) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', 'Clinic is required.');
         }
 
@@ -245,7 +245,7 @@ class WhatsApp extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', implode(' ', $this->validator->getErrors()));
         }
 
@@ -298,7 +298,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+        return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
             ->with('success', 'WhatsApp tenant policy updated.');
     }
 
@@ -309,7 +309,7 @@ class WhatsApp extends BaseController
         $reason = trim((string) $this->request->getPost('suspended_reason'));
 
         if ($clinicId <= 0) {
-            return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
                 ->with('error', 'Clinic is required.');
         }
 
@@ -334,7 +334,7 @@ class WhatsApp extends BaseController
             ],
         ]);
 
-        return redirect()->to(base_url('controlplane/settings?tab=communications&subtab=whatsapp'))
+        return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates'))
             ->with('success', $suspend ? 'Emergency pause enabled.' : 'Emergency pause cleared.');
     }
 

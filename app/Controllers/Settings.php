@@ -629,11 +629,11 @@ class Settings extends BaseController
         }
 
         if (!$saved) {
-            return redirect()->to('/settings?tab=communications&subtab=whatsapp')
+            return redirect()->to('/settings?tab=whatsapp')
                 ->with('error', 'Failed to update WhatsApp automation settings.');
         }
 
-        return redirect()->to('/settings?tab=communications&subtab=whatsapp')
+        return redirect()->to('/settings?tab=whatsapp')
             ->with('success', 'WhatsApp automation settings updated.');
     }
 
@@ -652,7 +652,7 @@ class Settings extends BaseController
         
         if ($membership) {
             $clinicUserModel->update($membership['id'], ['preferences' => json_encode($prefs)]);
-            return redirect()->to('/settings?tab=communications&subtab=alerts')->with('success', 'Preferences updated');
+            return redirect()->to('/settings?tab=alerts')->with('success', 'Preferences updated');
         }
 
         return redirect()->back()->with('error', 'Membership not found');
