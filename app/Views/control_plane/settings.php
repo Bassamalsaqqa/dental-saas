@@ -4,66 +4,59 @@
 <style>
     .control-settings-menu-btn {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         width: 100%;
-        gap: 0.85rem;
-        padding: 0.95rem 1rem;
-        border-radius: 1rem;
+        gap: 0.75rem;
+        padding: 0.85rem 0.95rem;
+        border-radius: 0.9rem;
         font-size: 0.875rem;
-        font-weight: 500;
-        color: #475569;
+        font-weight: 600;
+        color: #334155;
         transition: all 0.2s ease;
         text-align: left;
-        border: 1px solid transparent;
+        border: 1px solid #e2e8f0;
+        background: #fff;
     }
     .control-settings-menu-btn:hover {
-        background: rgba(59, 130, 246, 0.06);
+        background: #f8fafc;
         color: #0f172a;
-        border-color: rgba(59, 130, 246, 0.12);
+        border-color: #cbd5e1;
     }
     .control-settings-menu-btn i {
-        color: #94a3b8;
+        color: #64748b;
         transition: color 0.2s ease;
         margin-top: 0.15rem;
     }
     .control-settings-menu-btn.is-active {
-        background: linear-gradient(135deg, #3b82f6, #4f46e5);
-        color: #fff;
-        box-shadow: 0 18px 38px rgba(59, 130, 246, 0.18);
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        box-shadow: none;
     }
     .control-settings-menu-btn.is-active i {
-        color: rgba(255, 255, 255, 0.82);
+        color: #2563eb;
     }
     .control-settings-menu-copy span {
         display: block;
     }
-    .control-settings-menu-copy span:last-child {
-        margin-top: 0.15rem;
-        font-size: 0.75rem;
-        line-height: 1.45;
-        color: #94a3b8;
-    }
-    .control-settings-menu-btn.is-active .control-settings-menu-copy span:last-child {
-        color: rgba(255, 255, 255, 0.78);
-    }
     .control-settings-card {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(18px);
-        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: #fff;
+        border: 1px solid #e2e8f0;
         border-radius: 1rem;
-        box-shadow: 0 18px 40px rgba(59, 130, 246, 0.10);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
         overflow: hidden;
     }
     .control-settings-header {
-        background: linear-gradient(90deg, #334155, #0f172a);
-        padding: 2rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem 1.75rem;
     }
     .control-settings-header h3,
     .control-settings-header h4 {
-        color: #fff !important;
+        color: #0f172a !important;
     }
     .control-settings-header p {
-        color: rgba(226, 232, 240, 0.92) !important;
+        color: #64748b !important;
     }
     .control-settings-field {
         width: 100%;
@@ -110,49 +103,6 @@
     .control-settings-secondary:hover {
         background: #f8fafc;
     }
-    .control-settings-subtab {
-        padding: 0.625rem 1rem;
-        border-bottom: 2px solid transparent;
-        border-top-left-radius: 0.75rem;
-        border-top-right-radius: 0.75rem;
-        white-space: nowrap;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #64748b;
-        transition: all 0.2s ease;
-    }
-    .control-settings-subtab:hover {
-        color: #334155;
-    }
-    .control-settings-sections {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .control-settings-section-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.65rem 1rem;
-        border-radius: 9999px;
-        background: rgba(255, 255, 255, 0.86);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        color: #334155;
-        font-size: 0.875rem;
-        font-weight: 600;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-        transition: all 0.2s ease;
-    }
-    .control-settings-section-link:hover {
-        background: #fff;
-        color: #1d4ed8;
-        border-color: rgba(59, 130, 246, 0.24);
-    }
-    .control-settings-section-link i {
-        color: #3b82f6;
-        font-size: 0.75rem;
-    }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;
     }
@@ -167,42 +117,20 @@
         margin-left: 0 !important;
     }
 </style>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-gray-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/10 to-zinc-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
-    <div class="mx-auto max-w-[1600px] relative z-10 px-6 py-8">
-        <div class="mb-8">
-            <div class="bg-white/90 backdrop-blur-xl border border-white/40 rounded-2xl p-6 shadow-xl shadow-blue-500/10">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-cogs text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900">Global Configuration</h1>
-                            <p class="text-gray-600">Control plane policies and system-wide defaults</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-3">
-                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Global Mode</span>
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">Live Settings</span>
-                    </div>
-                </div>
-            </div>
+<div class="min-h-screen bg-slate-50">
+    <div class="mx-auto max-w-6xl px-6 py-8">
+        <div class="mb-5">
+            <h1 class="text-3xl font-bold text-slate-950">Settings</h1>
+            <p class="mt-2 text-sm text-slate-600">Platform-wide defaults, governance, and shared communication settings.</p>
         </div>
 
-        <nav class="mb-4 flex items-center space-x-1 text-sm text-gray-500" id="control-settings-breadcrumb">
+        <nav class="mb-5 flex items-center space-x-1 text-sm text-gray-500" id="control-settings-breadcrumb">
             <span class="text-gray-700 font-medium">Control Plane</span>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium">Settings</span>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span id="control-breadcrumb-tab" class="text-gray-900 font-semibold"></span>
         </nav>
-        <div id="control-settings-sections" class="control-settings-sections"></div>
-
         <?php $controlSettingsErrors = session('errors'); ?>
         <?php if (session('error') || (!empty($controlSettingsErrors) && is_array($controlSettingsErrors))): ?>
             <div id="control-settings-feedback" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800 shadow-sm">
@@ -227,58 +155,54 @@
             </div>
         <?php endif; ?>
 
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
-            <div class="lg:w-72 flex-shrink-0">
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/50 p-6 sticky top-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">Settings Menu</h3>
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
+            <div class="xl:sticky xl:top-8">
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="mb-3 px-2">
+                        <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Control Settings</p>
+                    </div>
                     <nav class="space-y-2">
                         <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
                             <i class="fas fa-id-badge w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>Platform Profile</span>
-                                <span>Brand, support channels, and app-wide identity.</span>
                             </span>
                         </button>
                         <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
                             <i class="fas fa-clinic-medical w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>System Preferences</span>
-                                <span>Default tenant locale, currency, and display assumptions.</span>
                             </span>
                         </button>
                         <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
                             <i class="fas fa-clock w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>Working Hours</span>
-                                <span>Default schedule and slot behavior for new clinics.</span>
                             </span>
                         </button>
                         <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
                             <i class="fas fa-shield-alt w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>Governance</span>
-                                <span>Retention, audit policy, and control-plane enforcement.</span>
                             </span>
                         </button>
                         <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
                             <i class="fas fa-envelope-open-text w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>Email Templates</span>
-                                <span>System-wide email template library and editor.</span>
                             </span>
                         </button>
                         <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
                             <i class="fab fa-whatsapp w-5 h-5"></i>
                             <span class="control-settings-menu-copy">
                                 <span>WhatsApp Templates</span>
-                                <span>Shared Arabic templates, rollout switches, and credentials.</span>
                             </span>
                         </button>
                     </nav>
                 </div>
             </div>
 
-            <div class="flex-1 w-full max-w-6xl">
+            <div class="min-w-0">
                 <?= $this->include('control_plane/settings_partials/platform') ?>
                 <?= $this->include('control_plane/settings_partials/clinic_defaults') ?>
                 <?= $this->include('control_plane/settings_partials/governance') ?>
@@ -322,29 +246,21 @@ function showTab(tabName, options = {}) {
         'email-templates': 'Email Templates',
         'whatsapp-templates': 'WhatsApp Templates',
     };
-    const communicationTabs = ['email-templates', 'whatsapp-templates'];
-    const tabAliases = {
-        'system-preferences': 'system-preferences',
-        'working-hours': 'working-hours',
-    };
-    const isCommunicationTab = communicationTabs.includes(tabName);
-    const targetTabId = isCommunicationTab ? 'communications' : (tabAliases[tabName] || tabName);
 
-    if (!document.getElementById('tab-' + targetTabId)) {
+    if (!document.getElementById('tab-' + tabName)) {
         tabName = 'platform';
     }
 
-    const resolvedTargetTabId = communicationTabs.includes(tabName) ? 'communications' : (tabAliases[tabName] || tabName);
-
     document.querySelectorAll('.settings-content').forEach(el => el.classList.add('hidden'));
 
-    const target = document.getElementById('tab-' + resolvedTargetTabId);
+    const target = document.getElementById('tab-' + tabName);
     if (target) {
         target.classList.remove('hidden');
     }
 
-    if (communicationTabs.includes(tabName)) {
-        showCommsSubTab(tabName, { updateUrl: false });
+    if (tabName === 'whatsapp-templates' && typeof showWhatsAppSettingsTab === 'function') {
+        const requestedPane = new URLSearchParams(window.location.search).get('wa_tab');
+        showWhatsAppSettingsTab(['overview', 'templates', 'rollout', 'credentials'].includes(requestedPane) ? requestedPane : 'templates');
     }
 
     const navButtons = document.querySelectorAll('[id^="nav-"]');
@@ -360,31 +276,12 @@ function showTab(tabName, options = {}) {
         breadcrumbTab.textContent = tabNames[tabName] || '';
     }
 
-    renderSectionLinks();
-
     if (options.updateUrl === false) {
         return;
     }
 
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tabName);
-    url.searchParams.delete('subtab');
-    history.pushState(null, '', url.toString());
-}
-
-function showCommsSubTab(name, options = {}) {
-    document.querySelectorAll('.comms-panel').forEach(panel => panel.classList.add('hidden'));
-
-    const panel = document.getElementById('comms-panel-' + name);
-    if (panel) panel.classList.remove('hidden');
-
-    renderSectionLinks();
-
-    if (options.updateUrl === false) {
-        return;
-    }
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', name);
     url.searchParams.delete('subtab');
     history.pushState(null, '', url.toString());
 }
@@ -411,36 +308,6 @@ function toastMessage(type, message) {
     container._hideTimer = setTimeout(() => {
         container.remove();
     }, 3500);
-}
-
-function renderSectionLinks() {
-    const container = document.getElementById('control-settings-sections');
-    if (!container) return;
-
-    const visibleTab = document.querySelector('.settings-content:not(.hidden)');
-    if (!visibleTab) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const sections = Array.from(visibleTab.querySelectorAll('[data-section-title]'))
-        .filter((section) => {
-            if (section.classList.contains('hidden')) {
-                return false;
-            }
-
-            if (!section.id || !section.dataset.sectionTitle) {
-                return false;
-            }
-
-            return section.offsetParent !== null;
-        });
-
-    container.innerHTML = sections.map((section) => {
-        const title = section.dataset.sectionTitle || '';
-        const id = section.id || '';
-        return `<a href="#${id}" class="control-settings-section-link"><i class="fas fa-link"></i><span>${title}</span></a>`;
-    }).join('');
 }
 
 function setButtonLoading(button, loading, label = 'Saving...') {
@@ -618,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const legacySubtab = new URLSearchParams(window.location.search).get('subtab');
     const legacyTabMap = { 'clinic-defaults': 'system-preferences' };
     const normalizedTab = urlTab === 'communications' ? (legacySubtab || 'email-templates') : (legacyTabMap[urlTab] || urlTab);
-    if (normalizedTab && (document.getElementById(`tab-${normalizedTab}`) || ['email-templates', 'whatsapp-templates'].includes(normalizedTab))) {
+    if (normalizedTab && document.getElementById(`tab-${normalizedTab}`)) {
         showTab(normalizedTab, { updateUrl: false });
     } else {
         showTab('platform', { updateUrl: false });
@@ -627,7 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initRetentionControls();
     bindPruneActions();
     bindManagedForms();
-    renderSectionLinks();
 
     document.querySelectorAll('input[name="default_working_days[]"]').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
@@ -656,7 +522,6 @@ window.addEventListener('popstate', () => {
     const legacyTabMap = { 'clinic-defaults': 'system-preferences' };
     const normalizedTab = requestedTab === 'communications' ? (params.get('subtab') || 'email-templates') : (legacyTabMap[requestedTab] || requestedTab);
     showTab(normalizedTab, { updateUrl: false });
-    renderSectionLinks();
 });
 
 function toggleSecretVis(btn) {

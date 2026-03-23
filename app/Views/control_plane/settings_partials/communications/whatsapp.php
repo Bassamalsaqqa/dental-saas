@@ -44,7 +44,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
     .wa-stat-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; padding: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .05); }
 </style>
 
-<div id="comms-panel-whatsapp" data-section-title="WhatsApp Configuration" class="comms-panel hidden space-y-6">
+<div id="tab-whatsapp-templates" data-section-title="WhatsApp Templates" class="settings-content hidden space-y-6">
     <div id="section-whatsapp-overview" data-section-title="WhatsApp Overview" class="space-y-6">
         <div class="rounded-[1.75rem] border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6 shadow-sm">
             <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -278,8 +278,9 @@ function showWhatsAppSettingsTab(tabName) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('comms-panel-whatsapp')) {
-        showWhatsAppSettingsTab('overview');
+    if (document.getElementById('tab-whatsapp-templates')) {
+        const requestedPane = new URLSearchParams(window.location.search).get('wa_tab');
+        showWhatsAppSettingsTab(['overview', 'templates', 'rollout', 'credentials'].includes(requestedPane) ? requestedPane : 'templates');
     }
 });
 </script>
