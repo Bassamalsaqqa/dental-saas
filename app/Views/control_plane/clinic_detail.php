@@ -45,6 +45,42 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
         opacity: .55;
         cursor: not-allowed;
     }
+    .wa-rollout-shell {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+    .wa-rollout-head {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    .wa-rollout-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+    }
+    .wa-rollout-row.is-disabled {
+        background: #f8fafc;
+        border-style: dashed;
+    }
+    .wa-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: .3rem .7rem;
+        font-size: .65rem;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
 </style>
 <div class="px-6 py-8">
     <!-- Page Header -->
@@ -326,99 +362,128 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                        <i class="fab fa-whatsapp text-emerald-600 mr-2"></i>
-                        WhatsApp Rollout
-                    </h3>
-                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full <?= !empty($wa_feature_enabled) ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' ?>">
-                        <?= !empty($wa_feature_enabled) ? 'Plan Enabled' : 'Plan Disabled' ?>
-                    </span>
+            <div class="wa-rollout-shell">
+                <div class="wa-rollout-head">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                                <i class="fab fa-whatsapp text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">WhatsApp Rollout</h3>
+                                <p class="mt-1 text-sm text-slate-600">Clinic-level delivery policy for the shared sender and Arabic templates.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="wa-pill <?= !empty($wa_feature_enabled) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' ?>">
+                                <?= !empty($wa_feature_enabled) ? 'Plan Enabled' : 'Plan Disabled' ?>
+                            </span>
+                            <a href="<?= base_url('controlplane/settings?tab=whatsapp-templates') ?>" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100">
+                                Open Shared Templates
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-                            <p class="text-xs font-bold uppercase tracking-wider text-emerald-600">Clinic Name In Messages</p>
-                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_name'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_name'] : ($clinic['name'] ?? 'Not set')) ?></p>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                            <p class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-600">Clinic Name</p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= esc(($clinicSettingsSnapshot['clinic_name'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_name'] : ($clinic['name'] ?? 'Not set')) ?></p>
                         </div>
-                        <div class="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                            <p class="text-xs font-bold uppercase tracking-wider text-blue-600">Clinic Phone In Messages</p>
-                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_phone'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_phone'] : 'Not set') ?></p>
+                        <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                            <p class="text-[11px] font-black uppercase tracking-[0.16em] text-blue-600">Clinic Phone</p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= esc(($clinicSettingsSnapshot['clinic_phone'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_phone'] : 'Not set') ?></p>
                         </div>
-                        <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
-                            <p class="text-xs font-bold uppercase tracking-wider text-amber-600">Clinic Address In Messages</p>
-                            <p class="mt-2 text-sm font-bold text-gray-900"><?= esc(($clinicSettingsSnapshot['clinic_address'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_address'] : 'Not set') ?></p>
+                        <div class="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                            <p class="text-[11px] font-black uppercase tracking-[0.16em] text-amber-600">Clinic Address</p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= esc(($clinicSettingsSnapshot['clinic_address'] ?? '') !== '' ? $clinicSettingsSnapshot['clinic_address'] : 'Not set') ?></p>
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                        <p class="text-sm font-semibold text-gray-900">Template ownership</p>
-                        <p class="mt-1 text-sm text-gray-600">The 5 Arabic WhatsApp templates are edited centrally in control plane settings. This clinic page only controls whether each template-trigger is allowed to run for this clinic, plus rate limits and emergency pause.</p>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-sm font-bold text-slate-900">How this clinic inherits WhatsApp</p>
+                        <p class="mt-1 text-sm text-slate-600">Templates are managed once in control plane. This page only decides which of the five workflows are active for this clinic and what delivery limits apply.</p>
                     </div>
 
                     <form action="<?= base_url('controlplane/whatsapp/policy') ?>" method="post" class="space-y-6">
                         <?= csrf_field() ?>
                         <input type="hidden" name="clinic_id" value="<?= (int) $clinic['id'] ?>">
 
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Daily Limit</label>
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Daily Limit</label>
                                 <input type="number" name="daily_limit" value="<?= (int) ($waPolicy['daily_limit'] ?? 50) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Monthly Limit</label>
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Monthly Limit</label>
                                 <input type="number" name="monthly_limit" value="<?= (int) ($waPolicy['monthly_limit'] ?? 1000) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Per Hour Limit</label>
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Per Hour Limit</label>
                                 <input type="number" name="per_hour_limit" value="<?= (int) ($waPolicy['per_hour_limit'] ?? 20) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Reminder Lead (Minutes)</label>
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Reminder Lead (Minutes)</label>
                                 <input type="number" name="reminder_lead_time_minutes" value="<?= (int) ($waPolicy['reminder_lead_time_minutes'] ?? 1440) ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                            <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
-                                <?php
-                                $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
-                                $clinicEnabled = (int) ($waPolicyToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
-                                $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
-                                $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
-                                ?>
-                                <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="font-bold text-gray-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
-                                            <p class="mt-1 text-xs text-gray-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
-                                            <p class="mt-3 text-xs font-semibold text-gray-700">Template: <span class="font-mono"><?= esc($displayTemplateName) ?></span></p>
-                                            <?php if (!$platformEnabled): ?>
-                                                <p class="mt-2 text-[11px] font-bold uppercase tracking-wider text-rose-600">Disabled globally in control plane settings</p>
-                                            <?php endif; ?>
+                        <div>
+                            <div class="mb-4">
+                                <h4 class="text-base font-black text-slate-950">Template trigger toggles</h4>
+                                <p class="mt-1 text-sm text-slate-600">Each workflow is controlled individually. A disabled plan or global switch will lock the clinic switch.</p>
+                            </div>
+                            <div class="space-y-3">
+                                <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                                    <?php
+                                    $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                    $clinicEnabled = (int) ($waPolicyToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                    $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
+                                    $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                                    ?>
+                                    <div class="wa-rollout-row <?= (!$platformEnabled || empty($wa_feature_enabled)) ? 'is-disabled' : '' ?>">
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                                <span class="wa-pill bg-slate-100 text-slate-700"><?= esc($displayTemplateName) ?></span>
+                                                <?php if (!$platformEnabled): ?>
+                                                    <span class="wa-pill bg-rose-100 text-rose-700">Global Off</span>
+                                                <?php endif; ?>
+                                                <?php if (empty($wa_feature_enabled)): ?>
+                                                    <span class="wa-pill bg-amber-100 text-amber-700">Plan Off</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <p class="mt-1 text-sm text-slate-600"><?= esc($triggerMeta['description'] ?? '') ?></p>
                                         </div>
-                                        <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $clinicEnabled ? 'checked' : '' ?> <?= !$platformEnabled || empty($wa_feature_enabled) ? 'disabled' : '' ?>>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xs font-bold uppercase tracking-[0.12em] <?= $clinicEnabled ? 'text-emerald-600' : 'text-slate-500' ?>">
+                                                <?= $clinicEnabled ? 'On' : 'Off' ?>
+                                            </span>
+                                            <input type="checkbox" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $clinicEnabled ? 'checked' : '' ?> <?= !$platformEnabled || empty($wa_feature_enabled) ? 'disabled' : '' ?>>
+                                        </div>
                                     </div>
                                     <?php if ((!$platformEnabled || empty($wa_feature_enabled)) && $clinicEnabled): ?>
                                         <input type="hidden" name="trigger_toggles[<?= esc($triggerKey) ?>]" value="1">
                                     <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-[auto,1fr,auto] gap-4 items-end pt-2 border-t border-gray-100">
-                            <label class="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                        <div class="grid grid-cols-1 gap-4 border-t border-slate-200 pt-6 lg:grid-cols-[auto,1fr,auto] lg:items-end">
+                            <label class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                                 <input type="checkbox" name="suspended" value="1" class="ui-toggle" <?= !empty($waPolicy['suspended']) ? 'checked' : '' ?>>
-                                <span class="text-sm font-bold text-gray-800">Emergency Pause Clinic</span>
+                                <span>
+                                    <span class="block text-sm font-bold text-slate-900">Emergency Pause</span>
+                                    <span class="mt-1 block text-xs text-slate-500">Immediately stop automated sends for this clinic.</span>
+                                </span>
                             </label>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pause Reason</label>
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Pause Reason</label>
                                 <input type="text" name="suspended_reason" value="<?= esc($waPolicy['suspended_reason'] ?? '') ?>" class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Optional reason for audit trail">
                             </div>
                             <div class="flex justify-end">
-                                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 shadow-md transition-colors">
+                                <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-emerald-700">
                                     Save WhatsApp Policy
                                 </button>
                             </div>
