@@ -55,6 +55,20 @@
     .control-settings-header p {
         color: #64748b !important;
     }
+    .control-settings-header .backdrop-blur-sm {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+    .control-settings-header .w-12.h-12 {
+        background: #fff !important;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
+    .control-settings-header .text-white,
+    .control-settings-header .text-blue-400,
+    .control-settings-header .text-violet-400 {
+        color: #2563eb !important;
+    }
     .control-settings-field {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -99,6 +113,9 @@
     }
     .control-settings-secondary:hover {
         background: #f8fafc;
+    }
+    .control-settings-card > .p-8 {
+        padding: 1.5rem !important;
     }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;

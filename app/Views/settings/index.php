@@ -127,8 +127,6 @@
             <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
             <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-2" style="display:none"></i>
             <span id="breadcrumb-tab" class="text-gray-900 font-semibold"></span>
-            <i class="fas fa-chevron-right text-xs text-gray-300" id="breadcrumb-sep-3" style="display:none"></i>
-            <span id="breadcrumb-subtab" class="text-gray-900 font-semibold"></span>
         </nav>
 
         <?php $settingsErrors = session('errors'); ?>
@@ -469,17 +467,13 @@ function showSettingsTab(tabName, options = {}) {
         alerts: settingsI18n.tabAlerts,
     };
     const breadcrumbTab = document.getElementById('breadcrumb-tab');
-    const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
     const sep2 = document.getElementById('breadcrumb-sep-2');
-    const sep3 = document.getElementById('breadcrumb-sep-3');
     if (breadcrumbTab) {
         breadcrumbTab.textContent = tabNames[tabName] || '';
     }
     if (sep2) {
         sep2.style.display = tabNames[tabName] ? '' : 'none';
     }
-    if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
-    if (sep3) sep3.style.display = 'none';
 
     if (communicationTabs.includes(tabName)) {
         showSubTab(resolvedCommunicationTab, { updateUrl: false });
@@ -509,11 +503,6 @@ function showSubTab(name, options = {}) {
         activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border-b-2', 'border-blue-600');
         activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
     }
-
-    const breadcrumbSubTab = document.getElementById('breadcrumb-subtab');
-    const sep3 = document.getElementById('breadcrumb-sep-3');
-    if (breadcrumbSubTab) breadcrumbSubTab.textContent = '';
-    if (sep3) sep3.style.display = 'none';
 
     if (options.updateUrl === false) {
         return;
