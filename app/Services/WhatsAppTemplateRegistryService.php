@@ -31,6 +31,51 @@ class WhatsAppTemplateRegistryService
         ];
     }
 
+    public function getTriggerReadiness(?array $config = null): array
+    {
+        $config = $config ?? $this->getGlobalConfig();
+        $triggerTemplates = is_array($config['trigger_templates'] ?? null) ? $config['trigger_templates'] : [];
+        $triggerToggles = is_array($config['trigger_toggles'] ?? null) ? $config['trigger_toggles'] : [];
+
+        $readiness = [];
+        foreach ($this->triggerCatalog->all() as $triggerKey => $meta) {
+            $triggerConfig = is_array($triggerTemplates[$triggerKey] ?? null) ? $triggerTemplates[$triggerKey] : [];
+            $errors = $this->triggerCatalog->validateTriggerTemplateConfig($triggerKey, $triggerConfig);
+            $readiness[$triggerKey] = [
+                'enabled' => (int) ($triggerToggles[$triggerKey] ?? ($meta['default_enabled'] ?? 1)) === 1,
+                'configured' => trim((string) ($triggerConfig['name'] ?? '')) !== '',
+                'valid' => $errors === [],
+                'ready' => trim((string) ($triggerConfig['name'] ?? '')) !== '' && $errors === [],
+                'errors' => $errors,
+            ];
+        }
+
+        return $readiness;
+    }
+
+    public function validateTriggerTemplates(array $triggerTemplates): array
+    {
+        $normalized = $this->triggerCatalog->normalizeTriggerTemplateConfig($triggerTemplates);
+        $errors = [];
+
+        foreach ($this->triggerCatalog->all() as $triggerKey => $meta) {
+            $validationErrors = $this->triggerCatalog->validateTriggerTemplateConfig(
+                $triggerKey,
+                is_array($normalized[$triggerKey] ?? null) ? $normalized[$triggerKey] : []
+            );
+
+            if ($validationErrors === []) {
+                continue;
+            }
+
+            foreach ($validationErrors as $message) {
+                $errors[] = sprintf('%s: %s', $meta['label'] ?? $triggerKey, $message);
+            }
+        }
+
+        return $errors;
+    }
+
     public function getGlobalTriggerToggles(): array
     {
         $stored = $this->settingsModel->getGlobalSetting(self::SETTINGS_KEY_TRIGGER_TOGGLES, []);

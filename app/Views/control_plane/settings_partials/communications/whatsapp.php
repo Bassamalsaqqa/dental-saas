@@ -5,10 +5,12 @@ $waGlobalTriggerTemplates = is_array($waGlobalTemplates['trigger_templates'] ?? 
 $waGlobalFallback = is_array($waGlobalTemplates['fallback_template'] ?? null) ? $waGlobalTemplates['fallback_template'] : [];
 $waGlobalTriggerToggles = is_array($waGlobalTemplates['trigger_toggles'] ?? null) ? $waGlobalTemplates['trigger_toggles'] : [];
 $waTriggerCatalog = is_array($wa_trigger_catalog ?? null) ? $wa_trigger_catalog : [];
+$waTriggerReadiness = is_array($wa_trigger_readiness ?? null) ? $wa_trigger_readiness : [];
 $waPolicies = is_array($wa_policies ?? null) ? $wa_policies : [];
 
 $configuredCount = 0;
 $enabledCount = 0;
+$readyCount = 0;
 foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
     $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
     if (trim((string) ($triggerConfig['name'] ?? '')) !== '') {
@@ -16,6 +18,9 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
     }
     if ((int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1) {
         $enabledCount++;
+    }
+    if (!empty($waTriggerReadiness[$triggerKey]['ready'])) {
+        $readyCount++;
     }
 }
 ?>
@@ -87,7 +92,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
                         <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Configured Templates</p><p class="mt-2 text-3xl font-black text-slate-950"><?= (int) $configuredCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs text-slate-500">Approved Meta template names saved in control plane.</p></div>
                         <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Platform Enabled</p><p class="mt-2 text-3xl font-black text-slate-950"><?= (int) $enabledCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs text-slate-500">Triggers currently allowed at the platform layer.</p></div>
-                        <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Clinic Layer</p><p class="mt-2 text-3xl font-black text-slate-950"><?= count($waPolicies) ?></p><p class="mt-2 text-xs text-slate-500">Clinics inherit these templates and apply local rollout toggles on their own clinic page.</p></div>
+                        <div class="wa-stat-card"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Ready To Send</p><p class="mt-2 text-3xl font-black text-slate-950"><?= (int) $readyCount ?>/<?= count($waTriggerCatalog) ?></p><p class="mt-2 text-xs text-slate-500">Triggers with a valid approved Meta template name and valid variable mapping.</p></div>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3 min-w-[260px]">
@@ -141,15 +146,21 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                                 $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
                                 $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
                                 $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) ($triggerConfig['name'] ?? '') : (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                                $readiness = is_array($waTriggerReadiness[$triggerKey] ?? null) ? $waTriggerReadiness[$triggerKey] : ['ready' => false, 'errors' => []];
                                 ?>
                                 <button type="button" class="wa-template-nav-btn" data-wa-template-button="<?= esc($triggerKey) ?>" onclick="showWhatsAppTemplateEditor('<?= esc($triggerKey) ?>')">
                                     <div>
                                         <p class="wa-template-nav-title text-sm font-black text-slate-950"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                         <p class="mt-1 text-xs text-slate-500"><?= esc($displayTemplateName) ?></p>
                                     </div>
-                                    <span class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' ?>">
-                                        <?= $platformEnabled ? 'On' : 'Off' ?>
-                                    </span>
+                                    <div class="flex flex-col items-end gap-1">
+                                        <span class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' ?>">
+                                            <?= $platformEnabled ? 'On' : 'Off' ?>
+                                        </span>
+                                        <span class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= !empty($readiness['ready']) ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700' ?>">
+                                            <?= !empty($readiness['ready']) ? 'Ready' : 'Needs config' ?>
+                                        </span>
+                                    </div>
                                 </button>
                             <?php endforeach; ?>
                         </div>
@@ -180,6 +191,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                             $referenceHeader = trim((string) ($triggerConfig['reference_header_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_header_text'] ?? '') : (string) ($triggerMeta['reference_header_text'] ?? '');
                             $referenceBody = trim((string) ($triggerConfig['reference_body_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_body_text'] ?? '') : (string) ($triggerMeta['reference_body_text'] ?? '');
                             $referenceButton = trim((string) ($triggerConfig['reference_button_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_button_text'] ?? '') : (string) ($triggerMeta['reference_button_text'] ?? '');
+                            $readiness = is_array($waTriggerReadiness[$triggerKey] ?? null) ? $waTriggerReadiness[$triggerKey] : ['ready' => false, 'errors' => []];
                             ?>
                             <div class="wa-template-editor-pane hidden" id="wa-template-editor-<?= esc($triggerKey) ?>">
                                 <div class="wa-template-card">
@@ -195,12 +207,25 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                                                 <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-700' ?>">
                                                     <?= $platformEnabled ? 'Platform enabled' : 'Platform disabled' ?>
                                                 </span>
+                                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= !empty($readiness['ready']) ? 'bg-blue-600 text-white' : 'bg-amber-100 text-amber-700' ?>">
+                                                    <?= !empty($readiness['ready']) ? 'Ready' : 'Needs config' ?>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr,0.95fr]">
                                         <div class="space-y-4">
+                                            <?php if (!empty($readiness['errors']) && is_array($readiness['errors'])): ?>
+                                                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">
+                                                    <p class="text-xs font-black uppercase tracking-[0.16em]">Template readiness issues</p>
+                                                    <ul class="mt-2 list-disc space-y-1 ps-5 text-sm">
+                                                        <?php foreach ($readiness['errors'] as $error): ?>
+                                                            <li><?= esc($error) ?></li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                </div>
+                                            <?php endif; ?>
                                             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                                 <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Approved Meta template name</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.name" value="<?= esc($displayTemplateName) ?>" class="control-settings-field mt-2" placeholder="<?= esc($suggestedTemplateName) ?>"></div>
                                                 <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Header variable key</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.header_param_key" value="<?= esc($triggerConfig['header_param_key'] ?? '') ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
@@ -252,11 +277,16 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
                 <form action="<?= base_url('controlplane/settings/whatsapp-templates') ?>" method="post" class="space-y-5" data-settings-form="true" data-saving-label="Saving rollout switches...">
                     <?= csrf_field() ?>
                     <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
-                        <?php $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1; ?>
+                        <?php $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1; $readiness = is_array($waTriggerReadiness[$triggerKey] ?? null) ? $waTriggerReadiness[$triggerKey] : ['ready' => false]; ?>
                         <label class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 gap-4">
                             <div>
                                 <p class="font-bold text-slate-900"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
                                 <p class="mt-1 text-xs text-slate-500"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    <span class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= !empty($readiness['ready']) ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700' ?>">
+                                        <?= !empty($readiness['ready']) ? 'Ready to send' : 'Needs template config' ?>
+                                    </span>
+                                </div>
                             </div>
                             <input type="checkbox" name="global_trigger_toggles[<?= esc($triggerKey) ?>]" value="1" class="ui-toggle" <?= $platformEnabled ? 'checked' : '' ?>>
                         </label>

@@ -184,4 +184,48 @@ class WhatsAppTriggerCatalog
 
         return $rawConfig;
     }
+
+    public function validateTriggerTemplateConfig(string $triggerKey, array $config): array
+    {
+        $catalog = $this->all();
+        $meta = $catalog[$triggerKey] ?? null;
+        if ($meta === null) {
+            return ['Unknown trigger key.'];
+        }
+
+        $errors = [];
+        $availableVarKeys = array_keys((array) ($meta['available_vars'] ?? []));
+        $name = trim((string) ($config['name'] ?? ''));
+        if ($name === '') {
+            $errors[] = 'Approved Meta template name is required.';
+        }
+
+        $headerKey = trim((string) ($config['header_param_key'] ?? ''));
+        if ($headerKey !== '' && !in_array($headerKey, $availableVarKeys, true)) {
+            $errors[] = sprintf('Header variable "%s" is not allowed for this trigger.', $headerKey);
+        }
+
+        $bodyKeys = $config['body_param_keys'] ?? [];
+        if (!is_array($bodyKeys) || $bodyKeys === []) {
+            $errors[] = 'At least one body variable is required.';
+        } else {
+            foreach ($bodyKeys as $bodyKey) {
+                $cleanKey = trim((string) $bodyKey);
+                if ($cleanKey === '' || !in_array($cleanKey, $availableVarKeys, true)) {
+                    $errors[] = sprintf('Body variable "%s" is not allowed for this trigger.', $cleanKey);
+                }
+            }
+        }
+
+        $buttonType = trim((string) ($config['button_type'] ?? ''));
+        $buttonParamKey = trim((string) ($config['button_param_key'] ?? ''));
+        if ($buttonType !== '' && $buttonParamKey === '') {
+            $errors[] = 'Button variable is required when button type is enabled.';
+        }
+        if ($buttonParamKey !== '' && !in_array($buttonParamKey, $availableVarKeys, true)) {
+            $errors[] = sprintf('Button variable "%s" is not allowed for this trigger.', $buttonParamKey);
+        }
+
+        return array_values(array_unique($errors));
+    }
 }

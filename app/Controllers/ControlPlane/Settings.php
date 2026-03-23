@@ -97,7 +97,34 @@ class Settings extends BaseController
             ];
         }
 
+        $triggerCatalogService = new \App\Services\WhatsAppTriggerCatalog();
+        $waTriggerCatalog = $triggerCatalogService->all();
         $waGlobalTemplates = $this->whatsAppTemplateRegistry->getGlobalConfig();
+        $waTemplateForm = session('wa_template_form');
+        if (is_array($waTemplateForm)) {
+            if (is_array($waTemplateForm['trigger_templates'] ?? null)) {
+                $waGlobalTemplates['trigger_templates'] = $triggerCatalogService
+                    ->normalizeTriggerTemplateConfig($waTemplateForm['trigger_templates']);
+            }
+            if (is_array($waTemplateForm['fallback_template'] ?? null)) {
+                $fallback = $waTemplateForm['fallback_template'];
+                $waGlobalTemplates['fallback_template'] = [
+                    'name' => trim((string) ($fallback['name'] ?? '')),
+                    'language' => WhatsAppTemplateRegistryService::FORCED_LANGUAGE,
+                    'components' => [],
+                    'suggested_name' => WhatsAppTemplateRegistryService::SUGGESTED_FALLBACK_TEMPLATE,
+                    'reference_body_text' => trim((string) ($fallback['reference_body_text'] ?? WhatsAppTemplateRegistryService::SUGGESTED_FALLBACK_BODY)),
+                ];
+            }
+            if (is_array($waTemplateForm['trigger_toggles'] ?? null)) {
+                $toggles = [];
+                foreach ($triggerCatalogService->defaultTriggerToggles() as $triggerKey => $default) {
+                    $toggles[$triggerKey] = !empty($waTemplateForm['trigger_toggles'][$triggerKey]) ? 1 : 0;
+                }
+                $waGlobalTemplates['trigger_toggles'] = $toggles;
+            }
+        }
+        $waTriggerReadiness = $this->whatsAppTemplateRegistry->getTriggerReadiness($waGlobalTemplates);
 
         return view('control_plane/settings', [
             'title' => 'Settings',
@@ -117,7 +144,8 @@ class Settings extends BaseController
             'wa_secrets' => $waSecrets,
             'wa_policies' => $waPolicies,
             'wa_global_templates' => $waGlobalTemplates,
-            'wa_trigger_catalog' => (new \App\Services\WhatsAppTriggerCatalog())->all(),
+            'wa_trigger_catalog' => $waTriggerCatalog,
+            'wa_trigger_readiness' => $waTriggerReadiness,
         ]);
     }
 
@@ -166,6 +194,18 @@ class Settings extends BaseController
             'components' => [],
             'reference_body_text' => trim((string) $this->request->getPost('fallback_template.reference_body_text')),
         ];
+
+        $templateErrors = $this->whatsAppTemplateRegistry->validateTriggerTemplates($triggerTemplates);
+        if ($templateErrors !== []) {
+            return redirect()->to(base_url('controlplane/settings?tab=whatsapp-templates&wa_tab=templates'))
+                ->withInput()
+                ->with('errors', $templateErrors)
+                ->with('wa_template_form', [
+                    'trigger_templates' => $triggerTemplates,
+                    'fallback_template' => $fallbackTemplate,
+                    'trigger_toggles' => $globalTriggerToggles,
+                ]);
+        }
 
         $saved = $this->whatsAppTemplateRegistry->saveGlobalConfig($triggerTemplates, $fallbackTemplate, $globalTriggerToggles);
 

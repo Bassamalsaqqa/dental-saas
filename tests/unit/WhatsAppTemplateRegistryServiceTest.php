@@ -93,4 +93,55 @@ final class WhatsAppTemplateRegistryServiceTest extends CIUnitTestCase
             );
         }
     }
+
+    public function testTriggerReadinessMarksMissingTemplateAsNotReady(): void
+    {
+        $readiness = $this->service->getTriggerReadiness([
+            'trigger_templates' => [
+                'appointment_reminder' => [
+                    'name' => '',
+                    'language' => 'ar',
+                    'strategy' => 'template_only',
+                    'header_param_key' => '',
+                    'body_param_keys' => ['patient_name', 'appointment_date', 'appointment_time'],
+                    'button_type' => '',
+                    'button_index' => '0',
+                    'button_param_key' => '',
+                ],
+            ],
+            'trigger_toggles' => [
+                'appointment_reminder' => 1,
+            ],
+            'fallback_template' => [
+                'name' => 'general_reengagement_ar_v1',
+                'language' => 'ar',
+                'components' => [],
+            ],
+        ]);
+
+        $this->assertFalse((bool) ($readiness['appointment_reminder']['ready'] ?? true));
+        $this->assertContains(
+            'Approved Meta template name is required.',
+            $readiness['appointment_reminder']['errors'] ?? []
+        );
+    }
+
+    public function testValidateTriggerTemplatesRejectsInvalidVariableKey(): void
+    {
+        $errors = $this->service->validateTriggerTemplates([
+            'appointment_reminder' => [
+                'name' => 'appointment_reminder_ar_v1',
+                'language' => 'ar',
+                'strategy' => 'template_only',
+                'header_param_key' => '',
+                'body_param_keys' => ['not_a_real_var'],
+                'button_type' => '',
+                'button_index' => '0',
+                'button_param_key' => '',
+            ],
+        ]);
+
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('Appointment Reminder:', $errors[0]);
+    }
 }
