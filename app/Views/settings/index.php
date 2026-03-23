@@ -4,6 +4,38 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+    .settings-menu-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 0.75rem;
+        padding: 0.85rem 0.95rem;
+        border-radius: 0.9rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+    .settings-menu-btn:hover {
+        background: #f8fafc;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+    .settings-menu-btn i {
+        color: #64748b;
+        transition: color 0.2s ease;
+    }
+    .settings-menu-btn.is-active {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+    .settings-menu-btn.is-active i {
+        color: #2563eb;
+    }
     .select2-container--default .select2-selection--single {
         height: 56px !important;
         border: 2px solid #e5e7eb !important;
@@ -74,12 +106,12 @@
     }
 </style>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-    <div class="container mx-auto px-6 py-8">
+<div class="min-h-screen bg-slate-50">
+    <div class="mx-auto max-w-6xl px-6 py-8">
         <!-- Page Header -->
-        <div class="mb-8">
+        <div class="mb-5">
             <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                     <i class="fas fa-cog text-xl"></i>
                 </div>
                 <div>
@@ -89,7 +121,7 @@
             </div>
         </div>
 
-        <nav class="mb-4 flex items-center space-x-1 text-sm text-gray-500" id="settings-breadcrumb">
+        <nav class="mb-5 flex items-center space-x-1 text-sm text-gray-500" id="settings-breadcrumb">
             <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
@@ -124,47 +156,54 @@
         <?php endif; ?>
 
         <!-- Settings Layout with Sidebar -->
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
             <!-- Left Sidebar -->
-            <div class="lg:w-80 flex-shrink-0">
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-blue-500/10 border border-white/30 p-6 sticky top-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6"><?= lang('UI.settingsMenu') ?></h3>
+            <div class="xl:sticky xl:top-8">
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="mb-3 px-2">
+                        <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= lang('UI.settingsMenu') ?></p>
+                    </div>
                     <nav class="space-y-2">
-                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-building w-5 h-5 mr-3"></i> <?= lang('UI.settingsClinicProfile') ?>
+                        <button onclick="showSettingsTab('clinic')" id="tab-clinic" class="settings-menu-btn">
+                            <i class="fas fa-building w-5 h-5"></i> <?= lang('UI.settingsClinicProfile') ?>
                         </button>
-                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-layer-group w-5 h-5 mr-3"></i> <?= lang('UI.settingsSubscription') ?>
+                        <button onclick="showSettingsTab('subscription')" id="tab-subscription" class="settings-menu-btn">
+                            <i class="fas fa-layer-group w-5 h-5"></i> <?= lang('UI.settingsSubscription') ?>
                         </button>
-                        <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-cog w-5 h-5 mr-3"></i> <?= lang('UI.settingsSystemTab') ?>
+                        <button onclick="showSettingsTab('system')" id="tab-system" class="settings-menu-btn">
+                            <i class="fas fa-cog w-5 h-5"></i> <?= lang('UI.settingsSystemTab') ?>
                         </button>
-                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-clock w-5 h-5 mr-3"></i> <?= lang('UI.settingsOperations') ?>
+                        <button onclick="showSettingsTab('hours')" id="tab-hours" class="settings-menu-btn">
+                            <i class="fas fa-clock w-5 h-5"></i> <?= lang('UI.settingsOperations') ?>
                         </button>
-                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-tablet-alt w-5 h-5 mr-3"></i> <?= lang('UI.settingsKiosk') ?>
+                        <button onclick="showSettingsTab('kiosk')" id="tab-kiosk" class="settings-menu-btn">
+                            <i class="fas fa-tablet-alt w-5 h-5"></i> <?= lang('UI.settingsKiosk') ?>
                         </button>
-                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                            <i class="fas fa-database w-5 h-5 mr-3"></i> <?= lang('UI.settingsBackupRestore') ?>
+                        <button onclick="showSettingsTab('backup')" id="tab-backup" class="settings-menu-btn">
+                            <i class="fas fa-database w-5 h-5"></i> <?= lang('UI.settingsBackupRestore') ?>
                         </button>
                         
-                        <div class="pt-4 pb-2 border-t border-gray-100 mt-4">
-                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-th-large w-5 h-5 mr-3"></i> <?= lang('UI.settingsChannels') ?>
+                        <div class="mt-4 border-t border-slate-200 pt-4">
+                            <div class="mb-3 px-2">
+                                <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= lang('UI.settingsCommunications') ?></p>
+                            </div>
+                            <div class="space-y-2">
+                            <button onclick="showSettingsTab('channels')" id="tab-channels" class="settings-menu-btn">
+                                <i class="fas fa-th-large w-5 h-5"></i> <?= lang('UI.settingsChannels') ?>
                             </button>
-                            <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-envelope w-5 h-5 mr-3"></i> <?= lang('UI.settingsEmail') ?>
+                            <button onclick="showSettingsTab('email')" id="tab-email" class="settings-menu-btn">
+                                <i class="fas fa-envelope w-5 h-5"></i> <?= lang('UI.settingsEmail') ?>
                             </button>
-                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-sms w-5 h-5 mr-3"></i> <?= lang('UI.settingsSms') ?>
+                            <button onclick="showSettingsTab('sms')" id="tab-sms" class="settings-menu-btn">
+                                <i class="fas fa-sms w-5 h-5"></i> <?= lang('UI.settingsSms') ?>
                             </button>
-                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fab fa-whatsapp w-5 h-5 mr-3"></i> <?= lang('UI.settingsWhatsApp') ?>
+                            <button onclick="showSettingsTab('whatsapp')" id="tab-whatsapp" class="settings-menu-btn">
+                                <i class="fab fa-whatsapp w-5 h-5"></i> <?= lang('UI.settingsWhatsApp') ?>
                             </button>
-                            <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn w-full flex items-center px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200">
-                                <i class="fas fa-user-cog w-5 h-5 mr-3"></i> <?= lang('UI.settingsMyAlerts') ?>
+                            <button onclick="showSettingsTab('alerts')" id="tab-alerts" class="settings-menu-btn">
+                                <i class="fas fa-user-cog w-5 h-5"></i> <?= lang('UI.settingsMyAlerts') ?>
                             </button>
+                            </div>
                         </div>
 
                     </nav>
@@ -172,7 +211,7 @@
             </div>
 
             <!-- Main Content Area -->
-            <div class="flex-1">
+            <div class="min-w-0">
                 <!-- Clinic Information Tab -->
                 <?= $this->include('settings/partials/clinic') ?>
                 <?= $this->include('settings/partials/subscription') ?>
@@ -402,8 +441,7 @@ function showSettingsTab(tabName, options = {}) {
     });
 
     document.querySelectorAll('[id^="tab-"]').forEach(btn => {
-        btn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
-        btn.classList.add('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
+        btn.classList.remove('is-active');
     });
 
     const targetTab = document.getElementById((communicationTabs.includes(tabName) ? 'communications' : tabName) + '-tab');
@@ -413,8 +451,7 @@ function showSettingsTab(tabName, options = {}) {
 
     const activeButton = document.getElementById('tab-' + tabName);
     if (activeButton) {
-        activeButton.classList.remove('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
-        activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
+        activeButton.classList.add('is-active');
     }
 
     const tabNames = {

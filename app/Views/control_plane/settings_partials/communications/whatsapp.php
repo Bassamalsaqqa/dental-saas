@@ -42,6 +42,32 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
     .wa-template-card-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(15, 118, 110, .08), rgba(59, 130, 246, .05)); border-bottom: 1px solid #e2e8f0; }
     .wa-template-preview { min-height: 10rem; direction: rtl; text-align: right; line-height: 1.9; font-family: "Segoe UI", Tahoma, sans-serif; }
     .wa-stat-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; padding: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .05); }
+    .wa-template-nav-btn {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: .75rem;
+        width: 100%;
+        padding: .95rem 1rem;
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        text-align: left;
+        transition: all .2s ease;
+    }
+    .wa-template-nav-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+    .wa-template-nav-btn.is-active {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        box-shadow: inset 0 0 0 1px #bfdbfe;
+    }
+    .wa-template-nav-btn.is-active .wa-template-nav-title {
+        color: #1d4ed8;
+    }
+    .wa-template-editor-pane.hidden { display: none !important; }
 </style>
 
 <div id="tab-whatsapp-templates" data-section-title="WhatsApp Templates" class="settings-content hidden space-y-6">
@@ -99,79 +125,116 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
         <div id="wa-settings-pane-templates" class="wa-settings-pane hidden space-y-6">
             <form action="<?= base_url('controlplane/settings/whatsapp-templates') ?>" method="post" class="space-y-6" data-settings-form="true" data-saving-label="Saving WhatsApp templates...">
                 <?= csrf_field() ?>
-
-                <div class="wa-template-card">
-                    <div class="wa-template-card-header"><div class="flex items-center justify-between gap-4"><div><p class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">Fallback Template</p><h5 class="mt-2 text-lg font-black text-slate-950">General re-engagement / out-of-session fallback</h5><p class="mt-1 text-sm text-slate-600">Use only when an operator explicitly chooses the fallback template in the WhatsApp ops console.</p></div><span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-700 shadow-sm">Arabic only</span></div></div>
-                    <div class="p-6 grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr,0.9fr]">
-                        <div class="space-y-4">
-                            <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Approved Meta template name</label><input type="text" name="fallback_template.name" value="<?= esc(($waGlobalFallback['name'] ?? '') !== '' ? ($waGlobalFallback['name'] ?? '') : ($waGlobalFallback['suggested_name'] ?? 'general_reengagement_ar_v1')) ?>" class="control-settings-field mt-2" placeholder="general_reengagement_ar_v1"></div>
-                            <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Arabic reference copy</label><textarea name="fallback_template.reference_body_text" rows="6" class="control-settings-field wa-template-preview mt-2" placeholder="?????? {{patient_name}} ..."><?= esc($waGlobalFallback['reference_body_text'] ?? '') ?></textarea><p class="mt-2 text-xs text-slate-500">This is your editable reference copy for operations and Meta alignment. The app still sends the approved Meta template by name.</p></div>
+                <div class="grid grid-cols-1 gap-5 xl:grid-cols-[280px,minmax(0,1fr)]">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:sticky xl:top-6">
+                        <p class="px-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Template List</p>
+                        <div class="mt-3 space-y-2">
+                            <button type="button" class="wa-template-nav-btn is-active" data-wa-template-button="fallback" onclick="showWhatsAppTemplateEditor('fallback')">
+                                <div>
+                                    <p class="wa-template-nav-title text-sm font-black text-slate-950">Fallback</p>
+                                    <p class="mt-1 text-xs text-slate-500">Out-of-session recovery</p>
+                                </div>
+                                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-600">Arabic</span>
+                            </button>
+                            <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                                <?php
+                                $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
+                                $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                                $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) ($triggerConfig['name'] ?? '') : (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                                ?>
+                                <button type="button" class="wa-template-nav-btn" data-wa-template-button="<?= esc($triggerKey) ?>" onclick="showWhatsAppTemplateEditor('<?= esc($triggerKey) ?>')">
+                                    <div>
+                                        <p class="wa-template-nav-title text-sm font-black text-slate-950"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                        <p class="mt-1 text-xs text-slate-500"><?= esc($displayTemplateName) ?></p>
+                                    </div>
+                                    <span class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' ?>">
+                                        <?= $platformEnabled ? 'On' : 'Off' ?>
+                                    </span>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">How to use</p><ul class="mt-3 space-y-2 text-sm leading-6 text-slate-600"><li>Keep this simple and reusable.</li><li>Use it only outside the 24-hour session window.</li><li>Include clinic identity variables like <code class="font-mono text-[11px]">clinic_name</code> and <code class="font-mono text-[11px]">clinic_phone</code>.</li></ul></div>
+                    </div>
+
+                    <div class="min-w-0 space-y-5">
+                        <div class="wa-template-editor-pane" id="wa-template-editor-fallback">
+                            <div class="wa-template-card">
+                                <div class="wa-template-card-header"><div class="flex items-center justify-between gap-4"><div><p class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">Fallback Template</p><h5 class="mt-2 text-lg font-black text-slate-950">General re-engagement / out-of-session fallback</h5><p class="mt-1 text-sm text-slate-600">Use only when an operator explicitly chooses the fallback template in the WhatsApp ops console.</p></div><span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-700 shadow-sm">Arabic only</span></div></div>
+                                <div class="p-6 grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr,0.9fr]">
+                                    <div class="space-y-4">
+                                        <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Approved Meta template name</label><input type="text" name="fallback_template.name" value="<?= esc(($waGlobalFallback['name'] ?? '') !== '' ? ($waGlobalFallback['name'] ?? '') : ($waGlobalFallback['suggested_name'] ?? 'general_reengagement_ar_v1')) ?>" class="control-settings-field mt-2" placeholder="general_reengagement_ar_v1"></div>
+                                        <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Arabic reference copy</label><textarea name="fallback_template.reference_body_text" rows="6" class="control-settings-field wa-template-preview mt-2" placeholder="?????? {{patient_name}} ..."><?= esc($waGlobalFallback['reference_body_text'] ?? '') ?></textarea><p class="mt-2 text-xs text-slate-500">This is your editable reference copy for operations and Meta alignment. The app still sends the approved Meta template by name.</p></div>
+                                    </div>
+                                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">How to use</p><ul class="mt-3 space-y-2 text-sm leading-6 text-slate-600"><li>Keep this simple and reusable.</li><li>Use it only outside the 24-hour session window.</li><li>Include clinic identity variables like <code class="font-mono text-[11px]">clinic_name</code> and <code class="font-mono text-[11px]">clinic_phone</code>.</li></ul></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
+                            <?php
+                            $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
+                            $bodyParamKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
+                            $availableVars = is_array($triggerMeta['available_vars'] ?? null) ? $triggerMeta['available_vars'] : [];
+                            $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
+                            $suggestedTemplateName = (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
+                            $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : $suggestedTemplateName;
+                            $referenceHeader = trim((string) ($triggerConfig['reference_header_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_header_text'] ?? '') : (string) ($triggerMeta['reference_header_text'] ?? '');
+                            $referenceBody = trim((string) ($triggerConfig['reference_body_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_body_text'] ?? '') : (string) ($triggerMeta['reference_body_text'] ?? '');
+                            $referenceButton = trim((string) ($triggerConfig['reference_button_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_button_text'] ?? '') : (string) ($triggerMeta['reference_button_text'] ?? '');
+                            ?>
+                            <div class="wa-template-editor-pane hidden" id="wa-template-editor-<?= esc($triggerKey) ?>">
+                                <div class="wa-template-card">
+                                    <div class="wa-template-card-header">
+                                        <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                                            <div>
+                                                <p class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
+                                                <h5 class="mt-2 text-lg font-black text-slate-950"><?= esc($displayTemplateName) ?></h5>
+                                                <p class="mt-1 text-sm text-slate-600"><?= esc($triggerMeta['description'] ?? '') ?></p>
+                                            </div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-700 shadow-sm">Template required</span>
+                                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-700' ?>">
+                                                    <?= $platformEnabled ? 'Platform enabled' : 'Platform disabled' ?>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr,0.95fr]">
+                                        <div class="space-y-4">
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Approved Meta template name</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.name" value="<?= esc($displayTemplateName) ?>" class="control-settings-field mt-2" placeholder="<?= esc($suggestedTemplateName) ?>"></div>
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Header variable key</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.header_param_key" value="<?= esc($triggerConfig['header_param_key'] ?? '') ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Reference header text</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.reference_header_text" value="<?= esc($referenceHeader) ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Body variable keys</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.body_param_keys" value="<?= esc(implode(', ', $bodyParamKeys)) ?>" class="control-settings-field mt-2" placeholder="<?= esc(implode(', ', $triggerMeta['body_param_keys'] ?? [])) ?>"></div>
+                                            </div>
+
+                                            <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Arabic reference body</label><textarea name="trigger_templates.<?= esc($triggerKey) ?>.reference_body_text" rows="7" class="control-settings-field wa-template-preview mt-2" placeholder="???? ???? ?????? ??????? ???? ??????"><?= esc($referenceBody) ?></textarea></div>
+
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button type</label><select name="trigger_templates.<?= esc($triggerKey) ?>.button_type" class="control-settings-field mt-2"><option value="" <?= ($triggerConfig['button_type'] ?? '') === '' ? 'selected' : '' ?>>No button</option><option value="quick_reply" <?= ($triggerConfig['button_type'] ?? '') === 'quick_reply' ? 'selected' : '' ?>>Quick reply</option><option value="url" <?= ($triggerConfig['button_type'] ?? '') === 'url' ? 'selected' : '' ?>>URL</option></select></div>
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button index</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.button_index" value="<?= esc($triggerConfig['button_index'] ?? '0') ?>" class="control-settings-field mt-2" placeholder="0"></div>
+                                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button variable key</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.button_param_key" value="<?= esc($triggerConfig['button_param_key'] ?? '') ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
+                                            </div>
+
+                                            <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Reference button text</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.reference_button_text" value="<?= esc($referenceButton) ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Operator Notes</p><p class="mt-3 text-sm leading-6 text-slate-700"><?= esc($triggerMeta['operator_notes'] ?? 'Keep the Meta template name and variable order aligned with your approved template.') ?></p></div>
+                                            <?php if ($availableVars !== []): ?>
+                                                <div class="rounded-2xl border border-dashed border-slate-200 bg-white p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Available variables</p><div class="mt-3 flex flex-wrap gap-2"><?php foreach ($availableVars as $varKey => $varHelp): ?><span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700"><span class="mr-1 font-black text-slate-900"><?= esc($varKey) ?></span><?= esc($varHelp) ?></span><?php endforeach; ?></div></div>
+                                            <?php endif; ?>
+                                            <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Ready-to-use structure</p><ol class="mt-3 space-y-2 text-sm leading-6 text-slate-600 list-decimal ps-5"><li>Keep the template name equal to the approved Meta name.</li><li>Keep the variable order exactly as approved.</li><li>Let clinics supply their own identity values from tenant clinic settings.</li></ol></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-                <?php foreach ($waTriggerCatalog as $triggerKey => $triggerMeta): ?>
-                    <?php
-                    $triggerConfig = is_array($waGlobalTriggerTemplates[$triggerKey] ?? null) ? $waGlobalTriggerTemplates[$triggerKey] : [];
-                    $bodyParamKeys = is_array($triggerConfig['body_param_keys'] ?? null) ? $triggerConfig['body_param_keys'] : [];
-                    $availableVars = is_array($triggerMeta['available_vars'] ?? null) ? $triggerMeta['available_vars'] : [];
-                    $platformEnabled = (int) ($waGlobalTriggerToggles[$triggerKey] ?? ($triggerMeta['default_enabled'] ?? 1)) === 1;
-                    $suggestedTemplateName = (string) ($triggerMeta['suggested_template_name'] ?? ($triggerKey . '_ar_v1'));
-                    $displayTemplateName = trim((string) ($triggerConfig['name'] ?? '')) !== '' ? (string) $triggerConfig['name'] : $suggestedTemplateName;
-                    $referenceHeader = trim((string) ($triggerConfig['reference_header_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_header_text'] ?? '') : (string) ($triggerMeta['reference_header_text'] ?? '');
-                    $referenceBody = trim((string) ($triggerConfig['reference_body_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_body_text'] ?? '') : (string) ($triggerMeta['reference_body_text'] ?? '');
-                    $referenceButton = trim((string) ($triggerConfig['reference_button_text'] ?? '')) !== '' ? (string) ($triggerConfig['reference_button_text'] ?? '') : (string) ($triggerMeta['reference_button_text'] ?? '');
-                    ?>
-                    <div class="wa-template-card">
-                        <div class="wa-template-card-header">
-                            <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                                <div>
-                                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700"><?= esc($triggerMeta['label'] ?? $triggerKey) ?></p>
-                                    <h5 class="mt-2 text-lg font-black text-slate-950"><?= esc($displayTemplateName) ?></h5>
-                                    <p class="mt-1 text-sm text-slate-600"><?= esc($triggerMeta['description'] ?? '') ?></p>
-                                </div>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-700 shadow-sm">Template required</span>
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] <?= $platformEnabled ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-700' ?>">
-                                        <?= $platformEnabled ? 'Platform enabled' : 'Platform disabled' ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr,0.95fr]">
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Approved Meta template name</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.name" value="<?= esc($displayTemplateName) ?>" class="control-settings-field mt-2" placeholder="<?= esc($suggestedTemplateName) ?>"></div>
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Header variable key</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.header_param_key" value="<?= esc($triggerConfig['header_param_key'] ?? '') ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
-                                </div>
-
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Reference header text</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.reference_header_text" value="<?= esc($referenceHeader) ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Body variable keys</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.body_param_keys" value="<?= esc(implode(', ', $bodyParamKeys)) ?>" class="control-settings-field mt-2" placeholder="<?= esc(implode(', ', $triggerMeta['body_param_keys'] ?? [])) ?>"></div>
-                                </div>
-
-                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Arabic reference body</label><textarea name="trigger_templates.<?= esc($triggerKey) ?>.reference_body_text" rows="7" class="control-settings-field wa-template-preview mt-2" placeholder="???? ???? ?????? ??????? ???? ??????"><?= esc($referenceBody) ?></textarea></div>
-
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button type</label><select name="trigger_templates.<?= esc($triggerKey) ?>.button_type" class="control-settings-field mt-2"><option value="" <?= ($triggerConfig['button_type'] ?? '') === '' ? 'selected' : '' ?>>No button</option><option value="quick_reply" <?= ($triggerConfig['button_type'] ?? '') === 'quick_reply' ? 'selected' : '' ?>>Quick reply</option><option value="url" <?= ($triggerConfig['button_type'] ?? '') === 'url' ? 'selected' : '' ?>>URL</option></select></div>
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button index</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.button_index" value="<?= esc($triggerConfig['button_index'] ?? '0') ?>" class="control-settings-field mt-2" placeholder="0"></div>
-                                    <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Button variable key</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.button_param_key" value="<?= esc($triggerConfig['button_param_key'] ?? '') ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
-                                </div>
-
-                                <div><label class="block text-xs font-black uppercase tracking-[0.14em] text-slate-600">Reference button text</label><input type="text" name="trigger_templates.<?= esc($triggerKey) ?>.reference_button_text" value="<?= esc($referenceButton) ?>" class="control-settings-field mt-2" placeholder="Optional"></div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Operator Notes</p><p class="mt-3 text-sm leading-6 text-slate-700"><?= esc($triggerMeta['operator_notes'] ?? 'Keep the Meta template name and variable order aligned with your approved template.') ?></p></div>
-                                <?php if ($availableVars !== []): ?>
-                                    <div class="rounded-2xl border border-dashed border-slate-200 bg-white p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Available variables</p><div class="mt-3 flex flex-wrap gap-2"><?php foreach ($availableVars as $varKey => $varHelp): ?><span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700"><span class="mr-1 font-black text-slate-900"><?= esc($varKey) ?></span><?= esc($varHelp) ?></span><?php endforeach; ?></div></div>
-                                <?php endif; ?>
-                                <div class="rounded-2xl border border-slate-200 bg-white p-5"><p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Ready-to-use structure</p><ol class="mt-3 space-y-2 text-sm leading-6 text-slate-600 list-decimal ps-5"><li>Keep the template name equal to the approved Meta name.</li><li>Keep the variable order exactly as approved.</li><li>Let clinics supply their own identity values from tenant clinic settings.</li></ol></div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
 
                 <div class="flex justify-end"><button type="submit" class="control-settings-submit"><i class="fas fa-save mr-2"></i>Save Global WhatsApp Templates</button></div>
             </form>
@@ -277,10 +340,20 @@ function showWhatsAppSettingsTab(tabName) {
     });
 }
 
+function showWhatsAppTemplateEditor(templateKey) {
+    document.querySelectorAll('[data-wa-template-button]').forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.waTemplateButton === templateKey);
+    });
+    document.querySelectorAll('.wa-template-editor-pane').forEach((pane) => {
+        pane.classList.toggle('hidden', pane.id !== `wa-template-editor-${templateKey}`);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('tab-whatsapp-templates')) {
         const requestedPane = new URLSearchParams(window.location.search).get('wa_tab');
         showWhatsAppSettingsTab(['overview', 'templates', 'rollout', 'credentials'].includes(requestedPane) ? requestedPane : 'templates');
+        showWhatsAppTemplateEditor('fallback');
     }
 });
 </script>

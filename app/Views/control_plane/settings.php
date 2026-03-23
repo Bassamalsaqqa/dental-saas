@@ -36,20 +36,17 @@
     .control-settings-menu-btn.is-active i {
         color: #2563eb;
     }
-    .control-settings-menu-copy span {
-        display: block;
-    }
     .control-settings-card {
         background: #fff;
         border: 1px solid #e2e8f0;
         border-radius: 1rem;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
         overflow: hidden;
     }
     .control-settings-header {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
-        padding: 1.5rem 1.75rem;
+        padding: 1.25rem 1.5rem;
     }
     .control-settings-header h3,
     .control-settings-header h4 {
@@ -120,8 +117,15 @@
 <div class="min-h-screen bg-slate-50">
     <div class="mx-auto max-w-6xl px-6 py-8">
         <div class="mb-5">
-            <h1 class="text-3xl font-bold text-slate-950">Settings</h1>
-            <p class="mt-2 text-sm text-slate-600">Platform-wide defaults, governance, and shared communication settings.</p>
+            <div class="flex items-center space-x-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                    <i class="fas fa-sliders-h text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-950">Settings</h1>
+                    <p class="mt-1 text-sm text-slate-600">Platform-wide defaults, governance, and shared communication settings.</p>
+                </div>
+            </div>
         </div>
 
         <nav class="mb-5 flex items-center space-x-1 text-sm text-gray-500" id="control-settings-breadcrumb">
@@ -164,39 +168,27 @@
                     <nav class="space-y-2">
                         <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
                             <i class="fas fa-id-badge w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>Platform Profile</span>
-                            </span>
+                            <span>Platform Profile</span>
                         </button>
                         <button onclick="showTab('system-preferences')" id="nav-system-preferences" class="control-settings-menu-btn">
                             <i class="fas fa-clinic-medical w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>System Preferences</span>
-                            </span>
+                            <span>System Preferences</span>
                         </button>
                         <button onclick="showTab('working-hours')" id="nav-working-hours" class="control-settings-menu-btn">
                             <i class="fas fa-clock w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>Working Hours</span>
-                            </span>
+                            <span>Working Hours</span>
                         </button>
                         <button onclick="showTab('governance')" id="nav-governance" class="control-settings-menu-btn">
                             <i class="fas fa-shield-alt w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>Governance</span>
-                            </span>
+                            <span>Governance</span>
                         </button>
                         <button onclick="showTab('email-templates')" id="nav-email-templates" class="control-settings-menu-btn">
                             <i class="fas fa-envelope-open-text w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>Email Templates</span>
-                            </span>
+                            <span>Email Templates</span>
                         </button>
                         <button onclick="showTab('whatsapp-templates')" id="nav-whatsapp-templates" class="control-settings-menu-btn">
                             <i class="fab fa-whatsapp w-5 h-5"></i>
-                            <span class="control-settings-menu-copy">
-                                <span>WhatsApp Templates</span>
-                            </span>
+                            <span>WhatsApp Templates</span>
                         </button>
                     </nav>
                 </div>
