@@ -66,3 +66,11 @@
 - Decision: Added `no_show_follow_up` as a tenant-configurable WhatsApp workflow, but did not add recall/campaign toggles.
 - Rationale: `no_show` is a real appointment state with an existing domain event hook; recall/campaign flows are not yet implemented in the current codebase.
 - Impact: Tenant settings expose only workflow toggles that map to real executable behavior.
+
+## 2026-03-24 - WhatsApp Trigger Enablement Does Not Imply Readiness
+- Decision: A WhatsApp workflow trigger may be globally or clinic-enabled only in the rollout sense; operational readiness is a separate state that requires a valid approved Meta template mapping.
+- Rationale: Treating an enabled trigger as implicitly usable hides configuration debt and creates late failures during real sends. Phase 6 requires operators to see configuration readiness explicitly before broader rollout.
+- Impact:
+  - Control-plane WhatsApp settings must show `Ready` vs `Needs config` per trigger.
+  - Global template saves fail closed when trigger mappings are invalid.
+  - Future WhatsApp rollout work resumes from template-readiness completion before moving deeper into operator/out-of-session hardening.

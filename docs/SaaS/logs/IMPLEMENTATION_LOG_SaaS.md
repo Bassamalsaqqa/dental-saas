@@ -1897,3 +1897,52 @@
     - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest`
     - `vendor\bin\phpunit --filter WhatsAppPhase5EndpointsTest`
     - `npm run build`
+
+## [2026-03-24 00:15] - WhatsApp Phase 6 Checkpoint: Template Readiness Hardening
+- **Status:** Completed
+- **Description:** Locked the control-plane WhatsApp template console into a safer operating state by distinguishing trigger enablement from trigger readiness, validating trigger-template mappings before save, and documenting the exact resume point for the next WhatsApp work session.
+- **Actions:**
+    - Added trigger-template validation to `app/Services/WhatsAppTriggerCatalog.php`:
+      - approved Meta template name required
+      - header/body/button variable keys must belong to the trigger catalog
+      - button type cannot be enabled without a valid button variable
+    - Added readiness/reporting helpers to `app/Services/WhatsAppTemplateRegistryService.php`:
+      - per-trigger `enabled`
+      - `configured`
+      - `valid`
+      - `ready`
+      - validation error list
+    - Updated `app/Controllers/ControlPlane/Settings.php` so global WhatsApp template saves fail closed when a trigger template mapping is incomplete or invalid.
+    - Preserved attempted form input through `wa_template_form` flash state so operators do not lose work on validation failure.
+    - Updated `app/Views/control_plane/settings_partials/communications/whatsapp.php` so the template list and rollout tab show `Ready` vs `Needs config` explicitly.
+    - Added/updated unit coverage in `tests/unit/WhatsAppTemplateRegistryServiceTest.php`.
+- **Verification:**
+    - `php -l app/Services/WhatsAppTemplateRegistryService.php`
+    - `php -l app/Controllers/ControlPlane/Settings.php`
+    - `php -l app/Views/control_plane/settings_partials/communications/whatsapp.php`
+    - `php -l tests/unit/WhatsAppTemplateRegistryServiceTest.php`
+    - `vendor\bin\phpunit --filter WhatsAppTemplateRegistryServiceTest`
+      - tests passed; existing PHPUnit no-coverage-driver warning remains
+    - `php spark whatsapp:ops-check` -> `Overall status: PASS`
+    - Browser verification on `https://localhost/dental-saas/controlplane/settings?tab=whatsapp-templates`
+      - page loads
+      - template list shows `Ready` / `Needs config`
+      - template stats reflect readiness state
+- **Current Phase 6 State:**
+    - Transport, webhook ingestion, BSUID handling, and control-plane ops tooling are working.
+    - Shared Arabic template ownership is centralized in control plane.
+    - Clinic rollout remains three-layer gated:
+      - plan feature
+      - platform master switch
+      - clinic-level switch
+    - The control-plane template console now makes configuration debt visible instead of silently accepting broken mappings.
+- **Resume Point For Next WhatsApp Session:**
+    1. Enter the real approved Arabic Meta template names for the remaining workflow triggers:
+       - `appointment_confirmation`
+       - `follow_up`
+       - `no_show_follow_up`
+       - `payment_reminder`
+    2. Re-check the control-plane template console until all five triggers show `Ready`.
+    3. Run a trigger-by-trigger live verification pass using the real templates.
+    4. Continue Phase 6 with out-of-session/operator handling hardening after template readiness is complete.
+- **Reference Commit:** `2905eb8` (`Harden WhatsApp template readiness checks`)
