@@ -4,6 +4,24 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+    .settings-shell {
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24rem),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22rem),
+            linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+    }
+    .settings-shell-card {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(22px);
+    }
+    .settings-shell-breadcrumb {
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 10px 30px -24px rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(18px);
+    }
     .settings-menu-btn {
         display: flex;
         align-items: center;
@@ -11,30 +29,35 @@
         gap: 0.75rem;
         padding: 0.85rem 0.95rem;
         border-radius: 0.9rem;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: rgba(255, 255, 255, 0.7);
         color: #334155;
         font-size: 0.875rem;
         font-weight: 600;
         transition: all 0.2s ease;
         text-align: left;
+        box-shadow: 0 10px 25px -22px rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(14px);
     }
     .settings-menu-btn:hover {
-        background: #f8fafc;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
         color: #0f172a;
-        border-color: #cbd5e1;
+        border-color: rgba(59, 130, 246, 0.28);
+        transform: translateY(-1px);
+        box-shadow: 0 18px 36px -28px rgba(59, 130, 246, 0.35);
     }
     .settings-menu-btn i {
-        color: #64748b;
+        color: #475569;
         transition: color 0.2s ease;
     }
     .settings-menu-btn.is-active {
-        background: #eff6ff;
-        color: #1d4ed8;
-        border-color: #bfdbfe;
+        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
     }
     .settings-menu-btn.is-active i {
-        color: #2563eb;
+        color: #fff;
     }
     .select2-container--default .select2-selection--single {
         height: 56px !important;
@@ -106,22 +129,22 @@
     }
 </style>
 
-<div class="min-h-screen bg-slate-50">
+<div class="settings-shell min-h-screen">
     <div class="mx-auto max-w-6xl px-6 py-8">
         <!-- Page Header -->
         <div class="mb-5">
             <div class="flex items-center space-x-4">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
                     <i class="fas fa-cog text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900"><?= lang('UI.systemSettings') ?></h1>
-                    <p class="text-gray-600"><?= lang('UI.settingsConfigureSystem') ?></p>
+                    <h1 class="text-3xl font-bold text-slate-950"><?= lang('UI.systemSettings') ?></h1>
+                    <p class="text-slate-600"><?= lang('UI.settingsConfigureSystem') ?></p>
                 </div>
             </div>
         </div>
 
-        <nav class="mb-5 flex items-center space-x-1 text-sm text-gray-500" id="settings-breadcrumb">
+        <nav class="settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="settings-breadcrumb">
             <a href="<?= base_url('dashboard') ?>" class="hover:text-blue-600 transition-colors"><?= lang('UI.home') ?></a>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium"><?= lang('UI.menuSettings') ?></span>
@@ -157,7 +180,7 @@
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
             <!-- Left Sidebar -->
             <div class="xl:sticky xl:top-8">
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="settings-shell-card rounded-[1.75rem] p-4">
                     <div class="mb-3 px-2">
                         <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500"><?= lang('UI.settingsMenu') ?></p>
                     </div>

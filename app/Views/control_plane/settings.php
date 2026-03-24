@@ -2,6 +2,24 @@
 
 <?= $this->section('content') ?>
 <style>
+    .control-settings-shell {
+        background:
+            radial-gradient(circle at top right, rgba(79, 70, 229, 0.12), transparent 24rem),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22rem),
+            linear-gradient(135deg, #f8fafc 0%, #eef2ff 48%, #f0fdf4 100%);
+    }
+    .control-settings-shell-card {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(22px);
+    }
+    .control-settings-shell-breadcrumb {
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 10px 30px -24px rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(18px);
+    }
     .control-settings-menu-btn {
         display: flex;
         align-items: center;
@@ -14,27 +32,31 @@
         color: #334155;
         transition: all 0.2s ease;
         text-align: left;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 10px 25px -22px rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(14px);
     }
     .control-settings-menu-btn:hover {
-        background: #f8fafc;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
         color: #0f172a;
-        border-color: #cbd5e1;
+        border-color: rgba(59, 130, 246, 0.28);
+        transform: translateY(-1px);
+        box-shadow: 0 18px 36px -28px rgba(59, 130, 246, 0.35);
     }
     .control-settings-menu-btn i {
-        color: #64748b;
+        color: #475569;
         transition: color 0.2s ease;
         margin-top: 0.15rem;
     }
     .control-settings-menu-btn.is-active {
-        background: #eff6ff;
-        color: #1d4ed8;
-        border-color: #bfdbfe;
-        box-shadow: none;
+        background: linear-gradient(135deg, #334155, #2563eb 52%, #14b8a6 100%);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
     }
     .control-settings-menu-btn.is-active i {
-        color: #2563eb;
+        color: #fff;
     }
     .control-settings-card {
         background: #fff;
@@ -117,6 +139,39 @@
     .control-settings-card > .p-8 {
         padding: 1.5rem !important;
     }
+    .ui-toggle {
+        appearance: none;
+        width: 44px;
+        height: 24px;
+        border-radius: 9999px;
+        background: #e5e7eb;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        flex-shrink: 0;
+    }
+    .ui-toggle::before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .ui-toggle:checked {
+        background: #2563eb;
+    }
+    .ui-toggle:checked::before {
+        transform: translateX(20px);
+    }
+    .ui-toggle:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
     [dir="rtl"] #control-settings-breadcrumb {
         direction: rtl;
     }
@@ -131,11 +186,11 @@
         margin-left: 0 !important;
     }
 </style>
-<div class="min-h-screen bg-slate-50">
+<div class="control-settings-shell min-h-screen">
     <div class="mx-auto max-w-6xl px-6 py-8">
         <div class="mb-5">
             <div class="flex items-center space-x-4">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 via-indigo-600 to-emerald-500 text-white shadow-lg shadow-indigo-500/25">
                     <i class="fas fa-sliders-h text-xl"></i>
                 </div>
                 <div>
@@ -145,7 +200,7 @@
             </div>
         </div>
 
-        <nav class="mb-5 flex items-center space-x-1 text-sm text-gray-500" id="control-settings-breadcrumb">
+        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-gray-500" id="control-settings-breadcrumb">
             <span class="text-gray-700 font-medium">Control Plane</span>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium">Settings</span>
@@ -178,7 +233,7 @@
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-[220px,minmax(0,1fr)] items-start">
             <div class="xl:sticky xl:top-8">
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="control-settings-shell-card rounded-[1.75rem] p-4">
                     <div class="mb-3 px-2">
                         <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Control Settings</p>
                     </div>
