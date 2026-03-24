@@ -59,51 +59,54 @@
         color: #fff;
     }
     .control-settings-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 1.5rem;
+        box-shadow: 0 26px 60px -42px rgba(15, 23, 42, 0.28);
+        backdrop-filter: blur(18px);
         overflow: hidden;
     }
     .control-settings-header {
-        background: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.85) 52%, rgba(236, 253, 245, 0.8));
+        border-bottom: 1px solid rgba(226, 232, 240, 0.75);
         padding: 1.25rem 1.5rem;
     }
     .control-settings-header h3,
     .control-settings-header h4 {
-        color: #0f172a !important;
+        color: #020617 !important;
     }
     .control-settings-header p {
-        color: #64748b !important;
+        color: #475569 !important;
     }
     .control-settings-header .backdrop-blur-sm {
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
     }
     .control-settings-header .w-12.h-12 {
-        background: #fff !important;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        background: linear-gradient(135deg, #1e293b, #2563eb 58%, #14b8a6) !important;
+        border: 0 !important;
+        box-shadow: 0 18px 34px -22px rgba(37, 99, 235, 0.45);
     }
     .control-settings-header .text-white,
     .control-settings-header .text-blue-400,
     .control-settings-header .text-violet-400 {
-        color: #2563eb !important;
+        color: #fff !important;
     }
     .control-settings-field {
         width: 100%;
         padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(203, 213, 225, 0.95);
+        border-radius: 0.95rem;
         color: #334155;
         font-weight: 500;
         transition: all 0.2s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
     }
     .control-settings-field:focus {
         outline: none;
         border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.96);
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
     }
     .control-settings-submit {
@@ -111,33 +114,50 @@
         align-items: center;
         justify-content: center;
         padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        background: linear-gradient(135deg, #3b82f6, #4f46e5);
+        border-radius: 0.95rem;
+        background: linear-gradient(135deg, #1e293b, #2563eb 48%, #14b8a6 100%);
         color: #fff;
         font-weight: 600;
-        box-shadow: 0 14px 32px rgba(59, 130, 246, 0.20);
+        box-shadow: 0 18px 38px -22px rgba(37, 99, 235, 0.5);
         transition: all 0.2s ease;
     }
     .control-settings-submit:hover {
-        filter: brightness(0.97);
+        filter: brightness(0.98);
+        transform: translateY(-1px);
     }
     .control-settings-secondary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        border-radius: 0.95rem;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(203, 213, 225, 0.9);
         color: #475569;
         font-weight: 600;
         transition: all 0.2s ease;
+        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(14px);
     }
     .control-settings-secondary:hover {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(59, 130, 246, 0.28);
+        color: #0f172a;
     }
     .control-settings-card > .p-8 {
         padding: 1.5rem !important;
+    }
+    .control-settings-surface {
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 1.25rem;
+        background: rgba(248, 250, 252, 0.75);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .control-settings-metric {
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.22);
     }
     .ui-toggle {
         appearance: none;
