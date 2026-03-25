@@ -1,5 +1,38 @@
 
-<?php $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params); ?>
+<?php
+$tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params);
+$financeTypeLabel = static function (?string $type) use ($tm): string {
+    return match ((string) $type) {
+        'payment' => $tm('payment'),
+        'expense' => $tm('expense'),
+        'refund' => $tm('refund'),
+        'void' => $tm('void'),
+        'provider_payout' => $tm('providerPayoutCash'),
+        default => $type ? ucfirst(str_replace('_', ' ', (string) $type)) : $tm('unknown'),
+    };
+};
+$financeMethodLabel = static function (?string $method) use ($tm): string {
+    return match ((string) $method) {
+        'cash' => $tm('cash'),
+        'card' => $tm('card'),
+        'bank_transfer' => $tm('bankTransfer'),
+        'check' => $tm('check'),
+        'insurance' => $tm('insurance'),
+        'other' => $tm('other'),
+        default => $method ? ucfirst(str_replace('_', ' ', (string) $method)) : $tm('unknown'),
+    };
+};
+$agingBucketLabel = static function (?string $bucket) use ($tm): string {
+    return match ((string) $bucket) {
+        'current' => $tm('current'),
+        'days_1_30' => $tm('days1to30'),
+        'days_31_60' => $tm('days31to60'),
+        'days_61_90' => $tm('days61to90'),
+        'days_91_plus' => $tm('days91Plus'),
+        default => $bucket ? strtoupper(str_replace('_', ' ', (string) $bucket)) : $tm('unknown'),
+    };
+};
+?>
 <!-- Enhanced Reports & Analytics with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
     <!-- Animated Background Elements -->
@@ -167,7 +200,7 @@
                 <?php endif; ?>
                 <?php if (!empty($filters['transaction_type'])): ?>
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
-                    <i class="fas fa-filter mr-2"></i><?= lang('TenantMisc.typePrefix') ?> <?= esc(ucfirst($filters['transaction_type'])) ?>
+                    <i class="fas fa-filter mr-2"></i><?= lang('TenantMisc.typePrefix') ?> <?= esc($financeTypeLabel($filters['transaction_type'])) ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -340,8 +373,12 @@
                             ? $tm($reportTypeKeyMap[$report_type])
                             : ucfirst((string) ($report_type ?? $tm('reportTitleSuffix')));
                         $reportPeriodLabel = $filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'));
+                        $isArabicLocale = strpos(service('request')->getLocale(), 'ar') === 0;
+                        $composedReportTitle = $isArabicLocale
+                            ? ($tm('reportTitleSuffix') . ' ' . $reportTitle)
+                            : ($reportTitle . ' ' . $tm('reportTitleSuffix'));
                     ?>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= esc($reportTitle . ' ' . $tm('reportTitleSuffix')) ?></h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2"><?= esc($composedReportTitle) ?></h3>
                         <p class="text-sm text-gray-600"><?= esc($tm('reportDetailedAnalysis', ['period' => $reportPeriodLabel])) ?></p>
                     </div>
                     
@@ -609,7 +646,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <?php foreach ($reports['payment_methods'] as $method): ?>
                                     <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                        <span class="font-medium text-gray-700"><?= ucfirst($method['payment_method']) ?></span>
+                                        <span class="font-medium text-gray-700"><?= esc($financeMethodLabel($method['payment_method'] ?? '')) ?></span>
                                         <span class="text-lg font-bold text-green-600"><?= formatCurrency($method['total_amount']) ?></span>
                                     </div>
                                     <?php endforeach; ?>
@@ -717,7 +754,7 @@
                                                 <td class="py-2 pr-3 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
                                                 <td class="py-2 pr-3 text-gray-700"><?= (int) ($row['days_past_due'] ?? 0) ?></td>
                                                 <td class="py-2 pr-3">
-                                                    <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc(strtoupper(str_replace('_', ' ', $row['aging_bucket'] ?? 'current'))) ?></span>
+                                                    <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc($agingBucketLabel($row['aging_bucket'] ?? 'current')) ?></span>
                                                 </td>
                                                 <td class="py-2 pr-3 text-right font-semibold text-rose-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
                                             </tr>
@@ -912,6 +949,35 @@ const reportI18n = {
     appointments: '<?= esc(lang('TenantMisc.appointments'), 'js') ?>',
     balanceDue: '<?= esc(lang('TenantMisc.balanceDue'), 'js') ?>',
     totalAmount: '<?= esc(lang('TenantMisc.totalAmount'), 'js') ?>',
+    drillthroughPrefix: '<?= esc(lang('TenantMisc.drillthroughPrefix'), 'js') ?>',
+    revenueChartDrill: '<?= esc(lang('TenantMisc.revenueChartDrill'), 'js') ?>',
+    examinationTypeDrill: '<?= esc(lang('TenantMisc.examinationTypeDrill'), 'js') ?>',
+    appointmentStatusDrill: '<?= esc(lang('TenantMisc.appointmentStatusDrill'), 'js') ?>',
+    paymentMethodDrill: '<?= esc(lang('TenantMisc.paymentMethodDrill'), 'js') ?>',
+    arAgingDrill: '<?= esc(lang('TenantMisc.arAgingDrill'), 'js') ?>',
+    transactionTypeDrill: '<?= esc(lang('TenantMisc.transactionTypeDrill'), 'js') ?>',
+    current: '<?= esc(lang('TenantMisc.current'), 'js') ?>',
+    days1to30: '<?= esc(lang('TenantMisc.days1to30'), 'js') ?>',
+    days31to60: '<?= esc(lang('TenantMisc.days31to60'), 'js') ?>',
+    days61to90: '<?= esc(lang('TenantMisc.days61to90'), 'js') ?>',
+    days91Plus: '<?= esc(lang('TenantMisc.days91Plus'), 'js') ?>',
+    transactionTypeLabels: <?= json_encode([
+        'payment' => $tm('payment'),
+        'expense' => $tm('expense'),
+        'refund' => $tm('refund'),
+        'void' => $tm('void'),
+        'provider_payout' => $tm('providerPayoutCash'),
+        'unknown' => $tm('unknown'),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    paymentMethodLabels: <?= json_encode([
+        'cash' => $tm('cash'),
+        'card' => $tm('card'),
+        'bank_transfer' => $tm('bankTransfer'),
+        'check' => $tm('check'),
+        'insurance' => $tm('insurance'),
+        'other' => $tm('other'),
+        'unknown' => $tm('unknown'),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
 };
 
 function escapeHtml(value) {
@@ -1169,7 +1235,7 @@ function updateDrillBadge() {
         badge.classList.add('hidden');
         return;
     }
-    text.textContent = `Drillthrough: ${reportDrillState.label}`;
+    text.textContent = `${reportI18n.drillthroughPrefix}: ${reportDrillState.label}`;
     badge.classList.remove('hidden');
 }
 
@@ -1419,7 +1485,7 @@ if (revenueCtx) {
                 const idx = elements[0].index;
                 const month = labels[idx];
                 if (!month) return;
-                applyDrillthrough('overview_finance_transactions', month.toLowerCase(), `Revenue chart -> ${month}`);
+                applyDrillthrough('overview_finance_transactions', month.toLowerCase(), `${reportI18n.revenueChartDrill}: ${month}`);
             }
         }
     });
@@ -1468,7 +1534,7 @@ if (examinationCtx) {
                 const idx = elements[0].index;
                 const type = labels[idx];
                 if (!type) return;
-                applyDrillthrough('overview_examinations', type.toLowerCase(), `Examination type -> ${type}`);
+                applyDrillthrough('overview_examinations', type.toLowerCase(), `${reportI18n.examinationTypeDrill}: ${type}`);
             }
         }
     });
@@ -1529,7 +1595,7 @@ if (appointmentCtx) {
                 const idx = elements[0].index;
                 const status = labels[idx];
                 if (!status) return;
-                applyDrillthrough('overview_appointments', status.toLowerCase(), `Appointment status -> ${status}`);
+                applyDrillthrough('overview_appointments', status.toLowerCase(), `${reportI18n.appointmentStatusDrill}: ${status}`);
             }
         }
     });
@@ -1539,7 +1605,8 @@ if (appointmentCtx) {
 const financePaymentMethodsCtx = document.getElementById('financePaymentMethodsChart')?.getContext('2d');
 if (financePaymentMethodsCtx) {
     const rows = <?= json_encode($reports['payment_methods'] ?? []) ?>;
-    const labels = rows.map(r => (r.payment_method || 'unknown').toString());
+    const rawLabels = rows.map(r => (r.payment_method || 'unknown').toString().toLowerCase());
+    const labels = rawLabels.map(key => reportI18n.paymentMethodLabels[key] || key);
     const data = rows.map(r => parseFloat(r.total_amount || 0));
     const palette = ['#0284c7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b', '#ec4899'];
 
@@ -1555,9 +1622,10 @@ if (financePaymentMethodsCtx) {
             plugins: { legend: { position: 'bottom' } },
             onClick: function(event, elements) {
                 if (!elements?.length) return;
-                const method = labels[elements[0].index];
+                const method = rawLabels[elements[0].index];
+                const methodLabel = labels[elements[0].index];
                 if (!method) return;
-                applyDrillthrough('transactions', method.toLowerCase(), `Payment method -> ${method}`);
+                applyDrillthrough('transactions', method, `${reportI18n.paymentMethodDrill}: ${methodLabel}`);
             }
         }
     });
@@ -1568,11 +1636,11 @@ const financeAgingCtx = document.getElementById('financeAgingChart')?.getContext
 if (financeAgingCtx) {
     const ar = <?= json_encode($reports['ar_aging_summary'] ?? []) ?>;
     const agingBuckets = [
-        { key: 'current', label: 'Current', color: '#94a3b8' },
-        { key: 'days_1_30', label: '1-30', color: '#fbbf24' },
-        { key: 'days_31_60', label: '31-60', color: '#fb923c' },
-        { key: 'days_61_90', label: '61-90', color: '#fb7185' },
-        { key: 'days_91_plus', label: '91+', color: '#ef4444' },
+        { key: 'current', label: reportI18n.current, color: '#94a3b8' },
+        { key: 'days_1_30', label: reportI18n.days1to30, color: '#fbbf24' },
+        { key: 'days_31_60', label: reportI18n.days31to60, color: '#fb923c' },
+        { key: 'days_61_90', label: reportI18n.days61to90, color: '#fb7185' },
+        { key: 'days_91_plus', label: reportI18n.days91Plus, color: '#ef4444' },
     ];
     const labels = agingBuckets.map(b => b.label);
     const data = agingBuckets.map(b => parseFloat(ar[b.key] || 0));
@@ -1602,7 +1670,7 @@ if (financeAgingCtx) {
                 if (!elements?.length) return;
                 const bucket = agingBuckets[elements[0].index];
                 if (!bucket) return;
-                applyDrillthrough('ar_aging_detail', bucket.key.toLowerCase(), `A/R aging -> ${bucket.label}`);
+                applyDrillthrough('ar_aging_detail', bucket.key.toLowerCase(), `${reportI18n.arAgingDrill}: ${bucket.label}`);
             }
         }
     });
@@ -1612,7 +1680,8 @@ if (financeAgingCtx) {
 const financeTxnTypeCtx = document.getElementById('financeTransactionTypeChart')?.getContext('2d');
 if (financeTxnTypeCtx) {
     const rows = <?= json_encode($reports['transaction_type_mix'] ?? []) ?>;
-    const labels = rows.map(r => (r.transaction_type || 'unknown').toString());
+    const rawLabels = rows.map(r => (r.transaction_type || 'unknown').toString().toLowerCase());
+    const labels = rawLabels.map(key => reportI18n.transactionTypeLabels[key] || key);
     const data = rows.map(r => parseFloat(r.total_amount || 0));
     const colors = labels.map((type) => ({
         payment: '#10b981',
@@ -1645,9 +1714,10 @@ if (financeTxnTypeCtx) {
             },
             onClick: function(event, elements) {
                 if (!elements?.length) return;
-                const type = labels[elements[0].index];
+                const type = rawLabels[elements[0].index];
+                const typeLabel = labels[elements[0].index];
                 if (!type) return;
-                applyDrillthrough('transactions', type.toLowerCase(), `Transaction type -> ${type}`);
+                applyDrillthrough('transactions', type, `${reportI18n.transactionTypeDrill}: ${typeLabel}`);
             }
         }
     });

@@ -189,8 +189,8 @@ class Reports extends BaseController
             'treatment_status' => $treatmentStatus,
             'treatment_type' => $treatmentType,
             'period_label' => $dateMode === 'custom'
-                ? ($startDate . ' to ' . $endDate)
-                : ('Last ' . $dateRange . ' days (' . $startDate . ' to ' . $endDate . ')'),
+                ? lang('TenantMisc.customPeriodLabel', ['from' => $startDate, 'to' => $endDate])
+                : lang('TenantMisc.relativePeriodLabel', ['days' => $dateRange, 'from' => $startDate, 'to' => $endDate]),
         ];
     }
 
@@ -203,6 +203,54 @@ class Reports extends BaseController
             'rows' => $rows,
             'row_count' => count($rows),
         ];
+    }
+
+    private function localizeFinanceTransactionType(string $type): string
+    {
+        return match ($type) {
+            'payment' => lang('TenantMisc.payment'),
+            'expense' => lang('TenantMisc.expense'),
+            'refund' => lang('TenantMisc.refund'),
+            'void' => lang('TenantMisc.void'),
+            'provider_payout' => lang('TenantMisc.providerPayoutCash'),
+            default => $type !== '' ? ucfirst(str_replace('_', ' ', $type)) : lang('TenantMisc.unknown'),
+        };
+    }
+
+    private function localizeFinancePaymentMethod(string $method): string
+    {
+        return match ($method) {
+            'cash' => lang('TenantMisc.cash'),
+            'card' => lang('TenantMisc.card'),
+            'bank_transfer' => lang('TenantMisc.bankTransfer'),
+            'check' => lang('TenantMisc.check'),
+            'insurance' => lang('TenantMisc.insurance'),
+            'other' => lang('TenantMisc.other'),
+            '', null => '',
+            default => ucfirst(str_replace('_', ' ', $method)),
+        };
+    }
+
+    private function localizeFinanceSourceLabel(string $sourceLabel, string $eventSource): string
+    {
+        return match ($eventSource) {
+            'direct_transaction' => lang('TenantMisc.directTransaction'),
+            'invoice_settlement' => lang('TenantMisc.invoiceSettlement'),
+            'provider_payout' => lang('TenantMisc.providerPayoutCash'),
+            default => $sourceLabel !== '' ? $sourceLabel : ucfirst(str_replace('_', ' ', $eventSource)),
+        };
+    }
+
+    private function localizeAgingBucket(string $bucket): string
+    {
+        return match ($bucket) {
+            'current' => lang('TenantMisc.current'),
+            'days_1_30' => lang('TenantMisc.days1to30'),
+            'days_31_60' => lang('TenantMisc.days31to60'),
+            'days_61_90' => lang('TenantMisc.days61to90'),
+            'days_91_plus' => lang('TenantMisc.days91Plus'),
+            default => $bucket !== '' ? strtoupper(str_replace('_', ' ', $bucket)) : lang('TenantMisc.unknown'),
+        };
     }
 
     private function buildPatientLabelMap(array $rows): array
@@ -371,13 +419,18 @@ class Reports extends BaseController
                         $patientLabel = trim((string) ($row['patient_id'] ?? ''));
                     }
                     if ($patientLabel === '') {
-                        $patientLabel = 'General';
+                        $patientLabel = lang('TenantMisc.general');
                     }
                     $patientId = (int) ($row['patient_id'] ?? 0);
                     if ($patientId > 0 && isset($patientLabelMap[$patientId])) {
                         $patientLabel = $patientLabelMap[$patientId];
                     }
-                    $row['source_label'] = (string) ($row['source_label'] ?? ucfirst(str_replace('_', ' ', (string) ($row['event_source'] ?? 'finance'))));
+                    $row['source_label'] = $this->localizeFinanceSourceLabel(
+                        (string) ($row['source_label'] ?? ''),
+                        (string) ($row['event_source'] ?? 'finance')
+                    );
+                    $row['transaction_type'] = $this->localizeFinanceTransactionType((string) ($row['transaction_type'] ?? ''));
+                    $row['payment_method'] = $this->localizeFinancePaymentMethod((string) ($row['payment_method'] ?? ''));
                     $row['subject_label'] = $patientLabel;
                     $row['amount_base'] = round($signedAmount, 2);
                     $row['amount_base_display'] = ($signedAmount < 0 ? '-' : '') . formatCurrency(abs($signedAmount));
@@ -390,28 +443,29 @@ class Reports extends BaseController
                 }, $reports['transactions'] ?? []);
 
                 return [
-                    $this->makeDetailTable('transactions', 'Financial Transactions', [
-                        ['key' => 'report_date', 'label' => 'Report Date'],
-                        ['key' => 'recorded_at', 'label' => 'Recorded At'],
-                        ['key' => 'transaction_id', 'label' => 'Transaction'],
-                        ['key' => 'subject_label', 'label' => 'Patient / Payee'],
-                        ['key' => 'transaction_type', 'label' => 'Type'],
-                        ['key' => 'source_label', 'label' => 'Source'],
-                        ['key' => 'payment_method', 'label' => 'Payment Method'],
-                        ['key' => 'amount_original_display', 'label' => 'Original Amount'],
-                        ['key' => 'exchange_rate_display', 'label' => 'Rate'],
-                        ['key' => 'amount_base_display', 'label' => 'Amount (Base)'],
+                    $this->makeDetailTable('transactions', lang('TenantMisc.financialTransactions'), [
+                        ['key' => 'report_date', 'label' => lang('TenantMisc.reportDate')],
+                        ['key' => 'recorded_at', 'label' => lang('TenantMisc.recordedAt')],
+                        ['key' => 'transaction_id', 'label' => lang('TenantMisc.transaction')],
+                        ['key' => 'subject_label', 'label' => lang('TenantMisc.patientPayee')],
+                        ['key' => 'transaction_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'source_label', 'label' => lang('TenantMisc.source')],
+                        ['key' => 'payment_method', 'label' => lang('TenantMisc.paymentMethodFinance')],
+                        ['key' => 'amount_original_display', 'label' => lang('TenantMisc.originalAmount')],
+                        ['key' => 'exchange_rate_display', 'label' => lang('TenantMisc.rate')],
+                        ['key' => 'amount_base_display', 'label' => lang('TenantMisc.amountBase')],
                     ], $financeRows),
-                    $this->makeDetailTable('ar_aging_detail', 'A/R Aging Detail', [
-                        ['key' => 'transaction_id', 'label' => 'Invoice'],
-                        ['key' => 'patient_number', 'label' => 'Patient #'],
-                        ['key' => 'full_name', 'label' => 'Patient'],
-                        ['key' => 'due_date', 'label' => 'Due Date'],
-                        ['key' => 'days_past_due', 'label' => 'Days Past Due'],
-                        ['key' => 'aging_bucket', 'label' => 'Bucket'],
-                        ['key' => 'balance_due', 'label' => 'Balance Due'],
-                    ], array_map(static function ($row) {
+                    $this->makeDetailTable('ar_aging_detail', lang('TenantMisc.arAgingDetail'), [
+                        ['key' => 'transaction_id', 'label' => lang('TenantMisc.invoice')],
+                        ['key' => 'patient_number', 'label' => lang('TenantMisc.patientNumberPrefix')],
+                        ['key' => 'full_name', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'due_date', 'label' => lang('TenantMisc.dueDate')],
+                        ['key' => 'days_past_due', 'label' => lang('TenantMisc.daysPastDue')],
+                        ['key' => 'aging_bucket', 'label' => lang('TenantMisc.bucket')],
+                        ['key' => 'balance_due', 'label' => lang('TenantMisc.balanceDue')],
+                    ], array_map(function ($row) {
                         $row['full_name'] = trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')));
+                        $row['aging_bucket'] = $this->localizeAgingBucket((string) ($row['aging_bucket'] ?? 'current'));
                         return $row;
                     }, $reports['ar_aging_detail'] ?? [])),
                 ];
@@ -583,7 +637,11 @@ class Reports extends BaseController
                     'end_date' => date('Y-m-d'),
                     'compare_start_date' => null,
                     'compare_end_date' => null,
-                    'period_label' => 'Last 30 days',
+                    'period_label' => lang('TenantMisc.relativePeriodLabel', [
+                        'days' => 30,
+                        'from' => date('Y-m-d', strtotime('-30 days')),
+                        'to' => date('Y-m-d'),
+                    ]),
                 ],
                 'detail_tables' => [],
                 'report_patients' => [],
@@ -2097,18 +2155,18 @@ class Reports extends BaseController
 
         if (isset($data['reports']['transactions']) && is_array($data['reports']['transactions'])) {
             $html .= '<div class="section">
-                <h2>Financial Transactions</h2>
+                <h2>' . $this->html(lang('TenantMisc.financialTransactions')) . '</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Report Date</th>
-                            <th>Recorded At</th>
-                            <th>Reference</th>
-                            <th>Patient / Payee</th>
-                            <th>Type</th>
-                            <th>Source</th>
-                            <th>Payment Method</th>
-                            <th>Amount</th>
+                            <th>' . $this->html(lang('TenantMisc.reportDate')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.recordedAt')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.transaction')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.patientPayee')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.type')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.source')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.paymentMethodFinance')) . '</th>
+                            <th>' . $this->html(lang('TenantMisc.totalAmount')) . '</th>
                         </tr>
                     </thead>
                     <tbody>';
@@ -2123,9 +2181,9 @@ class Reports extends BaseController
                     <td>' . $this->html((string) ($transaction['created_at'] ?? '')) . '</td>
                     <td>' . $this->html((string) ($transaction['transaction_id'] ?? '')) . '</td>
                     <td>' . $this->html($subject) . '</td>
-                    <td>' . $this->html((string) ($transaction['transaction_type'] ?? '')) . '</td>
-                    <td>' . $this->html((string) ($transaction['source_label'] ?? $transaction['event_source'] ?? '')) . '</td>
-                    <td>' . $this->html((string) ($transaction['payment_method'] ?? '')) . '</td>
+                    <td>' . $this->html($this->localizeFinanceTransactionType((string) ($transaction['transaction_type'] ?? ''))) . '</td>
+                    <td>' . $this->html($this->localizeFinanceSourceLabel((string) ($transaction['source_label'] ?? ''), (string) ($transaction['event_source'] ?? 'finance'))) . '</td>
+                    <td>' . $this->html($this->localizeFinancePaymentMethod((string) ($transaction['payment_method'] ?? ''))) . '</td>
                     <td>' . $this->html(number_format((float) ($transaction['signed_amount_base'] ?? $transaction['total_amount'] ?? 0), 2)) . '</td>
                 </tr>';
             }
@@ -2207,8 +2265,17 @@ class Reports extends BaseController
         }
 
         if (isset($data['reports']['transactions']) && is_array($data['reports']['transactions'])) {
-            $csv .= "\n" . $this->csvLine(['FINANCIAL TRANSACTIONS']);
-            $csv .= $this->csvLine(['Report Date', 'Recorded At', 'Reference', 'Patient / Payee', 'Transaction Type', 'Source', 'Payment Method', 'Amount']);
+            $csv .= "\n" . $this->csvLine([lang('TenantMisc.financialTransactions')]);
+            $csv .= $this->csvLine([
+                lang('TenantMisc.reportDate'),
+                lang('TenantMisc.recordedAt'),
+                lang('TenantMisc.transaction'),
+                lang('TenantMisc.patientPayee'),
+                lang('TenantMisc.type'),
+                lang('TenantMisc.source'),
+                lang('TenantMisc.paymentMethodFinance'),
+                lang('TenantMisc.totalAmount'),
+            ]);
             
             foreach ($data['reports']['transactions'] as $transaction) {
                 $subject = trim((string) ($transaction['patient_name'] ?? ''));
@@ -2220,9 +2287,9 @@ class Reports extends BaseController
                     $transaction['created_at'] ?? '',
                     $transaction['transaction_id'] ?? '',
                     $subject,
-                    $transaction['transaction_type'] ?? '',
-                    $transaction['source_label'] ?? ($transaction['event_source'] ?? ''),
-                    $transaction['payment_method'] ?? '',
+                    $this->localizeFinanceTransactionType((string) ($transaction['transaction_type'] ?? '')),
+                    $this->localizeFinanceSourceLabel((string) ($transaction['source_label'] ?? ''), (string) ($transaction['event_source'] ?? 'finance')),
+                    $this->localizeFinancePaymentMethod((string) ($transaction['payment_method'] ?? '')),
                     $transaction['signed_amount_base'] ?? ($transaction['total_amount'] ?? ''),
                 ]);
             }
@@ -2230,30 +2297,37 @@ class Reports extends BaseController
 
         if (isset($data['reports']['ar_aging_summary']) && is_array($data['reports']['ar_aging_summary'])) {
             $s = $data['reports']['ar_aging_summary'];
-            $csv .= "\n" . $this->csvLine(['AR AGING SUMMARY']);
-            $csv .= $this->csvLine(['Bucket', 'Amount']);
+            $csv .= "\n" . $this->csvLine([lang('TenantMisc.arAgingDistribution')]);
+            $csv .= $this->csvLine([lang('TenantMisc.bucket'), lang('TenantMisc.totalAmount')]);
             foreach ([
-                'current' => 'Current',
-                'days_1_30' => '1-30 Days',
-                'days_31_60' => '31-60 Days',
-                'days_61_90' => '61-90 Days',
-                'days_91_plus' => '91+ Days',
-                'total_balance_due' => 'Total',
+                'current' => lang('TenantMisc.current'),
+                'days_1_30' => lang('TenantMisc.days1to30'),
+                'days_31_60' => lang('TenantMisc.days31to60'),
+                'days_61_90' => lang('TenantMisc.days61to90'),
+                'days_91_plus' => lang('TenantMisc.days91Plus'),
+                'total_balance_due' => lang('TenantMisc.totalAmount'),
             ] as $key => $label) {
                 $csv .= $this->csvLine([$label, (float) ($s[$key] ?? 0)]);
             }
         }
 
         if (isset($data['reports']['ar_aging_detail']) && is_array($data['reports']['ar_aging_detail'])) {
-            $csv .= "\n" . $this->csvLine(['AR AGING DETAIL']);
-            $csv .= $this->csvLine(['Invoice', 'Patient', 'Due Date', 'Days Past Due', 'Bucket', 'Balance Due']);
+            $csv .= "\n" . $this->csvLine([lang('TenantMisc.arAgingDetail')]);
+            $csv .= $this->csvLine([
+                lang('TenantMisc.invoice'),
+                lang('TenantMisc.patient'),
+                lang('TenantMisc.dueDate'),
+                lang('TenantMisc.daysPastDue'),
+                lang('TenantMisc.bucket'),
+                lang('TenantMisc.balanceDue'),
+            ]);
             foreach ($data['reports']['ar_aging_detail'] as $row) {
                 $csv .= $this->csvLine([
                     $row['transaction_id'] ?? ('#' . ($row['id'] ?? '')),
                     trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))),
                     $row['due_date'] ?? '',
                     $row['days_past_due'] ?? 0,
-                    $row['aging_bucket'] ?? 'current',
+                    $this->localizeAgingBucket((string) ($row['aging_bucket'] ?? 'current')),
                     $row['balance_due'] ?? 0,
                 ]);
             }
