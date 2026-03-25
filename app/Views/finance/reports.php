@@ -294,6 +294,14 @@
                                                 'provider_payout_payment' => lang('Finance.providerPayout'),
                                                 default => ucfirst(str_replace('_', ' ', (string) ($row['event_type'] ?? ''))),
                                             };
+                                            $paymentMethodKey = (string) ($row['payment_method'] ?? '');
+                                            $paymentMethodLabel = '-';
+                                            if ($paymentMethodKey !== '') {
+                                                $candidate = lang('Finance.' . $paymentMethodKey);
+                                                $paymentMethodLabel = $candidate !== 'Finance.' . $paymentMethodKey
+                                                    ? $candidate
+                                                    : ucfirst(str_replace('_', ' ', $paymentMethodKey));
+                                            }
                                             $signed = (float) ($row['signed_amount_base'] ?? 0);
                                         ?>
                                         <tr>
@@ -310,7 +318,7 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td class="py-3 pr-4 text-slate-700"><?= esc($row['counterparty'] ?? '-') ?></td>
-                                            <td class="py-3 pr-4 text-slate-700"><?= esc($row['payment_method'] ?? '-') ?></td>
+                                            <td class="py-3 pr-4 text-slate-700"><?= esc($paymentMethodLabel) ?></td>
                                             <td class="py-3 pr-4 text-slate-700">
                                                 <?php if (isset($row['amount_original']) && $row['amount_original'] !== null): ?>
                                                     <?= esc((string) ($row['currency'] ?? '')) ?> <?= number_format((float) $row['amount_original'], 2) ?>

@@ -75,15 +75,17 @@
             dataType: 'json',
             success: function (data) {
                 $('#totalRevenue').text(data.gross_collections_formatted ? formatCurrencyAbbreviated(data.gross_collections) : formatCurrencyAbbreviated(0));
-                $('#pendingPayments').text(data.provider_payable_outstanding_formatted ? formatCurrencyAbbreviated(data.provider_payable_outstanding) : formatCurrencyAbbreviated(0));
-                $('#monthlyIncome').text(data.net_clinic_revenue_formatted ? formatCurrencyAbbreviated(data.net_clinic_revenue) : formatCurrencyAbbreviated(0));
+                $('#providerPaidCash').text(data.provider_paid_cash_total_formatted ? formatCurrencyAbbreviated(data.provider_paid_cash_total) : formatCurrencyAbbreviated(0));
+                $('#netClinicCash').text(data.net_clinic_cash_formatted ? formatCurrencyAbbreviated(data.net_clinic_cash) : formatCurrencyAbbreviated(0));
                 $('#outstandingInvoices').text(data.outstanding_invoices || 0);
+                $('#outstandingInvoicesBalance').text(data.outstanding_invoices_balance_formatted || '');
             },
             error: function () {
                 $('#totalRevenue').text(formatCurrencyAbbreviated(0));
-                $('#pendingPayments').text(formatCurrencyAbbreviated(0));
-                $('#monthlyIncome').text(formatCurrencyAbbreviated(0));
+                $('#providerPaidCash').text(formatCurrencyAbbreviated(0));
+                $('#netClinicCash').text(formatCurrencyAbbreviated(0));
                 $('#outstandingInvoices').text('0');
+                $('#outstandingInvoicesBalance').text('');
             }
         });
     }

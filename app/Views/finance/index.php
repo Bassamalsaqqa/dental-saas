@@ -261,9 +261,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 rounded-full border border-green-200">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-arrow-up text-green-600 text-xs"></i>
-                                <span class="text-green-700 font-bold text-xs">+18%</span>
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-green-700 font-bold text-xs"><?= lang('Finance.cashBasisShort') ?></span>
                             </div>
                         </div>
                         <div class="space-y-2 flex-1 flex flex-col justify-end">
@@ -276,12 +275,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-4/5 h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('patientCollections')) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc($tr('grossCollectionsHelp')) ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- <?= lang('Finance.providerPayable') ?> Card -->
+                <!-- <?= lang('Finance.providerPaidCash') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-yellow-500/10 group-hover:shadow-yellow-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -293,27 +292,26 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full border border-yellow-200">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-exclamation text-yellow-600 text-sm"></i>
-                                <span class="text-yellow-700 font-bold text-sm"><?= lang('Finance.pending') ?></span>
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                <span class="text-yellow-700 font-bold text-sm"><?= lang('Finance.cashOutShort') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.providerPayable') ?></p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.providerPaidCash') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-yellow-900" id="pendingPayments">
+                                <p class="text-4xl font-black text-yellow-900" id="providerPaidCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full overflow-hidden">
                                     <div class="w-3/4 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.outstandingToProviders') ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.providerPaidCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- <?= lang('Finance.netClinicRevenue') ?> Card -->
+                <!-- <?= lang('Finance.netClinicCash') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -325,22 +323,21 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-calendar text-blue-600 text-sm"></i>
-                                <span class="text-blue-700 font-bold text-sm"><?= lang('Finance.thisMonth') ?></span>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span class="text-blue-700 font-bold text-sm"><?= lang('Finance.snapshotShort') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netClinicRevenue') ?></p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netClinicCash') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-blue-900" id="monthlyIncome">
+                                <p class="text-4xl font-black text-blue-900" id="netClinicCash">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full overflow-hidden">
                                     <div class="w-2/3 h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.afterProviderSplit') ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.netClinicCashHelp') ?></p>
                         </div>
                     </div>
                 </div>
@@ -357,13 +354,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-red-100 to-pink-100 px-4 py-2 rounded-full border border-red-200">
-                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                <i class="fas fa-exclamation-triangle text-red-600 text-sm"></i>
-                                <span class="text-red-700 font-bold text-sm"><?= lang('Finance.overdue') ?></span>
+                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <span class="text-red-700 font-bold text-sm"><?= lang('Finance.currentShort') ?></span>
                             </div>
                         </div>
                         <div class="space-y-3 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.outstandingInvoices') ?></p>
+                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.openInvoices') ?></p>
                             <div class="flex items-baseline space-x-2">
                                 <p class="text-4xl font-black text-red-900" id="outstandingInvoices">
                                     <i class="fas fa-spinner fa-spin"></i>
@@ -372,7 +368,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     <div class="w-5/6 h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.needAttention') ?></p>
+                            <p class="text-xs text-gray-500 font-medium" id="outstandingInvoicesBalance"><?= esc($tr('openInvoicesHelp')) ?></p>
                         </div>
                     </div>
                 </div>

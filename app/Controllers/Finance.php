@@ -1594,44 +1594,33 @@ class Finance extends BaseController
         $startDate = $this->request->getGet('start_date');
         $endDate = $this->request->getGet('end_date');
 
-        $stats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
-        $providerStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $startDate, $endDate);
+        $startDate = $startDate ?: '2000-01-01';
+        $endDate = $endDate ?: date('Y-m-d');
 
-        $grossCollections = floatval($stats['total_revenue'] ?? 0);
-        $providerShare = floatval($providerStats['total_provider_share'] ?? 0); // accrual
-        $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0); // cash basis
-        $providerBalance = floatval($providerStats['total_provider_balance'] ?? 0);
-        $netClinicRevenue = $grossCollections - $providerPaidCash;
-        $netClinicRevenueAccrual = $grossCollections - $providerShare;
-
-        $stats['gross_collections'] = $grossCollections;
-        $stats['provider_share_total'] = $providerShare;
-        $stats['provider_paid_cash_total'] = $providerPaidCash;
-        $stats['provider_payable_outstanding'] = $providerBalance;
-        $stats['net_clinic_revenue'] = $netClinicRevenue;
-        $stats['net_clinic_revenue_accrual'] = $netClinicRevenueAccrual;
-
-        // Format currency values
-        if (isset($stats['total_revenue'])) {
-            $stats['total_revenue_formatted'] = formatCurrency($stats['total_revenue']);
-        }
-        if (isset($stats['pending_payments'])) {
-            $stats['pending_payments_formatted'] = formatCurrency($stats['pending_payments']);
-        }
-        if (isset($stats['monthly_revenue'])) {
-            $stats['monthly_revenue_formatted'] = formatCurrency($stats['monthly_revenue']);
-        }
-        $stats['gross_collections_formatted'] = formatCurrency($grossCollections);
-        $stats['provider_share_total_formatted'] = formatCurrency($providerShare);
-        $stats['provider_paid_cash_total_formatted'] = formatCurrency($providerPaidCash);
-        $stats['provider_payable_outstanding_formatted'] = formatCurrency($providerBalance);
-        $stats['net_clinic_revenue_formatted'] = formatCurrency($netClinicRevenue);
-        $stats['net_clinic_revenue_accrual_formatted'] = formatCurrency($netClinicRevenueAccrual);
-        if (isset($stats['total_transactions'])) {
-            $stats['total_transactions_formatted'] = formatCurrency($stats['total_transactions']);
+        $ledger = $this->buildFinancialLedger((int) $clinicId, $startDate, $endDate);
+        $stats = $this->summarizeCashReport($ledger['rows']);
+        $openInvoices = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 500);
+        $openInvoicesBalance = 0.0;
+        foreach ($openInvoices as $invoice) {
+            $openInvoicesBalance += floatval($invoice['balance_due'] ?? 0);
         }
 
-        return $this->response->setJSON($stats);
+        $response = [
+            'gross_collections' => $stats['gross_collections'],
+            'gross_collections_formatted' => formatCurrency($stats['gross_collections']),
+            'provider_paid_cash_total' => $stats['provider_paid_cash_total'],
+            'provider_paid_cash_total_formatted' => formatCurrency($stats['provider_paid_cash_total']),
+            'expenses_paid' => $stats['expenses_paid'],
+            'expenses_paid_formatted' => formatCurrency($stats['expenses_paid']),
+            'net_clinic_cash' => $stats['net_clinic_cash'],
+            'net_clinic_cash_formatted' => formatCurrency($stats['net_clinic_cash']),
+            'outstanding_invoices' => count($openInvoices),
+            'outstanding_invoices_balance' => round($openInvoicesBalance, 2),
+            'outstanding_invoices_balance_formatted' => formatCurrency($openInvoicesBalance),
+            'total_transactions' => $stats['total_transactions'],
+        ];
+
+        return $this->response->setJSON($response);
     }
 
     public function getMonthlyRevenue()
