@@ -20,6 +20,22 @@
     var permissions = config.permissions || { finance: {} };
     var transactionsTable = null;
 
+    function labelFromMap(map, key, fallback) {
+        if (key && map && map[key]) {
+            return map[key];
+        }
+
+        return fallback;
+    }
+
+    function actionLabel(key, fallback) {
+        if (financeI18n.actions && financeI18n.actions[key]) {
+            return financeI18n.actions[key];
+        }
+
+        return fallback;
+    }
+
     function formatCurrency(amount) {
         var currencySymbol = currency.symbol || '';
         var currencyPosition = currency.position || 'before';
@@ -207,8 +223,8 @@
                         var icon = isExpense ? 'fas fa-building' : 'fas fa-user';
                         var iconColor = isExpense ? 'text-rose-600' : 'text-green-600';
                         var subtitle = isExpense
-                            ? (row.expense_category ? row.expense_category.replace(/_/g, ' ') : 'Expense payee')
-                            : (row.patient_id || 'No ID');
+                            ? (row.expense_category ? row.expense_category.replace(/_/g, ' ') : (financeI18n.expensePayee || 'Counterparty'))
+                            : (row.patient_id || financeI18n.noId || '-');
                         return '<div class="flex items-center space-x-3">' +
                             '<div class="w-10 h-10 ' + iconWrap + ' rounded-lg flex items-center justify-center">' +
                             '<i class="' + icon + ' ' + iconColor + ' text-sm"></i>' +
@@ -240,9 +256,14 @@
                         };
                         var colorClass = typeColors[data] || 'bg-gray-100 text-gray-800';
                         var iconClass = typeIcons[data] || 'fas fa-tag';
+                        var typeLabel = labelFromMap(
+                            financeI18n.transactionTypes,
+                            data,
+                            data ? data.charAt(0).toUpperCase() + data.slice(1).replace(/_/g, ' ') : '-'
+                        );
                         return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + colorClass + '">' +
                             '<i class="' + iconClass + ' mr-1"></i>' +
-                            (data.charAt(0).toUpperCase() + data.slice(1)) +
+                            typeLabel +
                             '</span>';
                     }
                 },
@@ -285,9 +306,14 @@
                         };
                         var colorClass = statusColors[data] || 'bg-gray-100 text-gray-800';
                         var iconClass = statusIcons[data] || 'fas fa-question-circle';
+                        var statusLabel = labelFromMap(
+                            financeI18n.paymentStatuses,
+                            data,
+                            data ? data.charAt(0).toUpperCase() + data.slice(1).replace(/_/g, ' ') : '-'
+                        );
                         return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + colorClass + '">' +
                             '<i class="' + iconClass + ' mr-1"></i>' +
-                            (data.charAt(0).toUpperCase() + data.slice(1)) +
+                            statusLabel +
                             '</span>';
                     }
                 },
@@ -311,19 +337,19 @@
                         var actions = '<div class="flex items-center space-x-2">';
 
                         if (permissions.finance && permissions.finance.view) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="View Transaction"><i class="fas fa-eye"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="' + actionLabel('viewTransaction', 'View Transaction') + '"><i class="fas fa-eye"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.view && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/invoice?return_to=' + returnTo + '" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="View Invoice"><i class="fas fa-file-invoice"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '/invoice?return_to=' + returnTo + '" class="p-2 text-green-600 hover:text-green-700 rounded-md hover:bg-green-50 transition-colors duration-200" title="' + actionLabel('viewInvoice', 'View Invoice') + '"><i class="fas fa-file-invoice"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit && row.transaction_type === 'invoice') {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="Add Payment"><i class="fas fa-money-bill-wave"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '?return_to=' + returnTo + '" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="' + actionLabel('addPayment', 'Add Payment') + '"><i class="fas fa-money-bill-wave"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.edit) {
-                            actions += '<a href="' + financeUrls.base + '/' + data + '/edit?return_to=' + returnTo + '" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="Edit Transaction"><i class="fas fa-edit"></i></a>';
+                            actions += '<a href="' + financeUrls.base + '/' + data + '/edit?return_to=' + returnTo + '" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="' + actionLabel('editTransaction', 'Edit Transaction') + '"><i class="fas fa-edit"></i></a>';
                         }
                         if (permissions.finance && permissions.finance.delete) {
-                            actions += '<button onclick="deleteTransaction(' + data + ')" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="Delete Transaction"><i class="fas fa-trash"></i></button>';
+                            actions += '<button onclick="deleteTransaction(' + data + ')" class="p-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 transition-colors duration-200" title="' + actionLabel('deleteTransaction', 'Delete Transaction') + '"><i class="fas fa-trash"></i></button>';
                         }
                         actions += '</div>';
                         return actions;
@@ -359,17 +385,12 @@
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }
             ],
-            language: {
+            language: $.extend(true, {
                 processing: financeI18n.loadingTransactions || 'Loading transactions...',
-                lengthMenu: '_MENU_',
-                zeroRecords: 'No transactions found',
-                info: 'Showing _START_ to _END_ of _TOTAL_ transactions',
-                infoEmpty: 'No transactions available',
-                infoFiltered: '(filtered from _MAX_ total transactions)',
+                infoFiltered: '',
                 search: '',
-                searchPlaceholder: 'Search transactions...',
-                paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }
-            },
+                searchPlaceholder: ''
+            }, financeI18n.dataTable || {}),
             drawCallback: function () {
                 if (typeof $.fn.tooltip === 'function') {
                     $('[data-toggle="tooltip"]').tooltip();
