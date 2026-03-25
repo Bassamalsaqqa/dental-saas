@@ -4,9 +4,9 @@
 <style>
     .control-settings-shell {
         background:
-            radial-gradient(circle at top right, rgba(79, 70, 229, 0.12), transparent 24rem),
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24rem),
             radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22rem),
-            linear-gradient(135deg, #f8fafc 0%, #eef2ff 48%, #f0fdf4 100%);
+            linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
     }
     .control-settings-shell-card {
         background: rgba(255, 255, 255, 0.82);
@@ -47,10 +47,9 @@
     .control-settings-menu-btn i {
         color: #475569;
         transition: color 0.2s ease;
-        margin-top: 0.15rem;
     }
     .control-settings-menu-btn.is-active {
-        background: linear-gradient(135deg, #334155, #2563eb 52%, #14b8a6 100%);
+        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
         color: #fff;
         border-color: transparent;
         box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.5);
@@ -59,16 +58,16 @@
         color: #fff;
     }
     .control-settings-card {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid rgba(255, 255, 255, 0.72);
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.55);
         border-radius: 1.5rem;
-        box-shadow: 0 26px 60px -42px rgba(15, 23, 42, 0.28);
-        backdrop-filter: blur(18px);
+        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(22px);
         overflow: hidden;
     }
     .control-settings-header {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.85) 52%, rgba(236, 253, 245, 0.8));
-        border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.9));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
         padding: 1.25rem 1.5rem;
     }
     .control-settings-header h3,
@@ -83,7 +82,7 @@
         backdrop-filter: none !important;
     }
     .control-settings-header .w-12.h-12 {
-        background: linear-gradient(135deg, #1e293b, #2563eb 58%, #14b8a6) !important;
+        background: linear-gradient(135deg, #475569, #2563eb 58%, #4f46e5) !important;
         border: 0 !important;
         box-shadow: 0 18px 34px -22px rgba(37, 99, 235, 0.45);
     }
@@ -115,7 +114,7 @@
         justify-content: center;
         padding: 0.75rem 1.5rem;
         border-radius: 0.95rem;
-        background: linear-gradient(135deg, #1e293b, #2563eb 48%, #14b8a6 100%);
+        background: linear-gradient(135deg, #1d4ed8, #2563eb 48%, #14b8a6 100%);
         color: #fff;
         font-weight: 600;
         box-shadow: 0 18px 38px -22px rgba(37, 99, 235, 0.5);
@@ -183,7 +182,7 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
     .ui-toggle:checked {
-        background: #2563eb;
+        background: #3b82f6;
     }
     .ui-toggle:checked::before {
         transform: translateX(20px);
@@ -203,15 +202,15 @@
     }
     [dir="rtl"] .control-settings-menu-btn i {
         margin-right: 0 !important;
-        margin-left: 0 !important;
+        margin-left: 0.75rem !important;
     }
 </style>
 <div class="control-settings-shell min-h-screen">
     <div class="mx-auto max-w-6xl px-6 py-8">
         <div class="mb-5">
             <div class="flex items-center space-x-4">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 via-indigo-600 to-emerald-500 text-white shadow-lg shadow-indigo-500/25">
-                    <i class="fas fa-sliders-h text-xl"></i>
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
+                    <i class="fas fa-cog text-xl"></i>
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold text-slate-950">Settings</h1>
@@ -220,7 +219,7 @@
             </div>
         </div>
 
-        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-gray-500" id="control-settings-breadcrumb">
+        <nav class="control-settings-shell-breadcrumb mb-5 flex items-center space-x-1 rounded-2xl px-4 py-3 text-sm text-slate-500" id="control-settings-breadcrumb">
             <span class="text-gray-700 font-medium">Control Plane</span>
             <i class="fas fa-chevron-right text-xs text-gray-300"></i>
             <span class="text-gray-700 font-medium">Settings</span>
