@@ -99,11 +99,11 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.transactionTypeOptional') ?></label>
                     <select id="transactionTypeFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
                         <option value=""><?= lang('TenantMisc.allTypes') ?></option>
-                        <option value="invoice" <?= ($filters['transaction_type'] ?? '') === 'invoice' ? 'selected' : '' ?>><?= lang('TenantMisc.invoice') ?></option>
                         <option value="payment" <?= ($filters['transaction_type'] ?? '') === 'payment' ? 'selected' : '' ?>><?= lang('TenantMisc.payment') ?></option>
                         <option value="expense" <?= ($filters['transaction_type'] ?? '') === 'expense' ? 'selected' : '' ?>><?= lang('TenantMisc.expense') ?></option>
                         <option value="refund" <?= ($filters['transaction_type'] ?? '') === 'refund' ? 'selected' : '' ?>><?= lang('TenantMisc.refund') ?></option>
-                        <option value="adjustment" <?= ($filters['transaction_type'] ?? '') === 'adjustment' ? 'selected' : '' ?>><?= lang('TenantMisc.adjustment') ?></option>
+                        <option value="void" <?= ($filters['transaction_type'] ?? '') === 'void' ? 'selected' : '' ?>><?= $tm('void') ?></option>
+                        <option value="provider_payout" <?= ($filters['transaction_type'] ?? '') === 'provider_payout' ? 'selected' : '' ?>><?= $tm('providerPayoutCash') ?></option>
                     </select>
                 </div>
             </div>
@@ -118,17 +118,6 @@
                         <option value="check" <?= ($filters['payment_method'] ?? '') === 'check' ? 'selected' : '' ?>><?= $tm('check') ?></option>
                         <option value="insurance" <?= ($filters['payment_method'] ?? '') === 'insurance' ? 'selected' : '' ?>><?= $tm('insurance') ?></option>
                         <option value="other" <?= ($filters['payment_method'] ?? '') === 'other' ? 'selected' : '' ?>><?= $tm('other') ?></option>
-                    </select>
-                </div>
-                <div id="paymentStatusWrap" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('paymentStatusFinance') ?></label>
-                    <select id="paymentStatusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
-                        <option value=""><?= $tm('allStatuses') ?></option>
-                        <option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>><?= $tm('paid') ?></option>
-                        <option value="pending" <?= ($filters['payment_status'] ?? '') === 'pending' ? 'selected' : '' ?>><?= $tm('pending') ?></option>
-                        <option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>><?= $tm('partial') ?></option>
-                        <option value="overdue" <?= ($filters['payment_status'] ?? '') === 'overdue' ? 'selected' : '' ?>><?= $tm('overdue') ?></option>
-                        <option value="cancelled" <?= ($filters['payment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $tm('cancelled') ?></option>
                     </select>
                 </div>
                 <div id="examinationTypeWrap" class="hidden">
@@ -504,7 +493,7 @@
                                 </div>
                             </div>
                             <!-- Financial Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
@@ -513,17 +502,6 @@
                                         <div>
                                             <p class="text-sm font-semibold text-gray-900"><?= $tm('grossCollections') ?></p>
                                             <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['gross_collections'] ?? 0) ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-lg p-4 border border-blue-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-user-md"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('providerShareAccrual') ?></p>
-                                            <p class="text-xl font-bold text-blue-900"><?= formatCurrency($summary['provider_share_accrual'] ?? 0) ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -555,7 +533,7 @@
                                             <i class="fas fa-file-invoice-dollar"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('expensesPeriod') ?></p>
+                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('expensesPaid') ?></p>
                                             <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['total_expenses'] ?? 0) ?></p>
                                         </div>
                                     </div>
@@ -564,12 +542,12 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('providerPayableOutstanding') ?></p>
-                                    <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['provider_payable_outstanding'] ?? 0) ?></p>
-                                </div>
-                                <div class="bg-white rounded-lg p-4 border border-gray-200">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('outstandingInvoicesAmount') ?></p>
                                     <p class="mt-1 text-lg font-bold text-amber-700"><?= formatCurrency($summary['pending_invoice_amount'] ?? 0) ?></p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('outstandingInvoices') ?></p>
+                                    <p class="mt-1 text-lg font-bold text-indigo-700"><?= (int) ($summary['outstanding_invoices_count'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('transactionsPeriod') ?></p>
@@ -590,8 +568,8 @@
                                     <p class="mt-1 text-lg font-bold text-rose-700"><?= formatCurrency($summary['refund_total'] ?? 0) ?></p>
                                 </div>
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('discountsPeriod') ?></p>
-                                    <p class="mt-1 text-lg font-bold text-sky-700"><?= formatCurrency($summary['discount_total'] ?? 0) ?></p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('reportBasis') ?></p>
+                                    <p class="mt-1 text-lg font-bold text-sky-700"><?= $tm('cashBasis') ?></p>
                                 </div>
                             </div>
                             <?php if (!empty($reports['comparison']['summary'] ?? [])): ?>
@@ -605,9 +583,8 @@
                                     <?php
                                     $financeCompareCards = [
                                         ['label'=>$tm('grossCollections'),'current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
-                                        ['label'=>$tm('providerShareAccrual'),'current'=>(float)($summary['provider_share_accrual']??0),'previous'=>(float)($fcmp['provider_share_accrual']??0),'count'=>false],
                                         ['label'=>$tm('providerPaidCash'),'current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
-                                        ['label'=>$tm('expensesPeriod'),'current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
+                                        ['label'=>$tm('expensesPaid'),'current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
                                         ['label'=>$tm('outstandingInvoices'),'current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
                                         ['label'=>$tm('transactionsPeriod'),'current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
                                     ];
@@ -659,16 +636,7 @@
                                         <canvas id="financeAgingChart"></canvas>
                                     </div>
                                 </div>
-                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                    <div class="mb-4">
-                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('providerPayoutStatusMix') ?></h4>
-                                        <p class="text-sm text-gray-500"><?= $tm('providerPayoutStatusMixDesc') ?></p>
-                                    </div>
-                                    <div class="relative h-64">
-                                        <canvas id="financeProviderStatusChart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm xl:col-span-3">
+                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm xl:col-span-2">
                                     <div class="mb-4">
                                         <h4 class="text-lg font-semibold text-gray-800"><?= $tm('transactionTypeMix') ?></h4>
                                         <p class="text-sm text-gray-500"><?= $tm('transactionTypeMixDesc') ?></p>
@@ -760,60 +728,6 @@
                             </div>
                             <?php endif; ?>
 
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <?php if (!empty($reports['provider_payout_status'])): ?>
-                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-4"><?= $tm('providerPayoutStatus') ?></h4>
-                                    <div class="space-y-3">
-                                        <?php foreach ($reports['provider_payout_status'] as $row): ?>
-                                        <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/60">
-                                            <div>
-                                                <p class="font-semibold text-gray-800"><?= esc(ucfirst($row['status'] ?? 'unknown')) ?></p>
-                                                <p class="text-xs text-gray-500"><?= esc($tm('payoutsCount', ['count' => (int) ($row['payout_count'] ?? 0)])) ?></p>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="font-bold text-blue-700"><?= formatCurrency($row['provider_share_total'] ?? 0) ?></p>
-                                                <p class="text-xs text-rose-600"><?= $tm('dueShort') ?>: <?= formatCurrency($row['balance_due_total'] ?? 0) ?></p>
-                                            </div>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-
-                                <?php if (!empty($reports['provider_payout_breakdown'])): ?>
-                                <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                    <h4 class="text-lg font-semibold text-gray-800 mb-4"><?= $tm('topProvidersByShare') ?></h4>
-                                    <div class="space-y-3">
-                                        <?php foreach ($reports['provider_payout_breakdown'] as $row): ?>
-                                        <?php
-                                            $share = (float) ($row['provider_share_total'] ?? 0);
-                                            $paid = (float) ($row['provider_paid_total'] ?? 0);
-                                            $pct = $share > 0 ? min(100, round(($paid / $share) * 100)) : 0;
-                                        ?>
-                                        <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <div>
-                                                    <p class="font-semibold text-gray-800"><?= esc($row['provider_label'] ?? lang('TenantMisc.unknown')) ?></p>
-                                                    <p class="text-xs text-gray-500"><?= esc($tm('payoutsCount', ['count' => (int) ($row['payout_count'] ?? 0)])) ?> - <?= $tm('grossShort') ?> <?= formatCurrency($row['gross_amount_total'] ?? 0) ?></p>
-                                                </div>
-                                                <div class="text-right">
-                                                    <p class="font-bold text-blue-700"><?= formatCurrency($share) ?></p>
-                                                    <p class="text-xs text-rose-600"><?= $tm('dueShort') ?> <?= formatCurrency($row['provider_balance_total'] ?? 0) ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="mt-2">
-                                                <div class="h-2 rounded-full bg-gray-200 overflow-hidden">
-                                                    <div class="h-full bg-gradient-to-r from-blue-500 to-emerald-500" style="width: <?= (int) $pct ?>%"></div>
-                                                </div>
-                                                <div class="mt-1 text-xs text-gray-500"><?= $tm('paidShort') ?> <?= formatCurrency($paid) ?> (<?= (int) $pct ?>%)</div>
-                                            </div>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                            </div>
                         </div>
                         
                     <?php elseif ($report_type === 'treatments'): ?>
@@ -1014,14 +928,12 @@ function syncReportFilterVisibility() {
     const transactionTypeWrap = document.getElementById('transactionTypeWrap');
     const transactionTypeFilter = document.getElementById('transactionTypeFilter');
     const paymentMethodWrap = document.getElementById('paymentMethodWrap');
-    const paymentStatusWrap = document.getElementById('paymentStatusWrap');
     const examinationTypeWrap = document.getElementById('examinationTypeWrap');
     const appointmentStatusWrap = document.getElementById('appointmentStatusWrap');
     const appointmentTypeWrap = document.getElementById('appointmentTypeWrap');
     const treatmentStatusWrap = document.getElementById('treatmentStatusWrap');
     const treatmentTypeWrap = document.getElementById('treatmentTypeWrap');
     const paymentMethodFilter = document.getElementById('paymentMethodFilter');
-    const paymentStatusFilter = document.getElementById('paymentStatusFilter');
     const examinationTypeFilter = document.getElementById('examinationTypeFilter');
     const appointmentStatusFilter = document.getElementById('appointmentStatusFilter');
     const appointmentTypeFilter = document.getElementById('appointmentTypeFilter');
@@ -1043,7 +955,6 @@ function syncReportFilterVisibility() {
         }
     }
     if (paymentMethodWrap) paymentMethodWrap.classList.toggle('hidden', !isFinance);
-    if (paymentStatusWrap) paymentStatusWrap.classList.toggle('hidden', !isFinance);
     if (examinationTypeWrap) examinationTypeWrap.classList.toggle('hidden', !isExaminations);
     if (appointmentStatusWrap) appointmentStatusWrap.classList.toggle('hidden', !isAppointments);
     if (appointmentTypeWrap) appointmentTypeWrap.classList.toggle('hidden', !isAppointments);
@@ -1052,7 +963,6 @@ function syncReportFilterVisibility() {
 
     if (!isFinance) {
         if (paymentMethodFilter) paymentMethodFilter.value = '';
-        if (paymentStatusFilter) paymentStatusFilter.value = '';
     }
     if (!isExaminations && examinationTypeFilter) examinationTypeFilter.value = '';
     if (!isAppointments) {
@@ -1093,7 +1003,6 @@ function collectSpecificFilters(reportType) {
         patient_id: document.getElementById('patientFilter')?.value || '',
         transaction_type: '',
         payment_method: '',
-        payment_status: '',
         examination_type: '',
         appointment_status: '',
         appointment_type: '',
@@ -1103,7 +1012,6 @@ function collectSpecificFilters(reportType) {
     if (reportType === 'finance') {
         payload.transaction_type = document.getElementById('transactionTypeFilter')?.value || '';
         payload.payment_method = document.getElementById('paymentMethodFilter')?.value || '';
-        payload.payment_status = document.getElementById('paymentStatusFilter')?.value || '';
     } else if (reportType === 'examinations') {
         payload.examination_type = document.getElementById('examinationTypeFilter')?.value || '';
     } else if (reportType === 'appointments') {
@@ -1170,7 +1078,6 @@ function exportReport(format) {
         patient_id: specific.patient_id,
         transaction_type: specific.transaction_type,
         payment_method: specific.payment_method,
-        payment_status: specific.payment_status,
         examination_type: specific.examination_type,
         appointment_status: specific.appointment_status,
         appointment_type: specific.appointment_type,
@@ -1419,7 +1326,6 @@ async function loadDetailPanel(panelId, page = 1) {
     if (reportWorkspace.filters.patient_id) params.set('patient_id', reportWorkspace.filters.patient_id);
     if (reportWorkspace.filters.transaction_type) params.set('transaction_type', reportWorkspace.filters.transaction_type);
     if (reportWorkspace.filters.payment_method) params.set('payment_method', reportWorkspace.filters.payment_method);
-    if (reportWorkspace.filters.payment_status) params.set('payment_status', reportWorkspace.filters.payment_status);
     if (reportWorkspace.filters.examination_type) params.set('examination_type', reportWorkspace.filters.examination_type);
     if (reportWorkspace.filters.appointment_status) params.set('appointment_status', reportWorkspace.filters.appointment_status);
     if (reportWorkspace.filters.appointment_type) params.set('appointment_type', reportWorkspace.filters.appointment_type);
@@ -1702,37 +1608,6 @@ if (financeAgingCtx) {
     });
 }
 
-// Finance: Provider Payout Status Mix
-const financeProviderStatusCtx = document.getElementById('financeProviderStatusChart')?.getContext('2d');
-if (financeProviderStatusCtx) {
-    const rows = <?= json_encode($reports['provider_payout_status'] ?? []) ?>;
-    const labels = rows.map(r => (r.status || 'unknown').toString());
-    const data = rows.map(r => parseFloat(r.provider_share_total || 0));
-    const statusColorMap = {
-        unpaid: '#ef4444',
-        partial: '#f59e0b',
-        paid: '#10b981',
-        void: '#64748b',
-    };
-    const colors = labels.map(l => statusColorMap[l.toLowerCase()] || '#0284c7');
-
-new Chart(financeProviderStatusCtx, {
-        type: 'pie',
-        data: { labels, datasets: [{ data, backgroundColor: colors }] },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } },
-            onClick: function(event, elements) {
-                if (!elements?.length) return;
-                const status = labels[elements[0].index];
-                if (!status) return;
-                applyDrillthrough('provider_payout_rows', status.toLowerCase(), `Provider payout status -> ${status}`);
-            }
-        }
-    });
-}
-
 // Finance: Transaction Type Mix
 const financeTxnTypeCtx = document.getElementById('financeTransactionTypeChart')?.getContext('2d');
 if (financeTxnTypeCtx) {
@@ -1741,9 +1616,10 @@ if (financeTxnTypeCtx) {
     const data = rows.map(r => parseFloat(r.total_amount || 0));
     const colors = labels.map((type) => ({
         payment: '#10b981',
-        invoice: '#0284c7',
         refund: '#ef4444',
-        adjustment: '#f59e0b',
+        expense: '#f97316',
+        void: '#64748b',
+        provider_payout: '#eab308',
     }[(type || '').toLowerCase()] || '#64748b'));
 
     new Chart(financeTxnTypeCtx, {
