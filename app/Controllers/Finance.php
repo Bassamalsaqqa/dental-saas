@@ -1127,46 +1127,23 @@ class Finance extends BaseController
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
 
-        $stats = $this->financeModel->getFinanceStatsByClinic($clinicId, $startDate, $endDate);
-        $providerStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, $startDate, $endDate);
-        $grossCollections = floatval($stats['total_revenue'] ?? 0);
-        $providerShare = floatval($providerStats['total_provider_share'] ?? 0); // accrual
-        $providerPaidCash = floatval($providerStats['total_provider_paid_cash'] ?? 0); // cash basis
-        $providerPayable = floatval($providerStats['total_provider_balance'] ?? 0);
-        $stats['gross_collections'] = $grossCollections;
-        $stats['provider_share_total'] = $providerShare;
-        $stats['provider_paid_cash_total'] = $providerPaidCash;
-        $stats['provider_payable_outstanding'] = $providerPayable;
-        $stats['net_clinic_revenue'] = $grossCollections - $providerPaidCash;
-        $stats['net_clinic_revenue_accrual'] = $grossCollections - $providerShare;
-
-        $monthlyRevenueRows = $this->financeModel->getMonthlyRevenueByClinicRange((int) $clinicId, $startDate, $endDate);
-        $revenueLabels = [];
-        $revenueValues = [];
-        foreach ($monthlyRevenueRows as $row) {
-            $monthKey = (string) ($row['month_key'] ?? '');
-            if ($monthKey === '') {
-                continue;
-            }
-            $dt = \DateTime::createFromFormat('Y-m', $monthKey);
-            if (!$dt) {
-                continue;
-            }
-            $revenueLabels[] = $dt->format('M Y');
-            $revenueValues[] = floatval($row['total_amount'] ?? 0);
-        }
-
         $ledger = $this->buildFinancialLedger((int) $clinicId, $startDate, $endDate);
+        $stats = $this->summarizeCashReport($ledger['rows']);
+        $monthlyRevenue = $this->buildMonthlyCollectionsSeries($ledger['rows'], $startDate, $endDate);
+        $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
+        $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
 
         $data = [
             'title' => 'Financial Reports',
             'start_date' => $startDate,
             'end_date' => $endDate,
             'stats' => $stats,
-            'monthly_revenue_labels' => $revenueLabels,
-            'monthly_revenue_values' => $revenueValues,
+            'monthly_revenue_labels' => $monthlyRevenue['labels'],
+            'monthly_revenue_values' => $monthlyRevenue['values'],
             'ledger_rows' => $ledger['rows'],
             'ledger_summary' => $ledger['summary'],
+            'ar_aging_summary' => $arAgingSummary,
+            'ar_aging_detail' => $arAgingDetail,
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
         ];
@@ -1176,8 +1153,6 @@ class Finance extends BaseController
 
     private function buildFinancialLedger(int $clinicId, string $startDate, string $endDate): array
     {
-        $startDateTime = $startDate . ' 00:00:00';
-        $endDateTime = $endDate . ' 23:59:59';
         $baseCurrency = settings()->get('currency', 'ILS');
         $financeAmountExpr = $this->db->fieldExists('total_amount', 'finances')
             ? 'f.total_amount'
@@ -1193,6 +1168,7 @@ class Finance extends BaseController
                 f.payment_status,
                 f.description,
                 f.created_at,
+                f.paid_date,
                 f.currency,
                 f.exchange_rate,
                 f.amount_original,
@@ -1208,9 +1184,11 @@ class Finance extends BaseController
             ")
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
-            ->where('f.created_at >=', $startDateTime)
-            ->where('f.created_at <=', $endDateTime)
-            ->orderBy('f.created_at', 'DESC')
+            ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
+            ->where('COALESCE(f.paid_date, DATE(f.created_at)) >= ' . $this->db->escape($startDate), null, false)
+            ->where('COALESCE(f.paid_date, DATE(f.created_at)) <= ' . $this->db->escape($endDate), null, false)
+            ->orderBy('COALESCE(f.paid_date, DATE(f.created_at))', 'DESC', false)
+            ->orderBy('f.id', 'DESC')
             ->get()
             ->getResultArray();
 
@@ -1219,11 +1197,15 @@ class Finance extends BaseController
             $type = (string) ($row['transaction_type'] ?? '');
             $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+            $reportDate = !empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10);
 
             $rows[] = [
-                'event_source' => 'finance',
+                'event_source' => 'direct_transaction',
+                'source_label' => 'Direct transaction',
                 'event_type' => $type,
-                'event_at' => (string) ($row['created_at'] ?? ''),
+                'event_at' => $reportDate . ' 00:00:00',
+                'report_date' => $reportDate,
+                'created_at' => (string) ($row['created_at'] ?? ''),
                 'reference' => (string) ($row['transaction_id'] ?? ('F-' . $row['id'])),
                 'patient_label' => $patientName !== '' ? $patientName : null,
                 'patient_number' => $row['patient_number'] ?? null,
@@ -1272,6 +1254,7 @@ class Finance extends BaseController
             ->where('fp.clinic_id', $clinicId)
             ->where('fp.payment_date >=', $startDate)
             ->where('fp.payment_date <=', $endDate)
+            ->whereIn('fp.type', ['payment', 'refund', 'void'])
             ->orderBy('fp.payment_date', 'DESC')
             ->orderBy('fp.id', 'DESC')
             ->get()
@@ -1282,11 +1265,15 @@ class Finance extends BaseController
             $type = (string) ($row['type'] ?? '');
             $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+            $normalizedType = $type === 'void' ? 'void' : $type;
 
             $rows[] = [
-                'event_source' => 'invoice_payment',
-                'event_type' => $type,
+                'event_source' => 'invoice_settlement',
+                'source_label' => 'Invoice settlement',
+                'event_type' => $normalizedType,
                 'event_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
+                'report_date' => (string) ($row['payment_date'] ?? ''),
+                'created_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
                 'reference' => (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? '')),
                 'patient_label' => $patientName !== '' ? $patientName : null,
                 'patient_number' => $row['patient_number'] ?? null,
@@ -1300,60 +1287,6 @@ class Finance extends BaseController
                 'amount_original' => isset($row['settlement_amount_original']) ? floatval($row['settlement_amount_original']) : null,
                 'amount_base' => $amountBase,
                 'signed_amount_base' => $signedAmount,
-            ];
-        }
-
-        $payoutRows = $this->db->table('provider_payouts pp')
-            ->select("
-                pp.id,
-                pp.provider_type,
-                pp.provider_user_id,
-                pp.provider_name_snapshot,
-                pp.provider_share_amount,
-                pp.status,
-                f.transaction_id,
-                f.created_at,
-                p.first_name AS patient_first_name,
-                p.last_name AS patient_last_name,
-                p.patient_id AS patient_number,
-                u.first_name AS provider_first_name,
-                u.last_name AS provider_last_name
-            ")
-            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'inner')
-            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
-            ->join('users u', 'u.id = pp.provider_user_id', 'left')
-            ->where('pp.clinic_id', $clinicId)
-            ->where('f.created_at >=', $startDateTime)
-            ->where('f.created_at <=', $endDateTime)
-            ->orderBy('f.created_at', 'DESC')
-            ->get()
-            ->getResultArray();
-
-        foreach ($payoutRows as $row) {
-            $providerLabel = trim((string) (($row['provider_first_name'] ?? '') . ' ' . ($row['provider_last_name'] ?? '')));
-            if ($providerLabel === '') {
-                $providerLabel = (string) ($row['provider_name_snapshot'] ?? ('Provider #' . (string) ($row['provider_user_id'] ?? '0')));
-            }
-            $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $amountBase = floatval($row['provider_share_amount'] ?? 0);
-
-            $rows[] = [
-                'event_source' => 'provider_payout',
-                'event_type' => 'accrual',
-                'event_at' => (string) ($row['created_at'] ?? ''),
-                'reference' => (string) (($row['transaction_id'] ?? 'Finance') . ' / PYO-' . ($row['id'] ?? '')),
-                'patient_label' => $patientName !== '' ? $patientName : null,
-                'patient_number' => $row['patient_number'] ?? null,
-                'counterparty' => $providerLabel,
-                'payment_method' => null,
-                'payment_status' => $row['status'] ?? null,
-                'notes' => 'Provider share accrual',
-                'category' => 'provider_share',
-                'currency' => $baseCurrency,
-                'exchange_rate' => 1.0,
-                'amount_original' => null,
-                'amount_base' => $amountBase,
-                'signed_amount_base' => -$amountBase,
             ];
         }
 
@@ -1395,8 +1328,11 @@ class Finance extends BaseController
 
             $rows[] = [
                 'event_source' => 'provider_payout_payment',
-                'event_type' => 'payment',
+                'source_label' => 'Provider payout',
+                'event_type' => 'provider_payout_payment',
                 'event_at' => ((string) ($row['paid_date'] ?? '')) . ' 00:00:00',
+                'report_date' => (string) ($row['paid_date'] ?? ''),
+                'created_at' => ((string) ($row['paid_date'] ?? '')) . ' 00:00:00',
                 'reference' => (string) (($row['transaction_id'] ?? 'Finance') . ' / PYP-' . ($row['id'] ?? '')),
                 'patient_label' => $patientName !== '' ? $patientName : null,
                 'patient_number' => $row['patient_number'] ?? null,
@@ -1439,6 +1375,213 @@ class Finance extends BaseController
                 'net_total' => $net,
             ],
         ];
+    }
+
+    private function summarizeCashReport(array $rows): array
+    {
+        $stats = [
+            'gross_collections' => 0.0,
+            'refunds_total' => 0.0,
+            'expenses_paid' => 0.0,
+            'provider_paid_cash_total' => 0.0,
+            'net_clinic_cash' => 0.0,
+            'total_transactions' => count($rows),
+            'average_transaction' => 0.0,
+            'transaction_summary' => [],
+        ];
+
+        $summary = [];
+
+        foreach ($rows as $row) {
+            $type = (string) ($row['event_type'] ?? '');
+            $source = (string) ($row['event_source'] ?? '');
+            $amountBase = floatval($row['amount_base'] ?? 0);
+
+            if ($type === 'payment') {
+                $stats['gross_collections'] += $amountBase;
+            } elseif (in_array($type, ['refund', 'void'], true)) {
+                $stats['refunds_total'] += $amountBase;
+            } elseif ($type === 'expense') {
+                $stats['expenses_paid'] += $amountBase;
+            } elseif ($source === 'provider_payout_payment') {
+                $stats['provider_paid_cash_total'] += $amountBase;
+            }
+
+            $summaryKey = $source === 'provider_payout_payment' ? 'provider_payout_payment' : $type;
+            if (!isset($summary[$summaryKey])) {
+                $summary[$summaryKey] = [
+                    'transaction_type' => $summaryKey,
+                    'count' => 0,
+                    'total_amount' => 0.0,
+                    'average_amount' => 0.0,
+                ];
+            }
+
+            $summary[$summaryKey]['count']++;
+            $summary[$summaryKey]['total_amount'] += abs(floatval($row['signed_amount_base'] ?? 0));
+        }
+
+        foreach ($summary as &$row) {
+            $row['total_amount'] = round($row['total_amount'], 2);
+            $row['average_amount'] = $row['count'] > 0 ? round($row['total_amount'] / $row['count'], 2) : 0.0;
+        }
+        unset($row);
+
+        usort($summary, static fn(array $a, array $b): int => strcmp((string) $a['transaction_type'], (string) $b['transaction_type']));
+
+        $stats['gross_collections'] = round($stats['gross_collections'], 2);
+        $stats['refunds_total'] = round($stats['refunds_total'], 2);
+        $stats['expenses_paid'] = round($stats['expenses_paid'], 2);
+        $stats['provider_paid_cash_total'] = round($stats['provider_paid_cash_total'], 2);
+        $stats['net_clinic_cash'] = round(
+            $stats['gross_collections'] - $stats['refunds_total'] - $stats['expenses_paid'] - $stats['provider_paid_cash_total'],
+            2
+        );
+        $stats['average_transaction'] = $stats['total_transactions'] > 0
+            ? round(($stats['gross_collections'] + $stats['refunds_total'] + $stats['expenses_paid'] + $stats['provider_paid_cash_total']) / $stats['total_transactions'], 2)
+            : 0.0;
+        $stats['transaction_summary'] = $summary;
+
+        return $stats;
+    }
+
+    private function buildMonthlyCollectionsSeries(array $rows, string $startDate, string $endDate): array
+    {
+        $start = new \DateTime(date('Y-m-01', strtotime($startDate)));
+        $end = new \DateTime(date('Y-m-01', strtotime($endDate)));
+        $end->modify('first day of next month');
+        $period = new \DatePeriod($start, new \DateInterval('P1M'), $end);
+
+        $totals = [];
+        foreach ($rows as $row) {
+            if ((string) ($row['event_type'] ?? '') !== 'payment') {
+                continue;
+            }
+            $reportDate = (string) ($row['report_date'] ?? '');
+            if ($reportDate === '') {
+                continue;
+            }
+
+            $monthKey = date('Y-m', strtotime($reportDate));
+            $totals[$monthKey] = ($totals[$monthKey] ?? 0) + floatval($row['amount_base'] ?? 0);
+        }
+
+        $labels = [];
+        $values = [];
+        foreach ($period as $month) {
+            $key = $month->format('Y-m');
+            $labels[] = $month->format('M Y');
+            $values[] = round(floatval($totals[$key] ?? 0), 2);
+        }
+
+        return [
+            'labels' => $labels,
+            'values' => $values,
+        ];
+    }
+
+    private function getHistoricalAccountsReceivableAgingDetail(int $clinicId, string $asOfDate, int $limit = 100): array
+    {
+        $limit = max(1, min($limit, 10000));
+        $asOfDateTime = $asOfDate . ' 23:59:59';
+        $sumField = $this->db->fieldExists('total_amount', 'finances')
+            ? 'f.total_amount'
+            : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
+
+        $rows = $this->db->table('finances f')
+            ->select("
+                f.id,
+                f.transaction_id,
+                {$sumField} AS total_amount,
+                f.due_date,
+                f.created_at,
+                p.first_name,
+                p.last_name,
+                p.patient_id AS patient_number,
+                COALESCE((
+                    SELECT SUM(
+                        CASE
+                            WHEN fp.type IN ('payment','adjustment') THEN fp.amount
+                            WHEN fp.type IN ('refund','void') THEN -fp.amount
+                            ELSE 0
+                        END
+                    )
+                    FROM finance_payments fp
+                    WHERE fp.clinic_id = f.clinic_id
+                      AND fp.finance_id = f.id
+                      AND fp.payment_date <= " . $this->db->escape($asOfDate) . "
+                ), 0) AS paid_total
+            ", false)
+            ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
+            ->where('f.clinic_id', $clinicId)
+            ->where('f.transaction_type', 'invoice')
+            ->where('f.created_at <=', $asOfDateTime)
+            ->having('total_amount - paid_total >', 0, false)
+            ->orderBy('f.due_date', 'ASC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $totalAmount = floatval($row['total_amount'] ?? 0);
+            $paidTotal = floatval($row['paid_total'] ?? 0);
+            $balanceDue = max(0, $totalAmount - $paidTotal);
+            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10);
+            $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
+            $row['due_date'] = $dueDate;
+            $row['balance_due'] = round($balanceDue, 2);
+            $row['days_past_due'] = max(0, $daysPastDue);
+            $row['aging_bucket'] = $this->mapAgingBucket($daysPastDue);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    private function summarizeAccountsReceivableBuckets(array $rows, string $asOfDate): array
+    {
+        $summary = [
+            'current' => 0.0,
+            'days_1_30' => 0.0,
+            'days_31_60' => 0.0,
+            'days_61_90' => 0.0,
+            'days_91_plus' => 0.0,
+            'total_balance_due' => 0.0,
+            'invoice_count' => 0,
+            'as_of_date' => $asOfDate,
+        ];
+
+        foreach ($rows as $row) {
+            $balance = (float) ($row['balance_due'] ?? 0);
+            $bucket = (string) ($row['aging_bucket'] ?? 'current');
+            if (!array_key_exists($bucket, $summary)) {
+                $bucket = 'current';
+            }
+
+            $summary[$bucket] += $balance;
+            $summary['total_balance_due'] += $balance;
+            $summary['invoice_count']++;
+        }
+
+        return $summary;
+    }
+
+    private function mapAgingBucket(int $daysPastDue): string
+    {
+        if ($daysPastDue <= 0) {
+            return 'current';
+        }
+        if ($daysPastDue <= 30) {
+            return 'days_1_30';
+        }
+        if ($daysPastDue <= 60) {
+            return 'days_31_60';
+        }
+        if ($daysPastDue <= 90) {
+            return 'days_61_90';
+        }
+
+        return 'days_91_plus';
     }
 
     public function getFinanceStats()
@@ -2362,9 +2505,9 @@ class Finance extends BaseController
 
             if ($includeAllEvents && $startDate && $endDate) {
                 $ledger = $this->buildFinancialLedger((int) $clinicId, (string) $startDate, (string) $endDate);
-                $content = $this->generateLedgerCSVContent($ledger['rows']);
+                $content = $this->generateLedgerCSVContent($ledger['rows'], (string) $startDate, (string) $endDate);
                 $mimeType = 'text/csv';
-                $fileName = 'financial_ledger_' . $startDate . '_to_' . $endDate . '_' . date('H-i-s') . '.csv';
+                $fileName = 'financial_cash_report_' . $startDate . '_to_' . $endDate . '_' . date('H-i-s') . '.csv';
 
                 $attachment = $this->storageService->storeExport(
                     $content,
@@ -2402,13 +2545,13 @@ class Finance extends BaseController
 
             $content = '';
             $mimeType = 'text/csv';
-            $fileName = 'financial_data_' . date('Y-m-d_H-i-s') . '.csv';
+              $fileName = 'finance_raw_transactions_' . date('Y-m-d_H-i-s') . '.csv';
 
-            if ($format === 'csv') {
-                $content = $this->generateCSVContent($data);
-            } else {
-                $content = $this->generateCSVContent($data); // Fallback
-            }
+              if ($format === 'csv') {
+                  $content = $this->generateCSVContent($data, (string) ($startDate ?? ''), (string) ($endDate ?? ''));
+              } else {
+                  $content = $this->generateCSVContent($data, (string) ($startDate ?? ''), (string) ($endDate ?? '')); // Fallback
+              }
 
             // Persist artifact
             $attachment = $this->storageService->storeExport(
@@ -2429,10 +2572,17 @@ class Finance extends BaseController
         }
     }
 
-    private function generateCSVContent($data)
+    private function generateCSVContent($data, string $startDate = '', string $endDate = '')
     {
         $output = fopen('php://temp', 'r+');
         $baseCurrency = settings()->get('currency', 'ILS');
+
+        fputcsv($output, ['Export Type', 'Raw finance transaction export']);
+        fputcsv($output, ['Report Basis', 'Operational raw transaction list']);
+        if ($startDate !== '' || $endDate !== '') {
+            fputcsv($output, ['Date Range', trim($startDate . ' to ' . $endDate)]);
+        }
+        fputcsv($output, []);
 
         // CSV headers
         fputcsv($output, [
@@ -2450,8 +2600,8 @@ class Finance extends BaseController
             'Payment Status',
             'Service Type',
             'Description',
-            'Created Date'
-        ]);
+              'Recorded At'
+          ]);
 
         // CSV data
         foreach ($data as $row) {
@@ -2482,12 +2632,21 @@ class Finance extends BaseController
         return "\xEF\xBB\xBF" . $content;
     }
 
-    private function generateLedgerCSVContent(array $rows): string
+    private function generateLedgerCSVContent(array $rows, string $startDate = '', string $endDate = ''): string
     {
         $output = fopen('php://temp', 'r+');
 
+        fputcsv($output, ['Export Type', 'Finance cash report']);
+        fputcsv($output, ['Report Basis', 'Cash basis']);
+        fputcsv($output, ['Business Date Rule', 'Payments, refunds, expenses, invoice settlements, and provider payouts are grouped by settlement date.']);
+        if ($startDate !== '' || $endDate !== '') {
+            fputcsv($output, ['Date Range', trim($startDate . ' to ' . $endDate)]);
+        }
+        fputcsv($output, []);
+
         fputcsv($output, [
-            'Date',
+            'Report Date',
+            'Recorded At',
             'Source',
             'Type',
             'Reference',
@@ -2507,7 +2666,8 @@ class Finance extends BaseController
 
         foreach ($rows as $row) {
             fputcsv($output, [
-                $row['event_at'] ?? '',
+                $row['report_date'] ?? '',
+                $row['created_at'] ?? '',
                 $row['event_source'] ?? '',
                 $row['event_type'] ?? '',
                 $row['reference'] ?? '',
