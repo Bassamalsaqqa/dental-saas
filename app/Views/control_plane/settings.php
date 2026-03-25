@@ -85,11 +85,6 @@
         border-radius: 0.75rem !important;
         box-shadow: none !important;
     }
-    .control-settings-header .text-white,
-    .control-settings-header .text-blue-400,
-    .control-settings-header .text-violet-400 {
-        color: inherit !important;
-    }
     .control-settings-field {
         width: 100%;
         padding: 0.75rem 1rem;
