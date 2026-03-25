@@ -58,38 +58,37 @@
         color: #fff;
     }
     .control-settings-card {
-        background: rgba(255, 255, 255, 0.82);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        border-radius: 1.5rem;
-        box-shadow: 0 24px 60px -40px rgba(15, 23, 42, 0.35);
-        backdrop-filter: blur(22px);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 1rem;
+        box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+        backdrop-filter: blur(24px);
         overflow: hidden;
     }
     .control-settings-header {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.9));
-        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-        padding: 1.25rem 1.5rem;
+        background: linear-gradient(to right, #334155, #0f172a);
+        padding: 2rem;
     }
     .control-settings-header h3,
     .control-settings-header h4 {
-        color: #020617 !important;
+        color: #fff !important;
     }
     .control-settings-header p {
-        color: #475569 !important;
+        color: #cbd5e1 !important;
     }
     .control-settings-header .backdrop-blur-sm {
-        -webkit-backdrop-filter: none !important;
-        backdrop-filter: none !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        backdrop-filter: blur(4px) !important;
     }
     .control-settings-header .w-12.h-12 {
-        background: linear-gradient(135deg, #475569, #2563eb 58%, #4f46e5) !important;
-        border: 0 !important;
-        box-shadow: 0 18px 34px -22px rgba(37, 99, 235, 0.45);
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-radius: 0.75rem !important;
+        box-shadow: none !important;
     }
     .control-settings-header .text-white,
     .control-settings-header .text-blue-400,
     .control-settings-header .text-violet-400 {
-        color: #fff !important;
+        color: inherit !important;
     }
     .control-settings-field {
         width: 100%;
