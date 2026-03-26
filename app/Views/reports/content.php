@@ -577,6 +577,35 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </div>
                             </div>
 
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex items-start gap-3 mb-4">
+                                    <div class="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0">
+                                        <i class="fas fa-cash-register"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('safeCashMovementTitle') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('safeCashMovementHelp') ?></p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                                        <p class="text-xs uppercase tracking-wide text-emerald-700 font-semibold"><?= $tm('safeCashIn') ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-emerald-950"><?= formatCurrency($summary['safe_cash_in'] ?? 0) ?></p>
+                                        <p class="mt-1 text-xs text-slate-600"><?= $tm('safeCashInHelp') ?></p>
+                                    </div>
+                                    <div class="rounded-lg border border-rose-200 bg-rose-50 p-4">
+                                        <p class="text-xs uppercase tracking-wide text-rose-700 font-semibold"><?= $tm('safeCashOut') ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-rose-950"><?= formatCurrency($summary['safe_cash_out'] ?? 0) ?></p>
+                                        <p class="mt-1 text-xs text-slate-600"><?= $tm('safeCashOutHelp') ?></p>
+                                    </div>
+                                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                        <p class="text-xs uppercase tracking-wide text-slate-700 font-semibold"><?= $tm('safeCashNet') ?></p>
+                                        <p class="mt-2 text-2xl font-bold <?= ((float)($summary['safe_cash_net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= formatCurrency($summary['safe_cash_net'] ?? 0) ?></p>
+                                        <p class="mt-1 text-xs text-slate-600"><?= $tm('safeCashNetHelp') ?></p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div class="bg-white rounded-lg p-4 border border-gray-200">
                                     <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= $tm('outstandingInvoicesAmount') ?></p>

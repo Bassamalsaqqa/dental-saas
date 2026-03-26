@@ -1385,6 +1385,9 @@ class Finance extends BaseController
             'expenses_paid' => 0.0,
             'provider_paid_cash_total' => 0.0,
             'net_clinic_cash' => 0.0,
+            'safe_cash_in' => 0.0,
+            'safe_cash_out' => 0.0,
+            'safe_cash_net' => 0.0,
             'total_transactions' => count($rows),
             'average_transaction' => 0.0,
             'transaction_summary' => [],
@@ -1396,6 +1399,7 @@ class Finance extends BaseController
             $type = (string) ($row['event_type'] ?? '');
             $source = (string) ($row['event_source'] ?? '');
             $amountBase = floatval($row['amount_base'] ?? 0);
+            $paymentMethod = strtolower((string) ($row['payment_method'] ?? ''));
 
             if ($type === 'payment') {
                 $stats['gross_collections'] += $amountBase;
@@ -1405,6 +1409,14 @@ class Finance extends BaseController
                 $stats['expenses_paid'] += $amountBase;
             } elseif ($source === 'provider_payout_payment') {
                 $stats['provider_paid_cash_total'] += $amountBase;
+            }
+
+            if ($paymentMethod === 'cash') {
+                if ($type === 'payment') {
+                    $stats['safe_cash_in'] += $amountBase;
+                } elseif (in_array($type, ['refund', 'void', 'expense'], true) || $source === 'provider_payout_payment') {
+                    $stats['safe_cash_out'] += $amountBase;
+                }
             }
 
             $summaryKey = $source === 'provider_payout_payment' ? 'provider_payout_payment' : $type;
@@ -1433,6 +1445,9 @@ class Finance extends BaseController
         $stats['refunds_total'] = round($stats['refunds_total'], 2);
         $stats['expenses_paid'] = round($stats['expenses_paid'], 2);
         $stats['provider_paid_cash_total'] = round($stats['provider_paid_cash_total'], 2);
+        $stats['safe_cash_in'] = round($stats['safe_cash_in'], 2);
+        $stats['safe_cash_out'] = round($stats['safe_cash_out'], 2);
+        $stats['safe_cash_net'] = round($stats['safe_cash_in'] - $stats['safe_cash_out'], 2);
         $stats['net_clinic_cash'] = round(
             $stats['gross_collections'] - $stats['refunds_total'] - $stats['expenses_paid'] - $stats['provider_paid_cash_total'],
             2

@@ -1313,10 +1313,13 @@ class Reports extends BaseController
         $providerPaidCash = 0.0;
         $refundCount = 0;
         $refundTotal = 0.0;
+        $safeCashIn = 0.0;
+        $safeCashOut = 0.0;
 
         foreach ($rows as $row) {
             $type = (string) ($row['transaction_type'] ?? '');
             $signed = floatval($row['signed_amount_base'] ?? 0);
+            $method = strtolower((string) ($row['payment_method'] ?? ''));
 
             if (in_array($type, ['payment', 'refund', 'void'], true)) {
                 $grossCollections += $signed;
@@ -1331,6 +1334,16 @@ class Reports extends BaseController
                 $refundCount++;
                 $refundTotal += abs($signed);
             }
+
+            if ($method === 'cash') {
+                if ($type === 'payment' && $signed > 0) {
+                    $safeCashIn += $signed;
+                }
+
+                if (in_array($type, ['refund', 'void', 'expense', 'provider_payout'], true)) {
+                    $safeCashOut += abs($signed);
+                }
+            }
         }
 
         return [
@@ -1340,6 +1353,9 @@ class Reports extends BaseController
             'provider_paid_cash' => round($providerPaidCash, 2),
             'refund_count' => $refundCount,
             'refund_total' => round($refundTotal, 2),
+            'safe_cash_in' => round($safeCashIn, 2),
+            'safe_cash_out' => round($safeCashOut, 2),
+            'safe_cash_net' => round($safeCashIn - $safeCashOut, 2),
         ];
     }
 

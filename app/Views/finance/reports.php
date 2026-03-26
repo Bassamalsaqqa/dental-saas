@@ -101,6 +101,35 @@
                     </div>
                 </div>
 
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-4 flex items-start gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                            <i class="fas fa-cash-register text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900"><?= lang('Finance.safeCashMovementTitle') ?></h2>
+                            <p class="mt-1 text-sm text-slate-600"><?= lang('Finance.safeCashMovementHelp') ?></p>
+                        </div>
+                    </div>
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.safeCashIn') ?></p>
+                            <p class="mt-3 text-3xl font-black text-emerald-950"><?= $formatMoney($stats['safe_cash_in'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.safeCashInHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.safeCashOut') ?></p>
+                            <p class="mt-3 text-3xl font-black text-rose-950"><?= $formatMoney($stats['safe_cash_out'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.safeCashOutHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.safeCashNet') ?></p>
+                            <p class="mt-3 text-3xl font-black <?= ((float) ($stats['safe_cash_net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($stats['safe_cash_net'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.safeCashNetHelp') ?></p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-4 flex items-start justify-between gap-4">
