@@ -529,49 +529,54 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                     </div>
                                 </div>
                             </div>
-                            <!-- Financial Statistics -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-wallet"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('grossCollections') ?></p>
-                                            <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['gross_collections'] ?? 0) ?></p>
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('clinicCashSummaryTitle') ?></h4>
+                                    <p class="text-sm text-gray-500"><?= $tm('clinicCashSummaryHelp') ?></p>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-wallet"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('grossCollections') ?></p>
+                                                <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['gross_collections'] ?? 0) ?></p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="bg-gradient-to-r from-yellow-50/80 to-amber-50/80 rounded-lg p-4 border border-yellow-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-money-bill-transfer"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('providerPaidCash') ?></p>
-                                            <p class="text-xl font-bold text-yellow-900"><?= formatCurrency($summary['provider_paid_cash'] ?? 0) ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 rounded-lg p-4 border border-purple-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('netClinicCash') ?></p>
-                                            <p class="text-xl font-bold text-purple-900"><?= formatCurrency($summary['net_clinic_revenue_cash'] ?? 0) ?></p>
+                                    <div class="bg-gradient-to-r from-yellow-50/80 to-amber-50/80 rounded-lg p-4 border border-yellow-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-money-bill-transfer"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('providerPaidCash') ?></p>
+                                                <p class="text-xl font-bold text-yellow-900"><?= formatCurrency($summary['provider_paid_cash'] ?? 0) ?></p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
-                                            <i class="fas fa-file-invoice-dollar"></i>
+                                    <div class="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 rounded-lg p-4 border border-purple-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('netClinicCash') ?></p>
+                                                <p class="text-xl font-bold text-purple-900"><?= formatCurrency($summary['net_clinic_revenue_cash'] ?? 0) ?></p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900"><?= $tm('expensesPaid') ?></p>
-                                            <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['total_expenses'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('expensesPaid') ?></p>
+                                                <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['total_expenses'] ?? 0) ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -201,6 +201,8 @@ return [
     'retainedByClinic' => 'Retained By Clinic',
     'netClinicCash' => 'Net Clinic Cash',
     'netClinicCashHelp' => 'Collections minus refunds, paid expenses, and provider cash payouts in the selected period.',
+    'clinicCashSummaryTitle' => 'Clinic Cash Performance',
+    'clinicCashSummaryHelp' => 'These figures summarize clinic cash activity for the selected period, regardless of whether the money moved through the safe or other payment methods.',
     'safeCashMovementTitle' => 'Cash Movement in Safe',
     'safeCashMovementHelp' => 'These figures use cash-method transactions only. They show net movement during the selected period, not the actual closing safe balance.',
     'safeCashIn' => 'Cash In',

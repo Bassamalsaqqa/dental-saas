@@ -73,31 +73,37 @@
             </div>
 
             <div class="p-6 space-y-6">
-                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.grossCollections') ?></p>
-                        <p class="mt-3 text-3xl font-black text-emerald-950"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p>
-                        <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.grossCollectionsHelp') ?></p>
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-4">
+                        <h2 class="text-lg font-bold text-slate-900"><?= lang('Finance.clinicCashSummaryTitle') ?></h2>
+                        <p class="mt-1 text-sm text-slate-600"><?= lang('Finance.clinicCashSummaryHelp') ?></p>
                     </div>
-                    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.refunds') ?></p>
-                        <p class="mt-3 text-3xl font-black text-rose-950"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p>
-                        <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.refundsHelp') ?></p>
-                    </div>
-                    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= lang('Finance.expensesPaid') ?></p>
-                        <p class="mt-3 text-3xl font-black text-amber-950"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p>
-                        <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.expensesPaidHelp') ?></p>
-                    </div>
-                    <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= lang('Finance.providerPaidCash') ?></p>
-                        <p class="mt-3 text-3xl font-black text-indigo-950"><?= $formatMoney($stats['provider_paid_cash_total'] ?? 0) ?></p>
-                        <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.providerPaidCashHelp') ?></p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.netClinicCash') ?></p>
-                        <p class="mt-3 text-3xl font-black text-slate-950"><?= $formatMoney($stats['net_clinic_cash'] ?? 0) ?></p>
-                        <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.netClinicCashHelp') ?></p>
+                    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.grossCollections') ?></p>
+                            <p class="mt-3 text-3xl font-black text-emerald-950"><?= $formatMoney($stats['gross_collections'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.grossCollectionsHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.refunds') ?></p>
+                            <p class="mt-3 text-3xl font-black text-rose-950"><?= $formatMoney($stats['refunds_total'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.refundsHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= lang('Finance.expensesPaid') ?></p>
+                            <p class="mt-3 text-3xl font-black text-amber-950"><?= $formatMoney($stats['expenses_paid'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.expensesPaidHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= lang('Finance.providerPaidCash') ?></p>
+                            <p class="mt-3 text-3xl font-black text-indigo-950"><?= $formatMoney($stats['provider_paid_cash_total'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.providerPaidCashHelp') ?></p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.netClinicCash') ?></p>
+                            <p class="mt-3 text-3xl font-black text-slate-950"><?= $formatMoney($stats['net_clinic_cash'] ?? 0) ?></p>
+                            <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.netClinicCashHelp') ?></p>
+                        </div>
                     </div>
                 </div>
 
