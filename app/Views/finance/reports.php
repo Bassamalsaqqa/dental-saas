@@ -3,6 +3,7 @@
 <?= $this->section('content') ?>
 <?php
     $formatMoney = static fn($amount) => formatCurrency((float) $amount);
+    $ownerSummary = $owner_summary ?? [];
     $bucketLabels = [
         'current' => lang('Finance.currentBucket'),
         'days_1_30' => lang('Finance.days1To30'),
@@ -74,9 +75,93 @@
 
             <div class="p-6 space-y-6">
                 <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-4 flex items-start gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-900/20">
+                            <i class="fas fa-briefcase text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900"><?= lang('Finance.ownerSummaryTitle') ?></h2>
+                            <p class="mt-1 text-sm text-slate-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                        </div>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                        <div class="group relative">
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-green-500/20 to-emerald-600/20 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-100"></div>
+                            <div class="relative rounded-2xl border border-green-200 bg-white/90 p-5 shadow-lg shadow-green-500/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
+                                        <i class="fas fa-arrow-down-wide-short text-lg"></i>
+                                    </div>
+                                    <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700"><?= lang('Finance.moneyInShort') ?></span>
+                                </div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.moneyIn') ?></p>
+                                <p class="mt-3 text-3xl font-black text-emerald-950"><?= $formatMoney($ownerSummary['money_in'] ?? 0) ?></p>
+                                <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.moneyInHelp') ?></p>
+                            </div>
+                        </div>
+                        <div class="group relative">
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-rose-500/20 to-orange-600/20 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-100"></div>
+                            <div class="relative rounded-2xl border border-rose-200 bg-white/90 p-5 shadow-lg shadow-rose-500/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-orange-600 text-white shadow-lg">
+                                        <i class="fas fa-arrow-up-wide-short text-lg"></i>
+                                    </div>
+                                    <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700"><?= lang('Finance.moneyOutShort') ?></span>
+                                </div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.moneyOut') ?></p>
+                                <p class="mt-3 text-3xl font-black text-rose-950"><?= $formatMoney($ownerSummary['money_out'] ?? 0) ?></p>
+                                <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.moneyOutHelp') ?></p>
+                            </div>
+                        </div>
+                        <div class="group relative">
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/20 to-yellow-600/20 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-100"></div>
+                            <div class="relative rounded-2xl border border-amber-200 bg-white/90 p-5 shadow-lg shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-lg">
+                                        <i class="fas fa-file-invoice-dollar text-lg"></i>
+                                    </div>
+                                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700"><?= lang('Finance.asOfEndDate') ?></span>
+                                </div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.customersOweUs') ?></p>
+                                <p class="mt-3 text-3xl font-black text-amber-950"><?= $formatMoney($ownerSummary['customers_owe_us'] ?? 0) ?></p>
+                                <p class="mt-2 text-sm text-slate-600"><?= esc(lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                            </div>
+                        </div>
+                        <div class="group relative">
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-500/20 to-blue-600/20 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-100"></div>
+                            <div class="relative rounded-2xl border border-indigo-200 bg-white/90 p-5 shadow-lg shadow-indigo-500/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg">
+                                        <i class="fas fa-hand-holding-dollar text-lg"></i>
+                                    </div>
+                                    <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold text-indigo-700"><?= lang('Finance.asOfEndDate') ?></span>
+                                </div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.weOweOthers') ?></p>
+                                <p class="mt-3 text-3xl font-black text-indigo-950"><?= $formatMoney($ownerSummary['we_owe_others'] ?? 0) ?></p>
+                                <p class="mt-2 text-sm text-slate-600"><?= esc(lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                            </div>
+                        </div>
+                        <div class="group relative">
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-slate-500/20 to-slate-900/20 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-100"></div>
+                            <div class="relative rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-lg shadow-slate-500/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg">
+                                        <i class="fas fa-scale-balanced text-lg"></i>
+                                    </div>
+                                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700"><?= lang('Finance.ownerViewShort') ?></span>
+                                </div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.netPosition') ?></p>
+                                <p class="mt-3 text-3xl font-black <?= ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($ownerSummary['net_position'] ?? 0) ?></p>
+                                <p class="mt-2 text-sm text-slate-600"><?= lang('Finance.netPositionHelp') ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div class="mb-4">
-                        <h2 class="text-lg font-bold text-slate-900"><?= lang('Finance.clinicCashSummaryTitle') ?></h2>
-                        <p class="mt-1 text-sm text-slate-600"><?= lang('Finance.clinicCashSummaryHelp') ?></p>
+                        <h2 class="text-lg font-bold text-slate-900"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
+                        <p class="mt-1 text-sm text-slate-600"><?= lang('Finance.detailsBreakdownHelp') ?></p>
                     </div>
                     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                         <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">

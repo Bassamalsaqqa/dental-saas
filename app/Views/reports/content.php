@@ -531,8 +531,77 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                             </div>
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="mb-4">
-                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('clinicCashSummaryTitle') ?></h4>
-                                    <p class="text-sm text-gray-500"><?= $tm('clinicCashSummaryHelp') ?></p>
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('ownerSummaryTitle') ?></h4>
+                                    <p class="text-sm text-gray-500"><?= esc($tm('ownerSummaryHelp', ['date' => $summary['as_of_date'] ?? ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+                                    <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-arrow-down-wide-short"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('moneyIn') ?></p>
+                                                <p class="text-xl font-bold text-green-900"><?= formatCurrency($summary['money_in'] ?? 0) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= $tm('moneyInHelp') ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-arrow-up-wide-short"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('moneyOut') ?></p>
+                                                <p class="text-xl font-bold text-rose-900"><?= formatCurrency($summary['money_out'] ?? 0) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= $tm('moneyOutHelp') ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-amber-50/80 to-yellow-50/80 rounded-lg p-4 border border-amber-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('customersOweUs') ?></p>
+                                                <p class="text-xl font-bold text-amber-900"><?= formatCurrency($summary['customers_owe_us'] ?? 0) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= esc($tm('customersOweUsHelp', ['date' => $summary['as_of_date'] ?? ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-indigo-50/80 to-blue-50/80 rounded-lg p-4 border border-indigo-100/50">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-hand-holding-dollar"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('weOweOthers') ?></p>
+                                                <p class="text-xl font-bold text-indigo-900"><?= formatCurrency($summary['we_owe_others'] ?? 0) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= esc($tm('weOweOthersHelp', ['date' => $summary['as_of_date'] ?? ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-slate-50/80 to-slate-100/80 rounded-lg p-4 border border-slate-200">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center text-white">
+                                                <i class="fas fa-scale-balanced"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900"><?= $tm('netPosition') ?></p>
+                                                <p class="text-xl font-bold <?= ((float)($summary['net_position'] ?? 0)) >= 0 ? 'text-slate-900' : 'text-rose-700' ?>"><?= formatCurrency($summary['net_position'] ?? 0) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= $tm('netPositionHelp') ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('detailsBreakdownTitle') ?></h4>
+                                    <p class="text-sm text-gray-500"><?= $tm('detailsBreakdownHelp') ?></p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
@@ -653,10 +722,11 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                                     <?php
                                     $financeCompareCards = [
-                                        ['label'=>$tm('grossCollections'),'current'=>(float)($summary['gross_collections']??0),'previous'=>(float)($fcmp['gross_collections']??0),'count'=>false],
-                                        ['label'=>$tm('providerPaidCash'),'current'=>(float)($summary['provider_paid_cash']??0),'previous'=>(float)($fcmp['provider_paid_cash']??0),'count'=>false],
-                                        ['label'=>$tm('expensesPaid'),'current'=>(float)($summary['total_expenses']??0),'previous'=>(float)($fcmp['total_expenses']??0),'count'=>false],
-                                        ['label'=>$tm('outstandingInvoices'),'current'=>(float)($summary['pending_invoice_amount']??0),'previous'=>(float)($fcmp['pending_invoice_amount']??0),'count'=>false],
+                                        ['label'=>$tm('moneyIn'),'current'=>(float)($summary['money_in']??0),'previous'=>(float)($fcmp['money_in']??0),'count'=>false],
+                                        ['label'=>$tm('moneyOut'),'current'=>(float)($summary['money_out']??0),'previous'=>(float)($fcmp['money_out']??0),'count'=>false],
+                                        ['label'=>$tm('customersOweUs'),'current'=>(float)($summary['customers_owe_us']??0),'previous'=>(float)($fcmp['customers_owe_us']??0),'count'=>false],
+                                        ['label'=>$tm('weOweOthers'),'current'=>(float)($summary['we_owe_others']??0),'previous'=>(float)($fcmp['we_owe_others']??0),'count'=>false],
+                                        ['label'=>$tm('netPosition'),'current'=>(float)($summary['net_position']??0),'previous'=>(float)($fcmp['net_position']??0),'count'=>false],
                                         ['label'=>$tm('transactionsPeriod'),'current'=>(float)($summary['total_transactions']??0),'previous'=>(float)($fcmp['total_transactions']??0),'count'=>true],
                                     ];
                                     foreach ($financeCompareCards as $card):
@@ -666,7 +736,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                     <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
                                         <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($card['label']) ?></p>
                                         <p class="mt-1 font-bold text-gray-900"><?= $card['count'] ? number_format($card['current']) : formatCurrency($card['current']) ?></p>
-                                        <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold"><?= $up ? '▲' : '▼' ?> <?= $card['count'] ? number_format(abs($delta)) : formatCurrency(abs($delta)) ?></p>
+                                        <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold"><?= $up ? '+' : '-' ?> <?= $card['count'] ? number_format(abs($delta)) : formatCurrency(abs($delta)) ?></p>
                                     </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -1775,3 +1845,6 @@ function formatCurrency(value) {
         : `${currencySymbol}${formatted}`;
 }
 </script>
+
+
+

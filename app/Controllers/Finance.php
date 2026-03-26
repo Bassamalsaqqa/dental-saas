@@ -1124,14 +1124,24 @@ class Finance extends BaseController
             return redirect()->to('/clinic/select');
         }
 
-        $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
-        $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
+        $startDate = $this->normalizeDateOnly($this->request->getGet('start_date')) ?? date('Y-m-01');
+        $endDate = $this->normalizeDateOnly($this->request->getGet('end_date')) ?? date('Y-m-d');
+        if ($startDate > $endDate) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
 
         $ledger = $this->buildFinancialLedger((int) $clinicId, $startDate, $endDate);
         $stats = $this->summarizeCashReport($ledger['rows']);
         $monthlyRevenue = $this->buildMonthlyCollectionsSeries($ledger['rows'], $startDate, $endDate);
         $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
         $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
+        $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
+
+        $moneyIn = (float) ($stats['gross_collections'] ?? 0);
+        $moneyOut = (float) (($stats['refunds_total'] ?? 0) + ($stats['expenses_paid'] ?? 0) + ($stats['provider_paid_cash_total'] ?? 0));
+        $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
+        $weOweOthers = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
 
         $data = [
             'title' => 'Financial Reports',
@@ -1144,6 +1154,14 @@ class Finance extends BaseController
             'ledger_summary' => $ledger['summary'],
             'ar_aging_summary' => $arAgingSummary,
             'ar_aging_detail' => $arAgingDetail,
+            'owner_summary' => [
+                'money_in' => round($moneyIn, 2),
+                'money_out' => round($moneyOut, 2),
+                'customers_owe_us' => round($customersOweUs, 2),
+                'we_owe_others' => round($weOweOthers, 2),
+                'net_position' => round($netPosition, 2),
+                'as_of_date' => $endDate,
+            ],
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
         ];

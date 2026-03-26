@@ -1007,6 +1007,13 @@ class Reports extends BaseController
         $ledgerSummary = $this->summarizeFinanceCashLedger($transactions);
         $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
         $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
+        $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
+
+        $moneyIn = (float) ($ledgerSummary['gross_collections'] ?? 0);
+        $moneyOut = (float) (($ledgerSummary['refund_total'] ?? 0) + ($ledgerSummary['expense_total'] ?? 0) + ($ledgerSummary['provider_paid_cash'] ?? 0));
+        $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
+        $weOweOthers = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
 
         $result = [
             'transactions' => $transactions,
@@ -1027,11 +1034,18 @@ class Reports extends BaseController
                 'net_clinic_revenue_cash' => (float) (($ledgerSummary['gross_collections'] ?? 0) - ($ledgerSummary['provider_paid_cash'] ?? 0)),
                 'pending_invoice_amount' => (float) ($arAgingSummary['total_balance_due'] ?? 0),
                 'outstanding_invoices_count' => (int) ($arAgingSummary['invoice_count'] ?? 0),
+                'provider_balance_due' => $weOweOthers,
                 'total_transactions' => (int) ($ledgerSummary['count'] ?? count($transactions)),
                 'refund_count' => (int) ($ledgerSummary['refund_count'] ?? 0),
                 'refund_total' => (float) ($ledgerSummary['refund_total'] ?? 0),
                 'discount_total' => 0.0,
                 'report_basis' => 'cash',
+                'money_in' => round($moneyIn, 2),
+                'money_out' => round($moneyOut, 2),
+                'customers_owe_us' => round($customersOweUs, 2),
+                'we_owe_others' => round($weOweOthers, 2),
+                'net_position' => round($netPosition, 2),
+                'as_of_date' => $endDate,
             ],
         ];
 
@@ -1044,13 +1058,19 @@ class Reports extends BaseController
                 $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $cEnd, 100),
                 $cEnd
             );
+            $compareProviderStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $cEnd);
+            $compareMoneyIn = (float) ($compareSummary['gross_collections'] ?? 0);
+            $compareMoneyOut = (float) (($compareSummary['refund_total'] ?? 0) + ($compareSummary['expense_total'] ?? 0) + ($compareSummary['provider_paid_cash'] ?? 0));
+            $compareCustomersOweUs = (float) ($compareAr['total_balance_due'] ?? 0);
+            $compareWeOweOthers = (float) ($compareProviderStats['total_provider_balance'] ?? 0);
             $result['comparison'] = [
                 'label' => $cStart . ' to ' . $cEnd,
                 'summary' => [
-                    'gross_collections' => (float) ($compareSummary['gross_collections'] ?? 0),
-                    'provider_paid_cash' => (float) ($compareSummary['provider_paid_cash'] ?? 0),
-                    'total_expenses' => (float) ($compareSummary['expense_total'] ?? 0),
-                    'pending_invoice_amount' => (float) ($compareAr['total_balance_due'] ?? 0),
+                    'money_in' => round($compareMoneyIn, 2),
+                    'money_out' => round($compareMoneyOut, 2),
+                    'customers_owe_us' => round($compareCustomersOweUs, 2),
+                    'we_owe_others' => round($compareWeOweOthers, 2),
+                    'net_position' => round($compareMoneyIn - $compareMoneyOut + $compareCustomersOweUs - $compareWeOweOthers, 2),
                     'total_transactions' => (int) ($compareSummary['count'] ?? 0),
                 ],
             ];
