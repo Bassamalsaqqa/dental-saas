@@ -97,6 +97,39 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - Implementation architecture plan: `docs/WHATSAPP_IMPLEMENTATION_PLAN_V5.md`.
 - Remaining Phase 6 work: pilot rollout execution, template-first enqueue flows, and alerting/runbook hardening.
 
+## K) Current Finance Reporting Context
+- There are still two tenant finance report surfaces:
+  - `/finance/reports`
+  - `/reports?report_type=finance`
+- Both are currently cash-basis and both now expose the same top-level owner summary model:
+  - `Total Money In`
+  - `Total Money Out`
+  - `Customers Still Owe Us`
+  - `We Still Owe Others`
+  - `Net Position`
+- Current owner-summary formulas:
+  - `money_in` = all collected cash for the selected period
+  - `money_out` = refunds + paid expenses + paid provider payouts for the selected period
+  - `customers_owe_us` = A/R snapshot as of the selected end date
+  - `we_owe_others` = outstanding provider payout balances as of the selected end date
+  - `net_position` = `money_in - money_out + customers_owe_us - we_owe_others`
+- Important: `Net Position` is an owner-facing simplified period position. It is **not** the actual safe balance and **not** the actual bank balance.
+- Safe metrics are separate and remain secondary:
+  - `Cash In`
+  - `Cash Out`
+  - `Net Cash Movement`
+- Important: `Net Cash Movement` is period cash movement only. It is **not** the physical current safe balance.
+- If the client asks for actual current cash balance, that requires a separate reconciliation model:
+  - opening balance
+  - manual cash adjustments
+  - closing count / variance
+- `/finance/reports` now normalizes `start_date` / `end_date` with `normalizeDateOnly()` and swaps them if reversed.
+- Current UX direction:
+  - top of both finance report surfaces should answer the owner question first
+  - detailed accounting breakdown stays below the owner summary
+  - `/finance/reports` should visually stay aligned with `/finance`
+  - `/reports` should visually stay aligned with the general reports shell
+
 ## I) Known Requirements / Guardrails
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.
 - Ensure IonAuth default group `members` exists in dumps to avoid "Invalid default group name" errors.
