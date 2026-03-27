@@ -286,7 +286,7 @@
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only" <?= $usageEnabledByOld ? 'checked' : '' ?>>
                                         <div class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
-                                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
+                                            <div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
                                         </div>
                                         <span class="ml-3 text-sm font-semibold text-gray-700"><?= lang('Treatment.enable') ?></span>
                                     </label>
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const usageToggle = document.getElementById('usageEnabled');
     const usageSection = document.getElementById('usageSection');
     const toggleTrack = usageToggle?.parentElement?.querySelector('.toggle-track');
-    const toggleDot = usageToggle?.parentElement?.querySelector('.dot');
+    const toggleDot = usageToggle?.parentElement?.querySelector('.toggle-dot');
     function syncUsageToggleState() {
         if (!usageToggle) {
             return;
