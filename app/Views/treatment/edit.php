@@ -369,12 +369,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 usageSection.classList.remove('hidden');
                 toggleTrack?.classList.add('bg-emerald-500');
                 toggleTrack?.classList.remove('bg-gray-200');
-                toggleDot.style.transform = 'translateX(20px)';
+                window.applyToggleDotState?.(toggleDot, true);
             } else {
                 usageSection.classList.add('hidden');
                 toggleTrack?.classList.remove('bg-emerald-500');
                 toggleTrack?.classList.add('bg-gray-200');
-                toggleDot.style.transform = 'translateX(0)';
+                window.applyToggleDotState?.(toggleDot, false);
             }
         });
     }

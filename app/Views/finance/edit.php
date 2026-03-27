@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function () {
             splitTrack?.classList.remove('bg-gray-200');
             splitTrack?.classList.add('bg-blue-500');
             if (splitDot) {
-                splitDot.style.transform = 'translateX(20px)';
+                window.applyToggleDotState?.(splitDot, true);
             }
         } else {
             splitFields.classList.add('hidden');
@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
             splitTrack?.classList.remove('bg-blue-500');
             splitTrack?.classList.add('bg-gray-200');
             if (splitDot) {
-                splitDot.style.transform = 'translateX(0)';
+                window.applyToggleDotState?.(splitDot, false);
             }
         }
 

@@ -222,7 +222,7 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                                                    data-dot-id="<?= esc($item['key']) ?>_dot"
                                                                    <?= $isChecked ? 'checked' : '' ?>>
                                                             <div id="<?= esc($item['key']) ?>_track" class="toggle-track w-11 h-6 <?= $isChecked ? 'bg-blue-500' : 'bg-gray-200' ?> rounded-full relative">
-                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? 'translateX(20px)' : 'translateX(0)' ?>;"></div>
+                                                                <div id="<?= esc($item['key']) ?>_dot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full" style="transform: <?= $isChecked ? (!empty($is_rtl) ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0)' ?>;"></div>
                                                             </div>
                                                         </label>
                                                         <span class="text-xs font-semibold text-blue-700"><?= esc($tr('yes')) ?></span>
@@ -311,14 +311,14 @@ document.addEventListener('DOMContentLoaded', function () {
             optionalTrack?.classList.remove('bg-gray-200');
             optionalTrack?.classList.add('bg-blue-500');
             if (optionalDot) {
-                optionalDot.style.transform = 'translateX(20px)';
+                window.applyToggleDotState?.(optionalDot, true);
             }
         } else {
             optionalSection.classList.add('hidden');
             optionalTrack?.classList.remove('bg-blue-500');
             optionalTrack?.classList.add('bg-gray-200');
             if (optionalDot) {
-                optionalDot.style.transform = 'translateX(0)';
+                window.applyToggleDotState?.(optionalDot, false);
             }
         }
     }
@@ -335,11 +335,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (toggle.checked) {
             track?.classList.remove('bg-gray-200');
             track?.classList.add('bg-blue-500');
-            if (dot) dot.style.transform = 'translateX(20px)';
+            window.applyToggleDotState?.(dot, true);
         } else {
             track?.classList.remove('bg-blue-500');
             track?.classList.add('bg-gray-200');
-            if (dot) dot.style.transform = 'translateX(0)';
+            window.applyToggleDotState?.(dot, false);
         }
     }
 

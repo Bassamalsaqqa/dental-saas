@@ -181,6 +181,13 @@
     .ui-toggle:checked::before {
         transform: translateX(20px);
     }
+    [dir="rtl"] .ui-toggle::before {
+        left: auto;
+        right: 3px;
+    }
+    [dir="rtl"] .ui-toggle:checked::before {
+        transform: translateX(-20px);
+    }
     .ui-toggle:disabled {
         opacity: 0.5;
         cursor: not-allowed;

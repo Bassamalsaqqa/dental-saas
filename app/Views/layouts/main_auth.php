@@ -212,6 +212,11 @@
             margin-inline-start: 0.25rem;
             white-space: nowrap;
         }
+
+        [dir="rtl"] .toggle-dot {
+            left: auto !important;
+            right: 0.25rem !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -1791,6 +1796,20 @@
                 && node.classList.contains('required-indicator');
         });
     }
+
+    function getToggleCheckedTransform() {
+        return document.documentElement.dir === 'rtl' ? 'translateX(-20px)' : 'translateX(20px)';
+    }
+
+    function applyToggleDotState(dot, checked) {
+        if (!dot) {
+            return;
+        }
+
+        dot.style.transform = checked ? getToggleCheckedTransform() : 'translateX(0)';
+    }
+
+    window.applyToggleDotState = applyToggleDotState;
 
     // Load notifications on page load
     document.addEventListener('DOMContentLoaded', function() {

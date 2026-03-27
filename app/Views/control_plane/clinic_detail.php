@@ -41,6 +41,13 @@ $clinicSettingsSnapshot = is_array($clinic_settings_snapshot ?? null) ? $clinic_
     .ui-toggle:checked::before {
         transform: translateX(1.45rem);
     }
+    [dir="rtl"] .ui-toggle::before {
+        left: auto;
+        right: .2rem;
+    }
+    [dir="rtl"] .ui-toggle:checked::before {
+        transform: translateX(-1.45rem);
+    }
     .ui-toggle:disabled {
         opacity: .55;
         cursor: not-allowed;
