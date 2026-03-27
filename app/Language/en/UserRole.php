@@ -155,6 +155,8 @@ return [
     'confirmDeleteRole' => 'Are you sure you want to delete this role? This action cannot be undone.',
     'confirmToggleRoleStatus' => 'Are you sure you want to {action} this role?',
     'delete' => 'Delete',
+    'description' => 'Description',
+    'permissions' => 'Permissions',
     'usersCount' => '{count} users',
     'superAdmin' => 'Super Admin',
     'superAdminCannotChange' => 'Super Admin Cannot Change',

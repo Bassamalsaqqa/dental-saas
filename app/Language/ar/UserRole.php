@@ -195,4 +195,6 @@ return [
     'syncPermissionsFirstCreate' => 'قم بمزامنة الصلاحيات أولاً ثم أنشئ الدور.',
     'requiredFieldsAlert' => 'يرجى إكمال جميع الحقول المطلوبة.',
     'selectAtLeastOnePermissionAlert' => 'حدد صلاحية واحدة على الأقل لهذا الدور.',
+    'description' => 'الوصف',
+    'permissions' => 'الصلاحيات',
 ];
