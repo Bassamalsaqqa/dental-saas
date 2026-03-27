@@ -205,6 +205,13 @@
             text-align: left !important;
             unicode-bidi: plaintext;
         }
+
+        .required-indicator {
+            color: #dc2626 !important;
+            font-weight: 700;
+            margin-inline-start: 0.25rem;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -1757,6 +1764,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         initializeClinicDateInputs();
         initializeClinicTimeInputs();
+        syncRequiredFieldMarkers();
         console.log('Loading notifications on page load...');
         loadNotifications();
         loadNotificationCount();
@@ -1770,6 +1778,17 @@
             loadNotifications();
             loadNotificationCount();
         }, 30000);
+
+        const requiredObserver = new MutationObserver(() => {
+            syncRequiredFieldMarkers();
+        });
+
+        requiredObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['required']
+        });
     });
 
     // Handle URL search parameters
@@ -1841,6 +1860,58 @@
         
         // Fallback: redirect to patients page with search parameter
         window.location.href = `<?= base_url('patients') ?>?search=${encodeURIComponent(query)}`;
+    }
+
+    function normalizeRequiredLabelText(label) {
+        const walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT);
+        const replacements = [];
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const original = node.nodeValue || '';
+            const updated = original.replace(/\s*(Required|مطلوب)\s*$/u, '');
+            if (updated !== original) {
+                replacements.push([node, updated]);
+            }
+        }
+
+        replacements.forEach(([node, value]) => {
+            node.nodeValue = value;
+        });
+    }
+
+    function getLabelControl(label) {
+        if (!label) {
+            return null;
+        }
+
+        if (label.htmlFor) {
+            return document.getElementById(label.htmlFor);
+        }
+
+        return label.querySelector('input, select, textarea');
+    }
+
+    function syncRequiredFieldMarkers() {
+        document.querySelectorAll('form label').forEach((label) => {
+            const control = getLabelControl(label);
+            if (!control || control.type === 'hidden') {
+                return;
+            }
+
+            normalizeRequiredLabelText(label);
+            label.querySelectorAll('.required-indicator').forEach((marker) => marker.remove());
+
+            if (!control.required) {
+                return;
+            }
+
+            const marker = document.createElement('span');
+            marker.className = 'required-indicator notranslate';
+            marker.setAttribute('aria-hidden', 'true');
+            marker.textContent = '*';
+            label.appendChild(marker);
+        });
     }
 
 
