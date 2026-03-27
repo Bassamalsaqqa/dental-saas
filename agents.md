@@ -41,18 +41,15 @@
 ## E) Environment & Infrastructure
 **Local Path:** `C:\xampp\htdocs\dental-saas`
 
-1) MySQL Docker
-- Container: `mysql8-dental`
-- Image: `mysql:8.0`
-- Port: `0.0.0.0:3307 -> 3306`
-
-2) Local DB (source for dumps)
+1) Local Database (authoritative local source)
 - DB: `democa_dental_saas`
 - Host: `127.0.0.1`
-- Port: `3307`
-- User/Pass: `root` / `root`
+- Port: `3306`
+- User: `root`
+- Password: blank
+- Source of truth for active connection settings: `.env`
 
-3) Session
+2) Session
 - Cookie: `ci_session_saas`
 
 ## F) Deployment Notes (Hostinger)
@@ -63,12 +60,12 @@
 - Only manual items after deploy: `.env` + latest SQL dump.
 
 ## G) How to Regenerate SQL Dump (UTF-8, no CREATE DATABASE)
-Run from repo root (uses docker container):
+Run from repo root using the local XAMPP MySQL client:
 ```
-cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas --ignore-table=democa_dental_saas.control_plane_invoices --ignore-table=democa_dental_saas.control_plane_invoice_payments > democa_dental_saas_schema_superadmin.sql"
+cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8mb4 --routines --triggers --events --single-transaction --skip-lock-tables --set-charset --no-create-db democa_dental_saas --ignore-table=democa_dental_saas.control_plane_invoices --ignore-table=democa_dental_saas.control_plane_invoice_payments > democa_dental_saas_schema_superadmin.sql"
 ```
 
-## H) Recent Changes Snapshot (Feb 2026)
+## H) Recent Changes Snapshot (Mar 2026)
 - **Control Plane Operations** rebuilt as an ops console (health checks + tooling). Plan enforcement table restyled to match clinic-plane tables.
 - **Control Plane Invoices**: added delete action (only draft/void/cancelled), modal confirm, route `POST /controlplane/invoices/{id}/delete`.
 - **Control Plane Defaults**: fixed time format persistence by saving `default_time_format` as string.
@@ -82,9 +79,20 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
   - `net_clinic_revenue` (cash view)
   - `net_clinic_revenue_accrual`
 - **Finance Reports Consistency**: `/reports?report_type=finance` now uses consistent start/end date filtering across transactions, payment methods, outstanding invoices, and monthly revenue; report cards use payout-aware values.
+- **Finance Reporting Simplification**: both `/finance/reports` and `/reports?report_type=finance` now lead with the same owner-facing 5 metrics:
+  - `Total Money In`
+  - `Total Money Out`
+  - `Customers Still Owe Us`
+  - `We Still Owe Others`
+  - `Net Position`
+- **Finance Safe Movement Metrics**: both finance report surfaces now expose secondary safe-movement metrics:
+  - `Cash In`
+  - `Cash Out`
+  - `Net Cash Movement`
+  - These are period movement metrics only, not current physical safe balance.
 - **Finance Create UX**: check-scan upload section is now always visible and optional; backend still only processes file if uploaded/valid.
 - **Tenant Finance Expansion**: tenant finance now supports `Add Expense` (alongside `Add Income`) with expense metadata (`expense_category`, `counterparty_name`), expense-aware index/show/reports, and finance API tenant ownership validation for patient/examination references.
-- **Inventory ↔ Finance (COGS)**: inventory usage can auto-post tenant finance `inventory_cogs` expenses (idempotent source refs), controlled by tenant setting `finance_auto_post_inventory_cogs`; usage history/details link to generated finance entries.
+- **Inventory <-> Finance (COGS)**: inventory usage can auto-post tenant finance `inventory_cogs` expenses (idempotent source refs), controlled by tenant setting `finance_auto_post_inventory_cogs`; usage history/details link to generated finance entries.
 - **Inventory Operations Refinement**: added tenant supplier directory + quick-add, stock movement ledger, receive-stock workflow, starter inventory templates/import, supplier-item mappings (SKU/pack/preferred reorder qty/last price), reorder list with supplier contact shortcuts, global movement ledger page (`/inventory/movements`), and batch/lot tracking foundation (`inventory_batches` + optional lot/expiry capture on receive).
 
 ## J) Current Improvement Phase (Authoritative)
@@ -134,5 +142,5 @@ cmd /c "docker exec mysql8-dental mysqldump -u root -proot --default-character-s
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.
 - Ensure IonAuth default group `members` exists in dumps to avoid "Invalid default group name" errors.
 - No DOM sinks in `app/Views` (guardrails enforce this).
-- After pulling latest finance changes, run migrations to ensure payout tables exist:
+- After pulling finance or messaging schema changes, run migrations:
   - `php spark migrate`
