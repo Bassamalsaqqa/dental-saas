@@ -22,7 +22,7 @@ class StorageService
     /**
      * Store a file in a tenant-isolated directory
      */
-    public function store($file, $clinicId, $entityType = null, $entityId = null, $purpose = null)
+    public function store($file, $clinicId, $entityType = null, $entityId = null, $purpose = null, array $options = [])
     {
         if (!$file->isValid()) {
             throw new \RuntimeException($file->getErrorString() . '(' . $file->getError() . ')');
@@ -62,7 +62,7 @@ class StorageService
 
         $mimeType = (string) $file->getMimeType();
         $fileSize = (int) $file->getSize();
-        $originalName = $file->getClientName();
+        $originalName = $options['display_name'] ?? $file->getClientName();
 
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);

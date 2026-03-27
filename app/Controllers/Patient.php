@@ -86,6 +86,66 @@ class Patient extends BaseController
         ];
     }
 
+    private function getAttachmentCategoryCodeMap(): array
+    {
+        return [
+            'CBCT (3D) Imaging' => 'CBCT3D',
+            'Panoramic X-Ray (OPG)' => 'PANORAMIC',
+            'Cephalometric X-Ray' => 'CEPH',
+            'Periapical X-Ray' => 'PERIAPICAL',
+            'Bitewing X-Ray' => 'BITEWING',
+            'Occlusal X-Ray' => 'OCCLUSAL',
+            'TMJ CT' => 'TMJ_CT',
+            'TMJ X-Ray' => 'TMJ_XRAY',
+            'Sinus CT' => 'SINUS_CT',
+            'Intraoral Photos' => 'INTRAORAL_PHOTO',
+            'Extraoral Photos' => 'EXTRAORAL_PHOTO',
+            'Intraoral Scan' => 'INTRAORAL_SCAN',
+            'STL Model File' => 'STL',
+            'Lab Prescription' => 'LAB_RX',
+            'Lab Case Sheet' => 'LAB_CASE',
+            'Pathology / Biopsy Report' => 'PATHOLOGY',
+            'Blood Test / Lab Work' => 'LAB_WORK',
+            'Referral Letter' => 'REFERRAL',
+            'Insurance Document' => 'INSURANCE',
+            'Consent or External Record' => 'CONSENT',
+            'Other Dental Record' => 'DENTAL_RECORD',
+        ];
+    }
+
+    private function generateAttachmentArchiveName(array $patient, int $clinicId, ?string $category, $file): string
+    {
+        $patientCode = strtoupper(trim((string) ($patient['patient_id'] ?? ('PATIENT_' . $patient['id']))));
+        $patientCode = preg_replace('/[^A-Z0-9]+/', '', $patientCode) ?: ('PATIENT' . (int) $patient['id']);
+
+        $datePart = date('Ymd');
+        $categoryCodeMap = $this->getAttachmentCategoryCodeMap();
+        $categoryCode = $categoryCodeMap[$category ?? ''] ?? 'GENERAL';
+
+        $todayStart = date('Y-m-d 00:00:00');
+        $todayEnd = date('Y-m-d 23:59:59');
+
+        $sequenceQuery = $this->attachmentModel
+            ->where('clinic_id', $clinicId)
+            ->where('entity_type', 'patient')
+            ->where('entity_id', (int) $patient['id'])
+            ->where('created_at >=', $todayStart)
+            ->where('created_at <=', $todayEnd);
+
+        if ($category !== null && $category !== '') {
+            $sequenceQuery->where('category', $category);
+        } else {
+            $sequenceQuery->where('category', null);
+        }
+
+        $sequence = $sequenceQuery->countAllResults() + 1;
+
+        $extension = strtolower((string) $file->getExtension());
+        $extension = $extension !== '' ? '.' . preg_replace('/[^a-z0-9]+/', '', $extension) : '';
+
+        return sprintf('%s_%s_%s_%03d%s', $patientCode, $datePart, $categoryCode, $sequence, $extension);
+    }
+
     public function index()
     {
         // Handle AJAX requests for server-side processing
@@ -746,7 +806,10 @@ class Patient extends BaseController
         try {
             $uploaded = [];
             foreach ($files as $file) {
-                $attachment = $this->storageService->store($file, $clinicId, 'patient', $patientId, 'attachment');
+                $archiveName = $this->generateAttachmentArchiveName($patient, (int) $clinicId, $category ?: null, $file);
+                $attachment = $this->storageService->store($file, $clinicId, 'patient', $patientId, 'attachment', [
+                    'display_name' => $archiveName,
+                ]);
 
                 if (!empty($category) || !empty($notes)) {
                     $this->attachmentModel->update($attachment['id'], [
