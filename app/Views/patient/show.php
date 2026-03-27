@@ -587,8 +587,20 @@ function getFDINumber($universalNumber) {
                                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientUploadFiles')) ?></label>
                                                         <input type="file" name="attachment[]" id="attachmentInput" required multiple
                                                                accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
-                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
+                                                               class="hidden">
+                                                        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                                                <div>
+                                                                    <p class="text-sm font-medium text-slate-700"><?= esc(lang('UI.patientSelectMultipleFiles')) ?></p>
+                                                                    <p class="mt-1 text-xs text-slate-500"><?= esc(lang('UI.patientAllowedFileTypes')) ?></p>
+                                                                </div>
+                                                                <label for="attachmentInput" class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+                                                                    <i class="fas fa-folder-open"></i>
+                                                                    <span><?= esc(lang('UI.patientChooseFiles')) ?></span>
+                                                                </label>
+                                                            </div>
+                                                            <div id="attachmentFileList" class="mt-4 space-y-2 text-sm text-gray-600"></div>
+                                                        </div>
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
