@@ -777,6 +777,28 @@
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
+                        <?php if (!empty($finance_attachment)): ?>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></label>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <a class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-download mr-2"></i><?= lang('Finance.download') ?>
+                                </a>
+                                <a class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-eye mr-2"></i><?= lang('Finance.view') ?>
+                                </a>
+                                <span class="text-xs text-gray-500"><?= esc($finance_attachment['original_name'] ?? '') ?></span>
+                            </div>
+                            <?php $isFinanceAttachmentImage = !empty($finance_attachment['mime_type']) && strpos($finance_attachment['mime_type'], 'image/') === 0; ?>
+                            <?php if ($isFinanceAttachmentImage): ?>
+                                <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                    <img src="<?= base_url('file/download/' . $finance_attachment['id']) ?>" alt="<?= esc(lang('Finance.attachmentPreview')) ?>" class="max-h-56 w-auto rounded-lg">
+                                </div>
+                            <?php else: ?>
+                                <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.dueDate') ?></label>

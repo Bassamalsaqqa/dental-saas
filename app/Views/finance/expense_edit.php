@@ -25,7 +25,7 @@ $finance = $finance ?? [];
             </div>
 
             <div class="p-8">
-                <form action="<?= base_url('finance/' . (int) ($finance['id'] ?? 0) . '/update') ?>" method="POST" class="space-y-8" data-finance-calc data-base-currency="<?= esc($baseCurrency) ?>">
+                <form action="<?= base_url('finance/' . (int) ($finance['id'] ?? 0) . '/update') ?>" method="POST" enctype="multipart/form-data" class="space-y-8" data-finance-calc data-base-currency="<?= esc($baseCurrency) ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="transaction_type" value="expense">
                     <?php if (!empty($return_to)): ?>
@@ -120,6 +120,27 @@ $finance = $finance ?? [];
                         <textarea name="notes" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><?= esc(old('notes', $finance['notes'] ?? '')) ?></textarea>
                     </div>
 
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50/80 p-5">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.attachmentOptional') ?></label>
+                        <div class="space-y-3">
+                            <p class="text-sm text-gray-600"><?= lang('Finance.expenseAttachmentHelp') ?></p>
+                            <p class="text-xs text-gray-500"><?= lang('Finance.attachmentFormatsHelp') ?></p>
+                            <?php if (!empty($expense_attachment)): ?>
+                                <div class="flex flex-wrap items-center gap-3 text-sm">
+                                    <span class="font-semibold text-gray-700"><?= lang('Finance.existing') ?>:</span>
+                                    <a class="text-blue-600 hover:text-blue-800" href="<?= base_url('file/download/' . $expense_attachment['id']) ?>" target="_blank" rel="noopener"><?= esc($expense_attachment['original_name'] ?? lang('Finance.download')) ?></a>
+                                </div>
+                            <?php endif; ?>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <label class="inline-flex cursor-pointer items-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-900">
+                                    <i class="fas fa-paperclip mr-2"></i><?= lang('Finance.uploadAttachment') ?>
+                                    <input type="file" name="attachment" id="expenseAttachmentInput" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                </label>
+                                <span id="expenseAttachmentName" class="text-xs text-gray-500"></span>
+                            </div>
+                        </div>
+                    </div>
+
                     <?php if (session()->getFlashdata('error')): ?>
                         <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700 text-sm font-medium"><?= esc(session()->getFlashdata('error')) ?></div>
                     <?php endif; ?>
@@ -136,4 +157,16 @@ $finance = $finance ?? [];
     </div>
 </div>
 <script src="<?= base_url('assets/js/finance-calc.js') ?>?v=<?= time() ?>"></script>
+<script>
+(() => {
+    const input = document.getElementById('expenseAttachmentInput');
+    const label = document.getElementById('expenseAttachmentName');
+    if (!input || !label) {
+        return;
+    }
+    input.addEventListener('change', () => {
+        label.textContent = input.files?.length ? input.files[0].name : '';
+    });
+})();
+</script>
 <?= $this->endSection() ?>

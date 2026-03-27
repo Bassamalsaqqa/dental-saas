@@ -164,6 +164,8 @@ class Finance extends BaseController
 
     private function buildExpenseViewData(array $finance = null): array
     {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+
         return [
             'title' => $finance ? ('Edit Expense - ' . ($finance['transaction_id'] ?? '')) : 'New Expense',
             'finance' => $finance,
@@ -171,6 +173,14 @@ class Finance extends BaseController
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
             'expense_category_options' => $this->getExpenseCategoryOptions(),
+            'expense_attachment' => ($clinicId > 0 && !empty($finance['id']))
+                ? $this->attachmentModel
+                    ->where('clinic_id', $clinicId)
+                    ->where('entity_type', 'finance')
+                    ->where('entity_id', $finance['id'])
+                    ->where('purpose', 'attachment')
+                    ->first()
+                : null,
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance']),
         ];
     }
@@ -494,6 +504,16 @@ class Finance extends BaseController
             }
 
             $financeId = (int) $this->financeModel->getInsertID();
+            $attachmentFile = $this->request->getFile('attachment');
+            if ($attachmentFile && $attachmentFile->isValid() && $attachmentFile->getName() !== '') {
+                $validation = $this->validateFinanceAttachment($attachmentFile);
+                if ($validation !== null) {
+                    $this->db->transRollback();
+                    return redirect()->back()->withInput()->with('error', $validation);
+                }
+                $this->attachmentModel->supersedePrevious($clinicId, 'finance', $financeId, 'attachment');
+                $this->storageService->store($attachmentFile, $clinicId, 'finance', $financeId, 'attachment');
+            }
             $this->activityLogger->logFinanceActivity(
                 'create',
                 $financeId,
@@ -755,6 +775,12 @@ class Finance extends BaseController
                 ->where('entity_type', 'finance')
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'check_scan')
+                ->first(),
+            'finance_attachment' => $this->attachmentModel
+                ->where('clinic_id', $clinicId)
+                ->where('entity_type', 'finance')
+                ->where('entity_id', $finance['id'])
+                ->where('purpose', 'attachment')
                 ->first(),
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance'])
         ];
@@ -1033,8 +1059,22 @@ class Finance extends BaseController
         ];
 
         try {
+            $this->db->transBegin();
+
             if (!$this->financeModel->update($id, $update)) {
+                $this->db->transRollback();
                 return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
+            }
+
+            $attachmentFile = $this->request->getFile('attachment');
+            if ($attachmentFile && $attachmentFile->isValid() && $attachmentFile->getName() !== '') {
+                $validation = $this->validateFinanceAttachment($attachmentFile);
+                if ($validation !== null) {
+                    $this->db->transRollback();
+                    return redirect()->back()->withInput()->with('error', $validation);
+                }
+                $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'attachment');
+                $this->storageService->store($attachmentFile, $clinicId, 'finance', $id, 'attachment');
             }
 
             $this->activityLogger->logFinanceActivity(
@@ -1043,10 +1083,17 @@ class Finance extends BaseController
                 "Expense transaction updated for " . ($update['counterparty_name'] ?: 'counterparty')
             );
 
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'Failed to update expense.');
+            }
+            $this->db->transCommit();
+
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance']);
             return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $id))
                 ->with('success', 'Expense updated successfully.');
         } catch (\Throwable $e) {
+            $this->db->transRollback();
             log_message('error', 'Expense update failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
@@ -2742,6 +2789,28 @@ class Finance extends BaseController
         $mime = (string) $file->getMimeType();
         if (!in_array($mime, $allowedMimes, true)) {
             return 'Unsupported check scan file format.';
+        }
+
+        return null;
+    }
+
+    private function validateFinanceAttachment($file): ?string
+    {
+        $allowedExts = ['pdf', 'jpg', 'jpeg', 'png'];
+        $allowedMimes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+        ];
+
+        $extension = strtolower((string) $file->getExtension());
+        if (!in_array($extension, $allowedExts, true)) {
+            return 'Unsupported attachment file type.';
+        }
+
+        $mime = (string) $file->getMimeType();
+        if (!in_array($mime, $allowedMimes, true)) {
+            return 'Unsupported attachment file format.';
         }
 
         return null;
