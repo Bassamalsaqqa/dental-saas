@@ -144,6 +144,7 @@ return [
     'createRole' => 'Create Role',
     'createNewRoleTitle' => 'Create New Role',
     'createNewRoleSubtitle' => 'Define a new role and choose the permissions it should have.',
+    'backToRoles' => 'Back to Roles',
     'totalRoles' => 'Total Roles',
     'activeRoles' => 'Active Roles',
     'systemRoles' => 'System Roles',

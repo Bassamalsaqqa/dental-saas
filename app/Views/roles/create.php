@@ -10,9 +10,10 @@
                 <h1 class="text-4xl font-bold text-gray-800 mb-3"><?= lang('UserRole.createNewRoleTitle') ?></h1>
                 <p class="text-gray-600 text-lg"><?= lang('UserRole.createNewRoleSubtitle') ?></p>
             </div>
-            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-arrow-left rtl-back-icon mr-2"></i><?= lang('UserRole.backToRoles') ?>
+                    <i class="fas fa-arrow-left rtl-back-icon"></i>
+                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.backToRoles') ?></span>
                 </a>
             </div>
         </div>
@@ -25,7 +26,7 @@
                 <div class="flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
-                <div class="ml-3">
+                <div class="<?= isRTL() ? 'mr-3' : 'ml-3' ?>">
                     <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.validationErrors') ?></h3>
                     <div class="mt-2 text-sm text-red-700">
                         <ul class="list-disc list-inside space-y-1">
@@ -45,7 +46,7 @@
                 <div class="flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                 </div>
-                <div class="ml-3">
+                <div class="<?= isRTL() ? 'mr-3' : 'ml-3' ?>">
                     <h3 class="text-sm font-medium text-red-800"><?= lang('UserRole.error') ?></h3>
                     <div class="mt-2 text-sm text-red-700">
                         <p><?= session()->getFlashdata('error') ?></p>
@@ -61,7 +62,7 @@
             <!-- Role Information -->
             <div class="lg:col-span-1">
                 <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6 sticky top-8">
-                    <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center gap-3 mb-6">
                         <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
                             <i class="fas fa-user-tag text-lg"></i>
                         </div>
@@ -113,14 +114,14 @@
                         <!-- Status -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.status') ?></label>
-                            <div class="flex items-center space-x-4">
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <label class="flex items-center">
                                     <input type="radio" 
                                            name="is_active" 
                                            value="1" 
                                            <?= old('is_active', '1') == '1' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.active') ?></span>
+                                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.active') ?></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -128,7 +129,7 @@
                                            value="0" 
                                            <?= old('is_active') == '0' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.inactive') ?></span>
+                                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.inactive') ?></span>
                                 </label>
                             </div>
                         </div>
@@ -136,14 +137,14 @@
                         <!-- Medical Role -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('UserRole.roleType') ?></label>
-                            <div class="flex items-center space-x-4">
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <label class="flex items-center">
                                     <input type="radio" 
                                            name="is_medical" 
                                            value="1" 
                                            <?= old('is_medical') == '1' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.medicalRoleDoctor') ?></span>
+                                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.medicalRoleDoctor') ?></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" 
@@ -151,7 +152,7 @@
                                            value="0" 
                                            <?= old('is_medical', '0') == '0' ? 'checked' : '' ?>
                                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
-                                    <span class="ml-2 text-sm text-gray-700"><?= lang('UserRole.nonMedicalRole') ?></span>
+                                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?> text-sm text-gray-700"><?= lang('UserRole.nonMedicalRole') ?></span>
                                 </label>
                             </div>
                             <p class="text-xs text-gray-500 mt-1"><?= lang('UserRole.medicalRoleHint') ?></p>
@@ -163,7 +164,7 @@
             <!-- Permissions -->
             <div class="lg:col-span-2">
                 <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg p-6">
-                    <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center gap-3 mb-6">
                         <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
                             <i class="fas fa-shield-alt text-lg"></i>
                         </div>
@@ -182,7 +183,7 @@
                                 <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
                                     <!-- Module Header -->
                                     <div class="flex items-center justify-between mb-6">
-                                        <div class="flex items-center space-x-3">
+                                        <div class="flex items-center gap-3">
                                             <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
                                                 <?php
                                                 $moduleIcons = [
@@ -215,16 +216,18 @@
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="flex items-center space-x-3">
+                                        <div class="flex items-center gap-3">
                                             <button type="button" 
                                                     onclick="selectAllPermissions('<?= $module ?>')"
                                                     class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                                                <i class="fas fa-check-double mr-1"></i><?= lang('UserRole.selectAll') ?>
+                                                <i class="fas fa-check-double"></i>
+                                                <span class="<?= isRTL() ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.selectAll') ?></span>
                                             </button>
                                             <button type="button" 
                                                     onclick="deselectAllPermissions('<?= $module ?>')"
                                                     class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                                                <i class="fas fa-times mr-1"></i><?= lang('UserRole.deselectAll') ?>
+                                                <i class="fas fa-times"></i>
+                                                <span class="<?= isRTL() ? 'mr-1' : 'ml-1' ?>"><?= lang('UserRole.deselectAll') ?></span>
                                             </button>
                                         </div>
                                     </div>
@@ -240,16 +243,11 @@
                                                        <?= in_array($permission['id'], old('permissions', [])) ? 'checked' : '' ?>
                                                        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5 permission-checkbox"
                                                        data-module="<?= $module ?>">
-                                                <div class="ml-3 flex-1">
-                                                    <div class="flex items-center space-x-2">
+                                                <div class="<?= isRTL() ? 'mr-3' : 'ml-3' ?> flex-1">
+                                                    <div class="flex items-center gap-2">
                                                         <span class="text-sm font-semibold text-gray-800 group-hover:text-blue-800">
                                                             <?= esc($actionLabels[$permissionAction] ?? $permission['name']) ?>
                                                         </span>
-                                                        <?php if ($permissionAction && isset($actionLabels[$permissionAction])): ?>
-                                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                                <?= esc($actionLabels[$permissionAction]) ?>
-                                                            </span>
-                                                        <?php endif; ?>
                                                     </div>
                                                     <?php if ($permissionAction && isset($actionDescriptions[$permissionAction])): ?>
                                                         <p class="text-xs text-gray-500 mt-1">
@@ -270,7 +268,8 @@
                                 <h3 class="text-lg font-medium text-gray-900 mb-2"><?= lang('UserRole.noPermissionsAvailable') ?></h3>
                                 <p class="text-gray-500 mb-6"><?= lang('UserRole.syncPermissionsFirstCreate') ?></p>
                                 <a href="<?= base_url($rolesRoute . '/sync') ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-sync-alt mr-2"></i><?= lang('UserRole.syncPermissions') ?>
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.syncPermissions') ?></span>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -280,12 +279,13 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+        <div class="flex flex-col justify-end gap-3 pt-6 border-t border-gray-200 sm:flex-row sm:gap-4">
             <a href="<?= base_url($rolesRoute) ?>" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
                 <?= lang('UserRole.cancel') ?>
             </a>
             <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                <i class="fas fa-save mr-2"></i><?= lang('UserRole.createRole') ?>
+                <i class="fas fa-save"></i>
+                <span class="<?= isRTL() ? 'mr-2' : 'ml-2' ?>"><?= lang('UserRole.createRole') ?></span>
             </button>
         </div>
     </form>

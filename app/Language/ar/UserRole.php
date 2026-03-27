@@ -175,6 +175,7 @@ return [
     'viewUserInformationPermissions' => 'عرض معلومات المستخدم وصلاحياته',
     'createNewRoleTitle' => 'إنشاء دور جديد',
     'createNewRoleSubtitle' => 'عرّف دورًا جديدًا وحدد الصلاحيات التي يجب أن يمتلكها.',
+    'backToRoles' => 'العودة إلى الأدوار',
     'validationErrors' => 'أخطاء التحقق',
     'roleInformation' => 'معلومات الدور',
     'roleName' => 'اسم الدور',
