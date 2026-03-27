@@ -592,8 +592,33 @@ function getFDINumber($universalNumber) {
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
-                                                        <input type="text" name="category" placeholder="<?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?>"
-                                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                        <?php $selectedAttachmentCategory = old('category'); ?>
+                                                        <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                            <option value=""><?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?></option>
+                                                            <?php foreach (($attachment_category_options ?? []) as $groupLabel => $groupOptions): ?>
+                                                                <optgroup label="<?= esc($groupLabel) ?>">
+                                                                    <?php foreach ($groupOptions as $optionLabel): ?>
+                                                                        <option value="<?= esc($optionLabel) ?>" <?= $selectedAttachmentCategory === $optionLabel ? 'selected' : '' ?>>
+                                                                            <?= esc($optionLabel) ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </optgroup>
+                                                            <?php endforeach; ?>
+                                                            <?php if (!empty($selectedAttachmentCategory)): ?>
+                                                                <?php
+                                                                $knownCategory = false;
+                                                                foreach (($attachment_category_options ?? []) as $groupOptions) {
+                                                                    if (in_array($selectedAttachmentCategory, $groupOptions, true)) {
+                                                                        $knownCategory = true;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                ?>
+                                                                <?php if (!$knownCategory): ?>
+                                                                    <option value="<?= esc($selectedAttachmentCategory) ?>" selected><?= esc($selectedAttachmentCategory) ?></option>
+                                                                <?php endif; ?>
+                                                            <?php endif; ?>
+                                                        </select>
                                                     </div>
                                                 </div>
 

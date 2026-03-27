@@ -51,6 +51,41 @@ class Patient extends BaseController
         $this->whatsAppOptoutModel = new WhatsAppOptoutModel();
     }
 
+    private function getAttachmentCategoryOptions(): array
+    {
+        return [
+            'Dental Imaging' => [
+                'CBCT (3D) Imaging',
+                'Panoramic X-Ray (OPG)',
+                'Cephalometric X-Ray',
+                'Periapical X-Ray',
+                'Bitewing X-Ray',
+                'Occlusal X-Ray',
+                'TMJ CT',
+                'TMJ X-Ray',
+                'Sinus CT',
+            ],
+            'Clinical Records' => [
+                'Intraoral Photos',
+                'Extraoral Photos',
+                'Intraoral Scan',
+                'STL Model File',
+            ],
+            'Lab and Reports' => [
+                'Lab Prescription',
+                'Lab Case Sheet',
+                'Pathology / Biopsy Report',
+                'Blood Test / Lab Work',
+                'Referral Letter',
+            ],
+            'Other' => [
+                'Insurance Document',
+                'Consent or External Record',
+                'Other Dental Record',
+            ],
+        ];
+    }
+
     public function index()
     {
         // Handle AJAX requests for server-side processing
@@ -568,6 +603,7 @@ class Patient extends BaseController
             'attachments_storage_usage_bytes' => $storageUsageBytes,
             'attachments_storage_limit_gb' => $storageLimitGb,
             'attachments_max_file_mb' => $maxAttachmentMb,
+            'attachment_category_options' => $this->getAttachmentCategoryOptions(),
             'contracts_enabled' => $contractsEnabled,
             'contracts' => $contracts,
             'patient_whatsapp' => $this->patientWhatsAppModel->findByPatient((int) $clinicId, (int) $id),
