@@ -113,6 +113,13 @@
         .cp-content .text-sm { font-size: 0.875rem !important; }
         .cp-content .text-xs { font-size: 0.75rem !important; }
 
+        .rtl-back-icon {
+            transition: transform 0.2s ease;
+        }
+        [dir="rtl"] .rtl-back-icon {
+            transform: scaleX(-1);
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.82);
             border: 1px solid rgba(255, 255, 255, 0.35);

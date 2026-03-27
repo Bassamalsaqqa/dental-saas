@@ -13,7 +13,7 @@
             <p class="text-muted mb-0"><?= lang('UserRole.createNewUserWithRolesPermissions') ?></p>
         </div>
         <a href="<?= base_url('user-management') ?>" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> <?= lang('UserRole.backToUsers') ?>
+            <i class="fas fa-arrow-left rtl-back-icon"></i> <?= lang('UserRole.backToUsers') ?>
         </a>
     </div>
 

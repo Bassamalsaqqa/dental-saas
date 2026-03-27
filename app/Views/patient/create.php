@@ -68,7 +68,7 @@ $alertBoolChecked = static function (string $key): bool {
                             </div>
                         </div>
                         <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient') ?>" class="group/btn relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            <i class="fas fa-arrow-left rtl-back-icon mr-2"></i>
                             <span><?= esc(lang('UI.patientBack')) ?></span>
                         </a>
                     </div>

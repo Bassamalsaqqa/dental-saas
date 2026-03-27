@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <a href="<?= base_url('controlplane/invoices') ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md">
-                        <i class="fas fa-arrow-left"></i> Back to Registry
+                        <i class="fas fa-arrow-left rtl-back-icon"></i> Back to Registry
                     </a>
                 </div>
             </div>

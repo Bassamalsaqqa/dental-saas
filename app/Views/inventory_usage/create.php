@@ -144,7 +144,7 @@
                     <!-- Form Actions -->
                     <div class="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                         <a href="<?= base_url('inventory-usage') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200">
-                            <i class="fas fa-arrow-left mr-2"></i>Cancel
+                            <i class="fas fa-arrow-left rtl-back-icon mr-2"></i>Cancel
                         </a>
                         
                         <button type="submit" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">

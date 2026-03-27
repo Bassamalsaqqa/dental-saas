@@ -213,6 +213,14 @@
             white-space: nowrap;
         }
 
+        .rtl-back-icon {
+            transition: transform 0.2s ease;
+        }
+
+        [dir="rtl"] .rtl-back-icon {
+            transform: scaleX(-1);
+        }
+
         [dir="rtl"] .toggle-dot {
             left: auto !important;
             right: 0.25rem !important;
