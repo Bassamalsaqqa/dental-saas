@@ -64,7 +64,7 @@ class Finance extends BaseController
 
     private function getExpenseCategoryOptions(): array
     {
-        return [
+        $defaults = [
             'rent' => 'Rent',
             'utilities' => 'Utilities',
             'salaries' => 'Salaries',
@@ -80,6 +80,15 @@ class Finance extends BaseController
             'inventory_cogs' => 'Inventory COGS',
             'miscellaneous' => 'Miscellaneous',
         ];
+
+        foreach ($defaults as $key => $fallback) {
+            $translated = lang('Finance.expenseCategory.' . $key);
+            $defaults[$key] = is_string($translated) && $translated !== 'Finance.expenseCategory.' . $key
+                ? $translated
+                : $fallback;
+        }
+
+        return $defaults;
     }
 
     private function getFinanceCurrencyOptions(): array
