@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $usageEnabledByOld = old('usage_enabled') || old('usage_notes') || !empty(old('usage_items')); ?>
 <style>
 /* Prevent overlap between Select2 clear (x) and dropdown arrow on this page */
 #patientSelect + .select2-container .select2-selection--single .select2-selection__rendered,
@@ -283,7 +284,7 @@
                                         </div>
                                     </div>
                                     <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only">
+                                        <input type="checkbox" name="usage_enabled" id="usageEnabled" class="sr-only" <?= $usageEnabledByOld ? 'checked' : '' ?>>
                                         <div class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative transition-all duration-200">
                                             <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-200"></div>
                                         </div>
@@ -291,7 +292,7 @@
                                     </label>
                                 </div>
 
-                                <div id="usageSection" class="hidden space-y-4">
+                                <div id="usageSection" class="<?= $usageEnabledByOld ? '' : 'hidden' ?> space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_date_required') ?></label>
@@ -388,20 +389,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const usageSection = document.getElementById('usageSection');
     const toggleTrack = usageToggle?.parentElement?.querySelector('.toggle-track');
     const toggleDot = usageToggle?.parentElement?.querySelector('.dot');
+    function syncUsageToggleState() {
+        if (!usageToggle) {
+            return;
+        }
+
+        if (usageToggle.checked) {
+            usageSection?.classList.remove('hidden');
+            toggleTrack?.classList.add('bg-emerald-500');
+            toggleTrack?.classList.remove('bg-gray-200');
+            window.applyToggleDotState?.(toggleDot, true);
+        } else {
+            usageSection?.classList.add('hidden');
+            toggleTrack?.classList.remove('bg-emerald-500');
+            toggleTrack?.classList.add('bg-gray-200');
+            window.applyToggleDotState?.(toggleDot, false);
+        }
+    }
+
     if (usageToggle) {
-        usageToggle.addEventListener('change', function() {
-            if (this.checked) {
-                usageSection.classList.remove('hidden');
-                toggleTrack?.classList.add('bg-emerald-500');
-                toggleTrack?.classList.remove('bg-gray-200');
-                window.applyToggleDotState?.(toggleDot, true);
-            } else {
-                usageSection.classList.add('hidden');
-                toggleTrack?.classList.remove('bg-emerald-500');
-                toggleTrack?.classList.add('bg-gray-200');
-                window.applyToggleDotState?.(toggleDot, false);
-            }
-        });
+        usageToggle.addEventListener('change', syncUsageToggleState);
+        syncUsageToggleState();
     }
 
     let usageItemCount = 1;
