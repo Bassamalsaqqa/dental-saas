@@ -2066,6 +2066,36 @@ function getFDINumber($universalNumber) {
             closeToothModal();
         }
     });
+
+    const initAttachmentCategorySelect = function () {
+        if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+            return;
+        }
+
+        const $attachmentCategory = $('#attachmentCategory');
+        if (!$attachmentCategory.length || $attachmentCategory.data('select2')) {
+            return;
+        }
+
+        $attachmentCategory.select2({
+            placeholder: <?= json_encode(lang('UI.patientAttachmentCategoryPlaceholder')) ?>,
+            allowClear: true,
+            width: '100%',
+            theme: 'default',
+            minimumInputLength: 0,
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function() {
+                    return 'No results found';
+                },
+                searching: function() {
+                    return 'Searching...';
+                }
+            }
+        });
+    };
+
+    initAttachmentCategorySelect();
 </script>
 
 <?= $this->endSection() ?>
