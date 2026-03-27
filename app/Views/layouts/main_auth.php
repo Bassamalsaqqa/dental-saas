@@ -1880,6 +1880,31 @@
         });
     }
 
+    function stripExistingRequiredMarkers(label) {
+        label.querySelectorAll('.required-indicator').forEach((marker) => marker.remove());
+
+        label.querySelectorAll('span, strong, b, em, small').forEach((node) => {
+            if (node.classList.contains('required-indicator')) {
+                return;
+            }
+
+            if (node.children.length === 0 && node.textContent.trim() === '*') {
+                node.remove();
+            }
+        });
+
+        Array.from(label.childNodes).forEach((node) => {
+            if (node.nodeType !== Node.TEXT_NODE) {
+                return;
+            }
+
+            const updated = (node.nodeValue || '').replace(/\s*\*+\s*$/u, '');
+            if (updated !== node.nodeValue) {
+                node.nodeValue = updated;
+            }
+        });
+    }
+
     function getLabelControl(label) {
         if (!label) {
             return null;
@@ -1900,7 +1925,7 @@
             }
 
             normalizeRequiredLabelText(label);
-            label.querySelectorAll('.required-indicator').forEach((marker) => marker.remove());
+            stripExistingRequiredMarkers(label);
 
             if (!control.required) {
                 return;
