@@ -45,14 +45,14 @@
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-building text-blue-600 mr-2"></i><?= lang('Finance.payeeVendorRequired') ?>
+                                    <i class="fas fa-building text-blue-600 mr-2"></i><?= lang('Finance.payeeVendorRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <input type="text" name="counterparty_name" value="<?= esc(old('counterparty_name')) ?>" maxlength="150" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20" placeholder="<?= esc(lang('Finance.payeeVendorPlaceholder')) ?>" required>
                             </div>
 
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-tags text-purple-600 mr-2"></i><?= lang('Finance.expenseCategoryRequired') ?>
+                                    <i class="fas fa-tags text-purple-600 mr-2"></i><?= lang('Finance.expenseCategoryRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="expense_category" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20" required>
@@ -71,14 +71,14 @@
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-dollar-sign text-green-600 mr-2"></i><?= lang('Finance.amountOriginalRequired') ?>
+                                    <i class="fas fa-dollar-sign text-green-600 mr-2"></i><?= lang('Finance.amountOriginalRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <input type="number" id="amountOriginal" name="amount_original" value="<?= esc(old('amount_original')) ?>" step="0.01" min="0.01" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/20" placeholder="0.00" required>
                             </div>
 
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-coins text-indigo-600 mr-2"></i><?= lang('Finance.currencyRequired') ?>
+                                    <i class="fas fa-coins text-indigo-600 mr-2"></i><?= lang('Finance.currencyRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select id="currencySelect" name="currency" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>
@@ -136,7 +136,7 @@
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-credit-card text-indigo-600 mr-2"></i><?= lang('Finance.paymentMethodRequired') ?>
+                                    <i class="fas fa-credit-card text-indigo-600 mr-2"></i><?= lang('Finance.paymentMethodRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select id="paymentMethod" name="payment_method" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>

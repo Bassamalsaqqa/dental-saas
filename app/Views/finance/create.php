@@ -66,7 +66,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-user text-blue-600"></i>
-                                    <span><?= lang('Finance.patientRequired') ?></span>
+                                    <span><?= lang('Finance.patientRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="patient_id" id="patientSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" 
@@ -100,7 +100,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-exchange-alt text-purple-600"></i>
-                                    <span><?= lang('Finance.transactionTypeRequired') ?></span>
+                                    <span><?= lang('Finance.transactionTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="transaction_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
@@ -153,7 +153,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-dollar-sign text-green-600"></i>
-                                    <span><?= lang('Finance.amountOriginalRequired') ?></span>
+                                    <span><?= lang('Finance.amountOriginalRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="amount_original" id="amountOriginal" value="<?= old('amount_original') ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
@@ -169,7 +169,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-coins text-indigo-600"></i>
-                                    <span><?= lang('Finance.currencyRequired') ?></span>
+                                    <span><?= lang('Finance.currencyRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="currency" id="currencySelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
@@ -213,7 +213,7 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-credit-card text-indigo-600"></i>
-                                    <span><?= lang('Finance.paymentMethod') ?></span>
+                                    <span><?= lang('Finance.paymentMethod') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="payment_method" id="paymentMethod" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
@@ -278,7 +278,7 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                 <i class="fas fa-stethoscope text-teal-600"></i>
-                                <span><?= lang('Finance.serviceTypeRequired') ?></span>
+                                <span><?= lang('Finance.serviceTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                             </label>
                             <div class="relative">
                                 <select name="service_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
