@@ -136,7 +136,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             const textField = select.dataset.textField || 'text';
             const placeholder = select.dataset.placeholder || 'Search and select...';
             const allowClear = select.dataset.allowClear !== 'false';
-            const minimumInputLength = parseInt(select.dataset.minimumInputLength) || 1; 
+            const minimumInputLength = Number.isNaN(parseInt(select.dataset.minimumInputLength, 10))
+                ? 1
+                : parseInt(select.dataset.minimumInputLength, 10);
             const delay = parseInt(select.dataset.delay) || 300;
             const limit = parseInt(select.dataset.limit) || null;
             const extraParamsRaw = select.dataset.extraParams || '';
@@ -191,6 +193,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 placeholder: placeholder,
                 allowClear: allowClear,
                 minimumInputLength: minimumInputLength,
+                minimumResultsForSearch: 0,
                 delay: delay,
                 width: '100%',
                 theme: 'default',
