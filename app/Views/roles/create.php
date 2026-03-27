@@ -176,6 +176,7 @@
                             <?php 
                             $categories = \App\Config\Permissions::getCategories();
                             $actionDescriptions = \App\Config\Permissions::getActionDescriptions();
+                            $actionLabels = \App\Config\Permissions::getActionLabels();
                             ?>
                             <?php foreach ($permissions as $module => $modulePermissions): ?>
                                 <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
@@ -231,6 +232,7 @@
                                     <!-- Permissions Grid -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <?php foreach ($modulePermissions as $permission): ?>
+                                            <?php $permissionAction = $permission['action'] ?? null; ?>
                                             <label class="group flex items-start p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200">
                                                 <input type="checkbox" 
                                                        name="permissions[]" 
@@ -241,17 +243,17 @@
                                                 <div class="ml-3 flex-1">
                                                     <div class="flex items-center space-x-2">
                                                         <span class="text-sm font-semibold text-gray-800 group-hover:text-blue-800">
-                                                            <?= esc($permission['name']) ?>
+                                                            <?= esc($actionLabels[$permissionAction] ?? $permission['name']) ?>
                                                         </span>
-                                                        <?php if (isset($permission['action']) && isset($actionDescriptions[$permission['action']])): ?>
+                                                        <?php if ($permissionAction && isset($actionLabels[$permissionAction])): ?>
                                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                                <?= esc($permission['action']) ?>
+                                                                <?= esc($actionLabels[$permissionAction]) ?>
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <?php if (isset($permission['action']) && isset($actionDescriptions[$permission['action']])): ?>
+                                                    <?php if ($permissionAction && isset($actionDescriptions[$permissionAction])): ?>
                                                         <p class="text-xs text-gray-500 mt-1">
-                                                            <?= esc($actionDescriptions[$permission['action']]) ?>
+                                                            <?= esc($actionDescriptions[$permissionAction]) ?>
                                                         </p>
                                                     <?php endif; ?>
                                                 </div>

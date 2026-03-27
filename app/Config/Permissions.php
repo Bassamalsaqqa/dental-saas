@@ -219,7 +219,7 @@ class Permissions
      */
     public static function getCategories()
     {
-        return [
+        $defaults = [
             'dashboard' => 'Dashboard',
             'patients' => 'Patient Management',
             'appointments' => 'Appointment Management',
@@ -230,8 +230,18 @@ class Permissions
             'reports' => 'Reports & Analytics',
             'inventory' => 'Inventory Management',
             'users' => 'User Management',
-            'settings' => 'System Settings'
+            'settings' => 'System Settings',
         ];
+
+        $localized = [];
+        foreach ($defaults as $key => $fallback) {
+            $value = lang('UserRole.permissionModule.' . $key);
+            $localized[$key] = is_string($value) && $value !== 'UserRole.permissionModule.' . $key
+                ? $value
+                : $fallback;
+        }
+
+        return $localized;
     }
 
     /**
@@ -239,7 +249,7 @@ class Permissions
      */
     public static function getActionDescriptions()
     {
-        return [
+        $defaults = [
             'view' => 'View and read data',
             'create' => 'Create new records',
             'edit' => 'Edit existing records',
@@ -248,7 +258,42 @@ class Permissions
             'print' => 'Print documents',
             'calendar' => 'Manage calendar',
             'reports' => 'Generate reports',
-            'roles' => 'Manage user roles'
+            'roles' => 'Manage user roles',
         ];
+
+        $localized = [];
+        foreach ($defaults as $key => $fallback) {
+            $value = lang('UserRole.permissionActionDescription.' . $key);
+            $localized[$key] = is_string($value) && $value !== 'UserRole.permissionActionDescription.' . $key
+                ? $value
+                : $fallback;
+        }
+
+        return $localized;
+    }
+
+    public static function getActionLabels()
+    {
+        $defaults = [
+            'view' => 'View',
+            'create' => 'Create',
+            'edit' => 'Edit',
+            'delete' => 'Delete',
+            'export' => 'Export',
+            'print' => 'Print',
+            'calendar' => 'Calendar',
+            'reports' => 'Reports',
+            'roles' => 'Roles',
+        ];
+
+        $localized = [];
+        foreach ($defaults as $key => $fallback) {
+            $value = lang('UserRole.permissionAction.' . $key);
+            $localized[$key] = is_string($value) && $value !== 'UserRole.permissionAction.' . $key
+                ? $value
+                : $fallback;
+        }
+
+        return $localized;
     }
 }
