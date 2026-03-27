@@ -91,6 +91,43 @@ class Finance extends BaseController
         return $defaults;
     }
 
+    private function getFinanceAttachmentPurposeCodeMap(): array
+    {
+        return [
+            'attachment' => 'ATTACHMENT',
+            'check_scan' => 'CHECKSCAN',
+        ];
+    }
+
+    private function generateFinanceArchiveName(array $finance, int $clinicId, string $purpose, $file): string
+    {
+        $purposeMap = $this->getFinanceAttachmentPurposeCodeMap();
+        $purposeCode = $purposeMap[$purpose] ?? strtoupper(preg_replace('/[^A-Z0-9]+/', '', str_replace('_', '', strtoupper($purpose))));
+        $reportDate = !empty($finance['paid_date']) ? (string) $finance['paid_date'] : date('Y-m-d');
+        $dateSegment = preg_replace('/[^0-9]/', '', $reportDate) ?: date('Ymd');
+        $transactionId = strtoupper(trim((string) ($finance['transaction_id'] ?? '')));
+        if ($transactionId === '') {
+            $transactionId = 'FIN' . (int) ($finance['id'] ?? 0);
+        }
+
+        $prefix = preg_replace('/[^A-Z0-9_-]+/', '', $transactionId . '_' . $dateSegment . '_' . $purposeCode);
+        $sequenceQuery = $this->attachmentModel
+            ->where('clinic_id', $clinicId)
+            ->where('entity_type', 'finance')
+            ->where('entity_id', (int) ($finance['id'] ?? 0))
+            ->where('purpose', $purpose)
+            ->like('original_name', $prefix, 'after')
+            ->countAllResults();
+        $sequence = str_pad((string) ($sequenceQuery + 1), 3, '0', STR_PAD_LEFT);
+
+        $extension = strtolower((string) $file->getClientExtension());
+        if ($extension === '') {
+            $extension = strtolower((string) pathinfo($file->getClientName(), PATHINFO_EXTENSION));
+        }
+
+        return $prefix . '_' . $sequence . ($extension !== '' ? '.' . $extension : '');
+    }
+
     private function getFinanceCurrencyOptions(): array
     {
         return ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
@@ -520,8 +557,12 @@ class Finance extends BaseController
                     $this->db->transRollback();
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
+                $financeRecord = $this->financeModel->find($financeId) ?: ['id' => $financeId, 'paid_date' => $paidDate];
+                $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'attachment', $attachmentFile);
                 $this->attachmentModel->supersedePrevious($clinicId, 'finance', $financeId, 'attachment');
-                $this->storageService->store($attachmentFile, $clinicId, 'finance', $financeId, 'attachment');
+                $this->storageService->store($attachmentFile, $clinicId, 'finance', $financeId, 'attachment', [
+                    'display_name' => $archiveName,
+                ]);
             }
             $this->activityLogger->logFinanceActivity(
                 'create',
@@ -641,8 +682,12 @@ class Finance extends BaseController
                 if ($validation !== null) {
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
+                $financeRecord = $this->financeModel->find($financeId) ?: ['id' => $financeId, 'paid_date' => $paidDate];
+                $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'check_scan', $checkFile);
                 $this->attachmentModel->supersedePrevious($clinicId, 'finance', $financeId, 'check_scan');
-                $this->storageService->store($checkFile, $clinicId, 'finance', $financeId, 'check_scan');
+                $this->storageService->store($checkFile, $clinicId, 'finance', $financeId, 'check_scan', [
+                    'display_name' => $archiveName,
+                ]);
             }
 
             if ($transactionType === 'invoice') {
@@ -960,8 +1005,12 @@ class Finance extends BaseController
                     if ($validation !== null) {
                         return redirect()->back()->withInput()->with('error', $validation);
                     }
+                    $financeRecord = $this->financeModel->find($id) ?: ['id' => $id, 'paid_date' => $paidDate];
+                    $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'check_scan', $checkFile);
                     $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'check_scan');
-                    $this->storageService->store($checkFile, $clinicId, 'finance', $id, 'check_scan');
+                    $this->storageService->store($checkFile, $clinicId, 'finance', $id, 'check_scan', [
+                        'display_name' => $archiveName,
+                    ]);
                 }
 
                 if ($financeData['transaction_type'] === 'invoice') {
@@ -1082,8 +1131,12 @@ class Finance extends BaseController
                     $this->db->transRollback();
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
+                $financeRecord = $this->financeModel->find($id) ?: ['id' => $id, 'paid_date' => $paidDate];
+                $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'attachment', $attachmentFile);
                 $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'attachment');
-                $this->storageService->store($attachmentFile, $clinicId, 'finance', $id, 'attachment');
+                $this->storageService->store($attachmentFile, $clinicId, 'finance', $id, 'attachment', [
+                    'display_name' => $archiveName,
+                ]);
             }
 
             $this->activityLogger->logFinanceActivity(
