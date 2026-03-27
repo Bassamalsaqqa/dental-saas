@@ -577,19 +577,19 @@ function getFDINumber($universalNumber) {
                                                                accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
                                                                class="hidden">
                                                         <div id="attachmentDropzone" tabindex="0" role="button"
-                                                             class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 shadow-sm transition-all duration-200 hover:border-blue-300 hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-400/40">
-                                                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                                                <div>
-                                                                    <p class="text-sm font-medium text-slate-700"><?= esc(lang('UI.patientDragDropFiles')) ?></p>
-                                                                    <p class="mt-1 text-xs text-slate-500"><?= esc(lang('UI.patientAllowedFileTypes')) ?></p>
+                                                             class="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-all duration-200 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400/30">
+                                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                                <div class="min-w-0">
+                                                                    <p class="text-sm text-gray-700"><?= esc(lang('UI.patientDragDropFiles')) ?></p>
+                                                                    <p class="mt-1 text-xs text-gray-500"><?= esc(lang('UI.patientAllowedFileTypes')) ?></p>
                                                                 </div>
-                                                                <label for="attachmentInput" class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+                                                                <label for="attachmentInput" class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100">
                                                                     <i class="fas fa-folder-open"></i>
                                                                     <span><?= esc(lang('UI.patientChooseFiles')) ?></span>
                                                                 </label>
                                                             </div>
-                                                            <div id="attachmentFileList" class="mt-4 space-y-2 text-sm text-gray-600"></div>
                                                         </div>
+                                                        <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
