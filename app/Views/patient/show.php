@@ -593,7 +593,15 @@ function getFDINumber($universalNumber) {
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
                                                         <?php $selectedAttachmentCategory = old('category'); ?>
-                                                        <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                        <select
+                                                            name="category"
+                                                            id="attachmentCategory"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                            data-searchable-select
+                                                            data-minimum-input-length="0"
+                                                            data-placeholder="<?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?>"
+                                                            data-allow-clear="true"
+                                                        >
                                                             <option value=""><?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?></option>
                                                             <?php foreach (($attachment_category_options ?? []) as $groupLabel => $groupOptions): ?>
                                                                 <optgroup label="<?= esc($groupLabel) ?>">
