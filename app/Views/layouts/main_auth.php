@@ -1760,11 +1760,43 @@
     window.formatClinicTimeFrom24 = formatClinicTimeFrom24;
     window.parseClinicTimeTo24 = parseClinicTimeTo24;
 
+    let isSyncingRequiredFieldMarkers = false;
+
+    function runRequiredFieldMarkerSync() {
+        if (isSyncingRequiredFieldMarkers) {
+            return;
+        }
+
+        isSyncingRequiredFieldMarkers = true;
+        try {
+            syncRequiredFieldMarkers();
+        } finally {
+            isSyncingRequiredFieldMarkers = false;
+        }
+    }
+
+    function isRequiredMarkerMutation(mutation) {
+        if (mutation.type === 'attributes') {
+            return false;
+        }
+
+        const nodes = [
+            ...Array.from(mutation.addedNodes || []),
+            ...Array.from(mutation.removedNodes || []),
+        ];
+
+        return nodes.length > 0 && nodes.every((node) => {
+            return node.nodeType === Node.ELEMENT_NODE
+                && node.classList
+                && node.classList.contains('required-indicator');
+        });
+    }
+
     // Load notifications on page load
     document.addEventListener('DOMContentLoaded', function() {
         initializeClinicDateInputs();
         initializeClinicTimeInputs();
-        syncRequiredFieldMarkers();
+        runRequiredFieldMarkerSync();
         console.log('Loading notifications on page load...');
         loadNotifications();
         loadNotificationCount();
@@ -1779,8 +1811,22 @@
             loadNotificationCount();
         }, 30000);
 
-        const requiredObserver = new MutationObserver(() => {
-            syncRequiredFieldMarkers();
+        const requiredObserver = new MutationObserver((mutations) => {
+            if (isSyncingRequiredFieldMarkers) {
+                return;
+            }
+
+            const hasRelevantMutation = mutations.some((mutation) => {
+                if (mutation.type === 'attributes') {
+                    return true;
+                }
+
+                return !isRequiredMarkerMutation(mutation);
+            });
+
+            if (hasRelevantMutation) {
+                runRequiredFieldMarkerSync();
+            }
         });
 
         requiredObserver.observe(document.body, {
