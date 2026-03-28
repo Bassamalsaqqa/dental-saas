@@ -20,7 +20,9 @@ $bucketLabels = [
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
     <div class="container mx-auto relative z-10 px-4 py-6 space-y-8">
-        <section class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
+        <section class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+            <div class="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500">
             <div class="px-6 py-6">
                 <div class="flex items-start gap-4">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
@@ -35,16 +37,16 @@ $bucketLabels = [
             <div class="border-t border-white/20 px-6 py-5">
                 <form method="GET" action="<?= base_url('finance/reports') ?>" class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                     <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap xl:flex-nowrap xl:items-end">
-                    <div class="w-full sm:w-[200px]">
+                    <div class="w-full sm:w-[220px] rounded-2xl bg-gradient-to-br from-white/90 to-emerald-50/80 border border-white/40 shadow-lg px-4 py-4">
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.startDate') ?></label>
-                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-white/50 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
-                    <div class="w-full sm:w-[200px]">
+                    <div class="w-full sm:w-[220px] rounded-2xl bg-gradient-to-br from-white/90 to-emerald-50/80 border border-white/40 shadow-lg px-4 py-4">
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.endDate') ?></label>
-                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-white/50 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3 xl:justify-end">
+                    <div class="flex flex-wrap items-center gap-3 xl:justify-end rounded-2xl bg-white/70 border border-white/40 shadow-lg px-4 py-4">
                         <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-filter mr-2"></i>
                             <?= lang('Finance.filter') ?>
@@ -65,10 +67,11 @@ $bucketLabels = [
                 </form>
             </div>
             <div class="px-6 py-4">
-                <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                <div class="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-3 text-sm text-emerald-900 shadow-sm">
                     <span class="font-semibold"><?= lang('Finance.cashBasisReport') ?>:</span>
                     <?= lang('Finance.cashBasisReportHelp') ?>
                 </div>
+            </div>
             </div>
         </section>
 
