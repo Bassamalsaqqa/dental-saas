@@ -14,10 +14,10 @@ $bucketLabels = [
 ?>
 
 <div class="space-y-6">
-    <div class="container mx-auto px-4 py-6 space-y-8">
+    <div class="mx-auto max-w-7xl space-y-6">
         <section>
             <div class="backdrop-blur-xl bg-white/80 border border-white/30 rounded-xl shadow-2xl shadow-green-500/10">
-                <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4">
+                <div class="px-4 sm:px-6 py-5 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div class="flex items-start gap-3">
                         <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-chart-line text-green-600 text-sm"></i>
@@ -32,23 +32,23 @@ $bucketLabels = [
                         <?= lang('Finance.backToFinance') ?>
                     </a>
                 </div>
-                <form method="GET" action="<?= base_url('finance/reports') ?>" class="px-6 py-4 flex flex-wrap items-end gap-4">
-                    <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
+                <form method="GET" action="<?= base_url('finance/reports') ?>" class="px-4 sm:px-6 py-4 flex flex-wrap items-end gap-4">
+                    <div class="w-full sm:flex-1 sm:min-w-[160px] sm:max-w-xs space-y-1">
                         <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.startDate') ?></label>
                         <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                     </div>
-                    <div class="flex-1 min-w-[160px] max-w-xs space-y-1">
+                    <div class="w-full sm:flex-1 sm:min-w-[160px] sm:max-w-xs space-y-1">
                         <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.endDate') ?></label>
                         <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium">
+                    <div class="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+                        <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium">
                             <?= lang('Finance.filter') ?>
                         </button>
-                        <button type="button" onclick="exportReport()" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
+                        <button type="button" onclick="exportReport()" class="w-full sm:w-auto bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
                             <?= lang('Finance.exportCashCsv') ?>
                         </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto justify-center bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50">
                             <?= lang('Finance.reset') ?>
                         </a>
                     </div>

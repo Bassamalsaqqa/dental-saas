@@ -264,6 +264,38 @@
             #main-content > main {
                 padding: 1rem !important;
             }
+            #main-content .overflow-x-auto {
+                -webkit-overflow-scrolling: touch;
+            }
+            #main-content table.min-w-full,
+            #main-content table.dataTable {
+                min-width: 720px;
+            }
+            #main-content .dataTables_wrapper .dataTables_length,
+            #main-content .dataTables_wrapper .dataTables_filter,
+            #main-content .dataTables_wrapper .dataTables_info,
+            #main-content .dataTables_wrapper .dataTables_paginate {
+                float: none !important;
+                text-align: start !important;
+                width: 100%;
+                margin-bottom: 0.75rem;
+            }
+            #main-content .dataTables_wrapper .dataTables_filter input,
+            #main-content .dataTables_wrapper .dataTables_length select {
+                width: 100%;
+                max-width: 100%;
+                margin: 0.35rem 0 0 !important;
+            }
+            #main-content .dataTables_wrapper .dt-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-bottom: 0.75rem;
+            }
+            #main-content .dataTables_wrapper .dt-buttons .dt-button {
+                width: auto;
+                margin: 0 !important;
+            }
         }
     </style>
 </head>

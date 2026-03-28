@@ -34,16 +34,16 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
     };
 };
 ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+<div class="space-y-6">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-gradient-to-br from-blue-400/15 to-indigo-600/15 blur-3xl animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/15 to-blue-600/15 blur-3xl animate-pulse delay-1000"></div>
     </div>
-    <div class="container mx-auto px-4 py-6">
+    <div class="mx-auto max-w-7xl space-y-6">
     <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                    <div class="flex items-center space-x-4">
+                <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+                    <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-chart-bar text-xl"></i>
                         </div>
@@ -52,12 +52,12 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                             <p class="text-gray-600"><?= lang('TenantMisc.reportsAnalyticsDesc') ?></p>
                         </div>
         </div>
-                    <div class="flex items-center space-x-3">
-                        <button onclick="exportReport('pdf')" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="exportReport('pdf')" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-file-pdf mr-2"></i>
                             <?= lang('TenantMisc.exportHtml') ?>
             </button>
-                        <button onclick="exportReport('excel')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <button onclick="exportReport('excel')" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-file-excel mr-2"></i>
                             <?= lang('TenantMisc.exportExcelCsv') ?>
             </button>

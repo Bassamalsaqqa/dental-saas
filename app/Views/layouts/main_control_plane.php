@@ -179,6 +179,28 @@
                 left: auto;
                 right: 0;
             }
+            main .overflow-x-auto {
+                -webkit-overflow-scrolling: touch;
+            }
+            main table.min-w-full,
+            main table.dataTable {
+                min-width: 720px;
+            }
+            main .dataTables_wrapper .dataTables_length,
+            main .dataTables_wrapper .dataTables_filter,
+            main .dataTables_wrapper .dataTables_info,
+            main .dataTables_wrapper .dataTables_paginate {
+                float: none !important;
+                text-align: start !important;
+                width: 100%;
+                margin-bottom: 0.75rem;
+            }
+            main .dataTables_wrapper .dataTables_filter input,
+            main .dataTables_wrapper .dataTables_length select {
+                width: 100%;
+                max-width: 100%;
+                margin: 0.35rem 0 0 !important;
+            }
         }
     </style>
 </head>
