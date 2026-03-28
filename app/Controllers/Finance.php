@@ -1327,6 +1327,8 @@ class Finance extends BaseController
             $reportDate = !empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10);
 
             $rows[] = [
+                'finance_id' => (int) ($row['id'] ?? 0),
+                'provider_payout_id' => null,
                 'event_source' => 'direct_transaction',
                 'source_label' => 'Direct transaction',
                 'event_type' => $type,
@@ -1364,6 +1366,7 @@ class Finance extends BaseController
         $invoicePaymentRows = $this->db->table('finance_payments fp')
             ->select("
                 fp.id,
+                fp.finance_id,
                 fp.type,
                 fp.payment_method,
                 fp.payment_date,
@@ -1395,6 +1398,8 @@ class Finance extends BaseController
             $normalizedType = $type === 'void' ? 'void' : $type;
 
             $rows[] = [
+                'finance_id' => (int) ($row['finance_id'] ?? 0),
+                'provider_payout_id' => null,
                 'event_source' => 'invoice_settlement',
                 'source_label' => 'Invoice settlement',
                 'event_type' => $normalizedType,
@@ -1420,6 +1425,7 @@ class Finance extends BaseController
         $payoutPaymentRows = $this->db->table('provider_payout_payments ppp')
             ->select("
                 ppp.id,
+                ppp.provider_payout_id,
                 ppp.amount,
                 ppp.payment_method,
                 ppp.paid_date,
@@ -1454,6 +1460,8 @@ class Finance extends BaseController
             $amountBase = floatval($row['amount'] ?? 0);
 
             $rows[] = [
+                'finance_id' => (int) ($row['finance_id'] ?? 0),
+                'provider_payout_id' => (int) ($row['provider_payout_id'] ?? 0),
                 'event_source' => 'provider_payout_payment',
                 'source_label' => 'Provider payout',
                 'event_type' => 'provider_payout_payment',
