@@ -42,7 +42,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
     <div class="mx-auto max-w-7xl space-y-6">
     <div class="mb-6 sm:mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-chart-bar text-xl"></i>
@@ -69,7 +69,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
         <!-- Simplified Report Filters -->
     <div class="mb-6 sm:mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.reportType') ?></label>
                     <select id="reportType" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">

@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <!-- Enhanced Dashboard with Advanced Design -->
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-4 sm:py-6"> 
+    <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-6"> 
         <!-- Enhanced Page Header with Glassmorphism -->
        
 
@@ -13,12 +13,12 @@
                 <!-- Total Patients Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-4 sm:p-6 shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-users text-xl"></i>
+                                    <i class="fas fa-users text-lg sm:text-xl"></i>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
@@ -30,7 +30,7 @@
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
                             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTotalPatients') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-3xl font-black text-blue-900">
+                                <p class="text-2xl sm:text-3xl font-black text-blue-900">
                                     <?= $stats['total_patients'] ?? 0 ?>
                                 </p>
                                 <div class="w-12 h-1 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full overflow-hidden">
@@ -45,12 +45,12 @@
                 <!-- Today's Examinations Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-4 sm:p-6 shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-stethoscope text-xl"></i>
+                                    <i class="fas fa-stethoscope text-lg sm:text-xl"></i>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full border border-blue-200">
@@ -60,9 +60,9 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayExaminations') ?></p>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayExaminations') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-emerald-900">
+                                <p class="text-3xl sm:text-4xl font-black text-emerald-900">
                                     <?= $stats['today_examinations'] ?? 0 ?>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-emerald-200 to-cyan-200 rounded-full overflow-hidden">
@@ -77,12 +77,12 @@
                 <!-- Today's Appointments Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-6">
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-4 sm:p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4 sm:mb-6">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-calendar-alt text-2xl"></i>
+                                <div class="relative p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-calendar-alt text-xl sm:text-2xl"></i>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 rounded-full border border-amber-200">
@@ -92,9 +92,9 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayAppointments') ?></p>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTodayAppointments') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-amber-900">
+                                <p class="text-3xl sm:text-4xl font-black text-amber-900">
                                     <?= $stats['today_appointments'] ?? 0 ?>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full overflow-hidden">
@@ -109,12 +109,12 @@
                 <!-- Total Revenue Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-6">
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-4 sm:p-6 shadow-2xl shadow-purple-500/10 group-hover:shadow-purple-500/20 transition-all duration-200 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4 sm:mb-6">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
-                                    <i class="fas fa-chart-line text-2xl"></i>
+                                <div class="relative p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
+                                    <i class="fas fa-chart-line text-xl sm:text-2xl"></i>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-4 py-2 rounded-full border border-emerald-200">
@@ -124,9 +124,9 @@
                             </div>
                         </div>
                         <div class="space-y-1 flex-1 flex flex-col justify-end">
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTotalRevenue') ?></p>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider"><?= lang('UI.dashboardTotalRevenue') ?></p>
                             <div class="flex items-baseline space-x-2">
-                                <p class="text-4xl font-black text-purple-900">
+                                <p class="text-3xl sm:text-4xl font-black text-purple-900">
                                     <?= formatCurrencyAbbreviated($stats['total_revenue'] ?? 0) ?>
                                 </p>
                                 <div class="w-16 h-1 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full overflow-hidden">
@@ -142,7 +142,7 @@
 
         <!-- Enhanced Charts Section with Advanced Styling -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 sm:gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 sm:gap-6 items-stretch">
                 <!-- Revenue Chart -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
@@ -199,7 +199,7 @@
 
         <!-- Enhanced Activity Feeds with Sophisticated Visual Hierarchy -->
         <div class="mb-6">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 items-stretch">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3 items-stretch">
                 <!-- Recent Patients -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
@@ -387,7 +387,7 @@
                             <p class="text-gray-600 font-medium text-xs"><?= lang('UI.dashboardQuickActionsDesc') ?></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 pt-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 p-4 pt-0">
                         <!-- Add Patient Action -->
                         <a href="<?= base_url('patient/create') ?>" class="group/action relative flex flex-col items-center p-4 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/80 hover:to-indigo-50/80 transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-105 hover:-translate-y-2">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-200 opacity-0 group-hover/action:opacity-100"></div>

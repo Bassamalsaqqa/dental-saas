@@ -197,6 +197,37 @@ $returnToContextEncoded = urlencode($returnToContext);
     align-items: center !important;
     justify-content: space-between !important;
 }
+
+@media (max-width: 767.98px) {
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        width: 100% !important;
+        margin: 0 !important;
+        justify-content: space-between !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter label,
+    .dataTables_wrapper .dataTables_length label {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+}
 </style>
 
 <!-- Enhanced <?= lang('Finance.financeManagement') ?> with Advanced Design -->
@@ -208,17 +239,17 @@ $returnToContextEncoded = urlencode($returnToContext);
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
 
-    <div class="container mx-auto relative z-10 px-4 py-4 sm:py-6">
+    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
         <!-- Simplified Page Header -->
     <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                         <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
-                            <div class="flex items-start gap-4 sm:items-center">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div class="flex items-start gap-3 sm:gap-4 sm:items-center">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-dollar-sign text-xl"></i>
                                 </div>
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
+                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
                             <p class="text-gray-600"><?= lang('Finance.financeManagementHelp') ?></p>
                             </div>
                             </div>
@@ -248,7 +279,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 sm:gap-6 items-stretch">
                 <!-- <?= lang('Finance.grossCollections') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
