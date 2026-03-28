@@ -22,8 +22,7 @@ $bucketLabels = [
     <div class="container mx-auto relative z-10 px-4 py-6 space-y-8">
         <section class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
             <div class="px-6 py-6">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div class="flex items-start gap-4">
+                <div class="flex items-start gap-4">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
                             <i class="fas fa-chart-line text-xl"></i>
                         </div>
@@ -31,37 +30,36 @@ $bucketLabels = [
                             <h1 class="text-3xl font-bold text-gray-900"><?= lang('Finance.financialReports') ?></h1>
                             <p class="mt-2 max-w-3xl text-sm text-gray-600"><?= lang('Finance.financialReportsHelp') ?></p>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                            <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
-                            <?= lang('Finance.backToFinance') ?>
-                        </a>
-                        <button type="button" onclick="exportReport()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-file-csv mr-2"></i>
-                            <?= lang('Finance.exportCashCsv') ?>
-                        </button>
-                    </div>
                 </div>
             </div>
             <div class="border-t border-white/20 px-6 py-5">
-                <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
-                    <div>
+                <form method="GET" action="<?= base_url('finance/reports') ?>" class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap xl:flex-nowrap xl:items-end">
+                    <div class="w-full sm:w-[200px]">
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.startDate') ?></label>
                         <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
-                    <div>
+                    <div class="w-full sm:w-[200px]">
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.endDate') ?></label>
                         <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
-                    <div class="flex gap-3">
-                        <button type="submit" class="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 xl:justify-end">
+                        <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-filter mr-2"></i>
                             <?= lang('Finance.filter') ?>
                         </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-rotate-right mr-2"></i>
                             <?= lang('Finance.reset') ?>
+                        </a>
+                        <button type="button" onclick="exportReport()" class="inline-flex items-center px-4 py-2.5 bg-white text-emerald-700 text-sm font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-file-csv mr-2"></i>
+                            <?= lang('Finance.exportCashCsv') ?>
+                        </button>
+                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2.5 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
+                            <?= lang('Finance.backToFinance') ?>
                         </a>
                     </div>
                 </form>
