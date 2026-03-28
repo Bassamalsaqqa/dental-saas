@@ -158,15 +158,15 @@
             text-align: right !important;
         }
 
-        .sidebar-mobile-hidden {
-            transform: translateX(-100%);
-        }
+        @media (max-width: 767px) {
+            .sidebar-mobile-hidden {
+                transform: translateX(-100%);
+            }
 
-        [dir="rtl"] .sidebar-mobile-hidden {
-            transform: translateX(100%);
-        }
+            [dir="rtl"] .sidebar-mobile-hidden {
+                transform: translateX(100%);
+            }
 
-        @media (max-width: 1023px) {
             #sidebar {
                 position: fixed !important;
                 top: 0;
@@ -210,7 +210,7 @@
     <div class="flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 sidebar-mobile-hidden flex flex-col lg:static fixed inset-y-0 left-0" id="sidebar">
+            <aside class="w-64 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:static fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
                 <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
                     <div class="flex items-center justify-between">
@@ -229,14 +229,14 @@
                                 </div>
                             </div>
                         </a>
-                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 lg:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                        <button class="group relative p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105 md:block hidden" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
                             <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                             <i class="fas fa-bars relative z-10"></i>
                         </button>
                     </div>
                 </div>
 
-                <nav class="flex-1 overflow-y-auto" id="sidebar-nav">
+                <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain" id="sidebar-nav">
                     <!-- Platform -->
                     <div class="p-4">
                         <div class="px-2 pt-5 pb-1">
@@ -427,12 +427,12 @@
             </aside>
         <?php endif; ?>
 
-        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden" onclick="closeCpSidebar()"></div>
+        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden" onclick="closeCpSidebar()"></div>
 
         <div class="flex-1 flex flex-col min-h-screen min-w-0">
             <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 border-b border-white/30 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/80 border border-white/60 text-slate-600 shadow-sm" onclick="toggleSidebar()">
+                    <button type="button" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/80 border border-white/60 text-slate-600 shadow-sm" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="min-w-0">
@@ -529,14 +529,14 @@
             const backdrop = document.getElementById('cp-sidebar-backdrop');
             if (!sidebar) return;
             sidebar.classList.toggle('sidebar-mobile-hidden');
-            if (window.innerWidth < 1024) {
+            if (window.innerWidth < 768) {
                 backdrop.classList.toggle('hidden', sidebar.classList.contains('sidebar-mobile-hidden'));
                 document.body.classList.toggle('overflow-hidden', !sidebar.classList.contains('sidebar-mobile-hidden'));
             }
         }
 
         function closeCpSidebar() {
-            if (window.innerWidth >= 1024) return;
+            if (window.innerWidth >= 768) return;
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('cp-sidebar-backdrop');
             if (!sidebar) return;
@@ -552,11 +552,26 @@
             }
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('cp-sidebar-backdrop');
+            if (!sidebar) return;
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('sidebar-mobile-hidden');
+            } else {
+                sidebar.classList.remove('sidebar-mobile-hidden');
+            }
+            if (backdrop) {
+                backdrop.classList.add('hidden');
+            }
+            document.body.classList.remove('overflow-hidden');
+        });
+
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('cp-sidebar-backdrop');
             if (!sidebar) return;
-            if (window.innerWidth < 1024) {
+            if (window.innerWidth < 768) {
                 sidebar.classList.add('sidebar-mobile-hidden');
             } else {
                 sidebar.classList.remove('sidebar-mobile-hidden');

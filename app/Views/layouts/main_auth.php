@@ -226,15 +226,15 @@
             right: 0.25rem !important;
         }
 
-        .sidebar-mobile-hidden {
-            transform: translateX(-100%);
-        }
+        @media (max-width: 767px) {
+            .sidebar-mobile-hidden {
+                transform: translateX(-100%);
+            }
 
-        [dir="rtl"] .sidebar-mobile-hidden {
-            transform: translateX(100%);
-        }
+            [dir="rtl"] .sidebar-mobile-hidden {
+                transform: translateX(100%);
+            }
 
-        @media (max-width: 1023px) {
             #sidebar {
                 position: fixed !important;
                 top: 0;
@@ -304,12 +304,12 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-56 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition lg:static fixed inset-y-0 left-0" id="sidebar">
+        <aside class="w-56 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:static fixed inset-y-0 left-0" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
                 const wasCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-                const isMobile = window.innerWidth < 1024;
+                const isMobile = window.innerWidth < 768;
                 const sidebar = document.getElementById('sidebar');
                 if (wasCollapsed && !isMobile) {
                     sidebar.classList.add('sidebar-collapsed');
@@ -318,7 +318,7 @@
         </script>
         <!-- Enhanced Sidebar Header -->
         <div class="px-2 pb-2  pt-3 border-b border-white/30" id="sidebar-header">
-            <div class="flex items-center">
+            <div class="flex items-center justify-between">
                 <a href="<?= base_url('dashboard') ?>" class="flex items-center space-x-3 group cursor-pointer hover:bg-white/30 rounded-xl p-2 -m-2 transition-all duration-200">
                     <div class="relative group">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -343,11 +343,15 @@
                         </div>
                     </div>
                 </a>
+                <button class="hidden md:inline-flex group relative p-2 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                    <i class="fas fa-bars text-base relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
+                </button>
             </div>
         </div>
 
         <!-- Enhanced Sidebar Navigation -->
-        <nav class="flex-1" id="sidebar-nav">
+        <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar overscroll-contain" id="sidebar-nav">
             <!-- Main Menu -->
             <div class="p-4">
                 <div class="flex items-center space-x-2 mb-4">
@@ -542,7 +546,7 @@
         </div>
     </aside>
 
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden" onclick="closeMobileSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden" onclick="closeMobileSidebar()"></div>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
@@ -558,7 +562,7 @@
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
                 <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
-                    <button class="group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
+                    <button class="md:hidden group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
                     </button>
@@ -1008,7 +1012,7 @@
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
-        const isMobile = window.innerWidth < 1024;
+        const isMobile = window.innerWidth < 768;
         
         if (isMobile) {
             sidebar.classList.toggle('sidebar-mobile-hidden');
@@ -1026,7 +1030,7 @@
     }
 
     function closeMobileSidebar() {
-        if (window.innerWidth >= 1024) return;
+        if (window.innerWidth >= 768) return;
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         sidebar.classList.add('sidebar-mobile-hidden');
@@ -1038,7 +1042,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
-        const isMobile = window.innerWidth < 1024;
+        const isMobile = window.innerWidth < 768;
         
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
@@ -1059,7 +1063,7 @@
     window.addEventListener('resize', function() {
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
-        const isMobile = window.innerWidth < 1024;
+        const isMobile = window.innerWidth < 768;
         
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');
