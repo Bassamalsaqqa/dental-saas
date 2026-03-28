@@ -20,58 +20,94 @@ $bucketLabels = [
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
     <div class="container mx-auto relative z-10 px-4 py-6 space-y-8">
-        <section class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500">
-            <div class="px-6 py-6">
-                <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
-                            <i class="fas fa-chart-line text-xl"></i>
+        <section class="space-y-6">
+            <div class="backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl shadow-green-500/10 rounded-3xl overflow-hidden">
+                <div class="px-6 py-8">
+                    <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <div class="relative group">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                        <i class="fas fa-chart-line text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h1 class="text-3xl font-black text-gray-900"><?= lang('Finance.financialReports') ?></h1>
+                                    <p class="text-sm text-gray-600 font-medium"><?= lang('Finance.financialReportsHelp') ?></p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Finance.financialReports') ?></h1>
-                            <p class="mt-2 max-w-3xl text-sm text-gray-600"><?= lang('Finance.financialReportsHelp') ?></p>
+
+                        <div class="w-full xl:max-w-4xl">
+                            <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6">
+                                <div class="group relative">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 p-6">
+                                        <div class="space-y-2 mb-5">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
+                                                <h3 class="text-2xl font-black text-gray-900"><?= lang('Finance.filter') ?></h3>
+                                            </div>
+                                            <p class="text-gray-600 font-medium text-sm"><?= lang('Finance.financialReportsHelp') ?></p>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="space-y-3">
+                                                <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('Finance.startDate') ?></label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition-all duration-300 font-medium text-gray-900">
+                                                </div>
+                                            </div>
+                                            <div class="space-y-3">
+                                                <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('Finance.endDate') ?></label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-300 font-medium text-gray-900">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="group relative">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-500 p-6 h-full">
+                                        <div class="space-y-2 mb-5">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+                                                <h3 class="text-2xl font-black text-gray-900"><?= lang('UI.appointmentQuickActions') ?></h3>
+                                            </div>
+                                            <p class="text-gray-600 font-medium text-sm"><?= lang('Finance.cashBasisReportHelp') ?></p>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <button type="submit" class="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/25">
+                                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <i class="fas fa-filter mr-2 relative z-10"></i>
+                                                <span class="relative z-10"><?= lang('Finance.filter') ?></span>
+                                            </button>
+                                            <button type="button" onclick="exportReport()" class="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
+                                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <i class="fas fa-file-csv mr-2 relative z-10"></i>
+                                                <span class="relative z-10"><?= lang('Finance.exportCashCsv') ?></span>
+                                            </button>
+                                            <a href="<?= base_url('finance/reports') ?>" class="group relative inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <i class="fas fa-rotate-right mr-2 relative z-10"></i>
+                                                <span class="relative z-10"><?= lang('Finance.reset') ?></span>
+                                            </a>
+                                            <a href="<?= base_url('finance') ?>" class="group relative inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                                                <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <i class="fas fa-arrow-left mr-2 rtl-back-icon relative z-10"></i>
+                                                <span class="relative z-10"><?= lang('Finance.backToFinance') ?></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
+                    </div>
                 </div>
-            </div>
-            <div class="border-t border-white/20 px-6 py-5">
-                <form method="GET" action="<?= base_url('finance/reports') ?>" class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                    <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap xl:flex-nowrap xl:items-end">
-                    <div class="w-full sm:w-[220px] rounded-2xl bg-gradient-to-br from-white/90 to-emerald-50/80 border border-white/40 shadow-lg px-4 py-4">
-                        <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.startDate') ?></label>
-                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-white/50 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
-                    </div>
-                    <div class="w-full sm:w-[220px] rounded-2xl bg-gradient-to-br from-white/90 to-emerald-50/80 border border-white/40 shadow-lg px-4 py-4">
-                        <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.endDate') ?></label>
-                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-white/50 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
-                    </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 xl:justify-end rounded-2xl bg-white/70 border border-white/40 shadow-lg px-4 py-4">
-                        <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-filter mr-2"></i>
-                            <?= lang('Finance.filter') ?>
-                        </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                            <i class="fas fa-rotate-right mr-2"></i>
-                            <?= lang('Finance.reset') ?>
-                        </a>
-                        <button type="button" onclick="exportReport()" class="inline-flex items-center px-4 py-2.5 bg-white text-emerald-700 text-sm font-semibold rounded-lg border border-emerald-200 hover:bg-emerald-50 transition-all duration-200 shadow-sm">
-                            <i class="fas fa-file-csv mr-2"></i>
-                            <?= lang('Finance.exportCashCsv') ?>
-                        </button>
-                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2.5 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
-                            <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
-                            <?= lang('Finance.backToFinance') ?>
-                        </a>
-                    </div>
-                </form>
-            </div>
-            <div class="px-6 py-4">
-                <div class="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-3 text-sm text-emerald-900 shadow-sm">
-                    <span class="font-semibold"><?= lang('Finance.cashBasisReport') ?>:</span>
-                    <?= lang('Finance.cashBasisReportHelp') ?>
-                </div>
-            </div>
             </div>
         </section>
 
