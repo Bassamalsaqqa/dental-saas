@@ -98,6 +98,10 @@
     <meta name="google" content="notranslate">
 
     <style>
+        html, body {
+            overflow-x: hidden;
+        }
+
         /* Modern Sidebar Transitions */
         #sidebar:not(.no-transition) {
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -299,7 +303,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen overflow-x-hidden">
     <!-- Toast Notification System -->
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
@@ -1038,11 +1042,34 @@
         document.body.classList.remove('overflow-hidden');
     }
 
+    function bindSidebarScrollBridge() {
+        const sidebar = document.getElementById('sidebar');
+        const nav = document.getElementById('sidebar-nav');
+        if (!sidebar || !nav || sidebar.dataset.scrollBridgeBound === 'true') return;
+
+        const isScrollableTarget = (target) => {
+            if (!(target instanceof Element)) return false;
+            return !!target.closest('#sidebar-nav, #sidebar-nav *');
+        };
+
+        sidebar.addEventListener('wheel', function(event) {
+            if (isScrollableTarget(event.target)) return;
+            if (nav.scrollHeight <= nav.clientHeight) return;
+
+            nav.scrollTop += event.deltaY;
+            event.preventDefault();
+        }, { passive: false });
+
+        sidebar.dataset.scrollBridgeBound = 'true';
+    }
+
     // Initialize sidebar state on page load
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
         const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 768;
+
+        bindSidebarScrollBridge();
         
         if (isMobile) {
             sidebar.classList.add('sidebar-mobile-hidden');

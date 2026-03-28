@@ -28,6 +28,10 @@
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <meta name="csrf-header" content="<?= csrf_header() ?>">
     <style>
+        html, body {
+            overflow-x: hidden;
+        }
+
         body {
             /* Keep control plane typography aligned with tenant plane defaults. */
             font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -204,7 +208,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen overflow-x-hidden">
     <?= view('components/toast') ?>
 
     <div class="flex min-h-screen">
@@ -545,6 +549,27 @@
             document.body.classList.remove('overflow-hidden');
         }
 
+        function bindCpSidebarScrollBridge() {
+            const sidebar = document.getElementById('sidebar');
+            const nav = document.getElementById('sidebar-nav');
+            if (!sidebar || !nav || sidebar.dataset.scrollBridgeBound === 'true') return;
+
+            const isScrollableTarget = (target) => {
+                if (!(target instanceof Element)) return false;
+                return !!target.closest('#sidebar-nav, #sidebar-nav *');
+            };
+
+            sidebar.addEventListener('wheel', function(event) {
+                if (isScrollableTarget(event.target)) return;
+                if (nav.scrollHeight <= nav.clientHeight) return;
+
+                nav.scrollTop += event.deltaY;
+                event.preventDefault();
+            }, { passive: false });
+
+            sidebar.dataset.scrollBridgeBound = 'true';
+        }
+
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'b') {
                 e.preventDefault();
@@ -556,6 +581,7 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('cp-sidebar-backdrop');
             if (!sidebar) return;
+            bindCpSidebarScrollBridge();
             if (window.innerWidth < 768) {
                 sidebar.classList.add('sidebar-mobile-hidden');
             } else {
