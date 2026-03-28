@@ -301,6 +301,16 @@
                 margin: 0 !important;
             }
         }
+
+        @media (min-width: 768px) {
+            #sidebar {
+                position: sticky !important;
+                top: 0;
+                height: 100vh;
+                inset-inline-start: auto !important;
+                transform: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen overflow-x-hidden">
@@ -308,7 +318,7 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-56 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:static fixed inset-y-0 left-0" id="sidebar">
+        <aside class="w-56 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition md:sticky md:top-0 md:h-screen md:self-start fixed inset-y-0 left-0" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {

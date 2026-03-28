@@ -206,6 +206,16 @@
                 margin: 0.35rem 0 0 !important;
             }
         }
+
+        @media (min-width: 768px) {
+            #sidebar {
+                position: sticky !important;
+                top: 0;
+                height: 100vh;
+                inset-inline-start: auto !important;
+                transform: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen overflow-x-hidden">
@@ -214,7 +224,7 @@
     <div class="flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:static fixed inset-y-0 left-0" id="sidebar">
+            <aside class="w-64 overflow-hidden backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 md:translate-x-0 sidebar-mobile-hidden flex flex-col md:sticky md:top-0 md:h-screen md:self-start fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
                 <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
                     <div class="flex items-center justify-between">
