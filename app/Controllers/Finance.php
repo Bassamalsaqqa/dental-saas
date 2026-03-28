@@ -99,11 +99,23 @@ class Finance extends BaseController
         ];
     }
 
+    private function financeDocumentDateExpr(string $alias = 'f'): string
+    {
+        return "COALESCE({$alias}.transaction_date, {$alias}.paid_date, DATE({$alias}.created_at))";
+    }
+
+    private function resolveFinanceTransactionDate(?string $preferredDate, ?string $paidDate = null): string
+    {
+        return $preferredDate ?: ($paidDate ?: date('Y-m-d'));
+    }
+
     private function generateFinanceArchiveName(array $finance, int $clinicId, string $purpose, $file): string
     {
         $purposeMap = $this->getFinanceAttachmentPurposeCodeMap();
         $purposeCode = $purposeMap[$purpose] ?? strtoupper(preg_replace('/[^A-Z0-9]+/', '', str_replace('_', '', strtoupper($purpose))));
-        $reportDate = !empty($finance['paid_date']) ? (string) $finance['paid_date'] : date('Y-m-d');
+        $reportDate = !empty($finance['transaction_date'])
+            ? (string) $finance['transaction_date']
+            : (!empty($finance['paid_date']) ? (string) $finance['paid_date'] : date('Y-m-d'));
         $dateSegment = preg_replace('/[^0-9]/', '', $reportDate) ?: date('Ymd');
         $transactionId = strtoupper(trim((string) ($finance['transaction_id'] ?? '')));
         if ($transactionId === '') {
@@ -492,6 +504,7 @@ class Finance extends BaseController
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
@@ -515,6 +528,7 @@ class Finance extends BaseController
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
         $paidDate = $this->normalizePostedDateOnly('paid_date') ?: date('Y-m-d');
+        $transactionDate = $this->resolveFinanceTransactionDate($this->normalizePostedDateOnly('transaction_date'), $paidDate);
 
         $financeData = [
             'patient_id' => null,
@@ -538,6 +552,7 @@ class Finance extends BaseController
             'balance_due' => 0,
             'due_date' => null,
             'paid_date' => $paidDate,
+            'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes'),
             'created_by' => $this->resolveActorUserId(),
         ];
@@ -594,7 +609,8 @@ class Finance extends BaseController
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
-            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'transaction_date' => 'permit_empty|valid_date',
         ];
 
         if (!$this->validate($rules)) {
@@ -629,6 +645,7 @@ class Finance extends BaseController
         $dueDate = $this->normalizePostedDateOnly('due_date');
         $paidDate = $this->normalizePostedDateOnly('paid_date');
         $today = date('Y-m-d');
+        $transactionDate = $this->resolveFinanceTransactionDate($this->normalizePostedDateOnly('transaction_date'), $paidDate ?: $today);
 
         $amountPaid = 0;
         $balanceDue = 0;
@@ -666,6 +683,7 @@ class Finance extends BaseController
             'balance_due' => $balanceDue,
             'due_date' => $dueDate,
             'paid_date' => $paidDate,
+            'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes'),
             'created_by' => $this->resolveActorUserId()
         ];
@@ -917,7 +935,8 @@ class Finance extends BaseController
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'service_type' => 'required|in_list[consultation,treatment,medication,procedure,other]',
-            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]'
+            'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'transaction_date' => 'permit_empty|valid_date',
         ];
 
         if (($finance['transaction_type'] ?? '') === 'expense') {
@@ -961,11 +980,16 @@ class Finance extends BaseController
         $paymentStatus = (string) ($finance['payment_status'] ?? 'pending');
         $dueDate = $this->normalizePostedDateOnly('due_date');
         $paidDate = $this->normalizePostedDateOnly('paid_date');
+        $transactionDate = $this->resolveFinanceTransactionDate(
+            $this->normalizePostedDateOnly('transaction_date'),
+            $paidDate ?: ($finance['paid_date'] ?? null)
+        );
         if ($currentType !== 'invoice') {
             $amountPaid = $totalAmount;
             $paymentStatus = 'paid';
             $paidDate = $paidDate ?: date('Y-m-d');
             $dueDate = null;
+            $transactionDate = $this->resolveFinanceTransactionDate($transactionDate, $paidDate);
         }
 
         if ($currentType === 'invoice' && $amountPaid > $totalAmount) {
@@ -992,6 +1016,7 @@ class Finance extends BaseController
             'balance_due' => max(0, $totalAmount - $amountPaid),
             'due_date' => $dueDate,
             'paid_date' => $paidDate,
+            'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes')
         ];
 
@@ -1067,6 +1092,7 @@ class Finance extends BaseController
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
@@ -1090,6 +1116,10 @@ class Finance extends BaseController
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
         $paidDate = $this->normalizePostedDateOnly('paid_date') ?: ($finance['paid_date'] ?? date('Y-m-d'));
+        $transactionDate = $this->resolveFinanceTransactionDate(
+            $this->normalizePostedDateOnly('transaction_date'),
+            $paidDate
+        );
 
         $update = [
             'patient_id' => null,
@@ -1113,6 +1143,7 @@ class Finance extends BaseController
             'balance_due' => 0,
             'due_date' => null,
             'paid_date' => $paidDate,
+            'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes'),
         ];
 
@@ -1296,6 +1327,7 @@ class Finance extends BaseController
                 f.description,
                 f.created_at,
                 f.paid_date,
+                f.transaction_date,
                 f.currency,
                 f.exchange_rate,
                 f.amount_original,
@@ -1312,9 +1344,9 @@ class Finance extends BaseController
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
             ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
-            ->where('COALESCE(f.paid_date, DATE(f.created_at)) >= ' . $this->db->escape($startDate), null, false)
-            ->where('COALESCE(f.paid_date, DATE(f.created_at)) <= ' . $this->db->escape($endDate), null, false)
-            ->orderBy('COALESCE(f.paid_date, DATE(f.created_at))', 'DESC', false)
+            ->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false)
+            ->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false)
+            ->orderBy($this->financeDocumentDateExpr('f'), 'DESC', false)
             ->orderBy('f.id', 'DESC')
             ->get()
             ->getResultArray();
@@ -1324,7 +1356,9 @@ class Finance extends BaseController
             $type = (string) ($row['transaction_type'] ?? '');
             $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $reportDate = !empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10);
+            $reportDate = !empty($row['transaction_date'])
+                ? (string) $row['transaction_date']
+                : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10));
 
             $rows[] = [
                 'finance_id' => (int) ($row['id'] ?? 0),
@@ -1644,6 +1678,7 @@ class Finance extends BaseController
                 f.transaction_id,
                 {$sumField} AS total_amount,
                 f.due_date,
+                f.transaction_date,
                 f.created_at,
                 p.first_name,
                 p.last_name,
@@ -1676,7 +1711,9 @@ class Finance extends BaseController
             $totalAmount = floatval($row['total_amount'] ?? 0);
             $paidTotal = floatval($row['paid_total'] ?? 0);
             $balanceDue = max(0, $totalAmount - $paidTotal);
-            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10);
+            $dueDate = !empty($row['due_date'])
+                ? (string) $row['due_date']
+                : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
             $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
             $row['due_date'] = $dueDate;
             $row['balance_due'] = round($balanceDue, 2);

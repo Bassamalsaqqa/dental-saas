@@ -289,6 +289,8 @@ return [
     'transaction' => 'Transaction',
     'transactionDescriptionPlaceholder' => 'Describe what this transaction covers.',
     'transactionDetails' => 'Transaction Details',
+    'transactionDate' => 'Transaction Date',
+    'transactionDateHelp' => 'Use the date the transaction actually happened, not the date it was entered into the app.',
     'transactionId' => 'Transaction Id',
     'transactionIdLabel' => 'Transaction ID',
     'transactionLabel' => 'Transaction Label',

@@ -51,6 +51,11 @@ class ProviderPayoutModel extends TenantAwareModel
         'status' => 'required|in_list[unpaid,partial,paid,void]',
     ];
 
+    private function financeDocumentDateExpr(string $alias = 'f'): string
+    {
+        return "COALESCE({$alias}.transaction_date, {$alias}.paid_date, DATE({$alias}.created_at))";
+    }
+
     public function getByFinanceId(int $clinicId, int $financeId): ?array
     {
         return $this->where('clinic_id', $clinicId)
@@ -60,19 +65,16 @@ class ProviderPayoutModel extends TenantAwareModel
 
     public function getStatsByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null): array
     {
-        $startDateTime = !empty($startDate) ? ($startDate . ' 00:00:00') : null;
-        $endDateTime = !empty($endDate) ? ($endDate . ' 23:59:59') : null;
-
         // Accrual view: filter by underlying finance transaction date.
         $accrualBuilder = $this->db->table('provider_payouts pp')
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
             ->where('pp.clinic_id', $clinicId);
 
-        if ($startDateTime !== null) {
-            $accrualBuilder->where('f.created_at >=', $startDateTime);
+        if (!empty($startDate)) {
+            $accrualBuilder->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false);
         }
-        if ($endDateTime !== null) {
-            $accrualBuilder->where('f.created_at <=', $endDateTime);
+        if (!empty($endDate)) {
+            $accrualBuilder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
         $row = $accrualBuilder
@@ -170,10 +172,10 @@ class ProviderPayoutModel extends TenantAwareModel
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
-            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+            $builder->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false);
         }
         if (!empty($endDate)) {
-            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+            $builder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
         $rows = $builder
@@ -201,10 +203,10 @@ class ProviderPayoutModel extends TenantAwareModel
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
-            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+            $builder->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false);
         }
         if (!empty($endDate)) {
-            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+            $builder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
         return $builder
@@ -227,10 +229,10 @@ class ProviderPayoutModel extends TenantAwareModel
             ->where('pp.clinic_id', $clinicId);
 
         if (!empty($startDate)) {
-            $builder->where('f.created_at >=', $startDate . ' 00:00:00');
+            $builder->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false);
         }
         if (!empty($endDate)) {
-            $builder->where('f.created_at <=', $endDate . ' 23:59:59');
+            $builder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
         $rows = $builder

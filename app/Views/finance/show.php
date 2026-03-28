@@ -799,6 +799,12 @@
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
+                        <?php if (!empty($finance['transaction_date'])): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.transactionDate') ?></label>
+                            <p class="text-blue-600 font-bold"><?= formatDate($finance['transaction_date']) ?></p>
+                        </div>
+                        <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.dueDate') ?></label>

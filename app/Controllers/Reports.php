@@ -1105,6 +1105,7 @@ class Reports extends BaseController
                 f.description,
                 f.created_at,
                 f.paid_date,
+                f.transaction_date,
                 f.currency,
                 f.exchange_rate,
                 f.amount_original,
@@ -1117,9 +1118,9 @@ class Reports extends BaseController
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
             ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
-            ->where('COALESCE(f.paid_date, DATE(f.created_at)) >= ' . $this->db->escape($startDate), null, false)
-            ->where('COALESCE(f.paid_date, DATE(f.created_at)) <= ' . $this->db->escape($endDate), null, false)
-            ->orderBy('COALESCE(f.paid_date, DATE(f.created_at))', 'DESC', false)
+            ->where("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at)) >= " . $this->db->escape($startDate), null, false)
+            ->where("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at)) <= " . $this->db->escape($endDate), null, false)
+            ->orderBy("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))", 'DESC', false)
             ->orderBy('f.id', 'DESC')
             ->get()
             ->getResultArray();
@@ -1141,7 +1142,9 @@ class Reports extends BaseController
             $amountBase = floatval($row['amount_base'] ?? 0);
             $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $reportDate = !empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10);
+            $reportDate = !empty($row['transaction_date'])
+                ? (string) $row['transaction_date']
+                : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10));
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
@@ -1464,6 +1467,7 @@ class Reports extends BaseController
                 f.transaction_id,
                 {$sumField} AS total_amount,
                 f.due_date,
+                f.transaction_date,
                 f.created_at,
                 p.first_name,
                 p.last_name,
@@ -1496,7 +1500,9 @@ class Reports extends BaseController
             $totalAmount = floatval($row['total_amount'] ?? 0);
             $paidTotal = floatval($row['paid_total'] ?? 0);
             $balanceDue = max(0, $totalAmount - $paidTotal);
-            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10);
+            $dueDate = !empty($row['due_date'])
+                ? (string) $row['due_date']
+                : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
             $row['due_date'] = $dueDate;
             $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
             $row['balance_due'] = round($balanceDue, 2);

@@ -39,6 +39,7 @@ class FinanceModel extends TenantAwareModel
         'balance_due',
         'due_date',
         'paid_date',
+        'transaction_date',
         'notes',
         'created_by',
         'created_at',
@@ -62,7 +63,8 @@ class FinanceModel extends TenantAwareModel
         'counterparty_name' => 'permit_empty|max_length[150]',
         'source_entity_type' => 'permit_empty|max_length[50]',
         'source_entity_id' => 'permit_empty|integer',
-        'paid_date' => 'permit_empty|valid_date'
+        'paid_date' => 'permit_empty|valid_date',
+        'transaction_date' => 'permit_empty|valid_date',
     ];
 
     protected $validationMessages = [
@@ -100,6 +102,9 @@ class FinanceModel extends TenantAwareModel
         ],
         'paid_date' => [
             'valid_date' => 'Please enter a valid date'
+        ],
+        'transaction_date' => [
+            'valid_date' => 'Please enter a valid transaction date'
         ]
     ];
 
@@ -108,6 +113,11 @@ class FinanceModel extends TenantAwareModel
 
     protected $beforeInsert = ['generateTransactionId', 'calculateTotals', 'setClinicId'];
     protected $beforeUpdate = ['calculateTotals'];
+
+    private function documentDateExpr(string $alias = 'finances'): string
+    {
+        return "COALESCE({$alias}.transaction_date, {$alias}.paid_date, DATE({$alias}.created_at))";
+    }
 
     protected function generateTransactionId(array $data)
     {
@@ -192,16 +202,13 @@ class FinanceModel extends TenantAwareModel
     public function getFinanceStatsByClinic($clinicId, $startDate = null, $endDate = null)
     {
         try {
-            $startDateTime = $startDate ? ($startDate . ' 00:00:00') : null;
-            $endDateTime = $endDate ? ($endDate . ' 23:59:59') : null;
-
             $builder = $this->db->table('finances')->where('clinic_id', $clinicId);
 
-            if ($startDateTime) {
-                $builder->where('created_at >=', $startDateTime);
+            if ($startDate) {
+                $builder->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($startDate), null, false);
             }
-            if ($endDateTime) {
-                $builder->where('created_at <=', $endDateTime);
+            if ($endDate) {
+                $builder->where($this->documentDateExpr('finances') . ' <= ' . $this->db->escape($endDate), null, false);
             }
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
@@ -247,14 +254,14 @@ class FinanceModel extends TenantAwareModel
                 ->where($balanceField . ' >', 0, false)
                 ->countAllResults();
 
-            $monthStart = date('Y-m-01 00:00:00');
-            $monthEnd = date('Y-m-t 23:59:59');
+            $monthStart = date('Y-m-01');
+            $monthEnd = date('Y-m-t');
             $monthlyRevenue = $this->db->table('finances')
                 ->selectSum($sumField, 'total_amount')
                 ->where('clinic_id', $clinicId)
                 ->where('transaction_type', 'payment')
-                ->where('created_at >=', $monthStart)
-                ->where('created_at <=', $monthEnd)
+                ->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($monthStart), null, false)
+                ->where($this->documentDateExpr('finances') . ' <= ' . $this->db->escape($monthEnd), null, false)
                 ->get()
                 ->getRow()
                 ->total_amount ?? 0;
@@ -270,11 +277,11 @@ class FinanceModel extends TenantAwareModel
             $summaryBuilder = $this->db->table('finances')
                 ->select('transaction_type, COUNT(*) as count, SUM(' . $sumField . ') as total_amount')
                 ->where('clinic_id', $clinicId);
-            if ($startDateTime) {
-                $summaryBuilder->where('created_at >=', $startDateTime);
+            if ($startDate) {
+                $summaryBuilder->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($startDate), null, false);
             }
-            if ($endDateTime) {
-                $summaryBuilder->where('created_at <=', $endDateTime);
+            if ($endDate) {
+                $summaryBuilder->where($this->documentDateExpr('finances') . ' <= ' . $this->db->escape($endDate), null, false);
             }
             $summaryRows = $summaryBuilder->groupBy('transaction_type')->get()->getResultArray();
             $transactionSummary = [];
@@ -334,11 +341,12 @@ class FinanceModel extends TenantAwareModel
             $year = $year ?? date('Y');
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            $standalone = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+            $dateExpr = $this->documentDateExpr('finances');
+            $standalone = $this->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
                 ->where('clinic_id', $clinicId)
-                ->where('YEAR(created_at)', $year)
+                ->where("YEAR({$dateExpr})", $year, false)
                 ->where('transaction_type', 'payment')
-                ->groupBy('MONTH(created_at)')
+                ->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->findAll();
 
@@ -352,11 +360,11 @@ class FinanceModel extends TenantAwareModel
                 ->getResultArray();
 
             $refunds = $this->db->table('finances')
-                ->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
+                ->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
                 ->where('clinic_id', $clinicId)
-                ->where('YEAR(created_at)', $year)
+                ->where("YEAR({$dateExpr})", $year, false)
                 ->where('transaction_type', 'refund')
-                ->groupBy('MONTH(created_at)')
+                ->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();
@@ -395,16 +403,15 @@ class FinanceModel extends TenantAwareModel
     {
         try {
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
-            $startDateTime = $startDate . ' 00:00:00';
-            $endDateTime = $endDate . ' 23:59:59';
+            $dateExpr = $this->documentDateExpr('finances');
 
             $standalone = $this->db->table('finances')
-                ->select("DATE_FORMAT(created_at, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
+                ->select("DATE_FORMAT({$dateExpr}, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
                 ->where('clinic_id', $clinicId)
                 ->where('transaction_type', 'payment')
-                ->where('created_at >=', $startDateTime)
-                ->where('created_at <=', $endDateTime)
-                ->groupBy("DATE_FORMAT(created_at, '%Y-%m')", false)
+                ->where($dateExpr . ' >= ' . $this->db->escape($startDate), null, false)
+                ->where($dateExpr . ' <= ' . $this->db->escape($endDate), null, false)
+                ->groupBy("DATE_FORMAT({$dateExpr}, '%Y-%m')", false)
                 ->get()
                 ->getResultArray();
 
@@ -418,12 +425,12 @@ class FinanceModel extends TenantAwareModel
                 ->getResultArray();
 
             $refunds = $this->db->table('finances')
-                ->select("DATE_FORMAT(created_at, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
+                ->select("DATE_FORMAT({$dateExpr}, '%Y-%m') AS month_key, SUM({$sumField}) AS total_amount", false)
                 ->where('clinic_id', $clinicId)
                 ->where('transaction_type', 'refund')
-                ->where('created_at >=', $startDateTime)
-                ->where('created_at <=', $endDateTime)
-                ->groupBy("DATE_FORMAT(created_at, '%Y-%m')", false)
+                ->where($dateExpr . ' >= ' . $this->db->escape($startDate), null, false)
+                ->where($dateExpr . ' <= ' . $this->db->escape($endDate), null, false)
+                ->groupBy("DATE_FORMAT({$dateExpr}, '%Y-%m')", false)
                 ->get()
                 ->getResultArray();
 
@@ -478,6 +485,7 @@ class FinanceModel extends TenantAwareModel
             ->join('patients', 'patients.id = finances.patient_id')
             ->where('finances.patient_id', $patientId)
             ->where('patients.clinic_id = finances.clinic_id') // Join guard
+            ->orderBy('transaction_date', 'DESC')
             ->orderBy('created_at', 'DESC')
             ->findAll();
     }
@@ -537,10 +545,10 @@ class FinanceModel extends TenantAwareModel
             $standaloneBuilder->where('clinic_id', $clinicId);
         }
         if ($startDate) {
-            $standaloneBuilder->where('created_at >=', $startDate . ' 00:00:00');
+            $standaloneBuilder->where($this->documentDateExpr('finances') . ' >= ' . $this->db->escape($startDate), null, false);
         }
         if ($endDate) {
-            $standaloneBuilder->where('created_at <=', $endDate . ' 23:59:59');
+            $standaloneBuilder->where($this->documentDateExpr('finances') . ' <= ' . $this->db->escape($endDate), null, false);
         }
         $standalone = $standaloneBuilder->groupBy('payment_method')->get()->getResultArray();
 
@@ -618,7 +626,7 @@ class FinanceModel extends TenantAwareModel
         $limit = max(1, min($limit, 10000));
 
         $rows = $this->db->table('finances')
-            ->select('finances.id, finances.patient_id, finances.transaction_id, finances.total_amount, finances.balance_due, finances.payment_status, finances.due_date, finances.created_at, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+            ->select('finances.id, finances.patient_id, finances.transaction_id, finances.total_amount, finances.balance_due, finances.payment_status, finances.due_date, finances.transaction_date, finances.created_at, patients.first_name, patients.last_name, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id AND patients.clinic_id = finances.clinic_id', 'left')
             ->where('finances.clinic_id', $clinicId)
             ->where('finances.transaction_type', 'invoice')
@@ -630,7 +638,7 @@ class FinanceModel extends TenantAwareModel
             ->getResultArray();
 
         foreach ($rows as &$row) {
-            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : substr((string) ($row['created_at'] ?? $asOfDate), 0, 10);
+            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : (string) ($row['transaction_date'] ?? substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
             $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
             $row['days_past_due'] = max(0, $daysPastDue);
             $row['aging_bucket'] = $this->mapAgingBucket($daysPastDue);
@@ -664,13 +672,14 @@ class FinanceModel extends TenantAwareModel
 
             $sumField = $this->db->fieldExists('total_amount', 'finances') ? 'total_amount' : '(amount - discount_amount + tax_amount)';
 
-            $standaloneBuilder = $this->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
-                ->where('YEAR(created_at)', $year)
+            $dateExpr = $this->documentDateExpr('finances');
+            $standaloneBuilder = $this->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
+                ->where("YEAR({$dateExpr})", $year, false)
                 ->where('transaction_type', 'payment');
             if ($clinicId) {
                 $standaloneBuilder->where('clinic_id', $clinicId);
             }
-            $standalone = $standaloneBuilder->groupBy('MONTH(created_at)')
+            $standalone = $standaloneBuilder->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->findAll();
 
@@ -686,13 +695,13 @@ class FinanceModel extends TenantAwareModel
                 ->getResultArray();
 
             $refundBuilder = $this->db->table('finances')
-                ->select('MONTH(created_at) as month, SUM(' . $sumField . ') as total_amount')
-                ->where('YEAR(created_at)', $year)
+                ->select("MONTH({$dateExpr}) as month, SUM(" . $sumField . ') as total_amount', false)
+                ->where("YEAR({$dateExpr})", $year, false)
                 ->where('transaction_type', 'refund');
             if ($clinicId) {
                 $refundBuilder->where('clinic_id', $clinicId);
             }
-            $refunds = $refundBuilder->groupBy('MONTH(created_at)')
+            $refunds = $refundBuilder->groupBy("MONTH({$dateExpr})", false)
                 ->orderBy('month', 'ASC')
                 ->get()
                 ->getResultArray();

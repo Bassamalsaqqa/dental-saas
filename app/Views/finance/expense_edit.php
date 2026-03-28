@@ -133,7 +133,7 @@ $finance = $finance ?? [];
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
                                     <i class="fas fa-credit-card text-indigo-600 mr-2"></i><?= lang('Finance.paymentMethodRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
@@ -152,7 +152,15 @@ $finance = $finance ?? [];
 
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-calendar text-rose-600 mr-2"></i><?= lang('Finance.expenseDate') ?>
+                                    <i class="fas fa-calendar-check text-blue-600 mr-2"></i><?= lang('Finance.transactionDate') ?>
+                                </label>
+                                <input type="text" name="transaction_date" data-clinic-date="1" value="<?= esc(old('transaction_date', $finance['transaction_date'] ?? $finance['paid_date'] ?? date('Y-m-d'))) ?>" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.transactionDateHelp') ?></p>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-calendar text-rose-600 mr-2"></i><?= lang('Finance.paidDate') ?>
                                 </label>
                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(old('paid_date', $finance['paid_date'] ?? date('Y-m-d'))) ?>" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-500/20">
                             </div>

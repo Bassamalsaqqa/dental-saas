@@ -289,6 +289,8 @@ return [
     'transaction' => 'المعاملة',
     'transactionDescriptionPlaceholder' => 'اشرح ما الذي تغطيه هذه المعاملة.',
     'transactionDetails' => 'تفاصيل المعاملة',
+    'transactionDate' => 'تاريخ المعاملة',
+    'transactionDateHelp' => 'استخدم تاريخ حدوث المعاملة فعلياً، وليس تاريخ إدخالها في النظام.',
     'transactionId' => 'رقم المعاملة',
     'transactionIdLabel' => 'رقم المعاملة',
     'transactionLabel' => 'المعاملة',
