@@ -1,6 +1,7 @@
 
 <?php
 $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params);
+$activeReportType = $report_type ?? 'overview';
 $financeTypeLabel = static function (?string $type) use ($tm): string {
     return match ((string) $type) {
         'payment' => $tm('payment'),
@@ -33,17 +34,12 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
     };
 };
 ?>
-<!-- Enhanced Reports & Analytics with Advanced Design -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-    <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-indigo-400/10 to-blue-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div class="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-gradient-to-br from-blue-400/15 to-indigo-600/15 blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/15 to-blue-600/15 blur-3xl animate-pulse delay-1000"></div>
     </div>
-
-    <div class="container mx-auto relative z-10 px-4 py-6">
-        <!-- Simplified Page Header -->
+    <div class="container mx-auto px-4 py-6">
     <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
@@ -57,7 +53,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                         </div>
         </div>
                     <div class="flex items-center space-x-3">
-                        <button onclick="exportReport('pdf')" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        <button onclick="exportReport('pdf')" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-file-pdf mr-2"></i>
                             <?= lang('TenantMisc.exportHtml') ?>
             </button>
@@ -517,8 +513,17 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                     <?php elseif ($report_type === 'finance'): ?>
                         <!-- Finance Report -->
                         <div class="space-y-6">
-                            <?php $summary = $reports['summary'] ?? []; ?>
-                            <div class="bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-100 rounded-lg p-4">
+                            <?php
+                                $summary = $reports['summary'] ?? [];
+                                $financeTransactionTable = null;
+                                foreach (($detail_tables ?? []) as $table) {
+                                    if (($table['id'] ?? '') === 'financial_transactions') {
+                                        $financeTransactionTable = $table;
+                                        break;
+                                    }
+                                }
+                            ?>
+                            <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                                 <div class="flex items-start gap-3">
                                     <div class="w-9 h-9 rounded-lg bg-blue-500 text-white flex items-center justify-center shrink-0">
                                         <i class="fas fa-circle-info"></i>
@@ -529,15 +534,15 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                     </div>
                                 </div>
                             </div>
-                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="mb-4">
                                     <h4 class="text-lg font-semibold text-gray-800"><?= $tm('ownerSummaryTitle') ?></h4>
                                     <p class="text-sm text-gray-500"><?= esc($tm('ownerSummaryHelp', ['date' => $summary['as_of_date'] ?? ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-                                    <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
+                                    <div class="rounded-lg p-4 border border-green-100 bg-green-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-arrow-down-wide-short"></i>
                                             </div>
                                             <div>
@@ -547,9 +552,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
+                                    <div class="rounded-lg p-4 border border-rose-100 bg-rose-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-arrow-up-wide-short"></i>
                                             </div>
                                             <div>
@@ -559,9 +564,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-amber-50/80 to-yellow-50/80 rounded-lg p-4 border border-amber-100/50">
+                                    <div class="rounded-lg p-4 border border-amber-100 bg-amber-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-file-invoice-dollar"></i>
                                             </div>
                                             <div>
@@ -571,9 +576,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-indigo-50/80 to-blue-50/80 rounded-lg p-4 border border-indigo-100/50">
+                                    <div class="rounded-lg p-4 border border-indigo-100 bg-indigo-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-hand-holding-dollar"></i>
                                             </div>
                                             <div>
@@ -583,9 +588,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-slate-50/80 to-slate-100/80 rounded-lg p-4 border border-slate-200">
+                                    <div class="rounded-lg p-4 border border-slate-200 bg-slate-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-scale-balanced"></i>
                                             </div>
                                             <div>
@@ -598,15 +603,22 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </div>
                             </div>
 
-                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
-                                <div class="mb-4">
-                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('detailsBreakdownTitle') ?></h4>
-                                    <p class="text-sm text-gray-500"><?= $tm('detailsBreakdownHelp') ?></p>
-                                </div>
+                            <details class="group rounded-xl border border-gray-200 bg-white shadow-lg">
+                                <summary class="flex cursor-pointer list-none items-center justify-between px-6 py-5">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('detailsBreakdownTitle') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= $tm('detailsBreakdownHelp') ?></p>
+                                    </div>
+                                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                        <i class="fas fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
+                                    </span>
+                                </summary>
+                                <div class="space-y-6 border-t border-gray-200 px-6 py-6">
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-lg p-4 border border-green-100/50">
+                                    <div class="rounded-lg p-4 border border-green-100 bg-green-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-wallet"></i>
                                             </div>
                                             <div>
@@ -615,9 +627,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-yellow-50/80 to-amber-50/80 rounded-lg p-4 border border-yellow-100/50">
+                                    <div class="rounded-lg p-4 border border-yellow-100 bg-yellow-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-money-bill-transfer"></i>
                                             </div>
                                             <div>
@@ -626,9 +638,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 rounded-lg p-4 border border-purple-100/50">
+                                    <div class="rounded-lg p-4 border border-purple-100 bg-purple-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-chart-line"></i>
                                             </div>
                                             <div>
@@ -637,9 +649,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gradient-to-r from-rose-50/80 to-orange-50/80 rounded-lg p-4 border border-rose-100/50">
+                                    <div class="rounded-lg p-4 border border-rose-100 bg-rose-50">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-lg flex items-center justify-center text-white">
+                                            <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center text-white">
                                                 <i class="fas fa-file-invoice-dollar"></i>
                                             </div>
                                             <div>
@@ -651,7 +663,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </div>
                             </div>
 
-                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex items-start gap-3 mb-4">
                                     <div class="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0">
                                         <i class="fas fa-cash-register"></i>
@@ -714,7 +726,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                             </div>
                             <?php if (!empty($reports['comparison']['summary'] ?? [])): ?>
                             <?php $fcmp = $reports['comparison']['summary']; ?>
-                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex items-center justify-between mb-4">
                                     <h4 class="text-lg font-semibold text-gray-800"><?= $tm('previousPeriodComparison') ?></h4>
                                     <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full"><?= esc($reports['comparison']['label'] ?? 'Previous period') ?></span>
@@ -790,7 +802,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
 
                             <?php if (!empty($reports['ar_aging_summary'])): ?>
                             <?php $ar = $reports['ar_aging_summary']; ?>
-                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
                                     <div>
                                         <h4 class="text-lg font-semibold text-gray-800"><?= $tm('accountsReceivableAging') ?></h4>
@@ -826,6 +838,8 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </div>
                             </div>
                             <?php endif; ?>
+                                </div>
+                            </details>
 
                             <?php if (!empty($reports['ar_aging_detail'])): ?>
                             <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
@@ -840,14 +854,14 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                                 <th class="py-2 pr-3"><?= $tm('invoice') ?></th>
                                                 <th class="py-2 pr-3"><?= $tm('patient') ?></th>
                                                 <th class="py-2 pr-3"><?= $tm('dueDate') ?></th>
-                                                <th class="py-2 pr-3"><?= $tm('days') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('daysPastDue') ?></th>
                                                 <th class="py-2 pr-3"><?= $tm('bucket') ?></th>
                                                 <th class="py-2 pr-3 text-right"><?= $tm('balanceDue') ?></th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100">
                                             <?php foreach ($reports['ar_aging_detail'] as $row): ?>
-                                            <tr>
+                                            <tr class="cursor-pointer transition-colors hover:bg-amber-50/60" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
                                                 <td class="py-2 pr-3 font-medium text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
                                                 <td class="py-2 pr-3 text-gray-700">
                                                     <?= esc(trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))) ?>
@@ -861,6 +875,47 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                                     <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc($agingBucketLabel($row['aging_bucket'] ?? 'current')) ?></span>
                                                 </td>
                                                 <td class="py-2 pr-3 text-right font-semibold text-rose-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($financeTransactionTable['rows'] ?? [])): ?>
+                            <div class="rounded-xl border border-gray-200 bg-white shadow-lg">
+                                <div class="border-b border-gray-200 px-6 py-5">
+                                    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                        <div>
+                                            <h4 class="text-xl font-bold text-gray-900"><?= $tm('unifiedFinancialLedger') ?></h4>
+                                            <p class="mt-1 text-sm text-gray-600"><?= $tm('unifiedLedgerHelp') ?></p>
+                                        </div>
+                                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"><?= (int) ($financeTransactionTable['row_count'] ?? count($financeTransactionTable['rows'] ?? [])) ?> <?= $tm('rows') ?></span>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                        <thead class="bg-gray-50">
+                                            <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                <?php foreach (($financeTransactionTable['columns'] ?? []) as $column): ?>
+                                                <th class="px-6 py-4 whitespace-nowrap"><?= esc($column['label'] ?? ($column['key'] ?? '')) ?></th>
+                                                <?php endforeach; ?>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100 bg-white">
+                                            <?php foreach (($financeTransactionTable['rows'] ?? []) as $row): ?>
+                                            <tr class="<?= !empty($row['row_href'] ?? '') ? 'cursor-pointer transition-colors duration-150 hover:bg-slate-50' : '' ?>"<?= !empty($row['row_href'] ?? '') ? ' data-href="' . esc((string) $row['row_href'], 'attr') . '"' : '' ?>>
+                                                <?php foreach (($financeTransactionTable['columns'] ?? []) as $column): ?>
+                                                <?php $key = $column['key'] ?? ''; $value = $row[$key] ?? ''; ?>
+                                                <td class="px-6 py-4 whitespace-nowrap text-gray-700">
+                                                    <?php if (is_numeric($value) && preg_match('/amount|balance|total|share|paid/i', (string) $key)): ?>
+                                                        <span class="font-semibold"><?= formatCurrency($value) ?></span>
+                                                    <?php else: ?>
+                                                        <?= esc((string) $value) ?>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <?php endforeach; ?>
                                             </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -932,9 +987,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($detail_tables ?? [])): ?>
+        <?php if (!empty($detail_tables ?? []) && $activeReportType !== 'finance'): ?>
         <div class="mb-8">
-            <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
                     <div>
                         <h3 class="text-xl font-bold text-gray-800"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
@@ -994,7 +1049,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </tr>
                                 <?php else: ?>
                                 <?php foreach ($table['rows'] as $row): ?>
-                                <tr class="report-detail-row hover:bg-blue-50/30 transition-colors">
+                                <tr class="report-detail-row <?= !empty($row['row_href'] ?? '') ? 'cursor-pointer hover:bg-blue-50/50' : 'hover:bg-blue-50/30' ?> transition-colors"<?= !empty($row['row_href'] ?? '') ? ' data-href="' . esc((string) $row['row_href'], 'attr') . '"' : '' ?>>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
                                     <?php $key = $column['key'] ?? ''; $value = $row[$key] ?? ''; ?>
                                     <td class="px-4 py-3 text-gray-700 whitespace-nowrap">
@@ -1425,6 +1480,17 @@ document.querySelectorAll('.report-detail-panel').forEach((panel) => {
     });
 });
 
+document.addEventListener('click', function(event) {
+    const row = event.target.closest('tr[data-href]');
+    if (!row || event.target.closest('a, button, input, select, textarea, label')) {
+        return;
+    }
+    const href = row.getAttribute('data-href');
+    if (href) {
+        window.location.href = href;
+    }
+});
+
 function renderDetailRows(panel, payload) {
     const tbody = panel.querySelector('tbody');
     const info = panel.querySelector('.report-detail-pagination-info');
@@ -1465,7 +1531,10 @@ function renderDetailRows(panel, payload) {
                 const rendered = isMoney ? formatCurrency(raw) : escapeHtml(raw);
                 return `<td class="px-4 py-3 text-gray-700 whitespace-nowrap">${isMoney ? `<span class="font-semibold">${rendered}</span>` : rendered}</td>`;
             }).join('');
-            return `<tr class="report-detail-row hover:bg-blue-50/30 transition-colors">${cells}</tr>`;
+            const rowHref = row.row_href || '';
+            const rowClass = rowHref ? 'report-detail-row cursor-pointer hover:bg-blue-50/50 transition-colors' : 'report-detail-row hover:bg-blue-50/30 transition-colors';
+            const hrefAttr = rowHref ? ` data-href="${escapeHtml(rowHref)}"` : '';
+            return `<tr class="${rowClass}"${hrefAttr}>${cells}</tr>`;
         }).join('');
     }
 

@@ -439,6 +439,9 @@ class Reports extends BaseController
                     $row['exchange_rate_display'] = rtrim(rtrim(number_format((float) ($row['exchange_rate'] ?? 1), 6), '0'), '.');
                     $row['report_date'] = !empty($row['report_date']) ? (string) $row['report_date'] : substr((string) ($row['event_at'] ?? $row['created_at'] ?? ''), 0, 10);
                     $row['recorded_at'] = (string) ($row['created_at'] ?? $row['recorded_at'] ?? '');
+                    $row['row_href'] = !empty($row['provider_payout_id'])
+                        ? base_url('finance/payouts')
+                        : (!empty($row['finance_id']) ? base_url('finance/' . (int) $row['finance_id']) : '');
                     return $row;
                 }, $reports['transactions'] ?? []);
 
@@ -466,6 +469,7 @@ class Reports extends BaseController
                     ], array_map(function ($row) {
                         $row['full_name'] = trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')));
                         $row['aging_bucket'] = $this->localizeAgingBucket((string) ($row['aging_bucket'] ?? 'current'));
+                        $row['row_href'] = !empty($row['id']) ? base_url('finance/' . (int) $row['id']) : '';
                         return $row;
                     }, $reports['ar_aging_detail'] ?? [])),
                 ];
@@ -1141,6 +1145,8 @@ class Reports extends BaseController
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
+                'finance_id' => (int) ($row['id'] ?? 0),
+                'provider_payout_id' => null,
                 'transaction_id' => (string) ($row['transaction_id'] ?? ('F-' . ($row['id'] ?? ''))),
                 'patient_id' => $patientId,
                 'patient_name' => $patientName,
@@ -1224,6 +1230,8 @@ class Reports extends BaseController
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
+                'finance_id' => (int) ($row['finance_id'] ?? 0),
+                'provider_payout_id' => null,
                 'transaction_id' => (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? '')),
                 'patient_id' => $patientId,
                 'patient_name' => $patientName,
@@ -1249,6 +1257,7 @@ class Reports extends BaseController
         $providerPaymentRows = $this->db->table('provider_payout_payments ppp')
             ->select("
                 ppp.id,
+                ppp.provider_payout_id,
                 ppp.amount,
                 ppp.payment_method,
                 ppp.paid_date,
@@ -1256,6 +1265,7 @@ class Reports extends BaseController
                 pp.patient_id,
                 pp.provider_user_id,
                 pp.provider_name_snapshot,
+                pp.finance_id,
                 f.transaction_id,
                 p.first_name AS patient_first_name,
                 p.last_name AS patient_last_name,
@@ -1297,6 +1307,8 @@ class Reports extends BaseController
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
+                'finance_id' => (int) ($row['finance_id'] ?? 0),
+                'provider_payout_id' => (int) ($row['provider_payout_id'] ?? 0),
                 'transaction_id' => (string) (($row['transaction_id'] ?? 'Finance') . ' / PYP-' . ($row['id'] ?? '')),
                 'patient_id' => $patientId,
                 'patient_name' => $patientName,
