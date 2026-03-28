@@ -157,7 +157,7 @@ class Finance extends BaseController
         return round($amountOriginal * $exchangeRate, 2);
     }
 
-    private function normalizeInvoiceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
+    private function normalizeFinanceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
     {
         $baseCurrency = (string) settings()->get('currency', 'ILS');
         $currency = strtoupper((string) ($this->request->getPost('currency') ?: $baseCurrency));
@@ -201,6 +201,86 @@ class Finance extends BaseController
         ];
     }
 
+    private function normalizeInvoiceSettlementInput(array $finance, ?float $maxBaseAmount = null): array
+    {
+        return $this->normalizeFinanceSettlementInput($finance, $maxBaseAmount);
+    }
+
+    private function buildExpensePaymentState(float $totalAmount, ?float $lockedSettledAmount = null, ?string $existingPaidDate = null): array
+    {
+        $today = date('Y-m-d');
+        $requestedStatus = strtolower((string) ($this->request->getPost('payment_status') ?? 'paid'));
+        if (!in_array($requestedStatus, ['pending', 'partial', 'paid'], true)) {
+            $requestedStatus = 'paid';
+        }
+
+        $rawAmountPaid = $this->request->getPost('amount_paid');
+        $amountPaid = ($rawAmountPaid === null || $rawAmountPaid === '')
+            ? null
+            : round(floatval($rawAmountPaid), 2);
+
+        if ($lockedSettledAmount !== null) {
+            $amountPaid = round(max(0, $lockedSettledAmount), 2);
+        } else {
+            if ($requestedStatus === 'paid') {
+                $amountPaid = $totalAmount;
+            } elseif ($requestedStatus === 'pending') {
+                $amountPaid = round(max(0, $amountPaid ?? 0), 2);
+            } else {
+                if ($amountPaid === null || $amountPaid <= 0) {
+                    throw new \RuntimeException('Partial expenses must include an amount already paid.');
+                }
+            }
+        }
+
+        if ($amountPaid === null) {
+            $amountPaid = 0.0;
+        }
+
+        if ($amountPaid < 0) {
+            throw new \RuntimeException('Amount paid cannot be negative.');
+        }
+        if ($amountPaid - $totalAmount > 0.0001) {
+            throw new \RuntimeException('Amount paid cannot exceed the total expense amount.');
+        }
+
+        $dueDate = $this->normalizePostedDateOnly('due_date');
+        $paidDate = $this->normalizePostedDateOnly('paid_date') ?: $existingPaidDate;
+        if ($amountPaid > 0 && empty($paidDate)) {
+            $paidDate = $today;
+        }
+        if ($amountPaid <= 0) {
+            $paidDate = null;
+        }
+
+        $balanceDue = round(max(0, $totalAmount - $amountPaid), 2);
+        if ($balanceDue <= 0.0001) {
+            return [
+                'payment_status' => 'paid',
+                'amount_paid' => round($totalAmount, 2),
+                'balance_due' => 0.0,
+                'due_date' => null,
+                'paid_date' => $paidDate ?: $today,
+            ];
+        }
+
+        if (empty($dueDate)) {
+            $status = $amountPaid > 0 ? 'partial' : 'pending';
+        } else {
+            $status = strtotime($dueDate) < strtotime($today)
+                ? 'overdue'
+                : ($amountPaid > 0 ? 'partial' : 'pending');
+        }
+
+        return [
+            'payment_status' => $status,
+            'amount_paid' => round($amountPaid, 2),
+            'balance_due' => $balanceDue,
+            'due_date' => $dueDate,
+            'paid_date' => $paidDate,
+        ];
+    }
+
     private function validateOwnedFinanceReferences(int $clinicId, ?int $patientId, ?int $examinationId): ?string
     {
         if ($patientId !== null && $patientId > 0) {
@@ -223,6 +303,12 @@ class Finance extends BaseController
     private function buildExpenseViewData(array $finance = null): array
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        $hasSettlementEntries = ($clinicId > 0 && !empty($finance['id']))
+            ? $this->financePaymentModel->hasSettlementEntries($clinicId, (int) $finance['id'])
+            : false;
+        $settledTotal = ($clinicId > 0 && !empty($finance['id']))
+            ? $this->financePaymentModel->getNetSettledAmount($clinicId, (int) $finance['id'])
+            : 0.0;
 
         return [
             'title' => $finance ? ('Edit Expense - ' . ($finance['transaction_id'] ?? '')) : 'New Expense',
@@ -239,6 +325,8 @@ class Finance extends BaseController
                     ->where('purpose', 'attachment')
                     ->first()
                 : null,
+            'expense_has_settlement_entries' => $hasSettlementEntries,
+            'expense_settled_total' => $settledTotal,
             'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance']),
         ];
     }
@@ -503,9 +591,12 @@ class Finance extends BaseController
             'amount_original' => 'required|decimal|greater_than[0]',
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
+            'payment_status' => 'permit_empty|in_list[pending,partial,paid]',
+            'amount_paid' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
+            'due_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
@@ -527,8 +618,11 @@ class Finance extends BaseController
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
-        $paidDate = $this->normalizePostedDateOnly('paid_date') ?: date('Y-m-d');
-        $transactionDate = $this->resolveFinanceTransactionDate($this->normalizePostedDateOnly('transaction_date'), $paidDate);
+        $expensePaymentState = $this->buildExpensePaymentState($totalAmount);
+        $transactionDate = $this->resolveFinanceTransactionDate(
+            $this->normalizePostedDateOnly('transaction_date'),
+            $expensePaymentState['paid_date'] ?: date('Y-m-d')
+        );
 
         $financeData = [
             'patient_id' => null,
@@ -539,7 +633,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
-            'payment_status' => 'paid',
+            'payment_status' => $expensePaymentState['payment_status'],
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
             'expense_category' => $this->request->getPost('expense_category'),
@@ -548,10 +642,10 @@ class Finance extends BaseController
             'discount_amount' => $discountAmount,
             'tax_percentage' => $taxPercentage,
             'tax_amount' => $taxAmount,
-            'amount_paid' => $totalAmount,
-            'balance_due' => 0,
-            'due_date' => null,
-            'paid_date' => $paidDate,
+            'amount_paid' => $expensePaymentState['amount_paid'],
+            'balance_due' => $expensePaymentState['balance_due'],
+            'due_date' => $expensePaymentState['due_date'],
+            'paid_date' => $expensePaymentState['paid_date'],
             'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes'),
             'created_by' => $this->resolveActorUserId(),
@@ -565,6 +659,27 @@ class Finance extends BaseController
             }
 
             $financeId = (int) $this->financeModel->getInsertID();
+            if (($expensePaymentState['amount_paid'] ?? 0) > 0) {
+                $paymentData = [
+                    'finance_id' => $financeId,
+                    'amount' => (float) $expensePaymentState['amount_paid'],
+                    'type' => 'payment',
+                    'payment_method' => $financeData['payment_method'],
+                    'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
+                    'notes' => 'Initial expense settlement',
+                    'created_by' => $this->resolveActorUserId(),
+                ];
+                if ($this->supportsFinancePaymentExchangeFields()) {
+                    $paymentData['currency'] = $financeData['currency'];
+                    $paymentData['amount_original'] = round(((float) $expensePaymentState['amount_paid']) / max(0.0001, (float) $financeData['exchange_rate']), 2);
+                    $paymentData['exchange_rate'] = $financeData['exchange_rate'];
+                }
+                if (!$this->financePaymentModel->insert($paymentData)) {
+                    $this->db->transRollback();
+                    return redirect()->back()->withInput()->with('error', 'Failed to record the initial expense payment.');
+                }
+            }
+
             $attachmentFile = $this->request->getFile('attachment');
             if ($attachmentFile && $attachmentFile->isValid() && $attachmentFile->getName() !== '') {
                 $validation = $this->validateFinanceAttachment($attachmentFile);
@@ -572,13 +687,14 @@ class Finance extends BaseController
                     $this->db->transRollback();
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
-                $financeRecord = $this->financeModel->find($financeId) ?: ['id' => $financeId, 'paid_date' => $paidDate];
+                $financeRecord = $this->financeModel->find($financeId) ?: ['id' => $financeId, 'paid_date' => ($expensePaymentState['paid_date'] ?: date('Y-m-d'))];
                 $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'attachment', $attachmentFile);
                 $this->attachmentModel->supersedePrevious($clinicId, 'finance', $financeId, 'attachment');
                 $this->storageService->store($attachmentFile, $clinicId, 'finance', $financeId, 'attachment', [
                     'display_name' => $archiveName,
                 ]);
             }
+            $this->syncFinanceSettlementStatus($financeId, (int) $clinicId);
             $this->activityLogger->logFinanceActivity(
                 'create',
                 $financeId,
@@ -818,7 +934,7 @@ class Finance extends BaseController
                 ->findAll();
         }
 
-        if ($finance['transaction_type'] === 'invoice') {
+        if (in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
             $payments = $this->financePaymentModel
                 ->select('finance_payments.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
                 ->join('users', 'users.id = finance_payments.created_by', 'left')
@@ -827,7 +943,7 @@ class Finance extends BaseController
                 ->orderBy('payment_date', 'DESC')
                 ->orderBy('finance_payments.id', 'DESC')
                 ->findAll();
-            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
+            $paidTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, $finance['id']);
         }
 
         $data = [
@@ -1091,9 +1207,12 @@ class Finance extends BaseController
             'amount_original' => 'required|decimal|greater_than[0]',
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
             'payment_method' => 'required|in_list[cash,card,bank_transfer,check,insurance,other]',
+            'payment_status' => 'permit_empty|in_list[pending,partial,paid]',
+            'amount_paid' => 'permit_empty|decimal|greater_than_equal_to[0]',
             'tax_percentage' => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
             'transaction_date' => 'permit_empty|valid_date',
             'paid_date' => 'permit_empty|valid_date',
+            'due_date' => 'permit_empty|valid_date',
         ];
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
@@ -1115,10 +1234,20 @@ class Finance extends BaseController
         $taxableBase = max(0, $amount - $discountAmount);
         $taxAmount = $taxableBase * ($taxPercentage / 100);
         $totalAmount = $amount - $discountAmount + $taxAmount;
-        $paidDate = $this->normalizePostedDateOnly('paid_date') ?: ($finance['paid_date'] ?? date('Y-m-d'));
+        $existingSettledAmount = $this->financePaymentModel->getNetSettledAmount($clinicId, $id);
+        $hasSettlementEntries = $this->financePaymentModel->hasSettlementEntries($clinicId, $id);
+        if ($hasSettlementEntries && $existingSettledAmount - $totalAmount > 0.0001) {
+            return redirect()->back()->withInput()->with('error', 'Expense total cannot be less than the amount already settled.');
+        }
+
+        $expensePaymentState = $this->buildExpensePaymentState(
+            $totalAmount,
+            $hasSettlementEntries ? $existingSettledAmount : null,
+            $finance['paid_date'] ?? null
+        );
         $transactionDate = $this->resolveFinanceTransactionDate(
             $this->normalizePostedDateOnly('transaction_date'),
-            $paidDate
+            $expensePaymentState['paid_date'] ?: ($finance['paid_date'] ?? null)
         );
 
         $update = [
@@ -1130,7 +1259,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
-            'payment_status' => 'paid',
+            'payment_status' => $expensePaymentState['payment_status'],
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
             'expense_category' => $this->request->getPost('expense_category'),
@@ -1139,10 +1268,10 @@ class Finance extends BaseController
             'discount_amount' => $discountAmount,
             'tax_percentage' => $taxPercentage,
             'tax_amount' => $taxAmount,
-            'amount_paid' => $totalAmount,
-            'balance_due' => 0,
-            'due_date' => null,
-            'paid_date' => $paidDate,
+            'amount_paid' => $expensePaymentState['amount_paid'],
+            'balance_due' => $expensePaymentState['balance_due'],
+            'due_date' => $expensePaymentState['due_date'],
+            'paid_date' => $expensePaymentState['paid_date'],
             'transaction_date' => $transactionDate,
             'notes' => $this->request->getPost('notes'),
         ];
@@ -1155,6 +1284,33 @@ class Finance extends BaseController
                 return redirect()->back()->withInput()->with('error', implode(', ', $this->financeModel->errors()));
             }
 
+            if (!$hasSettlementEntries) {
+                $this->financePaymentModel->where('clinic_id', $clinicId)
+                    ->where('finance_id', $id)
+                    ->delete();
+
+                if (($expensePaymentState['amount_paid'] ?? 0) > 0) {
+                    $paymentData = [
+                        'finance_id' => $id,
+                        'amount' => (float) $expensePaymentState['amount_paid'],
+                        'type' => 'payment',
+                        'payment_method' => $update['payment_method'],
+                        'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
+                        'notes' => 'Initial expense settlement',
+                        'created_by' => $this->resolveActorUserId(),
+                    ];
+                    if ($this->supportsFinancePaymentExchangeFields()) {
+                        $paymentData['currency'] = $update['currency'];
+                        $paymentData['amount_original'] = round(((float) $expensePaymentState['amount_paid']) / max(0.0001, (float) $update['exchange_rate']), 2);
+                        $paymentData['exchange_rate'] = $update['exchange_rate'];
+                    }
+                    if (!$this->financePaymentModel->insert($paymentData)) {
+                        $this->db->transRollback();
+                        return redirect()->back()->withInput()->with('error', 'Failed to record the initial expense payment.');
+                    }
+                }
+            }
+
             $attachmentFile = $this->request->getFile('attachment');
             if ($attachmentFile && $attachmentFile->isValid() && $attachmentFile->getName() !== '') {
                 $validation = $this->validateFinanceAttachment($attachmentFile);
@@ -1162,13 +1318,15 @@ class Finance extends BaseController
                     $this->db->transRollback();
                     return redirect()->back()->withInput()->with('error', $validation);
                 }
-                $financeRecord = $this->financeModel->find($id) ?: ['id' => $id, 'paid_date' => $paidDate];
+                $financeRecord = $this->financeModel->find($id) ?: ['id' => $id, 'paid_date' => ($expensePaymentState['paid_date'] ?: date('Y-m-d'))];
                 $archiveName = $this->generateFinanceArchiveName($financeRecord, (int) $clinicId, 'attachment', $attachmentFile);
                 $this->attachmentModel->supersedePrevious($clinicId, 'finance', $id, 'attachment');
                 $this->storageService->store($attachmentFile, $clinicId, 'finance', $id, 'attachment', [
                     'display_name' => $archiveName,
                 ]);
             }
+
+            $this->syncFinanceSettlementStatus($id, $clinicId);
 
             $this->activityLogger->logFinanceActivity(
                 'update',
@@ -1275,12 +1433,16 @@ class Finance extends BaseController
         $monthlyRevenue = $this->buildMonthlyCollectionsSeries($ledger['rows'], $startDate, $endDate);
         $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
         $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
+        $apAgingDetail = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $endDate, 100);
+        $apAgingSummary = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $endDate);
         $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
 
         $moneyIn = (float) ($stats['gross_collections'] ?? 0);
         $moneyOut = (float) (($stats['refunds_total'] ?? 0) + ($stats['expenses_paid'] ?? 0) + ($stats['provider_paid_cash_total'] ?? 0));
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
-        $weOweOthers = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
+        $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $weOweOthers = $expensePayables + $providerPayables;
         $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
 
         $data = [
@@ -1294,11 +1456,15 @@ class Finance extends BaseController
             'ledger_summary' => $ledger['summary'],
             'ar_aging_summary' => $arAgingSummary,
             'ar_aging_detail' => $arAgingDetail,
+            'ap_aging_summary' => $apAgingSummary,
+            'ap_aging_detail' => $apAgingDetail,
             'owner_summary' => [
                 'money_in' => round($moneyIn, 2),
                 'money_out' => round($moneyOut, 2),
                 'customers_owe_us' => round($customersOweUs, 2),
                 'we_owe_others' => round($weOweOthers, 2),
+                'expense_payables' => round($expensePayables, 2),
+                'provider_payables' => round($providerPayables, 2),
                 'net_position' => round($netPosition, 2),
                 'as_of_date' => $endDate,
             ],
@@ -1312,6 +1478,7 @@ class Finance extends BaseController
     private function buildFinancialLedger(int $clinicId, string $startDate, string $endDate): array
     {
         $baseCurrency = settings()->get('currency', 'ILS');
+        $directReportDateExpr = "CASE WHEN f.transaction_type = 'expense' THEN COALESCE(f.paid_date, f.transaction_date, DATE(f.created_at)) ELSE " . $this->financeDocumentDateExpr('f') . " END";
         $financeAmountExpr = $this->db->fieldExists('total_amount', 'finances')
             ? 'f.total_amount'
             : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
@@ -1331,11 +1498,18 @@ class Finance extends BaseController
                 f.currency,
                 f.exchange_rate,
                 f.amount_original,
+                f.amount_paid,
                 f.counterparty_name,
                 f.expense_category,
                 f.amount,
                 f.discount_amount,
                 f.tax_amount,
+                (
+                    SELECT COUNT(*)
+                    FROM finance_payments fp_exists
+                    WHERE fp_exists.clinic_id = f.clinic_id
+                      AND fp_exists.finance_id = f.id
+                ) AS settlement_count,
                 {$financeAmountExpr} AS amount_base,
                 p.first_name AS patient_first_name,
                 p.last_name AS patient_last_name,
@@ -1344,9 +1518,9 @@ class Finance extends BaseController
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
             ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
-            ->where($this->financeDocumentDateExpr('f') . ' >= ' . $this->db->escape($startDate), null, false)
-            ->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false)
-            ->orderBy($this->financeDocumentDateExpr('f'), 'DESC', false)
+            ->where($directReportDateExpr . ' >= ' . $this->db->escape($startDate), null, false)
+            ->where($directReportDateExpr . ' <= ' . $this->db->escape($endDate), null, false)
+            ->orderBy($directReportDateExpr, 'DESC', false)
             ->orderBy('f.id', 'DESC')
             ->get()
             ->getResultArray();
@@ -1354,11 +1528,19 @@ class Finance extends BaseController
         foreach ($financeRows as $row) {
             $amountBase = isset($row['amount_base']) ? floatval($row['amount_base']) : 0.0;
             $type = (string) ($row['transaction_type'] ?? '');
+            if ($type === 'expense') {
+                $settlementCount = (int) ($row['settlement_count'] ?? 0);
+                $legacyPaidAmount = round(floatval($row['amount_paid'] ?? 0), 2);
+                if ($settlementCount > 0 || $legacyPaidAmount <= 0) {
+                    continue;
+                }
+                $amountBase = min($amountBase, $legacyPaidAmount);
+            }
             $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $reportDate = !empty($row['transaction_date'])
-                ? (string) $row['transaction_date']
-                : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10));
+            $reportDate = $type === 'expense'
+                ? (!empty($row['paid_date']) ? (string) $row['paid_date'] : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10)))
+                : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10)));
 
             $rows[] = [
                 'finance_id' => (int) ($row['id'] ?? 0),
@@ -1406,6 +1588,8 @@ class Finance extends BaseController
                 fp.payment_date,
                 fp.notes,
                 fp.amount,
+                f.transaction_type AS finance_transaction_type,
+                f.counterparty_name,
                 {$paymentFxSelect}
                 f.transaction_id AS invoice_transaction_id,
                 f.currency,
@@ -1418,7 +1602,8 @@ class Finance extends BaseController
             ->where('fp.clinic_id', $clinicId)
             ->where('fp.payment_date >=', $startDate)
             ->where('fp.payment_date <=', $endDate)
-            ->whereIn('fp.type', ['payment', 'refund', 'void'])
+            ->whereIn('f.transaction_type', ['invoice', 'expense'])
+            ->whereIn('fp.type', ['payment', 'refund', 'void', 'adjustment'])
             ->orderBy('fp.payment_date', 'DESC')
             ->orderBy('fp.id', 'DESC')
             ->get()
@@ -1427,23 +1612,40 @@ class Finance extends BaseController
         foreach ($invoicePaymentRows as $row) {
             $amountBase = floatval($row['amount'] ?? 0);
             $type = (string) ($row['type'] ?? '');
-            $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
+            $financeTransactionType = (string) ($row['finance_transaction_type'] ?? 'invoice');
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $normalizedType = $type === 'void' ? 'void' : $type;
+
+            if ($financeTransactionType === 'expense') {
+                $signedAmount = in_array($type, ['refund', 'void'], true) ? $amountBase : -$amountBase;
+                $normalizedType = 'expense';
+                $eventSource = 'expense_settlement';
+                $reference = (string) (($row['invoice_transaction_id'] ?? 'Expense') . ' / EXP-' . ($row['id'] ?? ''));
+                $counterparty = $row['counterparty_name'] ?? null;
+                $patientLabel = null;
+                $patientNumber = null;
+            } else {
+                $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
+                $normalizedType = $type === 'void' ? 'void' : $type;
+                $eventSource = 'invoice_settlement';
+                $reference = (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? ''));
+                $counterparty = null;
+                $patientLabel = $patientName !== '' ? $patientName : null;
+                $patientNumber = $row['patient_number'] ?? null;
+            }
 
             $rows[] = [
                 'finance_id' => (int) ($row['finance_id'] ?? 0),
                 'provider_payout_id' => null,
-                'event_source' => 'invoice_settlement',
-                'source_label' => 'Invoice settlement',
+                'event_source' => $eventSource,
+                'source_label' => $financeTransactionType === 'expense' ? 'Expense settlement' : 'Invoice settlement',
                 'event_type' => $normalizedType,
                 'event_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
                 'report_date' => (string) ($row['payment_date'] ?? ''),
                 'created_at' => ((string) ($row['payment_date'] ?? '')) . ' 00:00:00',
-                'reference' => (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? '')),
-                'patient_label' => $patientName !== '' ? $patientName : null,
-                'patient_number' => $row['patient_number'] ?? null,
-                'counterparty' => null,
+                'reference' => $reference,
+                'patient_label' => $patientLabel,
+                'patient_number' => $patientNumber,
+                'counterparty' => $counterparty,
                 'payment_method' => $row['payment_method'] ?? null,
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? null,
@@ -1787,9 +1989,14 @@ class Finance extends BaseController
         $ledger = $this->buildFinancialLedger((int) $clinicId, $startDate, $endDate);
         $stats = $this->summarizeCashReport($ledger['rows']);
         $openInvoices = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 500);
+        $openPayables = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $endDate, 500);
         $openInvoicesBalance = 0.0;
         foreach ($openInvoices as $invoice) {
             $openInvoicesBalance += floatval($invoice['balance_due'] ?? 0);
+        }
+        $openPayablesBalance = 0.0;
+        foreach ($openPayables as $payable) {
+            $openPayablesBalance += floatval($payable['balance_due'] ?? 0);
         }
 
         $response = [
@@ -1804,6 +2011,9 @@ class Finance extends BaseController
             'outstanding_invoices' => count($openInvoices),
             'outstanding_invoices_balance' => round($openInvoicesBalance, 2),
             'outstanding_invoices_balance_formatted' => formatCurrency($openInvoicesBalance),
+            'outstanding_payables' => count($openPayables),
+            'outstanding_payables_balance' => round($openPayablesBalance, 2),
+            'outstanding_payables_balance_formatted' => formatCurrency($openPayablesBalance),
             'total_transactions' => $stats['total_transactions'],
         ];
 
@@ -2030,13 +2240,17 @@ class Finance extends BaseController
                 return $this->response->setJSON(['success' => false, 'message' => 'Financial transaction not found']);
             }
 
-            if ($finance['transaction_type'] === 'invoice') {
+            if (in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
                 $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-                $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
-                $remaining = max(0, $totalAmount - $paidTotal);
+                $settledTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, (int) $finance['id']);
+                $remaining = max(0, $totalAmount - $settledTotal);
 
                 if ($remaining <= 0) {
-                    return $this->response->setJSON(['success' => true, 'message' => 'Invoice already fully paid.']);
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => ($finance['transaction_type'] === 'expense') ? 'Expense already fully paid.' : 'Invoice already fully paid.',
+                        'csrf_token' => csrf_hash()
+                    ]);
                 }
 
                 $paymentData = [
@@ -2045,42 +2259,29 @@ class Finance extends BaseController
                     'type' => 'payment',
                     'payment_method' => $finance['payment_method'] ?? 'cash',
                     'payment_date' => date('Y-m-d'),
-                    'notes' => 'Full payment via Mark as Paid',
+                    'notes' => ($finance['transaction_type'] === 'expense') ? 'Full payment via Mark as Paid' : 'Full payment via Mark as Paid',
                     'created_by' => $this->resolveActorUserId()
                 ];
+                if ($this->supportsFinancePaymentExchangeFields()) {
+                    $rate = max(0.0001, (float) ($finance['exchange_rate'] ?? 1));
+                    $paymentData['currency'] = $finance['currency'] ?? settings()->get('currency', 'ILS');
+                    $paymentData['amount_original'] = round($remaining / $rate, 2);
+                    $paymentData['exchange_rate'] = $rate;
+                }
 
                 $this->financePaymentModel->insert($paymentData);
-                $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+                $this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId);
 
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Invoice marked as paid.',
+                    'message' => ($finance['transaction_type'] === 'expense') ? 'Expense marked as paid.' : 'Invoice marked as paid.',
                     'csrf_token' => csrf_hash()
                 ]);
             }
 
-            $updateData = [
-                'payment_status' => 'paid',
-                'paid_date' => date('Y-m-d'),
-                'amount_paid' => floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount'])),
-                'balance_due' => 0
-            ];
-
-            $this->financeModel->setValidationRules([]);
-            $result = $this->financeModel->update($id, $updateData);
-
-            if ($result) {
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => 'Transaction marked as paid',
-                    'csrf_token' => csrf_hash()
-                ]);
-            }
-
-            $errors = $this->financeModel->errors();
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Failed to update transaction: ' . implode(', ', $errors),
+                'message' => 'Only invoices and expenses support settlement tracking.',
                 'csrf_token' => csrf_hash()
             ]);
         } catch (\Exception $e) {
@@ -2102,18 +2303,18 @@ class Finance extends BaseController
             }
 
             $finance = $this->financeModel->findByClinic($clinicId, $id);
-            if (!$finance || $finance['transaction_type'] !== 'invoice') {
+            if (!$finance || !in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Invoice not found',
+                    'message' => 'Transaction not found',
                     'csrf_token' => csrf_hash()
                 ]);
             }
 
             $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-            $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
-            $remaining = max(0, $totalAmount - $paidTotal);
-            $settlement = $this->normalizeInvoiceSettlementInput($finance, $remaining);
+            $settledTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, (int) $finance['id']);
+            $remaining = max(0, $totalAmount - $settledTotal);
+            $settlement = $this->normalizeFinanceSettlementInput($finance, $remaining);
 
             $paymentData = [
                 'finance_id' => $finance['id'],
@@ -2138,11 +2339,11 @@ class Finance extends BaseController
                 ]);
             }
 
-            $this->syncInvoicePaymentStatus($finance['id'], $clinicId);
+            $this->syncFinanceSettlementStatus((int) $finance['id'], (int) $clinicId);
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Payment added successfully.',
+                'message' => (($finance['transaction_type'] ?? '') === 'expense') ? 'Expense payment recorded successfully.' : 'Payment added successfully.',
                 'csrf_token' => csrf_hash()
             ]);
         } catch (\Exception $e) {
@@ -2401,28 +2602,28 @@ class Finance extends BaseController
         }
     }
 
-    private function syncInvoicePaymentStatus($invoiceId, $clinicId)
+    private function syncFinanceSettlementStatus(int $financeId, int $clinicId): void
     {
-        $finance = $this->financeModel->findByClinic($clinicId, $invoiceId);
-        if (!$finance || $finance['transaction_type'] !== 'invoice') {
+        $finance = $this->financeModel->findByClinic($clinicId, $financeId);
+        if (!$finance || !in_array(($finance['transaction_type'] ?? ''), ['invoice', 'expense'], true)) {
             return;
         }
 
         $totalAmount = floatval($finance['total_amount'] ?? ($finance['amount'] - $finance['discount_amount'] + $finance['tax_amount']));
-        $paidTotal = $this->financePaymentModel->getPaidTotalByInvoice($clinicId, $finance['id']);
-        $balanceDue = max(0, $totalAmount - $paidTotal);
+        $settledTotal = $this->financePaymentModel->getNetSettledAmount($clinicId, (int) $finance['id']);
+        $balanceDue = max(0, $totalAmount - $settledTotal);
 
         $status = 'pending';
         if ($balanceDue <= 0) {
             $status = 'paid';
         } elseif (!empty($finance['due_date']) && strtotime($finance['due_date']) < strtotime(date('Y-m-d'))) {
             $status = 'overdue';
-        } elseif ($paidTotal > 0 && $balanceDue > 0) {
+        } elseif ($settledTotal > 0 && $balanceDue > 0) {
             $status = 'partial';
         }
 
         $updateData = [
-            'amount_paid' => $paidTotal,
+            'amount_paid' => $settledTotal,
             'balance_due' => $balanceDue,
             'payment_status' => $status,
         ];
@@ -2433,6 +2634,11 @@ class Finance extends BaseController
 
         $this->financeModel->setValidationRules([]);
         $this->financeModel->update($finance['id'], $updateData);
+    }
+
+    private function syncInvoicePaymentStatus($invoiceId, $clinicId)
+    {
+        $this->syncFinanceSettlementStatus((int) $invoiceId, (int) $clinicId);
     }
 
     public function generateInvoice($id)

@@ -648,6 +648,77 @@ class FinanceModel extends TenantAwareModel
         return $rows;
     }
 
+    public function getAccountsPayableAgingSummaryByClinic(int $clinicId, ?string $asOfDate = null): array
+    {
+        $asOfDate = $asOfDate ?: date('Y-m-d');
+        $rows = $this->getAccountsPayableAgingDetailByClinic($clinicId, $asOfDate, 10000);
+
+        $summary = [
+            'current' => 0.0,
+            'days_1_30' => 0.0,
+            'days_31_60' => 0.0,
+            'days_61_90' => 0.0,
+            'days_91_plus' => 0.0,
+            'total_balance_due' => 0.0,
+            'expense_count' => 0,
+            'as_of_date' => $asOfDate,
+        ];
+
+        foreach ($rows as $row) {
+            $balance = (float) ($row['balance_due'] ?? 0);
+            $bucket = (string) ($row['aging_bucket'] ?? 'current');
+            if (!isset($summary[$bucket])) {
+                $bucket = 'current';
+            }
+            $summary[$bucket] += $balance;
+            $summary['total_balance_due'] += $balance;
+            $summary['expense_count']++;
+        }
+
+        return $summary;
+    }
+
+    public function getAccountsPayableAgingDetailByClinic(int $clinicId, ?string $asOfDate = null, int $limit = 100): array
+    {
+        $asOfDate = $asOfDate ?: date('Y-m-d');
+        $limit = max(1, min($limit, 10000));
+        $sumField = $this->db->fieldExists('total_amount', 'finances')
+            ? 'finances.total_amount'
+            : '(finances.amount - COALESCE(finances.discount_amount, 0) + COALESCE(finances.tax_amount, 0))';
+
+        $rows = $this->db->table('finances')
+            ->select("
+                finances.id,
+                finances.transaction_id,
+                {$sumField} AS total_amount,
+                finances.balance_due,
+                finances.payment_status,
+                finances.counterparty_name,
+                finances.expense_category,
+                finances.due_date,
+                finances.transaction_date,
+                finances.created_at
+            ", false)
+            ->where('finances.clinic_id', $clinicId)
+            ->where('finances.transaction_type', 'expense')
+            ->where('finances.balance_due >', 0)
+            ->whereNotIn('finances.payment_status', ['cancelled'])
+            ->orderBy('finances.due_date', 'ASC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $dueDate = !empty($row['due_date']) ? (string) $row['due_date'] : (string) ($row['transaction_date'] ?? substr((string) ($row['created_at'] ?? $asOfDate), 0, 10));
+            $daysPastDue = (int) floor((strtotime($asOfDate) - strtotime($dueDate)) / 86400);
+            $row['days_past_due'] = max(0, $daysPastDue);
+            $row['aging_bucket'] = $this->mapAgingBucket($daysPastDue);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
     private function mapAgingBucket(int $daysPastDue): string
     {
         if ($daysPastDue <= 0) {

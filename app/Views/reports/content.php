@@ -838,6 +838,47 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                 </div>
                             </div>
                             <?php endif; ?>
+                            <?php if (!empty($reports['ap_aging_summary'])): ?>
+                            <?php $ap = $reports['ap_aging_summary']; ?>
+                            <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-800"><?= $tm('accountsPayableAging') ?></h4>
+                                        <p class="text-sm text-gray-500"><?= esc($tm('accountsPayableAgingDesc', ['date' => ($filters['end_date'] ?? date('Y-m-d'))])) ?></p>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-sm font-semibold text-indigo-700"><?= $tm('expensePayables') ?>: <?= formatCurrency($summary['expense_payables'] ?? 0) ?></span>
+                                        <span class="text-sm font-semibold text-blue-700"><?= $tm('providerPayables') ?>: <?= formatCurrency($summary['provider_payables'] ?? 0) ?></span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+                                    <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-slate-500"><?= $tm('current') ?></p>
+                                        <p class="text-lg font-bold text-slate-900"><?= formatCurrency($ap['current'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-amber-700">1-30</p>
+                                        <p class="text-lg font-bold text-amber-900"><?= formatCurrency($ap['days_1_30'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-orange-50 border border-orange-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-orange-700">31-60</p>
+                                        <p class="text-lg font-bold text-orange-900"><?= formatCurrency($ap['days_31_60'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-rose-50 border border-rose-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-rose-700">61-90</p>
+                                        <p class="text-lg font-bold text-rose-900"><?= formatCurrency($ap['days_61_90'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-red-50 border border-red-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-red-700">91+</p>
+                                        <p class="text-lg font-bold text-red-900"><?= formatCurrency($ap['days_91_plus'] ?? 0) ?></p>
+                                    </div>
+                                    <div class="rounded-lg bg-indigo-50 border border-indigo-200 p-3">
+                                        <p class="text-xs uppercase tracking-wide text-indigo-700"><?= $tm('expenses') ?></p>
+                                        <p class="text-lg font-bold text-indigo-900"><?= (int) ($ap['expense_count'] ?? 0) ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                                 </div>
                             </details>
 
@@ -875,6 +916,43 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                                     <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc($agingBucketLabel($row['aging_bucket'] ?? 'current')) ?></span>
                                                 </td>
                                                 <td class="py-2 pr-3 text-right font-semibold text-rose-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($reports['ap_aging_detail'])): ?>
+                            <div class="bg-white/90 rounded-xl p-5 border border-gray-200 shadow-sm">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800"><?= $tm('apAgingDetail') ?></h4>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"><?= esc($tm('openPayablesTop', ['count' => count($reports['ap_aging_detail'])])) ?></span>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-sm">
+                                        <thead>
+                                            <tr class="text-left text-gray-500 border-b">
+                                                <th class="py-2 pr-3"><?= $tm('expense') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('vendor') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('dueDate') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('daysPastDue') ?></th>
+                                                <th class="py-2 pr-3"><?= $tm('bucket') ?></th>
+                                                <th class="py-2 pr-3 text-right"><?= $tm('balanceDue') ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <?php foreach ($reports['ap_aging_detail'] as $row): ?>
+                                            <tr class="cursor-pointer transition-colors hover:bg-indigo-50/60" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
+                                                <td class="py-2 pr-3 font-medium text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
+                                                <td class="py-2 pr-3 text-gray-700"><?= esc($row['counterparty_name'] ?? '-') ?></td>
+                                                <td class="py-2 pr-3 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
+                                                <td class="py-2 pr-3 text-gray-700"><?= (int) ($row['days_past_due'] ?? 0) ?></td>
+                                                <td class="py-2 pr-3">
+                                                    <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><?= esc($agingBucketLabel($row['aging_bucket'] ?? 'current')) ?></span>
+                                                </td>
+                                                <td class="py-2 pr-3 text-right font-semibold text-indigo-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
                                             </tr>
                                             <?php endforeach; ?>
                                         </tbody>

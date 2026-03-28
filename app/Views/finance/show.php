@@ -14,6 +14,7 @@
     $isConverted = !empty($finance['currency']) && $finance['currency'] !== $baseCurrency;
     $creatorName = trim(($finance['creator_first_name'] ?? '') . ' ' . ($finance['creator_last_name'] ?? ''));
     $isExpense = (($finance['transaction_type'] ?? '') === 'expense');
+    $isInvoice = (($finance['transaction_type'] ?? '') === 'invoice');
     $currencySymbol = settings()->getCurrencySymbol();
     $supportsPaymentExchangeFields = !empty($supports_payment_exchange_fields);
     $paymentStatusKey = $finance['payment_status'] ?? 'pending';
@@ -306,7 +307,7 @@
                 </div>
                 <?php endif; ?>
 
-                <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                <?php if ($isInvoice || $isExpense): ?>
                 <!-- Invoice Payments Ledger -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
                     <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center space-x-3">
@@ -416,7 +417,7 @@
                                     <tr>
                                         <?php $emptyColspan = has_permission('finance', 'edit') ? 8 : 7; ?>
                                         <td colspan="<?= $emptyColspan ?>" class="px-6 py-12 text-center text-sm text-gray-400 font-medium">
-                                            <?= lang('Finance.noPaymentHistory') ?>
+                                            <?= lang('Finance.settlementHistoryEmpty') ?>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -541,6 +542,7 @@
                         </div>
                     </div>
 
+                    <?php if ($isInvoice): ?>
                     <!-- Record Refund Form -->
                     <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
                         <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center space-x-3">
@@ -654,6 +656,7 @@
                             </form>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
                 <?php endif; ?>

@@ -1011,12 +1011,16 @@ class Reports extends BaseController
         $ledgerSummary = $this->summarizeFinanceCashLedger($transactions);
         $arAgingDetail = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 100);
         $arAgingSummary = $this->summarizeAccountsReceivableBuckets($arAgingDetail, $endDate);
+        $apAgingDetail = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $endDate, 100);
+        $apAgingSummary = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $endDate);
         $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
 
         $moneyIn = (float) ($ledgerSummary['gross_collections'] ?? 0);
         $moneyOut = (float) (($ledgerSummary['refund_total'] ?? 0) + ($ledgerSummary['expense_total'] ?? 0) + ($ledgerSummary['provider_paid_cash'] ?? 0));
         $customersOweUs = (float) ($arAgingSummary['total_balance_due'] ?? 0);
-        $weOweOthers = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $expensePayables = (float) ($apAgingSummary['total_balance_due'] ?? 0);
+        $providerPayables = (float) ($providerPayoutStats['total_provider_balance'] ?? 0);
+        $weOweOthers = $expensePayables + $providerPayables;
         $netPosition = $moneyIn - $moneyOut + $customersOweUs - $weOweOthers;
 
         $result = [
@@ -1026,6 +1030,8 @@ class Reports extends BaseController
             'outstanding_payments' => $arAgingDetail,
             'ar_aging_summary' => $arAgingSummary,
             'ar_aging_detail' => $arAgingDetail,
+            'ap_aging_summary' => $apAgingSummary,
+            'ap_aging_detail' => $apAgingDetail,
             'provider_payout_status' => [],
             'provider_payout_breakdown' => [],
             'provider_payout_rows' => [],
@@ -1048,6 +1054,8 @@ class Reports extends BaseController
                 'money_out' => round($moneyOut, 2),
                 'customers_owe_us' => round($customersOweUs, 2),
                 'we_owe_others' => round($weOweOthers, 2),
+                'expense_payables' => round($expensePayables, 2),
+                'provider_payables' => round($providerPayables, 2),
                 'net_position' => round($netPosition, 2),
                 'as_of_date' => $endDate,
             ],
@@ -1062,11 +1070,12 @@ class Reports extends BaseController
                 $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $cEnd, 100),
                 $cEnd
             );
+            $compareAp = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $cEnd);
             $compareProviderStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $cEnd);
             $compareMoneyIn = (float) ($compareSummary['gross_collections'] ?? 0);
             $compareMoneyOut = (float) (($compareSummary['refund_total'] ?? 0) + ($compareSummary['expense_total'] ?? 0) + ($compareSummary['provider_paid_cash'] ?? 0));
             $compareCustomersOweUs = (float) ($compareAr['total_balance_due'] ?? 0);
-            $compareWeOweOthers = (float) ($compareProviderStats['total_provider_balance'] ?? 0);
+            $compareWeOweOthers = (float) ($compareAp['total_balance_due'] ?? 0) + (float) ($compareProviderStats['total_provider_balance'] ?? 0);
             $result['comparison'] = [
                 'label' => $cStart . ' to ' . $cEnd,
                 'summary' => [
@@ -1086,6 +1095,7 @@ class Reports extends BaseController
     private function buildFinanceCashLedger(int $clinicId, string $startDate, string $endDate, array $filters = []): array
     {
         $baseCurrency = settings()->get('currency', 'ILS');
+        $directReportDateExpr = "CASE WHEN f.transaction_type = 'expense' THEN COALESCE(f.paid_date, f.transaction_date, DATE(f.created_at)) ELSE COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at)) END";
         $selectedPatientId = (int) ($filters['patient_id'] ?? 0);
         $selectedTransactionType = (string) ($filters['transaction_type'] ?? '');
         $selectedPaymentMethod = (string) ($filters['payment_method'] ?? '');
@@ -1109,8 +1119,15 @@ class Reports extends BaseController
                 f.currency,
                 f.exchange_rate,
                 f.amount_original,
+                f.amount_paid,
                 f.counterparty_name,
                 {$financeAmountExpr} AS amount_base,
+                (
+                    SELECT COUNT(*)
+                    FROM finance_payments fp_exists
+                    WHERE fp_exists.clinic_id = f.clinic_id
+                      AND fp_exists.finance_id = f.id
+                ) AS settlement_count,
                 p.first_name AS patient_first_name,
                 p.last_name AS patient_last_name,
                 p.patient_id AS patient_number
@@ -1118,9 +1135,9 @@ class Reports extends BaseController
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
             ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
-            ->where("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at)) >= " . $this->db->escape($startDate), null, false)
-            ->where("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at)) <= " . $this->db->escape($endDate), null, false)
-            ->orderBy("COALESCE(f.transaction_date, f.paid_date, DATE(f.created_at))", 'DESC', false)
+            ->where($directReportDateExpr . ' >= ' . $this->db->escape($startDate), null, false)
+            ->where($directReportDateExpr . ' <= ' . $this->db->escape($endDate), null, false)
+            ->orderBy($directReportDateExpr, 'DESC', false)
             ->orderBy('f.id', 'DESC')
             ->get()
             ->getResultArray();
@@ -1140,11 +1157,19 @@ class Reports extends BaseController
             }
 
             $amountBase = floatval($row['amount_base'] ?? 0);
+            if ($type === 'expense') {
+                $settlementCount = (int) ($row['settlement_count'] ?? 0);
+                $legacyPaidAmount = round(floatval($row['amount_paid'] ?? 0), 2);
+                if ($settlementCount > 0 || $legacyPaidAmount <= 0) {
+                    continue;
+                }
+                $amountBase = min($amountBase, $legacyPaidAmount);
+            }
             $signedAmount = in_array($type, ['refund', 'expense'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
-            $reportDate = !empty($row['transaction_date'])
-                ? (string) $row['transaction_date']
-                : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10));
+            $reportDate = $type === 'expense'
+                ? (!empty($row['paid_date']) ? (string) $row['paid_date'] : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10)))
+                : (!empty($row['transaction_date']) ? (string) $row['transaction_date'] : (!empty($row['paid_date']) ? (string) $row['paid_date'] : substr((string) ($row['created_at'] ?? ''), 0, 10)));
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
@@ -1192,6 +1217,8 @@ class Reports extends BaseController
                 fp.payment_date,
                 fp.notes,
                 fp.amount,
+                f.transaction_type AS finance_transaction_type,
+                f.counterparty_name,
                 {$paymentFxSelect}
                 f.id AS finance_id,
                 f.patient_id,
@@ -1206,7 +1233,8 @@ class Reports extends BaseController
             ->where('fp.clinic_id', $clinicId)
             ->where('fp.payment_date >=', $startDate)
             ->where('fp.payment_date <=', $endDate)
-            ->whereIn('fp.type', ['payment', 'refund', 'void'])
+            ->whereIn('f.transaction_type', ['invoice', 'expense'])
+            ->whereIn('fp.type', ['payment', 'refund', 'void', 'adjustment'])
             ->orderBy('fp.payment_date', 'DESC')
             ->orderBy('fp.id', 'DESC')
             ->get()
@@ -1214,12 +1242,9 @@ class Reports extends BaseController
 
         foreach ($invoicePaymentRows as $row) {
             $type = (string) ($row['type'] ?? '');
-            $normalizedType = $type === 'void' ? 'void' : $type;
+            $financeTransactionType = (string) ($row['finance_transaction_type'] ?? 'invoice');
             $patientId = (int) ($row['patient_id'] ?? 0);
             if ($selectedPatientId > 0 && $patientId !== $selectedPatientId) {
-                continue;
-            }
-            if ($selectedTransactionType !== '' && $selectedTransactionType !== $normalizedType) {
                 continue;
             }
             $method = (string) ($row['payment_method'] ?? '');
@@ -1228,24 +1253,48 @@ class Reports extends BaseController
             }
 
             $amountBase = floatval($row['amount'] ?? 0);
-            $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
             $patientName = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+
+            if ($financeTransactionType === 'expense') {
+                $normalizedType = 'expense';
+                if ($selectedTransactionType !== '' && $selectedTransactionType !== $normalizedType) {
+                    continue;
+                }
+                $signedAmount = in_array($type, ['refund', 'void'], true) ? $amountBase : -$amountBase;
+                $eventSource = 'expense_settlement';
+                $sourceLabel = 'Expense settlement';
+                $transactionId = (string) (($row['invoice_transaction_id'] ?? 'Expense') . ' / EXP-' . ($row['id'] ?? ''));
+                $patientName = '';
+                $patientNumber = null;
+                $counterparty = $row['counterparty_name'] ?? null;
+            } else {
+                $normalizedType = $type === 'void' ? 'void' : $type;
+                if ($selectedTransactionType !== '' && $selectedTransactionType !== $normalizedType) {
+                    continue;
+                }
+                $signedAmount = in_array($type, ['refund', 'void'], true) ? -$amountBase : $amountBase;
+                $eventSource = 'invoice_settlement';
+                $sourceLabel = 'Invoice settlement';
+                $transactionId = (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? ''));
+                $patientNumber = $row['patient_number'] ?? null;
+                $counterparty = null;
+            }
 
             $rows[] = [
                 'id' => (int) ($row['id'] ?? 0),
                 'finance_id' => (int) ($row['finance_id'] ?? 0),
                 'provider_payout_id' => null,
-                'transaction_id' => (string) (($row['invoice_transaction_id'] ?? 'Invoice') . ' / PMT-' . ($row['id'] ?? '')),
+                'transaction_id' => $transactionId,
                 'patient_id' => $patientId,
                 'patient_name' => $patientName,
-                'patient_number' => $row['patient_number'] ?? null,
+                'patient_number' => $patientNumber,
                 'transaction_type' => $normalizedType,
-                'event_source' => 'invoice_settlement',
-                'source_label' => 'Invoice settlement',
+                'event_source' => $eventSource,
+                'source_label' => $sourceLabel,
                 'payment_method' => $method,
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? null,
-                'counterparty_name' => null,
+                'counterparty_name' => $counterparty,
                 'currency' => $row['settlement_currency'] ?: ($row['currency'] ?: $baseCurrency),
                 'exchange_rate' => floatval($row['settlement_exchange_rate'] ?? 1),
                 'amount_original' => isset($row['settlement_amount_original']) ? floatval($row['settlement_amount_original']) : $amountBase,

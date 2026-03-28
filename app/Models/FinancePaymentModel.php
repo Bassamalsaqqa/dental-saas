@@ -34,7 +34,7 @@ class FinancePaymentModel extends TenantAwareModel
 
     protected $beforeInsert = ['setClinicId'];
 
-    public function getPaymentsByInvoice($clinicId, $financeId)
+    public function getSettlementEntries(int $clinicId, int $financeId): array
     {
         return $this->where('clinic_id', $clinicId)
             ->where('finance_id', $financeId)
@@ -43,7 +43,12 @@ class FinancePaymentModel extends TenantAwareModel
             ->findAll();
     }
 
-    public function getPaidTotalByInvoice($clinicId, $financeId)
+    public function getPaymentsByInvoice($clinicId, $financeId)
+    {
+        return $this->getSettlementEntries((int) $clinicId, (int) $financeId);
+    }
+
+    public function getNetSettledAmount(int $clinicId, int $financeId): float
     {
         $row = $this->select("SUM(CASE WHEN type IN ('payment','adjustment') THEN amount WHEN type IN ('refund','void') THEN -amount ELSE 0 END) AS total_amount", false)
             ->where('clinic_id', $clinicId)
@@ -52,6 +57,18 @@ class FinancePaymentModel extends TenantAwareModel
             ->getRow();
 
         return $row ? floatval($row->total_amount ?? 0) : 0.0;
+    }
+
+    public function getPaidTotalByInvoice($clinicId, $financeId)
+    {
+        return $this->getNetSettledAmount((int) $clinicId, (int) $financeId);
+    }
+
+    public function hasSettlementEntries(int $clinicId, int $financeId): bool
+    {
+        return $this->where('clinic_id', $clinicId)
+            ->where('finance_id', $financeId)
+            ->countAllResults() > 0;
     }
 
     public function getRelatedAdjustmentsTotal(int $clinicId, int $paymentId): float

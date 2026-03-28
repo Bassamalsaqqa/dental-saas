@@ -156,6 +156,51 @@ $bucketLabels = [
         </section>
 
         <section class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-blue-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500">
+            <div class="border-b border-white/20 px-6 py-5">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.apAgingDetail') ?></h2>
+                        <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.apAgingDetailHelp') ?></p>
+                    </div>
+                    <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800"><?= esc(lang('Finance.openPayablesTop', ['count' => count($ap_aging_detail ?? [])])) ?></span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <th class="px-6 py-4"><?= lang('Finance.expense') ?></th>
+                            <th class="px-6 py-4"><?= lang('Finance.vendor') ?></th>
+                            <th class="px-6 py-4"><?= lang('Finance.dueDate') ?></th>
+                            <th class="px-6 py-4"><?= lang('Finance.daysPastDue') ?></th>
+                            <th class="px-6 py-4"><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-right"><?= lang('Finance.balanceDueLabel') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        <?php if (!empty($ap_aging_detail)): ?>
+                            <?php foreach ($ap_aging_detail as $row): ?>
+                                <tr class="cursor-pointer transition-colors duration-150 hover:bg-indigo-50/70" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
+                                    <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['transaction_id'] ?? ('#' . ($row['id'] ?? ''))) ?></td>
+                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['counterparty_name'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-gray-700"><?= esc($row['due_date'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-gray-700"><?= number_format((int) ($row['days_past_due'] ?? 0)) ?></td>
+                                    <td class="px-6 py-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"><?= esc($bucketLabels[$row['aging_bucket'] ?? 'current'] ?? ($row['aging_bucket'] ?? 'Current')) ?></span></td>
+                                    <td class="px-6 py-4 text-right font-semibold text-indigo-700"><?= $formatMoney($row['balance_due'] ?? 0) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500"><?= lang('Finance.noOutstandingPayablesForDate') ?></td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </section>
+
+        <section class="group relative">
             <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
             <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500">
             <div class="border-b border-white/20 px-6 py-5">
@@ -242,6 +287,7 @@ $bucketLabels = [
                                 $sourceLabel = match ((string) ($row['event_source'] ?? '')) {
                                     'direct_transaction' => lang('Finance.directTransaction'),
                                     'invoice_settlement' => lang('Finance.invoiceSettlement'),
+                                    'expense_settlement' => lang('Finance.expenseSettlement'),
                                     'provider_payout_payment' => lang('Finance.providerPayout'),
                                     default => ucfirst(str_replace('_', ' ', (string) ($row['event_source'] ?? ''))),
                                 };
@@ -335,6 +381,29 @@ $bucketLabels = [
                         </div>
                     </section>
                 </div>
+                <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.accountsPayableAging') ?></h3>
+                            <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.accountsPayableAgingSummaryHelp', ['date' => $end_date])) ?></p>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <div class="rounded-lg border border-indigo-200 bg-white p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= lang('Finance.expensePayables') ?></p>
+                                <p class="mt-2 text-xl font-black text-indigo-950"><?= $formatMoney($ownerSummary['expense_payables'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-lg border border-blue-200 bg-white p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-blue-700"><?= lang('Finance.providerPayables') ?></p>
+                                <p class="mt-2 text-xl font-black text-blue-950"><?= $formatMoney($ownerSummary['provider_payables'] ?? 0) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
+                        <?php foreach ($bucketLabels as $bucketKey => $bucketLabel): ?>
+                            <div class="rounded-lg border border-gray-200 bg-white p-4"><p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= esc($bucketLabel) ?></p><p class="mt-2 text-xl font-black text-gray-900"><?= $formatMoney($ap_aging_summary[$bucketKey] ?? 0) ?></p></div>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
                 <section class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                     <h3 class="text-lg font-bold text-gray-900"><?= lang('Finance.monthlyCollectionsTrend') ?></h3>
                     <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.monthlyCollectionsTrendHelp') ?></p>

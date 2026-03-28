@@ -4,6 +4,10 @@
 <?php
 $baseCurrency = $base_currency ?? 'ILS';
 $finance = $finance ?? [];
+$expenseHasSettlementEntries = !empty($expense_has_settlement_entries);
+$expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] ?? '') === 'overdue'
+    ? ((float) ($finance['amount_paid'] ?? 0) > 0 ? 'partial' : 'pending')
+    : ($finance['payment_status'] ?? 'paid')));
 ?>
 <div class="min-h-screen bg-slate-50">
     <div class="container mx-auto relative z-10 px-4 py-6">
@@ -165,6 +169,45 @@ $finance = $finance ?? [];
                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(old('paid_date', $finance['paid_date'] ?? date('Y-m-d'))) ?>" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-500/20">
                             </div>
                         </div>
+
+                        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                            <div class="group/field relative">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-hourglass-half text-amber-600 mr-2"></i><?= lang('Finance.paymentStatusRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="payment_status" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/20 <?= $expenseHasSettlementEntries ? 'bg-gray-100 cursor-not-allowed' : '' ?>" <?= $expenseHasSettlementEntries ? 'disabled' : '' ?> required>
+                                        <option value="paid" <?= $expensePaymentStatusValue === 'paid' ? 'selected' : '' ?>><?= lang('Finance.paid') ?></option>
+                                        <option value="partial" <?= $expensePaymentStatusValue === 'partial' ? 'selected' : '' ?>><?= lang('Finance.partial') ?></option>
+                                        <option value="pending" <?= $expensePaymentStatusValue === 'pending' ? 'selected' : '' ?>><?= lang('Finance.unpaid') ?></option>
+                                    </select>
+                                    <?php if ($expenseHasSettlementEntries): ?><input type="hidden" name="payment_status" value="<?= esc($expensePaymentStatusValue) ?>"><?php endif; ?>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-wallet text-emerald-600 mr-2"></i><?= lang('Finance.amountPaidNow') ?>
+                                </label>
+                                <input type="number" name="amount_paid" value="<?= esc(old('amount_paid', $finance['amount_paid'] ?? 0)) ?>" step="0.01" min="0" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 <?= $expenseHasSettlementEntries ? 'bg-gray-100 cursor-not-allowed' : '' ?>" <?= $expenseHasSettlementEntries ? 'readonly' : '' ?>>
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.amountPaidNowHelp') ?></p>
+                            </div>
+
+                            <div class="group/field relative">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-calendar-day text-orange-600 mr-2"></i><?= lang('Finance.dueDate') ?>
+                                </label>
+                                <input type="text" name="due_date" data-clinic-date="1" value="<?= esc(old('due_date', $finance['due_date'] ?? '')) ?>" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/20">
+                            </div>
+                        </div>
+                        <?php if ($expenseHasSettlementEntries): ?>
+                            <div class="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+                                <?= esc(lang('Finance.expenseSettlementLockedHelp')) ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="group/field relative">
                             <label class="mb-3 block text-sm font-bold text-gray-700">
