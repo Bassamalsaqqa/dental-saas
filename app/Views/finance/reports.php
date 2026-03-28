@@ -24,22 +24,22 @@ $bucketLabels = [
             <div class="backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl shadow-green-500/10 rounded-3xl overflow-hidden">
                 <div class="px-6 py-8">
                     <div class="space-y-6">
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                            <div class="flex items-start gap-3">
-                                <div class="relative group shrink-0">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-chart-line text-white text-xl"></i>
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative group">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                            <i class="fas fa-chart-line text-white text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-3xl font-black text-gray-900"><?= lang('Finance.financialReports') ?></h1>
+                                        <p class="text-sm text-gray-600 font-medium"><?= lang('Finance.financialReportsHelp') ?></p>
                                     </div>
                                 </div>
-                                <div class="space-y-2">
-                                    <h1 class="text-3xl font-black text-gray-900"><?= lang('Finance.financialReports') ?></h1>
-                                    <p class="text-sm text-gray-500 font-semibold uppercase tracking-[0.2em]"><?= lang('Finance.ownerSummaryTitle') ?></p>
-                                </div>
                             </div>
-                            <div class="rounded-2xl border border-white/30 bg-white/60 px-5 py-4 shadow-lg">
-                                <p class="text-sm text-gray-700 font-medium leading-7"><?= lang('Finance.financialReportsHelp') ?></p>
-                            </div>
+                            <div class="hidden xl:block"></div>
                         </div>
 
                         <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6">
