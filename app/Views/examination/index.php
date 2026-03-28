@@ -241,23 +241,23 @@ $returnToContextEncoded = urlencode($returnToContext);
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-400/10 to-orange-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
 
-    <div class="container mx-auto relative z-10 px-4 py-6">
+    <div class="container mx-auto relative z-10 px-3 sm:px-4 py-4 sm:py-6">
         <!-- Simplified Page Header -->
         <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <i class="fas fa-stethoscope text-xl"></i>
+                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-center">
+                    <div class="flex items-start sm:items-center space-x-3 sm:space-x-4">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-stethoscope text-lg sm:text-xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900"><?= esc($tr('examination_management')) ?></h1>
+                            <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= esc($tr('examination_management')) ?></h1>
                             <p class="text-gray-600"><?= esc($tr('examination_management_subtitle')) ?></p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3">
+                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3">
                         <?php if (has_permission('examinations', 'create')): ?>
-                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('examination/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-plus mr-2"></i>
                                 <?= esc($tr('new_examination')) ?>
                             </a>
@@ -269,7 +269,7 @@ $returnToContextEncoded = urlencode($returnToContext);
 
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">
                 <!-- Total Examinations Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
