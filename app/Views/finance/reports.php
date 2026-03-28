@@ -23,24 +23,26 @@ $bucketLabels = [
         <section class="space-y-6">
             <div class="backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl shadow-green-500/10 rounded-3xl overflow-hidden">
                 <div class="px-6 py-8">
-                    <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                        <div class="space-y-2">
-                            <div class="flex items-center gap-3">
-                                <div class="relative group">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                        <i class="fas fa-chart-line text-white text-xl"></i>
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative group">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div class="relative w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                            <i class="fas fa-chart-line text-white text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-3xl font-black text-gray-900"><?= lang('Finance.financialReports') ?></h1>
+                                        <p class="text-sm text-gray-600 font-medium"><?= lang('Finance.financialReportsHelp') ?></p>
                                     </div>
                                 </div>
-                                <div>
-                                    <h1 class="text-3xl font-black text-gray-900"><?= lang('Finance.financialReports') ?></h1>
-                                    <p class="text-sm text-gray-600 font-medium"><?= lang('Finance.financialReportsHelp') ?></p>
-                                </div>
                             </div>
+                            <div class="hidden xl:block"></div>
                         </div>
 
-                        <div class="w-full xl:max-w-4xl">
-                            <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6">
+                        <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-6">
                                 <div class="group relative">
                                     <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 p-6">
@@ -104,8 +106,8 @@ $bucketLabels = [
                                         </div>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+
+                        </form>
                     </div>
                 </div>
             </div>
