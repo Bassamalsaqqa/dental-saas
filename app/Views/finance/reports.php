@@ -13,10 +13,15 @@ $bucketLabels = [
 ];
 ?>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 py-6">
-    <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-        <section class="rounded-xl border border-gray-200 bg-white shadow-lg">
-            <div class="border-b border-gray-200 px-6 py-6">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden py-6">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-green-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+    </div>
+    <div class="container mx-auto relative z-10 px-4 py-6 space-y-8">
+        <section class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
+            <div class="px-6 py-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div class="flex items-start gap-4">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
@@ -28,33 +33,33 @@ $bucketLabels = [
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50">
+                        <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
                             <?= lang('Finance.backToFinance') ?>
                         </a>
-                        <button type="button" onclick="exportReport()" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
+                        <button type="button" onclick="exportReport()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-file-csv mr-2"></i>
                             <?= lang('Finance.exportCashCsv') ?>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="border-b border-gray-200 px-6 py-5">
+            <div class="border-t border-white/20 px-6 py-5">
                 <form method="GET" action="<?= base_url('finance/reports') ?>" class="grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.startDate') ?></label>
-                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                        <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-gray-700"><?= lang('Finance.endDate') ?></label>
-                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                        <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full rounded-xl border border-white/30 bg-white/80 px-4 py-3 text-sm text-gray-900 shadow-lg focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                     </div>
                     <div class="flex gap-3">
-                        <button type="submit" class="inline-flex items-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-800">
+                        <button type="submit" class="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-filter mr-2"></i>
                             <?= lang('Finance.filter') ?>
                         </button>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-rotate-right mr-2"></i>
                             <?= lang('Finance.reset') ?>
                         </a>
@@ -69,42 +74,109 @@ $bucketLabels = [
             </div>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-            <div class="mb-5">
+        <section class="mb-8">
+            <div class="mb-4">
                 <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.ownerSummaryTitle') ?></h2>
                 <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-                    <p class="text-sm font-semibold text-gray-700"><?= lang('Finance.moneyIn') ?></p>
-                    <p class="mt-2 text-3xl font-black text-emerald-950"><?= $formatMoney($ownerSummary['money_in'] ?? 0) ?></p>
-                    <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.moneyInHelp') ?></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch">
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-arrow-down-wide-short text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.moneyIn') ?></p>
+                            <p class="text-3xl font-black text-green-900"><?= $formatMoney($ownerSummary['money_in'] ?? 0) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.moneyInHelp') ?></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-rose-200 bg-rose-50 p-5">
-                    <p class="text-sm font-semibold text-gray-700"><?= lang('Finance.moneyOut') ?></p>
-                    <p class="mt-2 text-3xl font-black text-rose-950"><?= $formatMoney($ownerSummary['money_out'] ?? 0) ?></p>
-                    <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.moneyOutHelp') ?></p>
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-orange-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-arrow-up-wide-short text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.moneyOut') ?></p>
+                            <p class="text-3xl font-black text-rose-900"><?= $formatMoney($ownerSummary['money_out'] ?? 0) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.moneyOutHelp') ?></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-amber-200 bg-amber-50 p-5">
-                    <p class="text-sm font-semibold text-gray-700"><?= lang('Finance.customersOweUs') ?></p>
-                    <p class="mt-2 text-3xl font-black text-amber-950"><?= $formatMoney($ownerSummary['customers_owe_us'] ?? 0) ?></p>
-                    <p class="mt-2 text-sm text-gray-600"><?= esc(lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-file-invoice-dollar text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.customersOweUs') ?></p>
+                            <p class="text-3xl font-black text-amber-900"><?= $formatMoney($ownerSummary['customers_owe_us'] ?? 0) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-5">
-                    <p class="text-sm font-semibold text-gray-700"><?= lang('Finance.weOweOthers') ?></p>
-                    <p class="mt-2 text-3xl font-black text-indigo-950"><?= $formatMoney($ownerSummary['we_owe_others'] ?? 0) ?></p>
-                    <p class="mt-2 text-sm text-gray-600"><?= esc(lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-blue-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-hand-holding-dollar text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.weOweOthers') ?></p>
+                            <p class="text-3xl font-black text-indigo-900"><?= $formatMoney($ownerSummary['we_owe_others'] ?? 0) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <p class="text-sm font-semibold text-gray-700"><?= lang('Finance.netPosition') ?></p>
-                    <p class="mt-2 text-3xl font-black <?= ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($ownerSummary['net_position'] ?? 0) ?></p>
-                    <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.netPositionHelp') ?></p>
+                <div class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-gray-700/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <i class="fas fa-scale-balanced text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex-1 flex flex-col justify-end">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netPosition') ?></p>
+                            <p class="text-3xl font-black <?= ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-900' : 'text-rose-700' ?>"><?= $formatMoney($ownerSummary['net_position'] ?? 0) ?></p>
+                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.netPositionHelp') ?></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white shadow-lg">
-            <div class="border-b border-gray-200 px-6 py-5">
+        <section class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500">
+            <div class="border-b border-white/20 px-6 py-5">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.arAgingDetail') ?></h2>
@@ -146,10 +218,13 @@ $bucketLabels = [
                     </tbody>
                 </table>
             </div>
+            </div>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white shadow-lg">
-            <div class="border-b border-gray-200 px-6 py-5">
+        <section class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500">
+            <div class="border-b border-white/20 px-6 py-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
@@ -236,6 +311,7 @@ $bucketLabels = [
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
             </div>
         </section>
 
