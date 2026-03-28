@@ -230,6 +230,47 @@
             right: 0.25rem !important;
         }
 
+        @media (max-width: 1023px) {
+            #main-content .group > .absolute[class*="blur"] {
+                display: none !important;
+            }
+
+            #main-content .group > .relative.backdrop-blur-xl,
+            #main-content .group > .relative[class*="shadow-2xl"] {
+                box-shadow: 0 14px 32px -22px rgba(15, 23, 42, 0.22) !important;
+                backdrop-filter: blur(14px) !important;
+            }
+
+            #main-content .group:hover > .relative.backdrop-blur-xl,
+            #main-content .group:hover > .relative[class*="shadow-2xl"] {
+                transform: none !important;
+            }
+
+            #main-content .hover\:scale-105:hover,
+            #main-content .hover\:scale-110:hover,
+            #main-content .hover\:-translate-y-2:hover,
+            #main-content .hover\:-translate-y-1:hover,
+            #main-content .hover\:rotate-2:hover,
+            #main-content .hover\:rotate-3:hover {
+                transform: none !important;
+            }
+
+            #main-content .text-4xl {
+                font-size: 1.875rem !important;
+                line-height: 1.2 !important;
+            }
+
+            #main-content .text-3xl {
+                font-size: 1.5rem !important;
+                line-height: 1.25 !important;
+            }
+
+            #main-content .text-2xl {
+                font-size: 1.25rem !important;
+                line-height: 1.3 !important;
+            }
+        }
+
         @media (max-width: 767px) {
             .sidebar-mobile-hidden {
                 transform: translateX(-100%);
@@ -290,6 +331,14 @@
                 max-width: 100%;
                 margin: 0.35rem 0 0 !important;
             }
+            #main-content .dataTables_wrapper .dataTables_filter label,
+            #main-content .dataTables_wrapper .dataTables_length label {
+                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.5rem;
+                margin: 0 !important;
+            }
             #main-content .dataTables_wrapper .dt-buttons {
                 display: flex;
                 flex-wrap: wrap;
@@ -299,6 +348,25 @@
             #main-content .dataTables_wrapper .dt-buttons .dt-button {
                 width: auto;
                 margin: 0 !important;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            #main-content .dataTables_wrapper .dataTables_length,
+            #main-content .dataTables_wrapper .dataTables_filter,
+            #main-content .dataTables_wrapper .dataTables_info,
+            #main-content .dataTables_wrapper .dataTables_paginate {
+                float: none !important;
+                text-align: start !important;
+            }
+
+            #main-content .dataTables_wrapper > .row:first-child,
+            #main-content .dataTables_wrapper > .row:last-child {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 0.75rem !important;
+                justify-content: space-between !important;
+                align-items: center !important;
             }
         }
 

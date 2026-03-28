@@ -162,6 +162,32 @@
             text-align: right !important;
         }
 
+        @media (max-width: 1023px) {
+            main .group > .absolute[class*="blur"] {
+                display: none !important;
+            }
+
+            main .group > .relative.backdrop-blur-xl,
+            main .group > .relative[class*="shadow-2xl"] {
+                box-shadow: 0 14px 32px -22px rgba(15, 23, 42, 0.22) !important;
+                backdrop-filter: blur(14px) !important;
+            }
+
+            main .group:hover > .relative.backdrop-blur-xl,
+            main .group:hover > .relative[class*="shadow-2xl"] {
+                transform: none !important;
+            }
+
+            main .hover\:scale-105:hover,
+            main .hover\:scale-110:hover,
+            main .hover\:-translate-y-2:hover,
+            main .hover\:-translate-y-1:hover,
+            main .hover\:rotate-2:hover,
+            main .hover\:rotate-3:hover {
+                transform: none !important;
+            }
+        }
+
         @media (max-width: 767px) {
             .sidebar-mobile-hidden {
                 transform: translateX(-100%);
@@ -204,6 +230,33 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0.35rem 0 0 !important;
+            }
+            main .dataTables_wrapper .dataTables_filter label,
+            main .dataTables_wrapper .dataTables_length label {
+                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.5rem;
+                margin: 0 !important;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            main .dataTables_wrapper .dataTables_length,
+            main .dataTables_wrapper .dataTables_filter,
+            main .dataTables_wrapper .dataTables_info,
+            main .dataTables_wrapper .dataTables_paginate {
+                float: none !important;
+                text-align: start !important;
+            }
+
+            main .dataTables_wrapper > .row:first-child,
+            main .dataTables_wrapper > .row:last-child {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 0.75rem !important;
+                justify-content: space-between !important;
+                align-items: center !important;
             }
         }
 
