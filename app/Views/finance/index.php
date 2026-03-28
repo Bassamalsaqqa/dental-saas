@@ -208,36 +208,36 @@ $returnToContextEncoded = urlencode($returnToContext);
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-600/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
     </div>
 
-    <div class="container mx-auto relative z-10 px-4 py-6">
+    <div class="container mx-auto relative z-10 px-4 py-4 sm:py-6">
         <!-- Simplified Page Header -->
     <div class="mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-                        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                            <div class="flex items-center space-x-4">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+                            <div class="flex items-start gap-4 sm:items-center">
                         <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-dollar-sign text-xl"></i>
                                 </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
                             <p class="text-gray-600"><?= lang('Finance.financeManagementHelp') ?></p>
                             </div>
                             </div>
-                    <div class="flex items-center space-x-3">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-circle-plus mr-2"></i>
                                 <?= esc($tr('addIncome')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-chart-bar mr-2"></i>
                             <?= esc($tr('reports')) ?>
                         </a>
-                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
                             <i class="fas fa-hand-holding-dollar mr-2"></i>
                             <?= esc($tr('providerPayoutsNav')) ?>
                         </a>
@@ -248,7 +248,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                     
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 items-stretch">
                 <!-- <?= lang('Finance.grossCollections') ?> Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>

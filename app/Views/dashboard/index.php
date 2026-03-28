@@ -3,13 +3,13 @@
 <?= $this->section('content') ?>
 <!-- Enhanced Dashboard with Advanced Design -->
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6"> 
+    <div class="container mx-auto px-4 py-4 sm:py-6"> 
         <!-- Enhanced Page Header with Glassmorphism -->
        
 
         <!-- Enhanced Statistics Cards with Advanced Animations -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 items-stretch">
                 <!-- Total Patients Card -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
@@ -142,12 +142,12 @@
 
         <!-- Enhanced Charts Section with Advanced Styling -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 sm:gap-6 items-stretch">
                 <!-- Revenue Chart -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/10 group-hover:shadow-blue-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
-                        <div class="flex items-center justify-between p-6 pb-4">
+                        <div class="flex flex-col gap-3 p-5 pb-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 sm:pb-4">
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
@@ -162,9 +162,9 @@
                                 <span class="text-blue-700 font-bold text-xs"><?= lang('UI.dashboardRevenue') ?></span>
                             </div>
                         </div>
-                        <div class="relative h-64 p-6 pt-0 flex-1">
+                        <div class="relative h-56 sm:h-64 p-5 pt-0 sm:p-6 sm:pt-0 flex-1">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-2xl"></div>
-                            <canvas id="revenueChart" width="400" height="200" class="relative z-10"></canvas>
+                            <canvas id="revenueChart" width="400" height="200" class="relative z-10 w-full max-w-full" style="width: 100% !important; height: 100% !important;"></canvas>
                     </div>
                     </div>
                 </div>
@@ -173,24 +173,24 @@
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-emerald-500/10 group-hover:shadow-emerald-500/20 transition-all duration-200 hover:scale-105 h-full flex flex-col">
-                        <div class="flex items-center justify-between p-6 pb-6">
+                        <div class="flex flex-col gap-3 p-5 pb-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 sm:pb-6">
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-3 h-3 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full animate-pulse"></div>
-                                    <h3 class="text-2xl font-black text-gray-900">
+                                    <h3 class="text-xl sm:text-2xl font-black text-gray-900">
                                         <?= lang('UI.dashboardTreatmentDistribution') ?>
                                     </h3>
                                 </div>
-                                <p class="text-gray-600 font-medium"><?= lang('UI.dashboardTreatmentBreakdown') ?></p>
+                                <p class="text-sm sm:text-base text-gray-600 font-medium"><?= lang('UI.dashboardTreatmentBreakdown') ?></p>
                             </div>
-                            <div class="text-right bg-gradient-to-r from-emerald-50 to-cyan-50 px-6 py-4 rounded-2xl border border-emerald-200">
-                                <p class="text-3xl font-black text-emerald-900">100%</p>
+                            <div class="text-right bg-gradient-to-r from-emerald-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 rounded-2xl border border-emerald-200">
+                                <p class="text-2xl sm:text-3xl font-black text-emerald-900">100%</p>
                                 <p class="text-xs text-emerald-600 font-semibold uppercase tracking-wider"><?= lang('UI.dashboardTotalTreatments') ?></p>
                             </div>
                         </div>
-                        <div class="relative h-80 p-6 pt-0 flex-1">
+                        <div class="relative h-64 sm:h-80 p-5 pt-0 sm:p-6 sm:pt-0 flex-1">
                             <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-cyan-50/50 rounded-2xl"></div>
-                            <canvas id="treatmentChart" width="400" height="200" class="relative z-10"></canvas>
+                            <canvas id="treatmentChart" width="400" height="200" class="relative z-10 w-full max-w-full" style="width: 100% !important; height: 100% !important;"></canvas>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
 
         <!-- Enhanced Activity Feeds with Sophisticated Visual Hierarchy -->
         <div class="mb-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 items-stretch">
                 <!-- Recent Patients -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-200 opacity-0 group-hover:opacity-100"></div>

@@ -33,15 +33,15 @@ $bucketLabels = [
                     </a>
                 </div>
                 <form method="GET" action="<?= base_url('finance/reports') ?>" class="px-4 sm:px-6 py-4 flex flex-wrap items-end gap-4">
-                    <div class="w-full sm:flex-1 sm:min-w-[160px] sm:max-w-xs space-y-1">
+                    <div class="w-full md:flex-1 md:min-w-[160px] md:max-w-xs space-y-1">
                         <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.startDate') ?></label>
                         <input type="text" name="start_date" data-clinic-date="1" value="<?= esc($start_date) ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                     </div>
-                    <div class="w-full sm:flex-1 sm:min-w-[160px] sm:max-w-xs space-y-1">
+                    <div class="w-full md:flex-1 md:min-w-[160px] md:max-w-xs space-y-1">
                         <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.endDate') ?></label>
                         <input type="text" name="end_date" data-clinic-date="1" value="<?= esc($end_date) ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                     </div>
-                    <div class="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+                    <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto">
                         <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium">
                             <?= lang('Finance.filter') ?>
                         </button>
@@ -61,7 +61,7 @@ $bucketLabels = [
                 <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.ownerSummaryTitle') ?></h2>
                 <p class="mt-1 text-sm text-gray-600"><?= esc(lang('Finance.ownerSummaryHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-5 sm:gap-6 items-stretch">
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                     <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
@@ -159,7 +159,7 @@ $bucketLabels = [
             <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
             <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500">
             <div class="border-b border-white/20 px-6 py-5">
-                <div class="flex items-start justify-between gap-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.arAgingDetail') ?></h2>
                         <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.arAgingDetailHelp') ?></p>

@@ -40,7 +40,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
         <div class="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/15 to-blue-600/15 blur-3xl animate-pulse delay-1000"></div>
     </div>
     <div class="mx-auto max-w-7xl space-y-6">
-    <div class="mb-8">
+    <div class="mb-6 sm:mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
                     <div class="flex items-center gap-4">
@@ -52,7 +52,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                             <p class="text-gray-600"><?= lang('TenantMisc.reportsAnalyticsDesc') ?></p>
                         </div>
         </div>
-                    <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                         <button onclick="exportReport('pdf')" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
                             <i class="fas fa-file-pdf mr-2"></i>
                             <?= lang('TenantMisc.exportHtml') ?>
@@ -67,9 +67,9 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
     </div>
 
         <!-- Simplified Report Filters -->
-    <div class="mb-8">
+    <div class="mb-6 sm:mb-8">
             <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
-            <div class="grid grid-cols-1 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.reportType') ?></label>
                     <select id="reportType" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
@@ -104,7 +104,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                     </button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 mt-4">
                 <div id="patientFilterWrap" class="lg:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.patientOptional') ?></label>
                     <select id="patientFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
@@ -136,7 +136,7 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                     </select>
                 </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 mt-4">
                 <div id="paymentMethodWrap" class="hidden">
                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= $tm('paymentMethodFinance') ?></label>
                     <select id="paymentMethodFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/90">
