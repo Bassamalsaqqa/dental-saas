@@ -23,9 +23,9 @@ $returnToContextEncoded = urlencode($returnToContext);
         <!-- Enhanced Header with Glassmorphism -->
         <div class="backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-2xl shadow-blue-500/10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                     <div class="space-y-2">
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-start gap-3 sm:items-center">
                             <div class="relative group">
                                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div class="relative w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
@@ -33,36 +33,36 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                             </div>
                             <div>
-                                <h1 class="text-3xl font-black text-gray-900"><?= lang('UI.appointmentManagement') ?></h1>
-                                <div class="flex items-center space-x-4">
+                                <h1 class="text-2xl sm:text-3xl font-black text-gray-900"><?= lang('UI.appointmentManagement') ?></h1>
+                                <div class="flex flex-wrap items-center gap-4">
                                     <p class="text-sm text-gray-600 font-medium"><?= lang('UI.appointmentManagementSubtitle') ?></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-3">
+                    <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
                         <?php if (has_permission('appointments', 'create')): ?>
-                            <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                            <a href="<?= base_url('appointment/create?return_to=' . $returnToContextEncoded) ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-plus mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UI.appointmentNew') ?></span>
                             </a>
                         <?php endif; ?>
                         <?php if (isset($view_mode) && $view_mode === 'all'): ?>
-                            <a href="<?= base_url('appointment') ?>" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                            <a href="<?= base_url('appointment') ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25 sm:w-auto">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-calendar-day mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UI.appointmentDailyView') ?></span>
                             </a>
                         <?php else: ?>
-                            <a href="<?= base_url('appointment') ?>?view=all" class="group relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
+                            <a href="<?= base_url('appointment') ?>?view=all" class="group relative inline-flex w-full items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/25 sm:w-auto">
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <i class="fas fa-list mr-2 relative z-10"></i>
                                 <span class="relative z-10"><?= lang('UI.appointmentViewAll') ?></span>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('appointment/calendar') ?>" class="group relative inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-105">
+                        <a href="<?= base_url('appointment/calendar') ?>" class="group relative inline-flex w-full items-center justify-center px-4 py-3 border-2 border-gray-300 text-gray-700 text-sm font-bold rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:border-gray-400 transition-all duration-300 hover:scale-[1.02] sm:w-auto">
                             <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i class="fas fa-calendar mr-2 relative z-10"></i>
                             <span class="relative z-10"><?= lang('UI.appointmentCalendarView') ?></span>
@@ -126,7 +126,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentFilterSubtitle') ?></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6 pt-0">
+                    <div class="grid grid-cols-1 gap-6 p-6 pt-0 md:grid-cols-2 xl:grid-cols-4">
                         <!-- Date Filter -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSelectDate') ?></label>
@@ -166,13 +166,13 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <!-- Filter Actions -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
-                            <div class="flex space-x-3">
-                                <button onclick="filterAppointments()" class="group/btn relative flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
+                            <div class="flex flex-col gap-3 sm:flex-row">
+                                <button onclick="filterAppointments()" class="group/btn relative inline-flex flex-1 items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-filter mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentFilterAction') ?></span>
                                 </button>
-                                <button onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/25">
+                                <button onclick="clearFilters()" class="group/btn relative inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-gray-500/25">
                                     <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
@@ -200,7 +200,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <p class="text-gray-600 font-medium text-sm"><?= lang('UI.appointmentSearchAppointmentsSubtitle') ?></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 pt-0">
+                    <div class="grid grid-cols-1 gap-6 p-6 pt-0 md:grid-cols-2 xl:grid-cols-3">
                         <!-- Search Input -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearch') ?></label>
@@ -235,8 +235,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                         <!-- Search Actions -->
                         <div class="space-y-3">
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentActions') ?></label>
-                            <div class="flex space-x-3">
-                                <button onclick="clearSearch()" class="group/btn relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/25">
+                            <div class="flex flex-col gap-3 sm:flex-row">
+                                <button onclick="clearSearch()" class="group/btn relative inline-flex w-full items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-gray-500/25 sm:w-auto">
                                     <div class="absolute inset-0 bg-gradient-to-r from-gray-500/20 to-slate-600/20 rounded-xl blur-xl group-hover/btn:blur-2xl transition-all duration-500 opacity-0 group-hover/btn:opacity-100"></div>
                                     <i class="fas fa-times mr-2 text-lg relative z-10 group-hover/btn:scale-110 transition-transform duration-300"></i>
                                     <span class="relative z-10"><?= lang('UI.appointmentClearAction') ?></span>
@@ -254,7 +254,7 @@ $returnToContextEncoded = urlencode($returnToContext);
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                 <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500">
-                    <div class="flex justify-between items-center p-6 pb-4">
+                    <div class="flex flex-col gap-4 p-6 pb-4 lg:flex-row lg:items-center lg:justify-between">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 bg-gradient-to-r from-slate-500 to-gray-600 rounded-full animate-pulse"></div>
@@ -274,7 +274,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <?php endif; ?>
                             </p>
                         </div>
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center gap-3">
                             <div class="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                 <span class="text-blue-700 font-bold text-sm"><?= lang('UI.appointmentCountLabel', ['count' => count($appointments ?? [])]) ?></span>
@@ -285,9 +285,9 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="space-y-4 p-6 pt-0">
                         <?php if (!empty($appointments)): ?>
                             <?php foreach ($appointments as $index => $appointment): ?>
-                                <div class="group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] hover:-translate-y-1">
+                                <div class="group/item relative flex flex-col gap-5 p-5 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 md:p-6 xl:flex-row xl:items-center xl:justify-between xl:hover:scale-[1.02] xl:hover:-translate-y-1">
                                     <!-- Patient Information -->
-                                    <div class="flex items-start space-x-6">
+                                    <div class="flex items-start gap-4 md:gap-6 xl:flex-1">
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
                                             <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300">
@@ -295,15 +295,15 @@ $returnToContextEncoded = urlencode($returnToContext);
                                             </div>
                                         </div>
                                         <div class="space-y-2">
-                                            <h4 class="text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
+                                            <h4 class="text-lg md:text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
                                                 <?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?>
                                             </h4>
-                                            <div class="flex flex-col space-y-2 text-sm text-gray-600 font-medium" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                                <div class="flex items-center space-x-2">
+                                            <div class="flex flex-col gap-2 text-sm text-gray-600 font-medium">
+                                                <div class="flex items-center gap-2">
                                                     <i class="fas fa-phone text-blue-500"></i>
                                                     <span><?= $appointment['phone'] ?></span>
                                                 </div>
-                                                <div class="flex items-center space-x-2">
+                                                <div class="flex items-center gap-2 break-all">
                                                     <i class="fas fa-envelope text-emerald-500"></i>
                                                     <span><?= $appointment['email'] ?></span>
                                                 </div>
@@ -312,6 +312,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                     
                                     <!-- Time Information -->
+                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:flex xl:items-center xl:gap-6">
                                     <div class="text-center space-y-2">
                                         <div class="relative">
                                             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
@@ -348,7 +349,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                     
                                     <!-- Status Badge -->
-                                    <div class="text-center">
+                                    <div class="text-center sm:col-span-2 xl:col-span-1">
                                         <?php
                                         $statusConfig = [
                                             'scheduled' => ['bg' => 'from-blue-500 to-blue-600', 'text' => 'text-blue-900', 'label' => lang('UI.appointmentStatusScheduled')],
@@ -367,7 +368,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                     </div>
                                     
                                     <!-- Action Buttons -->
-                                    <div class="flex space-x-2">
+                                    <div class="flex flex-wrap justify-start gap-2 sm:col-span-2 xl:col-span-1 xl:justify-end">
                                         <?php if (has_permission('appointments', 'view')): ?>
                                             <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=' . $returnToContextEncoded) ?>" class="group/action relative inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-slate-600/10 rounded-xl blur-xl group-hover/action:blur-2xl transition-all duration-500 opacity-0 group-hover/action:opacity-100"></div>
@@ -404,6 +405,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                                                 <i class="fas fa-trash text-lg relative z-10 group-hover/action:scale-110 transition-transform duration-300"></i>
                                             </button>
                                         <?php endif; ?>
+                                    </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -445,7 +447,7 @@ $returnToContextEncoded = urlencode($returnToContext);
 
         <!-- Real-time Status and Quick Actions Section -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            <div class="grid grid-cols-1 gap-6 items-stretch xl:grid-cols-3">
                 <!-- Real-time Status Indicators -->
                 <div class="group relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
