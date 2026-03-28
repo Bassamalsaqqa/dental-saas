@@ -205,11 +205,40 @@
         margin-right: 0 !important;
         margin-left: 0.75rem !important;
     }
+    @media (max-width: 1279px) {
+        .control-settings-shell {
+            min-height: auto;
+        }
+        .control-settings-shell > .mx-auto {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1.5rem;
+        }
+        #control-settings-breadcrumb {
+            flex-wrap: wrap;
+            row-gap: 0.35rem;
+        }
+        .control-settings-sidebar-nav {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scroll-snap-type: x proximity;
+        }
+        .control-settings-menu-btn {
+            width: auto;
+            min-width: max-content;
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            white-space: nowrap;
+        }
+    }
 </style>
 <div class="control-settings-shell min-h-screen">
     <div class="mx-auto max-w-6xl px-6 py-8">
         <div class="mb-5">
-            <div class="flex items-center space-x-4">
+            <div class="flex flex-wrap items-center gap-4">
                 <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
                     <i class="fas fa-cog text-xl"></i>
                 </div>
@@ -257,7 +286,7 @@
                     <div class="mb-3 px-2">
                         <p class="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Control Settings</p>
                     </div>
-                    <nav class="space-y-2">
+                    <nav class="space-y-2 control-settings-sidebar-nav">
                         <button onclick="showTab('platform')" id="nav-platform" class="control-settings-menu-btn is-active">
                             <i class="fas fa-id-badge w-5 h-5"></i>
                             <span>Platform Profile</span>

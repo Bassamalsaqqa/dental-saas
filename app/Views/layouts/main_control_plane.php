@@ -157,6 +157,29 @@
         [dir="rtl"] .text-left {
             text-align: right !important;
         }
+
+        .sidebar-mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        [dir="rtl"] .sidebar-mobile-hidden {
+            transform: translateX(100%);
+        }
+
+        @media (max-width: 1023px) {
+            #sidebar {
+                position: fixed !important;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: min(22rem, 86vw) !important;
+                max-width: 86vw;
+            }
+            [dir="rtl"] #sidebar {
+                left: auto;
+                right: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-emerald-50 min-h-screen">
@@ -165,7 +188,7 @@
     <div class="flex min-h-screen">
         <?php $hideCpNav = $hide_cp_nav ?? false; ?>
         <?php if (!$hideCpNav): ?>
-            <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col" id="sidebar">
+            <aside class="w-64 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-indigo-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 sidebar-mobile-hidden flex flex-col lg:static fixed inset-y-0 left-0" id="sidebar">
                 <!-- Sidebar Header -->
                 <div class="px-2 pb-2 pt-3 border-b border-white/30" id="sidebar-header">
                     <div class="flex items-center justify-between">
@@ -382,21 +405,28 @@
             </aside>
         <?php endif; ?>
 
-        <div class="flex-1 flex flex-col min-h-screen">
-            <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 border-b border-white/30 px-6 py-4 flex items-center justify-between">
-                <div>
+        <div id="cp-sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden" onclick="closeCpSidebar()"></div>
+
+        <div class="flex-1 flex flex-col min-h-screen min-w-0">
+            <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 border-b border-white/30 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <button type="button" class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl bg-white/80 border border-white/60 text-slate-600 shadow-sm" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="min-w-0">
                     <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold"><?= lang('UI.cpControlPlane') ?></p>
-                    <h1 class="text-xl font-bold text-gray-900"><?= esc($title ?? lang('UI.menuDashboard')) ?></h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-gray-900 truncate"><?= esc($title ?? lang('UI.menuDashboard')) ?></h1>
+                    </div>
                 </div>
                 <?php $userEmail = (isset($user) && $user && property_exists($user, 'email')) ? $user->email : 'Super Admin'; ?>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button type="button" id="cp-command-trigger" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 border border-white/60 text-slate-600 text-xs font-semibold shadow-sm hover:bg-white transition">
                         <i class="fas fa-magnifying-glass text-indigo-500"></i>
                         Super Search
                         <span class="ml-1 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500">Cmd+K</span>
                     </button>
                     <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Global Mode</span>
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <div class="hidden sm:flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-user-circle text-lg"></i>
                         <span><?= esc($userEmail) ?></span>
                     </div>
@@ -409,7 +439,7 @@
                 </div>
             </header>
 
-            <main class="flex-1 px-6 py-8 relative">
+            <main class="flex-1 px-4 sm:px-6 py-6 sm:py-8 relative">
                 <div class="pointer-events-none absolute inset-0 overflow-hidden">
                     <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-emerald-600/20 rounded-full blur-3xl"></div>
                     <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-slate-400/15 to-emerald-500/20 rounded-full blur-3xl"></div>
@@ -474,8 +504,23 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('cp-sidebar-backdrop');
             if (!sidebar) return;
-            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('sidebar-mobile-hidden');
+            if (window.innerWidth < 1024) {
+                backdrop.classList.toggle('hidden', sidebar.classList.contains('sidebar-mobile-hidden'));
+                document.body.classList.toggle('overflow-hidden', !sidebar.classList.contains('sidebar-mobile-hidden'));
+            }
+        }
+
+        function closeCpSidebar() {
+            if (window.innerWidth >= 1024) return;
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('cp-sidebar-backdrop');
+            if (!sidebar) return;
+            sidebar.classList.add('sidebar-mobile-hidden');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
 
         document.addEventListener('keydown', function(e) {
@@ -483,6 +528,19 @@
                 e.preventDefault();
                 toggleSidebar();
             }
+        });
+
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('cp-sidebar-backdrop');
+            if (!sidebar) return;
+            if (window.innerWidth < 1024) {
+                sidebar.classList.add('sidebar-mobile-hidden');
+            } else {
+                sidebar.classList.remove('sidebar-mobile-hidden');
+            }
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         });
 
         const cpPalette = document.getElementById('cp-command-palette');

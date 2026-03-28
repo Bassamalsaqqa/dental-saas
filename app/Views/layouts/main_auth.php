@@ -225,6 +225,46 @@
             left: auto !important;
             right: 0.25rem !important;
         }
+
+        .sidebar-mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        [dir="rtl"] .sidebar-mobile-hidden {
+            transform: translateX(100%);
+        }
+
+        @media (max-width: 1023px) {
+            #sidebar {
+                position: fixed !important;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: min(22rem, 86vw) !important;
+                max-width: 86vw;
+            }
+            [dir="rtl"] #sidebar {
+                left: auto;
+                right: 0;
+            }
+            #main-header {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            #main-header h2 {
+                font-size: 1rem !important;
+            }
+            #header-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            #header-right .mobile-hide-compact {
+                display: none !important;
+            }
+            #main-content > main {
+                padding: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -232,7 +272,7 @@
     <?= view('components/toast') ?>  
     <div class="flex min-h-screen">
         <!-- Enhanced Sidebar with Glassmorphism -->
-        <aside class="w-56 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 -translate-x-full flex flex-col no-transition" id="sidebar">
+        <aside class="w-56 backdrop-blur-xl bg-white/80 border-r border-white/30 shadow-2xl shadow-blue-500/10 z-40 transition-all duration-300 transform flex-shrink-0 lg:translate-x-0 sidebar-mobile-hidden flex flex-col no-transition lg:static fixed inset-y-0 left-0" id="sidebar">
         <script>
             // Immediate state restoration to prevent FOUS (Flash of Uncollapsed Sidebar)
             (function() {
@@ -470,33 +510,35 @@
         </div>
     </aside>
 
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden" onclick="closeMobileSidebar()"></div>
+
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen transition-all duration-300 min-w-0" id="main-content">
         
         <!-- Smart Top Navigation Bar -->
-        <header class="bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-xl shadow-blue-500/10 px-6 py-2 transition-all duration-300 relative z-50" id="main-header">
+        <header class="bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-xl shadow-blue-500/10 px-4 sm:px-6 py-3 sm:py-2 transition-all duration-300 relative z-20" id="main-header">
             <!-- Animated Background Elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-purple-600/5 rounded-full blur-2xl animate-pulse"></div>
                 <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-emerald-400/5 to-cyan-600/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
             </div>
             
-            <div class="relative z-10 flex items-center justify-between transition-all duration-300" id="header-content">
+            <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
-                <div class="flex items-center space-x-3 flex-1" id="header-left">
+                <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
                     <button class="group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
                     </button>
                     
                     <!-- Page Title -->
-                    <div class="flex items-center space-x-4">
-                        <h2 class="text-xl font-bold text-gray-900 leading-tight"><?= esc($resolvedPageTitle) ?></h2>
+                    <div class="flex items-center space-x-4 min-w-0">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight truncate"><?= esc($resolvedPageTitle) ?></h2>
                     </div>
                 </div>
                 
                 <!-- Right Section: User Info + Actions -->
-                <div class="flex items-center space-x-4" id="header-right">
+                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0" id="header-right">
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
                     <div class="hidden sm:flex items-center">
@@ -534,7 +576,7 @@
                         </a>
                     </div>
                     <?php if (session()->get('is_impersonating')): ?>
-                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
+                    <form action="<?= base_url('controlplane/impersonation/exit') ?>" method="post" class="hidden sm:flex items-center space-x-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5">
                         <?= csrf_field() ?>
                         <span class="text-xs font-semibold text-rose-600">Impersonating</span>
                         <button type="submit" class="text-xs font-semibold text-rose-700 hover:text-rose-800">
@@ -544,7 +586,7 @@
                     <?php endif; ?>
                     <!-- Clinic Switcher (Moved here) -->
                     <?php if (isset($user_memberships) && count($user_memberships) > 1): ?>
-                    <div class="relative group" id="clinic-switcher">
+                    <div class="relative group mobile-hide-compact" id="clinic-switcher">
                         <button onclick="toggleClinicSwitcher()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-50 to-blue-50 hover:from-indigo-50 hover:to-indigo-100 border border-indigo-200 hover:border-indigo-300 text-indigo-600 hover:text-indigo-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-indigo-500/10">
                             <i class="fas fa-hospital text-sm"></i>
                         </button>
@@ -588,7 +630,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="h-8 w-px bg-gray-200 mx-2"></div>
+                    <div class="hidden sm:block h-8 w-px bg-gray-200 mx-1 mobile-hide-compact"></div>
                     <?php endif; ?>
 
                     <!-- System Action Icons -->
@@ -719,7 +761,7 @@
                     </div>
                     
                     <!-- Logout Button -->
-                    <div class="relative group ml-2">
+                    <div class="relative group ml-2 mobile-hide-compact">
                         <a href="<?= base_url('auth/logout') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-50 to-rose-50 hover:from-red-50 hover:to-red-100 border border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-red-500/10">
                             <i class="fas fa-sign-out-alt text-sm"></i>
                         </a>
@@ -933,14 +975,17 @@
     // Sidebar toggle functionality
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
+            backdrop.classList.toggle('hidden', sidebar.classList.contains('sidebar-mobile-hidden'));
+            document.body.classList.toggle('overflow-hidden', !sidebar.classList.contains('sidebar-mobile-hidden'));
         } else {
             sidebar.classList.toggle('sidebar-collapsed');
-            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('sidebar-mobile-hidden');
             
             // Persist state
             const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
@@ -948,14 +993,26 @@
         }
     }
 
+    function closeMobileSidebar() {
+        if (window.innerWidth >= 1024) return;
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        sidebar.classList.add('sidebar-mobile-hidden');
+        backdrop.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
     // Initialize sidebar state on page load
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
         
         // Remove no-transition after initial paint to enable smooth toggling
@@ -969,13 +1026,18 @@
     // Handle window resize
     window.addEventListener('resize', function() {
         const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
         const isMobile = window.innerWidth < 1024;
         
         if (isMobile) {
-            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.add('sidebar-mobile-hidden');
             sidebar.classList.remove('sidebar-collapsed');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         } else {
-            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('sidebar-mobile-hidden');
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
     });
 
