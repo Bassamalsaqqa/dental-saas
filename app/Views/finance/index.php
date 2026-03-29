@@ -250,29 +250,29 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 </div>
                         <div>
                             <h1 class="text-xl sm:text-3xl font-bold text-gray-900"><?= lang('Finance.financeManagement') ?></h1>
-                            <p class="text-gray-600"><?= lang('Finance.financeManagementHelp') ?></p>
+                            <p class="text-gray-600"><?= esc($tr('financeManagementShortHelp')) ?></p>
                             </div>
                             </div>
                     <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
                         <?php if (has_permission('finance', 'create')): ?>
-                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/income/create?return_to=' . $returnToContextEncoded) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold leading-none rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-circle-plus mr-2"></i>
                                 <?= esc($tr('addIncome')) ?>
                             </a>
-                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?= base_url('finance/expenses/create?return_to=' . urlencode('finance')) ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-semibold leading-none rounded-lg hover:from-rose-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i>
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold leading-none rounded-lg hover:bg-gray-200 transition-all duration-200">
                             <i class="fas fa-chart-bar mr-2"></i>
                             <?= esc($tr('reports')) ?>
                         </a>
-                        <a href="<?= base_url('finance/transfers') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/transfers') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-emerald-100 text-emerald-700 text-sm font-semibold leading-none rounded-lg hover:bg-emerald-200 transition-all duration-200">
                             <i class="fas fa-right-left mr-2"></i>
                             <?= esc($tr('treasuryTransfers')) ?>
                         </a>
-                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
+                        <a href="<?= base_url('finance/payouts') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-indigo-100 text-indigo-700 text-sm font-semibold leading-none rounded-lg hover:bg-indigo-200 transition-all duration-200">
                             <i class="fas fa-hand-holding-dollar mr-2"></i>
                             <?= esc($tr('providerPayoutsNav')) ?>
                         </a>

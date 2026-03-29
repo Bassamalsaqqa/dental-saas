@@ -100,6 +100,7 @@ return [
     'finance' => 'المالية',
     'financeManagement' => 'إدارة المالية',
     'financeManagementHelp' => 'تابع الإيرادات والمصروفات والمدفوعات المستحقة وحركة التحصيل داخل العيادة.',
+    'financeManagementShortHelp' => 'تابع مالية العيادة بوضوح.',
     'financeTransaction' => 'معاملة مالية',
     'financialReports' => 'التقارير المالية',
     'financialReportsHelp' => 'تقرير مالي للفترة المحددة يوضح حركة السيولة والأرصدة المفتوحة وأرصدة الحيازة النقدية باستخدام التواريخ المالية الفعلية.',

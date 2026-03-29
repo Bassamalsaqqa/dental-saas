@@ -100,6 +100,7 @@ return [
     'finance' => 'Finance',
     'financeManagement' => 'Finance Management',
     'financeManagementHelp' => 'Track revenue, expenses, payouts, and outstanding balances across the clinic.',
+    'financeManagementShortHelp' => 'Track clinic finances clearly.',
     'financeTransaction' => 'Finance Transaction',
     'financialReports' => 'Financial Reports',
     'financialReportsHelp' => 'Period finance report showing cash movement, open balances, and treasury custody balances using business dates.',
