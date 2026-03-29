@@ -153,6 +153,19 @@
                                 </div>
                             </div>
 
+                            <div class="group/field relative hidden" id="expenseLiquidityAccountField">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-vault text-indigo-600 mr-2"></i><?= lang('Finance.paidFromAccount') ?>
+                                </label>
+                                <div class="relative">
+                                    <select id="expenseLiquidityAccount" name="liquidity_account" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
+                                        <option value="bank" <?= old('liquidity_account', 'bank') === 'bank' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
+                                        <option value="undeposited_checks" <?= old('liquidity_account') === 'undeposited_checks' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                    </select>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                            </div>
+
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
                                     <i class="fas fa-calendar-check text-blue-600 mr-2"></i><?= lang('Finance.transactionDate') ?>
@@ -274,12 +287,29 @@
 (() => {
     const input = document.getElementById('expenseAttachmentInput');
     const label = document.getElementById('expenseAttachmentName');
+    const paymentMethod = document.getElementById('paymentMethod');
+    const amountPaidInput = document.querySelector('input[name="amount_paid"]');
+    const accountField = document.getElementById('expenseLiquidityAccountField');
     if (!input || !label) {
         return;
     }
     input.addEventListener('change', () => {
         label.textContent = input.files?.length ? input.files[0].name : '';
     });
+
+    const syncExpenseLiquidityField = () => {
+        if (!paymentMethod || !amountPaidInput || !accountField) {
+            return;
+        }
+
+        const method = paymentMethod.value;
+        const amountPaid = parseFloat(amountPaidInput.value || '0');
+        accountField.classList.toggle('hidden', !(method === 'check' && amountPaid > 0));
+    };
+
+    paymentMethod?.addEventListener('change', syncExpenseLiquidityField);
+    amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
+    syncExpenseLiquidityField();
 })();
 </script>
 <?= $this->endSection() ?>

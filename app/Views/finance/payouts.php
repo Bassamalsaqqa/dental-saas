@@ -209,6 +209,14 @@
                         <option value="other"><?= lang('Finance.other') ?></option>
                     </select>
                 </div>
+                <div id="payoutLiquidityAccountField" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.paidFromAccount') ?></label>
+                    <select id="payoutLiquidityAccountInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400">
+                        <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
+                        <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1"><?= lang('Finance.paid') ?> <?= lang('Finance.date') ?></label>
                     <input type="date" id="payoutDateInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" required>
@@ -282,7 +290,15 @@ function openPayoutModal(id, maxAmount) {
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';
     document.getElementById('payoutDateInput').value = new Date().toISOString().split('T')[0];
     document.getElementById('payoutAmountHelp').textContent = `<?= lang('Finance.maximumPayable') ?>: ${formatCurrency(payoutModalMaxAmount)}`;
+    syncPayoutLiquidityField();
     document.getElementById('recordPayoutModal').classList.remove('hidden');
+}
+
+function syncPayoutLiquidityField() {
+    const method = document.getElementById('payoutMethodInput')?.value || '';
+    const field = document.getElementById('payoutLiquidityAccountField');
+    if (!field) return;
+    field.classList.toggle('hidden', method !== 'check');
 }
 
 $(document).ready(function () {
@@ -447,6 +463,7 @@ $(document).ready(function () {
         const id = parseInt(document.getElementById('payoutIdInput').value, 10);
         const amount = parseFloat(document.getElementById('payoutAmountInput').value);
         const method = document.getElementById('payoutMethodInput').value;
+        const liquidityAccount = document.getElementById('payoutLiquidityAccountInput').value;
         const paidDate = document.getElementById('payoutDateInput').value;
         const notes = document.getElementById('payoutNotesInput').value || '';
 
@@ -454,14 +471,19 @@ $(document).ready(function () {
             notify('error', '<?= lang('Finance.invalidAmount') ?>', `<?= lang('Finance.amountValidationMessage') ?> ${formatCurrency(payoutModalMaxAmount)}.`);
             return;
         }
-        submitPayoutPayment(id, amount, method, paidDate, notes);
+        submitPayoutPayment(id, amount, method, liquidityAccount, paidDate, notes);
     });
+
+    $('#payoutMethodInput').on('change', syncPayoutLiquidityField);
 });
 
-function submitPayoutPayment(id, amount, method, paidDate, notes) {
+function submitPayoutPayment(id, amount, method, liquidityAccount, paidDate, notes) {
     const formData = new FormData();
     formData.append('amount', Number(amount).toFixed(2));
     formData.append('payment_method', method);
+    if (method === 'check') {
+        formData.append('liquidity_account', liquidityAccount);
+    }
     formData.append('paid_date', paidDate);
     formData.append('notes', notes);
 

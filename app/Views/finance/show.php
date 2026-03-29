@@ -340,19 +340,26 @@
                         </div>
 
                         <?php if (floatval($provider_payout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
-                        <form id="providerPayoutPaymentForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                        <form id="providerPayoutPaymentForm" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.amount') ?></label>
                                 <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($provider_payout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.method') ?></label>
-                                <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <select id="providerPayoutMethodInput" name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                     <option value="cash"><?= lang('Finance.cash') ?></option>
                                     <option value="card"><?= lang('Finance.card') ?></option>
                                     <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
                                     <option value="check"><?= lang('Finance.check') ?></option>
                                     <option value="other"><?= lang('Finance.other') ?></option>
+                                </select>
+                            </div>
+                            <div id="providerPayoutLiquidityAccountField" class="hidden">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.paidFromAccount') ?></label>
+                                <select name="liquidity_account" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
+                                    <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
                                 </select>
                             </div>
                             <div>
@@ -574,6 +581,24 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <?php if ($isExpense): ?>
+                                    <div class="group/field relative hidden" id="settlementLiquidityAccountField">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                            <i class="fas fa-vault text-indigo-600"></i>
+                                            <span><?= lang('Finance.paidFromAccount') ?></span>
+                                        </label>
+                                        <div class="relative">
+                                            <select id="settlementLiquidityAccount" name="liquidity_account" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                                <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
+                                                <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <i class="fas fa-chevron-down text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                        <p class="mt-2 text-xs text-gray-500"><?= lang('Finance.checkOutgoingAccountHelp') ?></p>
+                                    </div>
+                                    <?php endif; ?>
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                             <i class="fas fa-calendar-alt text-rose-600"></i>
@@ -808,6 +833,12 @@
                             <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.standardMethod') ?></label>
                             <p class="text-gray-800 font-semibold"><?= lang('Finance.' . $finance['payment_method']) ?></p>
                         </div>
+                        <?php if (!empty($finance['liquidity_account'])): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.liquidityAccount') ?></label>
+                            <p class="text-gray-800 font-semibold"><?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?></p>
+                        </div>
+                        <?php endif; ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.currency') ?></label>
                             <p class="text-gray-800 font-semibold">
@@ -1195,6 +1226,30 @@ function voidPayment(paymentId) {
 }
 
 const providerPayoutPaymentForm = document.getElementById('providerPayoutPaymentForm');
+const providerPayoutMethodInput = document.getElementById('providerPayoutMethodInput');
+const providerPayoutLiquidityAccountField = document.getElementById('providerPayoutLiquidityAccountField');
+
+function syncExpenseSettlementLiquidityField() {
+    const settlementMethod = document.querySelector('#invoicePaymentForm select[name="payment_method"]');
+    const settlementField = document.getElementById('settlementLiquidityAccountField');
+    if (!settlementField || !settlementMethod) {
+        return;
+    }
+    settlementField.classList.toggle('hidden', settlementMethod.value !== 'check');
+}
+
+function syncProviderPayoutLiquidityField() {
+    if (!providerPayoutMethodInput || !providerPayoutLiquidityAccountField) {
+        return;
+    }
+    providerPayoutLiquidityAccountField.classList.toggle('hidden', providerPayoutMethodInput.value !== 'check');
+}
+
+document.querySelector('#invoicePaymentForm select[name="payment_method"]')?.addEventListener('change', syncExpenseSettlementLiquidityField);
+providerPayoutMethodInput?.addEventListener('change', syncProviderPayoutLiquidityField);
+syncExpenseSettlementLiquidityField();
+syncProviderPayoutLiquidityField();
+
 if (providerPayoutPaymentForm) {
     providerPayoutPaymentForm.addEventListener('submit', function (event) {
         event.preventDefault();

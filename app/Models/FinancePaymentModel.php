@@ -19,6 +19,7 @@ class FinancePaymentModel extends TenantAwareModel
         'exchange_rate',
         'type',
         'payment_method',
+        'liquidity_account',
         'payment_date',
         'notes',
         'related_payment_id',

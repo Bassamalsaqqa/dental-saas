@@ -10,8 +10,10 @@ use App\Models\ExaminationModel;
 use App\Models\ClinicUserModel;
 use App\Models\ProviderPayoutModel;
 use App\Models\ProviderPayoutPaymentModel;
+use App\Models\FinanceLiquidityTransferModel;
 use App\Models\UserModel;
 use App\Services\ActivityLogger;
+use App\Services\FinanceTreasuryService;
 use App\Services\WhatsAppWorkflowService;
 use App\Libraries\ApiRuntimeContext;
 
@@ -25,9 +27,11 @@ class Finance extends BaseController
     protected $clinicUserModel;
     protected $providerPayoutModel;
     protected $providerPayoutPaymentModel;
+    protected $financeLiquidityTransferModel;
     protected $userModel;
     protected $activityLogger;
     protected $storageService;
+    protected $financeTreasuryService;
     protected $db;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
@@ -41,9 +45,11 @@ class Finance extends BaseController
         $this->clinicUserModel = new ClinicUserModel();
         $this->providerPayoutModel = new ProviderPayoutModel();
         $this->providerPayoutPaymentModel = new ProviderPayoutPaymentModel();
+        $this->financeLiquidityTransferModel = new FinanceLiquidityTransferModel();
         $this->userModel = new UserModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
+        $this->financeTreasuryService = new FinanceTreasuryService();
         $this->db = \Config\Database::connect();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
     }
@@ -143,6 +149,82 @@ class Finance extends BaseController
     private function getFinanceCurrencyOptions(): array
     {
         return ['ILS', 'USD', 'JOD', 'EUR', 'GBP'];
+    }
+
+    private function getLiquidityAccountOptions(): array
+    {
+        $fallbacks = [
+            'safe_cash' => 'Safe Cash',
+            'bank' => 'Bank',
+            'undeposited_checks' => 'Checks on Hand',
+        ];
+
+        foreach ($fallbacks as $key => $fallback) {
+            $translated = lang('Finance.liquidityAccount.' . $key);
+            $fallbacks[$key] = is_string($translated) && $translated !== 'Finance.liquidityAccount.' . $key
+                ? $translated
+                : $fallback;
+        }
+
+        return $fallbacks;
+    }
+
+    private function normalizeLiquidityAccountInput(string $paymentMethod, string $direction, ?string $transactionType = null, ?string $fieldName = 'liquidity_account'): ?string
+    {
+        $requested = $fieldName ? (string) ($this->request->getPost($fieldName) ?? '') : '';
+        if ($requested !== '' && !$this->financeTreasuryService->isCompatibleLiquidityAccount($paymentMethod, $direction, $requested, $transactionType)) {
+            throw new \RuntimeException('Selected liquidity account does not match the payment method.');
+        }
+
+        $account = $this->financeTreasuryService->normalizeLiquidityAccount($paymentMethod, $direction, $requested, $transactionType);
+        if ($account !== null && !$this->financeTreasuryService->isValidLiquidityAccount($account)) {
+            throw new \RuntimeException('Invalid liquidity account.');
+        }
+
+        return $account;
+    }
+
+    private function getCheckOutgoingLiquidityOptions(): array
+    {
+        return [
+            'bank' => $this->getLiquidityAccountOptions()['bank'],
+            'undeposited_checks' => $this->getLiquidityAccountOptions()['undeposited_checks'],
+        ];
+    }
+
+    private function resolveDirectFinanceLiquidityAccount(string $transactionType, string $paymentMethod): ?string
+    {
+        $transactionType = strtolower(trim($transactionType));
+        if ($transactionType === 'invoice' || $transactionType === 'adjustment') {
+            return null;
+        }
+
+        $direction = $transactionType === 'refund' ? 'out' : 'in';
+
+        return $this->normalizeLiquidityAccountInput($paymentMethod, $direction, $transactionType);
+    }
+
+    private function resolveSettlementLiquidityAccount(array $finance, string $settlementType, ?array $relatedPayment = null): ?string
+    {
+        $paymentMethod = (string) ($this->request->getPost('payment_method') ?: ($relatedPayment['payment_method'] ?? ($finance['payment_method'] ?? 'cash')));
+        $settlementType = strtolower(trim($settlementType));
+        $financeType = strtolower((string) ($finance['transaction_type'] ?? 'invoice'));
+
+        if ($settlementType === 'adjustment') {
+            return null;
+        }
+
+        if ($settlementType === 'payment') {
+            $direction = $financeType === 'expense' ? 'out' : 'in';
+        } else {
+            $direction = 'out';
+        }
+
+        if ($relatedPayment && !empty($relatedPayment['liquidity_account'])) {
+            return (string) $relatedPayment['liquidity_account'];
+        }
+
+        return $this->normalizeLiquidityAccountInput($paymentMethod, $direction, $financeType);
     }
 
     private function supportsFinancePaymentExchangeFields(): bool
@@ -316,6 +398,8 @@ class Finance extends BaseController
             'validation' => \Config\Services::validation(),
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'expense_category_options' => $this->getExpenseCategoryOptions(),
             'expense_attachment' => ($clinicId > 0 && !empty($finance['id']))
                 ? $this->attachmentModel
@@ -561,6 +645,8 @@ class Finance extends BaseController
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'selected_patient_id' => $patientId,
             'return_to' => $returnTo
         ];
@@ -633,6 +719,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
+            'liquidity_account' => null,
             'payment_status' => $expensePaymentState['payment_status'],
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
@@ -665,6 +752,7 @@ class Finance extends BaseController
                     'amount' => (float) $expensePaymentState['amount_paid'],
                     'type' => 'payment',
                     'payment_method' => $financeData['payment_method'],
+                    'liquidity_account' => $this->normalizeLiquidityAccountInput((string) $financeData['payment_method'], 'out', 'expense'),
                     'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
                     'notes' => 'Initial expense settlement',
                     'created_by' => $this->resolveActorUserId(),
@@ -788,6 +876,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
+            'liquidity_account' => $this->resolveDirectFinanceLiquidityAccount((string) $transactionType, (string) $this->request->getPost('payment_method')),
             'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
             'service_type' => $this->request->getPost('service_type'),
@@ -957,6 +1046,8 @@ class Finance extends BaseController
             'provider_payout_payments' => $providerPayoutPayments,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'supports_payment_exchange_fields' => $this->supportsFinancePaymentExchangeFields(),
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
@@ -1019,6 +1110,8 @@ class Finance extends BaseController
             'loadSelect2' => true,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => $this->getFinanceCurrencyOptions(),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'check_attachment' => $this->attachmentModel
                 ->where('clinic_id', $clinicId)
                 ->where('entity_type', 'finance')
@@ -1121,6 +1214,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
+            'liquidity_account' => $this->resolveDirectFinanceLiquidityAccount((string) $currentType, (string) $this->request->getPost('payment_method')),
             'payment_status' => $paymentStatus,
             'description' => $this->request->getPost('description'),
             'service_type' => $this->request->getPost('service_type'),
@@ -1259,6 +1353,7 @@ class Finance extends BaseController
             'amount_original' => $amountOriginal,
             'exchange_rate' => $exchangeRate,
             'payment_method' => $this->request->getPost('payment_method'),
+            'liquidity_account' => null,
             'payment_status' => $expensePaymentState['payment_status'],
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
@@ -1295,6 +1390,7 @@ class Finance extends BaseController
                         'amount' => (float) $expensePaymentState['amount_paid'],
                         'type' => 'payment',
                         'payment_method' => $update['payment_method'],
+                        'liquidity_account' => $this->normalizeLiquidityAccountInput((string) $update['payment_method'], 'out', 'expense'),
                         'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
                         'notes' => 'Initial expense settlement',
                         'created_by' => $this->resolveActorUserId(),
@@ -1436,6 +1532,10 @@ class Finance extends BaseController
         $apAgingDetail = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $endDate, 100);
         $apAgingSummary = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $endDate);
         $providerPayoutStats = $this->providerPayoutModel->getStatsByClinic((int) $clinicId, null, $endDate);
+        $treasuryMovement = $this->financeTreasuryService->summarizeMovement($ledger['treasury_rows']);
+        $treasuryClosing = $this->financeTreasuryService->summarizeClosingBalances(
+            $this->buildFinancialLedger((int) $clinicId, null, $endDate)['treasury_rows']
+        );
 
         $moneyIn = (float) ($stats['gross_collections'] ?? 0);
         $moneyOut = (float) (($stats['refunds_total'] ?? 0) + ($stats['expenses_paid'] ?? 0) + ($stats['provider_paid_cash_total'] ?? 0));
@@ -1450,6 +1550,9 @@ class Finance extends BaseController
             'start_date' => $startDate,
             'end_date' => $endDate,
             'stats' => $stats,
+            'treasury_movement' => $treasuryMovement,
+            'treasury_closing' => $treasuryClosing,
+            'liquidity_account_labels' => $this->getLiquidityAccountOptions(),
             'monthly_revenue_labels' => $monthlyRevenue['labels'],
             'monthly_revenue_values' => $monthlyRevenue['values'],
             'ledger_rows' => $ledger['rows'],
@@ -1475,7 +1578,70 @@ class Finance extends BaseController
         return $this->view('finance/reports', $data);
     }
 
-    private function buildFinancialLedger(int $clinicId, string $startDate, string $endDate): array
+    public function transfers()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $transfers = $this->financeLiquidityTransferModel
+            ->where('clinic_id', (int) $clinicId)
+            ->orderBy('transfer_date', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->findAll(100);
+
+        return $this->view('finance/transfers', [
+            'title' => 'Treasury Transfers',
+            'transfers' => $transfers,
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'validation' => \Config\Services::validation(),
+        ]);
+    }
+
+    public function storeTransfer()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $rules = [
+            'from_account' => 'required|in_list[safe_cash,bank,undeposited_checks]',
+            'to_account' => 'required|in_list[safe_cash,bank,undeposited_checks]',
+            'amount' => 'required|decimal|greater_than[0]',
+            'transfer_date' => 'required|valid_date',
+            'transfer_type' => 'required|in_list[cash_deposit_to_bank,bank_withdrawal_to_safe,check_deposit_to_bank,internal_transfer]',
+        ];
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $from = (string) $this->request->getPost('from_account');
+        $to = (string) $this->request->getPost('to_account');
+        if ($from === $to) {
+            return redirect()->back()->withInput()->with('error', 'Transfer source and destination must be different.');
+        }
+
+        $payload = [
+            'clinic_id' => (int) $clinicId,
+            'from_account' => $from,
+            'to_account' => $to,
+            'amount' => round((float) ($this->request->getPost('amount') ?? 0), 2),
+            'transfer_date' => (string) ($this->normalizePostedDateOnly('transfer_date') ?: date('Y-m-d')),
+            'transfer_type' => (string) $this->request->getPost('transfer_type'),
+            'notes' => trim((string) ($this->request->getPost('notes') ?? '')),
+            'created_by' => $this->resolveActorUserId(),
+        ];
+
+        if (!$this->financeLiquidityTransferModel->insert($payload)) {
+            return redirect()->back()->withInput()->with('error', implode(', ', $this->financeLiquidityTransferModel->errors()));
+        }
+
+        return redirect()->to(base_url('finance/transfers'))->with('success', 'Treasury transfer recorded successfully.');
+    }
+
+    private function buildFinancialLedger(int $clinicId, ?string $startDate, string $endDate): array
     {
         $baseCurrency = settings()->get('currency', 'ILS');
         $directReportDateExpr = "CASE WHEN f.transaction_type = 'expense' THEN COALESCE(f.paid_date, f.transaction_date, DATE(f.created_at)) ELSE " . $this->financeDocumentDateExpr('f') . " END";
@@ -1484,12 +1650,13 @@ class Finance extends BaseController
             : '(f.amount - COALESCE(f.discount_amount, 0) + COALESCE(f.tax_amount, 0))';
         $rows = [];
 
-        $financeRows = $this->db->table('finances f')
+        $financeRowsBuilder = $this->db->table('finances f')
             ->select("
                 f.id,
                 f.transaction_id,
                 f.transaction_type,
                 f.payment_method,
+                f.liquidity_account,
                 f.payment_status,
                 f.description,
                 f.created_at,
@@ -1517,8 +1684,11 @@ class Finance extends BaseController
             ")
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
             ->where('f.clinic_id', $clinicId)
-            ->whereIn('f.transaction_type', ['payment', 'refund', 'expense'])
-            ->where($directReportDateExpr . ' >= ' . $this->db->escape($startDate), null, false)
+            ->whereIn('f.transaction_type', ['payment', 'refund', 'expense']);
+        if ($startDate !== null && $startDate !== '') {
+            $financeRowsBuilder = $financeRowsBuilder->where($directReportDateExpr . ' >= ' . $this->db->escape($startDate), null, false);
+        }
+        $financeRows = $financeRowsBuilder
             ->where($directReportDateExpr . ' <= ' . $this->db->escape($endDate), null, false)
             ->orderBy($directReportDateExpr, 'DESC', false)
             ->orderBy('f.id', 'DESC')
@@ -1556,6 +1726,7 @@ class Finance extends BaseController
                 'patient_number' => $row['patient_number'] ?? null,
                 'counterparty' => $row['counterparty_name'] ?? null,
                 'payment_method' => $row['payment_method'] ?? null,
+                'liquidity_account' => $row['liquidity_account'] ?? null,
                 'payment_status' => $row['payment_status'] ?? null,
                 'notes' => $row['description'] ?? null,
                 'category' => $row['expense_category'] ?? null,
@@ -1579,12 +1750,13 @@ class Finance extends BaseController
                 NULL AS settlement_exchange_rate,
             ";
 
-        $invoicePaymentRows = $this->db->table('finance_payments fp')
+        $invoicePaymentRowsBuilder = $this->db->table('finance_payments fp')
             ->select("
                 fp.id,
                 fp.finance_id,
                 fp.type,
                 fp.payment_method,
+                fp.liquidity_account,
                 fp.payment_date,
                 fp.notes,
                 fp.amount,
@@ -1599,8 +1771,11 @@ class Finance extends BaseController
             ")
             ->join('finances f', 'f.id = fp.finance_id AND f.clinic_id = fp.clinic_id', 'inner')
             ->join('patients p', 'p.id = f.patient_id AND p.clinic_id = f.clinic_id', 'left')
-            ->where('fp.clinic_id', $clinicId)
-            ->where('fp.payment_date >=', $startDate)
+            ->where('fp.clinic_id', $clinicId);
+        if ($startDate !== null && $startDate !== '') {
+            $invoicePaymentRowsBuilder = $invoicePaymentRowsBuilder->where('fp.payment_date >=', $startDate);
+        }
+        $invoicePaymentRows = $invoicePaymentRowsBuilder
             ->where('fp.payment_date <=', $endDate)
             ->whereIn('f.transaction_type', ['invoice', 'expense'])
             ->whereIn('fp.type', ['payment', 'refund', 'void', 'adjustment'])
@@ -1647,6 +1822,7 @@ class Finance extends BaseController
                 'patient_number' => $patientNumber,
                 'counterparty' => $counterparty,
                 'payment_method' => $row['payment_method'] ?? null,
+                'liquidity_account' => $row['liquidity_account'] ?? null,
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? null,
                 'category' => null,
@@ -1658,12 +1834,13 @@ class Finance extends BaseController
             ];
         }
 
-        $payoutPaymentRows = $this->db->table('provider_payout_payments ppp')
+        $payoutPaymentRowsBuilder = $this->db->table('provider_payout_payments ppp')
             ->select("
                 ppp.id,
                 ppp.provider_payout_id,
                 ppp.amount,
                 ppp.payment_method,
+                ppp.liquidity_account,
                 ppp.paid_date,
                 ppp.notes,
                 pp.provider_user_id,
@@ -1679,8 +1856,11 @@ class Finance extends BaseController
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
             ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
             ->join('users u', 'u.id = pp.provider_user_id', 'left')
-            ->where('ppp.clinic_id', $clinicId)
-            ->where('ppp.paid_date >=', $startDate)
+            ->where('ppp.clinic_id', $clinicId);
+        if ($startDate !== null && $startDate !== '') {
+            $payoutPaymentRowsBuilder = $payoutPaymentRowsBuilder->where('ppp.paid_date >=', $startDate);
+        }
+        $payoutPaymentRows = $payoutPaymentRowsBuilder
             ->where('ppp.paid_date <=', $endDate)
             ->orderBy('ppp.paid_date', 'DESC')
             ->orderBy('ppp.id', 'DESC')
@@ -1709,6 +1889,7 @@ class Finance extends BaseController
                 'patient_number' => $row['patient_number'] ?? null,
                 'counterparty' => $providerLabel,
                 'payment_method' => $row['payment_method'] ?? null,
+                'liquidity_account' => $row['liquidity_account'] ?? null,
                 'payment_status' => null,
                 'notes' => $row['notes'] ?? 'Provider payout cash payment',
                 'category' => 'provider_payout_cash',
@@ -1717,6 +1898,77 @@ class Finance extends BaseController
                 'amount_original' => null,
                 'amount_base' => $amountBase,
                 'signed_amount_base' => -$amountBase,
+            ];
+        }
+
+        $transferRowsBuilder = $this->db->table('finance_liquidity_transfers ft')
+            ->select('ft.*')
+            ->where('ft.clinic_id', $clinicId);
+        if ($startDate !== null && $startDate !== '') {
+            $transferRowsBuilder = $transferRowsBuilder->where('ft.transfer_date >=', $startDate);
+        }
+        $transferRows = $transferRowsBuilder
+            ->where('ft.transfer_date <=', $endDate)
+            ->orderBy('ft.transfer_date', 'DESC')
+            ->orderBy('ft.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($transferRows as $row) {
+            $amountBase = floatval($row['amount'] ?? 0);
+            $transferDate = (string) ($row['transfer_date'] ?? '');
+            $reference = 'TRF-' . (string) ($row['id'] ?? '0');
+            $routeReference = strtoupper((string) ($row['from_account'] ?? '')) . ' -> ' . strtoupper((string) ($row['to_account'] ?? ''));
+            $label = ucfirst(str_replace('_', ' ', (string) ($row['transfer_type'] ?? 'internal_transfer')));
+
+            $rows[] = [
+                'finance_id' => !empty($row['related_finance_id']) ? (int) $row['related_finance_id'] : 0,
+                'provider_payout_id' => null,
+                'event_source' => 'liquidity_transfer',
+                'source_label' => 'Liquidity transfer',
+                'event_type' => 'transfer_out',
+                'event_at' => $transferDate . ' 00:00:00',
+                'report_date' => $transferDate,
+                'created_at' => (string) ($row['created_at'] ?? ($transferDate . ' 00:00:00')),
+                'reference' => $reference,
+                'patient_label' => null,
+                'patient_number' => null,
+                'counterparty' => $routeReference,
+                'payment_method' => null,
+                'liquidity_account' => $row['from_account'] ?? null,
+                'payment_status' => null,
+                'notes' => trim($label . ' / ' . (string) ($row['notes'] ?? '')),
+                'category' => 'transfer',
+                'currency' => $baseCurrency,
+                'exchange_rate' => 1.0,
+                'amount_original' => $amountBase,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => -$amountBase,
+            ];
+
+            $rows[] = [
+                'finance_id' => !empty($row['related_finance_id']) ? (int) $row['related_finance_id'] : 0,
+                'provider_payout_id' => null,
+                'event_source' => 'liquidity_transfer',
+                'source_label' => 'Liquidity transfer',
+                'event_type' => 'transfer_in',
+                'event_at' => $transferDate . ' 00:00:00',
+                'report_date' => $transferDate,
+                'created_at' => (string) ($row['created_at'] ?? ($transferDate . ' 00:00:00')),
+                'reference' => $reference,
+                'patient_label' => null,
+                'patient_number' => null,
+                'counterparty' => $routeReference,
+                'payment_method' => null,
+                'liquidity_account' => $row['to_account'] ?? null,
+                'payment_status' => null,
+                'notes' => trim($label . ' / ' . (string) ($row['notes'] ?? '')),
+                'category' => 'transfer',
+                'currency' => $baseCurrency,
+                'exchange_rate' => 1.0,
+                'amount_original' => $amountBase,
+                'amount_base' => $amountBase,
+                'signed_amount_base' => $amountBase,
             ];
         }
 
@@ -1737,8 +1989,11 @@ class Finance extends BaseController
             }
         }
 
+        $treasuryRows = array_values(array_filter($rows, static fn(array $row): bool => !empty($row['liquidity_account'])));
+
         return [
             'rows' => $rows,
+            'treasury_rows' => $treasuryRows,
             'summary' => [
                 'count' => count($rows),
                 'inflow_total' => $inflow,
@@ -2155,6 +2410,7 @@ class Finance extends BaseController
                 'provider_payout_id' => (int) $id,
                 'amount' => round($amount, 2),
                 'payment_method' => $method,
+                'liquidity_account' => $this->normalizeLiquidityAccountInput($method, 'out', 'provider_payout'),
                 'paid_date' => $paidDate,
                 'notes' => $notes,
                 'created_by' => $this->resolveActorUserId(),
@@ -2204,6 +2460,7 @@ class Finance extends BaseController
                 'provider_payout_id' => (int) $id,
                 'amount' => round($remaining, 2),
                 'payment_method' => $method,
+                'liquidity_account' => $this->normalizeLiquidityAccountInput($method, 'out', 'provider_payout'),
                 'paid_date' => date('Y-m-d'),
                 'notes' => 'Marked fully paid',
                 'created_by' => $this->resolveActorUserId(),
@@ -2258,6 +2515,7 @@ class Finance extends BaseController
                     'amount' => $remaining,
                     'type' => 'payment',
                     'payment_method' => $finance['payment_method'] ?? 'cash',
+                    'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
                     'payment_date' => date('Y-m-d'),
                     'notes' => ($finance['transaction_type'] === 'expense') ? 'Full payment via Mark as Paid' : 'Full payment via Mark as Paid',
                     'created_by' => $this->resolveActorUserId()
@@ -2321,6 +2579,7 @@ class Finance extends BaseController
                 'amount' => $settlement['amount_base'],
                 'type' => 'payment',
                 'payment_method' => $settlement['payment_method'],
+                'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'payment'),
                 'payment_date' => $settlement['payment_date'],
                 'notes' => $settlement['notes'],
                 'created_by' => $this->resolveActorUserId()
@@ -2408,6 +2667,7 @@ class Finance extends BaseController
                 'amount' => $settlement['amount_base'],
                 'type' => 'refund',
                 'payment_method' => $settlement['payment_method'],
+                'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'refund', $payment ?? null),
                 'payment_date' => $settlement['payment_date'],
                 'notes' => $settlement['notes'],
                 'related_payment_id' => $relatedPaymentId ?: null,
@@ -2489,6 +2749,7 @@ class Finance extends BaseController
                 'amount' => $remaining,
                 'type' => 'void',
                 'payment_method' => $payment['payment_method'] ?? ($finance['payment_method'] ?? 'cash'),
+                'liquidity_account' => $this->resolveSettlementLiquidityAccount($finance, 'void', $payment),
                 'payment_date' => date('Y-m-d'),
                 'notes' => $this->request->getPost('notes') ?? 'Payment voided',
                 'related_payment_id' => $paymentId,
@@ -2567,6 +2828,7 @@ class Finance extends BaseController
                 'amount' => $remaining,
                 'type' => 'adjustment',
                 'payment_method' => $finance['payment_method'] ?? 'other',
+                'liquidity_account' => null,
                 'payment_date' => date('Y-m-d'),
                 'notes' => $notes,
                 'created_by' => $this->resolveActorUserId(),
@@ -2980,6 +3242,7 @@ class Finance extends BaseController
             'Exchange Rate',
             'Amount (' . $baseCurrency . ')',
             'Payment Method',
+            'Liquidity Account',
             'Payment Status',
             'Transaction Date',
             'Due Date',
@@ -3004,6 +3267,7 @@ class Finance extends BaseController
                 $row['exchange_rate'] ?? 1,
                 $amount,
                 $row['payment_method'],
+                $row['liquidity_account'] ?? '',
                 $row['payment_status'],
                 $row['transaction_date'] ?? '',
                 $row['due_date'] ?? '',
@@ -3043,6 +3307,7 @@ class Finance extends BaseController
             'Patient Number',
             'Counterparty',
             'Payment Method',
+            'Liquidity Account',
             'Payment Status',
             'Category',
             'Notes',
@@ -3064,6 +3329,7 @@ class Finance extends BaseController
                 $row['patient_number'] ?? '',
                 $row['counterparty'] ?? '',
                 $row['payment_method'] ?? '',
+                $row['liquidity_account'] ?? '',
                 $row['payment_status'] ?? '',
                 $row['category'] ?? '',
                 $row['notes'] ?? '',

@@ -1,0 +1,106 @@
+<?= $this->extend('layouts/main_auth') ?>
+
+<?= $this->section('content') ?>
+<div class="space-y-6">
+    <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="border-b border-gray-100 px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex items-start gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                    <i class="fas fa-right-left text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold text-gray-900"><?= lang('Finance.treasuryTransfers') ?></h1>
+                    <p class="text-xs text-gray-500"><?= lang('Finance.treasuryTransfersHelp') ?></p>
+                </div>
+            </div>
+            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
+                <?= lang('Finance.backToReports') ?>
+            </a>
+        </div>
+        <form method="POST" action="<?= base_url('finance/transfers/store') ?>" class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-5">
+            <?= csrf_field() ?>
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.fromAccount') ?></label>
+                <select name="from_account" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+                    <option value=""><?= lang('Finance.selectAccount') ?></option>
+                    <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
+                        <option value="<?= esc($key) ?>" <?= old('from_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.toAccount') ?></label>
+                <select name="to_account" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+                    <option value=""><?= lang('Finance.selectAccount') ?></option>
+                    <?php foreach (($liquidity_account_options ?? []) as $key => $label): ?>
+                        <option value="<?= esc($key) ?>" <?= old('to_account') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.transferType') ?></label>
+                <select name="transfer_type" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+                    <option value="cash_deposit_to_bank" <?= old('transfer_type') === 'cash_deposit_to_bank' ? 'selected' : '' ?>><?= lang('Finance.cashDepositToBank') ?></option>
+                    <option value="bank_withdrawal_to_safe" <?= old('transfer_type') === 'bank_withdrawal_to_safe' ? 'selected' : '' ?>><?= lang('Finance.bankWithdrawalToSafe') ?></option>
+                    <option value="check_deposit_to_bank" <?= old('transfer_type') === 'check_deposit_to_bank' ? 'selected' : '' ?>><?= lang('Finance.checkDepositToBank') ?></option>
+                    <option value="internal_transfer" <?= old('transfer_type') === 'internal_transfer' ? 'selected' : '' ?>><?= lang('Finance.internalTransfer') ?></option>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.amount') ?></label>
+                <input type="number" step="0.01" min="0.01" name="amount" value="<?= esc(old('amount')) ?>" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+            </div>
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.date') ?></label>
+                <input type="text" name="transfer_date" data-clinic-date="1" value="<?= esc(old('transfer_date', date('Y-m-d'))) ?>" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+            </div>
+            <div class="space-y-1 md:col-span-2 xl:col-span-4">
+                <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.notes') ?></label>
+                <input type="text" name="notes" value="<?= esc(old('notes')) ?>" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+                    <?= lang('Finance.recordTransfer') ?>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="border-b border-gray-100 px-6 py-4">
+            <h2 class="text-base font-semibold text-gray-900"><?= lang('Finance.recentTransfers') ?></h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        <th class="px-6 py-4"><?= lang('Finance.date') ?></th>
+                        <th class="px-6 py-4"><?= lang('Finance.transferType') ?></th>
+                        <th class="px-6 py-4"><?= lang('Finance.fromAccount') ?></th>
+                        <th class="px-6 py-4"><?= lang('Finance.toAccount') ?></th>
+                        <th class="px-6 py-4 text-right"><?= lang('Finance.amount') ?></th>
+                        <th class="px-6 py-4"><?= lang('Finance.notes') ?></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    <?php if (!empty($transfers)): ?>
+                        <?php foreach ($transfers as $transfer): ?>
+                            <tr>
+                                <td class="px-6 py-4 text-gray-700"><?= esc($transfer['transfer_date'] ?? '-') ?></td>
+                                <td class="px-6 py-4 text-gray-700"><?= esc(lang('Finance.' . ($transfer['transfer_type'] ?? 'internalTransfer'))) ?></td>
+                                <td class="px-6 py-4 text-gray-700"><?= esc($liquidity_account_options[$transfer['from_account'] ?? ''] ?? ($transfer['from_account'] ?? '-')) ?></td>
+                                <td class="px-6 py-4 text-gray-700"><?= esc($liquidity_account_options[$transfer['to_account'] ?? ''] ?? ($transfer['to_account'] ?? '-')) ?></td>
+                                <td class="px-6 py-4 text-right font-semibold text-gray-900"><?= formatCurrency((float) ($transfer['amount'] ?? 0)) ?></td>
+                                <td class="px-6 py-4 text-gray-600"><?= esc($transfer['notes'] ?? '-') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500"><?= lang('Finance.noTransfersRecorded') ?></td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<?= $this->endSection() ?>

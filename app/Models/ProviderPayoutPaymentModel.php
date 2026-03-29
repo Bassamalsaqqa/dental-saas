@@ -15,6 +15,7 @@ class ProviderPayoutPaymentModel extends TenantAwareModel
         'provider_payout_id',
         'amount',
         'payment_method',
+        'liquidity_account',
         'paid_date',
         'notes',
         'created_by',
@@ -31,6 +32,7 @@ class ProviderPayoutPaymentModel extends TenantAwareModel
         'provider_payout_id' => 'required|integer',
         'amount' => 'required|decimal|greater_than[0]',
         'payment_method' => 'required|in_list[cash,card,bank_transfer,check,other]',
+        'liquidity_account' => 'permit_empty|in_list[safe_cash,bank,undeposited_checks]',
         'paid_date' => 'required|valid_date',
     ];
 
@@ -45,4 +47,3 @@ class ProviderPayoutPaymentModel extends TenantAwareModel
         return $row ? floatval($row->total_amount ?? 0) : 0.0;
     }
 }
-
