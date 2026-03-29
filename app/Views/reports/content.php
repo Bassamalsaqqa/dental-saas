@@ -534,6 +534,22 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                                     </div>
                                 </div>
                             </div>
+                            <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+                                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-9 h-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                                            <i class="fas fa-arrow-up-right-from-square"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-800"><?= $tm('primaryFinanceWorkspaceTitle') ?></p>
+                                            <p class="text-sm text-slate-600"><?= $tm('primaryFinanceWorkspaceDesc') ?></p>
+                                        </div>
+                                    </div>
+                                    <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
+                                        <i class="fas fa-chart-line mr-2"></i><?= $tm('openFinanceReports') ?>
+                                    </a>
+                                </div>
+                            </div>
                             <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                                 <div class="mb-4">
                                     <h4 class="text-lg font-semibold text-gray-800"><?= $tm('ownerSummaryTitle') ?></h4>
