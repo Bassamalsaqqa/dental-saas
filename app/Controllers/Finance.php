@@ -2910,8 +2910,8 @@ class Finance extends BaseController
                 ->join('patients', 'patients.id = finances.patient_id', 'left');
 
             if ($startDate && $endDate) {
-                $query->where('finances.created_at >=', $startDate . ' 00:00:00')
-                    ->where('finances.created_at <=', $endDate . ' 23:59:59');
+                $query->where('finances.transaction_date >=', $startDate)
+                    ->where('finances.transaction_date <=', $endDate);
             }
 
             if ($status) {
@@ -2927,7 +2927,7 @@ class Finance extends BaseController
 
             $content = '';
             $mimeType = 'text/csv';
-              $fileName = 'finance_raw_transactions_' . date('Y-m-d_H-i-s') . '.csv';
+              $fileName = 'finance_document_export_' . date('Y-m-d_H-i-s') . '.csv';
 
               if ($format === 'csv') {
                   $content = $this->generateCSVContent($data, (string) ($startDate ?? ''), (string) ($endDate ?? ''));
@@ -2959,8 +2959,9 @@ class Finance extends BaseController
         $output = fopen('php://temp', 'r+');
         $baseCurrency = settings()->get('currency', 'ILS');
 
-        fputcsv($output, ['Export Type', 'Raw finance transaction export']);
-        fputcsv($output, ['Report Basis', 'Operational raw transaction list']);
+        fputcsv($output, ['Export Type', 'Finance document export']);
+        fputcsv($output, ['Report Basis', 'Document basis']);
+        fputcsv($output, ['Business Date Rule', 'Transactions are grouped by transaction date. Paid and due dates are included as separate columns when available.']);
         if ($startDate !== '' || $endDate !== '') {
             fputcsv($output, ['Date Range', trim($startDate . ' to ' . $endDate)]);
         }
@@ -2980,9 +2981,12 @@ class Finance extends BaseController
             'Amount (' . $baseCurrency . ')',
             'Payment Method',
             'Payment Status',
+            'Transaction Date',
+            'Due Date',
+            'Paid Date',
             'Service Type',
             'Description',
-              'Recorded At'
+            'Recorded At'
           ]);
 
         // CSV data
@@ -3001,6 +3005,9 @@ class Finance extends BaseController
                 $amount,
                 $row['payment_method'],
                 $row['payment_status'],
+                $row['transaction_date'] ?? '',
+                $row['due_date'] ?? '',
+                $row['paid_date'] ?? '',
                 $row['service_type'],
                 $row['description'],
                 $row['created_at']

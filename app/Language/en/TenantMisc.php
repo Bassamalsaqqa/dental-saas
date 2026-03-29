@@ -166,6 +166,8 @@ return [
     'clinicCashSummaryHelp' => 'These figures summarize clinic cash activity for the selected period, regardless of whether the money moved through the safe or other payment methods.',
     'ownerSummaryTitle' => 'Owner Summary',
     'ownerSummaryHelp' => 'Simple owner-facing summary for the selected period. Open balances are shown as of {date}.',
+    'reportBasisLabel' => 'How this report works',
+    'reportBasisHelp' => 'Money In and Money Out use cash activity during the selected period. Customers Owe Us and We Owe Others are open balances as of the report end date.',
     'moneyIn' => 'Total Money In',
     'moneyInHelp' => 'All money collected during the selected period.',
     'moneyOut' => 'Total Money Out',

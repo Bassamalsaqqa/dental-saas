@@ -41,6 +41,12 @@
     ];
     $expenseCategoryKey = $finance['expense_category'] ?? 'miscellaneous';
     $expenseCategoryLabel = $expenseCategoryMap[$expenseCategoryKey][service('request')->getLocale()] ?? ucfirst(str_replace('_', ' ', $expenseCategoryKey));
+    $paidSoFar = floatval($finance['amount_paid'] ?? 0);
+    $balanceDue = floatval($finance['balance_due'] ?? max(0, $totalAmount - $paidSoFar));
+    $showSettlementSummary = $isInvoice || $isExpense;
+    $settlementCardTitle = $isExpense ? lang('Finance.expenseSettlementOverview') : lang('Finance.invoiceSettlementOverview');
+    $recordPaymentTitle = $isExpense ? lang('Finance.recordExpensePayment') : lang('Finance.recordInvoicePayment');
+    $markFullyPaidLabel = $isExpense ? lang('Finance.markExpenseAsFullyPaid') : lang('Finance.markInvoiceAsFullyPaid');
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -83,7 +89,7 @@
             <div class="lg:col-span-2 space-y-6">
                 
                 <!-- Transaction Overview Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
@@ -92,33 +98,88 @@
                             <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.totalAmount') ?></div>
                         </div>
                     </div>
-                    
-                    <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                        <div class="text-center">
-                            <div class="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center">
-                                <i class="fas fa-exchange-alt mr-2 text-blue-500/50 group-hover:rotate-180 transition-transform duration-500"></i>
-                                <?= esc($transactionTypeLabel) ?>
-                            </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.transactionType') ?></div>
-                        </div>
-                    </div>
 
-                    <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                        <div class="text-center">
-                            <div class="mb-2">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
-                                    <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' : 
-                                        ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
-                                        ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' : 
-                                        ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
-                                    <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
-                                    <?= esc($paymentStatusLabel) ?>
-                                </span>
+                    <?php if ($showSettlementSummary): ?>
+                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-emerald-700 mb-1 group-hover:scale-110 transition-transform duration-300">
+                                    <?= number_format($paidSoFar, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paidToDate') ?></div>
                             </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paymentStatusUpper') ?></div>
+                        </div>
+
+                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold <?= $balanceDue > 0 ? 'text-rose-700' : 'text-gray-900' ?> mb-1 group-hover:scale-110 transition-transform duration-300">
+                                    <?= number_format($balanceDue, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
+                                        <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                                            ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
+                                            ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' :
+                                            ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
+                                        <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
+                                        <?= esc($paymentStatusLabel) ?>
+                                    </span>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.balanceDue') ?></div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center">
+                                    <i class="fas fa-exchange-alt mr-2 text-blue-500/50 group-hover:rotate-180 transition-transform duration-500"></i>
+                                    <?= esc($transactionTypeLabel) ?>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.transactionType') ?></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
+                                        <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                                            ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
+                                            ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' :
+                                            ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
+                                        <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
+                                        <?= esc($paymentStatusLabel) ?>
+                                    </span>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paymentStatusUpper') ?></div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($showSettlementSummary): ?>
+                <div class="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900"><?= esc($settlementCardTitle) ?></h2>
+                            <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.settlementOverviewHelp') ?></p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 text-sm">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.totalAmount') ?></p>
+                                <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($totalAmount) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.paidToDate') ?></p>
+                                <p class="mt-1 font-bold text-emerald-800"><?= formatCurrency($paidSoFar) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.balanceDue') ?></p>
+                                <p class="mt-1 font-bold text-rose-800"><?= formatCurrency($balanceDue) ?></p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Financial Details & Breakdown -->
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
@@ -202,15 +263,15 @@
                                         </span>
                                     </div>
                                     
-                                    <?php if ($finance['transaction_type'] === 'invoice'): ?>
+                                    <?php if ($showSettlementSummary): ?>
                                         <div class="pt-4 mt-4 border-t border-gray-200 border-dashed space-y-3">
                                             <div class="flex justify-between items-center text-sm">
                                                 <span class="text-emerald-600 font-bold"><?= lang('Finance.paidToDate') ?></span>
-                                                <span class="text-emerald-700 font-bold"><?= number_format($finance['amount_paid'] ?? 0, 2) ?> <?= esc($baseCurrency) ?></span>
+                                                <span class="text-emerald-700 font-bold"><?= number_format($paidSoFar, 2) ?> <?= esc($baseCurrency) ?></span>
                                             </div>
                                             <div class="flex justify-between items-center text-sm bg-rose-50 p-3 rounded-lg border border-rose-100 shadow-sm">
                                                 <span class="text-rose-600 font-bold uppercase tracking-wider"><?= lang('Finance.balanceDue') ?></span>
-                                                <span class="text-rose-700 text-xl font-bold"><?= number_format($finance['balance_due'] ?? $totalAmount, 2) ?> <?= esc($baseCurrency) ?></span>
+                                                <span class="text-rose-700 text-xl font-bold"><?= number_format($balanceDue, 2) ?> <?= esc($baseCurrency) ?></span>
                                             </div>
                                         </div>
                                     <?php endif; ?>
@@ -315,7 +376,7 @@
                             <i class="fas fa-history"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800"><?= lang('Finance.paymentsLedger') ?></h3>
+                            <h3 class="text-xl font-bold text-gray-800"><?= lang('Finance.settlementHistoryTitle') ?></h3>
                             <p class="text-xs text-gray-500"><?= lang('Finance.historyOfSettlements') ?></p>
                         </div>
                     </div>
@@ -434,7 +495,7 @@
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                                 <i class="fas fa-plus-circle text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.recordPayment') ?></h2>
+                            <h2 class="text-xl font-bold text-gray-800"><?= esc($recordPaymentTitle) ?></h2>
                         </div>
                         <div class="p-6">
                             <form id="invoicePaymentForm" class="space-y-6">
@@ -685,8 +746,13 @@
                     </h2>
                     <div class="space-y-3">
                         <?php if ($finance['payment_status'] != 'paid'): ?>
+                            <?php if ($showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                                <button type="button" onclick="document.getElementById('invoicePaymentForm')?.scrollIntoView({behavior:'smooth', block:'start'})" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-blue-500">
+                                    <i class="fas fa-plus-circle mr-2 text-white"></i><?= esc($recordPaymentTitle) ?>
+                                </button>
+                            <?php endif; ?>
                             <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-green-500">
-                                <i class="fas fa-check-circle mr-2 text-white"></i><?= lang('Finance.markAsPaid') ?>
+                                <i class="fas fa-check-circle mr-2 text-white"></i><?= esc($markFullyPaidLabel) ?>
                             </button>
                         <?php endif; ?>
                         <?php if (($finance['transaction_type'] ?? '') === 'invoice' && floatval($finance['balance_due'] ?? 0) > 0): ?>
