@@ -69,103 +69,42 @@ $bucketLabels = [
                 <?= lang('Finance.reportBasisHelp') ?>
             </div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 sm:gap-6 items-stretch">
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10 group-hover:shadow-green-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-arrow-down-wide-short text-xl"></i>
-                                </div>
+                <?php
+                $summaryCards = [
+                    ['icon' => 'fa-arrow-down-wide-short', 'title' => lang('Finance.moneyIn'), 'value' => $ownerSummary['money_in'] ?? 0, 'help' => lang('Finance.moneyInHelp'), 'accent' => 'green'],
+                    ['icon' => 'fa-arrow-up-wide-short', 'title' => lang('Finance.moneyOut'), 'value' => $ownerSummary['money_out'] ?? 0, 'help' => lang('Finance.moneyOutHelp'), 'accent' => 'rose'],
+                    ['icon' => 'fa-file-invoice-dollar', 'title' => lang('Finance.customersOweUs'), 'value' => $ownerSummary['customers_owe_us'] ?? 0, 'help' => lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date]), 'accent' => 'amber'],
+                    ['icon' => 'fa-hand-holding-dollar', 'title' => lang('Finance.weOweOthers'), 'value' => $ownerSummary['we_owe_others'] ?? 0, 'help' => lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date]), 'accent' => 'indigo'],
+                    ['icon' => 'fa-scale-balanced', 'title' => lang('Finance.netPosition'), 'value' => $ownerSummary['net_position'] ?? 0, 'help' => lang('Finance.netPositionHelp'), 'accent' => 'slate'],
+                ];
+                $accentMap = [
+                    'green' => ['badge' => 'bg-emerald-100 text-emerald-700', 'value' => 'text-emerald-950'],
+                    'rose' => ['badge' => 'bg-rose-100 text-rose-700', 'value' => 'text-rose-950'],
+                    'amber' => ['badge' => 'bg-amber-100 text-amber-700', 'value' => 'text-amber-950'],
+                    'indigo' => ['badge' => 'bg-indigo-100 text-indigo-700', 'value' => 'text-indigo-950'],
+                    'slate' => ['badge' => 'bg-slate-100 text-slate-700', 'value' => ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700'],
+                ];
+                ?>
+                <?php foreach ($summaryCards as $card): ?>
+                    <?php $accent = $accentMap[$card['accent']]; ?>
+                    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= esc($card['title']) ?></p>
+                                <p class="mt-3 text-3xl font-black <?= esc($accent['value']) ?>"><?= $formatMoney($card['value']) ?></p>
+                            </div>
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl <?= esc($accent['badge']) ?>">
+                                <i class="fas <?= esc($card['icon']) ?> text-base"></i>
                             </div>
                         </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.moneyIn') ?></p>
-                            <p class="text-3xl font-black text-green-900"><?= $formatMoney($ownerSummary['money_in'] ?? 0) ?></p>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.moneyInHelp') ?></p>
-                        </div>
+                        <p class="mt-3 text-xs text-gray-500"><?= esc($card['help']) ?></p>
                     </div>
-                </div>
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-rose-500/10 group-hover:shadow-rose-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-orange-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-rose-500 to-orange-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-arrow-up-wide-short text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.moneyOut') ?></p>
-                            <p class="text-3xl font-black text-rose-900"><?= $formatMoney($ownerSummary['money_out'] ?? 0) ?></p>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.moneyOutHelp') ?></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-file-invoice-dollar text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.customersOweUs') ?></p>
-                            <p class="text-3xl font-black text-amber-900"><?= $formatMoney($ownerSummary['customers_owe_us'] ?? 0) ?></p>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('Finance.customersOweUsHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-blue-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-hand-holding-dollar text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.weOweOthers') ?></p>
-                            <p class="text-3xl font-black text-indigo-900"><?= $formatMoney($ownerSummary['we_owe_others'] ?? 0) ?></p>
-                            <p class="text-xs text-gray-500 font-medium"><?= esc(lang('Finance.weOweOthersHelp', ['date' => $ownerSummary['as_of_date'] ?? $end_date])) ?></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="group relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-gray-700/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                    <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl p-6 shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div class="relative p-3 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                    <i class="fas fa-scale-balanced text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 flex-1 flex flex-col justify-end">
-                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.netPosition') ?></p>
-                            <p class="text-3xl font-black <?= ((float) ($ownerSummary['net_position'] ?? 0)) >= 0 ? 'text-slate-900' : 'text-rose-700' ?>"><?= $formatMoney($ownerSummary['net_position'] ?? 0) ?></p>
-                            <p class="text-xs text-gray-500 font-medium"><?= lang('Finance.netPositionHelp') ?></p>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </section>
 
-        <section class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-blue-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-indigo-500/10 group-hover:shadow-indigo-500/20 transition-all duration-500">
-            <div class="border-b border-white/20 px-6 py-5">
+        <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.apAgingDetail') ?></h2>
@@ -334,10 +273,8 @@ $bucketLabels = [
             </div>
         </section>
 
-        <section class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-gray-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-slate-500/10 group-hover:shadow-slate-500/20 transition-all duration-500">
-            <div class="border-b border-white/20 px-6 py-5">
+        <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-5">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
@@ -442,14 +379,14 @@ $bucketLabels = [
             </div>
         </section>
 
-        <details class="group rounded-xl border border-gray-200 bg-white shadow-lg">
+        <details class="group rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <summary class="flex cursor-pointer list-none items-center justify-between px-6 py-5">
                 <div>
                     <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.detailsBreakdownTitle') ?></h2>
                     <p class="mt-1 text-sm text-gray-600"><?= lang('Finance.detailsBreakdownHelp') ?></p>
                 </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                    <i class="fas fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors group-open:bg-green-100 group-open:text-green-600">
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-open:rotate-180"></i>
                 </span>
             </summary>
             <div class="space-y-6 border-t border-gray-200 px-6 py-6">

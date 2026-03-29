@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $formatMoney = static fn($amount) => formatCurrency((float) $amount); ?>
 <div class="space-y-6">
     <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div class="border-b border-gray-100 px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -17,6 +18,24 @@
                 <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
                 <?= lang('Finance.backToReports') ?>
             </a>
+        </div>
+        <div class="grid grid-cols-1 gap-4 border-b border-gray-100 px-6 py-4 md:grid-cols-3">
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.recentTransfers') ?></p>
+                <p class="mt-2 text-2xl font-black text-emerald-950"><?= number_format(count($transfers ?? [])) ?></p>
+                <p class="mt-2 text-xs text-emerald-700/80"><?= lang('Finance.treasuryTransfersHelp') ?></p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.total') ?></p>
+                <p class="mt-2 text-2xl font-black text-slate-950"><?= $formatMoney(array_sum(array_map(static fn($row) => (float) ($row['amount'] ?? 0), $transfers ?? []))) ?></p>
+                <p class="mt-2 text-xs text-slate-600"><?= lang('Finance.periodMovement') ?></p>
+            </div>
+            <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= lang('Finance.transferType') ?></p>
+                <p class="mt-2 text-sm font-semibold text-amber-950"><?= esc(lang('Finance.cashDepositToBank')) ?></p>
+                <p class="text-sm font-semibold text-amber-950"><?= esc(lang('Finance.bankWithdrawalToSafe')) ?></p>
+                <p class="text-sm font-semibold text-amber-950"><?= esc(lang('Finance.checkDepositToBank')) ?></p>
+            </div>
         </div>
         <form method="POST" action="<?= base_url('finance/transfers/store') ?>" class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-5">
             <?= csrf_field() ?>
@@ -69,7 +88,13 @@
 
     <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4">
-            <h2 class="text-base font-semibold text-gray-900"><?= lang('Finance.recentTransfers') ?></h2>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900"><?= lang('Finance.recentTransfers') ?></h2>
+                    <p class="mt-1 text-sm text-gray-500"><?= lang('Finance.treasuryMovementHelp') ?></p>
+                </div>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><?= number_format(count($transfers ?? [])) ?> <?= lang('Finance.eventsLabel') ?></span>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -86,7 +111,7 @@
                 <tbody class="divide-y divide-gray-100 bg-white">
                     <?php if (!empty($transfers)): ?>
                         <?php foreach ($transfers as $transfer): ?>
-                            <tr>
+                            <tr class="transition-colors duration-150 hover:bg-slate-50">
                                 <td class="px-6 py-4 text-gray-700"><?= esc($transfer['transfer_date'] ?? '-') ?></td>
                                 <td class="px-6 py-4 text-gray-700"><?= esc(lang('Finance.' . ($transfer['transfer_type'] ?? 'internalTransfer'))) ?></td>
                                 <td class="px-6 py-4 text-gray-700"><?= esc($liquidity_account_options[$transfer['from_account'] ?? ''] ?? ($transfer['from_account'] ?? '-')) ?></td>
