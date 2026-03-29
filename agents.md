@@ -78,18 +78,24 @@ cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --defa
   - `provider_payable_outstanding`
   - `net_clinic_revenue` (cash view)
   - `net_clinic_revenue_accrual`
-- **Finance Reports Consistency**: `/reports?report_type=finance` now uses consistent start/end date filtering across transactions, payment methods, outstanding invoices, and monthly revenue; report cards use payout-aware values.
-- **Finance Reporting Simplification**: both `/finance/reports` and `/reports?report_type=finance` now lead with the same owner-facing 5 metrics:
-  - `Total Money In`
-  - `Total Money Out`
-  - `Customers Still Owe Us`
-  - `We Still Owe Others`
+- **Finance Reporting Canonicalization**: `/finance/reports` is now the authoritative finance reporting surface. Generic `/reports` no longer exposes finance as a first-class report type; legacy finance report URLs redirect into `/finance/reports`.
+- **Finance Reporting Model**: `/finance/reports` now leads with the owner-facing 5 metrics:
+  - `Money In`
+  - `Money Out`
+  - `Customers Owe Us`
+  - `We Owe Others`
   - `Net Position`
-- **Finance Safe Movement Metrics**: both finance report surfaces now expose secondary safe-movement metrics:
-  - `Cash In`
-  - `Cash Out`
-  - `Net Cash Movement`
-  - These are period movement metrics only, not current physical safe balance.
+- **Finance Treasury / Custody Layer**: implemented custody buckets and transfer tracking:
+  - `safe_cash`
+  - `bank`
+  - `undeposited_checks`
+  - transfer workspace: `/finance/transfers`
+  - supported transfer types:
+    - `cash_deposit_to_bank`
+    - `bank_withdrawal_to_safe`
+    - `check_deposit_to_bank`
+    - `internal_transfer`
+- **Finance Payables Expansion**: tenant finance now supports unpaid and partially paid expenses using settlement entries, plus A/P aging and treasury-aware reporting.
 - **Finance Create UX**: check-scan upload section is now always visible and optional; backend still only processes file if uploaded/valid.
 - **Tenant Finance Expansion**: tenant finance now supports `Add Expense` (alongside `Add Income`) with expense metadata (`expense_category`, `counterparty_name`), expense-aware index/show/reports, and finance API tenant ownership validation for patient/examination references.
 - **Inventory <-> Finance (COGS)**: inventory usage can auto-post tenant finance `inventory_cogs` expenses (idempotent source refs), controlled by tenant setting `finance_auto_post_inventory_cogs`; usage history/details link to generated finance entries.
@@ -106,37 +112,41 @@ cmd /c "\"C:\xampp\mysql\bin\mysqldump.exe\" -h 127.0.0.1 -P 3306 -u root --defa
 - Remaining Phase 6 work: pilot rollout execution, template-first enqueue flows, and alerting/runbook hardening.
 
 ## K) Current Finance Reporting Context
-- There are still two tenant finance report surfaces:
+- Canonical finance reporting surface:
   - `/finance/reports`
-  - `/reports?report_type=finance`
-- Both are currently cash-basis and both now expose the same top-level owner summary model:
-  - `Total Money In`
-  - `Total Money Out`
-  - `Customers Still Owe Us`
-  - `We Still Owe Others`
-  - `Net Position`
-- Current owner-summary formulas:
-  - `money_in` = all collected cash for the selected period
+- Treasury operations surface:
+  - `/finance/transfers`
+- Current owner-summary formulas in `/finance/reports`:
+  - `money_in` = collected inflows for the selected period
   - `money_out` = refunds + paid expenses + paid provider payouts for the selected period
   - `customers_owe_us` = A/R snapshot as of the selected end date
-  - `we_owe_others` = outstanding provider payout balances as of the selected end date
+  - `we_owe_others` = expense payables + provider payout balances as of the selected end date
   - `net_position` = `money_in - money_out + customers_owe_us - we_owe_others`
-- Important: `Net Position` is an owner-facing simplified period position. It is **not** the actual safe balance and **not** the actual bank balance.
-- Safe metrics are separate and remain secondary:
-  - `Cash In`
-  - `Cash Out`
-  - `Net Cash Movement`
-- Important: `Net Cash Movement` is period cash movement only. It is **not** the physical current safe balance.
-- If the client asks for actual current cash balance, that requires a separate reconciliation model:
-  - opening balance
-  - manual cash adjustments
-  - closing count / variance
-- `/finance/reports` now normalizes `start_date` / `end_date` with `normalizeDateOnly()` and swaps them if reversed.
-- Current UX direction:
-  - top of both finance report surfaces should answer the owner question first
-  - detailed accounting breakdown stays below the owner summary
-  - `/finance/reports` should visually stay aligned with `/finance`
-  - `/reports` should visually stay aligned with the general reports shell
+- Current treasury balances shown in `/finance/reports`:
+  - closing safe cash
+  - closing bank cash
+  - checks on hand
+  - total liquid funds
+- Current supported custody buckets:
+  - `safe_cash`
+  - `bank`
+  - `undeposited_checks`
+- Current transfer types:
+  - `cash_deposit_to_bank`
+  - `bank_withdrawal_to_safe`
+  - `check_deposit_to_bank`
+  - `internal_transfer`
+- Important accounting date rules:
+  - `transaction_date` = business/document date
+  - `payment_date` / `paid_date` = settlement/cash date
+  - `created_at` = audit timestamp only
+- Important: treasury closing balances are only as accurate as the recorded custody events and internal transfers.
+- Future treasury improvements stay documented only for now:
+  - opening balances
+  - counted cash variance
+  - bank reconciliation
+  - bounced checks
+  - recurring bill/vendor workflows
 
 ## I) Known Requirements / Guardrails
 - Keep `democa_dental_saas_schema_superadmin.sql` updated whenever schema or bootstrap data changes.

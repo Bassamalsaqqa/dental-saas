@@ -37,6 +37,34 @@
                 <p class="text-sm font-semibold text-amber-950"><?= esc(lang('Finance.checkDepositToBank')) ?></p>
             </div>
         </div>
+        <div class="border-b border-gray-100 px-6 py-4">
+            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div class="mb-3 flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                        <i class="fas fa-circle-info text-sm"></i>
+                    </div>
+                    <h2 class="text-sm font-semibold text-gray-900"><?= lang('Finance.treasuryOperatorGuide') ?></h2>
+                </div>
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.cashDepositToBank') ?></p>
+                        <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.cashDepositToBankHelp') ?></p>
+                    </div>
+                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.bankWithdrawalToSafe') ?></p>
+                        <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.bankWithdrawalToSafeHelp') ?></p>
+                    </div>
+                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.checkDepositToBank') ?></p>
+                        <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.checkDepositToBankHelp') ?></p>
+                    </div>
+                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.internalTransfer') ?></p>
+                        <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.internalTransferHelp') ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form method="POST" action="<?= base_url('finance/transfers/store') ?>" class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-5">
             <?= csrf_field() ?>
             <div class="space-y-1">

@@ -77,7 +77,6 @@ $agingBucketLabel = static function (?string $bucket) use ($tm): string {
                         <option value="patients" <?= ($report_type ?? '') === 'patients' ? 'selected' : '' ?>><?= lang('TenantMisc.reportPatients') ?></option>
                         <option value="examinations" <?= ($report_type ?? '') === 'examinations' ? 'selected' : '' ?>><?= lang('TenantMisc.reportExaminations') ?></option>
                         <option value="appointments" <?= ($report_type ?? '') === 'appointments' ? 'selected' : '' ?>><?= lang('TenantMisc.reportAppointments') ?></option>
-                        <option value="finance" <?= ($report_type ?? '') === 'finance' ? 'selected' : '' ?>><?= lang('TenantMisc.reportFinance') ?></option>
                         <option value="treatments" <?= ($report_type ?? '') === 'treatments' ? 'selected' : '' ?>><?= lang('TenantMisc.reportTreatments') ?></option>
                     </select>
                 </div>

@@ -11,7 +11,7 @@ use App\Models\TreatmentModel;
 
 class Reports extends BaseController
 {
-    private const ALLOWED_REPORT_TYPES = ['overview', 'patients', 'examinations', 'appointments', 'finance', 'treatments'];
+    private const ALLOWED_REPORT_TYPES = ['overview', 'patients', 'examinations', 'appointments', 'treatments'];
     private const ALLOWED_DATE_RANGES = ['7', '30', '90', '365'];
     private const ALLOWED_EXPORT_FORMATS = ['pdf', 'excel', 'csv'];
     private const ALLOWED_DATE_MODES = ['relative', 'custom'];
@@ -53,6 +53,33 @@ class Reports extends BaseController
     {
         $value = (string) ($value ?? 'overview');
         return in_array($value, self::ALLOWED_REPORT_TYPES, true) ? $value : 'overview';
+    }
+
+    private function redirectLegacyFinanceReport()
+    {
+        $customFrom = $this->sanitizeDateInput($this->request->getGet('custom_from'));
+        $customTo = $this->sanitizeDateInput($this->request->getGet('custom_to'));
+        $startDate = $this->sanitizeDateInput($this->request->getGet('start_date'));
+        $endDate = $this->sanitizeDateInput($this->request->getGet('end_date'));
+        $dateMode = $this->sanitizeDateMode($this->request->getGet('date_mode'));
+        $dateRange = $this->sanitizeDateRange($this->request->getGet('date_range'));
+
+        if ($dateMode === 'custom' && $customFrom && $customTo) {
+            if ($customFrom > $customTo) {
+                [$customFrom, $customTo] = [$customTo, $customFrom];
+            }
+            $startDate = $customFrom;
+            $endDate = $customTo;
+        }
+
+        if (!$startDate || !$endDate) {
+            [$startDate, $endDate] = $this->getReportWindow($dateRange);
+        }
+
+        return redirect()->to(base_url('finance/reports?' . http_build_query([
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ])));
     }
 
     private function sanitizeDateRange(?string $value): string
@@ -487,8 +514,6 @@ class Reports extends BaseController
                 return $this->getExaminationReports($startDate, $endDate, $filters);
             case 'appointments':
                 return $this->getAppointmentReports($startDate, $endDate, $filters);
-            case 'finance':
-                return $this->getFinanceReports($startDate, $endDate, $compareWindow, $filters);
             case 'treatments':
                 return $this->getTreatmentReports($startDate, $endDate, $filters);
             case 'overview':
@@ -582,6 +607,11 @@ class Reports extends BaseController
             // Check if user is logged in
             if (!$this->isLoggedIn()) {
                 return redirect()->to('/auth/login');
+            }
+
+            $requestedReportType = strtolower((string) ($this->request->getGet('report_type') ?? $this->request->getGet('type') ?? 'overview'));
+            if ($requestedReportType === 'finance') {
+                return $this->redirectLegacyFinanceReport();
             }
 
             $clinicId = $this->requireTenantClinicId();
