@@ -20,17 +20,17 @@
             </a>
         </div>
         <div class="grid grid-cols-1 gap-4 border-b border-gray-100 px-6 py-4 md:grid-cols-3">
-            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.recentTransfers') ?></p>
                 <p class="mt-2 text-2xl font-black text-emerald-950"><?= number_format(count($transfers ?? [])) ?></p>
                 <p class="mt-2 text-xs text-emerald-700/80"><?= lang('Finance.treasuryTransfersHelp') ?></p>
             </div>
-            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.total') ?></p>
                 <p class="mt-2 text-2xl font-black text-slate-950"><?= $formatMoney(array_sum(array_map(static fn($row) => (float) ($row['amount'] ?? 0), $transfers ?? []))) ?></p>
                 <p class="mt-2 text-xs text-slate-600"><?= lang('Finance.periodMovement') ?></p>
             </div>
-            <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-amber-700"><?= lang('Finance.transferType') ?></p>
                 <p class="mt-2 text-sm font-semibold text-amber-950"><?= esc(lang('Finance.cashDepositToBank')) ?></p>
                 <p class="text-sm font-semibold text-amber-950"><?= esc(lang('Finance.bankWithdrawalToSafe')) ?></p>
