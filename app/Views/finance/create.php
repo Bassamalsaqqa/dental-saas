@@ -10,6 +10,12 @@
     transition: transform 0.2s ease;
 }
 </style>
+<?php
+    $isRtl = !empty($is_rtl);
+    $leadingFieldPadding = $isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4';
+    $leadingAdornment = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
+    $leadingAdornmentWide = 'absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none';
+?>
 <!-- Enhanced Finance Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
@@ -85,7 +91,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -110,7 +116,7 @@
                                         <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
                                         <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -130,7 +136,7 @@
                                 <span><?= lang('Finance.examination') ?></span>
                             </label>
                             <div class="relative">
-                                <select name="examination_id" id="examinationSelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl"
+                                <select name="examination_id" id="examinationSelect" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl"
                                         data-searchable-select
                                         data-minimum-input-length="0"
                                         data-limit="5"
@@ -142,7 +148,7 @@
                                         data-placeholder="<?= esc(lang('Finance.searchExaminationsPlaceholder')) ?>">
                                     <option value=""><?= lang('Finance.selectExaminationOptional') ?></option>
                                 </select>
-                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <div class="<?= $leadingAdornment ?>">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
@@ -172,14 +178,14 @@
                                     <span><?= lang('Finance.currencyRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="currency" id="currencySelect" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="currency" id="currencySelect" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                         <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
                                             <option value="<?= esc($option) ?>" <?= (old('currency', $base_currency ?? 'ILS') === $option) ? 'selected' : '' ?>>
                                                 <?= esc($option) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -216,7 +222,7 @@
                                     <span><?= lang('Finance.paymentMethod') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="payment_method" id="paymentMethod" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="payment_method" id="paymentMethod" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value=""><?= lang('Finance.selectMethod') ?></option>
                                         <option value="cash" <?= (old('payment_method') == 'cash') ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
                                         <option value="card" <?= (old('payment_method') == 'card') ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
@@ -224,7 +230,7 @@
                                         <option value="check" <?= (old('payment_method') == 'check') ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
                                         <option value="other" <?= (old('payment_method') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -254,8 +260,8 @@
                                     <span><?= lang('Finance.transactionDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="transaction_date" data-clinic-date="1" value="<?= old('transaction_date', date('Y-m-d')) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <input type="text" name="transaction_date" data-clinic-date="1" value="<?= old('transaction_date', date('Y-m-d')) ?>" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -267,8 +273,8 @@
                                     <span><?= lang('Finance.paymentDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', date('Y-m-d')) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', date('Y-m-d')) ?>" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -279,8 +285,8 @@
                                     <span><?= lang('Finance.dueDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date') ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date') ?>" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
+                                    <div class="<?= $leadingAdornment ?>">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -294,7 +300,7 @@
                                 <span><?= lang('Finance.serviceTypeRequired') ?></span><span class="required-indicator notranslate" aria-hidden="true">*</span>
                             </label>
                             <div class="relative">
-                                <select name="service_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
+                                <select name="service_type" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" required>
                                     <option value=""><?= lang('Finance.selectServiceType') ?></option>
                                     <option value="consultation" <?= (old('service_type') == 'consultation') ? 'selected' : '' ?>><?= lang('Finance.consultation') ?></option>
                                     <option value="treatment" <?= (old('service_type') == 'treatment') ? 'selected' : '' ?>><?= lang('Finance.treatment') ?></option>
@@ -302,7 +308,7 @@
                                     <option value="procedure" <?= (old('service_type') == 'procedure') ? 'selected' : '' ?>><?= lang('Finance.procedure') ?></option>
                                     <option value="other" <?= (old('service_type') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                 </select>
-                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <div class="<?= $leadingAdornment ?>">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
@@ -338,13 +344,10 @@
                                     <span><?= lang('Finance.discountAmount') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornmentWide ?>">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
-                                    <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-percentage text-gray-400"></i>
-                                    </div>
+                                    <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                                 </div>
                             </div>
 
@@ -354,13 +357,10 @@
                                     <span><?= lang('Finance.taxPercentage') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                    <div class="<?= $leadingAdornmentWide ?>">
                                         <span class="text-gray-500 font-bold">%</span>
                                     </div>
-                                    <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
-                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                        <i class="fas fa-percent text-gray-400"></i>
-                                    </div>
+                                    <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                                 </div>
                             </div>
                         </div>
@@ -401,11 +401,11 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
                                         <div class="relative">
-                                            <select id="providerType" name="provider_type" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                            <select id="providerType" name="provider_type" data-force-select2 class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                                                 <option value="user" <?= old('provider_type', 'user') === 'user' ? 'selected' : '' ?>><?= lang('Finance.clinicUser') ?></option>
                                                 <option value="guest" <?= old('provider_type') === 'guest' ? 'selected' : '' ?>><?= lang('Finance.guestProvider') ?></option>
                                             </select>
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <div class="<?= $leadingAdornment ?>">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
@@ -413,7 +413,7 @@
                                     <div id="providerUserWrap" class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
                                         <div class="relative">
-                                            <select id="providerUserId" name="provider_user_id" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                            <select id="providerUserId" name="provider_user_id" data-force-select2 class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                                                 <option value=""><?= lang('Finance.selectUser') ?></option>
                                                 <?php foreach (($clinic_providers ?? []) as $provider): ?>
                                                     <option value="<?= (int) $provider['id'] ?>" <?= (string) old('provider_user_id') === (string) $provider['id'] ? 'selected' : '' ?>>
@@ -421,7 +421,7 @@
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <div class="<?= $leadingAdornment ?>">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
@@ -429,8 +429,8 @@
                                     <div id="providerGuestWrap" class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
                                         <div class="relative">
-                                            <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc(old('provider_name_snapshot')) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc(old('provider_name_snapshot')) ?>" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                                            <div class="<?= $leadingAdornment ?>">
                                                 <i class="fas fa-user text-gray-400"></i>
                                             </div>
                                         </div>
@@ -441,11 +441,11 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
                                         <div class="relative">
-                                            <select id="providerSplitMode" name="provider_split_mode" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                            <select id="providerSplitMode" name="provider_split_mode" data-force-select2 class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                                                 <option value="percent" <?= old('provider_split_mode', 'percent') === 'percent' ? 'selected' : '' ?>><?= lang('Finance.percentage') ?></option>
                                                 <option value="fixed" <?= old('provider_split_mode') === 'fixed' ? 'selected' : '' ?>><?= lang('Finance.fixedAmount') ?></option>
                                             </select>
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <div class="<?= $leadingAdornment ?>">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
@@ -453,8 +453,8 @@
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
                                         <div class="relative">
-                                            <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc(old('provider_split_value', '70')) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                            <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc(old('provider_split_value', '70')) ?>" step="0.01" min="0" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                            <div class="<?= $leadingAdornment ?>">
                                                 <i class="fas fa-percent text-gray-400"></i>
                                             </div>
                                         </div>
@@ -486,26 +486,23 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
                                             <div class="relative">
-                                                <input type="number" id="providerPaidAmount" name="provider_paid_amount" value="<?= esc(old('provider_paid_amount')) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                                <input type="number" id="providerPaidAmount" name="provider_paid_amount" value="<?= esc(old('provider_paid_amount')) ?>" step="0.01" min="0" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                                <div class="<?= $leadingAdornmentWide ?>">
                                                     <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
-                                                </div>
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
-                                                    <i class="fas fa-money-bill-wave text-gray-400"></i>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="group/field relative">
                                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
                                             <div class="relative">
-                                                <select id="providerPaidMethod" name="provider_paid_method" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                                <select id="providerPaidMethod" name="provider_paid_method" data-force-select2 class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
                                                     <option value="cash" <?= old('provider_paid_method', 'cash') === 'cash' ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
                                                     <option value="card" <?= old('provider_paid_method') === 'card' ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
                                                     <option value="bank_transfer" <?= old('provider_paid_method') === 'bank_transfer' ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
                                                     <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
                                                     <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                                 </select>
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                                <div class="<?= $leadingAdornment ?>">
                                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -513,8 +510,8 @@
                                         <div class="group/field relative">
                                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
                                             <div class="relative">
-                                                <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                                <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full <?= $leadingFieldPadding ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                                <div class="<?= $leadingAdornment ?>">
                                                     <i class="fas fa-calendar text-gray-400"></i>
                                                 </div>
                                             </div>
