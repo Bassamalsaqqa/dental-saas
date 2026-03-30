@@ -104,7 +104,7 @@
                                 </label>
                                 <div class="relative">
                                     <?php $selectedType = old('appointment_type', $appointment_type_prefill ?? ''); ?>
-                                    <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="appointment_type" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectType')) ?></option>
                                         <option value="consultation" <?= ($selectedType == 'consultation') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeConsultation')) ?></option>
                                         <option value="treatment" <?= ($selectedType == 'treatment') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeTreatment')) ?></option>
@@ -132,7 +132,7 @@
                                 </label>
                                 <div class="relative">
                                     <?php $selectedChair = old('chair_name', $chair_options[0] ?? ''); ?>
-                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectChair')) ?></option>
                                         <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
                                             <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
@@ -181,7 +181,7 @@
                                     <span><?= esc(lang('UI.appointmentTimeRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -202,7 +202,7 @@
                                     <span><?= esc(lang('UI.appointmentDurationRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="duration" id="duration" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
                                         <?php
                                             $defaultDuration = (int) getAppointmentDuration();
                                             $selectedDuration = (int) old('duration', $defaultDuration);
@@ -289,6 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = item.label ?? '';
             timeSelect.appendChild(option);
         });
+        if (window.jQuery) {
+            window.jQuery(timeSelect).trigger('change.select2');
+        }
     }
 
     function normalizeSlotsPayload(data) {

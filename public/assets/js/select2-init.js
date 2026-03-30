@@ -346,14 +346,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     regularSelects.forEach((select, index) => {
         try {
-            // Skip if it's a simple select with few options
-            if (select.options.length <= 5) {
+            const forceSelect2 = select.hasAttribute('data-force-select2');
+            const optionCount = select.options.length;
+
+            // Skip if it's a simple select with few options, unless explicitly forced
+            if (!forceSelect2 && optionCount <= 5) {
                 return;
             }
             
             console.log(`Select2: Initializing regular select ${index + 1}`, {
                 id: select.id || 'unnamed',
-                options: select.options.length
+                options: optionCount,
+                forced: forceSelect2
             });
             
             $(select).select2({
@@ -361,6 +365,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 allowClear: true,
                 width: '100%',
                 theme: 'default',
+                minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
                 language: {
                     noResults: function() {
                         return "No results found";
