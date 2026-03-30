@@ -1819,17 +1819,43 @@
     function initializeClinicDateInputs() {
         const fields = document.querySelectorAll('input[data-clinic-date="1"]');
         const formatHint = clinicDateFormatLabel(clinicDateFormat);
+        const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
 
         fields.forEach((field) => {
             const current = field.value ? field.value.trim() : '';
             if (current && /^\d{4}-\d{2}-\d{2}$/.test(current)) {
                 field.value = formatClinicDateFromIso(current);
             }
+            const fieldWrapper = field.parentElement;
+            const overlayIcons = fieldWrapper
+                ? fieldWrapper.querySelectorAll(':scope > .absolute.inset-y-0.pointer-events-none, :scope > .absolute.inset-y-0.flex.items-center.pointer-events-none')
+                : [];
+
+            const syncDateFieldChrome = () => {
+                const nativePickerActive = field.type === 'date';
+                overlayIcons.forEach((iconWrap) => {
+                    iconWrap.style.visibility = nativePickerActive ? 'hidden' : 'visible';
+                });
+                if (nativePickerActive) {
+                    if (isRtl) {
+                        field.style.paddingLeft = '2.75rem';
+                        field.style.paddingRight = '2.75rem';
+                    } else {
+                        field.style.paddingLeft = '1rem';
+                        field.style.paddingRight = '2.75rem';
+                    }
+                } else {
+                    field.style.removeProperty('padding-left');
+                    field.style.removeProperty('padding-right');
+                }
+            };
+
             field.type = 'text';
             field.setAttribute('placeholder', formatHint);
             field.setAttribute('autocomplete', 'off');
             field.inputMode = 'numeric';
             field.setAttribute('title', `${formatHint} (type manually or press Alt+Down for picker)`);
+            syncDateFieldChrome();
 
             const switchToPickerMode = () => {
                 const raw = (field.value || '').trim();
@@ -1841,6 +1867,7 @@
                 } else if (raw === '') {
                     field.value = '';
                 }
+                syncDateFieldChrome();
                 if (typeof field.showPicker === 'function') {
                     try {
                         field.showPicker();
@@ -1857,6 +1884,7 @@
                     field.value = iso ? formatClinicDateFromIso(iso) : '';
                 }
                 field.setCustomValidity('');
+                syncDateFieldChrome();
             };
 
             // Keep text mode by default so users can type dates manually with numpad.
