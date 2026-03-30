@@ -110,6 +110,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
     const pathName = window.location.pathname || '';
     const isCreateEditPage = /\/(create|edit)(\/|$)/.test(pathName);
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+    const select2I18n = {
+        placeholder: isRtl ? 'اختر خيارًا...' : 'Select an option...',
+        noResults: isRtl ? 'لا توجد نتائج' : 'No results found',
+        searching: isRtl ? 'جارٍ البحث...' : 'Searching...',
+        inputTooShort: function(minimumInputLength) {
+            return isRtl
+                ? `الرجاء إدخال ${minimumInputLength} أحرف أو أكثر`
+                : `Please enter ${minimumInputLength} or more characters`;
+        }
+    };
     
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = document.querySelectorAll('[data-searchable-select]');
@@ -201,15 +212,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                 theme: 'default',
                 language: {
                     noResults: function() {
-                        return "No results found";
+                        return select2I18n.noResults;
                     },
                     searching: function() {
-                        return "Searching...";
+                        return select2I18n.searching;
                     },
                     inputTooShort: function() {
-                        return `Please enter ${minimumInputLength} or more characters`;
+                        return select2I18n.inputTooShort(minimumInputLength);
                     }
-                }
+                },
+                dir: isRtl ? 'rtl' : 'ltr'
             };
             
             // Add AJAX configuration if search URL is provided
@@ -371,14 +383,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
             
             $(select).select2({
-                placeholder: 'Select an option...',
+                placeholder: select2I18n.placeholder,
+                dir: isRtl ? 'rtl' : 'ltr',
                 allowClear: true,
                 width: '100%',
                 theme: 'default',
                 minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
                 language: {
                     noResults: function() {
-                        return "No results found";
+                        return select2I18n.noResults;
                     }
                 }
             });
@@ -428,6 +441,23 @@ const select2CustomCSS = `
 .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 40px;
     right: 8px;
+}
+
+html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-left: 20px;
+    padding-right: 12px;
+    text-align: right;
+}
+
+html[dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__arrow {
+    left: 8px;
+    right: auto;
+}
+
+html[dir="rtl"] .select2-container--default .select2-search--dropdown .select2-search__field,
+html[dir="rtl"] .select2-container--default .select2-results__option,
+html[dir="rtl"] .select2-container--default .select2-results__message {
+    text-align: right;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {

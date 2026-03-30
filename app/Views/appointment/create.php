@@ -85,9 +85,6 @@
                                             </option>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -113,9 +110,6 @@
                                         <option value="cleaning" <?= ($selectedType == 'cleaning') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCleaning')) ?></option>
                                         <option value="checkup" <?= ($selectedType == 'checkup') ? 'selected' : '' ?>><?= esc(lang('UI.appointmentTypeCheckup')) ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_type')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -141,9 +135,7 @@
                                             <option value="<?= esc($chairOption) ?>" <?= ($selectedChair === $chairOption) ? 'selected' : '' ?>><?= esc($chairOption) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
+
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('chair_name')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -163,7 +155,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -184,9 +176,6 @@
                                     <select name="appointment_time" id="appointmentTime" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
                                         <option value=""><?= esc(lang('UI.appointmentSelectTime')) ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('appointment_time')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -216,9 +205,6 @@
                                             <option value="<?= $durationOption ?>" <?= $selectedDuration === $durationOption ? 'selected' : '' ?>><?= $durationOption ?> <?= esc(lang('UI.patientMinutes')) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('duration')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
