@@ -3,8 +3,8 @@
 <?= $this->section('content') ?>
 <?php $formatMoney = static fn($amount) => formatCurrency((float) $amount); ?>
 <div class="space-y-6">
-    <section class="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="border-b border-gray-100 px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section class="rounded-xl border border-emerald-200 bg-emerald-50/30 shadow-sm overflow-hidden">
+        <div class="border-b border-emerald-100 bg-white/80 px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="flex items-start gap-3">
                 <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                     <i class="fas fa-right-left text-sm"></i>
@@ -19,7 +19,7 @@
                 <?= lang('Finance.backToReports') ?>
             </a>
         </div>
-        <div class="grid grid-cols-1 gap-4 border-b border-gray-100 px-6 py-4 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 border-b border-emerald-100 px-6 py-4 md:grid-cols-3">
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.recentTransfers') ?></p>
                 <p class="mt-2 text-2xl font-black text-emerald-950"><?= number_format(count($transfers ?? [])) ?></p>
@@ -37,8 +37,8 @@
                 <p class="text-sm font-semibold text-amber-950"><?= esc(lang('Finance.checkDepositToBank')) ?></p>
             </div>
         </div>
-        <div class="border-b border-gray-100 px-6 py-4">
-            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <div class="border-b border-emerald-100 px-6 py-4">
+            <div class="rounded-xl border border-emerald-200 bg-white/90 p-4">
                 <div class="mb-3 flex items-center gap-2">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                         <i class="fas fa-circle-info text-sm"></i>
@@ -46,26 +46,26 @@
                     <h2 class="text-sm font-semibold text-gray-900"><?= lang('Finance.treasuryOperatorGuide') ?></h2>
                 </div>
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                    <div class="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.cashDepositToBank') ?></p>
                         <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.cashDepositToBankHelp') ?></p>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                    <div class="rounded-lg border border-blue-200 bg-blue-50/40 p-3">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.bankWithdrawalToSafe') ?></p>
                         <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.bankWithdrawalToSafeHelp') ?></p>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                    <div class="rounded-lg border border-amber-200 bg-amber-50/40 p-3">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.checkDepositToBank') ?></p>
                         <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.checkDepositToBankHelp') ?></p>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-white p-3">
+                    <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-600"><?= lang('Finance.internalTransfer') ?></p>
                         <p class="mt-2 text-sm text-gray-600"><?= lang('Finance.internalTransferHelp') ?></p>
                     </div>
                 </div>
             </div>
         </div>
-        <form method="POST" action="<?= base_url('finance/transfers/store') ?>" class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-5">
+        <form method="POST" action="<?= base_url('finance/transfers/store') ?>" class="grid grid-cols-1 gap-4 bg-white/80 px-6 py-5 md:grid-cols-2 xl:grid-cols-5">
             <?= csrf_field() ?>
             <div class="space-y-1">
                 <label class="block text-xs font-medium text-gray-600"><?= lang('Finance.fromAccount') ?></label>
@@ -114,19 +114,19 @@
         </form>
     </section>
 
-    <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div class="border-b border-gray-100 px-6 py-4">
+    <section class="rounded-xl border border-slate-200 bg-slate-50/40 shadow-sm overflow-hidden">
+        <div class="border-b border-slate-100 px-6 py-4">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 class="text-base font-semibold text-gray-900"><?= lang('Finance.recentTransfers') ?></h2>
                     <p class="mt-1 text-sm text-gray-500"><?= lang('Finance.treasuryMovementHelp') ?></p>
                 </div>
-                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><?= number_format(count($transfers ?? [])) ?> <?= lang('Finance.eventsLabel') ?></span>
+                <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"><?= number_format(count($transfers ?? [])) ?> <?= lang('Finance.eventsLabel') ?></span>
             </div>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
+                    <thead class="bg-slate-100/80">
                     <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                         <th class="px-6 py-4"><?= lang('Finance.date') ?></th>
                         <th class="px-6 py-4"><?= lang('Finance.transferType') ?></th>
@@ -136,7 +136,7 @@
                         <th class="px-6 py-4"><?= lang('Finance.notes') ?></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
+                <tbody class="divide-y divide-slate-100 bg-white/95">
                     <?php if (!empty($transfers)): ?>
                         <?php foreach ($transfers as $transfer): ?>
                             <tr class="transition-colors duration-150 hover:bg-slate-50">

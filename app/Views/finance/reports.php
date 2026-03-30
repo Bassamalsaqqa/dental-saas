@@ -103,8 +103,8 @@ $bucketLabels = [
             </div>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-5">
+        <section class="overflow-hidden rounded-xl border border-indigo-200 bg-indigo-50/40 shadow-sm">
+            <div class="border-b border-indigo-100 px-6 py-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.apAgingDetail') ?></h2>
@@ -115,7 +115,7 @@ $bucketLabels = [
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-indigo-50">
                         <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                             <th class="px-6 py-4"><?= lang('Finance.expense') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.vendor') ?></th>
@@ -125,7 +125,7 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.balanceDueLabel') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody class="divide-y divide-indigo-100 bg-white/90">
                         <?php if (!empty($ap_aging_detail)): ?>
                             <?php foreach ($ap_aging_detail as $row): ?>
                                 <tr class="cursor-pointer transition-colors duration-150 hover:bg-indigo-50/70" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
@@ -179,23 +179,31 @@ $bucketLabels = [
                 </div>
             </div>
             <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <?php
+                $movementAccentMap = [
+                    'safe_cash' => ['card' => 'border-emerald-200 bg-emerald-50', 'in' => 'border-emerald-200 bg-white', 'out' => 'border-rose-200 bg-white', 'net' => 'border-emerald-100 bg-emerald-100/60'],
+                    'bank' => ['card' => 'border-blue-200 bg-blue-50', 'in' => 'border-blue-200 bg-white', 'out' => 'border-rose-200 bg-white', 'net' => 'border-blue-100 bg-blue-100/60'],
+                    'undeposited_checks' => ['card' => 'border-amber-200 bg-amber-50', 'in' => 'border-amber-200 bg-white', 'out' => 'border-rose-200 bg-white', 'net' => 'border-amber-100 bg-amber-100/60'],
+                ];
+                ?>
                 <?php foreach (['safe_cash', 'bank', 'undeposited_checks'] as $accountKey): ?>
                     <?php $bucket = $treasuryMovement[$accountKey] ?? ['in' => 0, 'out' => 0, 'net' => 0]; ?>
-                    <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                    <?php $movementAccent = $movementAccentMap[$accountKey] ?? $movementAccentMap['safe_cash']; ?>
+                    <div class="rounded-xl border p-5 shadow-sm <?= esc($movementAccent['card']) ?>">
                         <div class="flex items-center justify-between">
                             <h3 class="text-sm font-bold text-gray-900"><?= esc($liquidityLabels[$accountKey] ?? lang('Finance.liquidityAccount.' . $accountKey)) ?></h3>
                             <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-500"><?= lang('Finance.periodMovement') ?></span>
                         </div>
                         <div class="mt-4 grid grid-cols-3 gap-3">
-                            <div class="rounded-lg border border-emerald-200 bg-white p-3">
+                            <div class="rounded-lg border p-3 <?= esc($movementAccent['in']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700"><?= lang('Finance.inflow') ?></p>
                                 <p class="mt-2 text-lg font-black text-emerald-950"><?= $formatMoney($bucket['in'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-lg border border-rose-200 bg-white p-3">
+                            <div class="rounded-lg border p-3 <?= esc($movementAccent['out']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-rose-700"><?= lang('Finance.outflow') ?></p>
                                 <p class="mt-2 text-lg font-black text-rose-950"><?= $formatMoney($bucket['out'] ?? 0) ?></p>
                             </div>
-                            <div class="rounded-lg border border-slate-200 bg-white p-3">
+                            <div class="rounded-lg border p-3 <?= esc($movementAccent['net']) ?>">
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-700"><?= lang('Finance.net') ?></p>
                                 <p class="mt-2 text-lg font-black <?= ((float) ($bucket['net'] ?? 0)) >= 0 ? 'text-slate-950' : 'text-rose-700' ?>"><?= $formatMoney($bucket['net'] ?? 0) ?></p>
                             </div>
@@ -229,10 +237,8 @@ $bucketLabels = [
             </div>
         </section>
 
-        <section class="group relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-            <div class="relative backdrop-blur-xl bg-white/80 border border-white/30 rounded-2xl shadow-2xl shadow-amber-500/10 group-hover:shadow-amber-500/20 transition-all duration-500">
-            <div class="border-b border-white/20 px-6 py-5">
+        <section class="overflow-hidden rounded-xl border border-amber-200 bg-amber-50/40 shadow-sm">
+            <div class="border-b border-amber-100 px-6 py-5">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.arAgingDetail') ?></h2>
@@ -243,7 +249,7 @@ $bucketLabels = [
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-amber-50">
                         <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                             <th class="px-6 py-4"><?= lang('Finance.invoice') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.patient') ?></th>
@@ -253,7 +259,7 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.balanceDueLabel') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody class="divide-y divide-amber-100 bg-white/90">
                         <?php if (!empty($ar_aging_detail)): ?>
                             <?php foreach ($ar_aging_detail as $row): ?>
                                 <tr class="cursor-pointer transition-colors duration-150 hover:bg-amber-50/70" data-href="<?= esc(base_url('finance/' . (int) ($row['id'] ?? 0)), 'attr') ?>">
@@ -273,12 +279,10 @@ $bucketLabels = [
                         <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
-            </div>
         </section>
 
-        <section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-5">
+        <section class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/40 shadow-sm">
+            <div class="border-b border-slate-100 px-6 py-5">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-900"><?= lang('Finance.unifiedFinancialLedger') ?></h2>
@@ -293,7 +297,7 @@ $bucketLabels = [
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-slate-100/80">
                         <tr class="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                             <th class="px-6 py-4"><?= lang('Finance.reportDate') ?></th>
                             <th class="px-6 py-4"><?= lang('Finance.source') ?></th>
@@ -308,7 +312,7 @@ $bucketLabels = [
                             <th class="px-6 py-4 text-right"><?= lang('Finance.amountBase') ?></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody class="divide-y divide-slate-100 bg-white/95">
                         <?php if (!empty($ledger_rows)): ?>
                             <?php foreach ($ledger_rows as $row): ?>
                                 <?php
