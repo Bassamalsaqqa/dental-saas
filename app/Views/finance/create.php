@@ -9,12 +9,51 @@
 .toggle-dot {
     transition: transform 0.2s ease;
 }
+
+.finance-leading-adornment {
+    position: absolute;
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+[dir="ltr"] .finance-leading-adornment {
+    left: 0;
+    right: auto;
+    padding-left: 0.75rem;
+    padding-right: 0;
+}
+
+[dir="rtl"] .finance-leading-adornment {
+    right: 0;
+    left: auto;
+    padding-right: 0.75rem;
+    padding-left: 0;
+}
+
+[dir="ltr"] .finance-leading-adornment-wide {
+    padding-left: 1rem;
+}
+
+[dir="rtl"] .finance-leading-adornment-wide {
+    padding-right: 1rem;
+}
+
+[dir="ltr"] .finance-leading-input {
+    padding-left: 2.5rem !important;
+    padding-right: 1rem !important;
+}
+
+[dir="rtl"] .finance-leading-input {
+    padding-right: 2.5rem !important;
+    padding-left: 1rem !important;
+}
 </style>
 <?php
-    $isRtl = !empty($is_rtl);
-    $leadingFieldPadding = $isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4';
-    $leadingAdornment = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
-    $leadingAdornmentWide = 'absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none';
+    $leadingFieldPadding = 'finance-leading-input';
+    $leadingAdornment = 'finance-leading-adornment';
+    $leadingAdornmentWide = 'finance-leading-adornment finance-leading-adornment-wide';
 ?>
 <!-- Enhanced Finance Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
