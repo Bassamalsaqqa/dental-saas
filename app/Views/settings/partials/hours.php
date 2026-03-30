@@ -16,6 +16,15 @@
                                         $appointmentDurationOptions[] = $selectedAppointmentDuration;
                                         sort($appointmentDurationOptions, SORT_NUMERIC);
                                     }
+                                    $maxChairCount = max(1, (int) ($max_booking_chair_count ?? 3));
+                                    $selectedChairCount = min($maxChairCount, max(1, (int) old('booking_chair_count', $settings['booking_chair_count'] ?? 1)));
+                                    $chairNames = old('booking_chair_names');
+                                    if (!is_array($chairNames)) {
+                                        $chairNames = $settings['booking_chair_names'] ?? [];
+                                    }
+                                    if (!is_array($chairNames)) {
+                                        $chairNames = [];
+                                    }
                                     $workingDays = old('working_days') ?? ($settings['working_days'] ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
                                     $dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
                                     $dayLabels = [
@@ -57,10 +66,51 @@
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursAppointmentDurationHelp') ?></p>
                                     </div>
-                                    <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label><input type="number" name="booking_chair_count" value="<?= old('booking_chair_count', $settings['booking_chair_count'] ?? 1) ?>" min="1" max="3" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p></div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursBookingChairCount') ?></label>
+                                        <input type="number" id="bookingChairCount" name="booking_chair_count" value="<?= $selectedChairCount ?>" min="1" max="<?= esc($maxChairCount) ?>" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" required>
+                                        <p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsHoursBookingChairCountHelp') ?></p>
+                                    </div>
+                                    <div class="md:col-span-2 rounded-2xl border border-orange-100 bg-orange-50/60 p-5">
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-1"><?= lang('UI.settingsHoursChairNames') ?></label>
+                                            <p class="text-xs text-gray-500"><?= lang('UI.settingsHoursChairNamesHelp') ?></p>
+                                        </div>
+                                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2" data-chair-names-section="1">
+                                            <?php for ($i = 0; $i < $maxChairCount; $i++): ?>
+                                                <?php
+                                                    $chairIndex = $i + 1;
+                                                    $chairValue = trim((string) ($chairNames[$i] ?? ('Chair ' . $chairIndex)));
+                                                ?>
+                                                <div data-chair-name-row="<?= $chairIndex ?>" class="<?= $chairIndex > $selectedChairCount ? 'hidden' : '' ?>">
+                                                    <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursChairNameLabel', ['number' => $chairIndex]) ?></label>
+                                                    <input type="text" name="booking_chair_names[]" value="<?= esc($chairValue) ?>" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 transition-all" placeholder="<?= esc(lang('UI.settingsHoursChairNamePlaceholder')) ?>" maxlength="100">
+                                                </div>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
                         </div>
                     </div>
                 </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const chairCountInput = document.getElementById('bookingChairCount');
+                    const chairRows = Array.from(document.querySelectorAll('[data-chair-name-row]'));
+                    if (!chairCountInput || chairRows.length === 0) return;
+
+                    const syncChairRows = () => {
+                        const count = Math.max(1, parseInt(chairCountInput.value || '1', 10) || 1);
+                        chairRows.forEach((row) => {
+                            const rowIndex = parseInt(row.getAttribute('data-chair-name-row') || '0', 10);
+                            row.classList.toggle('hidden', rowIndex > count);
+                        });
+                    };
+
+                    chairCountInput.addEventListener('input', syncChairRows);
+                    chairCountInput.addEventListener('change', syncChairRows);
+                    syncChairRows();
+                });
+                </script>
