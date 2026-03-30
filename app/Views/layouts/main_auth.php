@@ -258,6 +258,28 @@
             padding-right: 1rem !important;
         }
 
+        form input[data-clinic-date="1"][type="date"]::-webkit-calendar-picker-indicator,
+        form input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            display: none !important;
+            -webkit-appearance: none !important;
+        }
+
+        form input[data-clinic-date="1"][type="date"]::-webkit-inner-spin-button,
+        form input[data-clinic-date="1"][type="date"]::-webkit-clear-button,
+        form input[type="date"]::-webkit-inner-spin-button,
+        form input[type="date"]::-webkit-clear-button {
+            display: none !important;
+            -webkit-appearance: none !important;
+        }
+
+        form input[data-clinic-date="1"][type="date"],
+        form input[type="date"] {
+            appearance: textfield;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
         @media (max-width: 1023px) {
             #main-content .group > .absolute[class*="blur"] {
                 display: none !important;
@@ -1826,16 +1848,9 @@
             if (current && /^\d{4}-\d{2}-\d{2}$/.test(current)) {
                 field.value = formatClinicDateFromIso(current);
             }
-            const fieldWrapper = field.parentElement;
-            const overlayIcons = fieldWrapper
-                ? fieldWrapper.querySelectorAll(':scope > .absolute.inset-y-0.pointer-events-none, :scope > .absolute.inset-y-0.flex.items-center.pointer-events-none')
-                : [];
 
             const syncDateFieldChrome = () => {
                 const nativePickerActive = field.type === 'date';
-                overlayIcons.forEach((iconWrap) => {
-                    iconWrap.style.visibility = nativePickerActive ? 'hidden' : 'visible';
-                });
                 if (nativePickerActive) {
                     if (isRtl) {
                         field.style.paddingLeft = '2.75rem';
