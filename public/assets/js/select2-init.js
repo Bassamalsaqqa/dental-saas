@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
     const pathName = window.location.pathname || '';
     const isCreateEditPage = /\/(create|edit)(\/|$)/.test(pathName);
+    const isSettingsPage = /\/settings(\/|$|\?)/.test(pathName);
     const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
     const select2I18n = {
         placeholder: isRtl ? '\u0627\u062e\u062a\u0631 \u062e\u064a\u0627\u0631\u064b\u0627...' : 'Select an option...',
@@ -383,7 +384,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 select.id === 'pageSize' ||
                 select.id === 'pageLength' ||
                 select.classList.contains('report-detail-per-page');
-            const shouldUseSelect2 = !isCompactUtilitySelect && (forceSelect2 || isCreateEditPage || isInsideForm || select.classList.contains('form-select'));
+            const shouldUseSelect2 = !isCompactUtilitySelect && (forceSelect2 || isCreateEditPage || isSettingsPage || isInsideForm || select.classList.contains('form-select'));
 
             // Skip simple selects outside create/edit pages unless explicitly forced
             if (!shouldUseSelect2 && optionCount <= 5) {

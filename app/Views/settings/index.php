@@ -76,6 +76,9 @@
         height: 52px !important;
         right: 16px !important;
     }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6b7280 !important;
+    }
     .select2-container--default.select2-container--focus .select2-selection--single {
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
@@ -134,6 +137,26 @@
         margin-right: 0 !important;
         margin-left: 0.75rem !important;
     }
+    [dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__arrow {
+        left: 16px !important;
+        right: auto !important;
+    }
+    [dir="rtl"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 2rem !important;
+        padding-right: 0 !important;
+        text-align: right !important;
+    }
+    [dir="rtl"] #settings-tabs input[data-clinic-date],
+    [dir="rtl"] #settings-tabs input[type="date"] {
+        padding-left: 2.5rem !important;
+        padding-right: 1rem !important;
+    }
+    [dir="rtl"] #settings-tabs input[type="tel"],
+    [dir="rtl"] #settings-tabs input[type="email"],
+    [dir="rtl"] #settings-tabs input[type="url"] {
+        direction: ltr;
+        text-align: left;
+    }
 </style>
 
 <div class="settings-shell min-h-screen">
@@ -167,7 +190,7 @@
                         <i class="fas fa-circle-exclamation"></i>
                     </div>
                     <div class="space-y-2">
-                        <p class="text-sm font-bold">Please review the highlighted settings and try again.</p>
+                        <p class="text-sm font-bold"><?= service('request')->getLocale() === 'ar' ? 'يرجى مراجعة الإعدادات المظللة ثم المحاولة مرة أخرى.' : 'Please review the highlighted settings and try again.' ?></p>
                         <?php if (session('error')): ?>
                             <p class="text-sm"><?= esc(session('error')) ?></p>
                         <?php endif; ?>

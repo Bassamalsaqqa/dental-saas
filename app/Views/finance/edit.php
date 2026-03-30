@@ -264,7 +264,7 @@
                                     <span><?= lang('Finance.transactionDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="transaction_date" data-clinic-date="1" value="<?= old('transaction_date', $finance['transaction_date'] ?? $finance['paid_date'] ?? date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
+                                    <input type="text" name="transaction_date" data-clinic-date="1" value="<?= old('transaction_date', $finance['transaction_date'] ?? $finance['paid_date'] ?? date('Y-m-d')) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -277,7 +277,7 @@
                                     <span><?= lang('Finance.paidDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', $finance['paid_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
+                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', $finance['paid_date']) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -289,7 +289,7 @@
                                     <span><?= lang('Finance.dueDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date', $finance['due_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
+                                    <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date', $finance['due_date']) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -450,7 +450,7 @@
                     <div id="providerGuestWrap" class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
                         <div class="relative">
-                            <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc($providerGuest) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                            <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc($providerGuest) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
                             <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                 <i class="fas fa-user text-gray-400"></i>
                             </div>
@@ -474,7 +474,7 @@
                     <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
                         <div class="relative">
-                            <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc($splitValue) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc($splitValue) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
                             <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                 <i class="fas fa-percent text-gray-400"></i>
                             </div>
@@ -534,7 +534,7 @@
                         <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
                             <div class="relative">
-                                <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full <?= !empty($is_rtl) ? 'pl-10 pr-4' : 'pr-10 pl-4' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-calendar text-gray-400"></i>
                                 </div>
