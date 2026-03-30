@@ -185,7 +185,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <span><?= esc(lang('UI.patientGender')) ?> *</span>
                                              </label>
                                              <div class="relative">
-                                                 <select id="gender" name="gender" 
+                                                 <select id="gender" name="gender" data-force-select2 
                                                          class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('gender') ? 'border-red-500 ring-red-500/20' : '' ?>" required>
                                                      <option value=""><?= esc(lang('UI.patientSelectGender')) ?></option>
                                                      <option value="male" <?= old('gender', $patient['gender']) == 'male' ? 'selected' : '' ?>><?= esc(lang('UI.patientMale')) ?></option>

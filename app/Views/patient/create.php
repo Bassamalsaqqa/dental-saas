@@ -141,7 +141,7 @@ $alertBoolChecked = static function (string $key): bool {
 
                                 <div>
                                     <label for="gender" class="block text-sm font-bold text-gray-700 mb-2"><?= esc(lang('UI.patientGender')) ?> *</label>
-                                    <select id="gender" name="gender" required class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('gender')) ? 'border-red-500' : 'border-gray-300' ?>">
+                                    <select id="gender" name="gender" data-force-select2 required class="w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 <?= ($validation && $validation->hasError('gender')) ? 'border-red-500' : 'border-gray-300' ?>">
                                         <option value=""><?= esc(lang('UI.patientSelect')) ?></option>
                                         <option value="male" <?= old('gender') === 'male' ? 'selected' : '' ?>><?= esc(lang('UI.patientMale')) ?></option>
                                         <option value="female" <?= old('gender') === 'female' ? 'selected' : '' ?>><?= esc(lang('UI.patientFemale')) ?></option>

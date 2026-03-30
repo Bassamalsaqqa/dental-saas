@@ -55,7 +55,7 @@
                                     <i class="fas fa-tags text-purple-600 mr-2"></i><?= lang('Finance.expenseCategoryRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="expense_category" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20" required>
+                                    <select name="expense_category" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20" required>
                                         <option value=""><?= lang('Finance.selectCategory') ?></option>
                                         <?php foreach (($expense_category_options ?? []) as $key => $label): ?>
                                             <option value="<?= esc($key) ?>" <?= old('expense_category') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
@@ -81,7 +81,7 @@
                                     <i class="fas fa-coins text-indigo-600 mr-2"></i><?= lang('Finance.currencyRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select id="currencySelect" name="currency" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>
+                                    <select id="currencySelect" name="currency" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>
                                         <?php foreach (($currency_options ?? ['ILS']) as $option): ?>
                                             <option value="<?= esc($option) ?>" <?= old('currency', $base_currency ?? 'ILS') === $option ? 'selected' : '' ?>><?= esc($option) ?></option>
                                         <?php endforeach; ?>
@@ -139,7 +139,7 @@
                                     <i class="fas fa-credit-card text-indigo-600 mr-2"></i><?= lang('Finance.paymentMethodRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select id="paymentMethod" name="payment_method" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>
+                                    <select id="paymentMethod" name="payment_method" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20" required>
                                         <option value="cash" <?= old('payment_method', 'cash') === 'cash' ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
                                         <option value="card" <?= old('payment_method') === 'card' ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
                                         <option value="bank_transfer" <?= old('payment_method') === 'bank_transfer' ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
@@ -158,7 +158,7 @@
                                     <i class="fas fa-vault text-indigo-600 mr-2"></i><?= lang('Finance.paidFromAccount') ?>
                                 </label>
                                 <div class="relative">
-                                    <select id="expenseLiquidityAccount" name="liquidity_account" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
+                                    <select id="expenseLiquidityAccount" name="liquidity_account" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
                                         <option value="bank" <?= old('liquidity_account', 'bank') === 'bank' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
                                         <option value="undeposited_checks" <?= old('liquidity_account') === 'undeposited_checks' ? 'selected' : '' ?>><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
                                     </select>
@@ -188,7 +188,7 @@
                                     <i class="fas fa-hourglass-half text-amber-600 mr-2"></i><?= lang('Finance.paymentStatusRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="payment_status" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/20" required>
+                                    <select name="payment_status" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/20" required>
                                         <option value="paid" <?= old('payment_status', 'paid') === 'paid' ? 'selected' : '' ?>><?= lang('Finance.paid') ?></option>
                                         <option value="partial" <?= old('payment_status') === 'partial' ? 'selected' : '' ?>><?= lang('Finance.partial') ?></option>
                                         <option value="pending" <?= old('payment_status') === 'pending' ? 'selected' : '' ?>><?= lang('Finance.unpaid') ?></option>

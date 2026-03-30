@@ -350,7 +350,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             const forceSelect2 = select.hasAttribute('data-force-select2');
             const optionCount = select.options.length;
-            const shouldUseSelect2 = forceSelect2 || isCreateEditPage;
+            const isInsideForm = !!select.closest('form');
+            const isCompactUtilitySelect =
+                !!select.closest('.dataTables_wrapper') ||
+                select.id === 'pageSize' ||
+                select.id === 'pageLength' ||
+                select.classList.contains('report-detail-per-page');
+            const shouldUseSelect2 = !isCompactUtilitySelect && (forceSelect2 || isCreateEditPage || isInsideForm || select.classList.contains('form-select'));
 
             // Skip simple selects outside create/edit pages unless explicitly forced
             if (!shouldUseSelect2 && optionCount <= 5) {

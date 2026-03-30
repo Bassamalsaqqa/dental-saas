@@ -67,7 +67,7 @@
                                     <span><?= lang('Inventory.categoryRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="category" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <select name="category" data-force-select2 class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" required>
                                         <option value=""><?= lang('Inventory.selectCategory') ?></option>
                                         <option value="medication" <?= (old('category') == 'medication') ? 'selected' : '' ?>><?= lang('Inventory.categoryMedication') ?></option>
                                         <option value="equipment" <?= (old('category') == 'equipment') ? 'selected' : '' ?>><?= lang('Inventory.categoryEquipment') ?></option>
@@ -135,7 +135,7 @@
                                     <span><?= lang('Inventory.unit') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <select name="unit" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl">
+                                    <select name="unit" data-force-select2 class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl">
                                         <option value="pieces" <?= (old('unit') == 'pieces') ? 'selected' : '' ?>><?= lang('Inventory.unitPieces') ?></option>
                                         <option value="boxes" <?= (old('unit') == 'boxes') ? 'selected' : '' ?>><?= lang('Inventory.unitBoxes') ?></option>
                                         <option value="bottles" <?= (old('unit') == 'bottles') ? 'selected' : '' ?>><?= lang('Inventory.unitBottles') ?></option>
@@ -206,7 +206,7 @@
                                             <button type="button" id="toggleQuickSupplierCreate" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"><?= lang('Inventory.quickAdd') ?></button>
                                         </div>
                                     </div>
-                                    <select id="supplier_id" name="supplier_id" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
+                                    <select id="supplier_id" name="supplier_id" data-force-select2 class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
                                         <option value=""><?= lang('Inventory.noLinkedSupplier') ?></option>
                                         <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                             <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id') === (string) $supplier['id'] ? 'selected' : '' ?>>
@@ -254,7 +254,7 @@
                                     <input type="number" min="1" step="1" name="preferred_order_qty" value="<?= old('preferred_order_qty') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.preferredReorderQty') ?>">
                                     <div class="grid grid-cols-3 gap-2">
                                         <input type="number" min="0" step="0.01" name="supplier_last_unit_price" value="<?= old('supplier_last_unit_price') ?>" class="col-span-2 w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.lastSupplierPrice') ?>">
-                                        <select name="supplier_price_currency" class="w-full px-3 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
+                                        <select name="supplier_price_currency" data-force-select2 class="w-full px-3 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
                                             <?php foreach (($currencies ?? ['ILS']) as $currency): ?>
                                                 <option value="<?= esc($currency) ?>" <?= old('supplier_price_currency', 'ILS') === $currency ? 'selected' : '' ?>><?= esc($currency) ?></option>
                                             <?php endforeach; ?>
