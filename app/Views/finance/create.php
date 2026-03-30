@@ -403,7 +403,7 @@
                         </div>
 
                         <!-- <?= lang('Finance.providerSplit') ?> -->
-                        <div class="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 shadow-sm space-y-5">
+                        <div class="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 space-y-5">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h4 class="text-base font-bold text-indigo-900 flex items-center gap-2">
@@ -422,7 +422,6 @@
                             </div>
 
                             <div id="providerSplitFields" class="<?= old('provider_split_enabled') ? 'space-y-5' : 'hidden space-y-5' ?>">
-                                <div class="rounded-xl border border-indigo-100 bg-white/90 p-4 shadow-sm">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="group/field relative">
                                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
@@ -477,24 +476,23 @@
                                         </div>
                                     </div>
                                 </div>
-                                </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="rounded-xl bg-white border border-indigo-100 p-4 shadow-sm">
+                                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.grossCollected') ?></p>
-                                        <p class="mt-1 text-lg font-bold text-gray-900" id="splitGrossPreview">0.00</p>
+                                        <p class="mt-1 text-lg font-bold text-emerald-700" id="splitGrossPreview">0.00</p>
                                     </div>
-                                    <div class="rounded-xl bg-white border border-indigo-100 p-4 shadow-sm">
+                                    <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.providerShare') ?></p>
                                         <p class="mt-1 text-lg font-bold text-indigo-700" id="splitProviderPreview">0.00</p>
                                     </div>
-                                    <div class="rounded-xl bg-white border border-indigo-100 p-4 shadow-sm">
+                                    <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500"><?= lang('Finance.clinicNet') ?></p>
-                                        <p class="mt-1 text-lg font-bold text-emerald-700" id="splitClinicPreview">0.00</p>
+                                        <p class="mt-1 text-lg font-bold text-sky-700" id="splitClinicPreview">0.00</p>
                                     </div>
                                 </div>
 
-                                <div class="rounded-xl border border-indigo-200 bg-white/95 p-4 shadow-sm space-y-4">
+                                <div class="rounded-xl border border-indigo-200 bg-white p-4 space-y-4">
                                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-800">
                                         <input type="checkbox" id="providerMarkPaidNow" name="provider_mark_paid_now" value="1" class="h-4 w-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500" <?= old('provider_mark_paid_now') ? 'checked' : '' ?>>
                                         <?= lang('Finance.markProviderPaidNow') ?>
