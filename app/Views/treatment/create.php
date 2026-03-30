@@ -239,7 +239,7 @@
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
-                                           class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
+                                           class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('cost') ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>">
                                 </div>
                                 <p class="text-xs text-gray-500 mt-2"><?= service('request')->getLocale() === 'ar' ? 'اختياري. اتركه فارغًا إذا لم يتم تسعير هذا العلاج بعد.' : 'Optional. Leave blank if this treatment is not billed yet.' ?></p>

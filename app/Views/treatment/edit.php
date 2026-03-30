@@ -185,7 +185,7 @@
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
-                                           class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
+                                           class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-4' : 'pl-10 pr-4' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('cost', $treatment['cost']) ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-dollar-sign text-gray-400"></i>

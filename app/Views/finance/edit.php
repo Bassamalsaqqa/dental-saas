@@ -353,7 +353,7 @@
                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                     </div>
-                    <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', $finance['discount_amount'] ?? 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                    <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', $finance['discount_amount'] ?? 0) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                         <i class="fas fa-percentage text-gray-400"></i>
                     </div>
@@ -369,7 +369,7 @@
                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                         <span class="text-gray-500 font-bold">%</span>
                     </div>
-                    <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', $taxPercent) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
+                    <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', $taxPercent) ?>" step="0.01" min="0" max="100" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                         <i class="fas fa-percent text-gray-400"></i>
                     </div>
@@ -413,47 +413,72 @@
                     <div id="providerSplitTrack" class="toggle-track w-11 h-6 bg-gray-200 rounded-full relative">
                         <div id="providerSplitDot" class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full"></div>
                     </div>
-                    <span class="ml-3 text-sm font-semibold text-indigo-900"><?= lang('Finance.enable') ?></span>
+                    <span class="<?= !empty($is_rtl) ? 'mr-3' : 'ml-3' ?> text-sm font-semibold text-indigo-900"><?= lang('Finance.enable') ?></span>
                 </label>
             </div>
 
             <div id="providerSplitFields" class="<?= $splitEnabled ? 'space-y-5' : 'hidden space-y-5' ?>">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                    <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerType') ?></label>
-                        <select id="providerType" name="provider_type" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            <option value="user" <?= $providerType === 'user' ? 'selected' : '' ?>><?= lang('Finance.clinicUser') ?></option>
-                            <option value="guest" <?= $providerType === 'guest' ? 'selected' : '' ?>><?= lang('Finance.guestProvider') ?></option>
-                        </select>
+                        <div class="relative">
+                            <select id="providerType" name="provider_type" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                <option value="user" <?= $providerType === 'user' ? 'selected' : '' ?>><?= lang('Finance.clinicUser') ?></option>
+                                <option value="guest" <?= $providerType === 'guest' ? 'selected' : '' ?>><?= lang('Finance.guestProvider') ?></option>
+                            </select>
+                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div id="providerUserWrap">
+                    <div id="providerUserWrap" class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.providerUser') ?></label>
-                        <select id="providerUserId" name="provider_user_id" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            <option value=""><?= lang('Finance.selectUser') ?></option>
-                            <?php foreach (($clinic_providers ?? []) as $provider): ?>
-                                <option value="<?= (int) $provider['id'] ?>" <?= (string) $providerUserId === (string) $provider['id'] ? 'selected' : '' ?>>
-                                    <?= esc(trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? ''))) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="relative">
+                            <select id="providerUserId" name="provider_user_id" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                <option value=""><?= lang('Finance.selectUser') ?></option>
+                                <?php foreach (($clinic_providers ?? []) as $provider): ?>
+                                    <option value="<?= (int) $provider['id'] ?>" <?= (string) $providerUserId === (string) $provider['id'] ? 'selected' : '' ?>>
+                                        <?= esc(trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? ''))) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div id="providerGuestWrap">
-                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProvider') ?> Name</label>
-                        <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc($providerGuest) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                    <div id="providerGuestWrap" class="group/field relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.guestProviderName') ?></label>
+                        <div class="relative">
+                            <input type="text" id="providerGuestName" name="provider_name_snapshot" value="<?= esc($providerGuest) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="<?= esc(lang('Finance.guestProviderPlaceholder')) ?>">
+                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                    <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitMode') ?></label>
-                        <select id="providerSplitMode" name="provider_split_mode" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
-                            <option value="percent" <?= $splitMode === 'percent' ? 'selected' : '' ?>><?= lang('Finance.percentage') ?></option>
-                            <option value="fixed" <?= $splitMode === 'fixed' ? 'selected' : '' ?>><?= lang('Finance.fixedAmount') ?></option>
-                        </select>
+                        <div class="relative">
+                            <select id="providerSplitMode" name="provider_split_mode" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                <option value="percent" <?= $splitMode === 'percent' ? 'selected' : '' ?>><?= lang('Finance.percentage') ?></option>
+                                <option value="fixed" <?= $splitMode === 'fixed' ? 'selected' : '' ?>><?= lang('Finance.fixedAmount') ?></option>
+                            </select>
+                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div>
+                    <div class="group/field relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2"><?= lang('Finance.splitValue') ?></label>
-                        <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc($splitValue) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <div class="relative">
+                            <input type="number" id="providerSplitValue" name="provider_split_value" value="<?= esc($splitValue) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                <i class="fas fa-percent text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -479,23 +504,41 @@
                     </label>
 
                     <div id="providerPaidNowFields" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
+                        <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidAmount') ?></label>
-                            <input type="number" id="providerPaidAmount" name="provider_paid_amount" value="<?= esc($providerPaidAmount) ?>" step="0.01" min="0" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                            <div class="relative">
+                                <input type="number" id="providerPaidAmount" name="provider_paid_amount" value="<?= esc($providerPaidAmount) ?>" step="0.01" min="0" class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-10' : 'pl-10 pr-10' ?> py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
+                                    <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
+                                </div>
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <i class="fas fa-money-bill-wave text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div>
+                        <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.method') ?></label>
-                            <select id="providerPaidMethod" name="provider_paid_method" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
-                                <option value="cash" <?= old('provider_paid_method', 'cash') === 'cash' ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
-                                <option value="card" <?= old('provider_paid_method') === 'card' ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
-                                <option value="bank_transfer" <?= old('provider_paid_method') === 'bank_transfer' ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
-                                <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
-                                <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
-                            </select>
+                            <div class="relative">
+                                <select id="providerPaidMethod" name="provider_paid_method" data-force-select2 class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                    <option value="cash" <?= old('provider_paid_method', 'cash') === 'cash' ? 'selected' : '' ?>><?= lang('Finance.cash') ?></option>
+                                    <option value="card" <?= old('provider_paid_method') === 'card' ? 'selected' : '' ?>><?= lang('Finance.card') ?></option>
+                                    <option value="bank_transfer" <?= old('provider_paid_method') === 'bank_transfer' ? 'selected' : '' ?>><?= lang('Finance.bankTransfer') ?></option>
+                                    <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
+                                    <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
+                                </select>
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div>
+                        <div class="group/field relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('Finance.paidDate') ?></label>
-                            <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                            <div class="relative">
+                                <input type="text" id="providerPaidDate" name="provider_paid_date" data-clinic-date="1" value="<?= esc(old('provider_paid_date', date('Y-m-d'))) ?>" class="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -140,7 +140,7 @@
                                 </div>
                                 <input type="number" id="unit_price" name="unit_price" value="<?= old('unit_price', $item['unit_price']) ?>" 
                                        min="0" step="0.01"
-                                       class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                       class="w-full <?= !empty($is_rtl) ? 'pr-10 pl-3' : 'pl-10 pr-3' ?> py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                        required>
                             </div>
                         </div>
