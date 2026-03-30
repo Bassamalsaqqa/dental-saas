@@ -108,6 +108,8 @@ $(document).ajaxError(function(_event, jqXHR, settings) {
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Select2: Initializing...');
+    const pathName = window.location.pathname || '';
+    const isCreateEditPage = /\/(create|edit)(\/|$)/.test(pathName);
     
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = document.querySelectorAll('[data-searchable-select]');
@@ -348,16 +350,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             const forceSelect2 = select.hasAttribute('data-force-select2');
             const optionCount = select.options.length;
+            const shouldUseSelect2 = forceSelect2 || isCreateEditPage;
 
-            // Skip if it's a simple select with few options, unless explicitly forced
-            if (!forceSelect2 && optionCount <= 5) {
+            // Skip simple selects outside create/edit pages unless explicitly forced
+            if (!shouldUseSelect2 && optionCount <= 5) {
                 return;
             }
             
             console.log(`Select2: Initializing regular select ${index + 1}`, {
                 id: select.id || 'unnamed',
                 options: optionCount,
-                forced: forceSelect2
+                forced: forceSelect2,
+                createEditPage: isCreateEditPage
             });
             
             $(select).select2({
