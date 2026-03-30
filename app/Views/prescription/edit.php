@@ -66,7 +66,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -122,7 +122,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', $prescription['prescribed_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -141,7 +141,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', $prescription['expiry_date']) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -167,7 +167,7 @@
                                     <option value="cancelled" <?= (old('status', $prescription['status']) == 'cancelled') ? 'selected' : '' ?>><?= lang('Prescription.status_cancelled') ?></option>
                                     <option value="pending" <?= (old('status', $prescription['status']) == 'pending') ? 'selected' : '' ?>><?= lang('Prescription.status_pending') ?></option>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="instructions" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Prescription.instructions_placeholder')) ?>"><?= old('instructions', $prescription['instructions']) ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -330,7 +330,9 @@ function addMedicineWithData(count, name, dosage, frequency, duration) {
         input.required = true;
         
         const innerIconContainer = document.createElement('div');
-        innerIconContainer.className = 'absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none';
+        innerIconContainer.className = document.documentElement.dir === 'rtl'
+            ? 'absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'
+            : 'absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none';
         const innerIcon = document.createElement('i');
         innerIcon.className = iconClass + ' text-gray-400 text-xs';
         innerIconContainer.appendChild(innerIcon);

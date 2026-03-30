@@ -65,7 +65,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
                                             <option value="<?= esc($key) ?>" <?= old('expense_category', $finance['expense_category'] ?? '') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -90,7 +90,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
                                             <option value="<?= esc($option) ?>" <?= old('currency', $finance['currency'] ?? $baseCurrency) === $option ? 'selected' : '' ?>><?= esc($option) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
                                             <option value="<?= esc($key) ?>" <?= old('payment_method', $finance['payment_method'] ?? 'cash') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -195,7 +195,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
                                         <option value="pending" <?= $expensePaymentStatusValue === 'pending' ? 'selected' : '' ?>><?= lang('Finance.unpaid') ?></option>
                                     </select>
                                     <?php if ($expenseHasSettlementEntries): ?><input type="hidden" name="payment_status" value="<?= esc($expensePaymentStatusValue) ?>"><?php endif; ?>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -324,3 +324,4 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
 })();
 </script>
 <?= $this->endSection() ?>
+

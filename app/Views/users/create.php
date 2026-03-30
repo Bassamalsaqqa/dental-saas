@@ -62,7 +62,7 @@
                                                 <input type="text" id="first_name" name="first_name" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('first_name')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('first_name') ?>" placeholder="<?= lang('UserRole.enterFirstName') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-user text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -83,7 +83,7 @@
                                                 <input type="text" id="last_name" name="last_name" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('last_name')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('last_name') ?>" placeholder="<?= lang('UserRole.enterLastName') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-user text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -109,7 +109,7 @@
                                                        data-existing-note-target="#users-email-exists-note"
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('email')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('email') ?>" placeholder="<?= lang('UserRole.enterEmailAddress') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-envelope text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -132,7 +132,7 @@
                                                 <input type="tel" id="phone" name="phone" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('phone')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('phone') ?>" placeholder="<?= lang('UserRole.enterPhoneNumber') ?>">
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-phone text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -153,7 +153,7 @@
                                             <input type="text" id="hire_date" name="hire_date" data-clinic-date="1"
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('hire_date')) ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                        value="<?= old('hire_date', date('Y-m-d')) ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-calendar text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -192,7 +192,7 @@
                                                 <input type="password" id="password" name="password" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                        placeholder="<?= lang('UserRole.enterPassword') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -217,7 +217,7 @@
                                             <input type="password" id="password_confirm" name="password_confirm" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('password_confirm')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                    placeholder="<?= lang('UserRole.confirmPassword') ?>" required>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                 <i class="fas fa-lock text-gray-400"></i>
                                             </div>
                                         </div>
@@ -264,7 +264,7 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -294,7 +294,7 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -313,7 +313,7 @@
                                                 <option value="inactive" <?= (old('status') == 'inactive') ? 'selected' : '' ?>><?= lang('UserRole.inactive') ?></option>
                                                 <option value="suspended" <?= (old('status') == 'suspended') ? 'selected' : '' ?>><?= lang('UserRole.suspended') ?></option>
                                             </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
@@ -349,5 +349,6 @@
 </div>
 <?= view('components/email_check_script', ['emailCheckUrl' => base_url('users/check-email')]) ?>
 <?= $this->endSection() ?>
+
 
 

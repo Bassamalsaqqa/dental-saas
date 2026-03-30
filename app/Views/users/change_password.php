@@ -95,7 +95,7 @@
                                             <input type="password" id="current_password" name="current_password" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('current_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                    placeholder="<?= lang('UserRole.enterCurrentPassword') ?>" required>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                 <i class="fas fa-lock text-gray-400"></i>
                                             </div>
                                         </div>
@@ -117,7 +117,7 @@
                                                 <input type="password" id="new_password" name="new_password" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('new_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                        placeholder="<?= lang('UserRole.enterNewPassword') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -138,7 +138,7 @@
                                                 <input type="password" id="confirm_password" name="confirm_password" 
                                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl <?= (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('confirm_password')) ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                        placeholder="<?= lang('UserRole.confirmNewPassword') ?>" required>
-                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                     <i class="fas fa-lock text-gray-400"></i>
                                                 </div>
                                             </div>
@@ -258,3 +258,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+

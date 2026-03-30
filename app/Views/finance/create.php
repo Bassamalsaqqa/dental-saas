@@ -85,7 +85,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@
                                         <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
                                         <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@
                                         data-placeholder="<?= esc(lang('Finance.searchExaminationsPlaceholder')) ?>">
                                     <option value=""><?= lang('Finance.selectExaminationOptional') ?></option>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
@@ -179,7 +179,7 @@
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -224,7 +224,7 @@
                                         <option value="check" <?= (old('payment_method') == 'check') ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
                                         <option value="other" <?= (old('payment_method') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -255,7 +255,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="transaction_date" data-clinic-date="1" value="<?= old('transaction_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -268,7 +268,7 @@
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= old('paid_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -280,7 +280,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="due_date" data-clinic-date="1" value="<?= old('due_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -302,7 +302,7 @@
                                     <option value="procedure" <?= (old('service_type') == 'procedure') ? 'selected' : '' ?>><?= lang('Finance.procedure') ?></option>
                                     <option value="other" <?= (old('service_type') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                 </div>
                             </div>
@@ -322,7 +322,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="service_details" rows="3" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.serviceDetailsPlaceholder')) ?>"><?= old('service_details') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -338,11 +338,11 @@
                                     <span><?= lang('Finance.discountAmount') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" name="discount_amount" id="discountAmount" value="<?= old('discount_amount', 0) ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-percentage text-gray-400"></i>
                                     </div>
                                 </div>
@@ -354,11 +354,11 @@
                                     <span><?= lang('Finance.taxPercentage') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold">%</span>
                                     </div>
                                     <input type="number" name="tax_percentage" id="taxPercentage" value="<?= old('tax_percentage', 0) ?>" step="0.01" min="0" max="100" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-percent text-gray-400"></i>
                                     </div>
                                 </div>
@@ -489,7 +489,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.transactionDescriptionPlaceholder')) ?>"><?= old('description') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -503,7 +503,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('Finance.additionalNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -681,5 +681,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <?= $this->endSection() ?>
+
 
 

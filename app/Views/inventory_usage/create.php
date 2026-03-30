@@ -97,7 +97,7 @@
                             </label>
                             <div class="relative">
                                 <input type="number" name="quantity_used" id="quantity_used" step="0.01" min="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200" required onchange="calculateCost()">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <span id="quantity-unit" class="text-gray-500 text-sm">pieces</span>
                                 </div>
                             </div>
@@ -231,4 +231,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?= $this->endSection() ?>
+
 

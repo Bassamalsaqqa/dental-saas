@@ -135,7 +135,7 @@
                         <div>
                             <label for="unit_price" class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Inventory.unitPriceRequired') ?></label>
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-3' : 'left-0 pl-3' ?> flex items-center pointer-events-none">
                                     <span class="text-gray-500 sm:text-sm"><?= getCurrencySymbol() ?></span>
                                 </div>
                                 <input type="number" id="unit_price" name="unit_price" value="<?= old('unit_price', $item['unit_price']) ?>" 
@@ -385,3 +385,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+

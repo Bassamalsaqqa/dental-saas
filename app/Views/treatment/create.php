@@ -170,7 +170,7 @@
                                     <input type="text" id="tooth_number" name="tooth_number" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('tooth_number') ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tooth text-gray-400"></i>
                                     </div>
                                 </div>
@@ -215,7 +215,7 @@
                                 <textarea id="description" name="description" rows="4" 
                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none"
                                           placeholder="<?= lang('Treatment.treatment_description_placeholder') ?>" required><?= old('description') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@
                                     <span><?= lang('Treatment.cost') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
@@ -495,5 +495,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+
 
 

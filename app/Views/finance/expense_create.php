@@ -61,7 +61,7 @@
                                             <option value="<?= esc($key) ?>" <?= old('expense_category') === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -86,7 +86,7 @@
                                             <option value="<?= esc($option) ?>" <?= old('currency', $base_currency ?? 'ILS') === $option ? 'selected' : '' ?>><?= esc($option) ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -147,7 +147,7 @@
                                         <option value="insurance" <?= old('payment_method') === 'insurance' ? 'selected' : '' ?>><?= lang('Finance.insurance') ?></option>
                                         <option value="other" <?= old('payment_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -193,7 +193,7 @@
                                         <option value="partial" <?= old('payment_status') === 'partial' ? 'selected' : '' ?>><?= lang('Finance.partial') ?></option>
                                         <option value="pending" <?= old('payment_status') === 'pending' ? 'selected' : '' ?>><?= lang('Finance.unpaid') ?></option>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -313,3 +313,4 @@
 })();
 </script>
 <?= $this->endSection() ?>
+

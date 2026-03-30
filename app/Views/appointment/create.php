@@ -223,7 +223,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= esc(lang('UI.appointmentNotesPlaceholder')) ?>"><?= old('notes') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>

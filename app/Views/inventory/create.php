@@ -49,7 +49,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" name="item_name" value="<?= old('item_name') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.enterItemName') ?>" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tag text-gray-400"></i>
                                     </div>
                                 </div>
@@ -75,7 +75,7 @@
                                         <option value="consumables" <?= (old('category') == 'consumables') ? 'selected' : '' ?>><?= lang('Inventory.categoryConsumables') ?></option>
                                         <option value="other" <?= (old('category') == 'other') ? 'selected' : '' ?>><?= lang('Inventory.categoryOther') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -96,7 +96,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="description" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= lang('Inventory.itemDescriptionPlaceholder') ?>"><?= old('description') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -117,7 +117,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="quantity" value="<?= old('quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-cubes text-gray-400"></i>
                                     </div>
                                 </div>
@@ -143,7 +143,7 @@
                                         <option value="packs" <?= (old('unit') == 'packs') ? 'selected' : '' ?>><?= lang('Inventory.unitPacks') ?></option>
                                         <option value="sets" <?= (old('unit') == 'sets') ? 'selected' : '' ?>><?= lang('Inventory.unitSets') ?></option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -156,7 +156,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="min_quantity" value="<?= old('min_quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-exclamation-triangle text-gray-400"></i>
                                     </div>
                                 </div>
@@ -177,11 +177,11 @@
                                     <span><?= lang('Inventory.unitPriceRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" name="unit_price" value="<?= old('unit_price') ?>" step="0.01" min="0" class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl" placeholder="0.00" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-dollar-sign text-gray-400"></i>
                                     </div>
                                 </div>
@@ -216,7 +216,7 @@
                                     </select>
                                     <div class="relative">
                                         <input type="text" name="supplier" id="supplier_text" value="<?= old('supplier') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.customSupplierNameOptional') ?>">
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                             <i class="fas fa-truck text-gray-400"></i>
                                         </div>
                                     </div>
@@ -274,7 +274,7 @@
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="purchase_date" data-clinic-date="1" value="<?= old('purchase_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
                                 </div>
@@ -293,7 +293,7 @@
                                 </label>
                                 <div class="relative">
                                 <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-times text-gray-400"></i>
                                     </div>
                                 </div>
@@ -314,7 +314,7 @@
                             </label>
                             <div class="relative">
                                 <input type="text" name="location" value="<?= old('location') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.storageLocationExample') ?>">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-map-marker-alt text-gray-400"></i>
                                 </div>
                             </div>
@@ -334,7 +334,7 @@
                             </label>
                             <div class="relative">
                                 <textarea name="notes" rows="4" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 hover:shadow-xl resize-none" placeholder="<?= lang('Inventory.additionalNotesPlaceholder') ?>"><?= old('notes') ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -442,4 +442,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+
 

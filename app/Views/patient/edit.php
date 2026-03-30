@@ -79,7 +79,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <input type="text" id="first_name" name="first_name" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('first_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                         value="<?= old('first_name', $patient['first_name']) ?>" placeholder="<?= esc(lang('UI.patientPlaceholderFirstName')) ?>" required>
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-user text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -100,7 +100,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <input type="text" id="last_name" name="last_name" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('last_name') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                         value="<?= old('last_name', $patient['last_name']) ?>" placeholder="<?= esc(lang('UI.patientPlaceholderLastName')) ?>" required>
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-user text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -123,7 +123,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <input type="email" id="email" name="email" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('email') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                         value="<?= old('email', $patient['email']) ?>" placeholder="<?= esc(lang('UI.patientPlaceholderEmail')) ?>">
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-envelope text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -144,7 +144,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <input type="tel" id="phone" name="phone" 
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('phone') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                         value="<?= old('phone', $patient['phone']) ?>" placeholder="<?= esc(lang('UI.patientPlaceholderPhone')) ?>" required>
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-phone text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -167,7 +167,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                  <input type="text" id="date_of_birth" name="date_of_birth" data-clinic-date="1"
                                                         class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('date_of_birth') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                         value="<?= old('date_of_birth', $patient['date_of_birth']) ?>" required>
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-calendar text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -192,7 +192,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                                      <option value="female" <?= old('gender', $patient['gender']) == 'female' ? 'selected' : '' ?>><?= esc(lang('UI.patientFemale')) ?></option>
                                                      <option value="other" <?= old('gender', $patient['gender']) == 'other' ? 'selected' : '' ?>><?= esc(lang('UI.patientOther')) ?></option>
                                                  </select>
-                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                      <i class="fas fa-chevron-down text-gray-400"></i>
                                                  </div>
                                              </div>
@@ -230,7 +230,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                             <input type="text" id="city" name="city"
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl <?= $validation->hasError('city') ? 'border-red-500 ring-red-500/20' : '' ?>"
                                                    value="<?= old('city', $patient['city']) ?>" placeholder="<?= esc(lang('UI.patientPlaceholderCity')) ?>">
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                 <i class="fas fa-city text-gray-400"></i>
                                             </div>
                                         </div>
@@ -338,7 +338,7 @@ $alertBoolValue = static function (string $key, array $patient): bool {
                                          <textarea id="notes" name="notes" rows="4" 
                                                    class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-500/20 focus:border-gray-500 transition-all duration-300 hover:shadow-xl resize-none <?= $validation->hasError('notes') ? 'border-red-500 ring-red-500/20' : '' ?>" 
                                                    placeholder="<?= esc(lang('UI.patientAdditionalNotesPlaceholder')) ?>"><?= old('notes', $patient['notes']) ?></textarea>
-                                         <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                         <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                              <i class="fas fa-edit"></i>
                                          </div>
                                      </div>
@@ -441,4 +441,5 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <?= $this->endSection() ?>
+
 

@@ -60,7 +60,7 @@
                                                     <option value="<?= $durationOption ?>" <?= $selectedAppointmentDuration === $durationOption ? 'selected' : '' ?>><?= $durationOption ?> <?= esc(lang('UI.patientMinutes')) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                 <i class="fas fa-chevron-down text-gray-400"></i>
                                             </div>
                                         </div>
@@ -114,3 +114,4 @@
                     syncChairRows();
                 });
                 </script>
+

@@ -65,7 +65,7 @@
                                                                         <?php endforeach; ?>
                                                                     <?php endif; ?>
                                                                 </select>
-                                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                                                     <i class="fas fa-chevron-down text-gray-400"></i>
                                                                 </div>
                                                             </div>                            <?php if ($validation && $validation->hasError('patient_id')): ?>
@@ -101,7 +101,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
@@ -122,7 +122,7 @@
                                     <input type="text" id="tooth_number" name="tooth_number" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('tooth_number', $treatment['tooth_number']) ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tooth text-gray-400"></i>
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@
                                 <textarea id="description" name="description" rows="4" 
                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl resize-none"
                                           placeholder="<?= lang('Treatment.treatment_description_placeholder') ?>" required><?= old('description', $treatment['treatment_description']) ?></textarea>
-                                <div class="absolute bottom-3 right-3 text-gray-400 text-xs">
+                                <div class="absolute bottom-3 <?= !empty($is_rtl) ? 'left-3' : 'right-3' ?> text-gray-400 text-xs">
                                     <i class="fas fa-edit"></i>
                                 </div>
                             </div>
@@ -181,13 +181,13 @@
                                     <span><?= lang('Treatment.cost') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'right-0 pr-4' : 'left-0 pl-4' ?> flex items-center pointer-events-none">
                                         <span class="text-gray-500 font-bold"><?= getCurrencySymbol() ?></span>
                                     </div>
                                     <input type="number" id="cost" name="cost" step="0.01" min="0"
                                            class="w-full px-4 py-3 pl-8 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('cost', $treatment['cost']) ?>" placeholder="<?= lang('Treatment.zero_amount_placeholder') ?>">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-dollar-sign text-gray-400"></i>
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@
                                     <input type="number" id="estimated_duration" name="estimated_duration" 
                                            class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('estimated_duration', $treatment['estimated_duration']) ?>" min="1" placeholder="<?= lang('Treatment.estimated_duration_placeholder') ?>" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-clock text-gray-400"></i>
                                     </div>
                                 </div>
@@ -232,7 +232,7 @@
                                 <input type="text" id="start_date" name="start_date" data-clinic-date="1"
                                        class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
                                        value="<?= old('start_date', $treatment['start_date']) ?>" required>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-calendar text-gray-400"></i>
                                 </div>
                             </div>
@@ -451,5 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?= $this->endSection() ?>
+
 
 

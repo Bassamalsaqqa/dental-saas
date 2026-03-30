@@ -230,6 +230,34 @@
             right: 0.25rem !important;
         }
 
+        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.flex.items-center.pr-3.pointer-events-none,
+        [dir="rtl"] form .relative > .absolute.inset-y-0.right-0.pr-3.flex.items-center.pointer-events-none,
+        [dir="rtl"] form .relative > .pointer-events-none.absolute.inset-y-0.right-0.flex.items-center.pr-3 {
+            left: 0 !important;
+            right: auto !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0 !important;
+        }
+
+        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-4.flex.items-center.pointer-events-none,
+        [dir="rtl"] form .relative > .absolute.inset-y-0.left-0.pl-3.flex.items-center.pointer-events-none {
+            right: 0 !important;
+            left: auto !important;
+            padding-right: 1rem !important;
+            padding-left: 0 !important;
+        }
+
+        [dir="rtl"] form .relative > .absolute.bottom-3.right-3.text-gray-400.text-xs {
+            left: 0.75rem !important;
+            right: auto !important;
+        }
+
+        [dir="rtl"] form input[data-clinic-date],
+        [dir="rtl"] form input[type="date"] {
+            padding-left: 2.5rem !important;
+            padding-right: 1rem !important;
+        }
+
         @media (max-width: 1023px) {
             #main-content .group > .absolute[class*="blur"] {
                 display: none !important;
