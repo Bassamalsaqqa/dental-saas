@@ -130,9 +130,6 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
-                                    <div class="<?= $leadingAdornment ?>">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('patient_id')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -155,9 +152,6 @@
                                         <option value="refund" <?= (old('transaction_type') == 'refund') ? 'selected' : '' ?>><?= lang('Finance.refund') ?></option>
                                         <option value="adjustment" <?= (old('transaction_type') == 'adjustment') ? 'selected' : '' ?>><?= lang('Finance.adjustment') ?></option>
                                     </select>
-                                    <div class="<?= $leadingAdornment ?>">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                                 <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('transaction_type')): ?>
                                     <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -187,9 +181,6 @@
                                         data-placeholder="<?= esc(lang('Finance.searchExaminationsPlaceholder')) ?>">
                                     <option value=""><?= lang('Finance.selectExaminationOptional') ?></option>
                                 </select>
-                                <div class="<?= $leadingAdornment ?>">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
                             </div>
                         </div>
 
@@ -224,9 +215,6 @@
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <div class="<?= $leadingAdornment ?>">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -269,9 +257,6 @@
                                         <option value="check" <?= (old('payment_method') == 'check') ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
                                         <option value="other" <?= (old('payment_method') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                     </select>
-                                    <div class="<?= $leadingAdornment ?>">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
                                 </div>
                             </div>
 
@@ -347,9 +332,6 @@
                                     <option value="procedure" <?= (old('service_type') == 'procedure') ? 'selected' : '' ?>><?= lang('Finance.procedure') ?></option>
                                     <option value="other" <?= (old('service_type') == 'other') ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                 </select>
-                                <div class="<?= $leadingAdornment ?>">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
                             </div>
                             <?php if (session()->getFlashdata('validation') && session()->getFlashdata('validation')->hasError('service_type')): ?>
                                 <p class="text-red-500 text-sm mt-2 flex items-center space-x-1">
@@ -444,9 +426,6 @@
                                                 <option value="user" <?= old('provider_type', 'user') === 'user' ? 'selected' : '' ?>><?= lang('Finance.clinicUser') ?></option>
                                                 <option value="guest" <?= old('provider_type') === 'guest' ? 'selected' : '' ?>><?= lang('Finance.guestProvider') ?></option>
                                             </select>
-                                            <div class="<?= $leadingAdornment ?>">
-                                                <i class="fas fa-chevron-down text-gray-400"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <div id="providerUserWrap" class="group/field relative">
@@ -460,9 +439,6 @@
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <div class="<?= $leadingAdornment ?>">
-                                                <i class="fas fa-chevron-down text-gray-400"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <div id="providerGuestWrap" class="group/field relative">
@@ -484,9 +460,6 @@
                                                 <option value="percent" <?= old('provider_split_mode', 'percent') === 'percent' ? 'selected' : '' ?>><?= lang('Finance.percentage') ?></option>
                                                 <option value="fixed" <?= old('provider_split_mode') === 'fixed' ? 'selected' : '' ?>><?= lang('Finance.fixedAmount') ?></option>
                                             </select>
-                                            <div class="<?= $leadingAdornment ?>">
-                                                <i class="fas fa-chevron-down text-gray-400"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="group/field relative">
@@ -541,9 +514,6 @@
                                                     <option value="check" <?= old('provider_paid_method') === 'check' ? 'selected' : '' ?>><?= lang('Finance.check') ?></option>
                                                     <option value="other" <?= old('provider_paid_method') === 'other' ? 'selected' : '' ?>><?= lang('Finance.other') ?></option>
                                                 </select>
-                                                <div class="<?= $leadingAdornment ?>">
-                                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                                </div>
                                             </div>
                                         </div>
                                         <div class="group/field relative">
