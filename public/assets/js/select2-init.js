@@ -73,6 +73,19 @@ function invalidateUiSearchToken() {
     uiSearchAuth.expiresAt = null;
 }
 
+function hideRedundantSelectChevron(select) {
+    if (!select || !select.parentElement) {
+        return;
+    }
+
+    const overlays = select.parentElement.querySelectorAll(':scope > .pointer-events-none i.fas.fa-chevron-down, :scope > .absolute.pointer-events-none i.fas.fa-chevron-down');
+    overlays.forEach(icon => {
+        const container = icon.closest('.pointer-events-none');
+        if (container) {
+            container.style.display = 'none';
+        }
+    });
+}
 function applyV1SearchHeaders(headers) {
     const finalHeaders = headers || {};
     if (uiSearchAuth.token) {
@@ -112,16 +125,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     const isCreateEditPage = /\/(create|edit)(\/|$)/.test(pathName);
     const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
     const select2I18n = {
-        placeholder: isRtl ? 'اختر خيارًا...' : 'Select an option...',
-        noResults: isRtl ? 'لا توجد نتائج' : 'No results found',
-        searching: isRtl ? 'جارٍ البحث...' : 'Searching...',
+        placeholder: isRtl ? '\u0627\u062e\u062a\u0631 \u062e\u064a\u0627\u0631\u064b\u0627...' : 'Select an option...',
+        noResults: isRtl ? '\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c' : 'No results found',
+        searching: isRtl ? '\u062c\u0627\u0631\u064d \u0627\u0644\u0628\u062d\u062b...' : 'Searching...',
         inputTooShort: function(minimumInputLength) {
             return isRtl
-                ? `الرجاء إدخال ${minimumInputLength} أحرف أو أكثر`
+                ? `\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0627\u0644 ${minimumInputLength} \u0623\u062d\u0631\u0641 \u0623\u0648 \u0623\u0643\u062b\u0631`
                 : `Please enter ${minimumInputLength} or more characters`;
         }
     };
-    
     // Initialize Select2 for elements with data-searchable-select attribute
     const searchableSelects = document.querySelectorAll('[data-searchable-select]');
     console.log('Select2: Found', searchableSelects.length, 'searchable select elements');
@@ -148,7 +160,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             const valueField = select.dataset.valueField || 'id';
             const textField = select.dataset.textField || 'text';
             const placeholder = select.dataset.placeholder || 'Search and select...';
-            const allowClear = select.dataset.allowClear !== 'false';
+            const allowClear = select.dataset.allowClear
+                ? select.dataset.allowClear !== 'false'
+                : !select.required;
             const minimumInputLength = Number.isNaN(parseInt(select.dataset.minimumInputLength, 10))
                 ? 1
                 : parseInt(select.dataset.minimumInputLength, 10);
@@ -302,6 +316,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // Initialize Select2
             $(select).select2(select2Options);
+            hideRedundantSelectChevron(select);
 
             if (searchUrl && minimumInputLength === 0) {
                 $(select).on('select2:open', function() {
@@ -382,10 +397,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 createEditPage: isCreateEditPage
             });
             
+            const regularAllowClear = select.dataset.allowClear
+                ? select.dataset.allowClear !== 'false'
+                : !select.required;
+
             $(select).select2({
                 placeholder: select2I18n.placeholder,
                 dir: isRtl ? 'rtl' : 'ltr',
-                allowClear: true,
+                allowClear: regularAllowClear,
                 width: '100%',
                 theme: 'default',
                 minimumResultsForSearch: optionCount > 5 ? 0 : Infinity,
@@ -395,6 +414,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     }
                 }
             });
+            hideRedundantSelectChevron(select);
             
             console.log(`Select2: Successfully initialized regular select ${index + 1}`);
         } catch (error) {
