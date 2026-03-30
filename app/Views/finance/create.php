@@ -49,6 +49,10 @@
     padding-right: 2.5rem !important;
     padding-left: 1rem !important;
 }
+
+[dir="rtl"] input[data-clinic-date="1"].finance-leading-input {
+    padding-right: 3.25rem !important;
+}
 </style>
 <?php
     $leadingFieldPadding = 'finance-leading-input';
