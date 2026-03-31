@@ -58,10 +58,16 @@ if ($patientWhatsAppOptout) {
 } elseif ($patientWhatsAppNumber !== '') {
     $patientWhatsAppChipLabel = lang('UI.patientWhatsAppReady');
     $patientWhatsAppChipClass = 'patient-meta-chip-whatsapp-ready';
-    $patientWhatsAppChipValue = '✓';
+    $patientWhatsAppChipValue = 'OK';
 } else {
     $patientWhatsAppChipValue = lang('UI.patientAddShort');
 }
+
+$patientGenderInitialMap = [
+    'male' => 'M',
+    'female' => 'F',
+    'other' => lang('UI.patientOther'),
+];
 
 $patientAgeLabel = lang('UI.patientNotProvided');
 if (!empty($patient['date_of_birth'])) {
@@ -236,7 +242,11 @@ $outstandingBalanceSubLabel = $outstandingBalance > 0.009
     ? lang('UI.patientProfileInvoicesOpen', ['count' => $openInvoicesCount])
     : lang('UI.patientFinanceClearState');
 $outstandingBalanceChipValue = $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : lang('UI.patientNoneShort');
-$patientGenderChipValue = $patientGenderLabel . ' · ' . (preg_match('/^\d+/', $patientAgeLabel) ? preg_replace('/\s+' . preg_quote(lang('UI.patientYears'), '/') . '$/u', 'y', $patientAgeLabel) : $patientAgeLabel);
+$patientGenderShort = $patientGenderInitialMap[strtolower((string) ($patient['gender'] ?? 'other'))] ?? lang('UI.patientOther');
+$patientAgeShort = preg_match('/^\d+/', $patientAgeLabel) ? preg_replace('/\s+' . preg_quote(lang('UI.patientYears'), '/') . '$/u', 'y', $patientAgeLabel) : lang('UI.patientNoneShort');
+$patientGenderChipValue = $patientGenderShort . ' - ' . $patientAgeShort;
+$patientCityChipValue = $patientCity === lang('UI.patientNotProvided') ? lang('UI.patientNoneShort') : $patientCity;
+$patientPhoneChipValue = in_array($patientPhone, [lang('UI.patientNoPhone'), lang('UI.patientNotProvided')], true) ? lang('UI.patientNoneShort') : preg_replace('/\s+/', '', $patientPhone);
 
 $patientAvatarIcon = 'fas fa-user';
 if (!empty($patient['date_of_birth'])) {
@@ -255,10 +265,10 @@ if (!empty($patient['date_of_birth'])) {
 }
 
 $heroInfoCapsules = [
-    ['label' => lang('UI.patientPatientIdShort'), 'value' => $patient['patient_id'], 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
+    ['label' => lang('UI.patientPatientIdShort'), 'display_label' => '', 'value' => $patient['patient_id'], 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
     ['label' => lang('UI.patientGender'), 'value' => $patientGenderChipValue, 'icon' => 'fas fa-user', 'class' => ''],
-    ['label' => lang('UI.patientPhone'), 'value' => $patientPhone, 'icon' => 'fas fa-phone-alt', 'class' => 'patient-hero-chip-ltr'],
-    ['label' => lang('UI.patientCity'), 'value' => $patientCity, 'icon' => 'fas fa-map-marker-alt', 'class' => ''],
+    ['label' => lang('UI.patientPhone'), 'display_label' => '', 'value' => $patientPhoneChipValue, 'icon' => 'fas fa-phone-alt', 'class' => 'patient-hero-chip-ltr'],
+    ['label' => lang('UI.patientCity'), 'value' => $patientCityChipValue, 'icon' => 'fas fa-map-marker-alt', 'class' => ''],
     ['label' => lang('UI.patientWhatsApp'), 'value' => $patientWhatsAppChipValue, 'icon' => 'fab fa-whatsapp', 'class' => trim('patient-hero-chip-action ' . $patientWhatsAppChipClass), 'is_button' => has_permission('patients', 'edit')],
     ['label' => lang('UI.patientOutstandingBalanceShort'), 'value' => $outstandingBalanceChipValue, 'icon' => 'fas fa-wallet', 'class' => ''],
     ['label' => lang('UI.patientNextAppointmentShort'), 'value' => $nextAppointmentChipValue, 'icon' => 'fas fa-calendar-check', 'class' => ''],
@@ -298,6 +308,7 @@ $heroInfoCapsules = [
                                         $capsuleClass = trim('patient-hero-chip ' . ($capsule['class'] ?? ''));
                                         $capsuleValue = (string) ($capsule['value'] ?? lang('UI.patientNotProvided'));
                                         $capsuleLabel = (string) ($capsule['label'] ?? '');
+                                        $capsuleDisplayLabel = array_key_exists('display_label', $capsule) ? (string) $capsule['display_label'] : $capsuleLabel;
                                         $capsuleIcon = (string) ($capsule['icon'] ?? 'fas fa-circle');
                                         $isButton = !empty($capsule['is_button']);
                                         ?>
@@ -305,7 +316,7 @@ $heroInfoCapsules = [
                                             <button type="button" class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>" onclick="openPatientWhatsAppIdentityModal('<?= esc($patientWhatsAppNumber, 'js') ?>')">
                                                 <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
                                                 <span class="patient-hero-chip-text">
-                                                    <span class="patient-hero-chip-label"><?= esc($capsuleLabel) ?></span>
+                                                    <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
                                                     <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
                                                 </span>
                                             </button>
@@ -313,7 +324,7 @@ $heroInfoCapsules = [
                                             <div class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>">
                                                 <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
                                                 <span class="patient-hero-chip-text">
-                                                    <span class="patient-hero-chip-label"><?= esc($capsuleLabel) ?></span>
+                                                    <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
                                                     <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
                                                 </span>
                                             </div>
