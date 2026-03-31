@@ -301,6 +301,7 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
     const paymentMethod = document.getElementById('paymentMethod');
     const amountPaidInput = document.querySelector('input[name="amount_paid"]');
     const accountField = document.getElementById('expenseLiquidityAccountField');
+    const accountSelect = document.getElementById('expenseLiquidityAccount');
     if (!input || !label) {
         return;
     }
@@ -309,13 +310,15 @@ $expensePaymentStatusValue = old('payment_status', (($finance['payment_status'] 
     });
 
     const syncExpenseLiquidityField = () => {
-        if (!paymentMethod || !amountPaidInput || !accountField) {
+        if (!paymentMethod || !amountPaidInput || !accountField || !accountSelect) {
             return;
         }
 
         const method = paymentMethod.value;
         const amountPaid = parseFloat(amountPaidInput.value || '0');
-        accountField.classList.toggle('hidden', !(method === 'check' && amountPaid > 0));
+        const shouldShow = method === 'check' && amountPaid > 0;
+        accountField.classList.toggle('hidden', !shouldShow);
+        accountSelect.disabled = !shouldShow;
     };
 
     paymentMethod?.addEventListener('change', syncExpenseLiquidityField);

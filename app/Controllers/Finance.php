@@ -243,6 +243,12 @@ class Finance extends BaseController
         return $this->normalizeLiquidityAccountInput($paymentMethod, $direction, $financeType);
     }
 
+    private function resolveExpenseOutgoingLiquidityAccount(string $paymentMethod): ?string
+    {
+        $fieldName = strtolower(trim($paymentMethod)) === 'check' ? 'liquidity_account' : null;
+        return $this->normalizeLiquidityAccountInput($paymentMethod, 'out', 'expense', $fieldName);
+    }
+
     private function supportsFinancePaymentExchangeFields(): bool
     {
         return $this->db->fieldExists('currency', 'finance_payments')
@@ -769,7 +775,7 @@ class Finance extends BaseController
                     'amount' => (float) $expensePaymentState['amount_paid'],
                     'type' => 'payment',
                     'payment_method' => $financeData['payment_method'],
-                    'liquidity_account' => $this->normalizeLiquidityAccountInput((string) $financeData['payment_method'], 'out', 'expense'),
+                    'liquidity_account' => $this->resolveExpenseOutgoingLiquidityAccount((string) $financeData['payment_method']),
                     'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
                     'notes' => 'Initial expense settlement',
                     'created_by' => $this->resolveActorUserId(),
@@ -1407,7 +1413,7 @@ class Finance extends BaseController
                         'amount' => (float) $expensePaymentState['amount_paid'],
                         'type' => 'payment',
                         'payment_method' => $update['payment_method'],
-                        'liquidity_account' => $this->normalizeLiquidityAccountInput((string) $update['payment_method'], 'out', 'expense'),
+                        'liquidity_account' => $this->resolveExpenseOutgoingLiquidityAccount((string) $update['payment_method']),
                         'payment_date' => $expensePaymentState['paid_date'] ?: date('Y-m-d'),
                         'notes' => 'Initial expense settlement',
                         'created_by' => $this->resolveActorUserId(),
