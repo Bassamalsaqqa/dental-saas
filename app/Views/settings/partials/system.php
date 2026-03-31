@@ -23,7 +23,7 @@
                                         <p class="text-xs text-gray-500 mt-1">Changes the interface language.</p>
                                     </div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="button" onclick="submitSystemSettings(this)" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
+                                <div class="mt-8 flex justify-end"><button type="button" onclick="submitSystemSettings()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
                         </div>
                     </div>

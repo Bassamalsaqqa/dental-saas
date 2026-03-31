@@ -167,7 +167,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" onclick="setButtonLoading(this, true)" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl shadow-lg transition-all">
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl shadow-lg transition-all">
                         <i class="fas fa-toggle-on mr-2"></i><?= $isArabic ? $decode('\u062d\u0641\u0638 \u062a\u0634\u063a\u064a\u0644 \u0648\u0627\u062a\u0633\u0627\u0628') : 'Save WhatsApp workflow switches' ?>
                     </button>
                 </div>

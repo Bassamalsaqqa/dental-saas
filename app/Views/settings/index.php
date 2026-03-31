@@ -372,6 +372,7 @@ function setButtonLoading(btn, loading) {
         btn.appendChild(spinner);
         btn.appendChild(document.createTextNode(settingsI18n.saving));
         btn.disabled = true;
+        btn.dataset.loadingState = '1';
         btn.classList.add('opacity-75', 'cursor-not-allowed');
     } else {
         const originalText = btn.dataset.originalText || btn.textContent.trim();
@@ -386,11 +387,18 @@ function setButtonLoading(btn, loading) {
         }
         btn.appendChild(document.createTextNode(originalText));
         btn.disabled = false;
+        delete btn.dataset.loadingState;
         btn.classList.remove('opacity-75', 'cursor-not-allowed');
     }
 }
 
-function submitSystemSettings(btn) {
+function resetSettingsLoadingButtons() {
+    document.querySelectorAll('button[data-loading-state="1"], button[data-original-text]').forEach((btn) => {
+        setButtonLoading(btn, false);
+    });
+}
+
+function submitSystemSettings() {
     const form = document.getElementById('system-settings-form');
     if (!form) {
         return;
@@ -399,7 +407,6 @@ function submitSystemSettings(btn) {
         form.reportValidity();
         return;
     }
-    setButtonLoading(btn, true);
     if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
     } else {
@@ -884,6 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (requestedTab === 'communications') {
         initialTab = requestedSubTab || 'channels';
     }
+    resetSettingsLoadingButtons();
     showSettingsTab(initialTab, { updateUrl: false });
     restoreSavedScrollPosition();
 });
@@ -896,6 +904,10 @@ window.addEventListener('popstate', function() {
         targetTab = params.get('subtab') || 'channels';
     }
     showSettingsTab(targetTab, { updateUrl: false });
+});
+
+window.addEventListener('pageshow', function() {
+    resetSettingsLoadingButtons();
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

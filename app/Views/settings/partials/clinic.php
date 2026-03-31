@@ -18,7 +18,7 @@
                                     <div><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsClinicLogo') ?></label><input type="file" name="clinic_logo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl"><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsClinicLogoHelp') ?></p></div>
                                     <div class="md:col-span-2"><label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsClinicAddress') ?></label><textarea name="clinic_address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all" required><?= esc($settings['clinic_address'] ?? '') ?></textarea><p class="text-xs text-gray-500 mt-1"><?= lang('UI.settingsClinicAddressHelp') ?></p></div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"><i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveChanges') ?></button></div>
                             </form>
                         </div>
                     </div>

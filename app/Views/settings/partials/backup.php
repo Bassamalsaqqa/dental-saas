@@ -9,7 +9,7 @@
                         <div class="p-8">
                             <div class="flex justify-between items-center mb-8 bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200">
                                 <div><h4 class="text-lg font-bold text-gray-900"><?= lang('UI.settingsManualBackup') ?></h4><p class="text-sm text-gray-500"><?= lang('UI.settingsManualBackupDesc') ?></p></div>
-                                <form action="<?= base_url('settings/create-backup') ?>" method="POST"><?= csrf_field() ?><button type="submit" onclick="setButtonLoading(this, true)" class="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg hover:bg-purple-700 transition-all"><i class="fas fa-download mr-2"></i><?= lang('UI.settingsCreateBackup') ?></button></form>
+                                <form action="<?= base_url('settings/create-backup') ?>" method="POST"><?= csrf_field() ?><button type="submit" class="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg hover:bg-purple-700 transition-all"><i class="fas fa-download mr-2"></i><?= lang('UI.settingsCreateBackup') ?></button></form>
                             </div>
                             <div class="space-y-4">
                                 <?php if (!empty($backups)): foreach ($backups as $backup): ?>
@@ -63,7 +63,7 @@
                                         </label>
                                     </div>
                                     <div class="flex justify-end">
-                                        <button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">
+                                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all">
                                             Save Policy
                                         </button>
                                     </div>

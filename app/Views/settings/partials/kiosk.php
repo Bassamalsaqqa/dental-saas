@@ -86,7 +86,7 @@
                                 </div>
 
                                 <div class="flex justify-end">
-                                    <button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         <i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveKioskSettings') ?>
                                     </button>
                                 </div>

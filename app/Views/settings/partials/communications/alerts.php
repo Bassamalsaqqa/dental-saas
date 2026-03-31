@@ -47,7 +47,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mt-8 flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg transition-all"><?= lang('UI.settingsSavePreferences') ?></button></div>
+                                <div class="mt-8 flex justify-end"><button type="submit" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg transition-all"><?= lang('UI.settingsSavePreferences') ?></button></div>
                             </form>
                         </div>
                     </div>

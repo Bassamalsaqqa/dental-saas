@@ -31,7 +31,7 @@
                                     <div><label class="block text-xs font-semibold text-gray-700 mb-2"><?= lang('UI.settingsDuration') ?></label><select name="duration" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 transition-all"><option value="monthly"><?= lang('UI.settingsDurationMonthly') ?></option><option value="yearly"><?= lang('UI.settingsDurationYearly') ?></option><option value="lifetime"><?= lang('UI.settingsDurationLifetime') ?></option></select></div>
                                     <div><label class="block text-xs font-semibold text-gray-700 mb-2"><?= lang('UI.settingsReason') ?></label><input type="text" name="reason" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 transition-all" placeholder="<?= lang('UI.settingsOptionalReason') ?>"></div>
                                 </div>
-                                <div class="flex justify-end"><button type="submit" onclick="setButtonLoading(this, true)" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-paper-plane mr-2"></i><?= lang('UI.settingsSubmitRequest') ?></button></div>
+                                <div class="flex justify-end"><button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg transition-all"><i class="fas fa-paper-plane mr-2"></i><?= lang('UI.settingsSubmitRequest') ?></button></div>
                             </form>
                         </div>
                     </div>
