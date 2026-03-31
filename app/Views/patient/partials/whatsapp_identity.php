@@ -46,6 +46,7 @@ $copy = $isArabic
         'required' => 'WhatsApp number is required.',
     ];
 
+$embedOnly = !empty($embed_only);
 $statusClass = 'bg-gray-100 text-gray-800';
 if ($waStatus === 'verified') {
     $statusClass = 'bg-green-100 text-green-800';
@@ -57,6 +58,7 @@ if ($waStatus === 'verified') {
     $statusClass = 'bg-blue-100 text-blue-800';
 }
 ?>
+<?php if (!$embedOnly): ?>
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
         <h3 class="text-lg font-semibold text-gray-800 inline-flex items-center">
@@ -132,6 +134,7 @@ if ($waStatus === 'verified') {
         <?php endif; ?>
     </div>
 </div>
+<?php endif; ?>
 
 <?php if (has_permission('patients', 'edit')): ?>
 <div id="patientWhatsAppIdentityModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4">
