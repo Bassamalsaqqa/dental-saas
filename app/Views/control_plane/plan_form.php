@@ -226,31 +226,26 @@
                                         <h4 class="text-xl font-bold text-gray-800">Feature Modules</h4>
                                     </div>
 
+                                    <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                                        <p class="font-semibold">Plan flag model</p>
+                                        <p class="mt-1 text-amber-800">Only the entitlements in the enforced section below are guaranteed to block tenant access today. Module packaging flags remain catalog metadata until their runtime guards are implemented.</p>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Enforced Entitlements</p>
+                                    </div>
+
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <?php
-                                            $featuresList = [
-                                                'appointments' => 'Appointments',
-                                                'finance' => 'Finance & Billing',
-                                                'inventory' => 'Inventory Management',
-                                                'reports' => 'Advanced Reports',
-                                                'email_templates' => 'Email Templates',
-                                                'audit_exports' => 'Audit Log Exports',
-                                                'chairside_notes' => 'Chairside Notes',
-                                                'claims_hub' => 'Insurance Claims',
-                                            ];
-                                            foreach ($featuresList as $key => $label):
-                                                $checked = !empty($features[$key]) ? 'checked' : '';
-                                        ?>
-                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
+                                        <label class="relative flex items-center p-4 bg-white/80 border-2 border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all duration-200 group/toggle">
                                             <div class="flex items-center h-5">
-                                                <input type="checkbox" name="features[<?= $key ?>]" <?= $checked ?> 
-                                                       class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 transition-colors">
+                                                <input type="checkbox" name="features[finance_reports][enabled]" <?= (!empty($features['finance_reports']['enabled']) || (empty($features['finance_reports']) && !empty($features['reports']))) ? 'checked' : '' ?>
+                                                       class="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 transition-colors">
                                             </div>
-                                            <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700"><?= esc($label) ?></div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-bold text-gray-700 group-hover/toggle:text-emerald-700">Finance Reports</div>
+                                                <div class="text-xs text-gray-500">Canonical `/finance/reports` workspace and finance report exports.</div>
+                                            </div>
                                         </label>
-                                        <?php endforeach; ?>
-                                        
-                                        <!-- Nested Features -->
                                         <label class="relative flex items-center p-4 bg-white/80 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:shadow-lg transition-all duration-200 group/toggle">
                                             <div class="flex items-center h-5">
                                                 <input type="checkbox" name="features[exports][enabled]" <?= !empty($features['exports']['enabled']) ? 'checked' : '' ?> 
@@ -300,6 +295,38 @@
                                             </div>
                                             <div class="ml-3 text-sm font-bold text-gray-700 group-hover/toggle:text-orange-700">Kiosk Check-In</div>
                                         </label>
+                                    </div>
+
+                                    <div class="mt-8 mb-4">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Catalog / Roadmap Flags</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <?php
+                                            $featuresList = [
+                                                'appointments' => 'Appointments Module',
+                                                'finance' => 'Finance Module',
+                                                'inventory' => 'Inventory Module',
+                                                'reports' => 'General Reports Package',
+                                                'email_templates' => 'Email Templates',
+                                                'audit_exports' => 'Audit Log Exports',
+                                                'chairside_notes' => 'Chairside Notes',
+                                                'claims_hub' => 'Insurance Claims',
+                                            ];
+                                            foreach ($featuresList as $key => $label):
+                                                $checked = !empty($features[$key]) ? 'checked' : '';
+                                        ?>
+                                        <label class="relative flex items-center p-4 bg-slate-50/90 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 hover:shadow-lg transition-all duration-200 group/toggle">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" name="features[<?= $key ?>]" <?= $checked ?> 
+                                                       class="w-5 h-5 text-slate-600 border-gray-300 rounded focus:ring-slate-500 transition-colors">
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-bold text-gray-700 group-hover/toggle:text-slate-700"><?= esc($label) ?></div>
+                                                <div class="text-xs text-gray-500">Stored in the plan catalog; not yet used as a strict runtime gate.</div>
+                                            </div>
+                                        </label>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                             </div>

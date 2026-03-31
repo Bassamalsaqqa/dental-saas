@@ -14,10 +14,12 @@
                     <p class="text-xs text-gray-500"><?= lang('Finance.treasuryTransfersHelp') ?></p>
                 </div>
             </div>
-            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-                <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
-                <?= lang('Finance.backToReports') ?>
-            </a>
+            <?php if (!empty($can_access_finance_reports)): ?>
+                <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-arrow-left mr-2 rtl-back-icon"></i>
+                    <?= lang('Finance.backToReports') ?>
+                </a>
+            <?php endif; ?>
         </div>
         <div class="grid grid-cols-1 gap-4 border-b border-emerald-100 px-6 py-4 md:grid-cols-3">
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">

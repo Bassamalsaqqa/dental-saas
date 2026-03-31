@@ -277,6 +277,7 @@ class Plans extends BaseController
             ],
             'kiosk' => ['enabled' => false],
             'exports' => ['enabled' => false],
+            'finance_reports' => ['enabled' => true],
             'notifications' => [
                 'email' => ['enabled' => true],
                 'sms' => ['enabled' => false],
@@ -314,6 +315,9 @@ class Plans extends BaseController
             ],
             'exports' => [
                 'enabled' => !empty($featuresInput['exports']['enabled']),
+            ],
+            'finance_reports' => [
+                'enabled' => !empty($featuresInput['finance_reports']['enabled']),
             ],
             'notifications' => [
                 'email' => ['enabled' => !empty($featuresInput['notifications']['email']['enabled'])],

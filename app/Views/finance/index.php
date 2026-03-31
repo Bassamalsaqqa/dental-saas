@@ -264,10 +264,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <?= esc($tr('newExpense')) ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold leading-none rounded-lg hover:bg-gray-200 transition-all duration-200">
-                            <i class="fas fa-chart-bar mr-2"></i>
-                            <?= esc($tr('reports')) ?>
-                        </a>
+                        <?php if (!empty($can_access_finance_reports)): ?>
+                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold leading-none rounded-lg hover:bg-gray-200 transition-all duration-200">
+                                <i class="fas fa-chart-bar mr-2"></i>
+                                <?= esc($tr('reports')) ?>
+                            </a>
+                        <?php endif; ?>
                         <a href="<?= base_url('finance/transfers') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-emerald-100 text-emerald-700 text-sm font-semibold leading-none rounded-lg hover:bg-emerald-200 transition-all duration-200">
                             <i class="fas fa-right-left mr-2"></i>
                             <?= esc($tr('treasuryTransfers')) ?>

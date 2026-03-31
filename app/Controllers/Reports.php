@@ -8,6 +8,7 @@ use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
 use App\Models\ProviderPayoutModel;
 use App\Models\TreatmentModel;
+use App\Services\PlanGuard;
 
 class Reports extends BaseController
 {
@@ -30,6 +31,7 @@ class Reports extends BaseController
     protected $treatmentModel;
     protected $storageService;
     protected $db;
+    protected PlanGuard $planGuard;
 
     public function __construct()
     {
@@ -41,6 +43,13 @@ class Reports extends BaseController
         $this->providerPayoutModel = new ProviderPayoutModel();
         $this->treatmentModel = new TreatmentModel();
         $this->storageService = new \App\Services\StorageService();
+        $this->planGuard = new PlanGuard();
+    }
+
+    private function canAccessFinanceReports(int $clinicId): bool
+    {
+        return $this->planGuard->isFeatureEnabled($clinicId, 'finance_reports.enabled', false)
+            || $this->planGuard->isFeatureEnabled($clinicId, 'reports', false);
     }
 
     private function requireTenantClinicId()
@@ -57,6 +66,11 @@ class Reports extends BaseController
 
     private function redirectLegacyFinanceReport()
     {
+        $clinicId = $this->requireTenantClinicId();
+        if ($clinicId !== null && !$this->canAccessFinanceReports($clinicId)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Access Denied: Finance reports are not available in the current plan.');
+        }
+
         $customFrom = $this->sanitizeDateInput($this->request->getGet('custom_from'));
         $customTo = $this->sanitizeDateInput($this->request->getGet('custom_to'));
         $startDate = $this->sanitizeDateInput($this->request->getGet('start_date'));

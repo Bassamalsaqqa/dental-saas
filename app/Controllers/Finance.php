@@ -14,6 +14,7 @@ use App\Models\FinanceLiquidityTransferModel;
 use App\Models\UserModel;
 use App\Services\ActivityLogger;
 use App\Services\FinanceTreasuryService;
+use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
 use App\Libraries\ApiRuntimeContext;
 
@@ -32,6 +33,7 @@ class Finance extends BaseController
     protected $activityLogger;
     protected $storageService;
     protected $financeTreasuryService;
+    protected $planGuard;
     protected $db;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
 
@@ -50,8 +52,22 @@ class Finance extends BaseController
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
         $this->financeTreasuryService = new FinanceTreasuryService();
+        $this->planGuard = new PlanGuard();
         $this->db = \Config\Database::connect();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
+    }
+
+    private function canAccessFinanceReports(int $clinicId): bool
+    {
+        return $this->planGuard->isFeatureEnabled($clinicId, 'finance_reports.enabled', false)
+            || $this->planGuard->isFeatureEnabled($clinicId, 'reports', false);
+    }
+
+    private function requireFinanceReportsFeature(int $clinicId): void
+    {
+        if (!$this->canAccessFinanceReports($clinicId)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Access Denied: Finance reports are not available in the current plan.');
+        }
     }
 
     private function resolveActorUserId(): int
@@ -606,6 +622,7 @@ class Finance extends BaseController
             'title' => 'Finance Management',
             'finances' => [], // Data will be loaded via AJAX
             'stats' => $clinicId ? $this->financeModel->getFinanceStatsByClinic($clinicId) : [],
+            'can_access_finance_reports' => $clinicId ? $this->canAccessFinanceReports((int) $clinicId) : false,
             'disableDataTables' => true, // Disable DataTables scripts for custom implementation
             'currency_position' => settings()->get('currency_position', 'before'),
             'currency_symbol' => settings()->getCurrencySymbol()
@@ -1517,6 +1534,7 @@ class Finance extends BaseController
         if (!$clinicId) {
             return redirect()->to('/clinic/select');
         }
+        $this->requireFinanceReportsFeature((int) $clinicId);
 
         $startDate = $this->normalizeDateOnly($this->request->getGet('start_date')) ?? date('Y-m-01');
         $endDate = $this->normalizeDateOnly($this->request->getGet('end_date')) ?? date('Y-m-d');
@@ -1594,6 +1612,7 @@ class Finance extends BaseController
         return $this->view('finance/transfers', [
             'title' => 'Treasury Transfers',
             'transfers' => $transfers,
+            'can_access_finance_reports' => $this->canAccessFinanceReports((int) $clinicId),
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
             'validation' => \Config\Services::validation(),
         ]);
@@ -2300,6 +2319,7 @@ class Finance extends BaseController
         $data = [
             'title' => 'Provider Payouts',
             'stats' => $payoutStats,
+            'can_access_finance_reports' => $this->canAccessFinanceReports((int) $clinicId),
             'currency_symbol' => settings()->getCurrencySymbol(),
             'currency_position' => settings()->get('currency_position', 'before'),
         ];
@@ -3139,6 +3159,7 @@ class Finance extends BaseController
             if (!$clinicId) {
                 return redirect()->to('/clinic/select');
             }
+            $this->requireFinanceReportsFeature((int) $clinicId);
 
             $format = $this->request->getGet('format') ?? 'csv';
             $startDate = $this->request->getGet('start_date');
