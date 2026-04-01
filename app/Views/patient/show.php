@@ -1060,7 +1060,7 @@ $heroInfoCapsules = [
                                         <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
-                                        <table class="patient-record-table">
+                                        <table class="patient-record-table" data-record-type="attachments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
@@ -1146,7 +1146,7 @@ $heroInfoCapsules = [
                                         <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientContractHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
-                                        <table class="patient-record-table">
+                                        <table class="patient-record-table" data-record-type="contracts" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                             <thead>
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
@@ -1230,7 +1230,7 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($examinations)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="patient-record-table">
+                                    <table class="patient-record-table" data-record-type="examinations" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                         <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
@@ -1247,10 +1247,15 @@ $heroInfoCapsules = [
                                                         <?= formatDate($examination['examination_date']) ?>
                                                     </td>
                                                     <td>
-                                                        <?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?>
+                                                        <div class="patient-record-main">
+                                                            <div class="patient-record-title"><?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?></div>
+                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientExam')) ?></div>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : lang('UI.patientNoComplaint') ?>
+                                                        <div class="patient-record-main">
+                                                            <div class="patient-record-title"><?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : lang('UI.patientNoComplaint') ?></div>
+                                                        </div>
                                                     </td>
                                                     <td class="whitespace-nowrap">
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
@@ -1294,7 +1299,7 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($appointments)): ?>
                                 <div class="overflow-x-auto">
-                                      <table class="patient-record-table">
+                                      <table class="patient-record-table" data-record-type="appointments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                           <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDateTime')) ?></th>
@@ -1311,7 +1316,10 @@ $heroInfoCapsules = [
                                                           <?= formatDate($appointment['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($appointment['appointment_time']) ?>
                                                       </td>
                                                       <td>
-                                                          <?= ucfirst($appointment['appointment_type'] ?? lang('UI.patientGeneral')) ?>
+                                                          <div class="patient-record-main">
+                                                              <div class="patient-record-title"><?= ucfirst($appointment['appointment_type'] ?? lang('UI.patientGeneral')) ?></div>
+                                                              <div class="patient-record-subtitle"><?= esc($appointment['chair_name'] ?? lang('UI.appointmentChairDefault')) ?></div>
+                                                          </div>
                                                       </td>
                                                       <td>
                                                           <?= $appointment['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?>
@@ -1368,7 +1376,7 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($treatments)): ?>
                                 <div class="overflow-x-auto">
-                                      <table class="patient-record-table">
+                                      <table class="patient-record-table" data-record-type="treatments" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                           <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTreatment')) ?></th>
@@ -1383,13 +1391,16 @@ $heroInfoCapsules = [
                                               <?php foreach ($treatments as $treatment): ?>
                                                   <tr class="patient-record-row" data-href="<?= esc(base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id'])) ?>">
                                                       <td>
-                                                          <?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?>
+                                                          <div class="patient-record-main">
+                                                              <div class="patient-record-title"><?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?></div>
+                                                              <div class="patient-record-subtitle"><?= ucfirst($treatment['treatment_type'] ?? lang('UI.patientGeneral')) ?></div>
+                                                          </div>
                                                       </td>
                                                       <td>
-                                                          <?= ucfirst($treatment['treatment_type'] ?? lang('UI.patientGeneral')) ?>
-                                                      </td>
-                                                      <td>
-                                                          <?= $treatment['tooth_number'] ?? lang('UI.patientNa') ?>
+                                                          <div class="patient-record-main">
+                                                              <div class="patient-record-title"><?= $treatment['tooth_number'] ?? lang('UI.patientNa') ?></div>
+                                                              <div class="patient-record-subtitle"><?= esc(lang('UI.patientTooth')) ?></div>
+                                                          </div>
                                                       </td>
                                                       <td>
                                                           $<?= number_format($treatment['cost'] ?? 0, 2) ?>
@@ -1445,7 +1456,7 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($prescriptions)): ?>
                                 <div class="overflow-x-auto">
-                                      <table class="patient-record-table">
+                                      <table class="patient-record-table" data-record-type="prescriptions" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                           <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientMedication')) ?></th>
@@ -1503,7 +1514,9 @@ $heroInfoCapsules = [
                                                       <td>
                                                           <div class="flex items-center space-x-2">
                                                               <i class="fas fa-pills text-teal-600 text-xs"></i>
-                                                              <span><?= htmlspecialchars($medicationName) ?></span>
+                                                              <div class="patient-record-main">
+                                                                  <div class="patient-record-title"><?= htmlspecialchars($medicationName) ?></div>
+                                                              </div>
                                                           </div>
                                                       </td>
                                                       <td>
@@ -1566,7 +1579,7 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($finances)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="patient-record-table">
+                                    <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                         <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
@@ -1584,10 +1597,16 @@ $heroInfoCapsules = [
                                                         <?= formatDate($finance['created_at']) ?>
                                                     </td>
                                                     <td>
-                                                        <?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?>
+                                                        <div class="patient-record-main">
+                                                            <div class="patient-record-title"><?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?></div>
+                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientType')) ?></div>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <?= ucfirst($finance['payment_method'] ?? lang('UI.patientNa')) ?>
+                                                        <div class="patient-record-main">
+                                                            <div class="patient-record-title"><?= ucfirst($finance['payment_method'] ?? lang('UI.patientNa')) ?></div>
+                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientPaymentMethod')) ?></div>
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <?php
@@ -2388,6 +2407,7 @@ $heroInfoCapsules = [
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
+        direction: inherit;
     }
 
     .patient-record-table thead th {
@@ -2400,6 +2420,8 @@ $heroInfoCapsules = [
         color: #64748b;
         background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
         border-bottom: 1px solid #e2e8f0;
+        text-align: start !important;
+        white-space: nowrap;
     }
 
     .patient-record-table tbody td {
@@ -2410,6 +2432,7 @@ $heroInfoCapsules = [
         border-bottom: 1px solid #edf2f7;
         vertical-align: middle;
         background: #ffffff;
+        text-align: start;
     }
 
     .patient-record-table tbody tr:last-child td {
@@ -2426,6 +2449,63 @@ $heroInfoCapsules = [
 
     .patient-record-row[data-href]:hover td {
         background: #f8fbff;
+    }
+
+    .patient-record-row[data-href]:hover .patient-record-title {
+        color: #1d4ed8;
+    }
+
+    .patient-table-sort {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.65rem;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        direction: inherit;
+        text-align: start;
+    }
+
+    .patient-table-sort-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 0;
+    }
+
+    .patient-table-sort-label i:first-child {
+        color: #94a3b8;
+        font-size: 0.78rem;
+        flex-shrink: 0;
+    }
+
+    .patient-table-sort-label span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .patient-table-sort > i:last-child {
+        color: #cbd5e1;
+        transition: color 0.18s ease;
+        flex-shrink: 0;
+        margin-inline-start: auto;
+    }
+
+    .patient-table-sort:hover > i:last-child,
+    .patient-table-sort.is-active > i:last-child {
+        color: #2563eb;
+    }
+
+    .patient-record-table th:last-child,
+    .patient-record-table td:last-child {
+        text-align: end;
     }
 
     .patient-record-main {
@@ -2528,13 +2608,9 @@ $heroInfoCapsules = [
     .patient-timeline-main {
         min-width: 0;
         flex: 1;
-    }
-
-    .patient-timeline-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1rem;
+        display: grid;
+        gap: 0.7rem;
+        align-items: center;
     }
 
     .patient-timeline-title {
@@ -2554,18 +2630,34 @@ $heroInfoCapsules = [
         flex-shrink: 0;
     }
 
+    .patient-timeline-title-block {
+        min-width: 0;
+    }
+
     .patient-timeline-description {
-        margin-top: 0.45rem;
-        font-size: 0.88rem;
+        font-size: 0.84rem;
         line-height: 1.45rem;
         color: #475569;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .patient-timeline-summary {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .patient-timeline-meta {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-        margin-top: 0.75rem;
+        min-width: 0;
+        justify-content: flex-start;
     }
 
     .patient-timeline-meta-chip {
@@ -2579,6 +2671,51 @@ $heroInfoCapsules = [
         font-size: 0.74rem;
         line-height: 1rem;
         color: #475569;
+    }
+
+    @media (min-width: 1024px) {
+        .patient-timeline-main {
+            grid-template-columns: minmax(15rem, 1fr) minmax(18rem, 1.45fr) auto;
+            align-items: center;
+            column-gap: 1.1rem;
+        }
+
+        .patient-timeline-status {
+            justify-self: end;
+        }
+    }
+
+    html[dir="rtl"] .patient-table-sort-label,
+    body[dir="rtl"] .patient-table-sort-label,
+    .patient-view[dir="rtl"] .patient-table-sort-label {
+        flex-direction: row-reverse;
+    }
+
+    html[dir="rtl"] .patient-table-actions,
+    body[dir="rtl"] .patient-table-actions,
+    .patient-view[dir="rtl"] .patient-table-actions {
+        justify-content: flex-start;
+    }
+
+    html[dir="rtl"] .patient-record-table th:last-child,
+    html[dir="rtl"] .patient-record-table td:last-child,
+    body[dir="rtl"] .patient-record-table th:last-child,
+    body[dir="rtl"] .patient-record-table td:last-child,
+    .patient-view[dir="rtl"] .patient-record-table th:last-child,
+    .patient-view[dir="rtl"] .patient-record-table td:last-child {
+        text-align: start;
+    }
+
+    html[dir="rtl"] .patient-timeline-meta,
+    body[dir="rtl"] .patient-timeline-meta,
+    .patient-view[dir="rtl"] .patient-timeline-meta {
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .patient-timeline-status,
+    body[dir="rtl"] .patient-timeline-status,
+    .patient-view[dir="rtl"] .patient-timeline-status {
+        justify-self: start;
     }
 
     .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm,
@@ -3006,10 +3143,8 @@ $heroInfoCapsules = [
             const divContent = document.createElement('div');
             divContent.className = 'patient-timeline-main';
             
-            const divHead = document.createElement('div');
-            divHead.className = 'patient-timeline-head';
-
-            const divText = document.createElement('div');
+            const titleBlock = document.createElement('div');
+            titleBlock.className = 'patient-timeline-title-block';
             const titleDiv = document.createElement('div');
             titleDiv.className = 'patient-timeline-title';
             titleDiv.textContent = item.title;
@@ -3018,26 +3153,28 @@ $heroInfoCapsules = [
             const itemIso = String(item.date || '').split(' ')[0];
             const itemDisplay = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(itemIso) : itemIso;
             dateDiv.textContent = `${patientShowI18n.timelineOn} ${itemDisplay}`;
+            titleBlock.appendChild(titleDiv);
+            titleBlock.appendChild(dateDiv);
             
+            const timelineMeta = Array.isArray(item.meta) ? [...item.meta] : [];
+            if (item.doctor) {
+                timelineMeta.push({
+                    icon: 'fas fa-user-md',
+                    text: `Dr. ${item.doctor}`
+                });
+            }
+
+            const summaryWrap = document.createElement('div');
+            summaryWrap.className = 'patient-timeline-summary';
             const pDesc = document.createElement('p');
             pDesc.className = 'patient-timeline-description';
             pDesc.textContent = item.description;
+            summaryWrap.appendChild(pDesc);
 
-            divText.appendChild(titleDiv);
-            divText.appendChild(dateDiv);
-            divText.appendChild(pDesc);
-            
-            if (item.doctor) {
-                const pDoctor = document.createElement('p');
-                pDoctor.className = 'patient-record-subtitle mt-2';
-                pDoctor.textContent = `Dr. ${item.doctor}`;
-                divText.appendChild(pDoctor);
-            }
-
-            if (Array.isArray(item.meta) && item.meta.length > 0) {
+            if (timelineMeta.length > 0) {
                 const metaWrap = document.createElement('div');
                 metaWrap.className = 'patient-timeline-meta';
-                item.meta.forEach((metaItem) => {
+                timelineMeta.forEach((metaItem) => {
                     if (!metaItem || !metaItem.text) {
                         return;
                     }
@@ -3054,7 +3191,7 @@ $heroInfoCapsules = [
                     metaWrap.appendChild(chip);
                 });
                 if (metaWrap.childNodes.length > 0) {
-                    divText.appendChild(metaWrap);
+                    summaryWrap.appendChild(metaWrap);
                 }
             }
             
@@ -3065,9 +3202,9 @@ $heroInfoCapsules = [
             spanStatus.textContent = item.status_label || (item.status.charAt(0).toUpperCase() + item.status.slice(1));
             divStatus.appendChild(spanStatus);
             
-            divHead.appendChild(divText);
-            divHead.appendChild(divStatus);
-            divContent.appendChild(divHead);
+            divContent.appendChild(titleBlock);
+            divContent.appendChild(summaryWrap);
+            divContent.appendChild(divStatus);
             
             divFlex.appendChild(divIconOuter);
             divFlex.appendChild(divContent);
@@ -3164,6 +3301,132 @@ $heroInfoCapsules = [
 
         window.location.href = row.dataset.href;
     });
+
+    function getSortableCellValue(row, columnIndex) {
+        if (columnIndex === 0 && row.dataset.date) {
+            const dateValue = Date.parse(row.dataset.date);
+            if (!Number.isNaN(dateValue)) {
+                return { type: 'number', value: dateValue };
+            }
+        }
+
+        const cell = row.children[columnIndex];
+        if (!cell) {
+            return { type: 'text', value: '' };
+        }
+
+        const rawText = cell.textContent.replace(/\s+/g, ' ').trim();
+        const currencyText = rawText.replace(/[^0-9.\-]/g, '');
+        if (currencyText !== '' && /^-?\d+(\.\d+)?$/.test(currencyText)) {
+            return { type: 'number', value: parseFloat(currencyText) };
+        }
+
+        const parsedDate = Date.parse(rawText);
+        if (!Number.isNaN(parsedDate) && /\d/.test(rawText)) {
+            return { type: 'number', value: parsedDate };
+        }
+
+        return { type: 'text', value: rawText.toLowerCase() };
+    }
+
+    function sortPatientRecordTable(table, columnIndex, direction) {
+        const tbody = table.querySelector('tbody');
+        if (!tbody) {
+            return;
+        }
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const dataRows = rows.filter(row => row.children.length > 1);
+        if (dataRows.length <= 1) {
+            return;
+        }
+
+        dataRows.sort((a, b) => {
+            const aValue = getSortableCellValue(a, columnIndex);
+            const bValue = getSortableCellValue(b, columnIndex);
+
+            let result = 0;
+            if (aValue.type === 'number' && bValue.type === 'number') {
+                result = aValue.value - bValue.value;
+            } else {
+                result = String(aValue.value).localeCompare(String(bValue.value), document.documentElement.lang || 'en');
+            }
+
+            return direction === 'desc' ? -result : result;
+        });
+
+        dataRows.forEach(row => tbody.appendChild(row));
+    }
+
+    function initializePatientRecordTables() {
+        const headerIconMap = {
+            attachments: ['fas fa-calendar-days', 'fas fa-file-lines', 'fas fa-folder-open', 'fas fa-note-sticky', 'fas fa-ellipsis'],
+            contracts: ['fas fa-calendar-days', 'fas fa-file-signature', 'fas fa-stethoscope', 'fas fa-sack-dollar', 'fas fa-ellipsis'],
+            examinations: ['fas fa-calendar-days', 'fas fa-stethoscope', 'fas fa-comment-medical', 'fas fa-circle-check', 'fas fa-ellipsis'],
+            appointments: ['fas fa-calendar-days', 'fas fa-notes-medical', 'fas fa-hourglass-half', 'fas fa-circle-check', 'fas fa-ellipsis'],
+            treatments: ['fas fa-briefcase-medical', 'fas fa-tooth', 'fas fa-sack-dollar', 'fas fa-circle-check', 'fas fa-ellipsis'],
+            prescriptions: ['fas fa-pills', 'fas fa-prescription-bottle-medical', 'fas fa-repeat', 'fas fa-calendar-days', 'fas fa-circle-check', 'fas fa-ellipsis'],
+            finances: ['fas fa-calendar-days', 'fas fa-receipt', 'fas fa-credit-card', 'fas fa-sack-dollar', 'fas fa-circle-check', 'fas fa-ellipsis']
+        };
+
+        document.querySelectorAll('.patient-record-table').forEach((table) => {
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            if (headers.length === 0) {
+                return;
+            }
+
+            const recordType = table.dataset.recordType || '';
+            const headerIcons = headerIconMap[recordType] || [];
+
+            headers.forEach((th, index) => {
+                if (index === headers.length - 1 || th.dataset.sortReady === '1') {
+                    return;
+                }
+
+                const label = th.textContent.trim();
+                th.dataset.sortReady = '1';
+                th.textContent = '';
+
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'patient-table-sort';
+                button.dataset.direction = 'none';
+                const iconClass = headerIcons[index] || 'fas fa-table-columns';
+                button.innerHTML = `<span class="patient-table-sort-label"><i class="${iconClass}"></i><span>${label}</span></span><i class="fas fa-sort"></i>`;
+
+                button.addEventListener('click', () => {
+                    const currentDirection = button.dataset.direction === 'asc' ? 'asc' : (button.dataset.direction === 'desc' ? 'desc' : 'none');
+                    const nextDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+
+                    headers.forEach((otherHeader) => {
+                        const otherButton = otherHeader.querySelector('.patient-table-sort');
+                        if (!otherButton) {
+                            return;
+                        }
+                        otherButton.dataset.direction = 'none';
+                        otherButton.classList.remove('is-active');
+                        const icon = otherButton.lastElementChild;
+                        if (icon) {
+                            icon.className = 'fas fa-sort';
+                        }
+                    });
+
+                    button.dataset.direction = nextDirection;
+                    button.classList.add('is-active');
+                    const icon = button.lastElementChild;
+                    if (icon) {
+                        icon.className = nextDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                    }
+
+                    sortPatientRecordTable(table, index, nextDirection);
+                });
+
+                th.appendChild(button);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initializePatientRecordTables);
 
 
 
