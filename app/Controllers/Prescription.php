@@ -132,6 +132,8 @@ class Prescription extends BaseController
                     'id' => intval($prescription['id'] ?? 0),
                     'prescription_id' => 'RX-' . str_pad($prescription['id'], 6, '0', STR_PAD_LEFT),
                     'patient_name' => trim(($prescription['first_name'] ?? '') . ' ' . ($prescription['last_name'] ?? '')),
+                    'patient_number' => $prescription['patient_number'] ?? '',
+                    'gender' => $prescription['gender'] ?? 'other',
                     'phone' => $prescription['phone'] ?? '',
                     'medication_name' => $prescription['medication_name'] ?? '',
                     'notes' => $prescription['notes'] ?? '',

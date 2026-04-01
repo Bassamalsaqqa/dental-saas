@@ -117,7 +117,7 @@ class PrescriptionModel extends TenantAwareModel
 
     public function getPrescriptionsByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $orderColumn = 'prescriptions.id', $orderDir = 'desc')
     {
-        $builder = $this->select('prescriptions.*, patients.first_name, patients.last_name, patients.phone')
+        $builder = $this->select('prescriptions.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone')
                         ->join('patients', 'patients.id = prescriptions.patient_id', 'left')
                         ->where('prescriptions.clinic_id', $clinicId);
 

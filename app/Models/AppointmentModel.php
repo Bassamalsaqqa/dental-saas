@@ -90,7 +90,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAppointmentsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $status = '')
     {
-        $query = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        $query = $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointments.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId); // Extra join guard
@@ -174,7 +174,7 @@ class AppointmentModel extends TenantAwareModel
     public function getUpcomingAppointmentsByClinic($clinicId, $limit = 10)
     {
         try {
-            return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+            return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
                 ->join('patients', 'patients.id = appointments.patient_id')
                 ->where('appointments.clinic_id', $clinicId)
                 ->where('patients.clinic_id', $clinicId)
@@ -192,7 +192,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAppointmentsByDateByClinic($clinicId, $date)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointments.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId) // Join guard
@@ -203,7 +203,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getCalendarAppointmentsByClinic($clinicId, $startDate, $endDate)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointments.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId) // Join guard
@@ -216,7 +216,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAppointmentWithPatient($appointmentId, $clinicId = null)
     {
-        $builder = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email, users.first_name as creator_first_name, users.last_name as creator_last_name')
+        $builder = $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email, users.first_name as creator_first_name, users.last_name as creator_last_name')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->join('users', 'users.id = appointments.created_by', 'left')
             ->where('appointments.id', $appointmentId);
@@ -230,7 +230,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAppointmentsByDate($date)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('DATE(appointment_date)', $date)
             ->orderBy('appointment_time', 'ASC')
@@ -239,7 +239,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getAllAppointments($limit = 10, $offset = 0, $search = '', $status = '')
     {
-        $query = $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        $query = $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id');
         
         // Apply search filter
@@ -314,7 +314,7 @@ class AppointmentModel extends TenantAwareModel
     public function getUpcomingAppointments($limit = 10)
     {
         try {
-            return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+            return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
                 ->join('patients', 'patients.id = appointments.patient_id')
                 ->where('appointments.appointment_date >=', date('Y-m-d'))
                 ->where('appointments.status', 'scheduled')
@@ -330,7 +330,7 @@ class AppointmentModel extends TenantAwareModel
 
     public function getExaminationsByDateRange($startDate, $endDate)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, patients.phone, patients.email')
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointment_date >=', $startDate)
             ->where('appointment_date <=', $endDate)

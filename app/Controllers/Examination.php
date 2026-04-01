@@ -573,6 +573,7 @@ class Examination extends BaseController
                     'examination_id' => $examination['examination_id'] ?? '',
                     'patient_name' => trim(($examination['first_name'] ?? '') . ' ' . ($examination['last_name'] ?? '')),
                     'patient_number' => $examination['patient_number'] ?? '',
+                    'gender' => $examination['gender'] ?? 'other',
                     'examination_date' => $examination['examination_date'] ?? '',
                     'examination_date_formatted' => formatDate($examination['examination_date'] ?? ''),
                     'examination_time_formatted' => '',

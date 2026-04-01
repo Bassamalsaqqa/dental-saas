@@ -712,6 +712,16 @@ const i18n = {
     locale: '<?= esc(strtolower(service('request')->getLocale()), 'js') ?>',
 };
 
+function getPatientAvatar(gender) {
+    const avatarMap = {
+        male: { icon: 'fas fa-person', color: 'text-blue-700' },
+        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+    };
+
+    return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
+}
+
 // Function to apply DataTables styling
 function applyDataTablesStyling() {
     console.log('Applying DataTables styling...');
@@ -871,13 +881,14 @@ $(document).ready(function() {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
+                    const avatar = getPatientAvatar(row.gender);
                     return `
                         <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-user text-blue-600"></i>
-                            </div>
+                            <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                                <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
+                            </span>
                             <div>
-                                <div class="text-sm font-bold text-gray-900">${data}</div>
+                                <div class="text-sm font-medium text-gray-900">${data}</div>
                                 <div class="text-xs text-gray-500 font-medium">${row.patient_number}</div>
                             </div>
                         </div>
@@ -1095,8 +1106,27 @@ $(document).ready(function() {
         drawCallback: function() {
             console.log('DataTables drawCallback called');
             setTimeout(applyDataTablesStyling, 50);
+            if (permissions.examinations.view) {
+                $('#examinationsTable tbody tr').addClass('cursor-pointer hover:bg-orange-50/40 transition-colors duration-150');
+            }
         }
     });
+
+    if (permissions.examinations.view) {
+        $('#examinationsTable tbody').on('click', 'tr', function(e) {
+            if ($(e.target).closest('a, button, input, select, textarea, [onclick]').length) {
+                return;
+            }
+
+            const rowData = examinationsTable.row(this).data();
+            if (!rowData || !rowData.id) {
+                return;
+            }
+
+            const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+            window.location.href = `<?= base_url('examination') ?>/${rowData.id}?return_to=${returnTo}`;
+        });
+    }
     
     // Set up mutation observer to watch for DataTables DOM changes
     const observer = new MutationObserver(function(mutations) {

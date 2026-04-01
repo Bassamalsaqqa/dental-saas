@@ -506,6 +506,16 @@ const prescriptionI18n = {
     deleteConfirm: <?= json_encode(lang('Prescription.delete_confirm')) ?>
 };
 
+function getPatientAvatar(gender) {
+    const avatarMap = {
+        male: { icon: 'fas fa-person', color: 'text-blue-700' },
+        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+    };
+
+    return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
+}
+
 $(document).ready(function() {
     // Initialize DataTable with server-side processing
     prescriptionsTable = $('#prescriptionsTable').DataTable({
@@ -609,14 +619,15 @@ $(document).ready(function() {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
+                    const avatar = getPatientAvatar(row.gender);
                     return `
                             <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user text-teal-600 text-sm"></i>
-                                </div>
+                                <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                                    <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
+                                </span>
                                 <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.phone || prescriptionI18n.noPhone}</div>
+                                    <div class="text-sm font-medium text-gray-900">${data}</div>
+                                    <div class="text-xs text-gray-500">${row.patient_number || row.phone || prescriptionI18n.noPhone}</div>
                                 </div>
                             </div>
                     `;
@@ -797,8 +808,27 @@ $(document).ready(function() {
             }
             // Apply custom styling after each draw
             applyDataTablesStyling();
+            if (permissions.prescriptions.view) {
+                $('#prescriptionsTable tbody tr').addClass('cursor-pointer hover:bg-teal-50/40 transition-colors duration-150');
+            }
         }
     });
+
+    if (permissions.prescriptions.view) {
+        $('#prescriptionsTable tbody').on('click', 'tr', function(e) {
+            if ($(e.target).closest('a, button, input, select, textarea, [onclick]').length) {
+                return;
+            }
+
+            const rowData = prescriptionsTable.row(this).data();
+            if (!rowData || !rowData.id) {
+                return;
+            }
+
+            const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+            window.location.href = `<?= base_url('prescription') ?>/${rowData.id}?return_to=${returnTo}`;
+        });
+    }
 
     // Apply custom DataTables styling
     function applyDataTablesStyling() {

@@ -285,20 +285,33 @@ $returnToContextEncoded = urlencode($returnToContext);
                     <div class="space-y-4 p-6 pt-0">
                         <?php if (!empty($appointments)): ?>
                             <?php foreach ($appointments as $index => $appointment): ?>
-                                <div class="group/item relative flex flex-col gap-5 p-5 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 md:p-6 xl:flex-row xl:items-center xl:justify-between xl:hover:scale-[1.02] xl:hover:-translate-y-1">
+                                <?php
+                                $appointmentGender = strtolower((string) ($appointment['gender'] ?? 'other'));
+                                $appointmentAvatarIcon = 'fas fa-user';
+                                $appointmentAvatarColor = 'text-slate-600';
+                                if ($appointmentGender === 'male') {
+                                    $appointmentAvatarIcon = 'fas fa-person';
+                                    $appointmentAvatarColor = 'text-blue-700';
+                                } elseif ($appointmentGender === 'female') {
+                                    $appointmentAvatarIcon = 'fas fa-person-dress';
+                                    $appointmentAvatarColor = 'text-rose-700';
+                                }
+                                ?>
+                                <div class="appointment-record-card group/item relative flex flex-col gap-5 p-5 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 md:p-6 xl:flex-row xl:items-center xl:justify-between xl:hover:scale-[1.02] xl:hover:-translate-y-1 <?= has_permission('appointments', 'view') ? 'cursor-pointer' : '' ?>"<?= has_permission('appointments', 'view') ? ' data-href="' . esc(base_url('appointment/' . $appointment['id'] . '?return_to=' . $returnToContextEncoded)) . '"' : '' ?>>
                                     <!-- Patient Information -->
                                     <div class="flex items-start gap-4 md:gap-6 xl:flex-1">
-                                        <div class="relative">
-                                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300"></div>
-                                            <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300">
-                                                <?= esc(ui_initials($appointment['first_name'] ?? '', $appointment['last_name'] ?? '', 'P')) ?>
-                                            </div>
-                                        </div>
+                                        <span class="inline-flex items-center justify-center w-9 h-9 flex-shrink-0">
+                                            <i class="<?= esc($appointmentAvatarIcon) ?> <?= esc($appointmentAvatarColor) ?> text-3xl"></i>
+                                        </span>
                                         <div class="space-y-2">
                                             <h4 class="text-lg md:text-xl font-black text-gray-900 group-hover/item:text-blue-900 transition-colors duration-300">
                                                 <?= $appointment['first_name'] . ' ' . $appointment['last_name'] ?>
                                             </h4>
                                             <div class="flex flex-col gap-2 text-sm text-gray-600 font-medium">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-id-card text-slate-400"></i>
+                                                    <span><?= esc($appointment['patient_number'] ?? lang('Treatment.no_id')) ?></span>
+                                                </div>
                                                 <div class="flex items-center gap-2">
                                                     <i class="fas fa-phone text-blue-500"></i>
                                                     <span><?= $appointment['phone'] ?></span>
@@ -1117,10 +1130,25 @@ function getSafeInitials(firstName, lastName, fallback = 'P') {
     return fallback;
 }
 
+function getPatientAvatar(gender) {
+    const avatarMap = {
+        male: { icon: 'fas fa-person', color: 'text-blue-700' },
+        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+    };
+
+    return avatarMap[String(gender || 'other').toLowerCase()] || avatarMap.other;
+}
+
 // Create appointment element HTML
 function createAppointmentElement(appointment) {
     const div = document.createElement('div');
-    div.className = 'group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] hover:-translate-y-1 animate-slide-in';
+    div.className = 'appointment-record-card group/item relative flex items-center justify-between p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl hover:from-white/80 hover:to-white/60 transition-all duration-500 border border-white/20 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] hover:-translate-y-1 animate-slide-in';
+    if (<?= has_permission('appointments', 'view') ? 'true' : 'false' ?>) {
+        const returnTo = encodeURIComponent('<?= esc($returnToContext, 'js') ?>');
+        div.dataset.href = `<?= base_url('appointment') ?>/${appointment.id}?return_to=${returnTo}`;
+        div.classList.add('cursor-pointer');
+    }
     
     // Format appointment date
     const appointmentDateIso = String(appointment.appointment_date || '').split(' ')[0];
@@ -1147,20 +1175,17 @@ function createAppointmentElement(appointment) {
     };
     
     const status = statusConfig[appointment.status] || statusConfig['scheduled'];
+    const avatar = getPatientAvatar(appointment.gender);
     
     // 1. Patient Information
     const patientInfoDiv = document.createElement('div');
     patientInfoDiv.className = 'flex items-start space-x-6';
     
-    const avatarContainer = document.createElement('div');
-    avatarContainer.className = 'relative';
-    const avatarBg = document.createElement('div');
-    avatarBg.className = 'absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-lg opacity-75 group-hover/item:opacity-100 transition-opacity duration-300';
-    const avatarContent = document.createElement('div');
-    avatarContent.className = 'relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xl group-hover/item:scale-110 group-hover/item:rotate-3 transition-all duration-300';
-    avatarContent.textContent = getSafeInitials(appointment.first_name, appointment.last_name, 'P');
-    avatarContainer.appendChild(avatarBg);
-    avatarContainer.appendChild(avatarContent);
+    const avatarContainer = document.createElement('span');
+    avatarContainer.className = 'inline-flex items-center justify-center w-9 h-9 flex-shrink-0';
+    const avatarIcon = document.createElement('i');
+    avatarIcon.className = `${avatar.icon} ${avatar.color} text-3xl`;
+    avatarContainer.appendChild(avatarIcon);
     patientInfoDiv.appendChild(avatarContainer);
 
     const detailsDiv = document.createElement('div');
@@ -1174,6 +1199,15 @@ function createAppointmentElement(appointment) {
     contactDiv.style.display = 'flex';
     contactDiv.style.flexDirection = 'column';
     contactDiv.style.gap = '0.5rem';
+
+    const idDiv = document.createElement('div');
+    idDiv.className = 'flex items-center space-x-2';
+    const idIcon = document.createElement('i');
+    idIcon.className = 'fas fa-id-card text-slate-400';
+    const idSpan = document.createElement('span');
+    idSpan.textContent = appointment.patient_number || '<?= esc(lang('Treatment.no_id'), 'js') ?>';
+    idDiv.appendChild(idIcon);
+    idDiv.appendChild(idSpan);
 
     const phoneDiv = document.createElement('div');
     phoneDiv.className = 'flex items-center space-x-2';
@@ -1193,6 +1227,7 @@ function createAppointmentElement(appointment) {
     emailDiv.appendChild(emailIcon);
     emailDiv.appendChild(emailSpan);
 
+    contactDiv.appendChild(idDiv);
     contactDiv.appendChild(phoneDiv);
     contactDiv.appendChild(emailDiv);
     detailsDiv.appendChild(nameH4);
@@ -1337,6 +1372,19 @@ function createAppointmentElement(appointment) {
     
     return div;
 }
+
+document.addEventListener('click', function(e) {
+    const card = e.target.closest('.appointment-record-card[data-href]');
+    if (!card) {
+        return;
+    }
+
+    if (e.target.closest('a, button, input, select, textarea, [onclick]')) {
+        return;
+    }
+
+    window.location.href = card.dataset.href;
+});
 
 // Add real-time search event listeners
 document.addEventListener('DOMContentLoaded', function() {

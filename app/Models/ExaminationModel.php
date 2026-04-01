@@ -117,7 +117,7 @@ class ExaminationModel extends TenantAwareModel
 
     public function getExaminationsByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'examinations.id', $orderDir = 'desc')
     {
-        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number')
+        $builder = $this->select('examinations.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = examinations.patient_id')
             ->where('examinations.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId); // Join guard
