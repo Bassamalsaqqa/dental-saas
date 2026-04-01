@@ -611,10 +611,29 @@ $(document).ready(function() {
                 data: 'name',
                 name: 'name',
                 render: function(data, type, row) {
+                    const gender = String(row.gender || 'other').toLowerCase();
+                    const avatarMap = {
+                        male: {
+                            icon: 'fas fa-person',
+                            shell: 'bg-emerald-100',
+                            iconColor: 'text-emerald-600'
+                        },
+                        female: {
+                            icon: 'fas fa-person-dress',
+                            shell: 'bg-emerald-100',
+                            iconColor: 'text-emerald-600'
+                        },
+                        other: {
+                            icon: 'fas fa-user',
+                            shell: 'bg-emerald-100',
+                            iconColor: 'text-emerald-600'
+                        }
+                    };
+                    const avatar = avatarMap[gender] || avatarMap.other;
                     return `
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user text-emerald-600 text-sm"></i>
+                            <div class="w-10 h-10 ${avatar.shell} rounded-lg flex items-center justify-center">
+                                <i class="${avatar.icon} ${avatar.iconColor} text-sm"></i>
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>

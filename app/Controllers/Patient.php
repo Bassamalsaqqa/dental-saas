@@ -304,6 +304,7 @@ class Patient extends BaseController
                     'id' => intval($patient['id'] ?? 0),
                     'patient_id' => $patient['patient_id'] ?? '',
                     'name' => trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')),
+                    'gender' => strtolower((string) ($patient['gender'] ?? 'other')),
                     'email' => $patient['email'] ?? '',
                     'phone' => $patient['phone'] ?? '',
                     'status' => $patient['status'] ?? 'active',

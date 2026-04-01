@@ -248,20 +248,19 @@ $patientGenderChipValue = $patientGenderShort . ' - ' . $patientAgeShort;
 $patientCityChipValue = $patientCity === lang('UI.patientNotProvided') ? lang('UI.patientNoneShort') : $patientCity;
 $patientPhoneChipValue = in_array($patientPhone, [lang('UI.patientNoPhone'), lang('UI.patientNotProvided')], true) ? lang('UI.patientNoneShort') : preg_replace('/\s+/', '', $patientPhone);
 
-$patientAvatarIcon = 'fas fa-user';
-if (!empty($patient['date_of_birth'])) {
-    try {
-        $ageYears = (new DateTime($patient['date_of_birth']))->diff(new DateTime())->y;
-        if ($ageYears < 16) {
-            $patientAvatarIcon = 'fas fa-child';
-        } elseif (strtolower((string) ($patient['gender'] ?? '')) === 'female') {
-            $patientAvatarIcon = 'fas fa-venus';
-        } elseif (strtolower((string) ($patient['gender'] ?? '')) === 'male') {
-            $patientAvatarIcon = 'fas fa-mars';
-        }
-    } catch (Throwable $e) {
-        $patientAvatarIcon = 'fas fa-user';
-    }
+$patientGenderValue = strtolower((string) ($patient['gender'] ?? 'other'));
+$patientHeroThemeClass = 'patient-hero-card-neutral';
+$patientAvatarToneClass = 'patient-avatar-badge-neutral';
+$patientAvatarIconClass = 'fas fa-user';
+
+if ($patientGenderValue === 'female') {
+    $patientHeroThemeClass = 'patient-hero-card-female';
+    $patientAvatarToneClass = 'patient-avatar-badge-female';
+    $patientAvatarIconClass = 'fas fa-person-dress';
+} elseif ($patientGenderValue === 'male') {
+    $patientHeroThemeClass = 'patient-hero-card-male';
+    $patientAvatarToneClass = 'patient-avatar-badge-male';
+    $patientAvatarIconClass = 'fas fa-person';
 }
 
 $heroInfoCapsules = [
@@ -279,7 +278,7 @@ $heroInfoCapsules = [
 <?= $this->section('content') ?>
 <div class="container patient-view mx-auto px-4 py-6 sm:px-6 sm:py-8">
     <div class="space-y-8">
-        <section class="patient-hero-card overflow-hidden rounded-[28px] border border-slate-200">
+        <section class="patient-hero-card <?= esc($patientHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200">
             <div class="patient-hero-overlay"></div>
             <div class="relative z-10 p-6 sm:p-8">
                 <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -290,8 +289,8 @@ $heroInfoCapsules = [
                             <span><?= esc(lang('UI.patientMemberSince')) ?> <?= esc($memberSince) ?></span>
                         </div>
                         <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
-                            <div class="patient-avatar-badge">
-                                <i class="<?= esc($patientAvatarIcon) ?>"></i>
+                            <div class="patient-avatar-badge <?= esc($patientAvatarToneClass) ?>">
+                                <i class="<?= esc($patientAvatarIconClass) ?>"></i>
                             </div>
                             <div class="space-y-4">
                                 <div class="space-y-2">
@@ -1655,27 +1654,57 @@ $heroInfoCapsules = [
 
     .patient-hero-card {
         position: relative;
-        background: linear-gradient(135deg, #0f3f90 0%, #1656c1 58%, #0f7cc1 100%);
+        --hero-angle: 135deg;
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        --hero-orb-primary: rgba(255, 255, 255, 0.18);
+        --hero-orb-secondary: rgba(125, 211, 252, 0.2);
+        background: linear-gradient(var(--hero-angle), var(--hero-start) 0%, var(--hero-mid) 58%, var(--hero-end) 100%);
         box-shadow: 0 28px 70px -44px rgba(15, 23, 42, 0.75);
     }
 
+    .patient-hero-card-male {
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        --hero-orb-primary: rgba(255, 255, 255, 0.18);
+        --hero-orb-secondary: rgba(125, 211, 252, 0.2);
+    }
+
+    .patient-hero-card-female {
+        --hero-start: #8a245a;
+        --hero-mid: #c03579;
+        --hero-end: #7c3aed;
+        --hero-orb-primary: rgba(255, 255, 255, 0.16);
+        --hero-orb-secondary: rgba(251, 207, 232, 0.24);
+    }
+
+    .patient-hero-card-neutral {
+        --hero-start: #334155;
+        --hero-mid: #2563eb;
+        --hero-end: #0f766e;
+        --hero-orb-primary: rgba(255, 255, 255, 0.16);
+        --hero-orb-secondary: rgba(153, 246, 228, 0.2);
+    }
+
     [dir="rtl"] .patient-hero-card {
-        background: linear-gradient(225deg, #0f3f90 0%, #1656c1 58%, #0f7cc1 100%);
+        --hero-angle: 225deg;
     }
 
     .patient-hero-overlay {
         position: absolute;
         inset: 0;
         background:
-            radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.18), transparent 30%),
-            radial-gradient(circle at 88% 20%, rgba(125, 211, 252, 0.2), transparent 26%),
+            radial-gradient(circle at 12% 18%, var(--hero-orb-primary), transparent 30%),
+            radial-gradient(circle at 88% 20%, var(--hero-orb-secondary), transparent 26%),
             linear-gradient(120deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
     }
 
     [dir="rtl"] .patient-hero-overlay {
         background:
-            radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.18), transparent 30%),
-            radial-gradient(circle at 12% 20%, rgba(125, 211, 252, 0.2), transparent 26%),
+            radial-gradient(circle at 88% 18%, var(--hero-orb-primary), transparent 30%),
+            radial-gradient(circle at 12% 20%, var(--hero-orb-secondary), transparent 26%),
             linear-gradient(240deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
     }
 
@@ -1689,8 +1718,25 @@ $heroInfoCapsules = [
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(191, 219, 254, 0.18));
         border: 1px solid rgba(255, 255, 255, 0.22);
         color: #ffffff;
-        font-size: 2rem;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 22px 40px -24px rgba(15, 23, 42, 0.72);
+    }
+
+    .patient-avatar-badge i {
+        font-size: 2.55rem;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    .patient-avatar-badge-male {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(191, 219, 254, 0.18));
+    }
+
+    .patient-avatar-badge-female {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(244, 114, 182, 0.18));
+    }
+
+    .patient-avatar-badge-neutral {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(94, 234, 212, 0.16));
     }
 
     .patient-meta-chip {
