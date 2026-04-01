@@ -442,46 +442,82 @@ $heroInfoCapsules = [
         <?php endif; ?>
 
         <section class="grid gap-4 md:grid-cols-2">
-            <div class="patient-rail-card patient-rail-card-compact <?= esc($clinicalSnapshotToneClass) ?>">
-                <div class="patient-panel-header pb-3">
+            <button type="button"
+                    onclick="return showTab('details', event)"
+                    class="patient-rail-card patient-snapshot-card <?= esc($clinicalSnapshotToneClass) ?>">
+                <div class="patient-snapshot-header">
                     <div class="flex items-start gap-3">
                         <div class="patient-rail-card-icon patient-rail-card-icon-clinical">
                             <i class="fas fa-heartbeat"></i>
                         </div>
                         <div>
-                            <h2 class="patient-panel-title"><?= esc(lang('UI.patientClinicalSnapshot')) ?></h2>
+                            <div class="patient-snapshot-kicker"><?= esc(lang('UI.patientClinicalSnapshot')) ?></div>
+                            <h2 class="patient-panel-title"><?= esc($clinicalSnapshotState) ?></h2>
                             <p class="patient-panel-copy"><?= esc(lang('UI.patientClinicalSnapshotHelp')) ?></p>
-                            <span class="patient-rail-card-state"><?= esc($clinicalSnapshotState) ?></span>
                         </div>
                     </div>
+                    <span class="patient-snapshot-link">
+                        <span><?= esc(lang('UI.patientTabDetails')) ?></span>
+                        <i class="fas fa-arrow-right rtl-back-icon"></i>
+                    </span>
                 </div>
-                <div class="space-y-2.5">
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientLastVisit')) ?></span><strong><?= esc($lastVisitLabel) ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientNextAppointment')) ?></span><strong><?= esc($nextAppointmentLabel) ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientActiveTreatmentsSummary')) ?></span><strong><?= $activeTreatmentsCount ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientMedicalAlertsSummary')) ?></span><strong><?= $medicalAlertCount ?></strong></div>
+                <div class="patient-snapshot-grid">
+                    <button type="button" onclick="event.stopPropagation(); return showTab('details', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientLastVisit')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= esc($lastVisitLabel) ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('appointments', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientNextAppointment')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= esc($nextAppointmentLabel) ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('treatments', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientActiveTreatmentsSummary')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= $activeTreatmentsCount ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('details', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientMedicalAlertsSummary')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= $medicalAlertCount ?></strong>
+                    </button>
                 </div>
-            </div>
-            <div class="patient-rail-card patient-rail-card-compact <?= esc($financialSnapshotToneClass) ?>">
-                <div class="patient-panel-header pb-3">
+            </button>
+            <button type="button"
+                    onclick="return showTab('finances', event)"
+                    class="patient-rail-card patient-snapshot-card <?= esc($financialSnapshotToneClass) ?>">
+                <div class="patient-snapshot-header">
                     <div class="flex items-start gap-3">
                         <div class="patient-rail-card-icon patient-rail-card-icon-financial">
                             <i class="fas fa-wallet"></i>
                         </div>
                         <div>
-                            <h2 class="patient-panel-title"><?= esc(lang('UI.patientFinancialSnapshot')) ?></h2>
+                            <div class="patient-snapshot-kicker"><?= esc(lang('UI.patientFinancialSnapshot')) ?></div>
+                            <h2 class="patient-panel-title"><?= esc($financialSnapshotState) ?></h2>
                             <p class="patient-panel-copy"><?= esc(lang('UI.patientFinancialSnapshotHelp')) ?></p>
-                            <span class="patient-rail-card-state"><?= esc($financialSnapshotState) ?></span>
                         </div>
                     </div>
+                    <span class="patient-snapshot-link">
+                        <span><?= esc(lang('UI.patientTabInvoice')) ?></span>
+                        <i class="fas fa-arrow-right rtl-back-icon"></i>
+                    </span>
                 </div>
-                <div class="space-y-2.5">
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientOutstandingBalance')) ?></span><strong><?= formatCurrency($outstandingBalance) ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientTotalBilled')) ?></span><strong><?= formatCurrency($totalBilled) ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientTotalPaid')) ?></span><strong><?= formatCurrency($totalPaid) ?></strong></div>
-                    <div class="patient-detail-row"><span><?= esc(lang('UI.patientInvoices')) ?></span><strong><?= count($finances) ?></strong></div>
+                <div class="patient-snapshot-grid">
+                    <button type="button" onclick="event.stopPropagation(); return showTab('finances', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientOutstandingBalance')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= formatCurrency($outstandingBalance) ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('finances', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientTotalBilled')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= formatCurrency($totalBilled) ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('finances', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientTotalPaid')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= formatCurrency($totalPaid) ?></strong>
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); return showTab('finances', event)" class="patient-snapshot-tile">
+                        <span class="patient-snapshot-tile-label"><?= esc(lang('UI.patientInvoices')) ?></span>
+                        <strong class="patient-snapshot-tile-value"><?= count($finances) ?></strong>
+                    </button>
                 </div>
-            </div>
+            </button>
         </section>
 
         <!-- Main Content Layout -->
@@ -2063,34 +2099,48 @@ $heroInfoCapsules = [
         padding: 1.35rem;
     }
 
-    .patient-rail-card-compact {
+    .patient-snapshot-card {
         position: relative;
         overflow: hidden;
-        padding: 1.05rem 1.05rem 1rem;
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        text-align: start;
         background: linear-gradient(180deg, #ffffff, #f8fafc);
         border-width: 1px;
-        box-shadow: 0 24px 40px -32px rgba(15, 23, 42, 0.28), 0 8px 18px -16px rgba(15, 23, 42, 0.12);
+        box-shadow: 0 20px 34px -30px rgba(15, 23, 42, 0.22), 0 6px 14px -14px rgba(15, 23, 42, 0.12);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
 
-    .patient-rail-card-compact > * {
+    .patient-snapshot-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 36px -28px rgba(15, 23, 42, 0.25), 0 12px 20px -18px rgba(15, 23, 42, 0.16);
+    }
+
+    .patient-snapshot-card:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
+    .patient-snapshot-card > * {
         position: relative;
         z-index: 1;
     }
 
-    .patient-rail-card-compact::before,
-    .patient-rail-card-compact::after {
+    .patient-snapshot-card::before,
+    .patient-snapshot-card::after {
         content: "";
         position: absolute;
         pointer-events: none;
     }
 
-    .patient-rail-card-compact::before {
+    .patient-snapshot-card::before {
         inset: 0;
         border-radius: inherit;
         opacity: 1;
     }
 
-    .patient-rail-card-compact::after {
+    .patient-snapshot-card::after {
         inset-inline: 1rem;
         top: 0;
         height: 3px;
@@ -2173,14 +2223,89 @@ $heroInfoCapsules = [
     .patient-panel-copy,
     .patient-shell-copy {
         margin-top: 0.35rem;
-        font-size: 0.82rem;
-        line-height: 1.5;
+        font-size: 0.79rem;
+        line-height: 1.45;
         color: #475569;
     }
 
-    .patient-rail-card-compact .patient-panel-copy {
-        font-size: 0.78rem;
-        line-height: 1.45;
+    .patient-snapshot-kicker {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .patient-snapshot-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .patient-snapshot-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(219, 229, 240, 0.95);
+        padding: 0.3rem 0.55rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #334155;
+        white-space: nowrap;
+    }
+
+    .patient-snapshot-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+    }
+
+    .patient-snapshot-tile {
+        display: flex;
+        min-height: 4.35rem;
+        width: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.35rem;
+        border-radius: 1rem;
+        border: 1px solid #dbe5f0;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 0.75rem 0.8rem;
+        text-align: start;
+        transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        box-shadow: 0 10px 18px -20px rgba(15, 23, 42, 0.2);
+    }
+
+    .patient-snapshot-tile:hover {
+        transform: translateY(-1px);
+        border-color: #bfdbfe;
+        box-shadow: 0 14px 20px -20px rgba(37, 99, 235, 0.18);
+        background: #ffffff;
+    }
+
+    .patient-snapshot-tile:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
+    .patient-snapshot-tile-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.35;
+        color: #64748b;
+    }
+
+    .patient-snapshot-tile-value {
+        display: block;
+        font-size: 0.96rem;
+        font-weight: 700;
+        line-height: 1.25;
+        color: #0f172a;
+        letter-spacing: -0.01em;
     }
 
     .patient-rail-card-icon {
@@ -2256,32 +2381,6 @@ $heroInfoCapsules = [
         align-items: center;
         justify-content: center;
         border-radius: 0.95rem;
-    }
-
-    .patient-detail-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.98);
-        border: 1px solid #dbe5f0;
-        padding: 0.72rem 0.85rem;
-        font-size: 0.84rem;
-        color: #334155;
-        box-shadow: 0 12px 20px -22px rgba(15, 23, 42, 0.24);
-    }
-
-    .patient-detail-row strong {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 9999px;
-        background: #ffffff;
-        padding: 0.28rem 0.58rem;
-        color: #0f172a;
-        font-weight: 600;
-        text-align: end;
-        box-shadow: inset 0 0 0 1px #dbe5f0;
     }
 
     .patient-summary-card {
