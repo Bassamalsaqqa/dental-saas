@@ -31,112 +31,106 @@
                             </div>
                         </div>
 
-                        <div class="p-8 space-y-8">
+                        <div class="p-8 space-y-6">
                             <?php if (!$kioskFeatureEnabled): ?>
                                 <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
                                     <?= lang('UI.settingsKioskDisabledByPlan') ?>
                                 </div>
                             <?php endif; ?>
 
-                            <div class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-                                <form action="<?= base_url('settings/updateKiosk') ?>" method="POST" class="space-y-6">
-                                    <?= csrf_field() ?>
+                            <form action="<?= base_url('settings/updateKiosk') ?>" method="POST" class="space-y-6">
+                                <?= csrf_field() ?>
 
-                                    <section class="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-5 <?= $kioskFeatureEnabled ? '' : 'opacity-60' ?>">
-                                        <div class="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?= lang('UI.settingsStepOne') ?></p>
-                                                <h4 class="mt-1 text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskAccessSecurity') ?></h4>
-                                                <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskAccessSecurityHelp') ?></p>
-                                            </div>
-                                            <label class="inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" name="kiosk_enabled" value="1" class="ui-toggle kiosk-toggle" <?= $kioskEnabled ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </label>
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                            <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.newPin') ?></label>
-                                                <input type="password" inputmode="numeric" name="kiosk_pin" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.pinDigitsPlaceholder') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.confirmPin') ?></label>
-                                                <input type="password" inputmode="numeric" name="kiosk_pin_confirm" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.reenterPin') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </div>
-                                        </div>
-
-                                        <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs text-slate-500">
-                                            <?= lang('TenantMisc.kioskPinHelp') ?> <?= lang('TenantMisc.defaultLanguage') ?>: <?= lang('TenantMisc.arabicDefault') ?>.
-                                        </div>
-                                    </section>
-
-                                    <div class="flex justify-end">
-                                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            <i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveKioskSettings') ?>
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <div class="space-y-6">
-                                    <section class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
+                                <section class="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-5 <?= $kioskFeatureEnabled ? '' : 'opacity-60' ?>">
+                                    <div class="flex items-start justify-between gap-4">
                                         <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?= lang('UI.settingsStepTwo') ?></p>
-                                            <h4 class="mt-1 text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskLaunchShare') ?></h4>
-                                            <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskLaunchShareHelp') ?></p>
+                                            <h4 class="text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskAccessSecurity') ?></h4>
+                                            <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskAccessSecurityHelp') ?></p>
                                         </div>
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="kiosk_enabled" value="1" class="ui-toggle kiosk-toggle" <?= $kioskEnabled ? 'checked' : '' ?> <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        </label>
+                                    </div>
 
-                                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                            <div class="text-xs font-medium text-slate-500 mb-1"><?= lang('UI.settingsKioskLink') ?></div>
-                                            <input id="kioskLinkInput" type="text" readonly value="<?= esc($kioskLink) ?>" class="w-full bg-transparent text-sm text-slate-700 border-0 p-0 focus:ring-0" />
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.newPin') ?></label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.pinDigitsPlaceholder') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
                                         </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.confirmPin') ?></label>
+                                            <input type="password" inputmode="numeric" name="kiosk_pin_confirm" dir="ltr" style="text-align: left;" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" placeholder="<?= lang('TenantMisc.reenterPin') ?>" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        </div>
+                                    </div>
 
-                                        <div class="flex flex-wrap gap-3">
-                                            <button type="button" onclick="copyKioskLink()" class="px-4 py-2.5 bg-white border border-blue-200 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                                <i class="fas fa-copy mr-2"></i><?= lang('UI.settingsCopyLink') ?>
-                                            </button>
-                                            <button type="button" onclick="openKioskLink()" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                                <i class="fas fa-arrow-up-right-from-square mr-2"></i><?= lang('UI.settingsOpenLink') ?>
-                                            </button>
-                                            <button type="button" onclick="downloadKioskQr()" class="px-4 py-2.5 bg-white border border-emerald-200 text-emerald-700 font-semibold rounded-xl hover:bg-emerald-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                                <i class="fas fa-download mr-2"></i><?= lang('UI.settingsDownloadQr') ?>
-                                            </button>
-                                        </div>
+                                    <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs text-slate-500">
+                                        <?= lang('TenantMisc.kioskPinHelp') ?> <?= lang('TenantMisc.defaultLanguage') ?>: <?= lang('TenantMisc.arabicDefault') ?>.
+                                    </div>
+                                </section>
 
-                                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col items-center justify-center min-h-[260px]">
-                                            <div id="kioskQrCode" class="rounded-xl bg-white p-3 shadow-sm"></div>
-                                            <p id="kioskQrStatus" class="mt-3 text-xs text-slate-500 text-center">
-                                                <?= $kioskReady ? lang('UI.settingsKioskQrReady') : lang('UI.settingsKioskQrUnavailable') ?>
-                                            </p>
-                                        </div>
-
-                                        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                                            <?= lang('UI.settingsKioskQrHelp') ?>
-                                        </div>
-                                    </section>
-
-                                    <section class="rounded-2xl border <?= $kioskReady ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' ?> p-5">
-                                        <div class="flex items-start gap-3">
-                                            <div class="mt-0.5 text-lg <?= $kioskReady ? 'text-emerald-600' : 'text-amber-600' ?>">
-                                                <i class="fas <?= $kioskReady ? 'fa-circle-check' : 'fa-circle-exclamation' ?>"></i>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-sm font-bold <?= $kioskReady ? 'text-emerald-900' : 'text-amber-900' ?>">
-                                                    <?= $kioskReady ? lang('UI.settingsKioskReadyTitle') : lang('UI.settingsKioskNeedsAttentionTitle') ?>
-                                                </h5>
-                                                <p class="mt-1 text-sm <?= $kioskReady ? 'text-emerald-800' : 'text-amber-800' ?>">
-                                                    <?= $kioskReady ? lang('UI.settingsKioskReadyHelp') : lang('UI.settingsKioskNeedsAttentionHelp') ?>
-                                                </p>
-                                                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                    <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsEnableKioskCheckin') ?>:</span> <?= $kioskEnabled ? lang('UI.settingsKioskEnabledState') : lang('UI.settingsKioskDisabledState') ?></div>
-                                                    <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('TenantMisc.defaultLanguage') ?>:</span> <?= esc($kioskLanguage) ?></div>
-                                                    <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsKioskPinLabel') ?>:</span> <?= ($kiosk_pin_set ?? false) ? lang('UI.settingsPinSet') : lang('UI.settingsPinNotSet') ?></div>
-                                                    <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsKioskLink') ?>:</span> <?= $kioskFeatureEnabled ? lang('UI.settingsAvailable') : lang('UI.settingsUnavailable') ?></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </section>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-200 shadow-lg" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-save mr-2"></i><?= lang('UI.settingsSaveKioskSettings') ?>
+                                    </button>
                                 </div>
-                            </div>
+                            </form>
+
+                            <section class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskLaunchShare') ?></h4>
+                                    <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskLaunchShareHelp') ?></p>
+                                </div>
+
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <div class="text-xs font-medium text-slate-500 mb-1"><?= lang('UI.settingsKioskLink') ?></div>
+                                    <input id="kioskLinkInput" type="text" readonly value="<?= esc($kioskLink) ?>" class="w-full bg-transparent text-sm text-slate-700 border-0 p-0 focus:ring-0" />
+                                </div>
+
+                                <div class="flex flex-wrap gap-3">
+                                    <button type="button" onclick="copyKioskLink()" class="px-4 py-2.5 bg-white border border-blue-200 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-copy mr-2"></i><?= lang('UI.settingsCopyLink') ?>
+                                    </button>
+                                    <button type="button" onclick="openKioskLink()" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-arrow-up-right-from-square mr-2"></i><?= lang('UI.settingsOpenLink') ?>
+                                    </button>
+                                    <button type="button" onclick="downloadKioskQr()" class="px-4 py-2.5 bg-white border border-emerald-200 text-emerald-700 font-semibold rounded-xl hover:bg-emerald-50 transition-all" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
+                                        <i class="fas fa-download mr-2"></i><?= lang('UI.settingsDownloadQr') ?>
+                                    </button>
+                                </div>
+
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col items-center justify-center min-h-[260px]">
+                                    <div id="kioskQrCode" class="rounded-xl bg-white p-3 shadow-sm"></div>
+                                    <p id="kioskQrStatus" class="mt-3 text-xs text-slate-500 text-center">
+                                        <?= $kioskReady ? lang('UI.settingsKioskQrReady') : lang('UI.settingsKioskQrUnavailable') ?>
+                                    </p>
+                                </div>
+
+                                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                                    <?= lang('UI.settingsKioskQrHelp') ?>
+                                </div>
+                            </section>
+
+                            <section class="rounded-2xl border <?= $kioskReady ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' ?> p-5">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-0.5 text-lg <?= $kioskReady ? 'text-emerald-600' : 'text-amber-600' ?>">
+                                        <i class="fas <?= $kioskReady ? 'fa-circle-check' : 'fa-circle-exclamation' ?>"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-sm font-bold <?= $kioskReady ? 'text-emerald-900' : 'text-amber-900' ?>">
+                                            <?= $kioskReady ? lang('UI.settingsKioskReadyTitle') : lang('UI.settingsKioskNeedsAttentionTitle') ?>
+                                        </h5>
+                                        <p class="mt-1 text-sm <?= $kioskReady ? 'text-emerald-800' : 'text-amber-800' ?>">
+                                            <?= $kioskReady ? lang('UI.settingsKioskReadyHelp') : lang('UI.settingsKioskNeedsAttentionHelp') ?>
+                                        </p>
+                                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                            <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsEnableKioskCheckin') ?>:</span> <?= $kioskEnabled ? lang('UI.settingsKioskEnabledState') : lang('UI.settingsKioskDisabledState') ?></div>
+                                            <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('TenantMisc.defaultLanguage') ?>:</span> <?= esc($kioskLanguage) ?></div>
+                                            <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsKioskPinLabel') ?>:</span> <?= ($kiosk_pin_set ?? false) ? lang('UI.settingsPinSet') : lang('UI.settingsPinNotSet') ?></div>
+                                            <div class="rounded-lg bg-white/70 px-3 py-2 text-slate-700"><span class="font-semibold"><?= lang('UI.settingsKioskLink') ?>:</span> <?= $kioskFeatureEnabled ? lang('UI.settingsAvailable') : lang('UI.settingsUnavailable') ?></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
 

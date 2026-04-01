@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Self Check-In',
+    'headerCompactLine' => 'Check in quickly and confirm today’s visit.',
     'headerEnglish' => 'Self Check-In',
     'headerArabic' => 'تسجيل ذاتي',
     'enterClinicPin' => 'Enter Clinic PIN',
@@ -33,6 +34,15 @@ return [
     'total' => 'Total',
     'reviewAndSign' => 'Review & Sign',
     'needHelp' => 'Need help? Please ask the reception desk.',
+    'balanceCardTitle' => 'Balance Due',
+    'balanceLookupHelp' => 'Shown after the patient record is matched.',
+    'balancePayAtReception' => 'Please pay at reception if needed.',
+    'balanceClearTitle' => 'No balance due',
+    'balanceClearHelp' => 'No payment is needed right now.',
+    'completionBadge' => 'Checked In',
+    'completionTitle' => 'You are checked in',
+    'completionNextStepTitle' => 'Next step',
+    'completionNextStepHelp' => 'Please wait in reception until the team calls your name.',
     'planItems' => 'Plan Items',
     'tooth' => 'Tooth',
     'description' => 'Description',

@@ -20,9 +20,9 @@ $resultsEmptyLabel = $isArabic ? 'لا توجد نتائج حتى الآن' : 'N
 $resultsEmptyHint = $isArabic ? 'بعد إدخال رقم الجوال ستظهر المواعيد أو البيانات أو العقود المطلوبة هنا.' : 'Appointments, details, and pending signatures will appear here after a phone lookup.';
 $contractModalHint = $isArabic ? 'راجع الخطة ثم وقع لإكمال الطلب.' : 'Review the plan, then sign to complete the request.';
 $clinicTagline = trim((string) ($settings['clinic_tagline'] ?? ''));
-$heroLine = $clinicTagline !== '' ? $clinicTagline : ($isArabic ? 'تسجيل سريع وآمن لزيارة اليوم.' : 'Fast, secure check-in for today\'s visit.');
+$heroLine = $clinicTagline !== '' ? $clinicTagline : lang('Kiosk.headerCompactLine');
 $footerHelp = $isArabic ? 'إذا احتجت مساعدة، راجع موظف الاستقبال.' : 'If you need help, please ask the reception desk.';
-$headerTip = $isArabic ? 'تأكيد الموعد وتحديث البيانات خلال دقائق.' : 'Confirm today\'s visit and update details in minutes.';
+
 
 $logoPath = $settings['clinic_logo_path'] ?? '';
 $logoSrc = '';
@@ -63,6 +63,9 @@ $workflowSteps = [
     ['number' => '3', 'label' => $stepDetailsLabel, 'active' => $hasPatients],
     ['number' => '4', 'label' => $stepContractsLabel, 'active' => $hasContracts],
 ];
+$balanceSummary = $balance_summary ?? null;
+$completionState = $completion ?? null;
+$completionBalance = $completionState['balance_summary'] ?? null;
 ?>
 <div id="kioskSessionRoot"
      class="min-h-screen"
@@ -112,10 +115,6 @@ $workflowSteps = [
                             <p class="max-w-2xl text-sm leading-6 text-slate-200" dir="auto" style="unicode-bidi: plaintext;">
                                 <?= esc($heroLine) ?>
                             </p>
-                            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 backdrop-blur-sm">
-                                <i class="fas fa-circle-info text-[11px]"></i>
-                                <span><?= esc($headerTip) ?></span>
-                            </div>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
@@ -157,6 +156,70 @@ $workflowSteps = [
                                 <?= esc(lang('Kiosk.unlockKiosk')) ?>
                             </button>
                         </form>
+                    </div>
+                <?php elseif (!empty($completionState)): ?>
+                    <div class="mx-auto max-w-3xl space-y-6">
+                        <section class="rounded-[1.75rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-8 shadow-lg shadow-emerald-100/60">
+                            <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-600 text-white shadow-lg shadow-emerald-200">
+                                        <i class="fas fa-circle-check text-2xl"></i>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                                            <i class="fas fa-check"></i>
+                                            <?= esc(lang('Kiosk.completionBadge')) ?>
+                                        </div>
+                                        <h2 class="text-2xl font-bold tracking-tight text-slate-900"><?= esc(lang('Kiosk.completionTitle')) ?></h2>
+                                        <p class="text-sm leading-6 text-slate-600"><?= esc($completionState['message'] ?? lang('Kiosk.msgAppointmentConfirmed')) ?></p>
+                                        <div class="flex flex-wrap gap-3 pt-1 text-sm text-slate-700">
+                                            <?php if (!empty($completionState['patient_name'])): ?>
+                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-user text-slate-400"></i><?= esc($completionState['patient_name']) ?></span>
+                                            <?php endif; ?>
+                                            <?php if (!empty($completionState['appointment_date']) || !empty($completionState['appointment_time'])): ?>
+                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-calendar-day text-slate-400"></i><?= esc(trim(($completionState['appointment_date'] ?? '') . ' ' . ($completionState['appointment_time'] ?? ''))) ?></span>
+                                            <?php endif; ?>
+                                            <?php if (!empty($completionState['appointment_type'])): ?>
+                                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2"><i class="fas fa-stethoscope text-slate-400"></i><?= esc($completionState['appointment_type']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="<?= base_url('kiosk/' . $clinic['uuid'] . '/check-in/reset') ?>" class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                                    <i class="fas fa-rotate-left text-slate-400"></i>
+                                    <?= esc(lang('Kiosk.notYouReenter')) ?>
+                                </a>
+                            </div>
+                        </section>
+
+                        <section class="grid gap-4 md:grid-cols-2">
+                            <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600"><i class="fas fa-chair"></i></span>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-slate-900"><?= esc(lang('Kiosk.completionNextStepTitle')) ?></h3>
+                                        <p class="text-sm text-slate-500"><?= esc(lang('Kiosk.completionNextStepHelp')) ?></p>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="rounded-[1.5rem] border <?= !empty($completionBalance['has_due']) ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50' ?> p-6 shadow-lg <?= !empty($completionBalance['has_due']) ? 'shadow-amber-100/60' : 'shadow-emerald-100/60' ?>">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl <?= !empty($completionBalance['has_due']) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                                        <i class="fas <?= !empty($completionBalance['has_due']) ? 'fa-wallet' : 'fa-circle-check' ?>"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="text-lg font-semibold <?= !empty($completionBalance['has_due']) ? 'text-amber-900' : 'text-emerald-900' ?>"><?= esc(lang('Kiosk.balanceCardTitle')) ?></h3>
+                                        <?php if (!empty($completionBalance['has_due'])): ?>
+                                            <p class="text-lg font-bold text-amber-900"><?= esc($completionBalance['outstanding_formatted'] ?? formatCurrency(0)) ?></p>
+                                            <p class="text-sm text-amber-800"><?= esc(lang('Kiosk.balancePayAtReception')) ?></p>
+                                        <?php else: ?>
+                                            <p class="text-lg font-bold text-emerald-900"><?= esc(lang('Kiosk.balanceClearTitle')) ?></p>
+                                            <p class="text-sm text-emerald-800"><?= esc(lang('Kiosk.balanceClearHelp')) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
                     </div>
                 <?php else: ?>
                     <div class="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(22rem,0.7fr)]">
@@ -254,6 +317,23 @@ $workflowSteps = [
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Kiosk.needHelp')) ?></div>
                                         <div class="mt-1 text-sm font-semibold text-slate-700"><?= esc($footerHelp) ?></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="kioskBalanceSummaryCard" class="rounded-[1.75rem] border <?= !empty($balanceSummary['has_due']) ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white' ?> p-6 shadow-lg shadow-slate-200/60 <?= $balanceSummary ? '' : 'hidden' ?>">
+                                <div class="flex items-start gap-3">
+                                    <span id="kioskBalanceIcon" class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl <?= !empty($balanceSummary['has_due']) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                                        <i class="fas <?= !empty($balanceSummary['has_due']) ? 'fa-wallet' : 'fa-circle-check' ?>"></i>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h3 class="text-lg font-semibold <?= !empty($balanceSummary['has_due']) ? 'text-amber-900' : 'text-slate-900' ?>"><?= esc(lang('Kiosk.balanceCardTitle')) ?></h3>
+                                        <p id="kioskBalanceAmount" class="mt-2 text-xl font-bold <?= !empty($balanceSummary['has_due']) ? 'text-amber-900' : 'text-emerald-700' ?>">
+                                            <?= esc(($balanceSummary['has_due'] ?? false) ? ($balanceSummary['outstanding_formatted'] ?? formatCurrency(0)) : lang('Kiosk.balanceClearTitle')) ?>
+                                        </p>
+                                        <p id="kioskBalanceHelp" class="mt-1 text-sm <?= !empty($balanceSummary['has_due']) ? 'text-amber-800' : 'text-slate-500' ?>">
+                                            <?= esc(($balanceSummary['has_due'] ?? false) ? lang('Kiosk.balancePayAtReception') : lang('Kiosk.balanceLookupHelp')) ?>
+                                        </p>
                                     </div>
                                 </div>
                             </section>
@@ -474,6 +554,10 @@ const kioskI18n = <?= json_encode([
     'unableSignPlanNow' => lang('Kiosk.unableSignPlanNow'),
     'error' => lang('Kiosk.error'),
     'planPrefix' => lang('Kiosk.planPrefix'),
+    'balanceCardTitle' => lang('Kiosk.balanceCardTitle'),
+    'balanceClearTitle' => lang('Kiosk.balanceClearTitle'),
+    'balanceLookupHelp' => lang('Kiosk.balanceLookupHelp'),
+    'balancePayAtReception' => lang('Kiosk.balancePayAtReception'),
 ], JSON_UNESCAPED_UNICODE) ?>;
 const kioskActionBar = document.getElementById('kioskActionBar');
 const kioskActionButtons = Array.from(document.querySelectorAll('[data-kiosk-action-btn]'));
@@ -757,6 +841,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const contractsWrap = document.getElementById('kioskContracts');
                 const contractsList = document.getElementById('kioskContractList');
+                const balanceCard = document.getElementById('kioskBalanceSummaryCard');
+                const balanceAmount = document.getElementById('kioskBalanceAmount');
+                const balanceHelp = document.getElementById('kioskBalanceHelp');
+                const balanceIcon = document.getElementById('kioskBalanceIcon');
                 let hasContracts = false;
                 if (contractsWrap && contractsList) {
                     clearNode(contractsList);
@@ -799,6 +887,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     hasContracts,
                     hasConfirmable: !!(data.appointments || []).some((item) => !!item.can_confirm),
                 });
+
+                if (balanceCard && balanceAmount && balanceHelp && balanceIcon) {
+                    const summary = data.balance_summary || null;
+                    if (!summary) {
+                        balanceCard.classList.add('hidden');
+                    } else {
+                        balanceCard.classList.remove('hidden');
+                        const hasDue = !!summary.has_due;
+                        balanceCard.classList.remove('border-amber-200', 'bg-amber-50', 'border-slate-200', 'bg-white');
+                        balanceIcon.classList.remove('bg-amber-100', 'text-amber-700', 'bg-emerald-100', 'text-emerald-700');
+                        balanceAmount.classList.remove('text-amber-900', 'text-emerald-700');
+                        balanceHelp.classList.remove('text-amber-800', 'text-slate-500');
+                        const iconNode = balanceIcon.querySelector('i');
+                        if (iconNode) {
+                            iconNode.className = `fas ${hasDue ? 'fa-wallet' : 'fa-circle-check'}`;
+                        }
+                        if (hasDue) {
+                            balanceCard.classList.add('border-amber-200', 'bg-amber-50');
+                            balanceIcon.classList.add('bg-amber-100', 'text-amber-700');
+                            balanceAmount.classList.add('text-amber-900');
+                            balanceHelp.classList.add('text-amber-800');
+                            balanceAmount.textContent = summary.outstanding_formatted || '';
+                            balanceHelp.textContent = kioskI18n.balancePayAtReception;
+                        } else {
+                            balanceCard.classList.add('border-slate-200', 'bg-white');
+                            balanceIcon.classList.add('bg-emerald-100', 'text-emerald-700');
+                            balanceAmount.classList.add('text-emerald-700');
+                            balanceHelp.classList.add('text-slate-500');
+                            balanceAmount.textContent = kioskI18n.balanceClearTitle;
+                            balanceHelp.textContent = kioskI18n.balanceLookupHelp;
+                        }
+                    }
+                }
 
                 results.classList.remove('hidden');
             } catch (error) {
@@ -1068,3 +1189,4 @@ if (kioskForm) {
 }
 </script>
 <?= $this->endSection() ?>
+

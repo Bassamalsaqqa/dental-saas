@@ -280,7 +280,7 @@ $heroInfoCapsules = [
 ?>
 
 <?= $this->section('content') ?>
-<div class="patient-view mx-auto w-full max-w-[1680px] px-3 py-6 sm:px-4 sm:py-8 xl:px-5">
+<div class="patient-view mx-auto w-full max-w-none px-2 py-6 sm:px-3 sm:py-8 xl:px-4 2xl:px-5">
     <div class="space-y-8">
         <section class="patient-hero-card <?= esc($patientHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200">
             <div class="patient-hero-overlay"></div>

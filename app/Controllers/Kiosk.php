@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\ApiRuntimeContext;
 use App\Models\AppointmentModel;
 use App\Models\ClinicModel;
+use App\Models\FinanceModel;
 use App\Models\PatientModel;
 use App\Models\SettingsModel;
 use App\Models\TreatmentContractItemModel;
@@ -21,6 +22,7 @@ class Kiosk extends BaseController
     protected SettingsModel $settingsModel;
     protected AppointmentModel $appointmentModel;
     protected PatientModel $patientModel;
+    protected FinanceModel $financeModel;
     protected TreatmentContractModel $contractModel;
     protected TreatmentContractItemModel $contractItemModel;
     protected TreatmentContractOdontogramSnapshotModel $contractSnapshotModel;
@@ -34,6 +36,7 @@ class Kiosk extends BaseController
         $this->settingsModel = new SettingsModel();
         $this->appointmentModel = new AppointmentModel();
         $this->patientModel = new PatientModel();
+        $this->financeModel = new FinanceModel();
         $this->contractModel = new TreatmentContractModel();
         $this->contractItemModel = new TreatmentContractItemModel();
         $this->contractSnapshotModel = new TreatmentContractOdontogramSnapshotModel();
@@ -70,6 +73,8 @@ class Kiosk extends BaseController
             'pin_verified' => $this->isPinVerified((int) $clinic['id']),
             'appointments' => [],
             'lookup_phone' => '',
+            'balance_summary' => null,
+            'completion' => session()->getFlashdata('kiosk_completion'),
         ];
 
         return $this->view('kiosk/check_in', $data);
@@ -193,6 +198,7 @@ class Kiosk extends BaseController
         }
         $contractsEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.enabled', false);
         $signatureEnabled = $this->planGuard->isFeatureEnabled((int) $clinic['id'], 'contracts.signature.enabled', false);
+        $balanceSummary = $this->buildBalanceSummary((int) $clinic['id'], $allowedPatients);
         $contracts = [];
         if ($contractsEnabled && !empty($allowedPatients)) {
             foreach ($allowedPatients as $patientId) {
@@ -242,6 +248,8 @@ class Kiosk extends BaseController
             'contracts' => $contracts,
             'contracts_enabled' => $contractsEnabled,
             'signature_enabled' => $signatureEnabled,
+            'balance_summary' => $balanceSummary,
+            'completion' => null,
         ];
 
         if (empty($allowedPatients)) {
@@ -260,6 +268,7 @@ class Kiosk extends BaseController
                 'contracts' => $contracts,
                 'contracts_enabled' => $contractsEnabled,
                 'signature_enabled' => $signatureEnabled,
+                'balance_summary' => $balanceSummary,
                 'csrf_name' => csrf_token(),
                 'csrf_token' => csrf_hash(),
             ]);
@@ -304,7 +313,7 @@ class Kiosk extends BaseController
 
         $today = $this->clinicToday($settings);
         $appointment = $this->appointmentModel
-            ->select('appointments.id, appointments.status, appointments.appointment_date, patients.phone')
+            ->select('appointments.id, appointments.status, appointments.appointment_date, appointments.appointment_time, appointments.appointment_type, appointments.patient_id, patients.phone, patients.first_name, patients.last_name')
             ->join('patients', 'patients.id = appointments.patient_id')
             ->where('appointments.id', $appointmentId)
             ->where('appointments.appointment_date', $today)
@@ -332,8 +341,17 @@ class Kiosk extends BaseController
         $remaining = array_values(array_filter($allowed, static fn($id) => (int) $id !== $appointmentId));
         session()->set('kiosk_allowed_appointments', $remaining);
 
+        $completion = [
+            'message' => $this->tr('msgAppointmentConfirmed'),
+            'patient_name' => trim(($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '')),
+            'appointment_date' => $appointment['appointment_date'] ?? '',
+            'appointment_time' => $appointment['appointment_time'] ?? '',
+            'appointment_type' => $appointment['appointment_type'] ?? '',
+            'balance_summary' => $this->buildBalanceSummary((int) $clinic['id'], [(int) ($appointment['patient_id'] ?? 0)]),
+        ];
+
         return redirect()->to(base_url('kiosk/' . $clinic['uuid'] . '/check-in'))
-            ->with('success', $this->tr('msgAppointmentConfirmed'));
+            ->with('kiosk_completion', $completion);
     }
 
     public function updateDetails(string $clinicUuid)
@@ -598,6 +616,50 @@ class Kiosk extends BaseController
             'kiosk_allowed_patients',
             'kiosk_allowed_contracts',
         ]);
+    }
+
+    private function buildBalanceSummary(int $clinicId, array $patientIds): ?array
+    {
+        $patientIds = array_values(array_filter(array_map('intval', $patientIds), static fn($id) => $id > 0));
+        if ($patientIds === []) {
+            return null;
+        }
+
+        $rows = $this->financeModel
+            ->select('patient_id, total_amount, amount, discount_amount, tax_amount, balance_due')
+            ->where('clinic_id', $clinicId)
+            ->whereIn('patient_id', $patientIds)
+            ->where('transaction_type', 'invoice')
+            ->findAll();
+
+        if ($rows === []) {
+            return [
+                'outstanding_amount' => 0.0,
+                'outstanding_formatted' => formatCurrency(0),
+                'open_invoices' => 0,
+                'has_due' => false,
+            ];
+        }
+
+        $outstanding = 0.0;
+        $openInvoices = 0;
+        foreach ($rows as $row) {
+            $totalAmount = isset($row['total_amount'])
+                ? (float) $row['total_amount']
+                : (float) (($row['amount'] ?? 0) - ($row['discount_amount'] ?? 0) + ($row['tax_amount'] ?? 0));
+            $balanceDue = isset($row['balance_due']) ? max(0, (float) $row['balance_due']) : max(0, $totalAmount);
+            $outstanding += $balanceDue;
+            if ($balanceDue > 0.009) {
+                $openInvoices++;
+            }
+        }
+
+        return [
+            'outstanding_amount' => round($outstanding, 2),
+            'outstanding_formatted' => formatCurrency($outstanding),
+            'open_invoices' => $openInvoices,
+            'has_due' => $outstanding > 0.009,
+        ];
     }
 
     private function normalizePhone(string $phone): string

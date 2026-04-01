@@ -2,6 +2,7 @@
 
 return [
     'title' => 'تسجيل ذاتي',
+    'headerCompactLine' => 'تسجيل سريع وتأكيد موعد اليوم.',
     'headerEnglish' => 'Self Check-In',
     'headerArabic' => 'تسجيل ذاتي',
     'enterClinicPin' => 'أدخل رمز العيادة',
@@ -33,6 +34,15 @@ return [
     'total' => 'الإجمالي',
     'reviewAndSign' => 'مراجعة وتوقيع',
     'needHelp' => 'تحتاج مساعدة؟ يرجى مراجعة الاستقبال.',
+    'balanceCardTitle' => 'المبلغ المستحق',
+    'balanceLookupHelp' => 'يظهر بعد مطابقة ملف المريض.',
+    'balancePayAtReception' => 'يرجى السداد في الاستقبال عند الحاجة.',
+    'balanceClearTitle' => 'لا يوجد مستحق',
+    'balanceClearHelp' => 'لا توجد دفعة مطلوبة الآن.',
+    'completionBadge' => 'تم تسجيل الوصول',
+    'completionTitle' => 'تم تسجيل وصولك',
+    'completionNextStepTitle' => 'الخطوة التالية',
+    'completionNextStepHelp' => 'يرجى الانتظار في الاستقبال حتى ينادي الفريق باسمك.',
     'planItems' => 'بنود الخطة',
     'tooth' => 'السن',
     'description' => 'الوصف',
