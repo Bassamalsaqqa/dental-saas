@@ -3,10 +3,10 @@
                     <?php $kioskLink = !empty($clinic_uuid) ? base_url('kiosk/' . $clinic_uuid . '/check-in') : ''; ?>
                     <?php $kioskEnabled = !empty($settings['kiosk_enabled']); ?>
                     <?php $kioskReady = $kioskFeatureEnabled && $kioskEnabled && !empty($kiosk_pin_set); ?>
-                    <?php $kioskLanguage = ($settings['kiosk_default_language'] ?? 'ar') === 'en' ? lang('TenantMisc.english') : lang('TenantMisc.arabicDefault'); ?>
+                    <?php $kioskLanguage = lang('TenantMisc.arabicDefault'); ?>
 
                     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div class="border-b border-slate-200 bg-slate-50 px-8 py-6">
+                        <div class="border-b border-slate-200 bg-slate-50 px-8 py-5">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                 <div class="flex items-start gap-4">
                                     <div class="w-11 h-11 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center flex-shrink-0">
@@ -14,7 +14,7 @@
                                     </div>
                                     <div>
                                         <h3 class="text-xl font-semibold text-slate-900"><?= lang('UI.settingsKiosk') ?></h3>
-                                        <p class="mt-1 text-sm text-slate-500 max-w-2xl"><?= lang('UI.settingsKioskDesc') ?></p>
+                                        <p class="mt-1 text-sm text-slate-500 max-w-2xl"><?= lang('UI.settingsKioskLaunchShareHelp') ?></p>
                                     </div>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
@@ -38,7 +38,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <div class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                            <div class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
                                 <form action="<?= base_url('settings/updateKiosk') ?>" method="POST" class="space-y-6">
                                     <?= csrf_field() ?>
 
@@ -66,37 +66,7 @@
                                         </div>
 
                                         <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-xs text-slate-500">
-                                            <?= lang('TenantMisc.kioskPinHelp') ?>
-                                        </div>
-                                    </section>
-
-                                    <section class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 <?= $kioskFeatureEnabled ? '' : 'opacity-60' ?>">
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?= lang('UI.settingsStepTwo') ?></p>
-                                            <h4 class="mt-1 text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskScreenContent') ?></h4>
-                                            <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskScreenContentHelp') ?></p>
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                            <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.kioskHeader') ?></label>
-                                                <input type="text" name="kiosk_header" value="<?= esc($settings['kiosk_header'] ?? lang('TenantMisc.kioskHeaderDefault')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.defaultLanguage') ?></label>
-                                                <select name="kiosk_default_language" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                                    <option value="ar" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'ar') ? 'selected' : '' ?>><?= lang('TenantMisc.arabicDefault') ?></option>
-                                                    <option value="en" <?= (($settings['kiosk_default_language'] ?? 'ar') === 'en') ? 'selected' : '' ?>><?= lang('TenantMisc.english') ?></option>
-                                                </select>
-                                            </div>
-                                            <div class="md:col-span-2">
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.kioskSubheader') ?></label>
-                                                <input type="text" name="kiosk_subheader" value="<?= esc($settings['kiosk_subheader'] ?? lang('TenantMisc.kioskSubheaderDefault')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </div>
-                                            <div class="md:col-span-2">
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('TenantMisc.footerNoteOptional') ?></label>
-                                                <input type="text" name="kiosk_footer_note" value="<?= esc($settings['kiosk_footer_note'] ?? lang('TenantMisc.kioskFooterDefault')) ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200" <?= $kioskFeatureEnabled ? '' : 'disabled' ?>>
-                                            </div>
+                                            <?= lang('TenantMisc.kioskPinHelp') ?> <?= lang('TenantMisc.defaultLanguage') ?>: <?= lang('TenantMisc.arabicDefault') ?>.
                                         </div>
                                     </section>
 
@@ -110,7 +80,7 @@
                                 <div class="space-y-6">
                                     <section class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
                                         <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?= lang('UI.settingsStepThree') ?></p>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?= lang('UI.settingsStepTwo') ?></p>
                                             <h4 class="mt-1 text-lg font-semibold text-slate-900"><?= lang('UI.settingsKioskLaunchShare') ?></h4>
                                             <p class="mt-1 text-sm text-slate-500"><?= lang('UI.settingsKioskLaunchShareHelp') ?></p>
                                         </div>

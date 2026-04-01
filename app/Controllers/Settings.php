@@ -386,10 +386,6 @@ class Settings extends BaseController
             'kiosk_enabled' => 'permit_empty|in_list[0,1]',
             'kiosk_pin' => 'permit_empty|regex_match[/^[0-9]{4,8}$/]',
             'kiosk_pin_confirm' => 'permit_empty|regex_match[/^[0-9]{4,8}$/]',
-            'kiosk_header' => 'permit_empty|max_length[60]',
-            'kiosk_subheader' => 'permit_empty|max_length[120]',
-            'kiosk_footer_note' => 'permit_empty|max_length[160]',
-            'kiosk_default_language' => 'permit_empty|in_list[ar,en]',
         ];
 
         if (!$this->validate($rules)) {
@@ -415,10 +411,7 @@ class Settings extends BaseController
 
         $settingsData = [
             'kiosk_enabled' => $enableRequested ? 1 : 0,
-            'kiosk_header' => trim((string) $this->request->getPost('kiosk_header')) ?: 'Self Check-In',
-            'kiosk_subheader' => trim((string) $this->request->getPost('kiosk_subheader')) ?: 'Confirm your appointment in seconds.',
-            'kiosk_footer_note' => trim((string) $this->request->getPost('kiosk_footer_note')) ?: 'Need help? Please ask the reception desk.',
-            'kiosk_default_language' => trim((string) $this->request->getPost('kiosk_default_language')) ?: 'ar',
+            'kiosk_default_language' => 'ar',
         ];
 
         if (!$this->saveSettings($settingsData)) {
