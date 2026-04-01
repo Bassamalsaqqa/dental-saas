@@ -280,7 +280,7 @@ $heroInfoCapsules = [
 ?>
 
 <?= $this->section('content') ?>
-<div class="container patient-view mx-auto px-4 py-6 sm:px-6 sm:py-8">
+<div class="patient-view mx-auto w-full max-w-[1680px] px-3 py-6 sm:px-4 sm:py-8 xl:px-5">
     <div class="space-y-8">
         <section class="patient-hero-card <?= esc($patientHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200">
             <div class="patient-hero-overlay"></div>
@@ -443,61 +443,64 @@ $heroInfoCapsules = [
 
         <!-- Main Content Layout -->
         <div class="w-full">
+            <?php
+            $patientTabCount = 7 + (!empty($attachments_enabled) ? 1 : 0) + (!empty($contracts_enabled) ? 1 : 0);
+            ?>
             <!-- Patient History Tabs -->
             <div class="w-full">
                 <div class="patient-shell">
                     <!-- Tab Navigation -->
                     <div class="patient-shell-nav">
                         <div class="flex flex-col gap-4">
-                            <nav class="flex flex-wrap gap-2" aria-label="Tabs">
+                            <nav class="grid w-full gap-2" style="grid-template-columns: repeat(<?= $patientTabCount ?>, minmax(0, 1fr));" aria-label="Tabs">
                                 <button type="button" onclick="return showTab('details', event)" 
                                         id="details-tab" 
-                                        class="tab-button active whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-user mr-2"></i><?= esc(lang('UI.patientTabDetails')) ?>
+                                        class="tab-button active inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-user shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabDetails')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('timeline', event)" 
                                         id="timeline-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-history mr-2"></i><?= esc(lang('UI.patientTabTimeline')) ?>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-history shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabTimeline')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('examinations', event)" 
                                         id="examinations-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-stethoscope mr-2"></i><?= esc(lang('UI.patientTabExams')) ?> <span class="tab-count"><?= count($examinations) ?></span>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-stethoscope shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabExams')) ?></span> <span class="tab-count shrink-0"><?= count($examinations) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('appointments', event)" 
                                         id="appointments-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-calendar mr-2"></i><?= esc(lang('UI.patientTabAppts')) ?> <span class="tab-count"><?= count($appointments) ?></span>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-calendar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAppts')) ?></span> <span class="tab-count shrink-0"><?= count($appointments) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('treatments', event)" 
                                         id="treatments-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-tooth mr-2"></i><?= esc(lang('UI.patientTreatments')) ?> <span class="tab-count"><?= count($treatments) ?></span>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-tooth shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTreatments')) ?></span> <span class="tab-count shrink-0"><?= count($treatments) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('prescriptions', event)" 
                                         id="prescriptions-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-prescription mr-2"></i><?= esc(lang('UI.patientTabRx')) ?> <span class="tab-count"><?= count($prescriptions) ?></span>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-prescription shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabRx')) ?></span> <span class="tab-count shrink-0"><?= count($prescriptions) ?></span>
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
                                     <button type="button" onclick="return showTab('attachments', event)" 
                                             id="attachments-tab" 
-                                            class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                        <i class="fas fa-paperclip mr-2"></i><?= esc(lang('UI.patientTabAttachments')) ?> <span class="tab-count"><?= count($attachments ?? []) ?></span>
+                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($attachments ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
                                     <button type="button" onclick="return showTab('contracts', event)" 
                                             id="contracts-tab" 
-                                            class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                        <i class="fas fa-file-signature mr-2"></i><?= esc(lang('UI.patientTabContracts')) ?> <span class="tab-count"><?= count($contracts ?? []) ?></span>
+                                            class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                        <i class="fas fa-file-signature shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabContracts')) ?></span> <span class="tab-count shrink-0"><?= count($contracts ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
                                 <button type="button" onclick="return showTab('finances', event)" 
                                         id="finances-tab" 
-                                        class="tab-button whitespace-nowrap py-2.5 px-4 font-medium text-sm">
-                                    <i class="fas fa-file-invoice mr-2"></i><?= esc(lang('UI.patientTabInvoice')) ?> <span class="tab-count"><?= count($finances) ?></span>
+                                        class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
+                                    <i class="fas fa-file-invoice shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabInvoice')) ?></span> <span class="tab-count shrink-0"><?= count($finances) ?></span>
                                 </button>
                             </nav>
                             
@@ -2182,11 +2185,16 @@ $heroInfoCapsules = [
     }
 
     .tab-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
         border: 1px solid #dbe4f0;
         background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         color: #475569;
         border-radius: 0.9rem;
         transition: all 0.2s ease;
+        overflow: hidden;
     }
 
     .tab-button.active,
