@@ -242,6 +242,10 @@ $outstandingBalanceSubLabel = $outstandingBalance > 0.009
     ? lang('UI.patientProfileInvoicesOpen', ['count' => $openInvoicesCount])
     : lang('UI.patientFinanceClearState');
 $outstandingBalanceChipValue = $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : lang('UI.patientNoneShort');
+$clinicalSnapshotToneClass = $medicalAlertCount > 0 ? 'patient-rail-card-clinical-alert' : 'patient-rail-card-clinical-calm';
+$financialSnapshotToneClass = $outstandingBalance > 0.009 ? 'patient-rail-card-financial-due' : 'patient-rail-card-financial-clear';
+$clinicalSnapshotState = $medicalAlertCount > 0 ? lang('UI.patientMedicalAlertsSummary') . ': ' . $medicalAlertCount : lang('UI.patientStatusActive');
+$financialSnapshotState = $outstandingBalance > 0.009 ? lang('UI.patientOutstandingBalanceShort') : lang('UI.patientFinanceClearState');
 $patientGenderShort = $patientGenderInitialMap[strtolower((string) ($patient['gender'] ?? 'other'))] ?? lang('UI.patientOther');
 $patientAgeShort = preg_match('/^\d+/', $patientAgeLabel) ? preg_replace('/\s+' . preg_quote(lang('UI.patientYears'), '/') . '$/u', 'y', $patientAgeLabel) : lang('UI.patientNoneShort');
 $patientGenderChipValue = $patientGenderShort . ' - ' . $patientAgeShort;
@@ -438,11 +442,17 @@ $heroInfoCapsules = [
         <?php endif; ?>
 
         <section class="grid gap-4 md:grid-cols-2">
-            <div class="patient-rail-card patient-rail-card-compact">
+            <div class="patient-rail-card patient-rail-card-compact <?= esc($clinicalSnapshotToneClass) ?>">
                 <div class="patient-panel-header pb-3">
-                    <div>
-                        <h2 class="patient-panel-title"><?= esc(lang('UI.patientClinicalSnapshot')) ?></h2>
-                        <p class="patient-panel-copy"><?= esc(lang('UI.patientClinicalSnapshotHelp')) ?></p>
+                    <div class="flex items-start gap-3">
+                        <div class="patient-rail-card-icon patient-rail-card-icon-clinical">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div>
+                            <h2 class="patient-panel-title"><?= esc(lang('UI.patientClinicalSnapshot')) ?></h2>
+                            <p class="patient-panel-copy"><?= esc(lang('UI.patientClinicalSnapshotHelp')) ?></p>
+                            <span class="patient-rail-card-state"><?= esc($clinicalSnapshotState) ?></span>
+                        </div>
                     </div>
                 </div>
                 <div class="space-y-2.5">
@@ -452,11 +462,17 @@ $heroInfoCapsules = [
                     <div class="patient-detail-row"><span><?= esc(lang('UI.patientMedicalAlertsSummary')) ?></span><strong><?= $medicalAlertCount ?></strong></div>
                 </div>
             </div>
-            <div class="patient-rail-card patient-rail-card-compact">
+            <div class="patient-rail-card patient-rail-card-compact <?= esc($financialSnapshotToneClass) ?>">
                 <div class="patient-panel-header pb-3">
-                    <div>
-                        <h2 class="patient-panel-title"><?= esc(lang('UI.patientFinancialSnapshot')) ?></h2>
-                        <p class="patient-panel-copy"><?= esc(lang('UI.patientFinancialSnapshotHelp')) ?></p>
+                    <div class="flex items-start gap-3">
+                        <div class="patient-rail-card-icon patient-rail-card-icon-financial">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div>
+                            <h2 class="patient-panel-title"><?= esc(lang('UI.patientFinancialSnapshot')) ?></h2>
+                            <p class="patient-panel-copy"><?= esc(lang('UI.patientFinancialSnapshotHelp')) ?></p>
+                            <span class="patient-rail-card-state"><?= esc($financialSnapshotState) ?></span>
+                        </div>
                     </div>
                 </div>
                 <div class="space-y-2.5">
@@ -2049,6 +2065,33 @@ $heroInfoCapsules = [
 
     .patient-rail-card-compact {
         padding: 1rem 1rem 0.95rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .patient-rail-card-compact::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: 0.9;
+    }
+
+    .patient-rail-card-clinical-calm::before {
+        background: linear-gradient(180deg, rgba(236, 253, 245, 0.92), rgba(255, 255, 255, 0));
+    }
+
+    .patient-rail-card-clinical-alert::before {
+        background: linear-gradient(180deg, rgba(255, 241, 242, 0.95), rgba(255, 255, 255, 0));
+    }
+
+    .patient-rail-card-financial-clear::before {
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0));
+    }
+
+    .patient-rail-card-financial-due::before {
+        background: linear-gradient(180deg, rgba(255, 247, 237, 0.95), rgba(255, 255, 255, 0));
     }
 
     .patient-panel-header {
@@ -2061,22 +2104,57 @@ $heroInfoCapsules = [
 
     .patient-panel-title,
     .patient-shell-title {
-        font-size: 1.1rem;
-        font-weight: 800;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
         color: #0f172a;
     }
 
     .patient-panel-copy,
     .patient-shell-copy {
         margin-top: 0.35rem;
-        font-size: 0.86rem;
-        line-height: 1.55;
+        font-size: 0.82rem;
+        line-height: 1.5;
         color: #64748b;
     }
 
     .patient-rail-card-compact .patient-panel-copy {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         line-height: 1.45;
+    }
+
+    .patient-rail-card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.95rem;
+        flex-shrink: 0;
+        box-shadow: 0 10px 22px -18px rgba(15, 23, 42, 0.35);
+    }
+
+    .patient-rail-card-icon-clinical {
+        background: linear-gradient(135deg, #10b981, #0f766e);
+        color: #ecfdf5;
+    }
+
+    .patient-rail-card-icon-financial {
+        background: linear-gradient(135deg, #f59e0b, #ea580c);
+        color: #fff7ed;
+    }
+
+    .patient-rail-card-state {
+        display: inline-flex;
+        margin-top: 0.55rem;
+        align-items: center;
+        border-radius: 9999px;
+        border: 1px solid #dbe7f5;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.28rem 0.6rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: #475569;
     }
 
     .patient-action-card {
@@ -2125,15 +2203,21 @@ $heroInfoCapsules = [
         justify-content: space-between;
         gap: 1rem;
         border-radius: 1rem;
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid #e5edf6;
         padding: 0.72rem 0.85rem;
         font-size: 0.84rem;
         color: #475569;
     }
 
     .patient-detail-row strong {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        background: #f8fafc;
+        padding: 0.28rem 0.58rem;
         color: #0f172a;
-        font-weight: 700;
+        font-weight: 600;
         text-align: end;
     }
 

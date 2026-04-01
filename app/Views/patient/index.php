@@ -585,26 +585,12 @@ $(document).ready(function() {
                 data: 'patient_id',
                 name: 'patient_id',
                 render: function(data, type, row) {
-                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    const identityHtml = `
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-id-card text-emerald-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
-                                <div class="text-xs text-gray-500">${patientI18n.patientId}</div>
-                            </div>
+                    return `
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
+                            <div class="text-xs text-gray-500">${patientI18n.patientId}</div>
                         </div>
                     `;
-                    if (permissions.patients.view) {
-                        return `
-                            <a href="<?= base_url('patient') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-emerald-50/60 transition-colors duration-200 cursor-pointer">
-                                ${identityHtml}
-                            </a>
-                        `;
-                    }
-                    return identityHtml;
                 }
             },
             { 
@@ -615,26 +601,26 @@ $(document).ready(function() {
                     const avatarMap = {
                         male: {
                             icon: 'fas fa-person',
-                            shell: 'bg-emerald-100',
-                            iconColor: 'text-emerald-600'
+                            shell: 'bg-blue-50 border border-blue-100',
+                            iconColor: 'text-blue-700'
                         },
                         female: {
                             icon: 'fas fa-person-dress',
-                            shell: 'bg-emerald-100',
-                            iconColor: 'text-emerald-600'
+                            shell: 'bg-rose-50 border border-rose-100',
+                            iconColor: 'text-rose-700'
                         },
                         other: {
                             icon: 'fas fa-user',
-                            shell: 'bg-emerald-100',
-                            iconColor: 'text-emerald-600'
+                            shell: 'bg-slate-100 border border-slate-200',
+                            iconColor: 'text-slate-600'
                         }
                     };
                     const avatar = avatarMap[gender] || avatarMap.other;
                     return `
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 ${avatar.shell} rounded-lg flex items-center justify-center">
-                                <i class="${avatar.icon} ${avatar.iconColor} text-sm"></i>
-                            </div>
+                            <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                                <i class="${avatar.icon} ${avatar.iconColor} text-2xl"></i>
+                            </span>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">${data || patientI18n.na}</div>
                                 <div class="text-xs text-gray-500">${patientI18n.patientName}</div>
@@ -772,6 +758,40 @@ $(document).ready(function() {
                 }
             }
         ],
+        createdRow: function(row, data) {
+            if (!permissions.patients.view) {
+                return;
+            }
+
+            const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+            const profileUrl = `<?= base_url('patient') ?>/${data.id}?return_to=${returnTo}`;
+
+            $(row)
+                .addClass('cursor-pointer hover:bg-emerald-50/50 transition-colors duration-150')
+                .attr('data-href', profileUrl)
+                .attr('tabindex', '0')
+                .attr('role', 'link')
+                .attr('aria-label', `${patientI18n.viewPatient}: ${data.name || data.patient_id || ''}`)
+                .on('click', function(event) {
+                    if ($(event.target).closest('a, button').length) {
+                        return;
+                    }
+                    window.location.href = profileUrl;
+                })
+                .on('keydown', function(event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        if ($(event.target).closest('a, button').length) {
+                            return;
+                        }
+                        event.preventDefault();
+                        window.location.href = profileUrl;
+                    }
+                });
+
+            $('a, button', row).on('click', function(event) {
+                event.stopPropagation();
+            });
+        },
         dom: 'B<"px-6 py-4 border-b border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center space-x-4"l><"flex items-center space-x-4"f>>rt<"px-6 py-4 border-t border-gray-200 bg-gray-50"<"flex items-center justify-between"<"flex items-center"i><"flex items-center"p>>>',
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
