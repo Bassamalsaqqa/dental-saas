@@ -36,6 +36,54 @@
         return fallback;
     }
 
+    function getPatientAvatar(gender) {
+        var normalized = String(gender || 'other').toLowerCase();
+        var map = {
+            male: { icon: 'fas fa-person', color: 'text-blue-700' },
+            female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+            other: { icon: 'fas fa-user', color: 'text-slate-600' }
+        };
+
+        return map[normalized] || map.other;
+    }
+
+    function getTransactionTypeMeta(type) {
+        var normalized = String(type || '').toLowerCase();
+        var map = {
+            payment: {
+                icon: 'fas fa-money-check-dollar',
+                badge: 'bg-emerald-100 text-emerald-800',
+                iconColor: 'text-emerald-700'
+            },
+            invoice: {
+                icon: 'fas fa-file-invoice-dollar',
+                badge: 'bg-blue-100 text-blue-800',
+                iconColor: 'text-blue-700'
+            },
+            refund: {
+                icon: 'fas fa-rotate-left',
+                badge: 'bg-rose-100 text-rose-800',
+                iconColor: 'text-rose-700'
+            },
+            adjustment: {
+                icon: 'fas fa-sliders',
+                badge: 'bg-amber-100 text-amber-800',
+                iconColor: 'text-amber-700'
+            },
+            expense: {
+                icon: 'fas fa-receipt',
+                badge: 'bg-orange-100 text-orange-800',
+                iconColor: 'text-orange-700'
+            }
+        };
+
+        return map[normalized] || {
+            icon: 'fas fa-tag',
+            badge: 'bg-slate-100 text-slate-700',
+            iconColor: 'text-slate-600'
+        };
+    }
+
     function formatCurrency(amount) {
         var currencySymbol = currency.symbol || '';
         var currencyPosition = currency.position || 'before';
@@ -198,13 +246,14 @@
                     name: 'transaction_id',
                     render: function (data, type, row) {
                         var returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                        var typeMeta = getTransactionTypeMeta(row.transaction_type);
                         var identityHtml =
                             '<div class="flex items-center space-x-3">' +
-                            '<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">' +
-                            '<i class="fas fa-receipt text-green-600 text-sm"></i>' +
-                            '</div>' +
-                            '<div>' +
-                            '<div class="text-sm font-medium text-gray-900">' + data + '</div>' +
+                            '<span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">' +
+                            '<i class="' + typeMeta.icon + ' ' + typeMeta.iconColor + ' text-xl"></i>' +
+                            '</span>' +
+                            '<div class="min-w-0">' +
+                            '<div class="text-sm font-medium text-gray-900 truncate">' + data + '</div>' +
                             '<div class="text-xs text-gray-500">' + (financeI18n.transactionId || 'ID') + '</div>' +
                             '</div>' +
                             '</div>';
@@ -219,19 +268,19 @@
                     name: 'patient_name',
                     render: function (data, type, row) {
                         var isExpense = row.transaction_type === 'expense';
-                        var iconWrap = isExpense ? 'bg-rose-100' : 'bg-green-100';
-                        var icon = isExpense ? 'fas fa-building' : 'fas fa-user';
-                        var iconColor = isExpense ? 'text-rose-600' : 'text-green-600';
+                        var avatar = getPatientAvatar(row.gender);
+                        var icon = isExpense ? 'fas fa-building' : avatar.icon;
+                        var iconColor = isExpense ? 'text-slate-600' : avatar.color;
                         var subtitle = isExpense
                             ? (row.expense_category ? row.expense_category.replace(/_/g, ' ') : (financeI18n.expensePayee || 'Counterparty'))
-                            : (row.patient_id || financeI18n.noId || '-');
+                            : (row.patient_number || financeI18n.noId || '-');
                         return '<div class="flex items-center space-x-3">' +
-                            '<div class="w-10 h-10 ' + iconWrap + ' rounded-lg flex items-center justify-center">' +
-                            '<i class="' + icon + ' ' + iconColor + ' text-sm"></i>' +
-                            '</div>' +
-                            '<div>' +
-                            '<div class="text-sm font-medium text-gray-900">' + data + '</div>' +
-                            '<div class="text-xs text-gray-500">' + subtitle + '</div>' +
+                            '<span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">' +
+                            '<i class="' + icon + ' ' + iconColor + ' text-2xl"></i>' +
+                            '</span>' +
+                            '<div class="min-w-0">' +
+                            '<div class="text-sm font-medium text-gray-900 truncate">' + data + '</div>' +
+                            '<div class="text-xs text-gray-500 truncate">' + subtitle + '</div>' +
                             '</div>' +
                             '</div>';
                     }
@@ -240,29 +289,14 @@
                     data: 'transaction_type',
                     name: 'transaction_type',
                     render: function (data) {
-                        var typeColors = {
-                            payment: 'bg-green-100 text-green-800',
-                            invoice: 'bg-blue-100 text-blue-800',
-                            refund: 'bg-red-100 text-red-800',
-                            adjustment: 'bg-yellow-100 text-yellow-800',
-                            expense: 'bg-rose-100 text-rose-800'
-                        };
-                        var typeIcons = {
-                            payment: 'fas fa-credit-card',
-                            invoice: 'fas fa-file-invoice',
-                            refund: 'fas fa-undo',
-                            adjustment: 'fas fa-adjust',
-                            expense: 'fas fa-receipt'
-                        };
-                        var colorClass = typeColors[data] || 'bg-gray-100 text-gray-800';
-                        var iconClass = typeIcons[data] || 'fas fa-tag';
+                        var typeMeta = getTransactionTypeMeta(data);
                         var typeLabel = labelFromMap(
                             financeI18n.transactionTypes,
                             data,
                             data ? data.charAt(0).toUpperCase() + data.slice(1).replace(/_/g, ' ') : '-'
                         );
-                        return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + colorClass + '">' +
-                            '<i class="' + iconClass + ' mr-1"></i>' +
+                        return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + typeMeta.badge + '">' +
+                            '<i class="' + typeMeta.icon + ' mr-1"></i>' +
                             typeLabel +
                             '</span>';
                     }
@@ -406,5 +440,26 @@
         $('#statusFilter').on('change', function () {
             transactionsTable.draw();
         });
+
+        if (permissions.finance && permissions.finance.view) {
+            $('#transactionsTable tbody')
+                .on('click', 'tr', function (event) {
+                    var $target = $(event.target);
+                    if ($target.closest('a, button').length) {
+                        return;
+                    }
+
+                    var rowData = transactionsTable.row(this).data();
+                    if (!rowData || !rowData.id) {
+                        return;
+                    }
+
+                    var returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    window.location.href = financeUrls.base + '/' + rowData.id + '?return_to=' + returnTo;
+                })
+                .on('mouseenter', 'tr', function () {
+                    $(this).addClass('cursor-pointer hover:bg-green-50/50 transition-colors duration-150');
+                });
+        }
     });
 })();

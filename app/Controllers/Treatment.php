@@ -174,6 +174,7 @@ class Treatment extends BaseController
                 $data[] = [
                     'id' => intval($treatment['id'] ?? 0),
                     'patient_name' => trim(($treatment['first_name'] ?? '') . ' ' . ($treatment['last_name'] ?? '')),
+                    'gender' => $treatment['gender'] ?? 'other',
                     'phone' => $treatment['phone'] ?? '',
                     'treatment_name' => $this->getTreatmentName($treatment['treatment_type'] ?? ''),
                     'treatment_type' => $treatment['treatment_type'] ?? '',
@@ -187,7 +188,8 @@ class Treatment extends BaseController
                     'end_date_formatted' => formatDate($treatment['end_date'] ?? ''),
                     'created_at' => $treatment['created_at'] ?? '',
                     'created_at_formatted' => formatDateTime($treatment['created_at'] ?? ''),
-                    'patient_id' => intval($treatment['patient_id'] ?? 0)
+                    'patient_id' => intval($treatment['patient_id'] ?? 0),
+                    'patient_number' => $treatment['patient_number'] ?? '',
                 ];
             }
             

@@ -135,7 +135,7 @@ class TreatmentModel extends TenantAwareModel
 
     public function getTreatmentsByClinic($clinicId, $limit = 10, $offset = 0, $searchValue = null, $status = null, $type = null, $orderColumn = 'treatments.start_date', $orderDir = 'desc')
     {
-        $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone')
+        $builder = $this->select('treatments.*, patients.first_name, patients.last_name, patients.phone, patients.gender, patients.patient_id as patient_number')
                         ->join('patients', 'patients.id = treatments.patient_id', 'left')
                         ->where('treatments.clinic_id', $clinicId);
 

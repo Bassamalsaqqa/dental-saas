@@ -481,26 +481,25 @@ $(document).ready(function() {
                 data: 'patient_name',
                 name: 'patient_name',
                 render: function(data, type, row) {
-                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
-                    const identityHtml = `
+                    const gender = String(row.gender || 'other').toLowerCase();
+                    const avatarMap = {
+                        male: { icon: 'fas fa-person', color: 'text-blue-700' },
+                        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+                        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+                    };
+                    const avatar = avatarMap[gender] || avatarMap.other;
+                    const patientNumber = row.patient_number || '<?= esc(lang('Treatment.no_id'), 'js') ?>';
+                    return `
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user text-pink-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">${data}</div>
-                                <div class="text-xs text-gray-500">${row.patient_id || '<?= esc(lang('Treatment.no_id'), 'js') ?>'}</div>
+                            <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                                <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
+                            </span>
+                            <div class="min-w-0">
+                                <div class="text-sm font-medium text-gray-900 truncate">${data || '<?= esc(lang('Treatment.na'), 'js') ?>'}</div>
+                                <div class="text-xs text-gray-500 truncate">${patientNumber}</div>
                             </div>
                         </div>
                     `;
-                    if (permissions.treatments.view) {
-                        return `
-                            <a href="<?= base_url('treatment') ?>/${row.id}?return_to=${returnTo}" class="block rounded-md hover:bg-pink-50/60 transition-colors duration-200 cursor-pointer">
-                                ${identityHtml}
-                            </a>
-                        `;
-                    }
-                    return identityHtml;
                 }
             },
             {
@@ -699,6 +698,27 @@ $(document).ready(function() {
                 $(this).addClass('hover:bg-pink-50 hover:border-pink-300 hover:text-pink-700');
             }
         });
+
+        if (permissions.treatments.view) {
+            $('#treatmentsTable tbody')
+                .on('click', 'tr', function (event) {
+                    const $target = $(event.target);
+                    if ($target.closest('a, button').length) {
+                        return;
+                    }
+
+                    const rowData = treatmentsTable.row(this).data();
+                    if (!rowData || !rowData.id) {
+                        return;
+                    }
+
+                    const returnTo = encodeURIComponent((window.location.pathname + window.location.search).replace(/^\/+/, ''));
+                    window.location.href = `<?= base_url('treatment') ?>/${rowData.id}?return_to=${returnTo}`;
+                })
+                .on('mouseenter', 'tr', function () {
+                    $(this).addClass('cursor-pointer hover:bg-pink-50/50 transition-colors duration-150');
+                });
+        }
         
         // Style processing indicator
         $('.dataTables_processing').addClass('border-pink-200 text-pink-700');

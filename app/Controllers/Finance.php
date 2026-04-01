@@ -3133,6 +3133,8 @@ class Finance extends BaseController
                     'created_at' => $finance['created_at'] ?? '',
                     'created_at_formatted' => formatDateTime($finance['created_at'] ?? ''),
                     'patient_id' => intval($finance['patient_id'] ?? 0),
+                    'patient_number' => $finance['patient_number'] ?? '',
+                    'gender' => $finance['gender'] ?? 'other',
                     'counterparty_name' => $finance['counterparty_name'] ?? '',
                     'expense_category' => $finance['expense_category'] ?? '',
                     'subject_type' => ($type === 'expense') ? 'counterparty' : 'patient',

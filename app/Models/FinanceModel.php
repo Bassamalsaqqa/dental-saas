@@ -156,7 +156,7 @@ class FinanceModel extends TenantAwareModel
      */
     public function getFinancesByClinic($clinicId, $limit = 10, $offset = 0, $search = '', $orderColumn = 'finances.id', $orderDir = 'desc')
     {
-        $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.phone')
+        $builder = $this->select('finances.*, patients.first_name, patients.last_name, patients.phone, patients.gender, patients.patient_id as patient_number')
             ->join('patients', 'patients.id = finances.patient_id', 'left')
             ->where('finances.clinic_id', $clinicId);
 
