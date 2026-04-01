@@ -116,9 +116,43 @@ run_raw_queries_guard() {
   compare_with_allowlist "raw-tenant-queries" "Raw tenant queries in controllers" "$matches"
 }
 
+run_forbidden_font_guard() {
+  local matches
+  matches=$(
+    run_rg -n --no-heading -i \
+      --glob '!app/Views/contracts/print.php' \
+      --glob '!app/Views/finance/invoice.php' \
+      --glob '!app/Views/inventory/index.php' \
+      --glob '!app/Views/inventory/low_stock.php' \
+      --glob '!app/Views/inventory/usage_history.php' \
+      --glob '!app/Views/inventory/usage_print.php' \
+      --glob '!app/Views/layouts/print.php' \
+      --glob '!app/Views/layouts/main_auth.php' \
+      --glob '!app/Views/layouts/main_control_plane.php' \
+      --glob '!app/Views/layouts/kiosk.php' \
+      --glob '!app/Views/odontogram/export.php' \
+      --glob '!app/Views/odontogram/pdf.php' \
+      --glob '!app/Views/odontogram/print.php' \
+      --glob '!app/Views/welcome_message.php' \
+      --glob '!app/Views/errors/html/error_400.php' \
+      --glob '!app/Views/errors/html/error_404.php' \
+      --glob '!app/Views/finance/invoice.php' \
+      '(Arial|Segoe UI|Tahoma|Verdana|Helvetica Neue|Helvetica|Times New Roman|Georgia)' app/Views || true
+  )
+
+  if [[ -n "$matches" ]]; then
+    echo "ERROR: Forbidden UI font-family strings detected outside approved print/export surfaces:"
+    echo "$matches"
+    failures=$((failures + 1))
+  else
+    echo "Guardrail 'Forbidden UI fonts' passed."
+  fi
+}
+
 run_dom_guard
 run_group_guard
 run_raw_queries_guard
+run_forbidden_font_guard
 
 if [[ $failures -ne 0 ]]; then
   echo "Guardrail validation failed ($failures unexpected match(es)). Fix the above issues."

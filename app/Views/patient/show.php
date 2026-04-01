@@ -2064,34 +2064,94 @@ $heroInfoCapsules = [
     }
 
     .patient-rail-card-compact {
-        padding: 1rem 1rem 0.95rem;
         position: relative;
         overflow: hidden;
+        padding: 1.05rem 1.05rem 1rem;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+        border-width: 1px;
+        box-shadow: 0 24px 40px -32px rgba(15, 23, 42, 0.28), 0 8px 18px -16px rgba(15, 23, 42, 0.12);
+    }
+
+    .patient-rail-card-compact > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .patient-rail-card-compact::before,
+    .patient-rail-card-compact::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
     }
 
     .patient-rail-card-compact::before {
-        content: "";
-        position: absolute;
         inset: 0;
         border-radius: inherit;
-        pointer-events: none;
-        opacity: 0.9;
+        opacity: 1;
+    }
+
+    .patient-rail-card-compact::after {
+        inset-inline: 1rem;
+        top: 0;
+        height: 3px;
+        border-bottom-left-radius: 9999px;
+        border-bottom-right-radius: 9999px;
+    }
+
+    .patient-rail-card-clinical-calm {
+        border-color: #bae6d4;
     }
 
     .patient-rail-card-clinical-calm::before {
-        background: linear-gradient(180deg, rgba(236, 253, 245, 0.92), rgba(255, 255, 255, 0));
+        background:
+            radial-gradient(circle at top left, rgba(16, 185, 129, 0.12), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(180deg, #ecfdf5, #ffffff 78%);
+    }
+
+    .patient-rail-card-clinical-calm::after {
+        background: linear-gradient(90deg, #10b981, #0f766e);
+    }
+
+    .patient-rail-card-clinical-alert {
+        border-color: #fecdd3;
     }
 
     .patient-rail-card-clinical-alert::before {
-        background: linear-gradient(180deg, rgba(255, 241, 242, 0.95), rgba(255, 255, 255, 0));
+        background:
+            radial-gradient(circle at top left, rgba(244, 63, 94, 0.12), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(180deg, #fff1f2, #ffffff 78%);
+    }
+
+    .patient-rail-card-clinical-alert::after {
+        background: linear-gradient(90deg, #fb7185, #e11d48);
+    }
+
+    .patient-rail-card-financial-clear {
+        border-color: #bfdbfe;
     }
 
     .patient-rail-card-financial-clear::before {
-        background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0));
+        background:
+            radial-gradient(circle at top left, rgba(37, 99, 235, 0.1), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(180deg, #eff6ff, #ffffff 78%);
+    }
+
+    .patient-rail-card-financial-clear::after {
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+    }
+
+    .patient-rail-card-financial-due {
+        border-color: #fed7aa;
     }
 
     .patient-rail-card-financial-due::before {
-        background: linear-gradient(180deg, rgba(255, 247, 237, 0.95), rgba(255, 255, 255, 0));
+        background:
+            radial-gradient(circle at top left, rgba(249, 115, 22, 0.12), rgba(255, 255, 255, 0) 40%),
+            linear-gradient(180deg, #fff7ed, #ffffff 78%);
+    }
+
+    .patient-rail-card-financial-due::after {
+        background: linear-gradient(90deg, #f97316, #ea580c);
     }
 
     .patient-panel-header {
@@ -2106,8 +2166,8 @@ $heroInfoCapsules = [
     .patient-shell-title {
         font-size: 1rem;
         font-weight: 700;
-        letter-spacing: -0.01em;
-        color: #0f172a;
+        letter-spacing: -0.012em;
+        color: #172554;
     }
 
     .patient-panel-copy,
@@ -2115,7 +2175,7 @@ $heroInfoCapsules = [
         margin-top: 0.35rem;
         font-size: 0.82rem;
         line-height: 1.5;
-        color: #64748b;
+        color: #475569;
     }
 
     .patient-rail-card-compact .patient-panel-copy {
@@ -2149,12 +2209,13 @@ $heroInfoCapsules = [
         margin-top: 0.55rem;
         align-items: center;
         border-radius: 9999px;
-        border: 1px solid #dbe7f5;
-        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        background: rgba(255, 255, 255, 0.96);
         padding: 0.28rem 0.6rem;
         font-size: 0.68rem;
         font-weight: 600;
-        color: #475569;
+        color: #1e293b;
+        box-shadow: 0 8px 18px -18px rgba(15, 23, 42, 0.28);
     }
 
     .patient-action-card {
@@ -2203,22 +2264,24 @@ $heroInfoCapsules = [
         justify-content: space-between;
         gap: 1rem;
         border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.78);
-        border: 1px solid #e5edf6;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid #dbe5f0;
         padding: 0.72rem 0.85rem;
         font-size: 0.84rem;
-        color: #475569;
+        color: #334155;
+        box-shadow: 0 12px 20px -22px rgba(15, 23, 42, 0.24);
     }
 
     .patient-detail-row strong {
         display: inline-flex;
         align-items: center;
         border-radius: 9999px;
-        background: #f8fafc;
+        background: #ffffff;
         padding: 0.28rem 0.58rem;
         color: #0f172a;
         font-weight: 600;
         text-align: end;
+        box-shadow: inset 0 0 0 1px #dbe5f0;
     }
 
     .patient-summary-card {

@@ -1922,7 +1922,7 @@ function exportData() {
 
 #odontogramSvgWrapper text {
     pointer-events: none;
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-family: inherit;
 }
 
 #odontogramSvgWrapper .tooth-hit {

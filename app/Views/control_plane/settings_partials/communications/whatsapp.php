@@ -45,7 +45,7 @@ foreach ($waTriggerCatalog as $triggerKey => $triggerMeta) {
     .wa-settings-pane.hidden { display: none !important; }
     .wa-template-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; box-shadow: 0 14px 30px rgba(15, 23, 42, .06); overflow: hidden; }
     .wa-template-card-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(15, 118, 110, .08), rgba(59, 130, 246, .05)); border-bottom: 1px solid #e2e8f0; }
-    .wa-template-preview { min-height: 10rem; direction: rtl; text-align: right; line-height: 1.9; font-family: "Segoe UI", Tahoma, sans-serif; }
+    .wa-template-preview { min-height: 10rem; direction: rtl; text-align: right; line-height: 1.9; font-family: inherit; }
     .wa-stat-card { border: 1px solid #e2e8f0; border-radius: 1.25rem; background: #fff; padding: 1.25rem; box-shadow: 0 12px 28px rgba(15, 23, 42, .05); }
     .wa-template-nav-btn {
         display: flex;

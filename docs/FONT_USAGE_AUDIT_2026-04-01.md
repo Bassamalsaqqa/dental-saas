@@ -8,6 +8,7 @@
 ## Executive Summary
 - The app's intended primary UI font is `Inter`.
 - The intended primary mono font is `JetBrains Mono`.
+- Arabic UI text is now standardized to the original sidebar fallback stack: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif`.
 - The strongest drift comes from legacy or special-purpose views that still hardcode `Arial`, `Segoe UI`, `Tahoma`, `Helvetica Neue`, `Times New Roman`, and related stacks.
 - The patient snapshot cards on [show.php](C:\xampp\htdocs\dental-saas\app\Views\patient\show.php) do not introduce a new font family. Their mismatch was coming from local sizing/weight/card styling, not a different font file.
 
@@ -20,6 +21,43 @@ Defined in [tailwind.config.js](C:\xampp\htdocs\dental-saas\tailwind.config.js):
 Meaning:
 - Most app UI should converge on `Inter` through Tailwind's default sans stack.
 - Code / IDs / technical fields should converge on `JetBrains Mono`.
+- Arabic UI should converge on the original sidebar stack through shared layout routing, not one-off page overrides.
+
+## Canonical Typography Policy
+Approved product policy:
+
+1. Primary app UI font: `Inter`
+2. Technical / code-like values only: `JetBrains Mono`
+3. Arabic UI text: the original sidebar stack
+4. Print/export templates may deviate only when there is an explicit document-use reason
+5. Forbidden for normal app UI: `Arial`, `Segoe UI`, `Tahoma`, `Verdana`, `Helvetica Neue`, `Helvetica`, `Times New Roman`, `Georgia`, and other one-off overrides
+
+Implementation rules:
+- Remove hardcoded `font-family` declarations from normal app UI surfaces
+- Prefer theme tokens and shared layout routing over page-local font stacks
+- Keep `JetBrains Mono` restricted to IDs, codes, technical values, and machine-readable content
+- Normalize font-weight, line-height, and spacing at the same time as family changes
+
+## First Cleanup Slice Completed
+Completed in this pass:
+- shared tenant layout
+- shared control-plane layout
+- kiosk layout
+- welcome / error pages
+- odontogram interactive page
+- WhatsApp template preview partial
+- contract create surface
+
+Guardrail added:
+- `scripts/ci/saas_guardrails.sh` now fails on forbidden UI font strings outside excluded print/export surfaces
+
+## Exact Arabic Stack Adopted
+The sidebar did not previously use a dedicated Arabic webfont. It inherited the app sans stack, and Arabic glyphs rendered through the fallback portion of that stack.
+
+Canonical Arabic UI stack now:
+- `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif`
+
+This is now used as the Arabic UI stack across tenant layout, control-plane layout, kiosk, and the standalone welcome/error surfaces.
 
 ## Coverage Summary
 - Total source files scanned: `548`
@@ -111,7 +149,7 @@ Percentages below are based on explicit source-level font declarations only, not
 
 2. Kiosk and special-purpose shells
 - [layouts/kiosk.php](C:\xampp\htdocs\dental-saas\app\Views\layouts\kiosk.php)
-- It currently uses `Segoe UI` / `Tahoma` / `Arial` and RTL-specific `Tajawal` / `Cairo` fallback logic.
+- This was cleaned in the first normalization slice and now follows the shared app typography contract.
 
 3. Odontogram and some print/export pages
 - [odontogram/index.php](C:\xampp\htdocs\dental-saas\app\Views\odontogram\index.php)
@@ -139,8 +177,8 @@ Percentages below are based on explicit source-level font declarations only, not
 - `JetBrains Mono` for code/IDs/technical fields
 
 2. Review deliberately
-- `Tajawal` / `Cairo` only if you want a dedicated Arabic brand font strategy
-- otherwise let Arabic ride on the global app stack consistently
+- historical `Tajawal` / `Cairo` occurrences should not remain as default UI choices
+- Arabic should ride on the approved sidebar fallback stack consistently
 
 3. Replace or normalize over time
 - `Arial`

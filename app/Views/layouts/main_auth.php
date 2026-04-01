@@ -66,6 +66,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($resolvedPageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= base_url('assets/images/favicon.png') ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/tailwind.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -98,8 +101,38 @@
     <meta name="google" content="notranslate">
 
     <style>
+        :root {
+            --app-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Noto Sans", sans-serif;
+            --app-font-ar: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Noto Sans", sans-serif;
+            --app-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
         html, body {
             overflow-x: hidden;
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: var(--app-font-sans);
+        }
+
+        html[lang^="ar"] body,
+        html[lang^="ar"] button,
+        html[lang^="ar"] input,
+        html[lang^="ar"] select,
+        html[lang^="ar"] textarea {
+            font-family: var(--app-font-ar);
+        }
+
+        code,
+        pre,
+        kbd,
+        samp,
+        .font-mono {
+            font-family: var(--app-font-mono) !important;
         }
 
         /* Modern Sidebar Transitions */
