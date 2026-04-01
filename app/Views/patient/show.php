@@ -265,7 +265,7 @@ if ($patientGenderValue === 'female') {
 
 $heroInfoCapsules = [
     ['label' => lang('UI.patientPatientIdShort'), 'display_label' => '', 'value' => $patient['patient_id'], 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
-    ['label' => lang('UI.patientGender'), 'value' => $patientGenderChipValue, 'icon' => 'fas fa-user', 'class' => ''],
+    ['label' => lang('UI.patientGender'), 'display_label' => '', 'value' => $patientAgeShort, 'icon' => 'fas fa-cake-candles', 'class' => ''],
     ['label' => lang('UI.patientPhone'), 'display_label' => '', 'value' => $patientPhoneChipValue, 'icon' => 'fas fa-phone-alt', 'class' => 'patient-hero-chip-ltr'],
     ['label' => lang('UI.patientCity'), 'value' => $patientCityChipValue, 'icon' => 'fas fa-map-marker-alt', 'class' => ''],
     ['label' => lang('UI.patientWhatsApp'), 'value' => $patientWhatsAppChipValue, 'icon' => 'fab fa-whatsapp', 'class' => trim('patient-hero-chip-action ' . $patientWhatsAppChipClass), 'is_button' => has_permission('patients', 'edit')],
@@ -362,33 +362,35 @@ $heroInfoCapsules = [
                         </div>
                         <div class="grid gap-2 sm:grid-cols-3">
                             <?php if (has_permission('examinations', 'create')): ?>
-                                <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-utility-button">
+                                <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-stethoscope"></i>
                                     <span><?= esc(lang('UI.patientCreateExamination')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-utility-button">
+                                <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-tooth"></i>
                                     <span><?= esc(lang('UI.patientCreateTreatment')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('prescriptions', 'create')): ?>
-                                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-utility-button">
+                                <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-prescription-bottle-alt"></i>
                                     <span><?= esc(lang('UI.patientCreatePrescription')) ?></span>
                                 </a>
                             <?php endif; ?>
+                        </div>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="patient-hero-tool-button">
+                                <i class="fas fa-tooth"></i>
+                                <span><?= esc(lang('UI.patientOdontogram')) ?></span>
+                            </a>
                             <?php if (!empty($attachments_enabled)): ?>
-                                <button type="button" onclick="return showTab('attachments', event)" class="patient-hero-utility-button">
+                                <button type="button" onclick="return showTab('attachments', event)" class="patient-hero-tool-button">
                                     <i class="fas fa-paperclip"></i>
                                     <span><?= esc(lang('UI.patientUploadFiles')) ?></span>
                                 </button>
                             <?php endif; ?>
-                            <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="patient-hero-utility-button">
-                                <i class="fas fa-tooth"></i>
-                                <span><?= esc(lang('UI.patientOdontogram')) ?></span>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -1890,16 +1892,15 @@ $heroInfoCapsules = [
         border-color: rgba(253, 230, 138, 0.38);
     }
 
-    .patient-hero-utility-button {
+    .patient-hero-clinical-button,
+    .patient-hero-tool-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.65rem;
         min-height: 2.4rem;
         border-radius: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(255, 255, 255, 0.12);
-        padding: 0.48rem 0.68rem;
+        padding: 0.48rem 0.72rem;
         font-size: 0.72rem;
         font-weight: 700;
         color: #eff6ff;
@@ -1908,7 +1909,20 @@ $heroInfoCapsules = [
         text-align: center;
     }
 
-    .patient-hero-utility-button:hover {
+    .patient-hero-clinical-button {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.45);
+    }
+
+    .patient-hero-tool-button {
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.09);
+        color: rgba(239, 246, 255, 0.92);
+    }
+
+    .patient-hero-clinical-button:hover,
+    .patient-hero-tool-button:hover {
         transform: translateY(-1px);
         background: rgba(255, 255, 255, 0.18);
         border-color: rgba(255, 255, 255, 0.28);
