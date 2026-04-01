@@ -704,48 +704,106 @@ $heroInfoCapsules = [
                                     // Add examinations
                                     foreach ($examinations as $exam) {
                                         $doctorName = trim(($exam['doctor_first_name'] ?? '') . ' ' . ($exam['doctor_last_name'] ?? ''));
+                                        $examStatus = ucfirst((string) ($exam['status'] ?? lang('UI.patientUnknown')));
+                                        $examMeta = [];
+                                        $examMeta[] = [
+                                            'icon' => 'fas fa-stethoscope',
+                                            'text' => ucfirst((string) ($exam['examination_type'] ?? lang('UI.patientGeneral'))),
+                                        ];
+                                        if (!empty($exam['chief_complaint'])) {
+                                            $examComplaintPreview = function_exists('mb_strimwidth')
+                                                ? mb_strimwidth((string) $exam['chief_complaint'], 0, 70, '...')
+                                                : (strlen((string) $exam['chief_complaint']) > 67 ? substr((string) $exam['chief_complaint'], 0, 67) . '...' : (string) $exam['chief_complaint']);
+                                            $examMeta[] = [
+                                                'icon' => 'fas fa-comment-medical',
+                                                'text' => $examComplaintPreview,
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'examination',
                                             'date' => $exam['examination_date'],
                                             'title' => lang('UI.patientTimelineExamTitle', ['type' => ($exam['examination_type'] ?? lang('UI.patientGeneral'))]),
                                             'description' => $exam['chief_complaint'] ?? lang('UI.patientNoComplaintRecorded'),
                                             'status' => $exam['status'],
+                                            'status_label' => $examStatus,
                                             'id' => $exam['id'],
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-stethoscope',
-                                            'color' => 'blue'
+                                            'color' => 'blue',
+                                            'url' => base_url('examination/' . $exam['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $examMeta,
                                         ];
                                     }
                                     
                                     // Add appointments
                                     foreach ($appointments as $appt) {
                                         $doctorName = trim(($appt['doctor_first_name'] ?? '') . ' ' . ($appt['doctor_last_name'] ?? ''));
+                                        $apptStatus = ucfirst((string) ($appt['status'] ?? lang('UI.patientUnknown')));
+                                        $apptMeta = [];
+                                        if (!empty($appt['appointment_time'])) {
+                                            $apptMeta[] = [
+                                                'icon' => 'fas fa-clock',
+                                                'text' => formatTime($appt['appointment_time']),
+                                            ];
+                                        }
+                                        if (!empty($appt['duration'])) {
+                                            $apptMeta[] = [
+                                                'icon' => 'fas fa-hourglass-half',
+                                                'text' => (int) $appt['duration'] . ' ' . lang('UI.patientMinutes'),
+                                            ];
+                                        }
+                                        if (!empty($appt['chair_name'])) {
+                                            $apptMeta[] = [
+                                                'icon' => 'fas fa-door-open',
+                                                'text' => $appt['chair_name'],
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'appointment',
                                             'date' => $appt['appointment_date'],
                                             'title' => lang('UI.patientTimelineAppointmentTitle', ['type' => ($appt['appointment_type'] ?? lang('UI.patientGeneral'))]),
                                             'description' => $appt['notes'] ?? lang('UI.patientNoNotes'),
                                             'status' => $appt['status'],
+                                            'status_label' => $apptStatus,
                                             'id' => $appt['id'],
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-calendar',
-                                            'color' => 'green'
+                                            'color' => 'green',
+                                            'url' => base_url('appointment/' . $appt['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $apptMeta,
                                         ];
                                     }
                                     
                                     // Add treatments
                                     foreach ($treatments as $treatment) {
                                         $doctorName = trim(($treatment['doctor_first_name'] ?? '') . ' ' . ($treatment['doctor_last_name'] ?? ''));
+                                        $treatmentStatus = ucfirst((string) ($treatment['status'] ?? lang('UI.patientUnknown')));
+                                        $treatmentMeta = [];
+                                        if (!empty($treatment['tooth_number'])) {
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-tooth',
+                                                'text' => (string) $treatment['tooth_number'],
+                                            ];
+                                        }
+                                        if (isset($treatment['cost'])) {
+                                            $treatmentMeta[] = [
+                                                'icon' => 'fas fa-dollar-sign',
+                                                'text' => formatCurrency((float) $treatment['cost']),
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'treatment',
                                             'date' => $treatment['start_date'],
                                             'title' => lang('UI.patientTimelineTreatmentTitle', ['name' => ($treatment['treatment_name'] ?? lang('UI.patientGeneral'))]),
                                             'description' => $treatment['treatment_description'] ?? lang('UI.patientNoDescription'),
                                             'status' => $treatment['status'],
+                                            'status_label' => $treatmentStatus,
                                             'id' => $treatment['id'],
                                             'doctor' => $doctorName ?: null,
                                             'icon' => 'fas fa-tooth',
-                                            'color' => 'purple'
+                                            'color' => 'purple',
+                                            'url' => base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $treatmentMeta,
                                         ];
                                     }
                                     
@@ -769,6 +827,21 @@ $heroInfoCapsules = [
                                         } catch (Exception $e) {
                                             $medicationName = $prescription['medication_name'] ?? lang('UI.patientUnknown');
                                         }
+                                        $prescriptionStatus = ucfirst((string) ($prescription['status'] ?? lang('UI.patientUnknown')));
+                                        $prescriptionPreviewName = function_exists('mb_strimwidth')
+                                            ? mb_strimwidth((string) $medicationName, 0, 70, '...')
+                                            : (strlen((string) $medicationName) > 67 ? substr((string) $medicationName, 0, 67) . '...' : (string) $medicationName);
+                                        $prescriptionMeta = [];
+                                        $prescriptionMeta[] = [
+                                            'icon' => 'fas fa-pills',
+                                            'text' => $prescriptionPreviewName,
+                                        ];
+                                        if (!empty($prescription['prescribed_date'])) {
+                                            $prescriptionMeta[] = [
+                                                'icon' => 'fas fa-calendar-day',
+                                                'text' => formatDate($prescription['prescribed_date']),
+                                            ];
+                                        }
                                         
                                         $timeline[] = [
                                             'type' => 'prescription',
@@ -776,23 +849,42 @@ $heroInfoCapsules = [
                                             'title' => lang('UI.patientTimelinePrescriptionTitle', ['name' => $medicationName]),
                                             'description' => $prescription['instructions'] ?? lang('UI.patientNoInstructions'),
                                             'status' => $prescription['status'],
+                                            'status_label' => $prescriptionStatus,
                                             'id' => $prescription['id'],
                                             'icon' => 'fas fa-prescription',
-                                            'color' => 'orange'
+                                            'color' => 'orange',
+                                            'url' => base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $prescriptionMeta,
                                         ];
                                     }
                                     
                                     // Add financial transactions
                                     foreach ($finances as $finance) {
+                                        $financeStatus = ucfirst((string) ($finance['payment_status'] ?? lang('UI.patientUnknown')));
+                                        $financeAmount = $finance['total_amount'] ?? (($finance['amount'] ?? 0) - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0));
+                                        $financeMeta = [];
+                                        $financeMeta[] = [
+                                            'icon' => 'fas fa-dollar-sign',
+                                            'text' => formatCurrency((float) $financeAmount),
+                                        ];
+                                        if (!empty($finance['payment_method'])) {
+                                            $financeMeta[] = [
+                                                'icon' => 'fas fa-wallet',
+                                                'text' => ucfirst(str_replace('_', ' ', (string) $finance['payment_method'])),
+                                            ];
+                                        }
                                         $timeline[] = [
                                             'type' => 'finance',
                                             'date' => $finance['created_at'],
                                             'title' => lang('UI.patientTimelinePaymentTitle', ['type' => ($finance['transaction_type'] ?? lang('UI.patientUnknown'))]),
                                             'description' => $finance['description'] ?? lang('UI.patientNoDescription'),
                                             'status' => $finance['payment_status'],
+                                            'status_label' => $financeStatus,
                                             'id' => $finance['id'],
                                             'icon' => 'fas fa-dollar-sign',
-                                            'color' => 'green'
+                                            'color' => 'green',
+                                            'url' => base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $financeMeta,
                                         ];
                                     }
                                     
@@ -968,8 +1060,8 @@ $heroInfoCapsules = [
                                         <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
-                                        <table class="min-w-full divide-y divide-gray-200">
-                                            <thead class="bg-gray-50">
+                                        <table class="patient-record-table">
+                                            <thead>
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientFile')) ?></th>
@@ -978,34 +1070,38 @@ $heroInfoCapsules = [
                                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="bg-white divide-y divide-gray-200">
+                                            <tbody>
                                                 <?php if (!empty($attachments)): ?>
                                                     <?php foreach ($attachments as $attachment): ?>
-                                                        <tr data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>">
-                                                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                                        <tr class="patient-record-row" data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>" data-href="<?= esc(base_url('file/download/' . $attachment['id'])) ?>">
+                                                            <td class="whitespace-nowrap">
                                                                 <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-900">
-                                                                <div class="font-medium"><?= esc($attachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></div>
-                                                                <div class="text-xs text-gray-500"><?= number_format(($attachment['file_size'] ?? 0) / 1024, 1) ?> KB</div>
+                                                            <td>
+                                                                <div class="patient-record-main">
+                                                                    <div class="patient-record-title"><?= esc($attachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></div>
+                                                                    <div class="patient-record-subtitle"><?= number_format(($attachment['file_size'] ?? 0) / 1024, 1) ?> KB</div>
+                                                                </div>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                            <td class="text-slate-600">
                                                                 <?= esc($attachment['category'] ?? lang('UI.patientDash')) ?>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                            <td class="text-slate-600">
                                                                 <?= esc($attachment['notes'] ?? lang('UI.patientDash')) ?>
                                                             </td>
-                                                            <td class="px-6 py-4 text-right text-sm">
+                                                            <td class="text-right">
+                                                                <div class="patient-table-actions">
                                                                 <a href="<?= base_url('file/download/' . $attachment['id']) ?>" 
-                                                                   class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
-                                                                    <i class="fas fa-download mr-1"></i><?= esc(lang('UI.patientDownload')) ?>
+                                                                   class="patient-table-action" title="<?= esc(lang('UI.patientDownload')) ?>">
+                                                                    <i class="fas fa-download"></i>
                                                                 </a>
                                                                 <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/' . $attachment['id'] . '/delete') ?>" method="post" class="inline">
                                                                     <?= csrf_field() ?>
-                                                                    <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
-                                                                        <i class="fas fa-trash mr-1"></i><?= esc(lang('UI.patientDelete')) ?>
+                                                                    <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteAttachmentConfirm'), 'js') ?>');">
+                                                                        <i class="fas fa-trash"></i>
                                                                     </button>
                                                                 </form>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -1050,8 +1146,8 @@ $heroInfoCapsules = [
                                         <h4 class="text-md font-semibold text-gray-800"><?= esc(lang('UI.patientContractHistory')) ?></h4>
                                     </div>
                                     <div class="overflow-x-auto">
-                                        <table class="min-w-full divide-y divide-gray-200">
-                                            <thead class="bg-gray-50">
+                                        <table class="patient-record-table">
+                                            <thead>
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
@@ -1060,45 +1156,47 @@ $heroInfoCapsules = [
                                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="bg-white divide-y divide-gray-200">
+                                            <tbody>
                                                 <?php if (!empty($contracts)): ?>
                                                     <?php foreach ($contracts as $contract): ?>
-                                                        <tr data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>">
-                                                            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                                        <tr class="patient-record-row" data-date="<?= !empty($contract['created_at']) ? esc(date('Y-m-d', strtotime($contract['created_at']))) : '' ?>" data-href="<?= esc(base_url('contracts/' . $contract['id'])) ?>">
+                                                            <td class="whitespace-nowrap text-slate-600">
                                                                 <?= !empty($contract['created_at']) ? formatDateTime($contract['created_at']) : '--' ?>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                            <td>
                                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold <?= ($contract['status'] ?? 'draft') === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' ?>">
                                                                     <?= esc(ucfirst($contract['status'] ?? 'draft')) ?>
                                                                 </span>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                            <td class="text-slate-700">
                                                                 <?= !empty($contract['examination_id']) ? esc($contract['examination_id']) : '--' ?>
                                                             </td>
-                                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                            <td class="text-slate-700">
                                                                 <?= esc($contract['currency'] ?? 'USD') ?> <?= number_format((float) ($contract['total_cost'] ?? 0), 2) ?>
                                                             </td>
-                                                    <td class="px-6 py-4 text-right text-sm">
+                                                    <td class="text-right">
+                                                        <div class="patient-table-actions">
                                                         <a href="<?= base_url('contracts/' . $contract['id']) ?>" 
-                                                           class="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3">
-                                                            <i class="fas fa-eye mr-1"></i><?= esc(lang('UI.patientView')) ?>
+                                                           class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>">
+                                                            <i class="fas fa-eye"></i>
                                                         </a>
                                                         <?php if (($contract['status'] ?? 'draft') === 'draft'): ?>
                                                             <a href="<?= base_url('contracts/' . $contract['id'] . '/edit') ?>" 
-                                                               class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mr-3">
-                                                                <i class="fas fa-edit mr-1"></i><?= esc(lang('UI.patientEdit')) ?>
+                                                               class="patient-table-action" title="<?= esc(lang('UI.patientEdit')) ?>">
+                                                                <i class="fas fa-edit"></i>
                                                             </a>
                                                             <form action="<?= base_url('contracts/' . $contract['id'] . '/delete') ?>" method="post" class="inline">
                                                                 <?= csrf_field() ?>
-                                                                <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-800 mr-3" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
-                                                                    <i class="fas fa-trash mr-1"></i><?= esc(lang('UI.patientDelete')) ?>
+                                                                <button type="submit" class="patient-table-action patient-table-action-danger" title="<?= esc(lang('UI.patientDelete')) ?>" onclick="return confirm('<?= esc(lang('UI.patientDeleteContractConfirm'), 'js') ?>');">
+                                                                    <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </form>
                                                         <?php endif; ?>
                                                         <a href="<?= base_url('contracts/' . $contract['id'] . '/print') ?>" 
-                                                           class="inline-flex items-center text-gray-600 hover:text-gray-800">
-                                                            <i class="fas fa-print mr-1"></i><?= esc(lang('UI.patientPrint')) ?>
+                                                           class="patient-table-action" title="<?= esc(lang('UI.patientPrint')) ?>">
+                                                            <i class="fas fa-print"></i>
                                                         </a>
+                                                        </div>
                                                     </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -1132,8 +1230,8 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($examinations)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
+                                    <table class="patient-record-table">
+                                        <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
@@ -1142,26 +1240,28 @@ $heroInfoCapsules = [
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
+                                        <tbody>
                                             <?php foreach ($examinations as $examination): ?>
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <tr class="patient-record-row" data-href="<?= esc(base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                    <td class="whitespace-nowrap">
                                                         <?= formatDate($examination['examination_date']) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td>
                                                         <?= ucfirst($examination['examination_type'] ?? lang('UI.patientGeneral')) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <td>
                                                         <?= $examination['chief_complaint'] ? substr($examination['chief_complaint'], 0, 50) . '...' : lang('UI.patientNoComplaint') ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                    <td class="whitespace-nowrap">
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $examination['status'] == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
                                                             <?= ucfirst($examination['status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <td class="text-right">
+                                                        <div class="patient-table-actions">
                                                         <a href="<?= base_url('examination/' . $examination['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
+                                                           class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -1194,8 +1294,8 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($appointments)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
+                                      <table class="patient-record-table">
+                                          <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDateTime')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
@@ -1204,20 +1304,20 @@ $heroInfoCapsules = [
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            <?php foreach ($appointments as $appointment): ?>
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= formatDate($appointment['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($appointment['appointment_time']) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($appointment['appointment_type'] ?? lang('UI.patientGeneral')) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $appointment['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <?php
+                                          <tbody>
+                                              <?php foreach ($appointments as $appointment): ?>
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                      <td class="whitespace-nowrap">
+                                                          <?= formatDate($appointment['appointment_date']) ?> <?= esc(lang('UI.patientAt')) ?> <?= formatTime($appointment['appointment_time']) ?>
+                                                      </td>
+                                                      <td>
+                                                          <?= ucfirst($appointment['appointment_type'] ?? lang('UI.patientGeneral')) ?>
+                                                      </td>
+                                                      <td>
+                                                          <?= $appointment['duration'] ?? lang('UI.patientNa') ?> <?= esc(lang('UI.patientMinutes')) ?>
+                                                      </td>
+                                                      <td class="whitespace-nowrap">
+                                                          <?php
                                                         $statusColors = [
                                                             'scheduled' => 'bg-blue-100 text-blue-800',
                                                             'confirmed' => 'bg-green-100 text-green-800',
@@ -1231,11 +1331,13 @@ $heroInfoCapsules = [
                                                             <?= ucfirst($appointment['status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
-                                                    </td>
-                                                </tr>
+                                                      <td class="text-right">
+                                                          <div class="patient-table-actions">
+                                                          <a href="<?= base_url('appointment/' . $appointment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                             class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                          </div>
+                                                      </td>
+                                                  </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
@@ -1266,8 +1368,8 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($treatments)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
+                                      <table class="patient-record-table">
+                                          <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTreatment')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
@@ -1277,22 +1379,22 @@ $heroInfoCapsules = [
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            <?php foreach ($treatments as $treatment): ?>
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= ucfirst($treatment['treatment_type'] ?? lang('UI.patientGeneral')) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= $treatment['tooth_number'] ?? lang('UI.patientNa') ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        $<?= number_format($treatment['cost'] ?? 0, 2) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                          <tbody>
+                                              <?php foreach ($treatments as $treatment): ?>
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                      <td>
+                                                          <?= $treatment['treatment_name'] ?? lang('UI.patientNa') ?>
+                                                      </td>
+                                                      <td>
+                                                          <?= ucfirst($treatment['treatment_type'] ?? lang('UI.patientGeneral')) ?>
+                                                      </td>
+                                                      <td>
+                                                          <?= $treatment['tooth_number'] ?? lang('UI.patientNa') ?>
+                                                      </td>
+                                                      <td>
+                                                          $<?= number_format($treatment['cost'] ?? 0, 2) ?>
+                                                      </td>
+                                                      <td class="whitespace-nowrap">
                                                         <?php
                                                         $statusColors = [
                                                             'active' => 'bg-blue-100 text-blue-800',
@@ -1306,11 +1408,13 @@ $heroInfoCapsules = [
                                                             <?= ucfirst($treatment['status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
-                                                    </td>
-                                                </tr>
+                                                      <td class="text-right">
+                                                          <div class="patient-table-actions">
+                                                          <a href="<?= base_url('treatment/' . $treatment['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                             class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                          </div>
+                                                      </td>
+                                                  </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
@@ -1341,8 +1445,8 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($prescriptions)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
+                                      <table class="patient-record-table">
+                                          <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientMedication')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDosage')) ?></th>
@@ -1352,7 +1456,7 @@ $heroInfoCapsules = [
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
+                                          <tbody>
                                             <?php foreach ($prescriptions as $prescription): ?>
                                                 <?php
                                                 // Parse medication JSON data
@@ -1395,23 +1499,23 @@ $heroInfoCapsules = [
                                                     $frequency = $prescription['frequency'] ?? lang('UI.patientNa');
                                                 }
                                                 ?>
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                                        <div class="flex items-center space-x-2">
-                                                            <i class="fas fa-pills text-teal-600 text-xs"></i>
-                                                            <span><?= htmlspecialchars($medicationName) ?></span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                                        <?= htmlspecialchars($dosage) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                                        <?= htmlspecialchars($frequency) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <?= formatDate($prescription['prescribed_date']) ?>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                  <tr class="patient-record-row" data-href="<?= esc(base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                      <td>
+                                                          <div class="flex items-center space-x-2">
+                                                              <i class="fas fa-pills text-teal-600 text-xs"></i>
+                                                              <span><?= htmlspecialchars($medicationName) ?></span>
+                                                          </div>
+                                                      </td>
+                                                      <td>
+                                                          <?= htmlspecialchars($dosage) ?>
+                                                      </td>
+                                                      <td>
+                                                          <?= htmlspecialchars($frequency) ?>
+                                                      </td>
+                                                      <td class="whitespace-nowrap">
+                                                          <?= formatDate($prescription['prescribed_date']) ?>
+                                                      </td>
+                                                      <td class="whitespace-nowrap">
                                                         <?php
                                                         $statusColors = [
                                                             'active' => 'bg-green-100 text-green-800',
@@ -1425,11 +1529,13 @@ $heroInfoCapsules = [
                                                             <?= ucfirst($prescription['status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="<?= base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
-                                                    </td>
-                                                </tr>
+                                                      <td class="text-right">
+                                                          <div class="patient-table-actions">
+                                                          <a href="<?= base_url('prescription/' . $prescription['id'] . '?return_to=patient/' . $patient['id']) ?>" 
+                                                             class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                          </div>
+                                                      </td>
+                                                  </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
@@ -1460,8 +1566,8 @@ $heroInfoCapsules = [
                             </div>
                             <?php if (!empty($finances)): ?>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
+                                    <table class="patient-record-table">
+                                        <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
@@ -1471,25 +1577,25 @@ $heroInfoCapsules = [
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
+                                        <tbody>
                                             <?php foreach ($finances as $finance): ?>
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <tr class="patient-record-row" data-href="<?= esc(base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id'])) ?>">
+                                                    <td class="whitespace-nowrap">
                                                         <?= formatDate($finance['created_at']) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td>
                                                         <?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td>
                                                         <?= ucfirst($finance['payment_method'] ?? lang('UI.patientNa')) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td>
                                                         <?php
                                                             $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0));
                                                         ?>
                                                         <?= formatCurrency($totalAmount) ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                    <td class="whitespace-nowrap">
                                                         <?php
                                                         $statusColors = [
                                                             'paid' => 'bg-green-100 text-green-800',
@@ -1504,9 +1610,11 @@ $heroInfoCapsules = [
                                                             <?= ucfirst($finance['payment_status']) ?>
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <td class="text-right">
+                                                        <div class="patient-table-actions">
                                                         <a href="<?= base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="text-blue-600 hover:text-blue-900"><?= esc(lang('UI.patientView')) ?></a>
+                                                           class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -2276,6 +2384,203 @@ $heroInfoCapsules = [
         background-color: #f8fbff;
     }
 
+    .patient-record-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .patient-record-table thead th {
+        padding: 0.85rem 1.25rem;
+        font-size: 0.72rem;
+        line-height: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        color: #64748b;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .patient-record-table tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.9rem;
+        line-height: 1.35rem;
+        color: #0f172a;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+        background: #ffffff;
+    }
+
+    .patient-record-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .patient-record-row {
+        transition: background-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .patient-record-row[data-href] {
+        cursor: pointer;
+    }
+
+    .patient-record-row[data-href]:hover td {
+        background: #f8fbff;
+    }
+
+    .patient-record-main {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+    }
+
+    .patient-record-title {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .patient-record-subtitle {
+        font-size: 0.78rem;
+        line-height: 1rem;
+        color: #64748b;
+    }
+
+    .patient-table-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.45rem;
+    }
+
+    .patient-table-action {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.7rem;
+        border: 1px solid transparent;
+        background: #f8fafc;
+        color: #475569;
+        transition: all 0.18s ease;
+    }
+
+    .patient-table-action:hover {
+        background: #eff6ff;
+        color: #2563eb;
+        border-color: #dbeafe;
+    }
+
+    .patient-table-action-danger:hover {
+        background: #fff1f2;
+        color: #dc2626;
+        border-color: #fecdd3;
+    }
+
+    .patient-timeline-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .patient-timeline-node {
+        position: relative;
+        padding-bottom: 1.15rem;
+    }
+
+    .patient-timeline-link {
+        display: block;
+        border: 1px solid #dbe4ef;
+        border-radius: 1rem;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 18px 36px -32px rgba(15, 23, 42, 0.28);
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .patient-timeline-link:hover {
+        border-color: #cbdcf9;
+        background: #ffffff;
+        box-shadow: 0 20px 36px -30px rgba(37, 99, 235, 0.22);
+        transform: translateY(-1px);
+    }
+
+    .patient-timeline-shell {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 1.05rem;
+    }
+
+    .patient-timeline-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        flex-shrink: 0;
+        box-shadow: 0 12px 24px -20px rgba(15, 23, 42, 0.5);
+    }
+
+    .patient-timeline-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .patient-timeline-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .patient-timeline-title {
+        font-size: 0.95rem;
+        line-height: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .patient-timeline-date {
+        margin-top: 0.15rem;
+        font-size: 0.78rem;
+        color: #64748b;
+    }
+
+    .patient-timeline-status {
+        flex-shrink: 0;
+    }
+
+    .patient-timeline-description {
+        margin-top: 0.45rem;
+        font-size: 0.88rem;
+        line-height: 1.45rem;
+        color: #475569;
+    }
+
+    .patient-timeline-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .patient-timeline-meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.38rem 0.62rem;
+        border-radius: 9999px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.74rem;
+        line-height: 1rem;
+        color: #475569;
+    }
+
     .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm,
     .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm.group {
         border-color: #dbe4ef;
@@ -2451,10 +2756,13 @@ $heroInfoCapsules = [
                 title: '<?= addslashes($item['title']) ?>',
                 description: '<?= addslashes($item['description']) ?>',
                 status: '<?= $item['status'] ?>',
+                status_label: '<?= addslashes($item['status_label'] ?? ucfirst((string) $item['status'])) ?>',
                 id: '<?= $item['id'] ?>',
                 doctor: '<?= addslashes((string) ($item['doctor'] ?? '')) ?>',
                 icon: '<?= $item['icon'] ?>',
-                color: '<?= $item['color'] ?>'
+                color: '<?= $item['color'] ?>',
+                url: '<?= addslashes((string) ($item['url'] ?? '')) ?>',
+                meta: <?= json_encode($item['meta'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
             },
             <?php endforeach; ?>
         ];
@@ -2664,9 +2972,10 @@ $heroInfoCapsules = [
         
         filteredTimelineData.forEach((item, index) => {
             const timelineItem = document.createElement('li');
+            timelineItem.className = 'patient-timeline-node';
             
             const divRelative = document.createElement('div');
-            divRelative.className = 'relative pb-8';
+            divRelative.className = 'relative';
             
             if (index !== filteredTimelineData.length - 1) {
                 const spanLine = document.createElement('span');
@@ -2675,63 +2984,95 @@ $heroInfoCapsules = [
                 divRelative.appendChild(spanLine);
             }
             
+            const link = document.createElement(item.url ? 'a' : 'div');
+            if (item.url) {
+                link.href = item.url;
+            }
+            link.className = 'patient-timeline-link';
+
             const divFlex = document.createElement('div');
-            divFlex.className = 'relative flex space-x-3';
+            divFlex.className = 'patient-timeline-shell';
             
             // Icon
             const divIconOuter = document.createElement('div');
             const spanIconBg = document.createElement('span');
-            spanIconBg.className = `h-8 w-8 rounded-full bg-${item.color}-500 flex items-center justify-center ring-8 ring-white`;
+            spanIconBg.className = `patient-timeline-icon bg-${item.color}-500`;
             const icon = document.createElement('i');
-            icon.className = `${item.icon} text-white text-xs`;
+            icon.className = `${item.icon} text-sm`;
             spanIconBg.appendChild(icon);
             divIconOuter.appendChild(spanIconBg);
             
             // Content
             const divContent = document.createElement('div');
-            divContent.className = 'min-w-0 flex-1 pt-1.5 flex justify-between space-x-4';
+            divContent.className = 'patient-timeline-main';
             
+            const divHead = document.createElement('div');
+            divHead.className = 'patient-timeline-head';
+
             const divText = document.createElement('div');
-            const pTitle = document.createElement('p');
-            pTitle.className = 'text-sm text-gray-500';
-            const spanTitle = document.createElement('span');
-            spanTitle.className = 'font-medium text-gray-900';
-            spanTitle.textContent = item.title;
-            const spanDate = document.createElement('span');
-            spanDate.className = 'text-gray-500';
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'patient-timeline-title';
+            titleDiv.textContent = item.title;
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'patient-timeline-date';
             const itemIso = String(item.date || '').split(' ')[0];
             const itemDisplay = window.formatClinicDateFromIso ? window.formatClinicDateFromIso(itemIso) : itemIso;
-            spanDate.textContent = ` ${patientShowI18n.timelineOn} ${itemDisplay}`;
-            pTitle.appendChild(spanTitle);
-            pTitle.appendChild(spanDate);
+            dateDiv.textContent = `${patientShowI18n.timelineOn} ${itemDisplay}`;
             
             const pDesc = document.createElement('p');
-            pDesc.className = 'text-sm text-gray-500';
+            pDesc.className = 'patient-timeline-description';
             pDesc.textContent = item.description;
 
-            divText.appendChild(pTitle);
+            divText.appendChild(titleDiv);
+            divText.appendChild(dateDiv);
             divText.appendChild(pDesc);
             
             if (item.doctor) {
                 const pDoctor = document.createElement('p');
-                pDoctor.className = 'text-xs text-gray-400 mt-1';
+                pDoctor.className = 'patient-record-subtitle mt-2';
                 pDoctor.textContent = `Dr. ${item.doctor}`;
                 divText.appendChild(pDoctor);
             }
+
+            if (Array.isArray(item.meta) && item.meta.length > 0) {
+                const metaWrap = document.createElement('div');
+                metaWrap.className = 'patient-timeline-meta';
+                item.meta.forEach((metaItem) => {
+                    if (!metaItem || !metaItem.text) {
+                        return;
+                    }
+                    const chip = document.createElement('span');
+                    chip.className = 'patient-timeline-meta-chip';
+                    if (metaItem.icon) {
+                        const metaIcon = document.createElement('i');
+                        metaIcon.className = metaItem.icon;
+                        chip.appendChild(metaIcon);
+                    }
+                    const metaText = document.createElement('span');
+                    metaText.textContent = metaItem.text;
+                    chip.appendChild(metaText);
+                    metaWrap.appendChild(chip);
+                });
+                if (metaWrap.childNodes.length > 0) {
+                    divText.appendChild(metaWrap);
+                }
+            }
             
             const divStatus = document.createElement('div');
-            divStatus.className = 'text-right text-sm whitespace-nowrap text-gray-500';
+            divStatus.className = 'patient-timeline-status';
             const spanStatus = document.createElement('span');
             spanStatus.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${item.color}-100 text-${item.color}-800`;
-            spanStatus.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+            spanStatus.textContent = item.status_label || (item.status.charAt(0).toUpperCase() + item.status.slice(1));
             divStatus.appendChild(spanStatus);
             
-            divContent.appendChild(divText);
-            divContent.appendChild(divStatus);
+            divHead.appendChild(divText);
+            divHead.appendChild(divStatus);
+            divContent.appendChild(divHead);
             
             divFlex.appendChild(divIconOuter);
             divFlex.appendChild(divContent);
-            divRelative.appendChild(divFlex);
+            link.appendChild(divFlex);
+            divRelative.appendChild(link);
             timelineItem.appendChild(divRelative);
             
             timelineContainer.appendChild(timelineItem);
@@ -2810,6 +3151,19 @@ $heroInfoCapsules = [
             filterTable(currentTab);
         }
     }
+
+    document.addEventListener('click', function(event) {
+        const row = event.target.closest('.patient-record-row[data-href]');
+        if (!row) {
+            return;
+        }
+
+        if (event.target.closest('a, button, form, input, select, textarea, label')) {
+            return;
+        }
+
+        window.location.href = row.dataset.href;
+    });
 
 
 
