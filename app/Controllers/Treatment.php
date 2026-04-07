@@ -5,11 +5,9 @@ namespace App\Controllers;
 use App\Models\TreatmentModel;
 use App\Models\PatientModel;
 use App\Models\InventoryModel;
-use App\Models\InventoryUsageModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
-use App\Services\FinanceLedgerService;
-use App\Services\InventoryMovementService;
+use App\Services\InventoryUsageService;
 use App\Services\StorageService;
 
 class Treatment extends BaseController
@@ -736,123 +734,19 @@ class Treatment extends BaseController
             return ['success' => false, 'message' => 'Please select at least one inventory item to record usage.'];
         }
 
-        $usageData = [];
-        $totalCost = 0.0;
-
-        foreach ($items as $item) {
-            $itemId = $item['item_id'] ?? null;
-            $quantity = $item['quantity'] ?? null;
-            if (!$itemId || !is_numeric($quantity) || (int) $quantity <= 0) {
-                return ['success' => false, 'message' => 'Please provide valid quantities for all selected items.'];
-            }
-
-            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($itemId);
-            if (!$inventoryItem) {
-                return ['success' => false, 'message' => 'Invalid inventory item selected.'];
-            }
-
-            if ((int) $inventoryItem['quantity'] < (int) $quantity) {
-                return [
-                    'success' => false,
-                    'message' => "Insufficient stock for {$inventoryItem['item_name']}. Available: {$inventoryItem['quantity']}, Requested: {$quantity}"
-                ];
-            }
-
-            $usageData[] = [
-                'item_id' => $itemId,
-                'item_name' => $inventoryItem['item_name'],
-                'quantity_used' => (int) $quantity,
-                'unit_cost' => (float) $inventoryItem['unit_price'],
-                'total_cost' => (float) $inventoryItem['unit_price'] * (int) $quantity
-            ];
-
-            $totalCost += (float) $inventoryItem['unit_price'] * (int) $quantity;
-        }
-
-        $usageModel = new InventoryUsageModel();
-        $usageId = $usageModel->insert([
-            'treatment_id' => $treatmentId,
-            'usage_date' => $usageDate,
-            'items_used' => json_encode($usageData),
-            'total_cost' => $totalCost,
-            'notes' => $notes,
-            'recorded_by' => session()->get('user_id') ?? 1,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
-
-        if (!$usageId) {
-            return ['success' => false, 'message' => 'Failed to record inventory usage.'];
-        }
-
-        $autoPostInventoryCogs = (int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1;
-        if ($autoPostInventoryCogs) {
-        try {
-            $treatment = $this->treatmentModel->where('clinic_id', $clinicId)->find($treatmentId);
-            $patientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
-            $patientName = null;
-            $treatmentLabel = null;
-            if ($treatment) {
-                $treatmentLabel = (string) ($treatment['treatment_id'] ?? ('#' . $treatment['id']));
-                if ($patientId) {
-                    $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
-                    if ($patient) {
-                        $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
-                    }
-                }
-            }
-
-            (new FinanceLedgerService())->upsertInventoryUsageCogsExpense(
-                $clinicId,
-                (int) $usageId,
-                [
-                    'treatment_id' => $treatmentId,
-                    'usage_date' => $usageDate,
-                    'items_used' => json_encode($usageData),
-                    'total_cost' => $totalCost,
-                    'notes' => $notes,
-                ],
-                $patientId,
-                (int) (session()->get('user_id') ?? 0),
-                [
-                    'patient_name' => $patientName,
-                    'treatment_label' => $treatmentLabel,
-                ]
-            );
-        } catch (\Throwable $financePostError) {
-            log_message('error', 'Treatment inventory usage finance posting failed: ' . $financePostError->getMessage());
-        }
-        }
-
-        foreach ($usageData as $usage) {
-            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($usage['item_id']);
-            if ($inventoryItem) {
-                $beforeQty = (int) $inventoryItem['quantity'];
-                $newQuantity = $beforeQty - (int) $usage['quantity_used'];
-                $this->inventoryModel->update($usage['item_id'], [
-                    'quantity' => $newQuantity,
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-                try {
-                    (new InventoryMovementService())->record(
-                        (int) $clinicId,
-                        (int) $usage['item_id'],
-                        'usage_consume',
-                        (int) -$usage['quantity_used'],
-                        $beforeQty,
-                        (int) $newQuantity,
-                        isset($usage['unit_cost']) ? (float) $usage['unit_cost'] : null,
-                        'inventory_usage',
-                        (int) $usageId,
-                        'Treatment-linked inventory usage',
-                        (int) (session()->get('user_id') ?? 0)
-                    );
-                } catch (\Throwable $movementError) {
-                    log_message('error', 'Treatment inventory movement logging failed: ' . $movementError->getMessage());
-                }
-            }
-        }
-
-        return ['success' => true, 'message' => 'Inventory usage recorded.'];
+        return (new InventoryUsageService())->record(
+            $clinicId,
+            [
+                'treatment_id' => $treatmentId,
+                'usage_date' => $usageDate,
+                'notes' => $notes,
+                'items' => $items,
+            ],
+            (int) (session()->get('user_id') ?? 0),
+            [
+                'movement_note' => 'Treatment-linked inventory usage',
+            ]
+        );
     }
 
     private function getTreatmentTypes(?string $currentType = null)

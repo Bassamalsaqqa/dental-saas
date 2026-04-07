@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params); ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
     <div class="px-6 py-6">
         <!-- Compact Page Header -->
@@ -14,16 +15,16 @@
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-gray-900">Item Details</h1>
-                        <p class="text-gray-600 font-medium">Inventory item information</p>
+                        <h1 class="text-2xl font-black text-gray-900"><?= esc($tr('itemDetails')) ?></h1>
+                        <p class="text-gray-600 font-medium"><?= esc($tr('inventoryItemInformation')) ?></p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
                     <a href="<?= base_url('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                        <i class="fas fa-arrow-left mr-2"></i>Back
+                        <i class="fas fa-arrow-left mr-2"></i><?= esc($tr('back')) ?>
                     </a>
                     <a href="<?= base_url('inventory/' . $item['id'] . '/edit') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                        <i class="fas fa-edit mr-2"></i>Edit
+                        <i class="fas fa-edit mr-2"></i><?= esc($tr('edit')) ?>
                     </a>
                 </div>
             </div>
@@ -73,9 +74,9 @@
                     </div>
                     <div class="text-right">
                         <div class="text-3xl font-black text-gray-900"><?= $item['quantity'] ?></div>
-                        <div class="text-sm text-gray-600 font-medium">units in stock</div>
+                        <div class="text-sm text-gray-600 font-medium"><?= esc($tr('unitInStock')) ?></div>
                         <div class="text-lg font-bold text-gray-900"><?= formatCurrency($item['quantity'] * $item['unit_price']) ?></div>
-                        <div class="text-xs text-gray-500">total value</div>
+                        <div class="text-xs text-gray-500"><?= esc($tr('totalValueLabel')) ?></div>
                     </div>
                 </div>
                 
@@ -96,22 +97,22 @@
                         <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-boxes text-sm"></i>
                         </div>
-                        <h3 class="text-lg font-black text-gray-900">Stock Details</h3>
+                        <h3 class="text-lg font-black text-gray-900"><?= esc($tr('stockDetails')) ?></h3>
                     </div>
                     
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Current</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('current')) ?></span>
                             <span class="text-lg font-bold text-gray-900"><?= $item['quantity'] ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Minimum</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('minimum')) ?></span>
                             <span class="text-lg font-bold text-gray-900"><?= $item['min_quantity'] ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Status</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('status')) ?></span>
                             <span class="px-2 py-1 text-xs font-semibold rounded-full <?= $statusClass ?>">
                                 <?= $statusText ?>
                             </span>
@@ -121,7 +122,7 @@
                             <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div class="flex items-center">
                                     <i class="fas fa-exclamation-triangle text-yellow-600 mr-2 text-sm"></i>
-                                    <span class="text-xs text-yellow-800 font-semibold">Low Stock Alert</span>
+                                    <span class="text-xs text-yellow-800 font-semibold"><?= esc($tr('lowStockAlert')) ?></span>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -134,22 +135,22 @@
                         <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-dollar-sign text-sm"></i>
                         </div>
-                        <h3 class="text-lg font-black text-gray-900">Financial</h3>
+                        <h3 class="text-lg font-black text-gray-900"><?= esc($tr('financial')) ?></h3>
                     </div>
                     
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Unit Price</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('unitPrice')) ?></span>
                             <span class="text-lg font-bold text-gray-900"><?= formatCurrency($item['unit_price']) ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Total Value</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('totalValue')) ?></span>
                             <span class="text-lg font-bold text-gray-900"><?= formatCurrency($item['quantity'] * $item['unit_price']) ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Supplier</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('supplier')) ?></span>
                             <span class="text-sm text-gray-900"><?= $item['supplier'] ?: 'N/A' ?></span>
                         </div>
                     </div>
@@ -161,17 +162,17 @@
                         <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <i class="fas fa-map-marker-alt text-sm"></i>
                         </div>
-                        <h3 class="text-lg font-black text-gray-900">Location</h3>
+                        <h3 class="text-lg font-black text-gray-900"><?= esc($tr('locationTitle')) ?></h3>
                     </div>
                     
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Storage</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('storage')) ?></span>
                             <span class="text-sm text-gray-900"><?= $item['location'] ?: 'N/A' ?></span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Expiry</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('expiry')) ?></span>
                             <span class="text-sm text-gray-900">
                                 <?php if ($item['expiry_date']): ?>
                                     <?php
@@ -180,7 +181,7 @@
                                     $daysUntilExpiry = ceil(($expiryDate - $today) / (60 * 60 * 24));
                                     
                                     if ($daysUntilExpiry < 0) {
-                                        echo '<span class="text-red-600 font-semibold">Expired</span>';
+                                        echo '<span class="text-red-600 font-semibold">' . esc($tr('expiredLabel')) . '</span>';
                                     } elseif ($daysUntilExpiry <= 30) {
                                         echo '<span class="text-yellow-600 font-semibold">' . $daysUntilExpiry . ' days</span>';
                                     } else {
@@ -188,17 +189,17 @@
                                     }
                                     ?>
                                 <?php else: ?>
-                                    No expiry
+                                    <?= esc($tr('noExpiry')) ?>
                                 <?php endif; ?>
                             </span>
                         </div>
                         
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Item ID</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('id')) ?></span>
                             <span class="text-sm text-gray-900 font-mono">#<?= $item['id'] ?></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-600">Created By</span>
+                            <span class="text-sm font-medium text-gray-600"><?= esc($tr('createdBy')) ?></span>
                             <span class="text-sm text-gray-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : 'Unknown' ?></span>
                         </div>
                     </div>
@@ -213,24 +214,24 @@
                     <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                         <i class="fas fa-info-circle text-sm"></i>
                     </div>
-                    <h3 class="text-lg font-black text-gray-900">System Information</h3>
+                    <h3 class="text-lg font-black text-gray-900"><?= esc($tr('systemInformation')) ?></h3>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 font-medium">Created</div>
+                        <div class="text-sm text-gray-600 font-medium"><?= esc($tr('created')) ?></div>
                         <div class="text-sm text-gray-900 font-semibold">
                             <?= $item['created_at'] ? date('M j, Y', strtotime($item['created_at'])) : 'Unknown' ?>
                         </div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 font-medium">Last Updated</div>
+                        <div class="text-sm text-gray-600 font-medium"><?= esc($tr('lastUpdated')) ?></div>
                         <div class="text-sm text-gray-900 font-semibold">
                             <?= $item['updated_at'] ? date('M j, Y', strtotime($item['updated_at'])) : 'Unknown' ?>
                         </div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 font-medium">Item ID</div>
+                        <div class="text-sm text-gray-600 font-medium"><?= esc($tr('id')) ?></div>
                         <div class="text-sm text-gray-900 font-mono font-semibold">#<?= $item['id'] ?></div>
                     </div>
                 </div>
@@ -247,8 +248,8 @@
                                 <i class="fas fa-truck-ramp-box text-sm"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-black text-gray-900">Supplier Mappings</h3>
-                                <p class="text-xs text-gray-500">Preferred vendors, pack sizes, and reorder defaults for this item</p>
+                                <h3 class="text-lg font-black text-gray-900"><?= esc($tr('supplierMappings')) ?></h3>
+                                <p class="text-xs text-gray-500"><?= esc($tr('supplierMappingsHelp')) ?></p>
                             </div>
                         </div>
                         <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800"><?= count($supplier_links ?? []) ?> supplier(s)</span>
@@ -263,7 +264,7 @@
                                             <div class="flex items-center gap-2">
                                                 <span class="font-semibold text-slate-900"><?= esc($link['supplier_name'] ?? ('Supplier #' . (int) $link['supplier_id'])) ?></span>
                                                 <?php if ((int) ($link['is_preferred'] ?? 0) === 1): ?>
-                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Preferred</span>
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700"><?= esc($tr('preferred')) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="mt-1 text-xs text-slate-600">
@@ -305,16 +306,16 @@
                             <i class="fas fa-link text-sm"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-gray-900">Add / Update Mapping</h3>
-                            <p class="text-xs text-gray-500">Map this item to a supplier and set default reorder values</p>
+                            <h3 class="text-lg font-black text-gray-900"><?= esc($tr('addUpdateMapping')) ?></h3>
+                            <p class="text-xs text-gray-500"><?= esc($tr('supplierMappingUpdateHelp')) ?></p>
                         </div>
                     </div>
                     <form method="post" action="<?= base_url('inventory/' . (int) $item['id'] . '/supplier-link') ?>" class="space-y-3">
                         <?= csrf_field() ?>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">Supplier</label>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1"><?= esc($tr('supplier')) ?></label>
                             <select name="link_supplier_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
-                                <option value="">Select supplier</option>
+                                <option value=""><?= esc($tr('supplier')) ?></option>
                                 <?php foreach (($supplier_directory ?? []) as $supplier): ?>
                                     <option value="<?= (int) $supplier['id'] ?>"><?= esc($supplier['name']) ?></option>
                                 <?php endforeach; ?>
@@ -355,8 +356,8 @@
                             <i class="fas fa-arrows-rotate text-sm"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-gray-900">Stock Movement Ledger</h3>
-                            <p class="text-xs text-gray-500">Recent receive, usage, and adjustment events for this item</p>
+                            <h3 class="text-lg font-black text-gray-900"><?= esc($tr('movementsTitle')) ?></h3>
+                            <p class="text-xs text-gray-500"><?= esc($tr('movementsSubtitle')) ?></p>
                         </div>
                     </div>
                     <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700"><?= count($movements ?? []) ?> movement(s)</span>
@@ -367,13 +368,13 @@
                         <table class="min-w-full">
                             <thead>
                                 <tr class="text-left text-xs font-semibold text-slate-600 uppercase border-b border-slate-200">
-                                    <th class="px-3 py-2">Date</th>
-                                    <th class="px-3 py-2">Type</th>
-                                    <th class="px-3 py-2">Change</th>
-                                    <th class="px-3 py-2">Before → After</th>
-                                    <th class="px-3 py-2">Cost</th>
-                                    <th class="px-3 py-2">Reference</th>
-                                    <th class="px-3 py-2">Actor</th>
+                                    <th class="px-3 py-2"><?= esc($tr('date')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('status')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('change')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('beforeAfter')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('cost')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('reference')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('actor')) ?></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -408,7 +409,7 @@
                                         <td class="px-3 py-3 text-sm text-gray-700">
                                             <?php if ($movement['unit_cost'] !== null): ?>
                                                 <div><?= formatCurrency((float) $movement['unit_cost']) ?>/unit</div>
-                                                <?php if ($movement['total_cost'] !== null): ?><div class="text-xs text-gray-500">Total: <?= formatCurrency((float) $movement['total_cost']) ?></div><?php endif; ?>
+                                                <?php if ($movement['total_cost'] !== null): ?><div class="text-xs text-gray-500"><?= esc($tr('totalCost')) ?>: <?= formatCurrency((float) $movement['total_cost']) ?></div><?php endif; ?>
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>
@@ -441,8 +442,8 @@
                             <i class="fas fa-tags text-sm"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-gray-900">Batches / Lots (Foundation)</h3>
-                            <p class="text-xs text-gray-500">Optional receive-time lot and expiry capture for FEFO-ready inventory controls</p>
+                            <h3 class="text-lg font-black text-gray-900"><?= esc($tr('batchesLotsFoundation')) ?></h3>
+                            <p class="text-xs text-gray-500"><?= esc($tr('batchesLotsFoundationHelp')) ?></p>
                         </div>
                     </div>
                     <span class="text-xs font-semibold px-3 py-1 rounded-full bg-cyan-100 text-cyan-800"><?= count($batches ?? []) ?> batch(es)</span>
@@ -452,12 +453,12 @@
                         <table class="min-w-full">
                             <thead>
                                 <tr class="text-left text-xs font-semibold text-slate-600 uppercase border-b border-slate-200">
-                                    <th class="px-3 py-2">Lot</th>
-                                    <th class="px-3 py-2">Expiry</th>
-                                    <th class="px-3 py-2">Received</th>
-                                    <th class="px-3 py-2">Remaining</th>
-                                    <th class="px-3 py-2">Cost</th>
-                                    <th class="px-3 py-2">Created</th>
+                                    <th class="px-3 py-2"><?= esc($tr('lot')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('expiry')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('receivedQty')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('remainingQty')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('cost')) ?></th>
+                                    <th class="px-3 py-2"><?= esc($tr('created')) ?></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -482,7 +483,7 @@
                     </div>
                 <?php else: ?>
                     <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-600">
-                        No batches recorded yet. Use “Receive Stock” and optionally enter lot number / expiry to start tracking batches.
+                        <?= esc($tr('noBatchesYet')) ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -491,21 +492,21 @@
         <!-- Compact Action Buttons -->
         <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <button onclick="addItemToReorder(<?= (int) $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-cart-plus mr-2"></i>Add to Reorder List
+                <i class="fas fa-cart-plus mr-2"></i><?= esc($tr('addToReorderList')) ?>
             </button>
             <button onclick="receiveStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-box-open mr-2"></i>Receive Stock
+                <i class="fas fa-box-open mr-2"></i><?= esc($tr('receiveStock')) ?>
             </button>
             <button onclick="adjustStock(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-plus-minus mr-2"></i>Adjust Stock
+                <i class="fas fa-plus-minus mr-2"></i><?= esc($tr('adjustStock')) ?>
             </button>
             
             <a href="<?= base_url('inventory/' . $item['id'] . '/edit') ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-edit mr-2"></i>Edit Item
+                <i class="fas fa-edit mr-2"></i><?= esc($tr('editItem')) ?>
             </a>
             
             <button onclick="deleteItem(<?= $item['id'] ?>)" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                <i class="fas fa-trash mr-2"></i>Delete Item
+                <i class="fas fa-trash mr-2"></i><?= esc($tr('delete')) ?>
             </button>
         </div>
     </div>

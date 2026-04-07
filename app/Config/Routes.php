@@ -461,7 +461,6 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     $routes->get('usage-history', 'Inventory::usageHistory', ['filter' => 'permission:inventory:view']);
     $routes->get('usage-details/(:num)', 'Inventory::usageDetails/$1', ['filter' => 'permission:inventory:view']);
     $routes->get('usage-print/(:num)', 'Inventory::usagePrint/$1', ['filter' => 'permission:inventory:view']);
-    $routes->get('inventory/usage-print/(:num)', 'Inventory::usagePrint/$1', ['filter' => 'permission:inventory:view']);
 
     // Server-side processing routes
     $routes->post('getInventoryData', 'Inventory::getInventoryData', ['filter' => 'permission:inventory:view']);

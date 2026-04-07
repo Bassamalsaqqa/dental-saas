@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<?php $tr = static fn(string $key, array $params = []) => lang('Inventory.' . $key, $params); ?>
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
@@ -103,11 +104,11 @@
                                     <i class="fas fa-user-md"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600">Patient</p>
+                                    <p class="text-sm font-medium text-gray-600"><?= esc($tr('patient')) ?></p>
                                     <p class="text-lg font-bold text-gray-900" id="patientName">-</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600">Treatment</p>
+                                    <p class="text-sm font-medium text-gray-600"><?= esc($tr('treatment')) ?></p>
                                     <p class="text-lg font-bold text-gray-900" id="treatmentName">-</p>
                                 </div>
                             </div>
@@ -139,7 +140,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('quantity')) ?> *</label>
                                         <input type="number" name="items[0][quantity]" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input" required>
                                     </div>
                                     <div>
@@ -147,7 +148,7 @@
                                         <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 unit-cost" readonly>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc($tr('totalCost')) ?></label>
                                         <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 total-cost" readonly>
                                     </div>
                                 </div>
@@ -180,13 +181,13 @@
                             <i class="fas fa-sticky-note text-amber-600 mr-2"></i>
                             <?= lang('Inventory.additionalNotes') ?>
                         </h3>
-                        <textarea name="notes" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="Add any additional notes about this usage..."></textarea>
+                        <textarea name="notes" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="<?= esc($tr('additionalNotesPlaceholder')) ?>"></textarea>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="flex justify-end space-x-4">
                         <a href="<?= base_url() ?>inventory" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                            Cancel
+                            <?= esc($tr('cancel')) ?>
                         </a>
                         <button type="submit" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                             <i class="fas fa-save mr-2"></i><?= lang('Inventory.recordUsage') ?>

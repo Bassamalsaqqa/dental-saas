@@ -283,7 +283,7 @@
                             <i class="fas fa-calendar text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 font-medium">This Month</p>
+                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.thisMonth') ?></p>
                             <p class="text-2xl font-bold text-gray-900">
                                 <?php
                                 $thisMonth = date('Y-m');
@@ -413,7 +413,7 @@
     <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Usage Details</h3>
+                <h3 class="text-lg font-bold text-gray-900"><?= lang('Inventory.viewDetails') ?></h3>
                 <button onclick="closeUsageDetails()" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -556,7 +556,7 @@ function viewUsageDetails(usageId) {
                 const dateDiv = document.createElement('div');
                 const dateLabel = document.createElement('label');
                 dateLabel.className = 'text-sm font-medium text-gray-500';
-                dateLabel.textContent = 'Usage Date';
+                dateLabel.textContent = '<?= esc(lang('Inventory.usageDateRequired'), 'js') ?>';
                 const dateP = document.createElement('p');
                 dateP.className = 'text-lg font-semibold text-gray-900';
                 dateP.textContent = formatDate(usage.usage_date);
@@ -567,7 +567,7 @@ function viewUsageDetails(usageId) {
                 const costDiv = document.createElement('div');
                 const costLabel = document.createElement('label');
                 costLabel.className = 'text-sm font-medium text-gray-500';
-                costLabel.textContent = 'Total Cost';
+                costLabel.textContent = '<?= esc(lang('Inventory.totalCost'), 'js') ?>';
                 const costP = document.createElement('p');
                 costP.className = 'text-lg font-semibold text-green-600';
                 costP.textContent = formatCurrency(parseFloat(usage.total_cost));
@@ -582,7 +582,7 @@ function viewUsageDetails(usageId) {
                 const itemsSection = document.createElement('div');
                 const itemsLabel = document.createElement('label');
                 itemsLabel.className = 'text-sm font-medium text-gray-500';
-                itemsLabel.textContent = 'Items Used';
+                itemsLabel.textContent = '<?= esc(lang('Inventory.itemsUsed'), 'js') ?>';
                 itemsSection.appendChild(itemsLabel);
                 
                 const itemsList = document.createElement('div');
@@ -626,7 +626,7 @@ function viewUsageDetails(usageId) {
                     const notesDiv = document.createElement('div');
                     const notesLabel = document.createElement('label');
                     notesLabel.className = 'text-sm font-medium text-gray-500';
-                    notesLabel.textContent = 'Notes';
+                    notesLabel.textContent = '<?= esc(lang('Inventory.notes'), 'js') ?>';
                     const notesP = document.createElement('p');
                     notesP.className = 'text-gray-900 mt-1';
                     notesP.textContent = usage.notes;
@@ -638,7 +638,7 @@ function viewUsageDetails(usageId) {
                 // Footer (Recorded By)
                 const footerDiv = document.createElement('div');
                 footerDiv.className = 'text-sm text-gray-500';
-                footerDiv.textContent = `Recorded by: ${usage.recorded_by_name} on ${formatDate(usage.created_at)}`;
+                footerDiv.textContent = `${'<?= esc(lang('Inventory.recordedBy'), 'js') ?>'}: ${usage.recorded_by_name} | ${formatDate(usage.created_at)}`;
                 container.appendChild(footerDiv);
 
                 if (usage.finance_entry_id) {
@@ -651,7 +651,7 @@ function viewUsageDetails(usageId) {
                     const financeIcon = document.createElement('i');
                     financeIcon.className = 'fas fa-file-invoice-dollar mr-2';
                     const financeText = document.createElement('span');
-                    financeText.textContent = 'View Finance Entry (COGS)';
+                    financeText.textContent = '<?= esc(lang('Inventory.viewFinanceEntry'), 'js') ?>';
                     financeLink.appendChild(financeIcon);
                     financeLink.appendChild(financeText);
 
@@ -755,7 +755,7 @@ $(document).ready(function() {
 
                 if (json.error) {
                     console.error('Server error:', json.error);
-                    alert('Error: ' + json.error);
+                    alert('<?= esc(lang('Inventory.error'), 'js') ?>: ' + json.error);
                     return [];
                 }
                 

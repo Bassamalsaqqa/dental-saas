@@ -231,7 +231,7 @@
                         </div>
                         <div>
                             <h1 class="text-3xl font-bold text-gray-900"><?= lang('Inventory.lowStockItems') ?></h1>
-                            <p class="text-gray-600">Items requiring immediate attention and restocking</p>
+                            <p class="text-gray-600"><?= lang('Inventory.lowStockSubtitle') ?></p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
@@ -241,7 +241,7 @@
                         </a>
                         <a href="<?= base_url('inventory/reorder-list') ?>" class="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all duration-200">
                             <i class="fas fa-cart-shopping mr-2"></i>
-                            Reorder List
+                            <?= lang('Inventory.reorderList') ?>
                             <span class="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-amber-600 text-white text-xs font-bold"><?= (int) ($open_reorder_count ?? 0) ?></span>
                         </a>
                         <a href="<?= base_url('inventory') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
@@ -274,7 +274,7 @@
                             <i class="fas fa-times-circle text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 font-medium">Critical Items</p>
+                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.critical') ?> <?= lang('Inventory.items') ?></p>
                             <p class="text-2xl font-bold text-gray-900">
                                 <?php
                                 $criticalCount = 0;
@@ -296,7 +296,7 @@
                             <i class="fas fa-clock text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 font-medium">Warning Items</p>
+                            <p class="text-sm text-gray-600 font-medium"><?= lang('Inventory.low') ?> <?= lang('Inventory.items') ?></p>
                             <p class="text-2xl font-bold text-gray-900">
                                 <?= count($items) - $criticalCount ?>
                             </p>
@@ -370,7 +370,7 @@
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         <div class="flex items-center space-x-2">
                                             <i class="fas fa-exclamation-triangle text-orange-600"></i>
-                                            <span>Min Required</span>
+                                            <span><?= lang('Inventory.minimumQuantityRequired') ?></span>
                                         </div>
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -649,7 +649,7 @@ $(document).ready(function() {
                 
                 if (json.error) {
                     console.error('Server error:', json.error);
-                    alert('Error: ' + json.error);
+                    alert('<?= esc(lang('Inventory.error'), 'js') ?>: ' + json.error);
                     return [];
                 }
                 
@@ -715,11 +715,11 @@ $(document).ready(function() {
                     
                     const p1 = document.createElement('p');
                     p1.className = 'text-lg font-medium';
-                    p1.textContent = 'Unable to load low stock data';
+                    p1.textContent = '<?= esc(lang('Inventory.unableToLoadData'), 'js') ?>';
                     
                     const p2 = document.createElement('p');
                     p2.className = 'text-sm';
-                    p2.textContent = 'Please check your connection and try again.';
+                    p2.textContent = '<?= esc(lang('Inventory.checkConnection'), 'js') ?>';
                     
                     const retryBtn = document.createElement('button');
                     retryBtn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';

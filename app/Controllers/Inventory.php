@@ -10,8 +10,8 @@ use App\Models\InventorySupplierLinkModel;
 use App\Models\InventoryStockMovementModel;
 use App\Models\SupplierModel;
 use App\Services\ActivityLogger;
-use App\Services\FinanceLedgerService;
 use App\Services\InventoryMovementService;
+use App\Services\InventoryUsageService;
 
 class Inventory extends BaseController
 {
@@ -77,6 +77,7 @@ class Inventory extends BaseController
                 $data['inventory'] = $inventory;
                 $data['available_categories'] = $availableCategories;
                 $data['total_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->countAllResults();
+                $data['in_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('status', 'active')->where('quantity >', 0)->countAllResults();
                 $data['low_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->countAllResults();
                 $data['out_of_stock_items'] = $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity', 0)->countAllResults();
                 $data['open_reorder_count'] = $this->reorderItemModel->where('clinic_id', $clinicId)->whereIn('status', ['draft', 'ordered'])->countAllResults();
@@ -97,6 +98,7 @@ class Inventory extends BaseController
                 'inventory' => [],
                 'available_categories' => [],
                 'total_items' => 0,
+                'in_stock_items' => 0,
                 'low_stock_items' => 0,
                 'out_of_stock_items' => 0,
                 'open_reorder_count' => 0,
@@ -568,7 +570,7 @@ class Inventory extends BaseController
 
         $data = [
             'title' => 'Low Stock Items',
-            'items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <=', 'min_quantity')->findAll(),
+            'items' => $this->inventoryModel->where('clinic_id', $clinicId)->where('quantity <= min_quantity', null, false)->findAll(),
             'open_reorder_count' => $this->reorderItemModel->where('clinic_id', (int) $clinicId)->whereIn('status', ['draft', 'ordered'])->countAllResults(),
         ];
 
@@ -1148,6 +1150,11 @@ class Inventory extends BaseController
 
     public function recordUsage()
     {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $rules = [
             'treatment_id' => 'permit_empty|integer',
             'usage_date' => 'required|valid_date',
@@ -1159,185 +1166,37 @@ class Inventory extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $treatmentId = $this->request->getPost('treatment_id') ?: null;
-        $usageDate = $this->request->getPost('usage_date');
-        $notes = $this->request->getPost('notes');
-        $items = $this->request->getPost('items');
-        
-        // Debug: Log the submitted data
-        log_message('info', 'Usage form data: ' . json_encode([
-            'treatment_id' => $treatmentId,
-            'usage_date' => $usageDate,
-            'notes' => $notes,
-            'items' => $items
-        ]));
-
-        if (empty($items) || !is_array($items)) {
-            return redirect()->back()->withInput()->with('error', 'Please select at least one item to record usage.');
-        }
-
-        $usageData = [];
-        $totalCost = 0;
-
-        // Validate and prepare usage data
-        foreach ($items as $item) {
-            if (empty($item['item_id']) || empty($item['quantity']) || !is_numeric($item['quantity']) || $item['quantity'] <= 0) {
-                return redirect()->back()->withInput()->with('error', 'Please provide valid quantities for all selected items.');
-            }
-
-            $inventoryItem = $this->inventoryModel->where('clinic_id', $clinicId)->find($item['item_id']);
-            if (!$inventoryItem) {
-                return redirect()->back()->withInput()->with('error', 'Invalid inventory item selected.');
-            }
-
-            if ($inventoryItem['quantity'] < $item['quantity']) {
-                return redirect()->back()->withInput()->with('error', "Insufficient stock for {$inventoryItem['item_name']}. Available: {$inventoryItem['quantity']}, Requested: {$item['quantity']}");
-            }
-
-            $usageData[] = [
-                'item_id' => $item['item_id'],
-                'item_name' => $inventoryItem['item_name'],
-                'quantity_used' => $item['quantity'],
-                'unit_cost' => $inventoryItem['unit_price'],
-                'total_cost' => $inventoryItem['unit_price'] * $item['quantity']
-            ];
-
-            $totalCost += $inventoryItem['unit_price'] * $item['quantity'];
-        }
-
-        // Record usage and update inventory
-        $usageLog = [
-            'treatment_id' => $treatmentId,
-            'usage_date' => $usageDate,
-            'items_used' => json_encode($usageData),
-            'total_cost' => $totalCost,
-            'notes' => $notes,
-            'recorded_by' => $this->getCurrentUser()->id,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-
-        // Insert usage log
         try {
-            log_message('info', 'Usage log data: ' . json_encode($usageLog));
-            
-            $usageModel = new \App\Models\InventoryUsageModel();
-            $result = $usageModel->insert($usageLog);
-            
-            if (!$result) {
-                $errors = $usageModel->errors();
-                log_message('error', 'Usage insert failed: ' . json_encode($errors));
-                return redirect()->back()->withInput()->with('error', 'Failed to record usage: ' . implode(', ', $errors));
-            }
-            
-            $usageId = $usageModel->getInsertID();
-            log_message('info', 'Usage record inserted successfully with ID: ' . $usageId);
+            $result = (new InventoryUsageService())->record(
+                $clinicId,
+                [
+                    'treatment_id' => $this->request->getPost('treatment_id') ?: null,
+                    'usage_date' => $this->request->getPost('usage_date'),
+                    'notes' => $this->request->getPost('notes'),
+                    'items' => $this->request->getPost('items'),
+                ],
+                (int) ($this->getCurrentUser()->id ?? 0)
+            );
 
-            // Auto-post inventory usage as COGS expense in the finance ledger (idempotent by usage ID).
-            $autoPostInventoryCogs = (int) settings()->get('finance_auto_post_inventory_cogs', 1) === 1;
-            if ($autoPostInventoryCogs) {
-            try {
-                $treatmentPatientId = null;
-                $patientName = null;
-                $treatmentLabel = null;
-                if ($treatmentId) {
-                    $treatmentModel = new \App\Models\TreatmentModel();
-                    $treatment = $treatmentModel->where('clinic_id', session()->get('active_clinic_id'))->find((int) $treatmentId);
-                    if ($treatment) {
-                        $treatmentPatientId = !empty($treatment['patient_id']) ? (int) $treatment['patient_id'] : null;
-                        $treatmentLabel = (string) ($treatment['treatment_id'] ?? ('#' . $treatment['id']));
-                        if ($treatmentPatientId) {
-                            $patientModel = new \App\Models\PatientModel();
-                            $patient = $patientModel->where('clinic_id', session()->get('active_clinic_id'))->find($treatmentPatientId);
-                            if ($patient) {
-                                $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
-                            }
-                        }
-                    }
-                }
+            if (!$result['success']) {
+                return redirect()->back()->withInput()->with('error', (string) ($result['message'] ?? 'Failed to record inventory usage.'));
+            }
 
-                (new FinanceLedgerService())->upsertInventoryUsageCogsExpense(
-                    (int) session()->get('active_clinic_id'),
-                    (int) $usageId,
-                    [
-                        'treatment_id' => $treatmentId,
-                        'usage_date' => $usageDate,
-                        'items_used' => json_encode($usageData),
-                        'total_cost' => $totalCost,
-                        'notes' => $notes,
-                    ],
-                    $treatmentPatientId,
-                    (int) ($this->getCurrentUser()->id ?? 0),
-                    [
-                        'patient_name' => $patientName,
-                        'treatment_label' => $treatmentLabel,
-                    ]
-                );
-            } catch (\Throwable $financePostError) {
-                log_message('error', 'Inventory usage finance posting failed: ' . $financePostError->getMessage());
-            }
-            }
-            
-            // Log the inventory usage activity
+            $usageData = (array) ($result['usage_data'] ?? []);
             $itemNames = array_column($usageData, 'item_name');
             $itemCount = count($usageData);
             $totalItemsUsed = array_sum(array_column($usageData, 'quantity_used'));
-            
+            $totalCost = (float) ($result['total_cost'] ?? 0);
+
             $description = "Inventory usage recorded - {$itemCount} item(s): " . implode(', ', $itemNames) . " (Total: {$totalItemsUsed} units, Cost: " . settings()->getCurrencySymbol() . number_format($totalCost, 2) . ")";
-            
-            if ($treatmentId) {
-                // Get treatment info for the description
-                $treatmentModel = new \App\Models\TreatmentModel();
-                $treatment = $treatmentModel->find($treatmentId);
-                if ($treatment) {
-                    $patientModel = new \App\Models\PatientModel();
-                    $patient = $patientModel->find($treatment['patient_id']);
-                    $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
-                    $description = "Inventory usage recorded for {$patientName} - {$itemCount} item(s): " . implode(', ', $itemNames) . " (Total: {$totalItemsUsed} units, Cost: " . settings()->getCurrencySymbol() . number_format($totalCost, 2) . ")";
-                }
+            if (!empty($result['patient_name'])) {
+                $description = "Inventory usage recorded for {$result['patient_name']} - {$itemCount} item(s): " . implode(', ', $itemNames) . " (Total: {$totalItemsUsed} units, Cost: " . settings()->getCurrencySymbol() . number_format($totalCost, 2) . ")";
             }
-            
-            $this->activityLogger->logInventoryActivity(
-                'usage',
-                $usageId,
-                $description
-            );
-            
+
+            $this->activityLogger->logInventoryActivity('usage', (int) ($result['usage_id'] ?? 0), $description);
         } catch (\Exception $e) {
             log_message('error', 'Usage insert exception: ' . $e->getMessage());
-            
-            // If table doesn't exist, show helpful message
-            if (strpos($e->getMessage(), "doesn't exist") !== false || strpos($e->getMessage(), "Table") !== false) {
-                return redirect()->back()->withInput()->with('error', 'Database table not found. Please run the inventory_usage_table.sql script first to create the required table.');
-            }
-            
             return redirect()->back()->withInput()->with('error', 'Database error: ' . $e->getMessage());
-        }
-
-        // Update inventory quantities
-        foreach ($usageData as $usage) {
-            $inventoryRow = $this->inventoryModel->where('clinic_id', $clinicId)->find($usage['item_id']);
-            if (!$inventoryRow) {
-                continue;
-            }
-            $beforeQty = (int) ($inventoryRow['quantity'] ?? 0);
-            $newQuantity = $beforeQty - (int) $usage['quantity_used'];
-            $this->inventoryModel->update($usage['item_id'], [
-                'quantity' => $newQuantity,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-            $this->recordStockMovementSafe(
-                (int) $clinicId,
-                (int) $usage['item_id'],
-                'usage_consume',
-                (int) -$usage['quantity_used'],
-                $beforeQty,
-                (int) $newQuantity,
-                isset($usage['unit_cost']) ? (float) $usage['unit_cost'] : null,
-                'inventory_usage',
-                (int) $usageId,
-                'Inventory usage recorded',
-                (int) ($this->getCurrentUser()->id ?? 0)
-            );
         }
 
         return redirect()->to(base_url('inventory/usage-history'))->with('success', 'Inventory usage recorded successfully!');
@@ -1345,6 +1204,11 @@ class Inventory extends BaseController
 
     public function usageHistory()
     {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
         $usageModel = new \App\Models\InventoryUsageModel();
         $usageHistory = $usageModel->join('treatments', 'treatments.id = inventory_usage.treatment_id', 'left')
             ->join('patients', 'patients.id = treatments.patient_id', 'left')
@@ -1358,6 +1222,7 @@ class Inventory extends BaseController
                 'left'
             )
             ->select('inventory_usage.*, treatments.treatment_name, treatments.treatment_id, patients.first_name, patients.last_name, users.first_name as recorded_by_name, f.id as finance_entry_id')
+            ->where('inventory_usage.clinic_id', $clinicId)
             ->orderBy('inventory_usage.created_at', 'DESC')
             ->findAll();
 
@@ -1870,24 +1735,24 @@ class Inventory extends BaseController
     private function getStatusBadge($status)
     {
         $badges = [
-            'active' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>',
-            'inactive' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>',
-            'expired' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Expired</span>'
+            'active' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">' . esc(lang('Inventory.statusActive')) . '</span>',
+            'inactive' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">' . esc(lang('Inventory.statusInactive')) . '</span>',
+            'expired' => '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">' . esc(lang('Inventory.expiredLabel')) . '</span>',
         ];
-        return $badges[$status] ?? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Unknown</span>';
+        return $badges[$status] ?? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">' . esc(lang('Inventory.unknown')) . '</span>';
     }
 
     private function getActionButtons($id)
     {
         return '
             <div class="flex space-x-2">
-                <a href="' . base_url() . 'inventory/' . $id . '" class="text-blue-600 hover:text-blue-900" title="View Details">
+                <a href="' . base_url() . 'inventory/' . $id . '" class="text-blue-600 hover:text-blue-900" title="' . esc(lang('Inventory.viewDetails')) . '">
                     <i class="fas fa-eye"></i>
                 </a>
-                <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="Edit">
+                <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="' . esc(lang('Inventory.edit')) . '">
                     <i class="fas fa-edit"></i>
                 </a>
-                <button onclick="confirmDelete(\''. base_url() . 'inventory/' . $id . '\', \'Are you sure you want to delete this inventory item? This action cannot be undone.\')" class="text-red-600 hover:text-red-900" title="Delete">
+                <button onclick="confirmDelete(\''. base_url() . 'inventory/' . $id . '\', \'' . esc(lang('Inventory.deleteInventoryConfirm')) . '\')" class="text-red-600 hover:text-red-900" title="' . esc(lang('Inventory.delete')) . '">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -1899,7 +1764,7 @@ class Inventory extends BaseController
         $financeButton = '';
         if ($financeEntryId) {
             $financeButton = '
-                <a href="' . base_url() . 'finance/' . $financeEntryId . '" class="text-rose-600 hover:text-rose-900" title="View Finance Entry">
+                <a href="' . base_url() . 'finance/' . $financeEntryId . '" class="text-rose-600 hover:text-rose-900" title="' . esc(lang('Inventory.viewFinanceEntry')) . '">
                     <i class="fas fa-file-invoice-dollar"></i>
                 </a>
             ';
@@ -1907,10 +1772,10 @@ class Inventory extends BaseController
 
         return '
             <div class="flex space-x-2">
-                <button onclick="viewUsageDetails(' . $id . ')" class="text-blue-600 hover:text-blue-900" title="View Details">
+                <button onclick="viewUsageDetails(' . $id . ')" class="text-blue-600 hover:text-blue-900" title="' . esc(lang('Inventory.viewDetails')) . '">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="printUsageRecord(' . $id . ')" class="text-green-600 hover:text-green-900" title="Print Record">
+                <button onclick="printUsageRecord(' . $id . ')" class="text-green-600 hover:text-green-900" title="' . esc(lang('Inventory.printRecord')) . '">
                     <i class="fas fa-print"></i>
                 </button>
                 ' . $financeButton . '
@@ -1922,16 +1787,16 @@ class Inventory extends BaseController
     {
         return '
             <div class="flex space-x-2">
-                <a href="' . base_url() . 'inventory/' . $id . '" class="text-blue-600 hover:text-blue-900" title="View Details">
+                <a href="' . base_url() . 'inventory/' . $id . '" class="text-blue-600 hover:text-blue-900" title="' . esc(lang('Inventory.viewDetails')) . '">
                     <i class="fas fa-eye"></i>
                 </a>
-                <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="Edit">
+                <a href="' . base_url() . 'inventory/' . $id . '/edit" class="text-green-600 hover:text-green-900" title="' . esc(lang('Inventory.edit')) . '">
                     <i class="fas fa-edit"></i>
                 </a>
-                <button type="button" onclick="addToReorderList(' . (int) $id . ')" class="text-amber-600 hover:text-amber-900" title="Add to Reorder List">
+                <button type="button" onclick="addToReorderList(' . (int) $id . ')" class="text-amber-600 hover:text-amber-900" title="' . esc(lang('Inventory.addToReorderList')) . '">
                     <i class="fas fa-cart-plus"></i>
                 </button>
-                <button onclick="adjustStock(' . $id . ')" class="text-purple-600 hover:text-purple-900" title="Adjust Stock">
+                <button onclick="adjustStock(' . $id . ')" class="text-purple-600 hover:text-purple-900" title="' . esc(lang('Inventory.adjustStock')) . '">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -1965,13 +1830,13 @@ class Inventory extends BaseController
     private function getStockLevel($quantity, $minQuantity)
     {
         if ($quantity <= 0) {
-            return ['class' => 'text-red-600 font-bold', 'level' => 'Out of Stock'];
+            return ['class' => 'text-red-600 font-bold', 'level' => lang('Inventory.outOfStock')];
         } elseif ($quantity <= $minQuantity) {
-            return ['class' => 'text-red-600 font-bold', 'level' => 'Critical'];
+            return ['class' => 'text-red-600 font-bold', 'level' => lang('Inventory.critical')];
         } elseif ($quantity <= ($minQuantity * 1.5)) {
-            return ['class' => 'text-yellow-600 font-bold', 'level' => 'Low'];
+            return ['class' => 'text-yellow-600 font-bold', 'level' => lang('Inventory.low')];
         } else {
-            return ['class' => 'text-green-600 font-bold', 'level' => 'Good'];
+            return ['class' => 'text-green-600 font-bold', 'level' => lang('Inventory.good')];
         }
     }
 
