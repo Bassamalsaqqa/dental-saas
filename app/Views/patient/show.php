@@ -452,40 +452,68 @@ $heroInfoCapsules = [
                     <!-- Tab Navigation -->
                     <div class="patient-shell-nav">
                         <div class="flex flex-col gap-4">
-                            <nav class="grid w-full gap-2" style="grid-template-columns: repeat(<?= $patientTabCount ?>, minmax(0, 1fr));" aria-label="Tabs">
+                            <nav class="grid w-full gap-2" style="grid-template-columns: repeat(<?= $patientTabCount ?>, minmax(0, 1fr));" aria-label="<?= esc(lang('UI.patientProfileWorkspace')) ?>" role="tablist">
                                 <button type="button" onclick="return showTab('details', event)" 
                                         id="details-tab" 
+                                        role="tab"
+                                        aria-selected="true"
+                                        aria-controls="details-content"
+                                        tabindex="0"
                                         class="tab-button active inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-user shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabDetails')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('timeline', event)" 
                                         id="timeline-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="timeline-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-history shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabTimeline')) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('examinations', event)" 
                                         id="examinations-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="examinations-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-stethoscope shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabExams')) ?></span> <span class="tab-count shrink-0"><?= count($examinations) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('appointments', event)" 
                                         id="appointments-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="appointments-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-calendar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAppts')) ?></span> <span class="tab-count shrink-0"><?= count($appointments) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('treatments', event)" 
                                         id="treatments-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="treatments-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-tooth shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTreatments')) ?></span> <span class="tab-count shrink-0"><?= count($treatments) ?></span>
                                 </button>
                                 <button type="button" onclick="return showTab('prescriptions', event)" 
                                         id="prescriptions-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="prescriptions-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-prescription shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabRx')) ?></span> <span class="tab-count shrink-0"><?= count($prescriptions) ?></span>
                                 </button>
                                 <?php if (!empty($attachments_enabled)): ?>
                                     <button type="button" onclick="return showTab('attachments', event)" 
                                             id="attachments-tab" 
+                                            role="tab"
+                                            aria-selected="false"
+                                            aria-controls="attachments-content"
+                                            tabindex="-1"
                                             class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                         <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($attachments ?? []) ?></span>
                                     </button>
@@ -493,12 +521,20 @@ $heroInfoCapsules = [
                                 <?php if (!empty($contracts_enabled)): ?>
                                     <button type="button" onclick="return showTab('contracts', event)" 
                                             id="contracts-tab" 
+                                            role="tab"
+                                            aria-selected="false"
+                                            aria-controls="contracts-content"
+                                            tabindex="-1"
                                             class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                         <i class="fas fa-file-signature shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabContracts')) ?></span> <span class="tab-count shrink-0"><?= count($contracts ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
                                 <button type="button" onclick="return showTab('finances', event)" 
                                         id="finances-tab" 
+                                        role="tab"
+                                        aria-selected="false"
+                                        aria-controls="finances-content"
+                                        tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
                                     <i class="fas fa-file-invoice shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabInvoice')) ?></span> <span class="tab-count shrink-0"><?= count($finances) ?></span>
                                 </button>
@@ -532,7 +568,7 @@ $heroInfoCapsules = [
                     <!-- Tab Content -->
                     <div class="px-6 py-6">
                         <!-- Patient Details Tab -->
-                        <div id="details-content" class="tab-content">
+                        <div id="details-content" class="tab-content" role="tabpanel" aria-labelledby="details-tab">
                             <div class="space-y-6">
                                 <!-- Personal Details -->
                                 <div class="patient-section-card">
@@ -1562,58 +1598,80 @@ $heroInfoCapsules = [
                         </div>
 
                         <!-- Invoice Tab -->
-                        <div id="finances-content" class="tab-content hidden">
-                            <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
+                            <div class="space-y-6">
+                                <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                                    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.patientTotalBilled')) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-slate-900"><?= formatCurrency($totalBilled) ?></p>
+                                    </div>
+                                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.patientTotalPaid')) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-emerald-900"><?= formatCurrency($totalPaid) ?></p>
+                                    </div>
+                                    <div class="rounded-xl border <?= $outstandingBalance > 0.009 ? 'border-amber-200 bg-amber-50' : 'border-sky-200 bg-sky-50' ?> p-4 shadow-sm">
+                                        <p class="text-xs font-semibold uppercase tracking-wide <?= $outstandingBalance > 0.009 ? 'text-amber-700' : 'text-sky-700' ?>"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
+                                        <p class="mt-2 text-2xl font-bold <?= $outstandingBalance > 0.009 ? 'text-amber-900' : 'text-sky-900' ?>"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
+                                    </div>
+                                    <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= esc(lang('UI.patientProfileInvoicesOpen', ['count' => $openInvoicesCount])) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-indigo-900"><?= (int) $openInvoicesCount ?></p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
+                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientInvoices')) ?></h3>
                                         <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientInvoicesSubtitle')) ?></p>
                                     </div>
-                                    <?php if (has_permission('finance', 'create')): ?>
-                                        <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
-                                        </a>
-                                    <?php endif; ?>
+                                        <div class="flex flex-wrap gap-2">
+                                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200">
+                                                <i class="fas fa-chart-line mr-2"></i><?= esc(lang('TenantMisc.openFinanceReports')) ?>
+                                            </a>
+                                            <?php if (has_permission('finance', 'create')): ?>
+                                                <a href="<?= base_url('finance/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>"
+                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                    <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateInvoice')) ?>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <?php if (!empty($finances)): ?>
+                                <?php if (!empty($finances)): ?>
                                 <div class="overflow-x-auto">
                                     <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                         <thead>
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientPaymentMethod')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotalPaid')) ?></th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('TenantMisc.balanceDue')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($finances as $finance): ?>
+                                                <?php
+                                                    $totalAmount = (float) ($finance['total_amount'] ?? (($finance['amount'] ?? 0) - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
+                                                    $balanceDue = max(0, (float) ($finance['balance_due'] ?? 0));
+                                                    $paidAmount = max(0, $totalAmount - $balanceDue);
+                                                    $documentDate = $finance['transaction_date'] ?? $finance['created_at'] ?? null;
+                                                ?>
                                                 <tr class="patient-record-row" data-href="<?= esc(base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id'])) ?>">
                                                     <td class="whitespace-nowrap">
-                                                        <?= formatDate($finance['created_at']) ?>
+                                                        <?= $documentDate ? formatDate($documentDate) : esc(lang('UI.patientNa')) ?>
                                                     </td>
                                                     <td>
                                                         <div class="patient-record-main">
                                                             <div class="patient-record-title"><?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?></div>
-                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientType')) ?></div>
+                                                            <div class="patient-record-subtitle"><?= esc(ucfirst((string) ($finance['payment_method'] ?? lang('UI.patientNa')))) ?></div>
                                                         </div>
                                                     </td>
-                                                    <td>
-                                                        <div class="patient-record-main">
-                                                            <div class="patient-record-title"><?= ucfirst($finance['payment_method'] ?? lang('UI.patientNa')) ?></div>
-                                                            <div class="patient-record-subtitle"><?= esc(lang('UI.patientPaymentMethod')) ?></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                            $totalAmount = $finance['total_amount'] ?? ($finance['amount'] - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0));
-                                                        ?>
-                                                        <?= formatCurrency($totalAmount) ?>
-                                                    </td>
+                                                    <td><?= formatCurrency($totalAmount) ?></td>
+                                                    <td><?= formatCurrency($paidAmount) ?></td>
+                                                    <td class="font-semibold <?= $balanceDue > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>"><?= $balanceDue > 0.009 ? formatCurrency($balanceDue) : esc(lang('UI.patientNoBalanceDue')) ?></td>
                                                     <td class="whitespace-nowrap">
                                                         <?php
                                                         $statusColors = [
@@ -1640,12 +1698,13 @@ $heroInfoCapsules = [
                                         </tbody>
                                     </table>
                                 </div>
-                            <?php else: ?>
+                                <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-file-invoice text-gray-400 text-4xl mb-4"></i>
                                     <p class="text-gray-500"><?= esc(lang('UI.patientNoInvoices')) ?></p>
                                 </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
                         <!-- Tooth Modal -->
@@ -2917,6 +2976,38 @@ $heroInfoCapsules = [
         document.getElementById('historySearch').addEventListener('input', filterHistory);
         document.getElementById('startDate').addEventListener('change', filterHistory);
         document.getElementById('endDate').addEventListener('change', filterHistory);
+        const patientTabs = Array.from(document.querySelectorAll('.tab-button'));
+        const patientPanels = Array.from(document.querySelectorAll('.tab-content'));
+
+        patientPanels.forEach((panel) => {
+            if (!panel.hasAttribute('role')) {
+                panel.setAttribute('role', 'tabpanel');
+            }
+            const tabName = panel.id.replace('-content', '');
+            panel.setAttribute('aria-labelledby', `${tabName}-tab`);
+        });
+
+        patientTabs.forEach((tab, index) => {
+            tab.addEventListener('keydown', (event) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+                let nextIndex = index;
+                if (event.key === 'ArrowRight') {
+                    nextIndex = (index + 1) % patientTabs.length;
+                } else if (event.key === 'ArrowLeft') {
+                    nextIndex = (index - 1 + patientTabs.length) % patientTabs.length;
+                } else if (event.key === 'Home') {
+                    nextIndex = 0;
+                } else if (event.key === 'End') {
+                    nextIndex = patientTabs.length - 1;
+                }
+
+                patientTabs[nextIndex]?.focus();
+            });
+        });
 
         const shouldOpenAttachments = <?= json_encode((bool) session('attachments_flash')) ?>;
         if (shouldOpenAttachments) {
@@ -3019,17 +3110,33 @@ $heroInfoCapsules = [
         
         // Hide all tab contents
         const contents = document.querySelectorAll('.tab-content');
-        contents.forEach(content => content.classList.add('hidden'));
+        contents.forEach(content => {
+            content.classList.add('hidden');
+            content.hidden = true;
+        });
         
         // Remove active class from all tabs
         const tabs = document.querySelectorAll('.tab-button');
-        tabs.forEach(tab => tab.classList.remove('active'));
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            tab.setAttribute('aria-selected', 'false');
+            tab.setAttribute('tabindex', '-1');
+        });
         
         // Show selected tab content
-        document.getElementById(tabName + '-content').classList.remove('hidden');
+        const selectedContent = document.getElementById(tabName + '-content');
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+            selectedContent.hidden = false;
+        }
         
         // Add active class to selected tab
-        document.getElementById(tabName + '-tab').classList.add('active');
+        const selectedTab = document.getElementById(tabName + '-tab');
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+            selectedTab.setAttribute('aria-selected', 'true');
+            selectedTab.setAttribute('tabindex', '0');
+        }
 
         const historyControls = document.getElementById('historyControls');
         if (historyControls) {

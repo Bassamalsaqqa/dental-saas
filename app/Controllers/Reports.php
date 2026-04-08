@@ -354,6 +354,89 @@ class Reports extends BaseController
         return $rows;
     }
 
+    private function summarizePatientBalances(array $rows): array
+    {
+        $summary = [
+            'balance_due_total' => 0.0,
+            'open_invoices' => 0,
+            'patients_with_balance' => 0,
+            'overdue_balance_total' => 0.0,
+        ];
+
+        $patientBuckets = [];
+
+        foreach ($rows as $row) {
+            $balanceDue = (float) ($row['balance_due'] ?? 0);
+            if ($balanceDue <= 0) {
+                continue;
+            }
+
+            $summary['balance_due_total'] += $balanceDue;
+            $summary['open_invoices']++;
+
+            if (((int) ($row['days_past_due'] ?? 0)) > 0) {
+                $summary['overdue_balance_total'] += $balanceDue;
+            }
+
+            $patientId = (int) ($row['patient_id'] ?? 0);
+            if ($patientId > 0) {
+                $patientBuckets[$patientId] = true;
+            }
+        }
+
+        $summary['patients_with_balance'] = count($patientBuckets);
+
+        return $summary;
+    }
+
+    private function buildTopBalancePatients(array $rows, int $limit = 8): array
+    {
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $patientId = (int) ($row['patient_id'] ?? 0);
+            if ($patientId <= 0) {
+                continue;
+            }
+
+            if (!isset($grouped[$patientId])) {
+                $fullName = trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')));
+                $grouped[$patientId] = [
+                    'patient_id' => $patientId,
+                    'patient_number' => (string) ($row['patient_number'] ?? ''),
+                    'full_name' => $fullName !== '' ? $fullName : ('Patient #' . $patientId),
+                    'open_invoices' => 0,
+                    'balance_due' => 0.0,
+                    'overdue_balance' => 0.0,
+                    'max_days_past_due' => 0,
+                    'row_href' => base_url('patient/' . $patientId),
+                ];
+            }
+
+            $balanceDue = (float) ($row['balance_due'] ?? 0);
+            $daysPastDue = max(0, (int) ($row['days_past_due'] ?? 0));
+            $grouped[$patientId]['open_invoices']++;
+            $grouped[$patientId]['balance_due'] += $balanceDue;
+            $grouped[$patientId]['max_days_past_due'] = max($grouped[$patientId]['max_days_past_due'], $daysPastDue);
+
+            if ($daysPastDue > 0) {
+                $grouped[$patientId]['overdue_balance'] += $balanceDue;
+            }
+        }
+
+        $rows = array_values($grouped);
+        usort($rows, static function (array $a, array $b): int {
+            $balanceComparison = ($b['balance_due'] <=> $a['balance_due']);
+            if ($balanceComparison !== 0) {
+                return $balanceComparison;
+            }
+
+            return $b['max_days_past_due'] <=> $a['max_days_past_due'];
+        });
+
+        return array_slice($rows, 0, $limit);
+    }
+
     private function buildDetailTables(string $reportType, array $reports): array
     {
         $patientLabelMap = $this->buildPatientLabelMap(array_merge(
@@ -372,37 +455,37 @@ class Reports extends BaseController
                 $overviewExamRows = $this->applyPatientLabels($reports['detail_rows']['examinations'] ?? [], $patientLabelMap);
                 $overviewAppointmentRows = $this->applyPatientLabels($reports['detail_rows']['appointments'] ?? [], $patientLabelMap);
                 return [
-                    $this->makeDetailTable('overview_finance_transactions', 'Overview Revenue Transactions', [
-                        ['key' => 'month_label', 'label' => 'Month'],
-                        ['key' => 'transaction_id', 'label' => 'Transaction'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'payment_method', 'label' => 'Payment Method'],
-                        ['key' => 'payment_status', 'label' => 'Status'],
-                        ['key' => 'total_amount', 'label' => 'Amount'],
-                        ['key' => 'created_at', 'label' => 'Created'],
+                    $this->makeDetailTable('overview_finance_transactions', lang('TenantMisc.overviewRevenueTransactions'), [
+                        ['key' => 'month_label', 'label' => lang('TenantMisc.month')],
+                        ['key' => 'transaction_id', 'label' => lang('TenantMisc.transaction')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'payment_method', 'label' => lang('TenantMisc.paymentMethodFinance')],
+                        ['key' => 'payment_status', 'label' => lang('TenantMisc.status')],
+                        ['key' => 'total_amount', 'label' => lang('TenantMisc.totalAmount')],
+                        ['key' => 'created_at', 'label' => lang('TenantMisc.created')],
                     ], $overviewFinanceRows),
-                    $this->makeDetailTable('overview_examinations', 'Overview Examinations', [
-                        ['key' => 'examination_type', 'label' => 'Type'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'examination_date', 'label' => 'Date'],
-                        ['key' => 'notes', 'label' => 'Notes'],
+                    $this->makeDetailTable('overview_examinations', lang('TenantMisc.overviewExaminations'), [
+                        ['key' => 'examination_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'examination_date', 'label' => lang('TenantMisc.date')],
+                        ['key' => 'notes', 'label' => lang('TenantMisc.notes')],
                     ], $overviewExamRows),
-                    $this->makeDetailTable('overview_appointments', 'Overview Appointments', [
-                        ['key' => 'status', 'label' => 'Status'],
-                        ['key' => 'appointment_type', 'label' => 'Type'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'appointment_date', 'label' => 'Date'],
-                        ['key' => 'notes', 'label' => 'Notes'],
+                    $this->makeDetailTable('overview_appointments', lang('TenantMisc.overviewAppointments'), [
+                        ['key' => 'status', 'label' => lang('TenantMisc.status')],
+                        ['key' => 'appointment_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'appointment_date', 'label' => lang('TenantMisc.date')],
+                        ['key' => 'notes', 'label' => lang('TenantMisc.notes')],
                     ], $overviewAppointmentRows),
                 ];
             case 'patients':
                 return [
-                    $this->makeDetailTable('patients', 'Patients Included', [
-                        ['key' => 'patient_id', 'label' => 'Patient ID'],
-                        ['key' => 'full_name', 'label' => 'Name'],
-                        ['key' => 'phone', 'label' => 'Phone'],
-                        ['key' => 'email', 'label' => 'Email'],
-                        ['key' => 'created_at', 'label' => 'Created'],
+                    $this->makeDetailTable('patients', lang('TenantMisc.patientsIncluded'), [
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patientId')],
+                        ['key' => 'full_name', 'label' => lang('TenantMisc.name')],
+                        ['key' => 'phone', 'label' => lang('TenantMisc.phone')],
+                        ['key' => 'email', 'label' => lang('TenantMisc.email')],
+                        ['key' => 'created_at', 'label' => lang('TenantMisc.created')],
                     ], array_map(static function ($row) {
                         return [
                             'patient_id' => $row['patient_id'] ?? $row['id'] ?? '',
@@ -416,103 +499,35 @@ class Reports extends BaseController
             case 'examinations':
                 $examRows = $this->applyPatientLabels($reports['examinations'] ?? [], $patientLabelMap);
                 return [
-                    $this->makeDetailTable('examinations', 'Examinations Included', [
-                        ['key' => 'id', 'label' => 'ID'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'examination_type', 'label' => 'Type'],
-                        ['key' => 'examination_date', 'label' => 'Date'],
-                        ['key' => 'notes', 'label' => 'Notes'],
+                    $this->makeDetailTable('examinations', lang('TenantMisc.examinationsIncluded'), [
+                        ['key' => 'id', 'label' => lang('TenantMisc.id')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'examination_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'examination_date', 'label' => lang('TenantMisc.date')],
+                        ['key' => 'notes', 'label' => lang('TenantMisc.notes')],
                     ], $examRows),
                 ];
             case 'appointments':
                 $appointmentRows = $this->applyPatientLabels($reports['appointments'] ?? [], $patientLabelMap);
                 return [
-                    $this->makeDetailTable('appointments', 'Appointments Included', [
-                        ['key' => 'id', 'label' => 'ID'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'appointment_date', 'label' => 'Date'],
-                        ['key' => 'appointment_type', 'label' => 'Type'],
-                        ['key' => 'status', 'label' => 'Status'],
+                    $this->makeDetailTable('appointments', lang('TenantMisc.appointmentsIncluded'), [
+                        ['key' => 'id', 'label' => lang('TenantMisc.id')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'appointment_date', 'label' => lang('TenantMisc.date')],
+                        ['key' => 'appointment_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'status', 'label' => lang('TenantMisc.status')],
                     ], $appointmentRows),
                 ];
             case 'treatments':
                 $treatmentRows = $this->applyPatientLabels($reports['treatments'] ?? [], $patientLabelMap);
                 return [
-                    $this->makeDetailTable('treatments', 'Treatments Included', [
-                        ['key' => 'id', 'label' => 'ID'],
-                        ['key' => 'patient_id', 'label' => 'Patient'],
-                        ['key' => 'treatment_type', 'label' => 'Type'],
-                        ['key' => 'start_date', 'label' => 'Start'],
-                        ['key' => 'status', 'label' => 'Status'],
+                    $this->makeDetailTable('treatments', lang('TenantMisc.treatmentsIncluded'), [
+                        ['key' => 'id', 'label' => lang('TenantMisc.id')],
+                        ['key' => 'patient_id', 'label' => lang('TenantMisc.patient')],
+                        ['key' => 'treatment_type', 'label' => lang('TenantMisc.type')],
+                        ['key' => 'start_date', 'label' => lang('TenantMisc.start')],
+                        ['key' => 'status', 'label' => lang('TenantMisc.status')],
                     ], $treatmentRows),
-                ];
-            case 'finance':
-                $financeRows = array_map(function ($row) use ($patientLabelMap) {
-                    $type = (string) ($row['transaction_type'] ?? '');
-                    $baseAmount = (float) ($row['total_amount'] ?? ($row['amount_base'] ?? $row['amount'] ?? 0));
-                    $signedAmount = (float) ($row['signed_amount_base'] ?? $baseAmount);
-                    $patientLabel = trim((string) ($row['patient_name'] ?? ''));
-                    if ((string) ($row['event_source'] ?? '') === 'provider_payout' && !empty($row['counterparty_name'])) {
-                        $patientLabel = (string) $row['counterparty_name'];
-                    } elseif ($patientLabel === '' && !empty($row['counterparty_name'])) {
-                        $patientLabel = (string) $row['counterparty_name'];
-                    } elseif ($patientLabel === '') {
-                        $patientLabel = trim((string) ($row['patient_id'] ?? ''));
-                    }
-                    if ($patientLabel === '') {
-                        $patientLabel = lang('TenantMisc.general');
-                    }
-                    $patientId = (int) ($row['patient_id'] ?? 0);
-                    if ($patientId > 0 && isset($patientLabelMap[$patientId])) {
-                        $patientLabel = $patientLabelMap[$patientId];
-                    }
-                    $row['source_label'] = $this->localizeFinanceSourceLabel(
-                        (string) ($row['source_label'] ?? ''),
-                        (string) ($row['event_source'] ?? 'finance')
-                    );
-                    $row['transaction_type'] = $this->localizeFinanceTransactionType((string) ($row['transaction_type'] ?? ''));
-                    $row['payment_method'] = $this->localizeFinancePaymentMethod((string) ($row['payment_method'] ?? ''));
-                    $row['subject_label'] = $patientLabel;
-                    $row['amount_base'] = round($signedAmount, 2);
-                    $row['amount_base_display'] = ($signedAmount < 0 ? '-' : '') . formatCurrency(abs($signedAmount));
-                    $originalAmount = (float) ($row['amount_original'] ?? $row['amount'] ?? $baseAmount);
-                    $row['amount_original_display'] = number_format($originalAmount, 2) . ' ' . (string) ($row['currency'] ?? settings()->get('currency', 'ILS'));
-                    $row['exchange_rate_display'] = rtrim(rtrim(number_format((float) ($row['exchange_rate'] ?? 1), 6), '0'), '.');
-                    $row['report_date'] = !empty($row['report_date']) ? (string) $row['report_date'] : substr((string) ($row['event_at'] ?? $row['created_at'] ?? ''), 0, 10);
-                    $row['recorded_at'] = (string) ($row['created_at'] ?? $row['recorded_at'] ?? '');
-                    $row['row_href'] = !empty($row['provider_payout_id'])
-                        ? base_url('finance/payouts')
-                        : (!empty($row['finance_id']) ? base_url('finance/' . (int) $row['finance_id']) : '');
-                    return $row;
-                }, $reports['transactions'] ?? []);
-
-                return [
-                    $this->makeDetailTable('transactions', lang('TenantMisc.financialTransactions'), [
-                        ['key' => 'report_date', 'label' => lang('TenantMisc.reportDate')],
-                        ['key' => 'recorded_at', 'label' => lang('TenantMisc.recordedAt')],
-                        ['key' => 'transaction_id', 'label' => lang('TenantMisc.transaction')],
-                        ['key' => 'subject_label', 'label' => lang('TenantMisc.patientPayee')],
-                        ['key' => 'transaction_type', 'label' => lang('TenantMisc.type')],
-                        ['key' => 'source_label', 'label' => lang('TenantMisc.source')],
-                        ['key' => 'payment_method', 'label' => lang('TenantMisc.paymentMethodFinance')],
-                        ['key' => 'amount_original_display', 'label' => lang('TenantMisc.originalAmount')],
-                        ['key' => 'exchange_rate_display', 'label' => lang('TenantMisc.rate')],
-                        ['key' => 'amount_base_display', 'label' => lang('TenantMisc.amountBase')],
-                    ], $financeRows),
-                    $this->makeDetailTable('ar_aging_detail', lang('TenantMisc.arAgingDetail'), [
-                        ['key' => 'transaction_id', 'label' => lang('TenantMisc.invoice')],
-                        ['key' => 'patient_number', 'label' => lang('TenantMisc.patientNumberPrefix')],
-                        ['key' => 'full_name', 'label' => lang('TenantMisc.patient')],
-                        ['key' => 'due_date', 'label' => lang('TenantMisc.dueDate')],
-                        ['key' => 'days_past_due', 'label' => lang('TenantMisc.daysPastDue')],
-                        ['key' => 'aging_bucket', 'label' => lang('TenantMisc.bucket')],
-                        ['key' => 'balance_due', 'label' => lang('TenantMisc.balanceDue')],
-                    ], array_map(function ($row) {
-                        $row['full_name'] = trim((string) (($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')));
-                        $row['aging_bucket'] = $this->localizeAgingBucket((string) ($row['aging_bucket'] ?? 'current'));
-                        $row['row_href'] = !empty($row['id']) ? base_url('finance/' . (int) $row['id']) : '';
-                        return $row;
-                    }, $reports['ar_aging_detail'] ?? [])),
                 ];
             default:
                 return [];
@@ -630,19 +645,20 @@ class Reports extends BaseController
 
             $clinicId = $this->requireTenantClinicId();
             if (!$clinicId) {
-                return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to view reports.');
+                return redirect()->to('/clinic/select')->with('error', lang('TenantMisc.selectClinicToViewReports'));
             }
 
             $filters = $this->parseReportFilters('get');
             $dateRange = $filters['date_range'];
             $reportType = $filters['report_type'];
             $data = [
-                'title' => 'Reports & Analytics',
+                'title' => lang('TenantMisc.reportsAnalyticsTitle'),
+                'loadSelect2' => true,
                 'date_range' => $dateRange,
                 'report_type' => $reportType,
                 'filters' => $filters,
                 'report_patients' => $this->patientModel
-                    ->select('id, first_name, last_name')
+                    ->select('id, first_name, last_name, patient_number, phone')
                     ->where('clinic_id', $clinicId)
                     ->orderBy('first_name', 'ASC')
                     ->orderBy('last_name', 'ASC')
@@ -670,7 +686,8 @@ class Reports extends BaseController
             log_message('error', 'Reports error: ' . $e->getMessage());
             
             $data = [
-                'title' => 'Reports & Analytics',
+                'title' => lang('TenantMisc.reportsAnalyticsTitle'),
+                'loadSelect2' => true,
                 'date_range' => '30',
                 'report_type' => 'overview',
                 'reports' => $this->getBasicReports(),
@@ -725,7 +742,7 @@ class Reports extends BaseController
             return $this->response->setJSON($data);
         } catch (\Exception $e) {
             log_message('error', 'Chart data error: ' . $e->getMessage());
-            return $this->response->setJSON(['error' => 'Failed to fetch chart data']);
+            return $this->response->setJSON(['error' => lang('TenantMisc.failedFetchChartData')]);
         }
     }
 
@@ -818,7 +835,7 @@ class Reports extends BaseController
             $startDate = $filters['start_date'];
             $endDate = $filters['end_date'];
             $data = [
-                'title' => 'Export Report',
+                'title' => lang('TenantMisc.exportReportTitle'),
                 'report_type' => $reportType,
                 'date_range' => $dateRange,
                 'date_mode' => $filters['date_mode'],
@@ -965,11 +982,21 @@ class Reports extends BaseController
             $patientsQuery->where('id', (int) $filters['patient_id']);
         }
 
+        $balanceRows = $this->getHistoricalAccountsReceivableAgingDetail((int) $clinicId, $endDate, 250);
+        if (!empty($filters['patient_id'])) {
+            $selectedPatientId = (int) $filters['patient_id'];
+            $balanceRows = array_values(array_filter($balanceRows, static function (array $row) use ($selectedPatientId): bool {
+                return (int) ($row['patient_id'] ?? 0) === $selectedPatientId;
+            }));
+        }
+
         return [
             'patients' => $patientsQuery->findAll(),
             'age_groups' => $this->getAgeGroupData($filters),
             'gender_distribution' => $this->getGenderDistributionData($startDate, $endDate, $filters),
             'new_vs_returning' => $this->getNewVsReturningData($startDate, $endDate, $filters),
+            'financial_snapshot' => $this->summarizePatientBalances($balanceRows),
+            'top_balance_patients' => $this->buildTopBalancePatients($balanceRows, 8),
         ];
     }
 
