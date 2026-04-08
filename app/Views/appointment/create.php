@@ -1,6 +1,18 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<style>
+[dir="ltr"] input[data-clinic-date="1"].appointment-date-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] input[data-clinic-date="1"].appointment-date-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+</style>
 <!-- Enhanced Appointment Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
@@ -154,7 +166,7 @@
                                     <span><?= esc(lang('UI.appointmentDateRequired')) ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $requested_date ?? date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <input type="text" name="appointment_date" id="appointmentDate" data-clinic-date="1" value="<?= old('appointment_date', $requested_date ?? date('Y-m-d')) ?>" class="appointment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>

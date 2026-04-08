@@ -40,6 +40,28 @@
     right: 0.5rem !important;
     width: 1.25rem !important;
 }
+
+[dir="ltr"] .treatment-leading-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] .treatment-leading-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+
+[dir="ltr"] input[data-clinic-date="1"].treatment-date-input {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+[dir="rtl"] input[data-clinic-date="1"].treatment-date-input {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
 </style>
 <!-- Enhanced Treatment Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
@@ -168,7 +190,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="tooth_number" name="tooth_number" 
-                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
+                                           class="treatment-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('tooth_number') ?>" maxlength="10" placeholder="<?= lang('Treatment.tooth_number_placeholder') ?>">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tooth text-gray-400"></i>
@@ -193,7 +215,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="text" id="start_date" name="start_date" data-clinic-date="1"
-                                           class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
+                                           class="treatment-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
                                            value="<?= old('start_date') ?: date('Y-m-d') ?>" required>
                                 </div>
                                 <?php if ($validation && $validation->hasError('start_date')): ?>
@@ -296,7 +318,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2"><?= lang('Treatment.usage_date_required') ?></label>
-                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+                                            <input type="text" name="usage_date" id="usage_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" class="treatment-date-input w-full py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
                                         </div>
                                         <div class="flex items-end">
                                             <p class="text-sm text-gray-500"><?= lang('Treatment.items_must_be_in_stock') ?></p>

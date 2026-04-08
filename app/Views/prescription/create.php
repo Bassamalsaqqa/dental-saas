@@ -1,6 +1,29 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<style>
+[dir="ltr"] .prescription-leading-input {
+    padding-left: 0.75rem !important;
+    padding-right: 2.5rem !important;
+}
+
+[dir="rtl"] .prescription-leading-input {
+    padding-right: 2.5rem !important;
+    padding-left: 0.75rem !important;
+    text-align: right;
+}
+
+[dir="ltr"] input[data-clinic-date="1"].prescription-date-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] input[data-clinic-date="1"].prescription-date-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+</style>
 <!-- Enhanced Prescription Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
@@ -134,7 +157,7 @@
                                     <span><?= lang('Prescription.prescribed_date_required') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
+                                    <input type="text" name="prescribed_date" data-clinic-date="1" value="<?= old('prescribed_date', date('Y-m-d')) ?>" class="prescription-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -153,7 +176,7 @@
                                     <span><?= lang('Prescription.expiry_date') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', date('Y-m-d', strtotime('+30 days'))) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
+                                    <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date', date('Y-m-d', strtotime('+30 days'))) ?>" class="prescription-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -297,7 +320,7 @@ function addMedicine() {
         const input = document.createElement('input');
         input.type = 'text';
         input.name = inputName;
-        input.className = 'w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300';
+        input.className = 'prescription-leading-input w-full py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300';
         input.placeholder = placeholder;
         input.required = true;
         

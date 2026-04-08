@@ -1,6 +1,29 @@
 <?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
+<style>
+[dir="ltr"] .inventory-leading-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] .inventory-leading-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+
+[dir="ltr"] input[data-clinic-date="1"].inventory-date-input {
+    padding-left: 1rem !important;
+    padding-right: 2.75rem !important;
+}
+
+[dir="rtl"] input[data-clinic-date="1"].inventory-date-input {
+    padding-right: 2.75rem !important;
+    padding-left: 1rem !important;
+    text-align: right;
+}
+</style>
 <!-- Enhanced Inventory Creation with Advanced Design -->
 <div class="min-h-screen bg-slate-50">
     <!-- Animated Background Elements -->
@@ -48,7 +71,7 @@
                                     <span><?= lang('Inventory.itemNameRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" name="item_name" value="<?= old('item_name') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.enterItemName') ?>" required>
+                                    <input type="text" name="item_name" value="<?= old('item_name') ?>" class="inventory-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.enterItemName') ?>" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-tag text-gray-400"></i>
                                     </div>
@@ -116,7 +139,7 @@
                                     <span><?= lang('Inventory.quantityRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="number" name="quantity" value="<?= old('quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
+                                    <input type="number" name="quantity" value="<?= old('quantity') ?>" class="inventory-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-cubes text-gray-400"></i>
                                     </div>
@@ -155,7 +178,7 @@
                                     <span><?= lang('Inventory.minQuantityRequired') ?></span>
                                 </label>
                                 <div class="relative">
-                                    <input type="number" name="min_quantity" value="<?= old('min_quantity') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
+                                    <input type="number" name="min_quantity" value="<?= old('min_quantity') ?>" class="inventory-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl" min="0" placeholder="0" required>
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-exclamation-triangle text-gray-400"></i>
                                     </div>
@@ -215,7 +238,7 @@
                                         <?php endforeach; ?>
                                     </select>
                                     <div class="relative">
-                                        <input type="text" name="supplier" id="supplier_text" value="<?= old('supplier') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.customSupplierNameOptional') ?>">
+                                        <input type="text" name="supplier" id="supplier_text" value="<?= old('supplier') ?>" class="inventory-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.customSupplierNameOptional') ?>">
                                         <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                             <i class="fas fa-truck text-gray-400"></i>
                                         </div>
@@ -273,7 +296,7 @@
                                     <span><?= lang('Inventory.purchaseDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                <input type="text" name="purchase_date" data-clinic-date="1" value="<?= old('purchase_date', date('Y-m-d')) ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
+                                <input type="text" name="purchase_date" data-clinic-date="1" value="<?= old('purchase_date', date('Y-m-d')) ?>" class="inventory-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -292,7 +315,7 @@
                                     <span><?= lang('Inventory.expiryDate') ?></span>
                                 </label>
                                 <div class="relative">
-                                <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
+                                <input type="text" name="expiry_date" data-clinic-date="1" value="<?= old('expiry_date') ?>" class="inventory-date-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 hover:shadow-xl">
                                     <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-times text-gray-400"></i>
                                     </div>
@@ -313,7 +336,7 @@
                                 <span><?= lang('Inventory.location') ?></span>
                             </label>
                             <div class="relative">
-                                <input type="text" name="location" value="<?= old('location') ?>" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.storageLocationExample') ?>">
+                                <input type="text" name="location" value="<?= old('location') ?>" class="inventory-leading-input w-full py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 hover:shadow-xl" placeholder="<?= lang('Inventory.storageLocationExample') ?>">
                                 <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-map-marker-alt text-gray-400"></i>
                                 </div>
