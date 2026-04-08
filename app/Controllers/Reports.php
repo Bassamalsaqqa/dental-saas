@@ -658,7 +658,7 @@ class Reports extends BaseController
                 'report_type' => $reportType,
                 'filters' => $filters,
                 'report_patients' => $this->patientModel
-                    ->select('id, first_name, last_name, patient_number, phone')
+                    ->select('id, patient_id AS patient_number, first_name, last_name, phone')
                     ->where('clinic_id', $clinicId)
                     ->orderBy('first_name', 'ASC')
                     ->orderBy('last_name', 'ASC')
@@ -689,10 +689,10 @@ class Reports extends BaseController
                 'title' => lang('TenantMisc.reportsAnalyticsTitle'),
                 'loadSelect2' => true,
                 'date_range' => '30',
-                'report_type' => 'overview',
+                'report_type' => $requestedReportType === 'finance' ? 'overview' : $this->sanitizeReportType($requestedReportType),
                 'reports' => $this->getBasicReports(),
                 'filters' => [
-                    'report_type' => 'overview',
+                    'report_type' => $requestedReportType === 'finance' ? 'overview' : $this->sanitizeReportType($requestedReportType),
                     'date_mode' => 'relative',
                     'compare_mode' => 'none',
                     'date_range' => '30',

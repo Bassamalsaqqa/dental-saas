@@ -2,6 +2,9 @@
 <?php
 $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params);
 $activeReportType = $report_type ?? 'overview';
+$request = service('request');
+$workspaceBaseQuery = $request->getGet();
+$workspaceBaseQuery = is_array($workspaceBaseQuery) ? $workspaceBaseQuery : [];
 $workspaceCards = [
     ['type' => 'overview', 'icon' => 'fa-chart-pie', 'title' => $tm('reportOverview'), 'desc' => $tm('reportOverviewDesc')],
     ['type' => 'patients', 'icon' => 'fa-users', 'title' => $tm('reportPatients'), 'desc' => $tm('reportPatientsDesc')],
@@ -17,6 +20,24 @@ $currentMeta = [
     'treatments' => ['headline' => $tm('reportTreatmentsHeadline'), 'summary' => $tm('reportTreatmentsSummary')],
 ][$activeReportType] ?? ['headline' => $tm('reportsAnalyticsTitle'), 'summary' => $tm('reportsAnalyticsDesc')];
 ?>
+<style>
+    .report-workspace-card[aria-current="page"] {
+        background-color: #0369a1 !important;
+        border-color: #0369a1 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.45) !important;
+    }
+
+    .report-detail-tab[data-active="true"] {
+        background-color: #0369a1 !important;
+        border-color: #0369a1 !important;
+        color: #ffffff !important;
+    }
+
+    .report-detail-tab[data-active="true"] span {
+        color: #e0f2fe !important;
+    }
+</style>
 <div class="space-y-6">
     <div class="mx-auto max-w-7xl space-y-6">
     <div class="mb-6 sm:mb-8">
@@ -49,14 +70,15 @@ $currentMeta = [
             <div class="flex flex-wrap gap-2">
                 <?php foreach ($workspaceCards as $card): ?>
                     <?php $isActiveCard = $activeReportType === $card['type']; ?>
-                    <button
-                        type="button"
-                        class="report-workspace-card inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition <?= $isActiveCard ? 'border-sky-700 bg-sky-700 text-white shadow-sm' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50' ?>"
-                        data-report-target="<?= esc($card['type']) ?>"
+                    <?php $tabQuery = array_merge($workspaceBaseQuery, ['report_type' => $card['type']]); ?>
+                    <a
+                        class="report-workspace-card inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all <?= $isActiveCard ? 'border-sky-700 bg-sky-700 text-white shadow-sm ring-2 ring-sky-200' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50' ?>"
+                        href="<?= esc(current_url() . '?' . http_build_query($tabQuery)) ?>"
+                        aria-current="<?= $isActiveCard ? 'page' : 'false' ?>"
                     >
                         <i class="fas <?= esc($card['icon']) ?>"></i>
                         <span><?= esc($card['title']) ?></span>
-                    </button>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -69,8 +91,8 @@ $currentMeta = [
                 <h2 class="text-base font-bold text-slate-900"><?= esc($tm('reportControlsTitle')) ?></h2>
                 <p class="text-sm text-slate-600"><?= esc($tm('reportControlsDesc')) ?></p>
             </div>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
-                <div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:flex xl:flex-row xl:flex-nowrap xl:items-end xl:gap-3">
+                <div class="xl:flex-1 xl:min-w-0">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.quickRange') ?></label>
                     <select id="dateRange" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value="7" <?= ($date_range ?? '30') === '7' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.last7Days')) ?></option>
@@ -79,22 +101,22 @@ $currentMeta = [
                         <option value="365" <?= ($date_range ?? '30') === '365' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.lastYear')) ?></option>
                     </select>
                 </div>
-                <div>
+                <div class="xl:flex-1 xl:min-w-0">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.from') ?></label>
                     <input id="customFrom" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_from'] ?? '') ?: ($filters['start_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                 </div>
-                <div>
+                <div class="xl:flex-1 xl:min-w-0">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.to') ?></label>
                     <input id="customTo" type="text" data-clinic-date="1" value="<?= esc(($filters['custom_to'] ?? '') ?: ($filters['end_date'] ?? '')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                 </div>
-                <div>
+                <div class="xl:flex-1 xl:min-w-0">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.compareMode') ?></label>
                     <select id="compareMode" data-force-select2 data-allow-clear="false" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value="none" <?= ($filters['compare_mode'] ?? 'none') === 'none' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.noComparison')) ?></option>
                         <option value="previous_period" <?= ($filters['compare_mode'] ?? '') === 'previous_period' ? 'selected' : '' ?>><?= esc(lang('TenantMisc.previousPeriodComparison')) ?></option>
                     </select>
                 </div>
-                <div id="patientFilterWrap">
+                <div id="patientFilterWrap" class="xl:flex-1 xl:min-w-0">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= lang('TenantMisc.patientOptional') ?></label>
                     <select id="patientFilter" data-searchable-select data-minimum-input-length="0" data-limit="10" data-search-url="<?= base_url('api/v1/search/patients') ?>" data-placeholder="<?= esc($tm('searchPatientsPlaceholder')) ?>" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= lang('TenantMisc.allPatients') ?></option>
@@ -113,7 +135,7 @@ $currentMeta = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div id="examinationTypeWrap" class="<?= $activeReportType === 'examinations' ? '' : 'hidden' ?>">
+                <div id="examinationTypeWrap" class="<?= $activeReportType === 'examinations' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('examinationType') ?></label>
                     <select id="examinationTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= esc($tm('anyExaminationType')) ?></option>
@@ -124,7 +146,7 @@ $currentMeta = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div id="appointmentStatusWrap" class="<?= $activeReportType === 'appointments' ? '' : 'hidden' ?>">
+                <div id="appointmentStatusWrap" class="<?= $activeReportType === 'appointments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('appointmentStatus') ?></label>
                     <select id="appointmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= $tm('allStatuses') ?></option>
@@ -136,7 +158,7 @@ $currentMeta = [
                         <option value="pending" <?= ($filters['appointment_status'] ?? '') === 'pending' ? 'selected' : '' ?>><?= $tm('pending') ?></option>
                     </select>
                 </div>
-                <div id="appointmentTypeWrap" class="<?= $activeReportType === 'appointments' ? '' : 'hidden' ?>">
+                <div id="appointmentTypeWrap" class="<?= $activeReportType === 'appointments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('appointmentType') ?></label>
                     <select id="appointmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= esc($tm('anyAppointmentType')) ?></option>
@@ -147,7 +169,7 @@ $currentMeta = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div id="treatmentStatusWrap" class="<?= $activeReportType === 'treatments' ? '' : 'hidden' ?>">
+                <div id="treatmentStatusWrap" class="<?= $activeReportType === 'treatments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('treatmentStatus') ?></label>
                     <select id="treatmentStatusFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= $tm('allStatuses') ?></option>
@@ -158,7 +180,7 @@ $currentMeta = [
                         <option value="cancelled" <?= ($filters['treatment_status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $tm('cancelled') ?></option>
                     </select>
                 </div>
-                <div id="treatmentTypeWrap" class="<?= $activeReportType === 'treatments' ? '' : 'hidden' ?>">
+                <div id="treatmentTypeWrap" class="<?= $activeReportType === 'treatments' ? 'xl:flex-1 xl:min-w-0' : 'hidden' ?>">
                     <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"><?= $tm('treatmentType') ?></label>
                     <select id="treatmentTypeFilter" data-force-select2 class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-900 bg-white">
                         <option value=""><?= esc($tm('anyTreatmentType')) ?></option>
@@ -169,9 +191,9 @@ $currentMeta = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="flex items-end">
-                    <button onclick="generateReport()" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-sky-700 text-white text-sm font-semibold rounded-xl hover:bg-sky-800 transition">
-                        <i class="fas fa-arrow-right"></i><?= esc(lang('TenantMisc.applyFilters')) ?>
+                <div class="flex items-end xl:flex-none xl:justify-end">
+                    <button onclick="generateReport()" class="inline-flex h-[46px] min-w-[6.5rem] items-center justify-center px-4 py-2.5 bg-sky-700 text-white text-sm font-semibold rounded-xl hover:bg-sky-800 transition">
+                        <?= esc(lang('TenantMisc.applyFilters')) ?>
                     </button>
                 </div>
             </div>
@@ -694,6 +716,7 @@ $currentMeta = [
                                 type="button"
                                 class="report-detail-tab inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold border transition-all <?= $idx === 0 ? 'bg-sky-700 text-white border-sky-700' : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300' ?>"
                                 data-target="<?= esc($table['id']) ?>"
+                                data-active="<?= $idx === 0 ? 'true' : 'false' ?>"
                             >
                                 <?= esc($table['title']) ?>
                                 <span class="ml-2 text-xs <?= $idx === 0 ? 'text-sky-100' : 'text-slate-400' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
@@ -992,14 +1015,6 @@ function exportReport(format) {
     form.remove();
 }
 
-document.querySelectorAll('.report-workspace-card').forEach((card) => {
-    card.addEventListener('click', () => {
-        const target = card.dataset.reportTarget || 'overview';
-        const url = new URL(window.location.href);
-        url.searchParams.set('report_type', target);
-        window.location.href = url.toString();
-    });
-});
 document.getElementById('dateRange')?.addEventListener('change', (event) => {
     const fromInput = document.getElementById('customFrom');
     const toInput = document.getElementById('customTo');
@@ -1016,16 +1031,18 @@ const reportDetailState = {};
 function setActiveDetailTab(target) {
     document.querySelectorAll('.report-detail-tab').forEach((b) => {
         const active = b.dataset.target === target;
-        b.classList.toggle('bg-blue-600', active);
+        b.dataset.active = active ? 'true' : 'false';
+        b.classList.toggle('bg-sky-700', active);
         b.classList.toggle('text-white', active);
-        b.classList.toggle('border-blue-600', active);
+        b.classList.toggle('border-sky-700', active);
         b.classList.toggle('bg-white', !active);
-        b.classList.toggle('text-gray-700', !active);
-        b.classList.toggle('border-gray-200', !active);
+        b.classList.toggle('text-slate-700', !active);
+        b.classList.toggle('border-slate-200', !active);
+        b.classList.toggle('hover:border-sky-300', !active);
         const countSpan = b.querySelector('span');
         if (countSpan) {
-            countSpan.classList.toggle('text-blue-100', active);
-            countSpan.classList.toggle('text-gray-400', !active);
+            countSpan.classList.toggle('text-sky-100', active);
+            countSpan.classList.toggle('text-slate-400', !active);
         }
     });
     document.querySelectorAll('.report-detail-panel').forEach((panel) => {
