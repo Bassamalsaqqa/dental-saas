@@ -188,6 +188,8 @@ class Appointment extends BaseController
             $appointmentType = null;
         }
 
+        $requestedDate = $this->normalizeDateOnly((string) $this->request->getGet('date'));
+
         $returnTo = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'examination', 'appointment', 'appointments']);
         if (!$returnTo) {
             if ($examinationId) {
@@ -206,6 +208,7 @@ class Appointment extends BaseController
             'examination_id' => $examinationId,
             'appointment_type_prefill' => $appointmentType,
             'chair_options' => $this->getChairOptions(),
+            'requested_date' => $requestedDate,
             'return_to' => $returnTo
         ];
 
@@ -218,6 +221,11 @@ class Appointment extends BaseController
 
     public function store()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select')->with('error', 'Please select a clinic to schedule an appointment.');
+        }
+
         $rules = [
             'patient_id' => 'required|integer',
             'appointment_date' => 'required|valid_date',
@@ -246,6 +254,11 @@ class Appointment extends BaseController
             'created_by' => $currentUserId
         ];
 
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find((int) $appointmentData['patient_id']);
+        if (!$patient) {
+            return redirect()->back()->withInput()->with('error', 'Selected patient was not found in this clinic');
+        }
+
         // Check if appointment is within working hours
         $workingHours = getWorkingHours();
         $dayOfWeek = strtolower(date('l', strtotime($appointmentData['appointment_date'])));
@@ -253,12 +266,13 @@ class Appointment extends BaseController
         if (!in_array($dayOfWeek, $workingHours['days'])) {
             return redirect()->back()->withInput()->with('error', 'Appointments cannot be scheduled on non-working days');
         }
-        
-        $appointmentTime = strtotime($appointmentData['appointment_time']);
-        $startTime = strtotime($workingHours['start']);
-        $endTime = strtotime($workingHours['end']);
-        
-        if ($appointmentTime < $startTime || $appointmentTime >= $endTime) {
+
+        if (!$this->isAppointmentWithinWorkingHours(
+            $appointmentData['appointment_date'],
+            $appointmentData['appointment_time'],
+            (int) $appointmentData['duration'],
+            $workingHours
+        )) {
             return redirect()->back()->withInput()->with('error', 'Appointments can only be scheduled during working hours (' . formatTime($workingHours['start']) . ' - ' . formatTime($workingHours['end']) . ')');
         }
 
@@ -270,14 +284,11 @@ class Appointment extends BaseController
             null,
             $appointmentData['chair_name']
         )) {
-            return redirect()->back()->withInput()->with('error', 'No chair is available for the selected time slot');
+            return redirect()->back()->withInput()->with('error', 'The selected doctor is not available for this time slot');
         }
 
         if ($this->appointmentModel->insert($appointmentData)) {
             $appointmentId = $this->appointmentModel->getInsertID();
-            
-            // Get patient name for the activity log
-            $patient = $this->patientModel->find($appointmentData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the appointment creation activity
@@ -444,6 +455,11 @@ class Appointment extends BaseController
             'notes' => $this->request->getPost('notes')
         ];
 
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find((int) $appointmentData['patient_id']);
+        if (!$patient) {
+            return redirect()->back()->withInput()->with('error', 'Selected patient was not found in this clinic');
+        }
+
         // Check if appointment is within working hours
         $workingHours = getWorkingHours();
         $dayOfWeek = strtolower(date('l', strtotime($appointmentData['appointment_date'])));
@@ -451,12 +467,13 @@ class Appointment extends BaseController
         if (!in_array($dayOfWeek, $workingHours['days'])) {
             return redirect()->back()->withInput()->with('error', 'Appointments cannot be scheduled on non-working days');
         }
-        
-        $appointmentTime = strtotime($appointmentData['appointment_time']);
-        $startTime = strtotime($workingHours['start']);
-        $endTime = strtotime($workingHours['end']);
-        
-        if ($appointmentTime < $startTime || $appointmentTime >= $endTime) {
+
+        if (!$this->isAppointmentWithinWorkingHours(
+            $appointmentData['appointment_date'],
+            $appointmentData['appointment_time'],
+            (int) $appointmentData['duration'],
+            $workingHours
+        )) {
             return redirect()->back()->withInput()->with('error', 'Appointments can only be scheduled during working hours (' . formatTime($workingHours['start']) . ' - ' . formatTime($workingHours['end']) . ')');
         }
 
@@ -468,12 +485,10 @@ class Appointment extends BaseController
             $id,
             $appointmentData['chair_name']
         )) {
-            return redirect()->back()->withInput()->with('error', 'No chair is available for the selected time slot');
+            return redirect()->back()->withInput()->with('error', 'The selected doctor is not available for this time slot');
         }
 
         if ($this->appointmentModel->update($id, $appointmentData)) {
-            // Get patient name for the activity log
-            $patient = $this->patientModel->where('clinic_id', $clinicId)->find($appointmentData['patient_id']);
             $patientName = $patient ? $patient['first_name'] . ' ' . $patient['last_name'] : 'Unknown Patient';
             
             // Log the appointment update activity
@@ -629,6 +644,11 @@ class Appointment extends BaseController
 
     public function getAvailableTimeSlots()
     {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
         $date = $this->request->getGet('date');
         $duration = $this->request->getGet('duration') ?? getAppointmentDuration();
         $excludeId = $this->request->getGet('exclude_id'); // For editing appointments
@@ -639,7 +659,7 @@ class Appointment extends BaseController
         }
 
         if ($chairName === '') {
-            return $this->response->setJSON(['error' => 'Chair/room is required']);
+            return $this->response->setJSON(['error' => 'Doctor is required']);
         }
 
         // Get working hours from settings
@@ -657,17 +677,18 @@ class Appointment extends BaseController
         $timeSlots = [];
         $startTime = strtotime($workingHours['start']);
         $endTime = strtotime($workingHours['end']);
-        $slotDuration = $duration * 60; // Convert to seconds
+        $slotDuration = max(1, (int) $duration) * 60; // Convert to seconds
+        $slotIncrement = $this->getSchedulingIncrementMinutes() * 60;
         $chairCount = ($chairName !== '') ? 1 : max(1, (int) service('settings')->getBookingChairCount());
 
-        for ($time = $startTime; $time < $endTime; $time += $slotDuration) {
+        for ($time = $startTime; ($time + $slotDuration) <= $endTime; $time += $slotIncrement) {
             $timeSlot = date('H:i', $time);
 
             $remainingCapacity = $this->appointmentModel->getSlotRemainingCapacity($date, $timeSlot, $duration, $excludeId, $chairName);
             if ($remainingCapacity > 0) {
                 $timeSlots[] = [
                     'value' => $timeSlot,
-                    'display' => formatTime($timeSlot) . " ({$remainingCapacity}/{$chairCount} available)",
+                    'display' => formatTime($timeSlot),
                     'remaining_capacity' => $remainingCapacity,
                     'chair_capacity' => $chairCount,
                     'chair_name' => $chairName
@@ -770,16 +791,26 @@ class Appointment extends BaseController
             foreach ($appointments as $appointment) {
                 // Format appointment type for display
                 $appointmentType = ucwords(str_replace('_', ' ', $appointment['appointment_type'] ?? 'consultation'));
+                $doctorLabel = trim((string) ($appointment['chair_name'] ?? ''));
+                $titleParts = [
+                    trim((string) (($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? ''))),
+                    $appointmentType,
+                ];
+                if ($doctorLabel !== '') {
+                    $titleParts[] = $doctorLabel;
+                }
                 
                 $events[] = [
                     'id' => $appointment['id'],
-                    'title' => $appointment['first_name'] . ' ' . $appointment['last_name'] . ' - ' . $appointmentType,
+                    'title' => implode(' - ', array_filter($titleParts, static fn($value) => $value !== '')),
                     'start' => $appointment['appointment_date'] . 'T' . $appointment['appointment_time'],
                     'end' => $appointment['appointment_date'] . 'T' . date('H:i', strtotime($appointment['appointment_time'] . ' +' . ($appointment['duration'] ?? 30) . ' minutes')),
                     'status' => $appointment['status'] ?? 'scheduled',
                     'patient_id' => $appointment['patient_id'],
                     'appointment_type' => $appointmentType,
-                    'duration' => $appointment['duration'] ?? 30
+                    'duration' => $appointment['duration'] ?? 30,
+                    'doctor_name' => $doctorLabel,
+                    'booked_by' => trim((string) (($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? ''))),
                 ];
             }
 
@@ -801,5 +832,24 @@ class Appointment extends BaseController
     private function getChairOptions(): array
     {
         return service('settings')->getBookingChairNames();
+    }
+
+    private function isAppointmentWithinWorkingHours(string $date, string $time, int $duration, array $workingHours): bool
+    {
+        if ($duration <= 0) {
+            return false;
+        }
+
+        $appointmentStart = strtotime($date . ' ' . $time);
+        $workingStart = strtotime($date . ' ' . ($workingHours['start'] ?? '09:00'));
+        $workingEnd = strtotime($date . ' ' . ($workingHours['end'] ?? '17:00'));
+        $appointmentEnd = $appointmentStart + ($duration * 60);
+
+        return $appointmentStart >= $workingStart && $appointmentEnd <= $workingEnd;
+    }
+
+    private function getSchedulingIncrementMinutes(): int
+    {
+        return 15;
     }
 }

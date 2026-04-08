@@ -203,8 +203,9 @@ class AppointmentModel extends TenantAwareModel
 
     public function getCalendarAppointmentsByClinic($clinicId, $startDate, $endDate)
     {
-        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email')
+        return $this->select('appointments.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, patients.phone, patients.email, users.first_name as creator_first_name, users.last_name as creator_last_name')
             ->join('patients', 'patients.id = appointments.patient_id')
+            ->join('users', 'users.id = appointments.created_by', 'left')
             ->where('appointments.clinic_id', $clinicId)
             ->where('patients.clinic_id', $clinicId) // Join guard
             ->where('appointment_date >=', $startDate)

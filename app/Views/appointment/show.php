@@ -60,7 +60,10 @@
                 </div>
 
                 <!-- Content -->
-                <?php $doctorName = trim(($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? '')); ?>
+                <?php
+                    $bookedByName = trim(($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? ''));
+                    $assignedDoctor = trim((string) ($appointment['chair_name'] ?? ''));
+                ?>
                 <div class="p-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Patient Information -->
@@ -107,8 +110,8 @@
                                             <span class="text-gray-900 font-bold capitalize"><?= str_replace('_', ' ', $appointment['appointment_type']) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentChairLabel')) ?></span>
-                                            <span class="text-gray-900 font-bold"><?= esc($appointment['chair_name'] ?? lang('UI.patientNa')) ?></span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentDoctorLabel')) ?></span>
+                                            <span class="text-gray-900 font-bold"><?= esc($assignedDoctor !== '' ? $assignedDoctor : lang('UI.appointmentDoctorDefault')) ?></span>
                                         </div>
                                         <div class="flex justify-between items-center">
                                             <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentDateLabel')) ?></span>
@@ -149,8 +152,8 @@
                                             </span>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentCreatedByLabel')) ?></span>
-                                            <span class="text-gray-900 font-bold"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : esc(lang('UI.appointmentUnknownCreator')) ?></span>
+                                            <span class="text-gray-600 font-medium"><?= esc(lang('UI.appointmentBookedByLabel')) ?></span>
+                                            <span class="text-gray-900 font-bold"><?= esc($bookedByName !== '' ? $bookedByName : lang('UI.appointmentUnknownCreator')) ?></span>
                                         </div>
                                     </div>
                                 </div>

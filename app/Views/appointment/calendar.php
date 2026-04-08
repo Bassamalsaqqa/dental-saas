@@ -84,7 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingIndicator = document.getElementById('loading-indicator');
     const appointmentI18n = {
         loadFailed: '<?= esc(lang('UI.appointmentCalendarLoadFailed'), 'js') ?>',
-        statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>'
+        statusLabel: '<?= esc(lang('UI.appointmentStatusLabel'), 'js') ?>',
+        doctorLabel: '<?= esc(lang('UI.appointmentDoctorLabel'), 'js') ?>'
     };
     
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -146,7 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     url: `<?= base_url('appointment') ?>/${event.id}`,
                     extendedProps: {
                         status: event.status,
-                        patient_id: event.patient_id
+                        patient_id: event.patient_id,
+                        doctor_name: event.doctor_name || '',
+                        booked_by: event.booked_by || ''
                     }
                 }));
                 
@@ -178,7 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDidMount: function(info) {
             // Add tooltip with appointment details
             const event = info.event;
-            const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
+            const doctorLine = event.extendedProps.doctor_name ? `\n${appointmentI18n.doctorLabel}: ${event.extendedProps.doctor_name}` : '';
+            const tooltip = `${event.title}\n${appointmentI18n.statusLabel}: ${event.extendedProps.status}${doctorLine}\n<?= esc(lang('UI.patientView'), 'js') ?>`;
             info.el.setAttribute('title', tooltip);
         },
         height: 600,

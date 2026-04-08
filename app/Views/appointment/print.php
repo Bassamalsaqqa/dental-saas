@@ -63,7 +63,10 @@
                         <p class="text-sm text-gray-600">Duration:</p>
                         <p class="font-semibold text-gray-900"><?= esc($appointment['duration'] ?? 'N/A') ?> minutes</p>
                     </div>
-                    <?php $doctorName = trim(($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? '')); ?>
+                    <?php
+                        $bookedByName = trim(($appointment['creator_first_name'] ?? '') . ' ' . ($appointment['creator_last_name'] ?? ''));
+                        $assignedDoctor = trim((string) ($appointment['chair_name'] ?? ''));
+                    ?>
                     <div>
                         <p class="text-sm text-gray-600">Status:</p>
                         <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full
@@ -75,8 +78,12 @@
                         </span>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Created By:</p>
-                        <p class="font-semibold text-gray-900"><?= $doctorName !== '' ? 'Dr. ' . esc($doctorName) : 'Unknown' ?></p>
+                        <p class="text-sm text-gray-600">Doctor:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($assignedDoctor !== '' ? $assignedDoctor : 'Doctor 1') ?></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Booked By:</p>
+                        <p class="font-semibold text-gray-900"><?= esc($bookedByName !== '' ? $bookedByName : 'Unknown') ?></p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Created At:</p>

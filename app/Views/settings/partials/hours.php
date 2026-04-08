@@ -80,7 +80,7 @@
                                             <?php for ($i = 0; $i < $maxChairCount; $i++): ?>
                                                 <?php
                                                     $chairIndex = $i + 1;
-                                                    $chairValue = trim((string) ($chairNames[$i] ?? ('Chair ' . $chairIndex)));
+                                                    $chairValue = trim((string) ($chairNames[$i] ?? ('Doctor ' . $chairIndex)));
                                                 ?>
                                                 <div data-chair-name-row="<?= $chairIndex ?>" class="<?= $chairIndex > $selectedChairCount ? 'hidden' : '' ?>">
                                                     <label class="block text-sm font-semibold text-gray-700 mb-2"><?= lang('UI.settingsHoursChairNameLabel', ['number' => $chairIndex]) ?></label>

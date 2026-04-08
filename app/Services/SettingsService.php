@@ -364,7 +364,7 @@ class SettingsService
     }
 
     /**
-     * Get concurrent booking chair capacity for this clinic.
+     * Get concurrent booking doctor capacity for this clinic.
      */
     public function getBookingChairCount()
     {
@@ -373,7 +373,7 @@ class SettingsService
     }
 
     /**
-     * Get chair/room labels used by the booking UI.
+     * Get doctor labels used by the booking UI.
      *
      * @return string[]
      */
@@ -394,14 +394,14 @@ class SettingsService
         }
 
         for ($i = count($normalized); $i < $count; $i++) {
-            $normalized[] = 'Chair ' . ($i + 1);
+            $normalized[] = 'Doctor ' . ($i + 1);
         }
 
         return array_slice($normalized, 0, $count);
     }
 
     /**
-     * Get global cap for tenant booking chairs.
+     * Get global cap for tenant booking doctors.
      */
     public function getMaxBookingChairCount(): int
     {

@@ -773,7 +773,7 @@ class Settings extends BaseController
             'finance_auto_post_inventory_cogs' => 1,
             'appointment_duration' => 30,
             'booking_chair_count' => 1,
-            'booking_chair_names' => ['Chair 1'],
+            'booking_chair_names' => ['Doctor 1'],
             'working_hours_start' => '09:00',
             'working_hours_end' => '17:00',
             'working_days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],

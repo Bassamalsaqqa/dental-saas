@@ -108,12 +108,12 @@
                             <div class="group/field relative">
                                 <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
                                     <i class="fas fa-door-open text-indigo-600"></i>
-                                    <span><?= esc(lang('UI.appointmentChairLabel')) ?> *</span>
+                                    <span><?= esc(lang('UI.appointmentDoctorLabel')) ?> *</span>
                                 </label>
                                 <div class="relative">
                                     <?php $selectedChair = old('chair_name', $appointment['chair_name'] ?? ($chair_options[0] ?? '')); ?>
                                     <select name="chair_name" id="chairName" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl" data-force-select2 required>
-                                        <option value=""><?= esc(lang('UI.appointmentSelectChair')) ?></option>
+                                        <option value=""><?= esc(lang('UI.appointmentSelectDoctor')) ?></option>
                                         <?php if (!empty($selectedChair) && !in_array($selectedChair, ($chair_options ?? []), true)): ?>
                                             <option value="<?= esc($selectedChair) ?>" selected><?= esc($selectedChair) ?></option>
                                         <?php endif; ?>
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointmentDate');
     const timeSelect = document.getElementById('appointmentTime');
     const durationSelect = document.getElementById('duration');
-    const chairSelect = document.getElementById('chairName');
+    const doctorSelect = document.getElementById('chairName');
     const currentTime = '<?= $appointment['appointment_time'] ?>';
     const appointmentId = '<?= $appointment['id'] ?>';
     const apiBase = '<?= base_url('appointment/available-time-slots') ?>';
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const rawDate = (dateInput.value || '').trim();
         const date = window.parseClinicDateToIso ? (window.parseClinicDateToIso(rawDate) || rawDate) : rawDate;
         const duration = durationSelect.value;
-        const chairName = (chairSelect?.value || '').trim();
+        const chairName = (doctorSelect?.value || '').trim();
 
         if (date && duration && chairName) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -398,9 +398,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function bindSlotRefresh(selectElement) {
+        if (!selectElement) {
+            return;
+        }
+
+        selectElement.addEventListener('change', loadAvailableTimeSlots);
+
+        if (window.jQuery) {
+            window.jQuery(selectElement).on('select2:select select2:clear change', loadAvailableTimeSlots);
+        }
+    }
+
     dateInput.addEventListener('change', loadAvailableTimeSlots);
-    durationSelect.addEventListener('change', loadAvailableTimeSlots);
-    chairSelect.addEventListener('change', loadAvailableTimeSlots);
+    dateInput.addEventListener('input', loadAvailableTimeSlots);
+    bindSlotRefresh(durationSelect);
+    bindSlotRefresh(doctorSelect);
 
     // Load initial time slots (this will also set the current time)
     loadAvailableTimeSlots();
