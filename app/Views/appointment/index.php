@@ -156,8 +156,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider"><?= lang('UI.appointmentSearchPatient') ?></label>
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 font-medium">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <input type="text" id="searchFilter" value="<?= htmlspecialchars($search_term ?? '') ?>" placeholder="<?= esc(lang('UI.appointmentSearchPatientHint')) ?>" class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 font-medium">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
                             </div>
@@ -208,8 +208,8 @@ $returnToContextEncoded = urlencode($returnToContext);
                                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-600/20 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <input type="text" id="searchInput" placeholder="<?= esc(lang('UI.appointmentSearchInputPlaceholder')) ?>" 
                                        value="<?= $search_term ?>" 
-                                       class="relative w-full px-4 py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 font-medium">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                       class="relative w-full <?= !empty($is_rtl) ? 'pl-4 pr-11' : 'pl-4 pr-11' ?> py-3 bg-white/80 border border-white/30 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 font-medium">
+                                <div class="absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center pointer-events-none">
                                     <i class="fas fa-search text-emerald-500" id="searchIcon"></i>
                                     <div class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-500" id="searchSpinner"></div>
                                 </div>
@@ -356,7 +356,6 @@ $returnToContextEncoded = urlencode($returnToContext);
                                                 <p class="text-xs text-emerald-700 font-medium">
                                                     <?= esc($appointment['chair_name'] ?? lang('UI.appointmentChairDefault')) ?>
                                                 </p>
-                                                <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider"><?= lang('UI.appointmentTypeBadge') ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -1284,13 +1283,8 @@ function createAppointmentElement(appointment) {
     chairP.className = 'text-xs text-emerald-700 font-medium';
     chairP.textContent = appointment.chair_name || appointmentI18n.chairDefault;
     
-    const typeLabel = document.createElement('p');
-    typeLabel.className = 'text-xs text-emerald-700 font-semibold uppercase tracking-wider';
-    typeLabel.textContent = appointmentI18n.typeBadge;
-
     typeContent.appendChild(typeP);
     typeContent.appendChild(chairP);
-    typeContent.appendChild(typeLabel);
     typeRelative.appendChild(typeBg);
     typeRelative.appendChild(typeContent);
     typeDiv.appendChild(typeRelative);
