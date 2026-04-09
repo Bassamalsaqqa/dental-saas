@@ -213,27 +213,165 @@ foreach ($treatments as $treatmentItem) {
     }
 }
 
-$totalBilled = 0.0;
-$totalPaid = 0.0;
+$financeTypeLabel = static function (?string $type): string {
+    $type = trim((string) $type);
+    if ($type === '') {
+        return lang('UI.patientUnknown');
+    }
+
+    $localized = lang('Finance.' . $type);
+    if ($localized !== 'Finance.' . $type) {
+        return $localized;
+    }
+
+    return ucfirst(str_replace('_', ' ', $type));
+};
+
+$financeMethodLabel = static function (?string $method): string {
+    $method = trim((string) $method);
+    if ($method === '') {
+        return lang('UI.patientNa');
+    }
+
+    $keyMap = [
+        'bank_transfer' => 'bankTransfer',
+    ];
+    $localized = lang('Finance.' . ($keyMap[$method] ?? $method));
+    if ($localized !== 'Finance.' . ($keyMap[$method] ?? $method)) {
+        return $localized;
+    }
+
+    return ucfirst(str_replace('_', ' ', $method));
+};
+
+$financeStatusLabel = static function (?string $status): string {
+    $status = trim((string) $status);
+    if ($status === '') {
+        return lang('UI.patientNa');
+    }
+
+    $localized = lang('Finance.' . $status);
+    if ($localized !== 'Finance.' . $status) {
+        return $localized;
+    }
+
+    return ucfirst(str_replace('_', ' ', $status));
+};
+
+$totalCharges = 0.0;
+$totalCollected = 0.0;
+$totalRefunded = 0.0;
 $outstandingBalance = 0.0;
 $openInvoicesCount = 0;
+$financialLedgerRows = [];
+$financeLookup = [];
+
 foreach ($finances as $financeItem) {
-    if (($financeItem['transaction_type'] ?? 'invoice') !== 'invoice') {
-        continue;
+    $financeId = (int) ($financeItem['id'] ?? 0);
+    if ($financeId > 0) {
+        $financeLookup[$financeId] = $financeItem;
     }
 
+    $transactionType = strtolower((string) ($financeItem['transaction_type'] ?? 'invoice'));
+    $paymentStatus = strtolower((string) ($financeItem['payment_status'] ?? ''));
     $totalAmount = (float) ($financeItem['total_amount'] ?? (($financeItem['amount'] ?? 0) - ($financeItem['discount_amount'] ?? 0) + ($financeItem['tax_amount'] ?? 0)));
     $balanceDue = isset($financeItem['balance_due']) ? max(0, (float) $financeItem['balance_due']) : 0.0;
-    $paidAmount = max(0, $totalAmount - $balanceDue);
+    $documentDate = $financeItem['transaction_date'] ?? $financeItem['paid_date'] ?? $financeItem['created_at'] ?? null;
+    $descriptionParts = [];
 
-    $totalBilled += $totalAmount;
-    $totalPaid += $paidAmount;
-    $outstandingBalance += $balanceDue;
-
-    if ($balanceDue > 0.009) {
-        $openInvoicesCount++;
+    if (!empty($financeItem['description'])) {
+        $descriptionParts[] = trim((string) $financeItem['description']);
     }
+    if (!empty($financeItem['service_type'])) {
+        $descriptionParts[] = $financeTypeLabel((string) $financeItem['service_type']);
+    } elseif (!empty($financeItem['payment_method'])) {
+        $descriptionParts[] = $financeMethodLabel((string) $financeItem['payment_method']);
+    }
+
+    if ($transactionType === 'invoice' && $paymentStatus !== 'cancelled') {
+        $totalCharges += $totalAmount;
+        $outstandingBalance += $balanceDue;
+        if ($balanceDue > 0.009) {
+            $openInvoicesCount++;
+        }
+    } elseif (in_array($transactionType, ['payment', 'adjustment'], true)) {
+        $totalCollected += $totalAmount;
+    } elseif ($transactionType === 'refund') {
+        $totalRefunded += $totalAmount;
+    }
+
+    $signedAmount = $totalAmount;
+    if (in_array($transactionType, ['refund', 'expense'], true)) {
+        $signedAmount *= -1;
+    }
+
+    $timestamp = $documentDate ? strtotime((string) $documentDate) : false;
+    $financialLedgerRows[] = [
+        'row_kind' => 'finance',
+        'row_id' => 'finance-' . $financeId,
+        'finance_id' => $financeId,
+        'document_date' => $documentDate,
+        'document_date_iso' => !empty($documentDate) ? substr((string) $documentDate, 0, 10) : '',
+        'timestamp' => $timestamp ?: 0,
+        'record_label' => $financeTypeLabel($transactionType),
+        'record_note' => implode(' - ', array_filter($descriptionParts, static fn(string $value): bool => $value !== '')),
+        'reference' => (string) ($financeItem['transaction_id'] ?? ('#' . $financeId)),
+        'amount' => $signedAmount,
+        'method_label' => $financeMethodLabel($financeItem['payment_method'] ?? null),
+        'status_label' => $financeStatusLabel($financeItem['payment_status'] ?? null),
+        'status_key' => $paymentStatus !== '' ? $paymentStatus : 'recorded',
+        'action_url' => base_url('finance/' . $financeId . '?return_to=patient/' . $patient['id']),
+    ];
 }
+
+foreach (($finance_settlements ?? []) as $settlement) {
+    $financeId = (int) ($settlement['finance_id'] ?? 0);
+    $settlementType = strtolower((string) ($settlement['type'] ?? 'payment'));
+    $amount = max(0, (float) ($settlement['amount'] ?? 0));
+    $parentFinance = $financeLookup[$financeId] ?? null;
+    $reference = (string) ($parentFinance['transaction_id'] ?? ('#' . $financeId));
+    $signedAmount = in_array($settlementType, ['refund', 'void'], true) ? -$amount : $amount;
+
+    if (in_array($settlementType, ['payment', 'adjustment'], true)) {
+        $totalCollected += $amount;
+    } elseif (in_array($settlementType, ['refund', 'void'], true)) {
+        $totalRefunded += $amount;
+    }
+
+    $timestamp = !empty($settlement['payment_date']) ? strtotime((string) $settlement['payment_date']) : false;
+    $recordedBy = trim(((string) ($settlement['creator_first_name'] ?? '')) . ' ' . ((string) ($settlement['creator_last_name'] ?? '')));
+    $settlementNotes = trim((string) ($settlement['notes'] ?? ''));
+    $recordNote = $settlementNotes !== '' ? $settlementNotes : $reference;
+    if ($recordedBy !== '') {
+        $recordNote .= ' - ' . $recordedBy;
+    }
+
+    $financialLedgerRows[] = [
+        'row_kind' => 'settlement',
+        'row_id' => 'settlement-' . (int) ($settlement['id'] ?? 0),
+        'finance_id' => $financeId,
+        'document_date' => $settlement['payment_date'] ?? null,
+        'document_date_iso' => !empty($settlement['payment_date']) ? substr((string) $settlement['payment_date'], 0, 10) : '',
+        'timestamp' => $timestamp ?: 0,
+        'record_label' => $financeTypeLabel($settlementType),
+        'record_note' => $recordNote,
+        'reference' => $reference,
+        'amount' => $signedAmount,
+        'method_label' => $financeMethodLabel($settlement['payment_method'] ?? null),
+        'status_label' => $financeTypeLabel($settlementType),
+        'status_key' => 'recorded',
+        'action_url' => base_url('finance/' . $financeId . '?return_to=patient/' . $patient['id']),
+    ];
+}
+
+usort($financialLedgerRows, static function (array $a, array $b): int {
+    $timeCompare = (int) ($b['timestamp'] ?? 0) <=> (int) ($a['timestamp'] ?? 0);
+    if ($timeCompare !== 0) {
+        return $timeCompare;
+    }
+
+    return strcmp((string) ($b['row_id'] ?? ''), (string) ($a['row_id'] ?? ''));
+});
 
 $outstandingBalanceLabel = $outstandingBalance > 0.009
     ? formatCurrency($outstandingBalance)
@@ -536,7 +674,7 @@ $heroInfoCapsules = [
                                         aria-controls="finances-content"
                                         tabindex="-1"
                                         class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                    <i class="fas fa-file-invoice shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabInvoice')) ?></span> <span class="tab-count shrink-0"><?= count($finances) ?></span>
+                                    <i class="fas fa-file-invoice-dollar shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabFinancials')) ?></span> <span class="tab-count shrink-0"><?= count($financialLedgerRows) ?></span>
                                 </button>
                             </nav>
                             
@@ -1597,32 +1735,32 @@ $heroInfoCapsules = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Invoice Tab -->
+                        <!-- Financials Tab -->
                         <div id="finances-content" class="tab-content hidden" role="tabpanel" aria-labelledby="finances-tab" hidden>
                             <div class="space-y-6">
                                 <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
                                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500"><?= esc(lang('UI.patientTotalBilled')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-slate-900"><?= formatCurrency($totalBilled) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-slate-900"><?= formatCurrency($totalCharges) ?></p>
                                     </div>
                                     <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700"><?= esc(lang('UI.patientTotalPaid')) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-emerald-900"><?= formatCurrency($totalPaid) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-emerald-900"><?= formatCurrency($totalCollected) ?></p>
                                     </div>
                                     <div class="rounded-xl border <?= $outstandingBalance > 0.009 ? 'border-amber-200 bg-amber-50' : 'border-sky-200 bg-sky-50' ?> p-4 shadow-sm">
                                         <p class="text-xs font-semibold uppercase tracking-wide <?= $outstandingBalance > 0.009 ? 'text-amber-700' : 'text-sky-700' ?>"><?= esc(lang('UI.patientOutstandingBalance')) ?></p>
                                         <p class="mt-2 text-2xl font-bold <?= $outstandingBalance > 0.009 ? 'text-amber-900' : 'text-sky-900' ?>"><?= $outstandingBalance > 0.009 ? formatCurrency($outstandingBalance) : esc(lang('UI.patientNoBalanceDue')) ?></p>
                                     </div>
-                                    <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
-                                        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700"><?= esc(lang('UI.patientProfileInvoicesOpen', ['count' => $openInvoicesCount])) ?></p>
-                                        <p class="mt-2 text-2xl font-bold text-indigo-900"><?= (int) $openInvoicesCount ?></p>
+                                    <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700"><?= esc(lang('Finance.refunds')) ?></p>
+                                        <p class="mt-2 text-2xl font-bold text-rose-900"><?= formatCurrency($totalRefunded) ?></p>
                                     </div>
                                 </div>
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300">
+                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
                                     <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientInvoices')) ?></h3>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientInvoicesSubtitle')) ?></p>
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientFinancialRecords')) ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1"><?= esc($isRtl ? 'يعرض هذا السجل المالي الفواتير والتحصيلات والاستردادات والتسويات والرصيد الحالي للمريض في مكان واحد.' : lang('UI.patientFinancialRecordsSubtitle')) ?></p>
                                     </div>
                                         <div class="flex flex-wrap gap-2">
                                             <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200">
@@ -1637,71 +1775,75 @@ $heroInfoCapsules = [
                                         </div>
                                     </div>
                                 </div>
-                                <?php if (!empty($finances)): ?>
-                                <div class="overflow-x-auto">
-                                    <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                        <thead>
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotal')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientTotalPaid')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('TenantMisc.balanceDue')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($finances as $finance): ?>
-                                                <?php
-                                                    $totalAmount = (float) ($finance['total_amount'] ?? (($finance['amount'] ?? 0) - ($finance['discount_amount'] ?? 0) + ($finance['tax_amount'] ?? 0)));
-                                                    $balanceDue = max(0, (float) ($finance['balance_due'] ?? 0));
-                                                    $paidAmount = max(0, $totalAmount - $balanceDue);
-                                                    $documentDate = $finance['transaction_date'] ?? $finance['created_at'] ?? null;
-                                                ?>
-                                                <tr class="patient-record-row" data-href="<?= esc(base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id'])) ?>">
-                                                    <td class="whitespace-nowrap">
-                                                        <?= $documentDate ? formatDate($documentDate) : esc(lang('UI.patientNa')) ?>
-                                                    </td>
-                                                    <td>
-                                                        <div class="patient-record-main">
-                                                            <div class="patient-record-title"><?= ucfirst($finance['transaction_type'] ?? lang('UI.patientUnknown')) ?></div>
-                                                            <div class="patient-record-subtitle"><?= esc(ucfirst((string) ($finance['payment_method'] ?? lang('UI.patientNa')))) ?></div>
-                                                        </div>
-                                                    </td>
-                                                    <td><?= formatCurrency($totalAmount) ?></td>
-                                                    <td><?= formatCurrency($paidAmount) ?></td>
-                                                    <td class="font-semibold <?= $balanceDue > 0.009 ? 'text-amber-700' : 'text-emerald-700' ?>"><?= $balanceDue > 0.009 ? formatCurrency($balanceDue) : esc(lang('UI.patientNoBalanceDue')) ?></td>
-                                                    <td class="whitespace-nowrap">
+                                <?php if (!empty($financialLedgerRows)): ?>
+                                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                                        <div class="overflow-x-auto">
+                                            <table class="patient-record-table" data-record-type="finances" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientDate')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientType')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.detailsReference')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.amount')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('Finance.method')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientStatus')) ?></th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= esc(lang('UI.patientActions')) ?></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($financialLedgerRows as $ledgerRow): ?>
                                                         <?php
                                                         $statusColors = [
                                                             'paid' => 'bg-green-100 text-green-800',
                                                             'pending' => 'bg-yellow-100 text-yellow-800',
                                                             'partial' => 'bg-blue-100 text-blue-800',
                                                             'overdue' => 'bg-red-100 text-red-800',
-                                                            'cancelled' => 'bg-gray-100 text-gray-800'
+                                                            'cancelled' => 'bg-gray-100 text-gray-800',
+                                                            'recorded' => 'bg-slate-100 text-slate-700',
                                                         ];
-                                                        $colorClass = $statusColors[$finance['payment_status']] ?? 'bg-gray-100 text-gray-800';
+                                                        $rowAmount = (float) ($ledgerRow['amount'] ?? 0);
+                                                        $amountClass = $rowAmount < 0 ? 'text-rose-700' : ($rowAmount > 0 ? 'text-emerald-700' : 'text-slate-700');
+                                                        $colorClass = $statusColors[$ledgerRow['status_key']] ?? 'bg-gray-100 text-gray-800';
                                                         ?>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                                                            <?= ucfirst($finance['payment_status']) ?>
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <div class="patient-table-actions">
-                                                        <a href="<?= base_url('finance/' . $finance['id'] . '?return_to=patient/' . $patient['id']) ?>" 
-                                                           class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                        <tr class="patient-record-row" data-href="<?= esc($ledgerRow['action_url']) ?>" data-date="<?= esc($ledgerRow['document_date_iso']) ?>">
+                                                            <td class="whitespace-nowrap">
+                                                                <?= !empty($ledgerRow['document_date']) ? formatDate($ledgerRow['document_date']) : esc(lang('UI.patientNa')) ?>
+                                                            </td>
+                                                            <td>
+                                                                <div class="patient-record-main">
+                                                                    <div class="patient-record-title"><?= esc($ledgerRow['record_label']) ?></div>
+                                                                    <div class="patient-record-subtitle"><?= esc($ledgerRow['record_note'] !== '' ? $ledgerRow['record_note'] : lang('UI.patientNa')) ?></div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="patient-record-main">
+                                                                    <div class="patient-record-title"><?= esc($ledgerRow['reference']) ?></div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="font-semibold <?= $amountClass ?>">
+                                                                <?= ($rowAmount < 0 ? '- ' : '') . formatCurrency(abs($rowAmount)) ?>
+                                                            </td>
+                                                            <td><?= esc($ledgerRow['method_label']) ?></td>
+                                                            <td class="whitespace-nowrap">
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
+                                                                    <?= esc($ledgerRow['status_label']) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <div class="patient-table-actions">
+                                                                    <a href="<?= esc($ledgerRow['action_url']) ?>" class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>"><i class="fas fa-eye"></i></a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-file-invoice text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoInvoices')) ?></p>
+                                    <p class="text-gray-500"><?= esc(lang('UI.patientNoFinancialRecords')) ?></p>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -2964,14 +3106,6 @@ $heroInfoCapsules = [
         ];
         filteredTimelineData = [...allTimelineData];
         
-        // Set default date range (last 6 months)
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 6);
-        
-        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
-        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
-        
         // Add event listeners
         document.getElementById('historySearch').addEventListener('input', filterHistory);
         document.getElementById('startDate').addEventListener('change', filterHistory);
@@ -3357,10 +3491,10 @@ $heroInfoCapsules = [
                 const cellDate = rawDate ? new Date(rawDate) : null;
                 
                 if (cellDate && !isNaN(cellDate.getTime())) {
-                    if (startDate && cellDate < new Date(startDate)) {
+                    if (startDate && cellDate < new Date(startDate + 'T00:00:00')) {
                         matchesDateRange = false;
                     }
-                    if (endDate && cellDate > new Date(endDate)) {
+                    if (endDate && cellDate > new Date(endDate + 'T23:59:59')) {
                         matchesDateRange = false;
                     }
                 }

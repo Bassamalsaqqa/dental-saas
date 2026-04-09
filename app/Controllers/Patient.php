@@ -8,6 +8,7 @@ use App\Models\WhatsAppOptoutModel;
 use App\Models\ExaminationModel;
 use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
+use App\Models\FinancePaymentModel;
 use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\PrescriptionModel;
@@ -22,6 +23,7 @@ class Patient extends BaseController
     protected $examinationModel;
     protected $appointmentModel;
     protected $financeModel;
+    protected $financePaymentModel;
     protected $odontogramModel;
     protected $treatmentModel;
     protected $prescriptionModel;
@@ -39,6 +41,7 @@ class Patient extends BaseController
         $this->examinationModel = new ExaminationModel();
         $this->appointmentModel = new AppointmentModel();
         $this->financeModel = new FinanceModel();
+        $this->financePaymentModel = new FinancePaymentModel();
         $this->odontogramModel = new OdontogramModel();
         $this->treatmentModel = new TreatmentModel();
         $this->prescriptionModel = new PrescriptionModel();
@@ -649,12 +652,32 @@ class Patient extends BaseController
             ->orderBy('treatments.start_date', 'DESC')
             ->findAll();
 
+        $finances = $this->financeModel->getFinanceByPatient($id);
+        $invoiceFinanceIds = array_map(
+            static fn(array $row): int => (int) ($row['id'] ?? 0),
+            array_filter($finances, static fn(array $row): bool => (string) ($row['transaction_type'] ?? '') === 'invoice')
+        );
+        $invoiceFinanceIds = array_values(array_filter($invoiceFinanceIds, static fn(int $value): bool => $value > 0));
+
+        $financeSettlements = [];
+        if (!empty($invoiceFinanceIds)) {
+            $financeSettlements = $this->financePaymentModel
+                ->select('finance_payments.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+                ->join('users', 'users.id = finance_payments.created_by', 'left')
+                ->where('finance_payments.clinic_id', $clinicId)
+                ->whereIn('finance_payments.finance_id', $invoiceFinanceIds)
+                ->orderBy('finance_payments.payment_date', 'DESC')
+                ->orderBy('finance_payments.id', 'DESC')
+                ->findAll();
+        }
+
         $data = [
             'title' => 'Patient Details - ' . $patient['first_name'] . ' ' . $patient['last_name'],
             'patient' => $patient,
             'examinations' => $examinations,
             'appointments' => $appointments,
-            'finances' => $this->financeModel->getFinanceByPatient($id),
+            'finances' => $finances,
+            'finance_settlements' => $financeSettlements,
             'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
             'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
             'treatments' => $treatments,
