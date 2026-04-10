@@ -996,7 +996,7 @@
     </div>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
-    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/12 ring-1 ring-slate-900/5" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
+    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="absolute hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/12 ring-1 ring-slate-900/5" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
         <div class="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-4">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
@@ -1318,7 +1318,7 @@
         dropdown.style.maxWidth = `calc(100vw - ${viewportPadding * 2}px)`;
         dropdown.style.height = `${dropdownHeight}px`;
         dropdown.style.maxHeight = `${dropdownHeight}px`;
-        dropdown.style.top = `${Math.max(triggerRect.bottom + 8, viewportPadding)}px`;
+        dropdown.style.top = `${window.scrollY + Math.max(triggerRect.bottom + 8, viewportPadding)}px`;
 
         const isRtl = document.documentElement.dir === 'rtl';
         const unclampedLeft = isRtl
@@ -1329,7 +1329,7 @@
             window.innerWidth - preferredWidth - viewportPadding
         );
 
-        dropdown.style.left = `${left}px`;
+        dropdown.style.left = `${window.scrollX + left}px`;
         dropdown.style.right = 'auto';
     }
 
