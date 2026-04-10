@@ -415,6 +415,81 @@ $heroInfoCapsules = [
     ['label' => lang('UI.patientNextAppointmentShort'), 'value' => $nextAppointmentChipValue, 'icon' => 'fas fa-calendar-check', 'class' => ''],
     ['label' => lang('UI.patientLastVisitShort'), 'value' => $lastVisitChipValue, 'icon' => 'fas fa-history', 'class' => ''],
 ];
+
+$patientOverviewFacts = [
+    [
+        'label' => lang('UI.patientPatientId'),
+        'value' => (string) ($patient['patient_id'] ?? lang('UI.patientNotProvided')),
+        'accent' => 'patient-fact-accent-blue',
+    ],
+    [
+        'label' => lang('UI.patientFullName'),
+        'value' => $fullName !== '' ? $fullName : lang('UI.patientNotProvided'),
+        'accent' => 'patient-fact-accent-slate',
+    ],
+    [
+        'label' => lang('UI.patientStatus'),
+        'value' => $patientStatusLabel,
+        'accent' => 'patient-fact-accent-emerald',
+    ],
+    [
+        'label' => lang('UI.patientGender'),
+        'value' => $patientGenderLabel,
+        'accent' => 'patient-fact-accent-violet',
+    ],
+    [
+        'label' => lang('UI.patientAge'),
+        'value' => $patientAgeLabel,
+        'accent' => 'patient-fact-accent-amber',
+    ],
+    [
+        'label' => lang('UI.patientDateOfBirth'),
+        'value' => !empty($patient['date_of_birth']) ? formatDate($patient['date_of_birth']) : lang('UI.patientNotProvided'),
+        'accent' => 'patient-fact-accent-slate',
+    ],
+];
+
+$patientContactFacts = [
+    [
+        'label' => lang('UI.patientPhone'),
+        'value' => $patientPhone,
+        'accent' => 'patient-fact-accent-blue',
+    ],
+    [
+        'label' => lang('UI.patientEmail'),
+        'value' => $patientEmail,
+        'accent' => 'patient-fact-accent-slate',
+    ],
+    [
+        'label' => lang('UI.patientCity'),
+        'value' => $patientCity,
+        'accent' => 'patient-fact-accent-violet',
+        'wide' => true,
+    ],
+];
+
+$patientChartFacts = [
+    [
+        'label' => lang('UI.patientCreatedBy'),
+        'value' => $creatorName !== '' ? $creatorName : lang('UI.patientUnknownDoctor'),
+        'accent' => 'patient-fact-accent-slate',
+    ],
+    [
+        'label' => lang('UI.patientMemberSince'),
+        'value' => $memberSince,
+        'accent' => 'patient-fact-accent-blue',
+    ],
+    [
+        'label' => lang('UI.patientLastVisit'),
+        'value' => $lastVisitLabel,
+        'accent' => 'patient-fact-accent-emerald',
+    ],
+    [
+        'label' => lang('UI.patientNextAppointment'),
+        'value' => $nextAppointmentLabel,
+        'accent' => 'patient-fact-accent-amber',
+    ],
+];
 ?>
 
 <?= $this->section('content') ?>
@@ -707,163 +782,129 @@ $heroInfoCapsules = [
                     <div class="px-6 py-6">
                         <!-- Patient Details Tab -->
                         <div id="details-content" class="tab-content" role="tabpanel" aria-labelledby="details-tab">
-                            <div class="space-y-6">
-                                <!-- Personal Details -->
-                                <div class="patient-section-card">
-                                    <div class="patient-section-header">
-                                        <div class="patient-section-heading">
-                                            <span class="patient-section-icon"><i class="fas fa-address-card"></i></span>
+                            <div class="patient-details-layout">
+                                <div class="patient-details-main">
+                                    <section class="patient-compact-card patient-compact-card-profile">
+                                        <div class="patient-compact-header">
                                             <div>
-                                                <h3 class="patient-section-title"><?= esc(lang('UI.patientPersonalInformation')) ?></h3>
-                                                <p class="patient-section-subtitle"><?= esc(lang('UI.patientReviewIdentityAndCoreRecord')) ?></p>
+                                                <h3 class="patient-compact-title"><?= esc(lang('UI.patientSummaryTitle')) ?></h3>
+                                                <p class="patient-compact-copy"><?= esc(lang('UI.patientSummaryHelp')) ?></p>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="patient-section-body">
-                                        <?php $creatorName = trim(($patient['creator_first_name'] ?? '') . ' ' . ($patient['creator_last_name'] ?? '')); ?>
-                                        <div class="patient-data-grid">
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientPatientId')) ?></label>
-                                                <p class="patient-data-value font-semibold"><?= $patient['patient_id'] ?></p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientFullName')) ?></label>
-                                                <p class="patient-data-value"><?= $patient['first_name'] . ' ' . $patient['last_name'] ?></p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientDateOfBirth')) ?></label>
-                                                <p class="patient-data-value"><?= formatDate($patient['date_of_birth']) ?></p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientAge')) ?></label>
-                                                <p class="patient-data-value">
-                                                    <?php
-                                                    $dob = new DateTime($patient['date_of_birth']);
-                                                    $now = new DateTime();
-                                                    $age = $now->diff($dob)->y;
-                                                    echo $age . ' ' . lang('UI.patientYears');
-                                                    ?>
-                                                </p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientGender')) ?></label>
-                                                <p class="patient-data-value"><?= ucfirst($patient['gender']) ?></p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientStatus')) ?></label>
-                                                <span class="status-badge <?= $patient['status'] == 'active' ? 'status-active' : 
-                                                    ($patient['status'] == 'inactive' ? 'status-inactive' : 'status-pending') ?>">
-                                                    <?= ucfirst($patient['status']) ?>
-                                                </span>
-                                            </div>
-                                            <div class="patient-data-item patient-data-item-wide">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientCreatedBy')) ?></label>
-                                                <p class="patient-data-value"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : esc(lang('UI.patientUnknownDoctor')) ?></p>
+                                        <div class="patient-facts-section">
+                                            <div class="patient-facts-grid">
+                                                <?php foreach ($patientOverviewFacts as $fact): ?>
+                                                    <article class="patient-fact-card <?= esc($fact['accent']) ?>">
+                                                        <span class="patient-fact-label"><?= esc($fact['label']) ?></span>
+                                                        <p class="patient-fact-value"><?= esc($fact['value']) ?></p>
+                                                    </article>
+                                                <?php endforeach; ?>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Contact Information -->
-                                <div class="patient-section-card">
-                                    <div class="patient-section-header">
-                                        <div class="patient-section-heading">
-                                            <span class="patient-section-icon"><i class="fas fa-address-book"></i></span>
-                                            <div>
-                                                <h3 class="patient-section-title"><?= esc(lang('UI.patientContactDetails')) ?></h3>
-                                                <p class="patient-section-subtitle"><?= esc(lang('UI.patientContactAndReachabilityState')) ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="patient-section-body">
-                                        <div class="patient-data-grid">
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientPhone')) ?></label>
-                                                <p class="patient-data-value"><?= $patient['phone'] ?></p>
-                                            </div>
-                                            <div class="patient-data-item">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientEmail')) ?></label>
-                                                <p class="patient-data-value"><?= $patient['email'] ?: esc(lang('UI.patientNotProvided')) ?></p>
-                                            </div>
-                                            <div class="patient-data-item patient-data-item-wide">
-                                                <label class="patient-data-label"><?= esc(lang('UI.patientCity')) ?></label>
-                                                <p class="patient-data-value"><?= !empty($patient['city']) ? esc($patient['city']) : esc(lang('UI.patientNotProvided')) ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <!-- Medical Information -->
-                                <?php if ($hasStructuredMedicalAlerts || $patient['medical_history'] || $patient['allergies']): ?>
-                                    <div class="patient-section-card">
-                                        <div class="patient-section-header">
-                                            <div class="patient-section-heading">
-                                                <span class="patient-section-icon"><i class="fas fa-notes-medical"></i></span>
-                                                <div>
-                                                    <h3 class="patient-section-title"><?= esc(lang('UI.patientMedicalInformation')) ?></h3>
-                                                    <p class="patient-section-subtitle"><?= esc(lang('UI.patientReviewMedicalDetails')) ?></p>
+                                        <div class="patient-facts-split">
+                                            <section class="patient-facts-section">
+                                                <div class="patient-facts-heading">
+                                                    <h4><?= esc(lang('UI.patientContactSection')) ?></h4>
+                                                    <p><?= esc(lang('UI.patientContactSectionHelp')) ?></p>
                                                 </div>
-                                            </div>
+                                                <div class="patient-facts-grid patient-facts-grid-compact">
+                                                    <?php foreach ($patientContactFacts as $fact): ?>
+                                                        <article class="patient-fact-card <?= esc($fact['accent']) ?><?= !empty($fact['wide']) ? ' patient-fact-card-wide' : '' ?>">
+                                                            <span class="patient-fact-label"><?= esc($fact['label']) ?></span>
+                                                            <p class="patient-fact-value"><?= esc($fact['value']) ?></p>
+                                                        </article>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </section>
+                                            <section class="patient-facts-section">
+                                                <div class="patient-facts-heading">
+                                                    <h4><?= esc(lang('UI.patientChartSection')) ?></h4>
+                                                    <p><?= esc(lang('UI.patientChartSectionHelp')) ?></p>
+                                                </div>
+                                                <div class="patient-facts-grid patient-facts-grid-compact">
+                                                    <?php foreach ($patientChartFacts as $fact): ?>
+                                                        <article class="patient-fact-card <?= esc($fact['accent']) ?>">
+                                                            <span class="patient-fact-label"><?= esc($fact['label']) ?></span>
+                                                            <p class="patient-fact-value"><?= esc($fact['value']) ?></p>
+                                                        </article>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </section>
                                         </div>
-                                        <div class="patient-section-body">
-                                            <div class="space-y-4">
+                                    </section>
+                                </div>
+                                <aside class="patient-details-sidebar">
+                                    <?php if ($hasStructuredMedicalAlerts || $patient['medical_history'] || $patient['allergies'] || $patient['notes']): ?>
+                                        <section class="patient-compact-card patient-compact-card-alerts">
+                                            <div class="patient-compact-header">
+                                                <div>
+                                                    <h3 class="patient-compact-title"><?= esc(lang('UI.patientMedicalInformation')) ?></h3>
+                                                    <p class="patient-compact-copy"><?= esc(lang('UI.patientMedicalSectionHelp')) ?></p>
+                                                </div>
+                                                <?php if ($medicalAlertCount > 0): ?>
+                                                    <span class="patient-alert-count"><?= (int) $medicalAlertCount ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="patient-medical-body">
                                                 <?php if ($hasStructuredMedicalAlerts): ?>
-                                                    <div>
-                                                        <label class="patient-data-label !mb-3"><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></label>
+                                                    <section class="patient-medical-section">
+                                                        <div class="patient-facts-heading">
+                                                            <h4><?= esc(lang('UI.patientMedicalAlertsQuickCheck')) ?></h4>
+                                                        </div>
                                                         <div class="patient-alert-grid">
                                                             <?php foreach ($medicalAlerts as $medicalAlertRow): ?>
                                                                 <?php if (empty($medicalAlertRow['enabled'])) continue; ?>
-                                                                <div class="patient-alert-tile">
-                                                                    <div class="flex items-start justify-between gap-2">
-                                                                        <span class="text-sm font-semibold text-amber-900 inline-flex items-start gap-2">
-                                                                            <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'text-amber-700') ?> mt-0.5 w-4 text-center"></i>
+                                                                <article class="patient-alert-tile">
+                                                                    <div class="patient-alert-topline">
+                                                                        <span class="patient-alert-title">
+                                                                            <i class="<?= esc($medicalAlertRow['icon']) ?> <?= esc($medicalAlertRow['icon_class'] ?? 'text-amber-700') ?>"></i>
                                                                             <span><?= esc($medicalAlertRow['label']) ?></span>
                                                                         </span>
-                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900"><?= esc(lang('UI.patientYes')) ?></span>
+                                                                        <span class="patient-alert-flag"><?= esc(lang('UI.patientYes')) ?></span>
                                                                     </div>
                                                                     <?php if (!empty($medicalAlertRow['details'])): ?>
-                                                                        <p class="text-xs text-amber-800 mt-1"><?= nl2br(esc($medicalAlertRow['details'])) ?></p>
+                                                                        <p class="patient-alert-copy"><?= nl2br(esc($medicalAlertRow['details'])) ?></p>
                                                                     <?php endif; ?>
-                                                                </div>
+                                                                </article>
                                                             <?php endforeach; ?>
                                                         </div>
-                                                    </div>
+                                                    </section>
                                                 <?php endif; ?>
                                                 <?php if ($patient['medical_history']): ?>
-                                                    <div>
-                                                        <label class="patient-data-label"><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyMedicalHistory') : lang('UI.patientMedicalHistory')) ?></label>
-                                                        <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['medical_history'])) ?></p>
-                                                    </div>
+                                                    <section class="patient-medical-section">
+                                                        <div class="patient-facts-heading">
+                                                            <h4><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyMedicalHistory') : lang('UI.patientMedicalHistory')) ?></h4>
+                                                        </div>
+                                                        <div class="patient-note-panel">
+                                                            <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['medical_history'])) ?></p>
+                                                        </div>
+                                                    </section>
                                                 <?php endif; ?>
                                                 <?php if ($patient['allergies']): ?>
-                                                    <div>
-                                                        <label class="patient-data-label"><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyAllergies') : lang('UI.patientAllergies')) ?></label>
-                                                        <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['allergies'])) ?></p>
-                                                    </div>
+                                                    <section class="patient-medical-section">
+                                                        <div class="patient-facts-heading">
+                                                            <h4><?= esc($hasStructuredMedicalAlerts ? lang('UI.patientLegacyAllergies') : lang('UI.patientAllergies')) ?></h4>
+                                                        </div>
+                                                        <div class="patient-note-panel">
+                                                            <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['allergies'])) ?></p>
+                                                        </div>
+                                                    </section>
+                                                <?php endif; ?>
+                                                <?php if ($patient['notes']): ?>
+                                                    <section class="patient-medical-section">
+                                                        <div class="patient-facts-heading">
+                                                            <h4><?= esc(lang('UI.patientNotesTitle')) ?></h4>
+                                                            <p><?= esc(lang('UI.patientNotesSectionHelp')) ?></p>
+                                                        </div>
+                                                        <div class="patient-note-panel patient-note-panel-soft">
+                                                            <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['notes'])) ?></p>
+                                                        </div>
+                                                    </section>
                                                 <?php endif; ?>
                                             </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <!-- Notes -->
-                                <?php if ($patient['notes']): ?>
-                                    <div class="patient-section-card">
-                                        <div class="patient-section-header">
-                                            <div class="patient-section-heading">
-                                                <span class="patient-section-icon"><i class="fas fa-note-sticky"></i></span>
-                                                <div>
-                                                    <h3 class="patient-section-title"><?= esc(lang('UI.patientNotesTitle')) ?></h3>
-                                                    <p class="patient-section-subtitle"><?= esc(lang('UI.patientClinicalContextNotes')) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="patient-section-body">
-                                            <p class="patient-note-copy"><?= nl2br(htmlspecialchars($patient['notes'])) ?></p>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
+                                        </section>
+                                    <?php endif; ?>
+                                </aside>
                             </div>
                         </div>
 
@@ -2926,11 +2967,291 @@ $heroInfoCapsules = [
     }
 
     .patient-section-card {
-        border: 1px solid #dbe4ef;
+        border: 1px solid #e2e8f0;
         border-radius: 1rem;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-        box-shadow: 0 18px 36px -32px rgba(15, 23, 42, 0.34);
+        background: #ffffff;
+        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.2);
         overflow: hidden;
+    }
+
+    .patient-details-layout {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    @media (min-width: 1200px) {
+        .patient-details-layout {
+            grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.9fr);
+            align-items: stretch;
+        }
+    }
+
+    .patient-details-main,
+    .patient-details-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        min-width: 0;
+    }
+
+    .patient-details-main > .patient-compact-card,
+    .patient-details-sidebar > .patient-compact-card {
+        height: 100%;
+    }
+
+    .patient-compact-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #ffffff;
+        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.2);
+        overflow: hidden;
+    }
+
+    .patient-compact-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.85rem;
+        padding: 0.9rem 1rem 0.72rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .patient-compact-title {
+        font-size: 0.95rem;
+        line-height: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .patient-compact-copy {
+        margin-top: 0.2rem;
+        font-size: 0.74rem;
+        line-height: 1.15rem;
+        color: #64748b;
+    }
+
+    .patient-facts-split {
+        display: grid;
+        gap: 0.9rem;
+        padding: 0 1rem 1rem;
+    }
+
+    .patient-facts-section {
+        padding: 0.95rem 1rem 1rem;
+    }
+
+    .patient-facts-section + .patient-facts-section {
+        border-top: 1px solid #e2e8f0;
+    }
+
+    @media (min-width: 900px) {
+        .patient-facts-split {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .patient-facts-split .patient-facts-section {
+            padding: 0.95rem 0 0;
+        }
+
+        .patient-facts-split .patient-facts-section + .patient-facts-section {
+            border-top: 0;
+            border-inline-start: 1px solid #e2e8f0;
+            padding-inline-start: 1rem;
+        }
+    }
+
+    .patient-facts-heading {
+        margin-bottom: 0.75rem;
+    }
+
+    .patient-facts-heading h4 {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #475569;
+    }
+
+    .patient-facts-heading p {
+        margin-top: 0.22rem;
+        font-size: 0.74rem;
+        line-height: 1.1rem;
+        color: #64748b;
+    }
+
+    .patient-facts-grid {
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (min-width: 760px) {
+        .patient-facts-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .patient-facts-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    .patient-facts-grid-compact {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (min-width: 760px) {
+        .patient-facts-grid-compact {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .patient-fact-card {
+        position: relative;
+        min-width: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.85rem;
+        background: #ffffff;
+        padding: 0.72rem 0.82rem 0.78rem;
+        box-shadow: none;
+    }
+
+    .patient-fact-card-wide {
+        grid-column: 1 / -1;
+    }
+
+    .patient-fact-card::before {
+        content: "";
+        position: absolute;
+        inset-inline-start: 0.8rem;
+        top: 0.64rem;
+        width: 0.42rem;
+        height: 0.42rem;
+        border-radius: 9999px;
+        background: #cbd5e1;
+    }
+
+    .patient-fact-accent-blue::before { background: #2563eb; }
+    .patient-fact-accent-emerald::before { background: #059669; }
+    .patient-fact-accent-amber::before { background: #d97706; }
+    .patient-fact-accent-violet::before { background: #7c3aed; }
+    .patient-fact-accent-slate::before { background: #475569; }
+
+    .patient-fact-label {
+        display: block;
+        padding-inline-start: 0.8rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: #64748b;
+    }
+
+    .patient-fact-value {
+        margin-top: 0.32rem;
+        font-size: 0.92rem;
+        line-height: 1.28rem;
+        font-weight: 600;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    .patient-alert-count {
+        display: inline-flex;
+        min-width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #fff7ed;
+        color: #c2410c;
+        font-size: 0.78rem;
+        font-weight: 700;
+        border: 1px solid #fed7aa;
+        flex-shrink: 0;
+    }
+
+    .patient-alert-topline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .patient-alert-title {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #92400e;
+    }
+
+    .patient-alert-title i {
+        margin-top: 0.1rem;
+        width: 1rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .patient-alert-flag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #ffedd5;
+        color: #9a3412;
+        padding: 0.15rem 0.45rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .patient-alert-copy {
+        margin-top: 0.45rem;
+        font-size: 0.78rem;
+        line-height: 1.3rem;
+        color: #92400e;
+        white-space: pre-line;
+    }
+
+    .patient-medical-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .patient-medical-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .patient-medical-section + .patient-medical-section {
+        padding-top: 0.95rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .patient-note-panel {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.85rem;
+        background: #ffffff;
+        padding: 0.8rem 0.92rem;
+    }
+
+    .patient-note-panel-soft {
+        background: #f8fafc;
+    }
+
+    .patient-note-label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: #64748b;
     }
 
     .patient-section-header {
@@ -3030,7 +3351,7 @@ $heroInfoCapsules = [
 
     .patient-alert-grid {
         display: grid;
-        gap: 0.75rem;
+        gap: 0.8rem;
         grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 
@@ -3044,7 +3365,7 @@ $heroInfoCapsules = [
         border: 1px solid #f7d58b;
         background: linear-gradient(180deg, #fff8e6 0%, #fff4d8 100%);
         border-radius: 0.9rem;
-        padding: 0.8rem 0.95rem;
+        padding: 0.9rem 1rem;
     }
 
     .patient-view .bg-white.rounded-lg.border.border-gray-200.shadow-sm > .px-6.py-4.border-b.border-gray-200 {
