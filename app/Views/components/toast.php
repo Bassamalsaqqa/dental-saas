@@ -23,6 +23,7 @@
     }
 
     .toast {
+        --toast-enter-x: 1rem;
         display: flex;
         align-items: flex-start;
         gap: 0.75rem;
@@ -34,13 +35,13 @@
         background: #ffffff;
         box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.35);
         pointer-events: auto;
-        transform: translateY(-8px);
+        transform: translate3d(var(--toast-enter-x), -8px, 0);
         opacity: 0;
         transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
     .toast.show {
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
         opacity: 1;
     }
 
@@ -148,26 +149,31 @@
         background: rgba(148, 163, 184, 0.12);
     }
 
-    html[dir="rtl"] .toast,
-    body[dir="rtl"] .toast {
+    .toast-container[data-dir="rtl"] .toast {
+        --toast-enter-x: -1rem;
+        direction: rtl;
+        flex-direction: row-reverse;
         text-align: right;
     }
 
-    html[dir="rtl"] .toast-container,
-    body[dir="rtl"] .toast-container {
+    .toast-container[data-dir="rtl"] .toast-title,
+    .toast-container[data-dir="rtl"] .toast-message {
+        text-align: right;
+    }
+
+    .toast-container[data-dir="rtl"] {
         inset-inline-end: auto;
         inset-inline-start: 1rem;
     }
 
     @media (max-width: 640px) {
-        html[dir="rtl"] .toast-container,
-        body[dir="rtl"] .toast-container {
+        .toast-container[data-dir="rtl"] {
             inset-inline-start: 0.75rem;
         }
     }
 </style>
 
-<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+<div class="toast-container" id="toastContainer" data-dir="<?= service('request')->getLocale() === 'ar' ? 'rtl' : 'ltr' ?>" aria-live="polite" aria-atomic="false"></div>
 
 <script>
 (function() {
@@ -181,10 +187,174 @@
         processing: <?= json_encode(lang('UI.toastProcessingTitle')) ?>,
         deleting: <?= json_encode(lang('UI.toastProcessingDelete')) ?>,
         deleteConfirm: <?= json_encode(lang('UI.toastDeleteConfirm')) ?>,
+        signedIn: <?= json_encode(lang('UI.toastSignedIn')) ?>,
+        signedOut: <?= json_encode(lang('UI.toastSignedOut')) ?>,
+        actionCreated: <?= json_encode(lang('UI.toastActionCreated')) ?>,
+        actionUpdated: <?= json_encode(lang('UI.toastActionUpdated')) ?>,
+        actionDeleted: <?= json_encode(lang('UI.toastActionDeleted')) ?>,
+        actionCompleted: <?= json_encode(lang('UI.toastActionCompleted')) ?>,
+        actionCancelled: <?= json_encode(lang('UI.toastActionCancelled')) ?>,
+        actionScheduled: <?= json_encode(lang('UI.toastActionScheduled')) ?>,
+        actionSigned: <?= json_encode(lang('UI.toastActionSigned')) ?>,
+        actionStarted: <?= json_encode(lang('UI.toastActionStarted')) ?>,
+        actionExtended: <?= json_encode(lang('UI.toastActionExtended')) ?>,
+        actionSuspended: <?= json_encode(lang('UI.toastActionSuspended')) ?>,
+        actionReactivated: <?= json_encode(lang('UI.toastActionReactivated')) ?>,
+        actionTerminated: <?= json_encode(lang('UI.toastActionTerminated')) ?>,
+        actionMarkedPaid: <?= json_encode(lang('UI.toastActionMarkedPaid')) ?>,
+        failedCreate: <?= json_encode(lang('UI.toastActionFailedCreate')) ?>,
+        failedUpdate: <?= json_encode(lang('UI.toastActionFailedUpdate')) ?>,
+        failedDelete: <?= json_encode(lang('UI.toastActionFailedDelete')) ?>,
+        failedComplete: <?= json_encode(lang('UI.toastActionFailedComplete')) ?>,
+        failedCancel: <?= json_encode(lang('UI.toastActionFailedCancel')) ?>,
+        failedConfirm: <?= json_encode(lang('UI.toastActionFailedConfirm')) ?>,
+        failedLoad: <?= json_encode(lang('UI.toastActionFailedLoad')) ?>,
+        failedExport: <?= json_encode(lang('UI.toastActionFailedExport')) ?>,
+        failedAdd: <?= json_encode(lang('UI.toastActionFailedAdd')) ?>,
+        failedRemove: <?= json_encode(lang('UI.toastActionFailedRemove')) ?>,
+        failedGrant: <?= json_encode(lang('UI.toastActionFailedGrant')) ?>,
+        failedRevoke: <?= json_encode(lang('UI.toastActionFailedRevoke')) ?>,
+        clinicSelectRequired: <?= json_encode(lang('UI.toastClinicSelectRequired')) ?>,
+        patientNotFoundInClinic: <?= json_encode(lang('UI.toastPatientNotFoundInClinic')) ?>,
+        doctorUnavailable: <?= json_encode(lang('UI.toastDoctorUnavailable')) ?>,
+        appointmentsWorkingDaysOnly: <?= json_encode(lang('UI.toastAppointmentsWorkingDaysOnly')) ?>,
+        appointmentsWorkingHoursOnly: <?= json_encode(lang('UI.toastAppointmentsWorkingHoursOnly')) ?>,
+        followUpScheduled: <?= json_encode(lang('UI.toastFollowUpScheduled')) ?>,
+        entityAppointment: <?= json_encode(lang('UI.toastEntityAppointment')) ?>,
+        entityPatient: <?= json_encode(lang('UI.toastEntityPatient')) ?>,
+        entityExamination: <?= json_encode(lang('UI.toastEntityExamination')) ?>,
+        entityTreatment: <?= json_encode(lang('UI.toastEntityTreatment')) ?>,
+        entityFinance: <?= json_encode(lang('UI.toastEntityFinance')) ?>,
+        entityInventory: <?= json_encode(lang('UI.toastEntityInventory')) ?>,
+        entityUser: <?= json_encode(lang('UI.toastEntityUser')) ?>,
+        entityClinic: <?= json_encode(lang('UI.toastEntityClinic')) ?>,
+        entityContract: <?= json_encode(lang('UI.toastEntityContract')) ?>,
+        entityInvoice: <?= json_encode(lang('UI.toastEntityInvoice')) ?>,
+        entityRole: <?= json_encode(lang('UI.toastEntityRole')) ?>,
+        entityPermission: <?= json_encode(lang('UI.toastEntityPermission')) ?>,
+        entityPassword: <?= json_encode(lang('UI.toastEntityPassword')) ?>,
+        entityActivityLogs: <?= json_encode(lang('UI.toastEntityActivityLogs')) ?>,
     };
 
     function defaultTitleForType(type) {
         return toastI18n[type] || toastI18n.info;
+    }
+
+    function formatToastTemplate(template, replacements = {}) {
+        return Object.entries(replacements).reduce((result, [key, value]) => {
+            return result.replace(`{${key}}`, value);
+        }, template);
+    }
+
+    function toastEntityLabel(entity) {
+        const normalized = String(entity || '').trim().toLowerCase();
+        const labels = {
+            appointment: toastI18n.entityAppointment,
+            'follow-up appointment': toastI18n.entityAppointment,
+            patient: toastI18n.entityPatient,
+            examination: toastI18n.entityExamination,
+            treatment: toastI18n.entityTreatment,
+            'financial transaction': toastI18n.entityFinance,
+            'finance record': toastI18n.entityFinance,
+            item: toastI18n.entityInventory,
+            'inventory item': toastI18n.entityInventory,
+            user: toastI18n.entityUser,
+            clinic: toastI18n.entityClinic,
+            contract: toastI18n.entityContract,
+            invoice: toastI18n.entityInvoice,
+            role: toastI18n.entityRole,
+            permission: toastI18n.entityPermission,
+            password: toastI18n.entityPassword,
+            'activity logs': toastI18n.entityActivityLogs,
+            'activity log': toastI18n.entityActivityLogs,
+        };
+
+        return labels[normalized] || entity;
+    }
+
+    function normalizeToastText(message) {
+        const raw = String(message || '').trim();
+        if (!raw) {
+            return '';
+        }
+
+        const exactMap = {
+            'Welcome back! You have been logged in successfully.': toastI18n.signedIn,
+            'You have been logged out successfully.': toastI18n.signedOut,
+            'Please select a clinic.': toastI18n.clinicSelectRequired,
+            'Please select a clinic. ': toastI18n.clinicSelectRequired,
+            'Selected patient was not found in this clinic': toastI18n.patientNotFoundInClinic,
+            'The selected doctor is not available for this time slot': toastI18n.doctorUnavailable,
+            'Appointments cannot be scheduled on non-working days': toastI18n.appointmentsWorkingDaysOnly,
+            'Follow-up appointment scheduled successfully': toastI18n.followUpScheduled,
+            'Appointment created successfully': formatToastTemplate(toastI18n.actionCreated, { entity: toastI18n.entityAppointment }),
+            'Appointment updated successfully': formatToastTemplate(toastI18n.actionUpdated, { entity: toastI18n.entityAppointment }),
+            'Appointment deleted successfully': formatToastTemplate(toastI18n.actionDeleted, { entity: toastI18n.entityAppointment }),
+            'Appointment marked as completed successfully!': formatToastTemplate(toastI18n.actionCompleted, { entity: toastI18n.entityAppointment }),
+            'Patient added successfully': formatToastTemplate(toastI18n.actionCreated, { entity: toastI18n.entityPatient }),
+            'Patient added successfully!': formatToastTemplate(toastI18n.actionCreated, { entity: toastI18n.entityPatient }),
+            'Examination created successfully': formatToastTemplate(toastI18n.actionCreated, { entity: toastI18n.entityExamination }),
+            'Examination updated successfully': formatToastTemplate(toastI18n.actionUpdated, { entity: toastI18n.entityExamination }),
+        };
+
+        if (exactMap[raw]) {
+            return exactMap[raw];
+        }
+
+        const workingHoursMatch = raw.match(/^Appointments can only be scheduled during working hours \((.+)\)$/i);
+        if (workingHoursMatch) {
+            return formatToastTemplate(toastI18n.appointmentsWorkingHoursOnly, { hours: workingHoursMatch[1] });
+        }
+
+        const patterns = [
+            { regex: /^(.+?) has been created successfully!?\.?$/i, template: toastI18n.actionCreated },
+            { regex: /^(.+?) created successfully!?\.?$/i, template: toastI18n.actionCreated },
+            { regex: /^(.+?) has been updated successfully!?\.?$/i, template: toastI18n.actionUpdated },
+            { regex: /^(.+?) updated successfully!?\.?$/i, template: toastI18n.actionUpdated },
+            { regex: /^(.+?) has been deleted successfully!?\.?$/i, template: toastI18n.actionDeleted },
+            { regex: /^(.+?) deleted successfully!?\.?$/i, template: toastI18n.actionDeleted },
+            { regex: /^(.+?) marked as paid\.?$/i, template: toastI18n.actionMarkedPaid },
+            { regex: /^(.+?) marked as completed successfully!?\.?$/i, template: toastI18n.actionCompleted },
+            { regex: /^(.+?) completed successfully!?\.?$/i, template: toastI18n.actionCompleted },
+            { regex: /^(.+?) cancelled successfully!?\.?$/i, template: toastI18n.actionCancelled },
+            { regex: /^(.+?) signed successfully!?\.?$/i, template: toastI18n.actionSigned },
+            { regex: /^(.+?) suspended\.?$/i, template: toastI18n.actionSuspended },
+            { regex: /^(.+?) reactivated\.?$/i, template: toastI18n.actionReactivated },
+            { regex: /^(.+?) terminated\.?$/i, template: toastI18n.actionTerminated },
+            { regex: /^(.+?) extended\.?$/i, template: toastI18n.actionExtended },
+            { regex: /^(.+?) started\.?$/i, template: toastI18n.actionStarted },
+        ];
+
+        for (const pattern of patterns) {
+            const match = raw.match(pattern.regex);
+            if (match) {
+                return formatToastTemplate(pattern.template, { entity: toastEntityLabel(match[1]) });
+            }
+        }
+
+        const failures = [
+            { regex: /^Failed to create (.+?)(?:\.|:|$)/i, template: toastI18n.failedCreate },
+            { regex: /^Failed to update (.+?)(?:\.|:|$)/i, template: toastI18n.failedUpdate },
+            { regex: /^Failed to delete (.+?)(?:\.|:|$)/i, template: toastI18n.failedDelete },
+            { regex: /^Failed to complete (.+?)(?:\.|:|$)/i, template: toastI18n.failedComplete },
+            { regex: /^Failed to cancel (.+?)(?:\.|:|$)/i, template: toastI18n.failedCancel },
+            { regex: /^Failed to confirm (.+?)(?:\.|:|$)/i, template: toastI18n.failedConfirm },
+            { regex: /^Failed to load (.+?)(?:\.|:|$)/i, template: toastI18n.failedLoad },
+            { regex: /^Failed to export (.+?)(?:\.|:|$)/i, template: toastI18n.failedExport },
+            { regex: /^Failed to add (.+?)(?:\.|:|$)/i, template: toastI18n.failedAdd },
+            { regex: /^Failed to remove (.+?)(?:\.|:|$)/i, template: toastI18n.failedRemove },
+            { regex: /^Failed to grant (.+?)(?:\.|:|$)/i, template: toastI18n.failedGrant },
+            { regex: /^Failed to revoke (.+?)(?:\.|:|$)/i, template: toastI18n.failedRevoke },
+        ];
+
+        for (const failure of failures) {
+            const match = raw.match(failure.regex);
+            if (match) {
+                return formatToastTemplate(failure.template, { entity: toastEntityLabel(match[1]) });
+            }
+        }
+
+        return raw;
     }
 
     function iconForType(type) {
@@ -207,6 +377,15 @@
         }
 
         const normalizedType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+        let resolvedTitle = title;
+        let resolvedMessage = message;
+
+        if ((resolvedMessage === undefined || resolvedMessage === null || resolvedMessage === '') && resolvedTitle) {
+            resolvedMessage = resolvedTitle;
+            resolvedTitle = '';
+        }
+
+        const normalizedMessage = normalizeToastText(resolvedMessage);
         const toast = document.createElement('div');
         toast.className = `toast ${normalizedType}`;
         toast.setAttribute('role', normalizedType === 'error' || normalizedType === 'warning' ? 'alert' : 'status');
@@ -222,11 +401,11 @@
 
         const titleDiv = document.createElement('div');
         titleDiv.className = 'toast-title';
-        titleDiv.textContent = title || defaultTitleForType(normalizedType);
+        titleDiv.textContent = resolvedTitle || defaultTitleForType(normalizedType);
 
         const messageDiv = document.createElement('div');
         messageDiv.className = 'toast-message';
-        messageDiv.textContent = message || '';
+        messageDiv.textContent = normalizedMessage;
 
         contentDiv.appendChild(titleDiv);
         contentDiv.appendChild(messageDiv);
