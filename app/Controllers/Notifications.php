@@ -15,14 +15,19 @@ class Notifications extends BaseController
     }
     public function index()
     {
-        // Check if user is logged in
-        if (!session()->get('user_id')) {
+        $userId = (int) session()->get('user_id');
+        $clinicId = (int) session()->get('active_clinic_id');
+
+        if ($userId <= 0) {
             return redirect()->to('/auth/login');
         }
 
+        $notifications = $this->getNotifications();
         $data = [
-            'title' => 'Notifications',
-            'notifications' => $this->getNotifications(),
+            'title' => lang('UI.notifications'),
+            'notifications' => $notifications,
+            'unread_count' => count(array_filter($notifications, static fn (array $notification): bool => empty($notification['is_read']))),
+            'active_clinic_id' => $clinicId,
         ];
 
         return $this->view('notifications/index', $data);
@@ -30,88 +35,84 @@ class Notifications extends BaseController
 
     public function api()
     {
-        // Check if user is logged in
-        if (!session()->get('user_id')) {
+        $userId = (int) session()->get('user_id');
+        if ($userId <= 0) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Not authenticated'
-            ]);
+                'message' => lang('UI.notificationAuthRequired'),
+                'csrf_token' => csrf_hash(),
+            ])->setStatusCode(401);
         }
 
         $notifications = $this->getNotifications();
-        $unreadCount = count(array_filter($notifications, function($notification) {
-            return !$notification['is_read'];
-        }));
-
-        // Debug logging
-        log_message('debug', "Total notifications: " . count($notifications));
-        log_message('debug', "Unread count: " . $unreadCount);
-        log_message('debug', "Notifications data: " . json_encode($notifications));
+        $unreadCount = count(array_filter($notifications, static fn (array $notification): bool => empty($notification['is_read'])));
 
         return $this->response->setJSON([
             'success' => true,
             'count' => $unreadCount,
-            'notifications' => $notifications
+            'notifications' => $notifications,
+            'csrf_token' => csrf_hash(),
         ]);
     }
 
     public function markAsRead($id = null)
     {
-        // Check if user is logged in
-        if (!session()->get('user_id')) {
+        $userId = (int) session()->get('user_id');
+        if ($userId <= 0) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Not authenticated'
-            ]);
+                'message' => lang('UI.notificationAuthRequired'),
+                'csrf_token' => csrf_hash(),
+            ])->setStatusCode(401);
         }
 
         if ($id) {
-            // Mark specific notification as read
             $this->markNotificationAsRead($id);
         } else {
-            // Mark all notifications as read
             $this->markAllNotificationsAsRead();
         }
 
         return $this->response->setJSON([
             'success' => true,
-            'message' => 'Notification(s) marked as read'
+            'message' => lang('UI.notificationMarkedRead'),
+            'csrf_token' => csrf_hash(),
         ]);
     }
 
     public function delete($id)
     {
-        // Check if user is logged in
-        if (!session()->get('user_id')) {
+        $userId = (int) session()->get('user_id');
+        if ($userId <= 0) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Not authenticated'
-            ]);
+                'message' => lang('UI.notificationAuthRequired'),
+                'csrf_token' => csrf_hash(),
+            ])->setStatusCode(401);
         }
 
-        // In a real application, you would delete from database
-        // For now, just return success
         return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Notification deleted successfully'
-        ]);
+            'success' => false,
+            'message' => lang('UI.notificationDeleteUnsupported'),
+            'csrf_token' => csrf_hash(),
+        ])->setStatusCode(405);
     }
 
     private function getNotifications()
     {
         try {
-            // Get recent activities from the activity log
-            $activities = $this->activityLogModel->getRecentActivities(20);
-            
-            // If no activities found, return empty array (no sample notifications)
-            // This prevents showing fake notifications on fresh installations
+            $clinicId = (int) session()->get('active_clinic_id');
+            $userId = (int) session()->get('user_id');
+            if ($clinicId <= 0 || $userId <= 0) {
+                return [];
+            }
+
+            $activities = $this->activityLogModel->getRecentActivities(20, null, $clinicId);
             if (empty($activities)) {
                 return [];
             }
             
             return $activities;
         } catch (\Exception $e) {
-            // Log the error and return empty array as fallback
             log_message('error', 'Failed to fetch activity logs: ' . $e->getMessage());
             return [];
         }
@@ -119,24 +120,24 @@ class Notifications extends BaseController
 
     private function markNotificationAsRead($id)
     {
-        // In a real application, you would update the database
-        // For now, store in session
+        $notificationId = (int) $id;
+        if ($notificationId <= 0) {
+            return false;
+        }
+
         $readNotifications = session()->get('read_notifications') ?? [];
-        if (!in_array($id, $readNotifications)) {
-            $readNotifications[] = $id;
+        if (!in_array($notificationId, $readNotifications, true)) {
+            $readNotifications[] = $notificationId;
             session()->set('read_notifications', $readNotifications);
         }
+
         return true;
     }
 
     private function markAllNotificationsAsRead()
     {
-        // Set the current timestamp as the last read time
-        $currentTime = time();
-        session()->set('last_notification_read_time', $currentTime);
-        
-        log_message('debug', "Marked all notifications as read at: " . date('Y-m-d H:i:s', $currentTime));
-        
+        session()->set('last_notification_read_time', time());
+        session()->remove('read_notifications');
         return true;
     }
 }

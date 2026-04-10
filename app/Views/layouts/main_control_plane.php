@@ -618,15 +618,15 @@
                 </div>
 
                 <?php if (session()->getFlashdata('success')): ?>
-                    <div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-emerald-800">
+                    <noscript><div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-emerald-800" role="status" aria-live="polite">
                         <?= session()->getFlashdata('success') ?>
-                    </div>
+                    </div></noscript>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('error')): ?>
-                    <div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-rose-800">
+                    <noscript><div class="relative mb-6 glass-card rounded-2xl px-4 py-3 text-rose-800" role="alert" aria-live="assertive">
                         <?= session()->getFlashdata('error') ?>
-                    </div>
+                    </div></noscript>
                 <?php endif; ?>
 
                 <div class="relative cp-content">

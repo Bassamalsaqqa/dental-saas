@@ -22,12 +22,12 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New patient registered",
-            'update' => "Patient information updated",
-            'delete' => "Patient record deleted"
+            'create' => lang('UI.notificationMessagePatientCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessagePatientUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'delete' => lang('UI.notificationMessagePatientDelete', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Patient {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -47,13 +47,13 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New appointment scheduled",
-            'update' => "Appointment updated",
-            'cancel' => "Appointment cancelled",
-            'reschedule' => "Appointment rescheduled"
+            'create' => lang('UI.notificationMessageAppointmentCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageAppointmentUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'cancel' => lang('UI.notificationMessageAppointmentCancel', ['name' => lang('UI.notificationUnknownUser')]),
+            'reschedule' => lang('UI.notificationMessageAppointmentUpdate', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Appointment {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -73,12 +73,12 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New examination conducted",
-            'update' => "Examination updated",
-            'complete' => "Examination completed"
+            'create' => lang('UI.notificationMessageExaminationCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageExaminationUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'complete' => lang('UI.notificationMessageExaminationUpdate', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Examination {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -98,13 +98,13 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New treatment started",
-            'update' => "Treatment updated",
-            'complete' => "Treatment completed",
-            'cancel' => "Treatment cancelled"
+            'create' => lang('UI.notificationMessageTreatmentCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageTreatmentUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'complete' => lang('UI.notificationMessageTreatmentComplete', ['name' => lang('UI.notificationUnknownUser')]),
+            'cancel' => lang('UI.notificationMessageTreatmentUpdate', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Treatment {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -124,14 +124,14 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New inventory item added",
-            'update' => "Inventory item updated",
-            'delete' => "Inventory item deleted",
-            'low_stock' => "Low stock alert triggered",
-            'usage' => "Inventory items used in treatment"
+            'create' => lang('UI.notificationMessageInventoryCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageInventoryUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'delete' => lang('UI.notificationMessageInventoryUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'low_stock' => lang('UI.notificationMessageInventoryLowStock'),
+            'usage' => lang('UI.notificationMessageInventoryUpdate', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Inventory {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -151,12 +151,12 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New payment received",
-            'update' => "Payment updated",
-            'refund' => "Payment refunded"
+            'create' => lang('UI.notificationMessageFinanceCreate', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageFinanceUpdate', ['name' => lang('UI.notificationUnknownUser')]),
+            'refund' => lang('UI.notificationMessageFinanceUpdate', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Finance {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -176,13 +176,13 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New prescription created",
-            'update' => "Prescription updated",
-            'delete' => "Prescription deleted",
-            'expire' => "Prescription expired"
+            'create' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'delete' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'expire' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "Prescription {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,
@@ -202,14 +202,14 @@ class ActivityLogger
         if (!$userId) return false;
 
         $defaultDescriptions = [
-            'create' => "New user created",
-            'update' => "User information updated",
-            'delete' => "User account deleted",
-            'login' => "User logged in",
-            'logout' => "User logged out"
+            'create' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'update' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'delete' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'login' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
+            'logout' => lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]),
         ];
 
-        $description = $description ?: ($defaultDescriptions[$action] ?? "User {$action}");
+        $description = $description ?: ($defaultDescriptions[$action] ?? lang('UI.notificationMessageSystemActivity', ['name' => lang('UI.notificationUnknownUser')]));
 
         return $this->activityLogModel->logActivity(
             $userId,

@@ -76,7 +76,7 @@ $returnToContextEncoded = urlencode($returnToContext);
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <!-- Success Message -->
             <?php if (session()->getFlashdata('success')): ?> 
-                <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm">
+                <noscript><div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm" role="status" aria-live="polite">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <i class="fas fa-check-circle text-green-400 text-xl"></i>
@@ -88,12 +88,12 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                     </div>
-                </div>
+                </div></noscript>
             <?php endif; ?>
 
             <!-- Error Flash Message -->
             <?php if (session()->getFlashdata('error')): ?>
-                <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+                <noscript><div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm" role="alert" aria-live="assertive">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
@@ -105,7 +105,7 @@ $returnToContextEncoded = urlencode($returnToContext);
                             </div>
                         </div>
                     </div>
-                </div>
+                </div></noscript>
             <?php endif; ?>
         </div>
 

@@ -871,9 +871,9 @@
                         
                         <!-- Notifications -->
                         <div class="relative group">
-                            <button class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-50 hover:to-amber-100 border border-amber-200 hover:border-amber-300 text-amber-600 hover:text-amber-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-amber-500/10" onclick="toggleNotifications()">
+                            <button id="notifications-trigger" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-50 hover:to-amber-100 border border-amber-200 hover:border-amber-300 text-amber-600 hover:text-amber-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-amber-500/10" type="button" onclick="toggleNotifications()" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-dropdown" aria-label="<?= esc(lang('UI.notificationOpenCenter')) ?>">
                                 <i class="fas fa-bell text-sm"></i>
-                                <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shadow-sm hidden text-[10px]">0</span>
+                                <span id="notification-count" class="absolute -top-1 <?= !empty($is_rtl) ? '-left-1' : '-right-1' ?> bg-red-500 text-white text-xs rounded-full min-w-[1rem] h-4 px-1 inline-flex items-center justify-center font-bold shadow-sm hidden text-[10px]">0</span>
                             </button>
                             <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                                 <?= lang('UI.notifications') ?>
@@ -885,7 +885,7 @@
                     
                     <!-- User Profile Dropdown -->
                     <div class="relative group">
-                        <button onclick="toggleUserMenu()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-slate-500/10">
+                        <button id="user-menu-trigger" type="button" onclick="toggleUserMenu()" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-slate-500/10" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu">
                             <i class="fas fa-user text-sm"></i>
                         </button>
                         <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
@@ -979,15 +979,15 @@
         <main class="flex-1 bg-gray-50 p-6">
             <!-- Flash Messages -->
             <?php if (session()->getFlashdata('message')): ?>
-                <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <noscript><div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg" role="status" aria-live="polite">
                     <?= session()->getFlashdata('message') ?>
-                </div>
+                </div></noscript>
             <?php endif; ?>
             
             <?php if (session()->getFlashdata('error')): ?>
-                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <noscript><div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert" aria-live="assertive">
                     <?= session()->getFlashdata('error') ?>
-                </div>
+                </div></noscript>
             <?php endif; ?>
 
             <!-- Page Content -->
@@ -996,18 +996,19 @@
     </div>
 
     <!-- Notifications Dropdown - Outside main content to avoid overflow issues -->
-    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed top-20 w-80 max-w-[calc(100vw-3rem)] bg-white rounded-xl shadow-2xl border border-gray-200 hidden" style="z-index: 2147483647 !important; <?= !empty($is_rtl) ? 'left: 1.5rem; right: auto;' : 'right: 1.5rem; left: auto;' ?>">
-        <div class="p-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-900"><?= lang('UI.notifications') ?></h3>
-                <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800"><?= lang('UI.markAllAsRead') ?></button>
+    <div id="notifications-dropdown" dir="<?= !empty($is_rtl) ? 'rtl' : 'ltr' ?>" class="fixed hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/12 ring-1 ring-slate-900/5" role="dialog" aria-modal="false" aria-labelledby="notifications-title" style="z-index: 2147483647 !important; width: min(18rem, calc(100vw - 1rem)); max-width: calc(100vw - 1rem); height: min(23rem, calc(100vh - 5rem));">
+        <div class="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-4">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <h3 id="notifications-title" class="text-sm font-bold text-slate-900"><?= lang('UI.notificationCenterTitle') ?></h3>
+                    <p id="notifications-summary" class="mt-1 text-xs text-slate-500"><?= lang('UI.notificationCenterDesc') ?></p>
+                </div>
+                <button type="button" onclick="markAllAsRead()" class="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"><?= lang('UI.markAllAsRead') ?></button>
             </div>
         </div>
-        <div id="notifications-list" class="max-h-64 overflow-y-auto">
-            <!-- Notifications will be loaded here -->
-        </div>
-        <div class="p-4 border-t border-gray-200">
-            <a href="<?= base_url('activity-log') ?>" class="text-sm text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
+        <div id="notifications-list" class="min-h-0 flex-1 overflow-y-auto px-2 py-2.5" role="list" style="overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"></div>
+        <div class="shrink-0 border-t border-slate-200 bg-slate-50 px-4 py-4">
+            <a href="<?= base_url('notifications') ?>" class="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800"><?= lang('UI.viewAllNotifications') ?></a>
         </div>
     </div>
 </div>
@@ -1267,492 +1268,500 @@
 
 
     const notificationsApiUrl = '<?= base_url('api/notifications') ?>';
+    const notificationsListUrl = '<?= base_url('notifications') ?>';
+    const notificationsMarkReadUrl = '<?= base_url('notifications/mark-read') ?>';
     const notificationsUi = {
         isRtl: document.documentElement.dir === 'rtl',
-        empty: <?= json_encode(!empty($is_rtl) ? 'لا توجد إشعارات جديدة' : 'No new notifications') ?>,
-        justNow: <?= json_encode(!empty($is_rtl) ? 'الآن' : 'Just now') ?>,
-        minuteAgo: <?= json_encode(!empty($is_rtl) ? 'منذ دقيقة' : '1 minute ago') ?>,
-        minutesAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} دقائق' : '{count} minutes ago') ?>,
-        hourAgo: <?= json_encode(!empty($is_rtl) ? 'منذ ساعة' : '1 hour ago') ?>,
-        hoursAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} ساعات' : '{count} hours ago') ?>,
-        dayAgo: <?= json_encode(!empty($is_rtl) ? 'منذ يوم' : '1 day ago') ?>,
-        daysAgo: <?= json_encode(!empty($is_rtl) ? 'منذ {count} أيام' : '{count} days ago') ?>,
-        by: <?= json_encode(!empty($is_rtl) ? 'بواسطة' : 'by') ?>
+        empty: <?= json_encode(lang('UI.notificationEmpty')) ?>,
+        emptyDesc: <?= json_encode(lang('UI.notificationEmptyDesc')) ?>,
+        loadFailed: <?= json_encode(lang('UI.notificationLoadFailed')) ?>,
+        retry: <?= json_encode(lang('UI.notificationRetry')) ?>,
+        by: <?= json_encode(lang('UI.notificationByUser')) ?>,
+        unreadCount: <?= json_encode(lang('UI.notificationUnreadCount')) ?>,
+        allCaughtUp: <?= json_encode(lang('UI.notificationAllCaughtUp')) ?>,
+        justNow: <?= json_encode(lang('UI.notificationJustNow')) ?>,
+        minuteAgo: <?= json_encode(lang('UI.notificationMinuteAgo')) ?>,
+        minutesAgo: <?= json_encode(lang('UI.notificationMinutesAgo')) ?>,
+        hourAgo: <?= json_encode(lang('UI.notificationHourAgo')) ?>,
+        hoursAgo: <?= json_encode(lang('UI.notificationHoursAgo')) ?>,
+        dayAgo: <?= json_encode(lang('UI.notificationDayAgo')) ?>,
+        daysAgo: <?= json_encode(lang('UI.notificationDaysAgo')) ?>,
+    };
+    const notificationsState = {
+        items: [],
+        count: 0,
+        loaded: false,
+        loading: false,
     };
 
-    // Notifications toggle
-    function toggleNotifications() {
-        const dropdown = document.getElementById('notifications-dropdown');
-        const isHidden = dropdown.classList.contains('hidden');
-        
-        // Close all other dropdowns
-        document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
-            if (dropdown.id !== 'notifications-dropdown') {
-                dropdown.classList.add('hidden');
-            }
-        });
-        
-        // Toggle notifications dropdown
-        dropdown.classList.toggle('hidden');
-        
-        // Load notifications if opening
-        if (isHidden) {
-            console.log('Opening notifications dropdown...');
-            loadNotifications();
-        } else {
-            // When closing notifications dropdown, mark all as read and hide count
-            console.log('Closing notifications dropdown, marking all as read...');
-            // Hide count immediately for better UX
-            hideNotificationCount();
-            markAllAsRead();
+    function setNotificationTriggerExpanded(expanded) {
+        const trigger = document.getElementById('notifications-trigger');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         }
     }
 
-    // User profile toggle
-    function toggleUserProfile() {
-        const dropdown = document.getElementById('user-profile-dropdown');
-        const isHidden = dropdown.classList.contains('hidden');
-        
-        // Close all other dropdowns
-        document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
-            if (dropdown.id !== 'user-profile-dropdown') {
-                dropdown.classList.add('hidden');
-            }
-        });
-        
-        // Toggle user profile dropdown
-        dropdown.classList.toggle('hidden');
+    function positionNotificationsDropdown() {
+        const dropdown = document.getElementById('notifications-dropdown');
+        const trigger = document.getElementById('notifications-trigger');
+        if (!dropdown || !trigger) {
+            return;
+        }
+
+        const viewportPadding = 8;
+        const triggerRect = trigger.getBoundingClientRect();
+        const preferredWidth = Math.min(288, window.innerWidth - (viewportPadding * 2));
+        const availableHeight = Math.max(240, window.innerHeight - triggerRect.bottom - 16);
+        const dropdownHeight = Math.min(368, availableHeight);
+
+        dropdown.style.width = `${preferredWidth}px`;
+        dropdown.style.maxWidth = `calc(100vw - ${viewportPadding * 2}px)`;
+        dropdown.style.height = `${dropdownHeight}px`;
+        dropdown.style.maxHeight = `${dropdownHeight}px`;
+        dropdown.style.top = `${Math.max(triggerRect.bottom + 8, viewportPadding)}px`;
+
+        const isRtl = document.documentElement.dir === 'rtl';
+        const unclampedLeft = isRtl
+            ? triggerRect.left
+            : triggerRect.right - preferredWidth;
+        const left = Math.min(
+            Math.max(unclampedLeft, viewportPadding),
+            window.innerWidth - preferredWidth - viewportPadding
+        );
+
+        dropdown.style.left = `${left}px`;
+        dropdown.style.right = 'auto';
     }
 
-    // Load notifications
-    function loadNotifications() {
-        fetch(notificationsApiUrl)
-            .then(response => {
+    function setUserMenuExpanded(expanded) {
+        const trigger = document.getElementById('user-menu-trigger');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        }
+    }
+
+    function closeHeaderMenus(exceptId = null) {
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+        const userMenu = document.getElementById('userMenu');
+        const clinicMenu = document.getElementById('clinicSwitcherMenu');
+
+        if (notificationsDropdown && exceptId !== 'notifications-dropdown') {
+            notificationsDropdown.classList.add('hidden');
+            notificationsDropdown.classList.remove('flex');
+            setNotificationTriggerExpanded(false);
+        }
+
+        if (userMenu && exceptId !== 'userMenu') {
+            userMenu.classList.add('hidden');
+            setUserMenuExpanded(false);
+        }
+
+        if (clinicMenu && exceptId !== 'clinicSwitcherMenu') {
+            clinicMenu.classList.add('hidden');
+        }
+    }
+
+    function toggleNotifications() {
+        const dropdown = document.getElementById('notifications-dropdown');
+        const willShow = dropdown.classList.contains('hidden');
+        closeHeaderMenus(willShow ? 'notifications-dropdown' : null);
+
+        dropdown.classList.toggle('hidden', !willShow);
+        dropdown.classList.toggle('flex', willShow);
+        setNotificationTriggerExpanded(willShow);
+
+        if (willShow) {
+            positionNotificationsDropdown();
+            loadNotifications({ showList: true });
+        }
+    }
+
+    function toggleUserProfile() {
+        toggleUserMenu();
+    }
+
+    function loadNotifications({ showList = false } = {}) {
+        if (notificationsState.loading) {
+            return Promise.resolve();
+        }
+
+        notificationsState.loading = true;
+
+        return fetch(notificationsApiUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then((response) => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
                 }
+
                 return response.json();
             })
-            .then(data => {
-                console.log('Notifications API response:', data);
-                
-                // Handle CSRF token refresh if provided in response
+            .then((data) => {
                 if (data.csrf_token && window.refreshCsrfToken) {
                     window.refreshCsrfToken(data.csrf_token);
                 }
 
-                if (data.success) {
-                    console.log('Updating notification count to:', data.count);
-                    updateNotificationCount(data.count);
-                    displayNotifications(data.notifications);
+                if (!data.success) {
+                    throw new Error(data.message || notificationsUi.loadFailed);
+                }
+
+                notificationsState.items = Array.isArray(data.notifications) ? data.notifications : [];
+                notificationsState.count = Number(data.count || 0);
+                notificationsState.loaded = true;
+                updateNotificationCount(notificationsState.count);
+
+                if (showList || !document.getElementById('notifications-dropdown').classList.contains('hidden')) {
+                    displayNotifications(notificationsState.items);
                 } else {
-                    console.error('API returned error:', data.message);
-                    showSampleNotifications();
+                    renderNotificationSummary();
                 }
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error('Error loading notifications:', error);
-                // Show sample notifications for demo when API fails
-                showSampleNotifications();
+                notificationsState.loaded = false;
+                updateNotificationCount(0);
+
+                if (showList || !document.getElementById('notifications-dropdown').classList.contains('hidden')) {
+                    displayNotificationError();
+                } else {
+                    renderNotificationSummary();
+                }
+            })
+            .finally(() => {
+                notificationsState.loading = false;
             });
     }
 
-    // Update notification count
     function updateNotificationCount(count) {
         const countElement = document.getElementById('notification-count');
-        
-        // Check if notifications were marked as read locally
-        const notificationsRead = localStorage.getItem('notifications_read');
-        const lastReadTime = localStorage.getItem('last_notification_read_time');
-        
-        if (notificationsRead === 'true' && lastReadTime) {
-            // Check if there are new activities since last read
-            const currentTime = new Date().getTime();
-            const timeDiff = currentTime - parseInt(lastReadTime);
-            
-            // If less than 5 minutes have passed since marking as read, hide count
-            if (timeDiff < 5 * 60 * 1000) {
-                console.log('Hiding count - notifications recently read');
-                countElement.classList.add('hidden');
-                return;
-            } else {
-                // Clear the read status after timeout
-                console.log('Clearing read status - timeout reached');
-                localStorage.removeItem('notifications_read');
-                localStorage.removeItem('last_notification_read_time');
-            }
-        }
-        
-        if (count > 0) {
-            console.log('Showing notification count:', count);
-            countElement.textContent = count;
+        const unreadCount = Number(count || 0);
+
+        if (unreadCount > 0) {
+            countElement.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
             countElement.classList.remove('hidden');
         } else {
-            console.log('Hiding notification count - no unread notifications');
             countElement.classList.add('hidden');
+            countElement.textContent = '0';
         }
+
+        renderNotificationSummary();
     }
 
-    // Hide notification count
-    function hideNotificationCount() {
-        const countElement = document.getElementById('notification-count');
-        console.log('Hiding notification count...', countElement);
-        countElement.classList.add('hidden');
-        
-        // Store in localStorage that notifications were read
-        localStorage.setItem('notifications_read', 'true');
-        localStorage.setItem('last_notification_read_time', new Date().getTime().toString());
+    function renderNotificationSummary() {
+        const summary = document.getElementById('notifications-summary');
+        if (!summary) {
+            return;
+        }
+
+        if (!notificationsState.loaded) {
+            summary.textContent = notificationsUi.loadFailed;
+            return;
+        }
+
+        summary.textContent = notificationsState.count > 0
+            ? notificationsUi.unreadCount.replace('{count}', notificationsState.count)
+            : notificationsUi.allCaughtUp;
     }
 
-    // Display notifications
     function displayNotifications(notifications) {
         const listElement = document.getElementById('notifications-list');
-        
-        // Clear existing content safely
         listElement.textContent = '';
-        
-        if (notifications.length === 0) {
+
+        if (!notifications.length) {
             const emptyState = document.createElement('div');
-            emptyState.className = 'p-4 text-center text-gray-500';
-            
+            emptyState.className = 'px-4 py-8 text-center';
+
+            const iconWrap = document.createElement('div');
+            iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400';
+
             const icon = document.createElement('i');
-            icon.className = 'fas fa-bell-slash text-2xl mb-2';
-            
-            const message = document.createElement('p');
-            message.textContent = notificationsUi.empty;
-            
-            emptyState.appendChild(icon);
-            emptyState.appendChild(message);
+            icon.className = 'fas fa-bell-slash text-lg';
+            iconWrap.appendChild(icon);
+
+            const title = document.createElement('p');
+            title.className = 'mt-4 text-sm font-semibold text-slate-900';
+            title.textContent = notificationsUi.empty;
+
+            const description = document.createElement('p');
+            description.className = 'mt-1 text-sm text-slate-500';
+            description.textContent = notificationsUi.emptyDesc;
+
+            emptyState.appendChild(iconWrap);
+            emptyState.appendChild(title);
+            emptyState.appendChild(description);
             listElement.appendChild(emptyState);
             return;
         }
 
         const fragment = document.createDocumentFragment();
-        
-        notifications.forEach(notification => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer';
-            itemDiv.onclick = function() {
-                navigateToEntityFromNotification(notification.entity_type || 'system', notification.entity_id || 'null');
-                return false;
+
+        notifications.forEach((notification) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'block w-full rounded-xl border border-slate-100 px-3.5 py-3 text-start transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none';
+            item.setAttribute('role', 'listitem');
+            item.onclick = async function () {
+                if (!notification.is_read) {
+                    await markNotificationAsRead(notification.id, { silent: true });
+                }
+
+                navigateToNotificationTarget(notification);
             };
-            
-            const flexDiv = document.createElement('div');
-            flexDiv.className = notificationsUi.isRtl
-                ? 'flex flex-row-reverse items-start space-x-3 space-x-reverse'
-                : 'flex items-start space-x-3';
-            
-            // Icon container
-            const iconContainer = document.createElement('div');
-            iconContainer.className = 'flex-shrink-0';
-            
-            const iconBg = document.createElement('div');
-            iconBg.className = `w-8 h-8 ${getNotificationIconBgClass(notification.color)} rounded-full flex items-center justify-center`;
-            
+
+            const row = document.createElement('div');
+            row.className = `flex items-start gap-3 ${notificationsUi.isRtl ? 'text-right' : 'text-left'}`;
+
+            const iconWrap = document.createElement('div');
+            iconWrap.className = `mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${getNotificationIconBgClass(notification.color)}`;
+
             const icon = document.createElement('i');
             icon.className = `${notification.icon} ${getNotificationIconClass(notification.color)} text-sm`;
-            
-            iconBg.appendChild(icon);
-            iconContainer.appendChild(iconBg);
-            
-            // Content container
-            const contentDiv = document.createElement('div');
-            contentDiv.className = `flex-1 min-w-0 ${notificationsUi.isRtl ? 'text-right' : ''}`;
-            
+            iconWrap.appendChild(icon);
+
+            const content = document.createElement('div');
+            content.className = 'min-w-0 flex-1';
+
+            const header = document.createElement('div');
+            header.className = 'flex items-start justify-between gap-3';
+
+            const textWrap = document.createElement('div');
+            textWrap.className = 'min-w-0 flex-1';
+
             const title = document.createElement('p');
-            title.className = 'text-sm font-medium text-gray-900';
-            title.textContent = notification.title;
-            
+            title.className = 'text-[13px] font-semibold leading-5 text-slate-900';
+            title.textContent = notification.title || '';
+
             const message = document.createElement('p');
-            message.className = 'text-sm text-gray-500';
-            message.textContent = notification.message;
-            
-            const metaDiv = document.createElement('div');
-            metaDiv.className = 'flex items-center justify-between mt-1';
-            
-            const time = document.createElement('p');
-            time.className = 'text-xs text-gray-400';
-            time.textContent = formatTime(notification.created_at);
-            metaDiv.appendChild(time);
-            
-            if (notification.user_name) {
-                const user = document.createElement('p');
-                user.className = 'text-xs text-gray-500';
-                user.textContent = `${notificationsUi.by} ${notification.user_name}`;
-                metaDiv.appendChild(user);
-            }
-            
-            contentDiv.appendChild(title);
-            contentDiv.appendChild(message);
-            contentDiv.appendChild(metaDiv);
-            
-            flexDiv.appendChild(iconContainer);
-            flexDiv.appendChild(contentDiv);
-            
-            // Unread indicator
+            message.className = 'mt-1 line-clamp-2 text-[13px] leading-5 text-slate-600';
+            message.textContent = notification.message || '';
+
+            textWrap.appendChild(title);
+            textWrap.appendChild(message);
+            header.appendChild(textWrap);
+
             if (!notification.is_read) {
-                const unreadDot = document.createElement('div');
-                unreadDot.className = 'w-2 h-2 bg-blue-500 rounded-full';
-                flexDiv.appendChild(unreadDot);
+                const unread = document.createElement('span');
+                unread.className = 'mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500';
+                unread.setAttribute('aria-hidden', 'true');
+                header.appendChild(unread);
             }
-            
-            itemDiv.appendChild(flexDiv);
-            fragment.appendChild(itemDiv);
+
+            const meta = document.createElement('div');
+            meta.className = `mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 ${notificationsUi.isRtl ? 'justify-start' : ''}`;
+
+            const time = document.createElement('span');
+            time.textContent = formatTime(notification.created_at);
+            meta.appendChild(time);
+
+            if (notification.user_name) {
+                const user = document.createElement('span');
+                user.textContent = notificationsUi.by.replace('{name}', notification.user_name);
+                meta.appendChild(user);
+            }
+
+            if (notification.type_label) {
+                const badge = document.createElement('span');
+                badge.className = 'inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600';
+                badge.textContent = notification.type_label;
+                meta.appendChild(badge);
+            }
+
+            content.appendChild(header);
+            content.appendChild(meta);
+
+            row.appendChild(iconWrap);
+            row.appendChild(content);
+            item.appendChild(row);
+            fragment.appendChild(item);
         });
-        
+
         listElement.appendChild(fragment);
+
+        const listScroller = document.getElementById('notifications-list');
+        if (listScroller) {
+            listScroller.scrollTop = 0;
+        }
     }
 
-    // Clear notification read status (for testing)
-    function clearNotificationReadStatus() {
-        localStorage.removeItem('notifications_read');
-        localStorage.removeItem('last_notification_read_time');
-        console.log('Notification read status cleared');
-        // Reload notifications to show count
-        loadNotifications();
+    function displayNotificationError() {
+        const listElement = document.getElementById('notifications-list');
+        listElement.textContent = '';
+
+        const state = document.createElement('div');
+        state.className = 'px-4 py-8 text-center';
+
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-bell-slash text-lg';
+        iconWrap.appendChild(icon);
+
+        const title = document.createElement('p');
+        title.className = 'mt-4 text-sm font-semibold text-slate-900';
+        title.textContent = notificationsUi.loadFailed;
+
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'mt-4 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50';
+        retry.textContent = notificationsUi.retry;
+        retry.onclick = function () {
+            loadNotifications({ showList: true });
+        };
+
+        state.appendChild(iconWrap);
+        state.appendChild(title);
+        state.appendChild(retry);
+        listElement.appendChild(state);
     }
 
-    // Test notification count (for debugging)
-    function testNotificationCount() {
-        console.log('Testing notification count...');
-        console.log('localStorage notifications_read:', localStorage.getItem('notifications_read'));
-        console.log('localStorage last_notification_read_time:', localStorage.getItem('last_notification_read_time'));
-        
-        // Force show count
-        updateNotificationCount(5);
-    }
-
-    // Show sample notifications for demo
-    function showSampleNotifications() {
-        console.log('Showing sample notifications...');
-        const sampleNotifications = [
-            {
-                id: 1,
-                title: 'New Patient Registered',
-                message: 'John Doe has been registered successfully',
-                type: 'patient',
-                entity_type: 'patient',
-                entity_id: 1,
-                is_read: false,
-                created_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
-                icon: 'fas fa-user-plus',
-                color: 'green',
-                user_name: 'Dr. Smith'
-            },
-            {
-                id: 2,
-                title: 'New Appointment Scheduled',
-                message: 'Appointment scheduled for Sarah Wilson at 2:00 PM',
-                type: 'appointment',
-                entity_type: 'appointment',
-                entity_id: 2,
-                is_read: false,
-                created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
-                icon: 'fas fa-calendar-plus',
-                color: 'blue',
-                user_name: 'Dr. Smith'
-            },
-            {
-                id: 3,
-                title: 'Low Stock Alert',
-                message: 'Dental floss is running low (5 items remaining)',
-                type: 'inventory',
-                entity_type: 'inventory',
-                entity_id: 3,
-                is_read: true,
-                created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1 hour ago
-                icon: 'fas fa-exclamation-triangle',
-                color: 'yellow',
-                user_name: 'System'
-            },
-            {
-                id: 4,
-                title: 'Payment Received',
-                message: 'Payment of $150 received from Jane Wilson',
-                type: 'finance',
-                entity_type: 'finance',
-                entity_id: 4,
-                is_read: false,
-                created_at: new Date(Date.now() - 90 * 60 * 1000).toISOString(), // 1.5 hours ago
-                icon: 'fas fa-dollar-sign',
-                color: 'green',
-                user_name: 'Dr. Smith'
-            },
-            {
-                id: 5,
-                title: 'Treatment Completed',
-                message: 'Treatment #T2024001 completed successfully',
-                type: 'treatment',
-                entity_type: 'treatment',
-                entity_id: 5,
-                is_read: true,
-                created_at: new Date(Date.now() - 120 * 60 * 1000).toISOString(), // 2 hours ago
-                icon: 'fas fa-check-circle',
-                color: 'green',
-                user_name: 'Dr. Smith'
-            }
-        ];
-        
-        updateNotificationCount(3); // Show 3 unread notifications
-        displayNotifications(sampleNotifications);
-    }
-
-    // Helper functions for notification colors
     function getNotificationIconBgClass(color) {
         const colorMap = {
-            'blue': 'bg-blue-100',
-            'green': 'bg-green-100',
-            'yellow': 'bg-yellow-100',
-            'purple': 'bg-purple-100',
-            'red': 'bg-red-100',
-            'gray': 'bg-gray-100'
+            blue: 'bg-blue-50',
+            green: 'bg-emerald-50',
+            yellow: 'bg-amber-50',
+            purple: 'bg-violet-50',
+            red: 'bg-rose-50',
+            gray: 'bg-slate-100',
         };
-        return colorMap[color] || 'bg-gray-100';
+
+        return colorMap[color] || 'bg-slate-100';
     }
 
     function getNotificationIconClass(color) {
         const colorMap = {
-            'blue': 'text-blue-600',
-            'green': 'text-green-600',
-            'yellow': 'text-yellow-600',
-            'purple': 'text-purple-600',
-            'red': 'text-red-600',
-            'gray': 'text-gray-600'
+            blue: 'text-blue-600',
+            green: 'text-emerald-600',
+            yellow: 'text-amber-600',
+            purple: 'text-violet-600',
+            red: 'text-rose-600',
+            gray: 'text-slate-600',
         };
-        return colorMap[color] || 'text-gray-600';
+
+        return colorMap[color] || 'text-slate-600';
     }
 
-    // Format time for display
     function formatTime(dateString) {
+        if (!dateString) {
+            return notificationsUi.justNow;
+        }
+
         const date = new Date(dateString);
         const now = new Date();
         const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-        
+
         if (diffInMinutes < 1) {
             return notificationsUi.justNow;
-        } else if (diffInMinutes < 60) {
-            if (diffInMinutes === 1) {
-                return notificationsUi.minuteAgo;
-            }
-            return notificationsUi.minutesAgo.replace('{count}', diffInMinutes);
-        } else if (diffInMinutes < 1440) {
-            const hours = Math.floor(diffInMinutes / 60);
-            if (hours === 1) {
-                return notificationsUi.hourAgo;
-            }
-            return notificationsUi.hoursAgo.replace('{count}', hours);
-        } else {
-            const days = Math.floor(diffInMinutes / 1440);
-            if (days === 1) {
-                return notificationsUi.dayAgo;
-            }
-            return notificationsUi.daysAgo.replace('{count}', days);
         }
+
+        if (diffInMinutes < 60) {
+            return diffInMinutes === 1
+                ? notificationsUi.minuteAgo
+                : notificationsUi.minutesAgo.replace('{count}', diffInMinutes);
+        }
+
+        if (diffInMinutes < 1440) {
+            const hours = Math.floor(diffInMinutes / 60);
+            return hours === 1
+                ? notificationsUi.hourAgo
+                : notificationsUi.hoursAgo.replace('{count}', hours);
+        }
+
+        const days = Math.floor(diffInMinutes / 1440);
+        return days === 1
+            ? notificationsUi.dayAgo
+            : notificationsUi.daysAgo.replace('{count}', days);
     }
 
-    // Mark all notifications as read
-    function markAllAsRead() {
-        console.log('Calling markAllAsRead...');
-        fetch('<?= base_url('notifications/mark-read') ?>', {
+    function markNotificationAsRead(id, { silent = false } = {}) {
+        if (!id) {
+            return Promise.resolve();
+        }
+
+        return fetch(`${notificationsMarkReadUrl}/${id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': typeof csrfToken !== 'undefined' ? csrfToken : ''
+            },
+            body: JSON.stringify({
+                [csrfTokenName]: typeof csrfToken !== 'undefined' ? csrfToken : ''
+            })
         })
-        .then(response => {
-            console.log('Mark as read response:', response);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Mark as read data:', data);
-            if (data.success) {
-                // Hide notification count immediately
-                hideNotificationCount();
-                // Update notifications display without reloading count
-                updateNotificationsDisplay();
-            }
-        })
-        .catch(error => {
-            console.error('Error marking notifications as read:', error);
-            hideNotificationCount();
-            updateNotificationsDisplay();
-        });
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
+                if (!data.success) {
+                    throw new Error(data.message || 'mark-read-failed');
+                }
+
+                notificationsState.items = notificationsState.items.map((item) => {
+                    if (Number(item.id) === Number(id)) {
+                        return { ...item, is_read: true };
+                    }
+
+                    return item;
+                });
+                notificationsState.count = notificationsState.items.filter((item) => !item.is_read).length;
+                updateNotificationCount(notificationsState.count);
+
+                if (!silent) {
+                    displayNotifications(notificationsState.items);
+                }
+            })
+            .catch((error) => {
+                console.error('Error marking notification as read:', error);
+            });
     }
 
-    // Update notifications display to show all as read
-    function updateNotificationsDisplay() {
-        const notifications = document.querySelectorAll('#notifications-list > div');
-        notifications.forEach(notification => {
-            // Remove unread indicators
-            const unreadDot = notification.querySelector('.bg-blue-500');
-            if (unreadDot) {
-                unreadDot.remove();
-            }
-            
-            // Remove mark as read buttons
-            const markButton = notification.querySelector('[onclick*="markAsRead"]');
-            if (markButton) {
-                markButton.remove();
-            }
-        });
+    function markAllAsRead() {
+        return fetch(notificationsMarkReadUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': typeof csrfToken !== 'undefined' ? csrfToken : ''
+            },
+            body: JSON.stringify({
+                [csrfTokenName]: typeof csrfToken !== 'undefined' ? csrfToken : ''
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.csrf_token && window.refreshCsrfToken) {
+                    window.refreshCsrfToken(data.csrf_token);
+                }
+
+                if (!data.success) {
+                    throw new Error(data.message || 'mark-all-read-failed');
+                }
+
+                notificationsState.items = notificationsState.items.map((item) => ({
+                    ...item,
+                    is_read: true
+                }));
+                notificationsState.count = 0;
+                updateNotificationCount(0);
+
+                if (!document.getElementById('notifications-dropdown').classList.contains('hidden')) {
+                    displayNotifications(notificationsState.items);
+                }
+            })
+            .catch((error) => {
+                console.error('Error marking all notifications as read:', error);
+            });
     }
 
-    // Navigate to entity details page from notification
-    function navigateToEntityFromNotification(entityType, entityId) {
-        console.log('Notification clicked:', { entityType, entityId });
-        
-        if (!entityId || entityId === 'null') {
-            console.log('No entity ID available for navigation from notification');
-            return;
-        }
-        
-        const baseUrl = '<?= base_url() ?>';
-        let url = '';
-        
-        switch (entityType) {
-            case 'patient':
-                url = `${baseUrl}patient/${entityId}`;
-                break;
-            case 'appointment':
-                url = `${baseUrl}appointment/${entityId}`;
-                break;
-            case 'treatment':
-                url = `${baseUrl}treatment/${entityId}`;
-                break;
-            case 'examination':
-                url = `${baseUrl}examination/${entityId}`;
-                break;
-            case 'prescription':
-                url = `${baseUrl}prescription/${entityId}`;
-                break;
-            case 'finance':
-                url = `${baseUrl}finance/${entityId}`;
-                break;
-            case 'inventory':
-                url = `${baseUrl}inventory/${entityId}`;
-                break;
-            case 'user':
-                url = `${baseUrl}user/${entityId}`;
-                break;
-            case 'system':
-                // For system notifications, go to activity log
-                url = `${baseUrl}activity-log`;
-                break;
-            default:
-                console.log(`Unknown entity type: ${entityType}`);
-                return;
-        }
-        
-        console.log('Navigating to:', url);
-        // Navigate to the entity details page
+    function navigateToNotificationTarget(notification) {
+        const url = notification && notification.entity_url ? notification.entity_url : notificationsListUrl;
         window.location.href = url;
-    }
-
-    // Test function to verify navigation is working
-    function testNotificationNavigation() {
-        console.log('Testing notification navigation...');
-        navigateToEntityFromNotification('patient', 1);
     }
 
     const clinicDateFormat = '<?= esc(settings()->get('date_format', 'd/m/Y')) ?>';
@@ -2131,18 +2140,14 @@
         initializeClinicDateInputs();
         initializeClinicTimeInputs();
         runRequiredFieldMarkerSync();
-        console.log('Loading notifications on page load...');
         loadNotifications();
-        loadNotificationCount();
         
         // Handle URL search parameters
         handleUrlSearchParams();
         
         // Refresh notifications every 30 seconds
         setInterval(() => {
-            console.log('Refreshing notifications...');
             loadNotifications();
-            loadNotificationCount();
         }, 30000);
 
         const requiredObserver = new MutationObserver((mutations) => {
@@ -2195,23 +2200,7 @@
 
     // Load notification count from API
     function loadNotificationCount() {
-        fetch(notificationsApiUrl)
-            .then(response => response.json())
-            .then(data => {
-                // Handle CSRF token refresh if provided in response
-                if (data.csrf_token && window.refreshCsrfToken) {
-                    window.refreshCsrfToken(data.csrf_token);
-                }
-
-                if (data.success) {
-                    updateNotificationCount(data.count);
-                } else {
-                    console.error('Failed to load notification count:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading notification count:', error);
-            });
+        return loadNotifications();
     }
 
     // Global search functionality
@@ -2323,28 +2312,43 @@
     // Toggle User Menu Dropdown
     function toggleUserMenu() {
         const menu = document.getElementById('userMenu');
-        
-        // Toggle user menu
-        if (menu) {
-            menu.classList.toggle('hidden');
+        if (!menu) {
+            return;
         }
+
+        const willShow = menu.classList.contains('hidden');
+        closeHeaderMenus(willShow ? 'userMenu' : null);
+        menu.classList.toggle('hidden', !willShow);
+        setUserMenuExpanded(willShow);
     }
 
     // Toggle Clinic Switcher Dropdown
     function toggleClinicSwitcher() {
         const menu = document.getElementById('clinicSwitcherMenu');
         if (menu) {
-            menu.classList.toggle('hidden');
+            const willShow = menu.classList.contains('hidden');
+            closeHeaderMenus(willShow ? 'clinicSwitcherMenu' : null);
+            menu.classList.toggle('hidden', !willShow);
         }
     }
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
+        if (!e.target.closest('#notifications-dropdown') && !e.target.closest('#notifications-trigger')) {
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            if (notificationsDropdown && !notificationsDropdown.classList.contains('hidden')) {
+                notificationsDropdown.classList.add('hidden');
+                notificationsDropdown.classList.remove('flex');
+                setNotificationTriggerExpanded(false);
+            }
+        }
+
         // Handle User Menu
-        if (!e.target.closest('#userMenu') && !e.target.closest('button[onclick*="toggleUserMenu"]')) {
+        if (!e.target.closest('#userMenu') && !e.target.closest('#user-menu-trigger')) {
             const userMenu = document.getElementById('userMenu');
             if (userMenu && !userMenu.classList.contains('hidden')) {
                 userMenu.classList.add('hidden');
+                setUserMenuExpanded(false);
             }
         }
         
@@ -2364,6 +2368,17 @@
             e.preventDefault();
             toggleSidebar();
         }
+
+        if (e.key === 'Escape') {
+            closeHeaderMenus();
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+        if (notificationsDropdown && !notificationsDropdown.classList.contains('hidden')) {
+            positionNotificationsDropdown();
+        }
     });
 
 </script>
@@ -2375,3 +2390,4 @@
 
 </body>
 </html>
+
