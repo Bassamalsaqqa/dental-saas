@@ -150,7 +150,7 @@
 
         /* Collapsed State Styles */
         .sidebar-collapsed {
-            width: 5rem !important; /* 80px */
+            width: 5.5rem !important;
         }
 
         .sidebar-collapsed #sidebar-title,
@@ -165,27 +165,63 @@
             justify-content: center !important;
         }
 
+        .sidebar-collapsed #sidebar-header,
+        .sidebar-collapsed #sidebar-footer {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+
+        .sidebar-collapsed #sidebar-nav .p-4,
+        .sidebar-collapsed #sidebar-nav .px-2 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
         .sidebar-collapsed #sidebar-nav ul li a {
             justify-content: center !important;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0.5rem !important;
-            margin-right: 0.5rem !important;
+            align-items: center !important;
+            width: 3.5rem !important;
+            height: 3.5rem !important;
+            padding: 0 !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            border-radius: 1rem !important;
         }
 
         .sidebar-collapsed #sidebar-nav ul li a i {
             margin-right: 0 !important;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-collapsed #sidebar-footer .group {
-            padding: 0.75rem !important;
-            display: flex !important;
+            margin-left: 0 !important;
+            font-size: 1.125rem !important;
+            width: 1.5rem !important;
+            height: 1.5rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
             justify-content: center !important;
         }
 
-        .sidebar-collapsed #sidebar-footer .flex-shrink-0 {
-            margin-right: 0 !important;
+        .sidebar-collapsed #sidebar-nav ul {
+            gap: 0.5rem !important;
+        }
+
+        .sidebar-collapsed #sidebar-footer > a {
+            width: 3.5rem !important;
+            min-height: 3.5rem !important;
+            padding: 0.5rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .sidebar-collapsed #sidebar-footer > a > .relative {
+            justify-content: center !important;
+            gap: 0 !important;
+        }
+
+        .sidebar-collapsed #sidebar-footer > a > .relative > .relative:first-child {
+            margin-top: 0 !important;
+        }
+
+        .sidebar-collapsed #sidebar-footer .fa-user {
+            font-size: 0.95rem !important;
         }
 
         /* Custom Scrollbar */
