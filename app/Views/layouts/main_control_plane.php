@@ -347,9 +347,15 @@
             #sidebar {
                 position: sticky !important;
                 top: 0;
-                height: 100vh;
+                min-height: 100vh;
+                height: auto;
                 inset-inline-start: auto !important;
                 transform: none !important;
+                overflow: visible !important;
+            }
+
+            #sidebar-nav {
+                overflow: visible !important;
             }
         }
     </style>

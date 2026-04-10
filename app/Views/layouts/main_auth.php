@@ -457,9 +457,21 @@
             #sidebar {
                 position: sticky !important;
                 top: 0;
-                height: 100vh;
+                min-height: 100vh;
+                height: auto;
                 inset-inline-start: auto !important;
                 transform: none !important;
+                overflow: visible !important;
+            }
+
+            #sidebar-nav {
+                overflow: visible !important;
+            }
+
+            #sidebar-footer {
+                position: relative;
+                z-index: 1;
+                flex-shrink: 0;
             }
         }
     </style>
@@ -663,17 +675,17 @@
 
         <!-- Enhanced Sidebar Footer -->
         <div class="p-4 border-t border-white/30 backdrop-blur-xl bg-white/80" id="sidebar-footer">
-            <a href="<?= base_url('profile') ?>" class="group relative cursor-pointer hover:bg-white/50 rounded-xl p-3 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 block">
+            <a href="<?= base_url('profile') ?>" class="group relative block cursor-pointer rounded-xl p-3 transition-all duration-200 hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div class="flex items-center space-x-3 relative z-10">
-                    <div class="relative">
+                <div class="relative z-10 flex items-start gap-3">
+                    <div class="relative mt-0.5 shrink-0">
                         <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div class="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:rotate-2 transition-all duration-200">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-bold text-gray-900 truncate">
+                    <div class="min-w-0 flex-1 space-y-1.5">
+                        <div class="text-sm font-bold leading-5 text-gray-900 break-words">
                             <?php 
                             $user = $user ?? null;
                             $displayName = esc($clinic['name']);
@@ -691,9 +703,9 @@
                             echo $displayName;
                             ?>
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <div class="text-xs text-gray-500 font-medium">
+                        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium leading-5 text-gray-500">
+                            <div class="w-1.5 h-1.5 shrink-0 bg-green-500 rounded-full animate-pulse"></div>
+                            <div class="min-w-0 break-words">
                                 <?php 
                                 if ($user && isset($user_groups) && !empty($user_groups)) {
                                     $groupNames = array_map(function($group) { return $group->name; }, $user_groups);
@@ -705,7 +717,7 @@
                             </div>
                         </div>
                     </div>
-                    <i class="fas fa-external-link-alt text-gray-400 text-xs group-hover:text-gray-600 transition-colors duration-200"></i>
+                    <i class="fas fa-external-link-alt mt-1 shrink-0 text-gray-400 text-xs transition-colors duration-200 group-hover:text-gray-600"></i>
                 </div>
             </a>
         </div>
