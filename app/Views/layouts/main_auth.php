@@ -772,9 +772,9 @@
                 <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-emerald-400/5 to-cyan-600/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
             </div>
             
-            <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300 <?= !empty($is_rtl) ? 'md:flex-row-reverse' : '' ?>" id="header-content">
+            <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 transition-all duration-300" id="header-content">
                 <!-- Left Section: Sidebar Toggle + Page Title -->
-                <div class="flex items-center space-x-3 flex-1 min-w-0 <?= !empty($is_rtl) ? 'md:flex-row-reverse md:justify-start' : '' ?>" id="header-left">
+                <div class="flex items-center space-x-3 flex-1 min-w-0" id="header-left">
                     <button class="md:hidden group relative p-2.5 text-gray-600 hover:text-gray-800 transition-all duration-200 rounded-xl hover:bg-white/50 hover:shadow-lg hover:shadow-blue-500/10" onclick="toggleSidebar()" title="Toggle Sidebar">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <i class="fas fa-bars text-lg relative z-10 group-hover:text-blue-600 transition-colors duration-200"></i>
@@ -787,7 +787,7 @@
                 </div>
                 
                 <!-- Right Section: User Info + Actions -->
-                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0 <?= !empty($is_rtl) ? 'md:flex-row-reverse md:justify-start' : '' ?>" id="header-right">
+                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0" id="header-right">
                     <?php $activeLocale = strtolower((string) ($locale ?? 'en')); ?>
                     <?php $returnToUrl = current_url(true)->__toString(); ?>
                     <div class="hidden sm:flex items-center">
