@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\TreatmentModel;
 use App\Models\PatientModel;
 use App\Models\InventoryModel;
+use App\Models\InventoryUsageModel;
 use App\Libraries\TreatmentCatalog;
 use App\Services\ActivityLogger;
 use App\Services\InventoryUsageService;
