@@ -3,7 +3,8 @@
     .toast-container {
         position: fixed;
         top: 1rem;
-        inset-inline-end: 1rem;
+        right: 1rem;
+        left: auto;
         z-index: 9999;
         pointer-events: none;
         display: flex;
@@ -16,7 +17,8 @@
     @media (max-width: 640px) {
         .toast-container {
             top: 0.75rem;
-            inset-inline-end: 0.75rem;
+            right: 0.75rem;
+            left: auto;
             width: calc(100vw - 1.5rem);
             max-width: calc(100vw - 1.5rem);
         }
@@ -162,13 +164,14 @@
     }
 
     .toast-container[data-dir="rtl"] {
-        inset-inline-end: auto;
-        inset-inline-start: 1rem;
+        right: auto;
+        left: 1rem;
     }
 
     @media (max-width: 640px) {
         .toast-container[data-dir="rtl"] {
-            inset-inline-start: 0.75rem;
+            right: auto;
+            left: 0.75rem;
         }
     }
 </style>

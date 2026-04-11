@@ -1010,7 +1010,7 @@
                     </div>
                     
                     <!-- Logout Button -->
-                    <div class="relative group ml-2 mobile-hide-compact">
+                    <div class="relative group <?= !empty($is_rtl) ? 'mr-2' : 'ml-2' ?> mobile-hide-compact">
                         <a href="<?= base_url('auth/logout') ?>" class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-50 to-rose-50 hover:from-red-50 hover:to-red-100 border border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-red-500/10">
                             <i class="fas fa-sign-out-alt text-sm"></i>
                         </a>
