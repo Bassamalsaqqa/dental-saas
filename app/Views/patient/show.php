@@ -532,7 +532,7 @@ foreach (($odontogram_snapshots ?? []) as $snapshotRow) {
 $latestImagingAttachment = $latest_imaging_attachment ?? null;
 $latestImagingPreviewSrc = $latest_imaging_preview_src ?? null;
 $latestImagingIsPreviewable = !empty($latestImagingAttachment['mime_type']) && strpos((string) $latestImagingAttachment['mime_type'], 'image/') === 0;
-$latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/view/' . $latestImagingAttachment['id']) : null;
+$latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/inline/' . $latestImagingAttachment['id']) : null;
 $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
 ?>
 

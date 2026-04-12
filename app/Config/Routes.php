@@ -570,7 +570,7 @@ $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($
 // File routes (Tenant Plane)
 $routes->group('file', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('download/(:num)', 'FileController::download/$1');
-    $routes->get('view/(:num)', 'FileController::view/$1');
+    $routes->get('inline/(:num)', 'FileController::inline/$1');
 });
 
 // Profile routes (P5-11-UX)

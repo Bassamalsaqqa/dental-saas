@@ -46,7 +46,7 @@ class FileController extends BaseController
             ->setContentType($attachment['mime_type']);
     }
 
-    public function view($id)
+    public function inline($id)
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
