@@ -25,6 +25,7 @@ foreach ($initialOdontogram as $row) {
 $items = $items ?? [];
 $contract = $contract ?? null;
 $mode = $mode ?? 'create';
+$returnTo = $return_to ?? null;
 $actionUrl = $mode === 'edit' && $contract ? base_url('contracts/' . $contract['id'] . '/update') : base_url('contracts/create/' . $patient['id']);
 $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
     || !empty($contract['payment_terms'] ?? '')
@@ -62,7 +63,7 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
                             <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Examination
                         </a>
                     <?php endif; ?>
-                    <a href="<?= base_url('patient/' . $patient['id']) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
+                    <a href="<?= $returnTo ? base_url($returnTo) : base_url('patient/' . $patient['id']) ?>" class="group relative inline-flex items-center px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 shadow-sm hover:shadow-md transition-all duration-200">
                         <i class="fas fa-arrow-left rtl-back-icon mr-2 group-hover:-translate-x-1 transition-transform"></i>Back to Patient
                     </a>
                 </div>
@@ -74,6 +75,9 @@ $hasContractTerms = !empty($contract['terms_conditions'] ?? '')
         <?= csrf_field() ?>
         <input type="hidden" name="odontogram_json" id="odontogramJson">
         <input type="hidden" name="odontogram_svg" id="odontogramSvg">
+        <?php if (!empty($returnTo)): ?>
+            <input type="hidden" name="return_to" value="<?= esc($returnTo) ?>">
+        <?php endif; ?>
         <?php if (!empty($examination_id)): ?>
             <input type="hidden" name="examination_id" value="<?= (int) $examination_id ?>">
         <?php endif; ?>
@@ -1600,18 +1604,7 @@ function updateTotal() {
 }
 
 function captureOdontogramSnapshot() {
-    const svg = document.getElementById('odontogramSvgWrapper')?.querySelector('svg');
-    if (!svg) return;
-
-    const clone = svg.cloneNode(true);
-    clone.querySelectorAll('.tooth-hit, .tooth-outline').forEach(el => el.remove());
-    clone.querySelectorAll('.tooth-group').forEach(el => {
-        el.classList.remove('is-hover', 'is-selected', 'is-batch-selected');
-    });
-
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(clone);
-    document.getElementById('odontogramSvg').value = svgString;
+    document.getElementById('odontogramSvg').value = '';
     document.getElementById('odontogramJson').value = JSON.stringify(odontogramData);
 }
 

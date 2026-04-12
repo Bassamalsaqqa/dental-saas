@@ -279,6 +279,10 @@ $selectedPatientGender = strtolower((string) ($selected_patient['gender'] ?? '')
                                 <i class="fas fa-times mr-2"></i>
                                 <?= esc($tr('cancel')) ?>
                             </a>
+                            <button type="submit" name="after_save" value="odontogram" class="inline-flex items-center justify-center px-6 py-2.5 border border-cyan-200 bg-cyan-50 text-cyan-800 text-sm font-semibold rounded-lg hover:bg-cyan-100 transition-colors">
+                                <i class="fas fa-tooth mr-2"></i>
+                                <?= esc($tr('create_and_open_chart')) ?>
+                            </button>
                             <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-blue-700 hover:to-cyan-700 transition-colors">
                                 <i class="fas fa-stethoscope mr-2"></i>
                                 <?= esc($tr('create_examination')) ?>

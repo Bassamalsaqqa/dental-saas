@@ -13,6 +13,8 @@ use App\Models\ClinicModel;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
 use App\Services\ActivityLogger;
+use App\Services\OdontogramSnapshotService;
+use App\Services\OdontogramSvgSnapshotService;
 
 class TreatmentContracts extends BaseController
 {
@@ -27,6 +29,8 @@ class TreatmentContracts extends BaseController
     protected $planGuard;
     protected $storageService;
     protected $activityLogger;
+    protected $odontogramSnapshotService;
+    protected $odontogramSvgSnapshotService;
 
     public function __construct()
     {
@@ -41,6 +45,8 @@ class TreatmentContracts extends BaseController
         $this->planGuard = new PlanGuard();
         $this->storageService = service('storage');
         $this->activityLogger = new ActivityLogger();
+        $this->odontogramSnapshotService = new OdontogramSnapshotService();
+        $this->odontogramSvgSnapshotService = new OdontogramSvgSnapshotService();
     }
 
     public function create($patientId)
@@ -62,28 +68,26 @@ class TreatmentContracts extends BaseController
 
         $examinationId = $this->request->getGet('examination_id');
         $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
-        if (!$examinationId) {
-            return redirect()->to(base_url('patient/' . $patientId))
-                ->with('error', 'Please start the treatment plan from an examination.');
-        }
-
-        $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
-        if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
-        }
+        $exam = $this->resolveExamContext($clinicId, (int) $patientId, $examinationId);
+        $returnTo = $this->resolveContractReturnTo(
+            $this->request->getGet('return_to'),
+            (int) $patientId,
+            $exam['id'] ?? null
+        );
 
         $data = [
             'title' => 'Create Treatment Contract',
             'mode' => 'create',
             'contract' => null,
             'patient' => $patient,
-            'examination_id' => $examinationId,
-            'odontogram' => $this->odontogramModel->getOdontogramByPatient($patientId),
+            'examination_id' => $exam['id'] ?? null,
+            'odontogram' => $this->getContractSeedOdontogram((int) $patientId),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'items' => [],
             'snapshot' => null,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'return_to' => $returnTo,
         ];
 
         return $this->view('contracts/create', $data);
@@ -121,14 +125,12 @@ class TreatmentContracts extends BaseController
         $odontogramSvg = (string) $this->request->getPost('odontogram_svg');
         $examinationId = $this->request->getPost('examination_id');
         $examinationId = is_numeric($examinationId) ? (int) $examinationId : null;
-        if (!$examinationId) {
-            return redirect()->back()->with('error', 'Examination context is required to create a treatment plan.');
-        }
-
-        $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
-        if (!$exam || (int) $exam['patient_id'] !== (int) $patientId) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
-        }
+        $exam = $this->resolveExamContext($clinicId, (int) $patientId, $examinationId);
+        $returnTo = $this->resolveContractReturnTo(
+            $this->request->getPost('return_to'),
+            (int) $patientId,
+            $exam['id'] ?? null
+        );
 
         $items = $this->request->getPost('items');
         $items = is_array($items) ? $items : [];
@@ -146,7 +148,7 @@ class TreatmentContracts extends BaseController
 
         $contractId = $this->contractModel->insert([
             'patient_id' => $patientId,
-            'examination_id' => $examinationId,
+            'examination_id' => $exam['id'] ?? null,
             'status' => 'draft',
             'currency' => $currency,
             'total_cost' => $total,
@@ -171,9 +173,19 @@ class TreatmentContracts extends BaseController
 
         $this->snapshotModel->insert([
             'contract_id' => $contractId,
-            'svg_snapshot' => $odontogramSvg ?: null,
+            'svg_snapshot' => $this->odontogramSvgSnapshotService->encode($odontogramSvg),
             'data_snapshot_json' => $odontogramJson ?: null
         ]);
+
+        $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+        $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
+            $clinicId,
+            (int) $patientId,
+            'contract',
+            (int) $contractId,
+            $actorUserId,
+            'Contract #' . $contractId
+        );
 
         $this->activityLogger->logPatientActivity(
             'contract_create',
@@ -181,9 +193,9 @@ class TreatmentContracts extends BaseController
             "Treatment contract #{$contractId} created"
         );
 
-        if ($examinationId) {
+        if ($returnTo) {
             return redirect()
-                ->to(base_url('examination/' . $examinationId))
+                ->to(base_url($returnTo))
                 ->with('success', 'Treatment plan contract created successfully.');
         }
 
@@ -223,31 +235,70 @@ class TreatmentContracts extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
         }
 
-        $returnTo = $this->request->getGet('return');
-        if ($returnTo && !preg_match('#^examination/\\d+$#', $returnTo)) {
-            $returnTo = null;
-        }
-        if (!$returnTo && !empty($contract['examination_id'])) {
-            $returnTo = 'examination/' . $contract['examination_id'];
-        }
+        $returnTo = $this->resolveContractReturnTo(
+            $this->request->getGet('return_to') ?? $this->request->getGet('return'),
+            (int) $contract['patient_id'],
+            !empty($contract['examination_id']) ? (int) $contract['examination_id'] : null
+        );
 
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
+        if ($snapshot) {
+            $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
+        }
+        $exam = !empty($contract['examination_id'])
+            ? $this->resolveExamContext($clinicId, (int) $contract['patient_id'], (int) $contract['examination_id'])
+            : null;
 
         $data = [
             'title' => 'Edit Treatment Contract',
             'mode' => 'edit',
             'contract' => $contract,
             'patient' => $patient,
-            'odontogram' => $this->odontogramModel->getOdontogramByPatient($contract['patient_id']),
+            'odontogram' => $this->getContractSeedOdontogram((int) $contract['patient_id']),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'items' => $items,
             'snapshot' => $snapshot,
             'base_currency' => settings()->get('currency', 'ILS'),
             'currency_options' => ['ILS', 'USD', 'JOD', 'EUR', 'GBP'],
+            'return_to' => $returnTo,
+            'examination_id' => $exam['id'] ?? null,
         ];
 
         return $this->view('contracts/create', $data);
+    }
+
+    private function resolveExamContext(int $clinicId, int $patientId, ?int $examinationId): ?array
+    {
+        if (!$examinationId) {
+            return null;
+        }
+
+        $exam = $this->examinationModel->where('clinic_id', $clinicId)->find($examinationId);
+        if (!$exam || (int) ($exam['patient_id'] ?? 0) !== $patientId) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
+        }
+
+        return $exam;
+    }
+
+    private function getContractSeedOdontogram(int $patientId): array
+    {
+        return $this->odontogramModel->getOdontogramByPatient($patientId);
+    }
+
+    private function resolveContractReturnTo($returnToRaw, int $patientId, ?int $examinationId): string
+    {
+        $returnTo = $this->sanitizeInternalReturnTo((string) $returnToRaw, ['patient', 'patients', 'examination', 'examinations', 'contracts']);
+        if ($returnTo) {
+            return $returnTo;
+        }
+
+        if ($examinationId) {
+            return 'examination/' . $examinationId;
+        }
+
+        return 'patient/' . $patientId;
     }
 
     public function update($contractId)
@@ -329,13 +380,13 @@ class TreatmentContracts extends BaseController
         $existingSnapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
         if ($existingSnapshot) {
             $this->snapshotModel->update($existingSnapshot['id'], [
-                'svg_snapshot' => $odontogramSvg ?: null,
+                'svg_snapshot' => $this->odontogramSvgSnapshotService->encode($odontogramSvg),
                 'data_snapshot_json' => $odontogramJson ?: null
             ]);
         } else {
             $this->snapshotModel->insert([
                 'contract_id' => $contractId,
-                'svg_snapshot' => $odontogramSvg ?: null,
+                'svg_snapshot' => $this->odontogramSvgSnapshotService->encode($odontogramSvg),
                 'data_snapshot_json' => $odontogramJson ?: null
             ]);
         }
@@ -422,6 +473,9 @@ class TreatmentContracts extends BaseController
 
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
+        if ($snapshot) {
+            $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
+        }
         $signature = $this->signatureModel->where('contract_id', $contractId)->first();
 
         $data = [
@@ -485,6 +539,9 @@ class TreatmentContracts extends BaseController
         ]);
 
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
+        if ($snapshot) {
+            $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
+        }
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
 
         $signatureHash = hash('sha256', json_encode([
@@ -581,6 +638,9 @@ class TreatmentContracts extends BaseController
 
         $items = $this->itemModel->where('contract_id', $contractId)->findAll();
         $snapshot = $this->snapshotModel->where('contract_id', $contractId)->first();
+        if ($snapshot) {
+            $snapshot['svg_snapshot'] = $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? null);
+        }
         $signature = $this->signatureModel->where('contract_id', $contractId)->first();
 
         return $this->view('contracts/print', [

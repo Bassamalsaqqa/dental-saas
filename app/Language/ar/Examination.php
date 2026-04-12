@@ -105,6 +105,8 @@ return [
     'final_notes_placeholder' => 'أضف أي ملاحظات نهائية حول الفحص أو التوصيات العلاجية أو تعليمات المتابعة...',
     'complete_examination' => 'إكمال الفحص',
     'complete_examination_subtitle' => 'أضف الملاحظات النهائية لإكمال هذا الفحص',
+    'create_and_open_chart' => 'إنشاء وفتح المخطط',
+    'save_and_open_chart' => 'حفظ وفتح المخطط',
     'datatable_show' => 'عرض:',
     'datatable_search' => 'بحث:',
     'error_loading_statistics' => 'خطأ في تحميل الإحصاءات:',

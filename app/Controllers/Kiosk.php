@@ -12,6 +12,7 @@ use App\Models\TreatmentContractItemModel;
 use App\Models\TreatmentContractModel;
 use App\Models\TreatmentContractOdontogramSnapshotModel;
 use App\Models\TreatmentContractSignatureModel;
+use App\Services\OdontogramSvgSnapshotService;
 use App\Services\PlanGuard;
 use App\Services\StorageService;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -27,6 +28,7 @@ class Kiosk extends BaseController
     protected TreatmentContractItemModel $contractItemModel;
     protected TreatmentContractOdontogramSnapshotModel $contractSnapshotModel;
     protected TreatmentContractSignatureModel $contractSignatureModel;
+    protected OdontogramSvgSnapshotService $odontogramSvgSnapshotService;
     protected PlanGuard $planGuard;
     protected StorageService $storageService;
 
@@ -41,6 +43,7 @@ class Kiosk extends BaseController
         $this->contractItemModel = new TreatmentContractItemModel();
         $this->contractSnapshotModel = new TreatmentContractOdontogramSnapshotModel();
         $this->contractSignatureModel = new TreatmentContractSignatureModel();
+        $this->odontogramSvgSnapshotService = new OdontogramSvgSnapshotService();
         $this->planGuard = new PlanGuard();
         $this->storageService = new StorageService();
         $this->localeResolver = service('localeResolver');
@@ -221,7 +224,7 @@ class Kiosk extends BaseController
                     'total_cost' => $contract['total_cost'] ?? 0,
                     'created_at' => $contract['created_at'] ?? null,
                     'items' => $items,
-                    'snapshot_svg' => $snapshot['svg_snapshot'] ?? '',
+                    'snapshot_svg' => $this->odontogramSvgSnapshotService->decode($snapshot['svg_snapshot'] ?? ''),
                 ];
             }
         }

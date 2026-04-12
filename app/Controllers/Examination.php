@@ -8,6 +8,7 @@ use App\Models\OdontogramModel;
 use App\Models\TreatmentModel;
 use App\Models\TreatmentContractModel;
 use App\Services\ActivityLogger;
+use App\Services\OdontogramSnapshotService;
 use App\Services\PlanGuard;
 use App\Services\WhatsAppWorkflowService;
 
@@ -22,6 +23,7 @@ class Examination extends BaseController
     protected $storageService;
     protected $db;
     protected WhatsAppWorkflowService $whatsAppWorkflowService;
+    protected OdontogramSnapshotService $odontogramSnapshotService;
 
     public function __construct()
     {
@@ -34,6 +36,7 @@ class Examination extends BaseController
         $this->storageService = new \App\Services\StorageService();
         $this->db = \Config\Database::connect();
         $this->whatsAppWorkflowService = new WhatsAppWorkflowService();
+        $this->odontogramSnapshotService = new OdontogramSnapshotService();
     }
 
     public function index()
@@ -183,6 +186,12 @@ class Examination extends BaseController
                 "New {$examinationData['examination_type']} examination created for {$patientName} - Chief Complaint: " . substr($examinationData['chief_complaint'], 0, 50) . "..."
             );
             
+            if ($this->request->getPost('after_save') === 'odontogram') {
+                return redirect()
+                    ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $examinationId))
+                    ->with('success', 'Examination created successfully');
+            }
+
             $returnTo = $this->resolveCreateReturnTo((int) $examinationData['patient_id'], $this->request->getPost('return_to'));
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Examination created successfully');
@@ -235,7 +244,7 @@ class Examination extends BaseController
             'next_appointment' => $nextAppointment,
             'latest_contract' => $latestContract,
             'signature_enabled' => $signatureEnabled,
-            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
+            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
@@ -381,8 +390,17 @@ class Examination extends BaseController
             );
 
             if ($previousStatus !== 'completed' && (string) ($examinationData['status'] ?? '') === 'completed') {
+                $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+                $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
+                    (int) $clinicId,
+                    (int) $examination['patient_id'],
+                    'examination',
+                    (int) $id,
+                    $actorUserId,
+                    'Examination ' . ($examination['examination_id'] ?? $id)
+                );
+
                 try {
-                    $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
                     $this->whatsAppWorkflowService->queueFollowUpForCompletedExamination((int) $clinicId, (int) $id, $actorUserId);
                 } catch (\Throwable $e) {
                     log_message('warning', 'WhatsApp follow-up enqueue failed for examination_id={examination_id}: {message}', [
@@ -393,6 +411,11 @@ class Examination extends BaseController
             }
 
             $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
+            if ($this->request->getPost('after_save') === 'odontogram') {
+                return redirect()
+                    ->to(base_url('odontogram/' . (int) $examinationData['patient_id'] . '?return_to=examination/' . $id))
+                    ->with('success', 'Examination updated successfully');
+            }
             if ($returnTo) {
                 return redirect()->to(base_url($returnTo))->with('success', 'Examination updated successfully');
             }
@@ -484,13 +507,19 @@ class Examination extends BaseController
     {
         $clinicId = session()->get('active_clinic_id');
         if (!$clinicId) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+            }
+            return redirect()->to('/clinic/select');
         }
 
         $examination = $this->examinationModel->where('clinic_id', $clinicId)->find($id);
         
         if (!$examination) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Examination not found']);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Examination not found']);
+            }
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Examination not found');
         }
 
         $updateData = [ 
@@ -499,9 +528,31 @@ class Examination extends BaseController
         ];
 
         if ($this->examinationModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Examination completed successfully']);
+            $actorUserId = session()->get('user_id') ? (int) session()->get('user_id') : null;
+            $this->odontogramSnapshotService->capturePatientBaselineSnapshot(
+                (int) $clinicId,
+                (int) $examination['patient_id'],
+                'examination',
+                (int) $id,
+                $actorUserId,
+                'Examination ' . ($examination['examination_id'] ?? $id)
+            );
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Examination completed successfully']);
+            }
+
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['patient', 'patients', 'examination', 'examinations']);
+            if ($returnTo) {
+                return redirect()->to(base_url($returnTo))->with('success', 'Examination completed successfully');
+            }
+
+            return redirect()->to(base_url('examination/' . $id))->with('success', 'Examination completed successfully');
         } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Failed to complete examination']);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to complete examination']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to complete examination');
         }
     }
 
@@ -735,7 +786,7 @@ class Examination extends BaseController
             'title' => 'Examination Report - ' . ($examination['examination_id'] ?? $examination['id']),
             'examination' => $examination,
             'latest_contract' => $latestContract,
-            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByExamination($id),
+            'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'clinic' => settings()->getClinicInfo()
         ];

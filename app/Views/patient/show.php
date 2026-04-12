@@ -1352,7 +1352,15 @@ $patientChartFacts = [
                                             <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientContractsTitle')) ?></h3>
                                             <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsSubtitle')) ?></p>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
+                                        <div class="flex flex-col items-start gap-2 md:items-end">
+                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientContractsHint')) ?></p>
+                                            <?php if (has_permission('patients', 'edit')): ?>
+                                                <a href="<?= base_url('contracts/create/' . $patient['id'] . '?return_to=patient/' . $patient['id']) ?>"
+                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                    <i class="fas fa-plus mr-2"></i><?= esc(lang('UI.patientCreateTreatmentPlan')) ?>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
 

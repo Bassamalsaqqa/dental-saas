@@ -2,6 +2,17 @@
 
 <?= $this->section('content') ?>
 <?php $return_to = $return_to ?? null; ?>
+<?php
+$snapshotRows = [];
+if (!empty($snapshot['data_snapshot_json'])) {
+    $decodedSnapshotRows = json_decode($snapshot['data_snapshot_json'], true);
+    if (is_array($decodedSnapshotRows)) {
+        $snapshotRows = array_values(array_filter($decodedSnapshotRows, static function ($row) {
+            return !empty($row['condition_type']) && ($row['condition_type'] !== 'healthy');
+        }));
+    }
+}
+?>
 <div class="w-full max-w-none px-4 sm:px-6 lg:px-12 py-8">
     <div class="space-y-6">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -61,7 +72,35 @@
                         </span>
                     </div>
                     <div class="border border-gray-100 rounded-lg p-4 bg-gray-50">
-                        <?= $snapshot['svg_snapshot'] ?? '<p class="text-sm text-gray-500">No snapshot captured.</p>' ?>
+                        <?php if (!empty($snapshot['svg_snapshot'])): ?>
+                            <?= $snapshot['svg_snapshot'] ?>
+                        <?php elseif (!empty($snapshotRows)): ?>
+                            <div class="space-y-3">
+                                <p class="text-sm font-medium text-gray-700">Recorded tooth conditions at the time of this plan</p>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                        <thead class="bg-white">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tooth</th>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Condition</th>
+                                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100 bg-white">
+                                            <?php foreach ($snapshotRows as $row): ?>
+                                                <tr>
+                                                    <td class="px-4 py-2 text-gray-700"><?= esc((string) ($row['tooth_number'] ?? '--')) ?></td>
+                                                    <td class="px-4 py-2 text-gray-700"><?= esc(ucwords(str_replace('_', ' ', (string) ($row['condition_type'] ?? '')))) ?></td>
+                                                    <td class="px-4 py-2 text-gray-600"><?= esc((string) (($row['condition_description'] ?? '') ?: ($row['treatment_notes'] ?? '—'))) ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-sm text-gray-500">No snapshot captured.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 

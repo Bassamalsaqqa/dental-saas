@@ -105,6 +105,8 @@ return [
     'final_notes_placeholder' => 'Add any final notes about the examination, treatment recommendations, or follow-up instructions...',
     'complete_examination' => 'Complete Examination',
     'complete_examination_subtitle' => 'Add final notes to complete this examination',
+    'create_and_open_chart' => 'Create and Open Chart',
+    'save_and_open_chart' => 'Save and Open Chart',
     'datatable_show' => 'Show:',
     'datatable_search' => 'Search:',
     'error_loading_statistics' => 'Error loading statistics:',
