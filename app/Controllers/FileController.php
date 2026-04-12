@@ -45,4 +45,30 @@ class FileController extends BaseController
             ->setFileName($attachment['original_name'])
             ->setContentType($attachment['mime_type']);
     }
+
+    public function view($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $attachment = $this->attachmentModel
+            ->where('clinic_id', $clinicId)
+            ->find($id);
+
+        if (!$attachment) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found');
+        }
+
+        $filePath = $this->storageService->getAbsolutePath($attachment);
+
+        if (!file_exists($filePath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Physical file missing');
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', $attachment['mime_type'])
+            ->setBody((string) file_get_contents($filePath));
+    }
 }

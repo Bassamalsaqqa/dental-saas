@@ -287,6 +287,7 @@ $routes->group('odontogram', ['filter' => ['auth', 'tenant', 'subscription']], f
     $routes->post('update-tooth', 'Odontogram::updateTooth', ['filter' => 'permission:patients:edit']);
     $routes->get('tooth-condition', 'Odontogram::getToothCondition', ['filter' => 'permission:patients:view']);
     $routes->get('(:num)/data', 'Odontogram::getOdontogramData/$1', ['filter' => 'permission:patients:view']);
+    $routes->get('(:num)/preview-svg', 'Odontogram::previewSvg/$1', ['filter' => 'permission:patients:view']);
     $routes->post('reset-tooth', 'Odontogram::resetTooth', ['filter' => 'permission:patients:edit']);
     $routes->get('(:num)/export', 'Odontogram::export/$1', ['filter' => 'permission:patients:view']);
     $routes->get('(:num)/print', 'Odontogram::print/$1', ['filter' => 'permission:patients:view']);
@@ -569,6 +570,7 @@ $routes->group('', ['filter' => ['auth', 'tenant', 'subscription']], function ($
 // File routes (Tenant Plane)
 $routes->group('file', ['filter' => ['auth', 'tenant', 'subscription']], function ($routes) {
     $routes->get('download/(:num)', 'FileController::download/$1');
+    $routes->get('view/(:num)', 'FileController::view/$1');
 });
 
 // Profile routes (P5-11-UX)

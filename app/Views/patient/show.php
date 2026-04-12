@@ -17,6 +17,17 @@ function getFDINumber($universalNumber) {
     return $fdiMap[$universalNumber] ?? $universalNumber;
 }
 
+function loadInlinePatientMiniOdontogramSvg(): string
+{
+    $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
+    if (!is_file($svgPath)) {
+        return '';
+    }
+
+    $svgContent = preg_replace('/<\?xml.*?\?>/i', '', (string) file_get_contents($svgPath), 1);
+    return $svgContent === '' ? '' : $svgContent;
+}
+
 $isRtl = !empty($is_rtl);
 $fullName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
 $patientGenderMap = [
@@ -490,6 +501,39 @@ $patientChartFacts = [
         'accent' => 'patient-fact-accent-amber',
     ],
 ];
+
+$miniOdontogramInlineSvg = loadInlinePatientMiniOdontogramSvg();
+$latestSnapshot = !empty($odontogram_snapshots) ? $odontogram_snapshots[0] : null;
+$snapshotSourceLabelMap = [
+    'examination' => lang('UI.patientSnapshotSourceExamination'),
+    'contract' => lang('UI.patientSnapshotSourceContract'),
+    'manual' => lang('UI.patientSnapshotSourceManual'),
+];
+$snapshotPreviewRows = [];
+foreach (($odontogram_snapshots ?? []) as $snapshotRow) {
+    $snapshotData = json_decode((string) ($snapshotRow['snapshot_json'] ?? ''), true);
+    $affectedCount = 0;
+    if (is_array($snapshotData)) {
+        foreach ($snapshotData as $toothState) {
+            if (($toothState['condition_type'] ?? 'healthy') !== 'healthy') {
+                $affectedCount++;
+            }
+        }
+    }
+
+    $snapshotPreviewRows[] = [
+        'label' => $snapshotSourceLabelMap[$snapshotRow['source_type'] ?? ''] ?? lang('UI.patientSnapshotSourceUnknown'),
+        'created_at' => $snapshotRow['created_at'] ?? null,
+        'count' => $affectedCount,
+        'raw_label' => $snapshotRow['label'] ?? null,
+    ];
+}
+
+$latestImagingAttachment = $latest_imaging_attachment ?? null;
+$latestImagingPreviewSrc = $latest_imaging_preview_src ?? null;
+$latestImagingIsPreviewable = !empty($latestImagingAttachment['mime_type']) && strpos((string) $latestImagingAttachment['mime_type'], 'image/') === 0;
+$latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/view/' . $latestImagingAttachment['id']) : null;
+$latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
 ?>
 
 <?= $this->section('content') ?>
@@ -832,6 +876,90 @@ $patientChartFacts = [
                                             </section>
                                         </div>
                                     </section>
+                                    <section class="patient-compact-card patient-compact-card-clinical">
+                                        <div class="patient-compact-header">
+                                            <div>
+                                                <h3 class="patient-compact-title"><?= esc(lang('UI.patientClinicalVisualsTitle')) ?></h3>
+                                                <p class="patient-compact-copy"><?= esc(lang('UI.patientClinicalVisualsHelp')) ?></p>
+                                            </div>
+                                        </div>
+                                        <div class="patient-clinical-visuals-grid">
+                                            <article class="patient-preview-card">
+                                                <div class="patient-preview-card-header">
+                                                    <div>
+                                                        <h4><?= esc(lang('UI.patientCurrentOdontogramTitle')) ?></h4>
+                                                        <p><?= esc(lang('UI.patientCurrentOdontogramHelp')) ?></p>
+                                                    </div>
+                                                    <a href="<?= base_url('odontogram/' . $patient['id']) ?>" class="patient-preview-action">
+                                                        <i class="fas fa-tooth"></i>
+                                                        <span><?= esc(lang('UI.patientOpenFullChart')) ?></span>
+                                                    </a>
+                                                </div>
+                                                <div class="patient-preview-frame">
+                                                    <?php if (!empty($odontogram) && $miniOdontogramInlineSvg !== ''): ?>
+                                                        <div class="patient-odontogram-mini-svg">
+                                                            <?= $miniOdontogramInlineSvg ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="patient-preview-empty">
+                                                            <i class="fas fa-tooth"></i>
+                                                            <p><?= esc(lang('UI.patientNoOdontogramPreview')) ?></p>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="patient-preview-metrics">
+                                                    <span class="patient-preview-metric"><strong><?= (int) ($odontogram_stats['healthy_count'] ?? 0) ?></strong> <?= esc(lang('UI.patientHealthy')) ?></span>
+                                                    <span class="patient-preview-metric"><strong><?= (int) ($odontogram_stats['treated_count'] ?? 0) ?></strong> <?= esc(lang('UI.patientTreated')) ?></span>
+                                                    <span class="patient-preview-metric"><strong><?= (int) ($odontogram_stats['needs_treatment_count'] ?? 0) ?></strong> <?= esc(lang('UI.patientNeedsTreatment')) ?></span>
+                                                </div>
+                                            </article>
+                                            <article class="patient-preview-card">
+                                                <div class="patient-preview-card-header">
+                                                    <div>
+                                                        <h4><?= esc(lang('UI.patientLatestImagingTitle')) ?></h4>
+                                                        <p><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
+                                                    </div>
+                                                    <?php if (!empty($latestImagingAttachment)): ?>
+                                                        <a href="<?= esc($latestImagingOpenUrl) ?>" class="patient-preview-action">
+                                                            <i class="fas fa-image"></i>
+                                                            <span><?= esc(lang('UI.patientOpenImaging')) ?></span>
+                                                        </a>
+                                                    <?php elseif (!empty($attachments_enabled)): ?>
+                                                        <button type="button" onclick="return showTab('attachments')" class="patient-preview-action">
+                                                            <i class="fas fa-paperclip"></i>
+                                                            <span><?= esc(lang('UI.patientUploadFiles')) ?></span>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="patient-preview-frame">
+                                                    <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
+                                                        <img src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="patient-imaging-preview-image">
+                                                    <?php elseif (!empty($latestImagingAttachment) && $latestImagingIsPreviewable): ?>
+                                                        <img src="<?= esc($latestImagingViewUrl) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="patient-imaging-preview-image">
+                                                    <?php elseif (!empty($latestImagingAttachment)): ?>
+                                                        <div class="patient-preview-empty">
+                                                            <i class="fas fa-file-medical"></i>
+                                                            <p><?= esc(lang('UI.patientImagingPreviewUnavailable')) ?></p>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="patient-preview-empty">
+                                                            <i class="fas fa-image"></i>
+                                                            <p><?= esc(lang('UI.patientNoImagingPreview')) ?></p>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="patient-preview-meta">
+                                                    <?php if (!empty($latestImagingAttachment)): ?>
+                                                        <p class="patient-preview-meta-title"><?= esc($latestImagingAttachment['category'] ?? lang('UI.patientLatestImagingTitle')) ?></p>
+                                                        <p class="patient-preview-meta-copy"><?= esc($latestImagingAttachment['original_name'] ?? '') ?></p>
+                                                        <p class="patient-preview-meta-copy"><?= !empty($latestImagingAttachment['created_at']) ? formatDateTime($latestImagingAttachment['created_at']) : '--' ?></p>
+                                                    <?php else: ?>
+                                                        <p class="patient-preview-meta-copy"><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </section>
                                 </div>
                                 <aside class="patient-details-sidebar">
                                     <?php if ($hasStructuredMedicalAlerts || $patient['medical_history'] || $patient['allergies'] || $patient['notes']): ?>
@@ -904,6 +1032,38 @@ $patientChartFacts = [
                                             </div>
                                         </section>
                                     <?php endif; ?>
+                                    <section class="patient-compact-card patient-compact-card-history">
+                                        <div class="patient-compact-header">
+                                            <div>
+                                                <h3 class="patient-compact-title"><?= esc(lang('UI.patientChartHistoryTitle')) ?></h3>
+                                                <p class="patient-compact-copy"><?= esc(lang('UI.patientChartHistoryHelp')) ?></p>
+                                            </div>
+                                            <?php if ($latestSnapshot): ?>
+                                                <span class="patient-alert-count"><?= count($snapshotPreviewRows) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="patient-snapshot-list">
+                                            <?php if (!empty($snapshotPreviewRows)): ?>
+                                                <?php foreach ($snapshotPreviewRows as $snapshotItem): ?>
+                                                    <article class="patient-snapshot-item">
+                                                        <div class="patient-snapshot-item-topline">
+                                                            <span class="patient-snapshot-badge"><?= esc($snapshotItem['label']) ?></span>
+                                                            <span class="patient-snapshot-date"><?= esc(lang('UI.patientSnapshotCapturedOn', ['date' => !empty($snapshotItem['created_at']) ? formatDateTime($snapshotItem['created_at']) : '--'])) ?></span>
+                                                        </div>
+                                                        <?php if (!empty($snapshotItem['raw_label'])): ?>
+                                                            <p class="patient-snapshot-title"><?= esc($snapshotItem['raw_label']) ?></p>
+                                                        <?php endif; ?>
+                                                        <p class="patient-snapshot-copy"><?= esc(lang('UI.patientSnapshotTeethAffected', ['count' => (int) $snapshotItem['count']])) ?></p>
+                                                    </article>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <div class="patient-preview-empty patient-preview-empty-compact">
+                                                    <i class="fas fa-clock-rotate-left"></i>
+                                                    <p><?= esc(lang('UI.patientNoChartSnapshots')) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </section>
                                 </aside>
                             </div>
                         </div>
@@ -3231,6 +3391,226 @@ $patientChartFacts = [
         padding: 1rem;
     }
 
+    .patient-clinical-visuals-grid {
+        display: grid;
+        gap: 0.9rem;
+        padding: 1rem;
+    }
+
+    @media (min-width: 1100px) {
+        .patient-clinical-visuals-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .patient-preview-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        min-width: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.95rem;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+        padding: 0.95rem;
+    }
+
+    .patient-preview-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .patient-preview-card-header h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .patient-preview-card-header p {
+        margin-top: 0.22rem;
+        font-size: 0.76rem;
+        line-height: 1.45;
+        color: #64748b;
+    }
+
+    .patient-preview-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 9999px;
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 0.48rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .patient-preview-frame {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: 0.9rem;
+        border: 1px solid #dbe4f0;
+        background: linear-gradient(180deg, #f8fafc, #eef2f7);
+    }
+
+    .patient-preview-empty {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 1rem;
+        text-align: center;
+        color: #64748b;
+    }
+
+    .patient-preview-empty i {
+        font-size: 1.3rem;
+        color: #94a3b8;
+    }
+
+    .patient-preview-empty p {
+        font-size: 0.8rem;
+        line-height: 1.45;
+    }
+
+    .patient-preview-empty-compact {
+        min-height: 8rem;
+    }
+
+    .patient-odontogram-mini-svg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 0.7rem 0.9rem;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+    }
+
+    .patient-mini-odontogram-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .patient-odontogram-mini-svg svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .patient-odontogram-mini-svg text {
+        pointer-events: none;
+        font-family: inherit;
+    }
+
+    .patient-odontogram-mini-svg .tooth-overlay {
+        mix-blend-mode: multiply;
+        pointer-events: none;
+    }
+
+    .patient-preview-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .patient-preview-metric {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 9999px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.74rem;
+    }
+
+    .patient-preview-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+    }
+
+    .patient-preview-meta-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .patient-preview-meta-copy {
+        font-size: 0.76rem;
+        line-height: 1.4;
+        color: #64748b;
+    }
+
+    .patient-imaging-preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: #0f172a;
+    }
+
+    .patient-snapshot-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+
+    .patient-snapshot-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.9rem;
+        background: #f8fafc;
+        padding: 0.85rem 0.9rem;
+    }
+
+    .patient-snapshot-item-topline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .patient-snapshot-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        background: #e0f2fe;
+        color: #0369a1;
+        padding: 0.28rem 0.55rem;
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+
+    .patient-snapshot-date {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    .patient-snapshot-title {
+        margin-top: 0.55rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .patient-snapshot-copy {
+        margin-top: 0.22rem;
+        font-size: 0.76rem;
+        color: #64748b;
+        line-height: 1.45;
+    }
+
     .patient-medical-section {
         display: flex;
         flex-direction: column;
@@ -3406,6 +3786,154 @@ $patientChartFacts = [
         toothUpdateGenericError: '<?= esc(lang('UI.patientToothUpdateGenericError'), 'js') ?>',
         unknown: '<?= esc(lang('UI.patientUnknown'), 'js') ?>'
     };
+    const patientMiniOdontogramData = <?= json_encode(array_values($odontogram ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+
+    function initPatientMiniOdontogramPreview() {
+        const wrapper = document.querySelector('.patient-odontogram-mini-svg');
+        if (!wrapper) {
+            return;
+        }
+
+        const svg = wrapper.querySelector('svg');
+        if (!svg) {
+            return;
+        }
+
+        const conditionColors = {
+            cavity: '#fbbf24',
+            filling: '#3b82f6',
+            crown: '#a855f7',
+            root_canal: '#ec4899',
+            extracted: '#ef4444',
+            implant: '#6366f1',
+            bridge: '#0ea5e9',
+            partial_denture: '#f97316',
+            full_denture: '#f59e0b',
+            other: '#6b7280'
+        };
+
+        const parseToothNumber = (element) => {
+            const rawId = element?.id || '';
+            const match = rawId.match(/tooth-(\d+)/);
+            return match ? parseInt(match[1], 10) : null;
+        };
+
+        const getLargestShape = (group) => {
+            const shapes = Array.from(group.querySelectorAll('path, polygon, rect, circle, ellipse'))
+                .filter(el =>
+                    !el.classList.contains('tooth-hit') &&
+                    !el.classList.contains('tooth-overlay') &&
+                    !el.classList.contains('tooth-outline')
+                );
+
+            const getOpacity = (el) => {
+                const attr = el.getAttribute('opacity');
+                if (attr !== null && attr !== '') {
+                    const value = Number(attr);
+                    return Number.isFinite(value) ? value : 1;
+                }
+                const styleValue = el.style && el.style.opacity ? Number(el.style.opacity) : NaN;
+                return Number.isFinite(styleValue) ? styleValue : 1;
+            };
+
+            const inMultiplyGroup = (el) => {
+                let node = el;
+                while (node && node !== group) {
+                    if (node.getAttribute && (node.getAttribute('mix-blend-mode') || '').toLowerCase() === 'multiply') {
+                        return true;
+                    }
+                    node = node.parentNode;
+                }
+                return false;
+            };
+
+            const isVisibleFill = (el) => {
+                const fill = (el.getAttribute('fill') || '').trim().toLowerCase();
+                if (!fill || fill === 'none' || fill === 'transparent') {
+                    return false;
+                }
+                return true;
+            };
+
+            const filled = shapes.filter(isVisibleFill);
+            const candidates = filled.length ? filled : shapes;
+            let best = null;
+            let bestScore = -1;
+
+            candidates.forEach(shape => {
+                let bbox;
+                try {
+                    bbox = shape.getBBox();
+                } catch (e) {
+                    return;
+                }
+                const area = bbox.width * bbox.height;
+                if (!area || area <= 0) {
+                    return;
+                }
+
+                const opacity = Math.max(0, Math.min(1, getOpacity(shape)));
+                const multiplyPenalty = inMultiplyGroup(shape) ? 0.15 : 1;
+                const score = area * (0.25 + 0.75 * opacity) * multiplyPenalty;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = shape;
+                }
+            });
+
+            return best;
+        };
+
+        const ensurePreviewOverlay = (group) => {
+            group.querySelectorAll('.tooth-overlay, .tooth-outline, .tooth-hit').forEach(el => el.remove());
+            const base = getLargestShape(group);
+            if (!base) {
+                return null;
+            }
+
+            const overlay = base.cloneNode(true);
+            overlay.removeAttribute('id');
+            overlay.setAttribute('class', 'tooth-overlay');
+            overlay.setAttribute('fill', 'transparent');
+            overlay.setAttribute('opacity', '0');
+            overlay.style.pointerEvents = 'none';
+            group.appendChild(overlay);
+            return overlay;
+        };
+
+        const overlays = new Map();
+        Array.from(svg.querySelectorAll('[id^="tooth-"]'))
+            .filter(element => (element.tagName || '').toLowerCase().endsWith('g'))
+            .forEach(group => {
+                const toothNumber = parseToothNumber(group);
+                if (!toothNumber) {
+                    return;
+                }
+                const overlay = ensurePreviewOverlay(group);
+                if (overlay) {
+                    overlays.set(toothNumber, overlay);
+                }
+            });
+
+        patientMiniOdontogramData.forEach(record => {
+            const toothNumber = parseInt(record.tooth_number, 10);
+            const overlay = overlays.get(toothNumber);
+            if (!overlay) {
+                return;
+            }
+
+            const condition = record.condition_type || 'healthy';
+            if (!condition || condition === 'healthy') {
+                overlay.setAttribute('fill', 'transparent');
+                overlay.setAttribute('opacity', '0');
+                return;
+            }
+
+            overlay.setAttribute('fill', conditionColors[condition] || '#6b7280');
+            overlay.setAttribute('opacity', '0.28');
+        });
+    }
 
     // Global variables for filtering
     let currentTab = 'details';
@@ -3414,6 +3942,7 @@ $patientChartFacts = [
 
     // Initialize timeline data
     document.addEventListener('DOMContentLoaded', function() {
+        initPatientMiniOdontogramPreview();
         // Store all timeline data for filtering
         allTimelineData = [
             <?php foreach ($timeline as $item): ?>

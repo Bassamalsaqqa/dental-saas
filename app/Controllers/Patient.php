@@ -10,6 +10,7 @@ use App\Models\AppointmentModel;
 use App\Models\FinanceModel;
 use App\Models\FinancePaymentModel;
 use App\Models\OdontogramModel;
+use App\Models\PatientOdontogramSnapshotModel;
 use App\Models\TreatmentModel;
 use App\Models\PrescriptionModel;
 use App\Models\FileAttachmentModel;
@@ -25,6 +26,7 @@ class Patient extends BaseController
     protected $financeModel;
     protected $financePaymentModel;
     protected $odontogramModel;
+    protected $odontogramSnapshotModel;
     protected $treatmentModel;
     protected $prescriptionModel;
     protected $attachmentModel;
@@ -43,6 +45,7 @@ class Patient extends BaseController
         $this->financeModel = new FinanceModel();
         $this->financePaymentModel = new FinancePaymentModel();
         $this->odontogramModel = new OdontogramModel();
+        $this->odontogramSnapshotModel = new PatientOdontogramSnapshotModel();
         $this->treatmentModel = new TreatmentModel();
         $this->prescriptionModel = new PrescriptionModel();
         $this->attachmentModel = new FileAttachmentModel();
@@ -113,6 +116,24 @@ class Patient extends BaseController
             'Insurance Document' => 'INSURANCE',
             'Consent or External Record' => 'CONSENT',
             'Other Dental Record' => 'DENTAL_RECORD',
+        ];
+    }
+
+    private function getImagingCategories(): array
+    {
+        return [
+            'CBCT (3D) Imaging',
+            'Panoramic X-Ray (OPG)',
+            'Cephalometric X-Ray',
+            'Periapical X-Ray',
+            'Bitewing X-Ray',
+            'Occlusal X-Ray',
+            'TMJ CT',
+            'TMJ X-Ray',
+            'Sinus CT',
+            'Intraoral Photos',
+            'Extraoral Photos',
+            'Intraoral Scan',
         ];
     }
 
@@ -620,6 +641,38 @@ class Patient extends BaseController
             $storageUsageBytes = $this->attachmentModel->getTotalSizeByClinic($clinicId);
         }
 
+        $latestImagingAttachment = null;
+        $latestImagingPreviewSrc = null;
+        if ($attachmentsEnabled && !empty($attachments)) {
+            $imagingCategories = $this->getImagingCategories();
+            foreach ($attachments as $attachment) {
+                if (in_array((string) ($attachment['category'] ?? ''), $imagingCategories, true)) {
+                    $latestImagingAttachment = $attachment;
+                    break;
+                }
+            }
+        }
+
+        if ($latestImagingAttachment && strpos((string) ($latestImagingAttachment['mime_type'] ?? ''), 'image/') === 0) {
+            try {
+                $absolutePath = $this->storageService->getAbsolutePath($latestImagingAttachment);
+                if (is_file($absolutePath) && filesize($absolutePath) !== false && filesize($absolutePath) <= (4 * 1024 * 1024)) {
+                    $imageBytes = file_get_contents($absolutePath);
+                    if ($imageBytes !== false) {
+                        $latestImagingPreviewSrc = 'data:' . $latestImagingAttachment['mime_type'] . ';base64,' . base64_encode($imageBytes);
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_message('warning', 'Unable to prepare patient imaging preview: ' . $e->getMessage());
+            }
+        }
+
+        $odontogramSnapshots = $this->odontogramSnapshotModel
+            ->where('clinic_id', $clinicId)
+            ->where('patient_id', $id)
+            ->orderBy('created_at', 'DESC')
+            ->findAll(6);
+
         if ($contractsEnabled) {
             $contracts = $this->contractModel
                 ->where('patient_id', $id)
@@ -688,8 +741,11 @@ class Patient extends BaseController
             'attachments_storage_limit_gb' => $storageLimitGb,
             'attachments_max_file_mb' => $maxAttachmentMb,
             'attachment_category_options' => $this->getAttachmentCategoryOptions(),
+            'latest_imaging_attachment' => $latestImagingAttachment,
+            'latest_imaging_preview_src' => $latestImagingPreviewSrc,
             'contracts_enabled' => $contractsEnabled,
             'contracts' => $contracts,
+            'odontogram_snapshots' => $odontogramSnapshots,
             'patient_whatsapp' => $this->patientWhatsAppModel->findByPatient((int) $clinicId, (int) $id),
             'patient_whatsapp_optout' => $this->whatsAppOptoutModel
                 ->where('clinic_id', $clinicId)

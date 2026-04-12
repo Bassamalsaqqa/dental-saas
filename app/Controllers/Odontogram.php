@@ -261,6 +261,132 @@ class Odontogram extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function previewSvg($patientId)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $patient = $this->patientModel->where('clinic_id', $clinicId)->find($patientId);
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $odontogram = $this->odontogramModel->getOdontogramByPatient($patientId);
+        $svgPath = APPPATH . 'Views/odontogram/odontogram.svg';
+        if (!is_file($svgPath)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Odontogram template not found');
+        }
+
+        $svgContent = preg_replace('/<\?xml.*?\?>/i', '', (string) file_get_contents($svgPath), 1);
+        $conditionColors = [
+            'cavity' => '#fbbf24',
+            'filling' => '#3b82f6',
+            'crown' => '#a855f7',
+            'root_canal' => '#ec4899',
+            'extracted' => '#ef4444',
+            'implant' => '#6366f1',
+            'bridge' => '#0ea5e9',
+            'partial_denture' => '#f97316',
+            'full_denture' => '#f59e0b',
+            'other' => '#6b7280',
+        ];
+
+        $dom = new \DOMDocument();
+        $dom->preserveWhiteSpace = true;
+        $dom->formatOutput = false;
+        $previous = libxml_use_internal_errors(true);
+
+        if (!$dom->loadXML($svgContent)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+            throw new \RuntimeException('Failed to load odontogram SVG');
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        $xpath = new \DOMXPath($dom);
+        foreach ($odontogram as $tooth) {
+            $toothNumber = (int) ($tooth['tooth_number'] ?? 0);
+            if ($toothNumber <= 0) {
+                continue;
+            }
+
+            $condition = $tooth['condition_type'] ?? 'healthy';
+            $group = $xpath->query("//*[@id='tooth-{$toothNumber}']")->item(0);
+            if (!$group) {
+                continue;
+            }
+
+            $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+
+            if ($overlays->length === 0) {
+                $base = null;
+                $directPaths = $xpath->query("./*[local-name()='path']", $group);
+                foreach ($directPaths as $path) {
+                    $fill = strtolower(trim($path->getAttribute('fill')));
+                    if ($fill !== '' && $fill !== 'none' && $fill !== 'transparent') {
+                        $base = $path;
+                        break;
+                    }
+                }
+
+                if (!$base) {
+                    $anyPaths = $xpath->query(".//*[local-name()='path']", $group);
+                    foreach ($anyPaths as $path) {
+                        $fill = strtolower(trim($path->getAttribute('fill')));
+                        if ($fill !== '' && $fill !== 'none' && $fill !== 'transparent') {
+                            $base = $path;
+                            break;
+                        }
+                    }
+                }
+
+                if ($base) {
+                    $overlay = $base->cloneNode(true);
+                    if ($overlay instanceof \DOMElement) {
+                        $overlay->removeAttribute('id');
+                        $overlay->setAttribute('class', 'tooth-overlay');
+                        $overlay->setAttribute('fill', 'transparent');
+                        $overlay->setAttribute('opacity', '0');
+                        $group->appendChild($overlay);
+                        $overlays = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' tooth-overlay ')]", $group);
+                    }
+                }
+            }
+
+            if ($overlays->length === 0) {
+                continue;
+            }
+
+            if (!$condition || $condition === 'healthy') {
+                foreach ($overlays as $overlay) {
+                    $overlay->setAttribute('fill', 'transparent');
+                    $overlay->setAttribute('opacity', '0');
+                }
+                continue;
+            }
+
+            $color = $conditionColors[$condition] ?? '#6b7280';
+            foreach ($overlays as $overlay) {
+                $overlay->setAttribute('fill', $color);
+                $overlay->setAttribute('opacity', '0.28');
+            }
+        }
+
+        $svg = $dom->documentElement;
+        if ($svg instanceof \DOMElement) {
+            $style = $dom->createElement('style', '.tooth-overlay{mix-blend-mode:multiply;pointer-events:none;}');
+            $svg->insertBefore($style, $svg->firstChild);
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'image/svg+xml; charset=UTF-8')
+            ->setBody((string) preg_replace('/<\?xml.*?\?>/i', '', $dom->saveXML($dom->documentElement), 1));
+    }
+
     public function resetTooth()
     {
         $clinicId = session()->get('active_clinic_id');
