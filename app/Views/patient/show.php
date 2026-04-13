@@ -2754,7 +2754,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: center;
         min-width: 0;
         border: 1px solid #dbe4f0;
-        background: #ffffff;
+        background: linear-gradient(180deg, #ffffff, #f7fbff);
         color: #475569;
         border-radius: 0.95rem;
         transition: all 0.2s ease;
@@ -2954,7 +2954,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: center;
         border-radius: 0.7rem;
         border: 1px solid transparent;
-        background: #f8fafc;
+        background: linear-gradient(180deg, #f8fafc, #edf5ff);
         color: #475569;
         transition: all 0.18s ease;
     }
@@ -3173,35 +3173,36 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-compact-card {
-        border: 1px solid #e2e8f0;
+        position: relative;
+        border: 1px solid #dbe4ef;
         border-radius: 1rem;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-        box-shadow: 0 18px 36px -30px rgba(15, 23, 42, 0.24);
+        background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+        box-shadow: 0 16px 32px -28px rgba(15, 23, 42, 0.18);
         overflow: hidden;
     }
 
     .patient-compact-card-profile {
         background:
-            radial-gradient(circle at top right, rgba(219, 234, 254, 0.45), transparent 36%),
-            linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+            linear-gradient(180deg, rgba(239, 246, 255, 0.9), rgba(255, 255, 255, 0) 16%),
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .patient-compact-card-clinical {
         background:
-            radial-gradient(circle at top left, rgba(224, 242, 254, 0.5), transparent 30%),
-            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            linear-gradient(180deg, rgba(240, 249, 255, 0.95), rgba(255, 255, 255, 0) 16%),
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .patient-compact-card-alerts {
         background:
-            radial-gradient(circle at top right, rgba(254, 240, 138, 0.26), transparent 34%),
-            linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
+            linear-gradient(180deg, rgba(255, 251, 235, 0.95), rgba(255, 255, 255, 0) 18%),
+            linear-gradient(180deg, #ffffff 0%, #fffdf9 100%);
     }
 
     .patient-compact-card-history {
         background:
-            radial-gradient(circle at top left, rgba(191, 219, 254, 0.32), transparent 34%),
-            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            linear-gradient(180deg, rgba(236, 254, 255, 0.9), rgba(255, 255, 255, 0) 18%),
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .patient-compact-header {
@@ -3210,8 +3211,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: space-between;
         gap: 0.85rem;
         padding: 1rem 1.05rem 0.85rem;
-        border-bottom: 1px solid #e2e8f0;
-        background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.8));
+        border-bottom: 1px solid #e5edf6;
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.88));
     }
 
     .patient-compact-title {
@@ -3252,7 +3253,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-facts-split-secondary {
         border-top: 1px solid rgba(226, 232, 240, 0.85);
-        background: linear-gradient(180deg, rgba(248, 250, 252, 0.62), rgba(255, 255, 255, 0));
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.78), rgba(255, 255, 255, 0));
         padding-bottom: 0.25rem;
     }
 
@@ -3332,11 +3333,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         justify-content: flex-start;
         min-width: 0;
         min-height: 5.85rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dfe7f1;
         border-radius: 0.85rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.88));
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(249, 251, 255, 0.98));
         padding: 0.8rem 0.92rem 0.84rem;
-        box-shadow: 0 10px 20px -24px rgba(15, 23, 42, 0.2);
+        box-shadow: 0 10px 18px -22px rgba(15, 23, 42, 0.16);
     }
 
     .patient-facts-section-primary .patient-fact-card {
@@ -3467,11 +3468,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         flex-direction: column;
         gap: 0.85rem;
         min-width: 0;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dbe5f0;
         border-radius: 0.95rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 250, 255, 0.97));
         padding: 1rem;
-        box-shadow: 0 16px 26px -28px rgba(15, 23, 42, 0.24);
+        box-shadow: 0 14px 24px -24px rgba(15, 23, 42, 0.16);
     }
 
     .patient-preview-card-header {
@@ -3513,8 +3514,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         aspect-ratio: 16 / 9;
         overflow: hidden;
         border-radius: 0.9rem;
-        border: 1px solid #dbe4f0;
-        background: linear-gradient(180deg, #f8fafc, #eef2f7);
+        border: 1px solid #dde7f2;
+        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
     }
 
@@ -3628,11 +3629,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-snapshot-item {
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dce6f0;
         border-radius: 0.9rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 254, 255, 0.94));
         padding: 0.92rem 0.95rem;
-        box-shadow: 0 12px 24px -28px rgba(15, 23, 42, 0.2);
+        box-shadow: 0 12px 22px -24px rgba(15, 23, 42, 0.14);
     }
 
     .patient-snapshot-item-topline {
@@ -3714,14 +3715,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-note-panel {
-        border: 1px solid #e2e8f0;
+        border: 1px solid #dfe7f1;
         border-radius: 0.85rem;
         background: #ffffff;
         padding: 0.8rem 0.92rem;
+        box-shadow: 0 10px 18px -24px rgba(15, 23, 42, 0.12);
     }
 
     .patient-note-panel-soft {
-        background: #f8fafc;
+        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
     }
 
     .patient-note-label {
