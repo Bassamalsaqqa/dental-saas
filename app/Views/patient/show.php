@@ -835,7 +835,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <p class="patient-compact-copy"><?= esc(lang('UI.patientSummaryHelp')) ?></p>
                                             </div>
                                         </div>
-                                        <div class="patient-facts-section">
+                                        <div class="patient-facts-section patient-facts-section-primary">
                                             <div class="patient-facts-grid">
                                                 <?php foreach ($patientOverviewFacts as $fact): ?>
                                                     <article class="patient-fact-card <?= esc($fact['accent']) ?>">
@@ -845,7 +845,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <?php endforeach; ?>
                                             </div>
                                         </div>
-                                        <div class="patient-facts-split">
+                                        <div class="patient-facts-split patient-facts-split-secondary">
                                             <section class="patient-facts-section">
                                                 <div class="patient-facts-heading">
                                                     <h4><?= esc(lang('UI.patientContactSection')) ?></h4>
@@ -1039,7 +1039,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 <p class="patient-compact-copy"><?= esc(lang('UI.patientChartHistoryHelp')) ?></p>
                                             </div>
                                             <?php if ($latestSnapshot): ?>
-                                                <span class="patient-alert-count"><?= count($snapshotPreviewRows) ?></span>
+                                                <div class="patient-history-summary">
+                                                    <span class="patient-history-summary-count"><?= count($snapshotPreviewRows) ?></span>
+                                                    <span class="patient-history-summary-copy"><?= esc(lang('UI.patientSnapshotCapturedOn', ['date' => !empty($latestSnapshot['created_at']) ? formatDateTime($latestSnapshot['created_at']) : '--'])) ?></span>
+                                                </div>
                                             <?php endif; ?>
                                         </div>
                                         <div class="patient-snapshot-list">
@@ -3150,7 +3153,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     @media (min-width: 1200px) {
         .patient-details-layout {
             grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.9fr);
-            align-items: stretch;
+            align-items: start;
         }
     }
 
@@ -3158,21 +3161,47 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     .patient-details-sidebar {
         display: flex;
         flex-direction: column;
+        align-items: stretch;
+        align-self: start;
         gap: 0.9rem;
         min-width: 0;
     }
 
     .patient-details-main > .patient-compact-card,
     .patient-details-sidebar > .patient-compact-card {
-        height: 100%;
+        height: auto;
     }
 
     .patient-compact-card {
         border: 1px solid #e2e8f0;
         border-radius: 1rem;
-        background: #ffffff;
-        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.2);
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 18px 36px -30px rgba(15, 23, 42, 0.24);
         overflow: hidden;
+    }
+
+    .patient-compact-card-profile {
+        background:
+            radial-gradient(circle at top right, rgba(219, 234, 254, 0.45), transparent 36%),
+            linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    .patient-compact-card-clinical {
+        background:
+            radial-gradient(circle at top left, rgba(224, 242, 254, 0.5), transparent 30%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .patient-compact-card-alerts {
+        background:
+            radial-gradient(circle at top right, rgba(254, 240, 138, 0.26), transparent 34%),
+            linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
+    }
+
+    .patient-compact-card-history {
+        background:
+            radial-gradient(circle at top left, rgba(191, 219, 254, 0.32), transparent 34%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     }
 
     .patient-compact-header {
@@ -3180,37 +3209,51 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         align-items: flex-start;
         justify-content: space-between;
         gap: 0.85rem;
-        padding: 0.9rem 1rem 0.72rem;
+        padding: 1rem 1.05rem 0.85rem;
         border-bottom: 1px solid #e2e8f0;
-        background: #f8fafc;
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.8));
     }
 
     .patient-compact-title {
-        font-size: 0.95rem;
+        font-size: 0.98rem;
         line-height: 1.25rem;
         font-weight: 700;
         color: #0f172a;
     }
 
     .patient-compact-copy {
-        margin-top: 0.2rem;
-        font-size: 0.74rem;
-        line-height: 1.15rem;
+        margin-top: 0.28rem;
+        font-size: 0.76rem;
+        line-height: 1.22rem;
         color: #64748b;
     }
 
     .patient-facts-split {
         display: grid;
-        gap: 0.9rem;
-        padding: 0 1rem 1rem;
+        gap: 1rem;
+        padding: 1.05rem 1.05rem 1.05rem;
     }
 
     .patient-facts-section {
-        padding: 0.95rem 1rem 1rem;
+        padding: 0.85rem 0;
     }
 
     .patient-facts-section + .patient-facts-section {
         border-top: 1px solid #e2e8f0;
+    }
+
+    .patient-facts-section-primary {
+        padding: 0.85rem 1.05rem 1rem;
+    }
+
+    .patient-facts-section-primary .patient-facts-grid {
+        gap: 0.78rem;
+    }
+
+    .patient-facts-split-secondary {
+        border-top: 1px solid rgba(226, 232, 240, 0.85);
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.62), rgba(255, 255, 255, 0));
+        padding-bottom: 0.25rem;
     }
 
     @media (min-width: 900px) {
@@ -3220,7 +3263,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         }
 
         .patient-facts-split .patient-facts-section {
-            padding: 0.95rem 0 0;
+            padding: 0.85rem 0;
         }
 
         .patient-facts-split .patient-facts-section + .patient-facts-section {
@@ -3228,6 +3271,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
             border-inline-start: 1px solid #e2e8f0;
             padding-inline-start: 1rem;
         }
+
     }
 
     .patient-facts-heading {
@@ -3252,6 +3296,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: grid;
         gap: 0.65rem;
         grid-template-columns: repeat(1, minmax(0, 1fr));
+        align-items: stretch;
     }
 
     @media (min-width: 760px) {
@@ -3270,6 +3315,10 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 
+    .patient-facts-grid-compact .patient-fact-card {
+        min-height: 4.5rem;
+    }
+
     @media (min-width: 760px) {
         .patient-facts-grid-compact {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3278,12 +3327,21 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 
     .patient-fact-card {
         position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
         min-width: 0;
+        min-height: 5.85rem;
         border: 1px solid #e2e8f0;
         border-radius: 0.85rem;
-        background: #ffffff;
-        padding: 0.72rem 0.82rem 0.78rem;
-        box-shadow: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.88));
+        padding: 0.8rem 0.92rem 0.84rem;
+        box-shadow: 0 10px 20px -24px rgba(15, 23, 42, 0.2);
+    }
+
+    .patient-facts-section-primary .patient-fact-card {
+        min-height: 6.1rem;
+        padding: 0.9rem 1rem 0.95rem;
     }
 
     .patient-fact-card-wide {
@@ -3311,18 +3369,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: block;
         padding-inline-start: 0.8rem;
         font-size: 0.72rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.01em;
         color: #64748b;
     }
 
     .patient-fact-value {
-        margin-top: 0.32rem;
+        margin-top: 0.38rem;
         font-size: 0.92rem;
-        line-height: 1.28rem;
+        line-height: 1.34rem;
         font-weight: 600;
         color: #0f172a;
         word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
     .patient-alert-count {
@@ -3388,13 +3447,13 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        padding: 1rem;
+        padding: 1.05rem 1.05rem 1rem;
     }
 
     .patient-clinical-visuals-grid {
         display: grid;
-        gap: 0.9rem;
-        padding: 1rem;
+        gap: 1rem;
+        padding: 1.05rem 1.05rem 0.3rem;
     }
 
     @media (min-width: 1100px) {
@@ -3410,8 +3469,9 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         min-width: 0;
         border: 1px solid #e2e8f0;
         border-radius: 0.95rem;
-        background: linear-gradient(180deg, #ffffff, #f8fafc);
-        padding: 0.95rem;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+        padding: 1rem;
+        box-shadow: 0 16px 26px -28px rgba(15, 23, 42, 0.24);
     }
 
     .patient-preview-card-header {
@@ -3455,6 +3515,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         border-radius: 0.9rem;
         border: 1px solid #dbe4f0;
         background: linear-gradient(180deg, #f8fafc, #eef2f7);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
     }
 
     .patient-preview-empty {
@@ -3563,14 +3624,15 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         display: flex;
         flex-direction: column;
         gap: 0.8rem;
-        padding: 1rem;
+        padding: 1.05rem 1.05rem 0.3rem;
     }
 
     .patient-snapshot-item {
         border: 1px solid #e2e8f0;
         border-radius: 0.9rem;
-        background: #f8fafc;
-        padding: 0.85rem 0.9rem;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+        padding: 0.92rem 0.95rem;
+        box-shadow: 0 12px 24px -28px rgba(15, 23, 42, 0.2);
     }
 
     .patient-snapshot-item-topline {
@@ -3611,6 +3673,36 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         line-height: 1.45;
     }
 
+    .patient-history-summary {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.16rem;
+        text-align: end;
+    }
+
+    .patient-history-summary-count {
+        display: inline-flex;
+        min-width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 0.78rem;
+        font-weight: 800;
+        border: 1px solid #bfdbfe;
+        align-self: flex-end;
+    }
+
+    .patient-history-summary-copy {
+        font-size: 0.68rem;
+        line-height: 1rem;
+        color: #64748b;
+        max-width: 10rem;
+    }
+
     .patient-medical-section {
         display: flex;
         flex-direction: column;
@@ -3618,7 +3710,6 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
     }
 
     .patient-medical-section + .patient-medical-section {
-        padding-top: 0.95rem;
         border-top: 1px solid #e2e8f0;
     }
 
@@ -4786,5 +4877,3 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
 </script>
 
 <?= $this->endSection() ?>
-
-
