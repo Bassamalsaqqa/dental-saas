@@ -137,6 +137,13 @@ class Patient extends BaseController
         ];
     }
 
+    private function getNonImagingAttachmentCategoryOptions(): array
+    {
+        $options = $this->getAttachmentCategoryOptions();
+        unset($options['Dental Imaging']);
+        return $options;
+    }
+
     private function buildPatientOdontogramSnapshots(int $clinicId, int $patientId, ?int $limit = 6): array
     {
         $query = $this->odontogramSnapshotModel
@@ -177,6 +184,32 @@ class Patient extends BaseController
             $row['affected_rows'] = $affectedRows;
             $row['creator_name'] = $creatorName !== '' ? $creatorName : null;
             $row['source_url'] = $this->buildPatientOdontogramSnapshotSourceUrl($patientId, $row);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    private function getPatientImagingRecords(int $clinicId, int $patientId): array
+    {
+        $imagingCategories = $this->getImagingCategories();
+
+        $rows = $this->attachmentModel
+            ->select('file_attachments.*, users.first_name AS creator_first_name, users.last_name AS creator_last_name')
+            ->join('users', 'users.id = file_attachments.created_by', 'left')
+            ->where('file_attachments.clinic_id', $clinicId)
+            ->where('file_attachments.entity_type', 'patient')
+            ->where('file_attachments.entity_id', $patientId)
+            ->where('file_attachments.purpose', 'attachment')
+            ->whereIn('file_attachments.category', $imagingCategories)
+            ->orderBy('file_attachments.created_at', 'DESC')
+            ->findAll();
+
+        foreach ($rows as &$row) {
+            $row['creator_name'] = trim((string) (($row['creator_first_name'] ?? '') . ' ' . ($row['creator_last_name'] ?? '')));
+            $row['is_previewable'] = strpos((string) ($row['mime_type'] ?? ''), 'image/') === 0;
+            $row['inline_url'] = base_url('file/inline/' . $row['id']);
+            $row['download_url'] = base_url('file/download/' . $row['id']);
         }
         unset($row);
 
@@ -702,16 +735,18 @@ class Patient extends BaseController
             $storageUsageBytes = $this->attachmentModel->getTotalSizeByClinic($clinicId);
         }
 
+        $imagingCategories = $this->getImagingCategories();
+        $documentAttachments = array_values(array_filter(
+            $attachments,
+            static fn(array $row): bool => !in_array((string) ($row['category'] ?? ''), $imagingCategories, true)
+        ));
+
         $latestImagingAttachment = null;
         $latestImagingPreviewSrc = null;
-        if ($attachmentsEnabled && !empty($attachments)) {
-            $imagingCategories = $this->getImagingCategories();
-            foreach ($attachments as $attachment) {
-                if (in_array((string) ($attachment['category'] ?? ''), $imagingCategories, true)) {
-                    $latestImagingAttachment = $attachment;
-                    break;
-                }
-            }
+        $imagingRecords = [];
+        if ($attachmentsEnabled) {
+            $imagingRecords = $this->getPatientImagingRecords((int) $clinicId, (int) $id);
+            $latestImagingAttachment = !empty($imagingRecords) ? $imagingRecords[0] : null;
         }
 
         if ($latestImagingAttachment && strpos((string) ($latestImagingAttachment['mime_type'] ?? ''), 'image/') === 0) {
@@ -794,12 +829,15 @@ class Patient extends BaseController
             'prescriptions' => $this->prescriptionModel->getPrescriptionsByPatient($id),
             'attachments_enabled' => $attachmentsEnabled,
             'attachments' => $attachments,
+            'document_attachments' => $documentAttachments,
             'attachments_storage_usage_bytes' => $storageUsageBytes,
             'attachments_storage_limit_gb' => $storageLimitGb,
             'attachments_max_file_mb' => $maxAttachmentMb,
             'attachment_category_options' => $this->getAttachmentCategoryOptions(),
+            'document_attachment_category_options' => $this->getNonImagingAttachmentCategoryOptions(),
             'latest_imaging_attachment' => $latestImagingAttachment,
             'latest_imaging_preview_src' => $latestImagingPreviewSrc,
+            'imaging_records' => $imagingRecords,
             'contracts_enabled' => $contractsEnabled,
             'contracts' => $contracts,
             'odontogram_snapshots' => $odontogramSnapshots,
@@ -816,6 +854,73 @@ class Patient extends BaseController
         ];
 
         return $this->view('patient/show', $data);
+    }
+
+    public function imaging($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel
+            ->select('patients.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = patients.created_by', 'left')
+            ->where('patients.clinic_id', $clinicId)
+            ->find($id);
+
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $this->planGuard->assertFeature($clinicId, 'attachments.enabled', [
+            'entity_type' => 'patient',
+            'entity_id' => $id,
+        ]);
+
+        $imagingRecords = $this->getPatientImagingRecords((int) $clinicId, (int) $id);
+        $latestImagingAttachment = !empty($imagingRecords) ? $imagingRecords[0] : null;
+        $latestImagingPreviewSrc = null;
+
+        if ($latestImagingAttachment && !empty($latestImagingAttachment['is_previewable'])) {
+            try {
+                $absolutePath = $this->storageService->getAbsolutePath($latestImagingAttachment);
+                if (is_file($absolutePath) && filesize($absolutePath) !== false && filesize($absolutePath) <= (4 * 1024 * 1024)) {
+                    $imageBytes = file_get_contents($absolutePath);
+                    if ($imageBytes !== false) {
+                        $latestImagingPreviewSrc = 'data:' . $latestImagingAttachment['mime_type'] . ';base64,' . base64_encode($imageBytes);
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_message('warning', 'Unable to prepare patient imaging workspace preview: ' . $e->getMessage());
+            }
+        }
+
+        $maxAttachmentMb = $this->planGuard->getLimitValue($clinicId, 'attachments_max_file_mb', 5);
+        $usageBytes = (int) $this->attachmentModel->getTotalSizeByClinic($clinicId);
+        $limitGb = (int) $this->planGuard->getLimitValue($clinicId, 'storage_gb', -1);
+        $limitBytes = $limitGb > 0 ? $limitGb * 1024 * 1024 * 1024 : 0;
+        $usagePercent = $limitBytes > 0 ? round(($usageBytes / $limitBytes) * 100) : 0;
+        $imagingCategories = $this->getImagingCategories();
+
+        $data = [
+            'title' => 'Patient Imaging - ' . $patient['first_name'] . ' ' . $patient['last_name'],
+            'patient' => $patient,
+            'imaging_records' => $imagingRecords,
+            'latest_imaging_attachment' => $latestImagingAttachment,
+            'latest_imaging_preview_src' => $latestImagingPreviewSrc,
+            'imaging_categories' => $imagingCategories,
+            'attachments_storage_usage_bytes' => $usageBytes,
+            'attachments_storage_limit_gb' => $limitGb,
+            'attachments_max_file_mb' => $maxAttachmentMb,
+            'attachments_usage_percent' => $usagePercent,
+            'return_to' => $this->sanitizeInternalReturnTo(
+                $this->request->getGet('return_to'),
+                ['patient', 'patients', 'dashboard', 'examination', 'examinations', 'appointment', 'appointments']
+            ) ?: ('patient/' . $id),
+        ];
+
+        return $this->view('patient/imaging', $data);
     }
 
     public function odontogramVersions($id, $snapshotId = null)

@@ -25,6 +25,16 @@ function loadInlinePatientHistoryOdontogramSvg(): string
 
 $isRtl = !empty($is_rtl);
 $fullName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+$patientHeroThemeClass = 'patient-hero-card-neutral';
+$patientAvatarIconClass = 'fas fa-user';
+$patientGenderValue = strtolower((string) ($patient['gender'] ?? ''));
+if ($patientGenderValue === 'female') {
+    $patientHeroThemeClass = 'patient-hero-card-female';
+    $patientAvatarIconClass = 'fas fa-person-dress';
+} elseif ($patientGenderValue === 'male') {
+    $patientHeroThemeClass = 'patient-hero-card-male';
+    $patientAvatarIconClass = 'fas fa-person';
+}
 $selectedSnapshotRows = array_values($selected_snapshot['snapshot_rows'] ?? []);
 $selectedAffectedRows = array_values($selected_snapshot['affected_rows'] ?? []);
 $historySvg = loadInlinePatientHistoryOdontogramSvg();
@@ -50,7 +60,7 @@ $conditionLabelMap = [
 <?= $this->section('content') ?>
 <div class="mx-auto w-full max-w-none px-2 py-6 sm:px-3 sm:py-8 xl:px-4 2xl:px-5">
     <div class="space-y-6">
-        <section class="rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-900 via-blue-900 to-cyan-800 text-white shadow-[0_26px_60px_-36px_rgba(15,23,42,0.45)]">
+        <section class="patient-hero-card <?= esc($patientHeroThemeClass) ?> rounded-[28px] border border-slate-200 text-white">
             <div class="flex flex-col gap-5 p-6 sm:p-8 xl:flex-row xl:items-center xl:justify-between">
                 <div class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/85">
@@ -65,7 +75,7 @@ $conditionLabelMap = [
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('patient/' . $patient['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/18">
-                        <i class="fas fa-user"></i>
+                        <i class="<?= esc($patientAvatarIconClass) ?>"></i>
                         <span><?= esc(lang('UI.backToPatient')) ?></span>
                     </a>
                     <a href="<?= base_url('odontogram/' . $patient['id'] . '?return_to=patient/' . $patient['id'] . '/odontogram-versions') ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
@@ -230,6 +240,34 @@ $conditionLabelMap = [
 </div>
 
 <style>
+    .patient-hero-card {
+        position: relative;
+        --hero-angle: 135deg;
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        background: linear-gradient(var(--hero-angle), var(--hero-start) 0%, var(--hero-mid) 58%, var(--hero-end) 100%);
+        box-shadow: 0 28px 70px -44px rgba(15, 23, 42, 0.75);
+    }
+
+    .patient-hero-card-male {
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+    }
+
+    .patient-hero-card-female {
+        --hero-start: #8a245a;
+        --hero-mid: #c03579;
+        --hero-end: #7c3aed;
+    }
+
+    .patient-hero-card-neutral {
+        --hero-start: #334155;
+        --hero-mid: #2563eb;
+        --hero-end: #0f766e;
+    }
+
     .patient-history-preview-shell {
         border: 1px solid #dbe4ef;
         border-radius: 1.5rem;

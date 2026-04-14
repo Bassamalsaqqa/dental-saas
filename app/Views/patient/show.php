@@ -526,6 +526,8 @@ $latestImagingPreviewSrc = $latest_imaging_preview_src ?? null;
 $latestImagingIsPreviewable = !empty($latestImagingAttachment['mime_type']) && strpos((string) $latestImagingAttachment['mime_type'], 'image/') === 0;
 $latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/inline/' . $latestImagingAttachment['id']) : null;
 $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
+$documentAttachments = $document_attachments ?? [];
+$documentAttachmentCategoryOptions = $document_attachment_category_options ?? [];
 ?>
 
 <?= $this->section('content') ?>
@@ -764,7 +766,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                             aria-controls="attachments-content"
                                             tabindex="-1"
                                             class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                        <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($attachments ?? []) ?></span>
+                                        <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($documentAttachments) ?></span>
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
@@ -911,16 +913,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                         <h4><?= esc(lang('UI.patientLatestImagingTitle')) ?></h4>
                                                         <p><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                                     </div>
-                                                    <?php if (!empty($latestImagingAttachment)): ?>
-                                                        <a href="<?= esc($latestImagingOpenUrl) ?>" class="patient-preview-action">
+                                                    <?php if (!empty($attachments_enabled)): ?>
+                                                        <a href="<?= base_url('patient/' . $patient['id'] . '/imaging') ?>" class="patient-preview-action">
                                                             <i class="fas fa-image"></i>
-                                                            <span><?= esc(lang('UI.patientOpenImaging')) ?></span>
+                                                            <span><?= esc(lang('UI.patientOpenImagingWorkspace')) ?></span>
                                                         </a>
-                                                    <?php elseif (!empty($attachments_enabled)): ?>
-                                                        <button type="button" onclick="return showTab('attachments')" class="patient-preview-action">
-                                                            <i class="fas fa-paperclip"></i>
-                                                            <span><?= esc(lang('UI.patientUploadFiles')) ?></span>
-                                                        </button>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="patient-preview-frame">
@@ -1366,6 +1363,16 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         </div>
                                     </div>
                                     <div class="px-6 py-4">
+                                        <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-800"><?= esc(lang('UI.patientAttachmentsDocumentsOnlyTitle')) ?></p>
+                                                <p class="mt-1 text-xs text-slate-500"><?= esc(lang('UI.patientAttachmentsDocumentsOnlyHelp')) ?></p>
+                                            </div>
+                                            <a href="<?= base_url('patient/' . $patient['id'] . '/imaging') ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100">
+                                                <i class="fas fa-image text-cyan-600"></i>
+                                                <span><?= esc(lang('UI.patientOpenImagingWorkspace')) ?></span>
+                                            </a>
+                                        </div>
                                         <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
                                             <?= csrf_field() ?>
                                             <div class="space-y-4">
@@ -1403,7 +1410,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                             data-allow-clear="true"
                                                         >
                                                             <option value=""><?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?></option>
-                                                            <?php foreach (($attachment_category_options ?? []) as $groupLabel => $groupOptions): ?>
+                                                            <?php foreach ($documentAttachmentCategoryOptions as $groupLabel => $groupOptions): ?>
                                                                 <optgroup label="<?= esc($groupLabel) ?>">
                                                                     <?php foreach ($groupOptions as $optionLabel): ?>
                                                                         <option value="<?= esc($optionLabel) ?>" <?= $selectedAttachmentCategory === $optionLabel ? 'selected' : '' ?>>
@@ -1415,7 +1422,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                             <?php if (!empty($selectedAttachmentCategory)): ?>
                                                                 <?php
                                                                 $knownCategory = false;
-                                                                foreach (($attachment_category_options ?? []) as $groupOptions) {
+                                                                foreach ($documentAttachmentCategoryOptions as $groupOptions) {
                                                                     if (in_array($selectedAttachmentCategory, $groupOptions, true)) {
                                                                         $knownCategory = true;
                                                                         break;
@@ -1461,8 +1468,8 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php if (!empty($attachments)): ?>
-                                                    <?php foreach ($attachments as $attachment): ?>
+                                                <?php if (!empty($documentAttachments)): ?>
+                                                    <?php foreach ($documentAttachments as $attachment): ?>
                                                         <tr class="patient-record-row" data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>" data-href="<?= esc(base_url('file/download/' . $attachment['id'])) ?>">
                                                             <td class="whitespace-nowrap">
                                                                 <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
@@ -4052,17 +4059,17 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         allTimelineData = [
             <?php foreach ($timeline as $item): ?>
             {
-                type: '<?= $item['type'] ?>',
-                date: '<?= $item['date'] ?>',
-                title: '<?= addslashes($item['title']) ?>',
-                description: '<?= addslashes($item['description']) ?>',
-                status: '<?= $item['status'] ?>',
-                status_label: '<?= addslashes($item['status_label'] ?? ucfirst((string) $item['status'])) ?>',
-                id: '<?= $item['id'] ?>',
-                doctor: '<?= addslashes((string) ($item['doctor'] ?? '')) ?>',
-                icon: '<?= $item['icon'] ?>',
-                color: '<?= $item['color'] ?>',
-                url: '<?= addslashes((string) ($item['url'] ?? '')) ?>',
+                type: <?= json_encode((string) ($item['type'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                date: <?= json_encode((string) ($item['date'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                title: <?= json_encode((string) ($item['title'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                description: <?= json_encode((string) ($item['description'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                status: <?= json_encode((string) ($item['status'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                status_label: <?= json_encode((string) ($item['status_label'] ?? ucfirst((string) ($item['status'] ?? ''))), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                id: <?= json_encode((string) ($item['id'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                doctor: <?= json_encode((string) ($item['doctor'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                icon: <?= json_encode((string) ($item['icon'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                color: <?= json_encode((string) ($item['color'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                url: <?= json_encode((string) ($item['url'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
                 meta: <?= json_encode($item['meta'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
             },
             <?php endforeach; ?>
@@ -4645,11 +4652,11 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
         <?php foreach ($odontogram as $tooth): ?>
         {
             tooth_number: <?= $tooth['tooth_number'] ?>,
-            condition_type: '<?= $tooth['condition_type'] ?>',
-            condition_description: '<?= addslashes($tooth['condition_description'] ?? '') ?>',
-            treatment_notes: '<?= addslashes($tooth['treatment_notes'] ?? '') ?>',
-            treatment_status: '<?= $tooth['treatment_status'] ?>',
-            treatment_date: '<?= $tooth['treatment_date'] ?? '' ?>'
+            condition_type: <?= json_encode((string) ($tooth['condition_type'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+            condition_description: <?= json_encode((string) ($tooth['condition_description'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+            treatment_notes: <?= json_encode((string) ($tooth['treatment_notes'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+            treatment_status: <?= json_encode((string) ($tooth['treatment_status'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+            treatment_date: <?= json_encode((string) ($tooth['treatment_date'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
         },
         <?php endforeach; ?>
     ];
