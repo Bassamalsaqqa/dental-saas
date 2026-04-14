@@ -137,6 +137,67 @@ class Patient extends BaseController
         ];
     }
 
+    private function buildPatientOdontogramSnapshots(int $clinicId, int $patientId, ?int $limit = 6): array
+    {
+        $query = $this->odontogramSnapshotModel
+            ->select('patient_odontogram_snapshots.*, users.first_name AS creator_first_name, users.last_name AS creator_last_name')
+            ->join('users', 'users.id = patient_odontogram_snapshots.created_by', 'left')
+            ->where('patient_odontogram_snapshots.clinic_id', $clinicId)
+            ->where('patient_odontogram_snapshots.patient_id', $patientId)
+            ->orderBy('patient_odontogram_snapshots.created_at', 'DESC');
+
+        $rows = $limit !== null ? $query->findAll($limit) : $query->findAll();
+
+        foreach ($rows as &$row) {
+            $snapshotData = json_decode((string) ($row['snapshot_json'] ?? ''), true);
+            $affectedCount = 0;
+            $affectedRows = [];
+
+            if (is_array($snapshotData)) {
+                foreach ($snapshotData as $toothState) {
+                    if (($toothState['condition_type'] ?? 'healthy') === 'healthy') {
+                        continue;
+                    }
+
+                    $affectedCount++;
+                    $affectedRows[] = [
+                        'tooth_number' => (int) ($toothState['tooth_number'] ?? 0),
+                        'condition_type' => (string) ($toothState['condition_type'] ?? 'healthy'),
+                        'condition_description' => (string) ($toothState['condition_description'] ?? ''),
+                        'treatment_status' => (string) ($toothState['treatment_status'] ?? ''),
+                    ];
+                }
+            } else {
+                $snapshotData = [];
+            }
+
+            $creatorName = trim((string) (($row['creator_first_name'] ?? '') . ' ' . ($row['creator_last_name'] ?? '')));
+            $row['snapshot_rows'] = $snapshotData;
+            $row['affected_count'] = $affectedCount;
+            $row['affected_rows'] = $affectedRows;
+            $row['creator_name'] = $creatorName !== '' ? $creatorName : null;
+            $row['source_url'] = $this->buildPatientOdontogramSnapshotSourceUrl($patientId, $row);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    private function buildPatientOdontogramSnapshotSourceUrl(int $patientId, array $snapshot): ?string
+    {
+        $sourceId = (int) ($snapshot['source_id'] ?? 0);
+        if ($sourceId <= 0) {
+            return null;
+        }
+
+        $returnTo = 'patient/' . $patientId . '/odontogram-versions';
+        return match ((string) ($snapshot['source_type'] ?? '')) {
+            'examination' => base_url('examination/' . $sourceId . '?return_to=' . urlencode($returnTo)),
+            'contract' => base_url('contracts/' . $sourceId . '?return_to=' . urlencode($returnTo)),
+            default => null,
+        };
+    }
+
     private function generateAttachmentArchiveName(array $patient, int $clinicId, ?string $category, $file): string
     {
         $patientCode = strtoupper(trim((string) ($patient['patient_id'] ?? ('PATIENT_' . $patient['id']))));
@@ -667,11 +728,7 @@ class Patient extends BaseController
             }
         }
 
-        $odontogramSnapshots = $this->odontogramSnapshotModel
-            ->where('clinic_id', $clinicId)
-            ->where('patient_id', $id)
-            ->orderBy('created_at', 'DESC')
-            ->findAll(6);
+        $odontogramSnapshots = $this->buildPatientOdontogramSnapshots($clinicId, (int) $id, 6);
 
         if ($contractsEnabled) {
             $contracts = $this->contractModel
@@ -759,6 +816,58 @@ class Patient extends BaseController
         ];
 
         return $this->view('patient/show', $data);
+    }
+
+    public function odontogramVersions($id, $snapshotId = null)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $patient = $this->patientModel
+            ->select('patients.*, users.first_name as creator_first_name, users.last_name as creator_last_name')
+            ->join('users', 'users.id = patients.created_by', 'left')
+            ->where('patients.clinic_id', $clinicId)
+            ->find($id);
+
+        if (!$patient) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Patient not found');
+        }
+
+        $snapshots = $this->buildPatientOdontogramSnapshots((int) $clinicId, (int) $id, null);
+        $selectedSnapshot = null;
+        $selectedSnapshotId = is_numeric($snapshotId) ? (int) $snapshotId : 0;
+
+        if ($selectedSnapshotId > 0) {
+            foreach ($snapshots as $snapshot) {
+                if ((int) ($snapshot['id'] ?? 0) === $selectedSnapshotId) {
+                    $selectedSnapshot = $snapshot;
+                    break;
+                }
+            }
+
+            if (!$selectedSnapshot) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('Odontogram snapshot not found');
+            }
+        } elseif (!empty($snapshots)) {
+            $selectedSnapshot = $snapshots[0];
+        }
+
+        $data = [
+            'title' => 'Odontogram Versions - ' . $patient['first_name'] . ' ' . $patient['last_name'],
+            'patient' => $patient,
+            'odontogram' => $this->odontogramModel->getOdontogramByPatient($id),
+            'odontogram_stats' => $this->odontogramModel->getOdontogramStats($id),
+            'odontogram_snapshots' => $snapshots,
+            'selected_snapshot' => $selectedSnapshot,
+            'return_to' => $this->sanitizeInternalReturnTo(
+                $this->request->getGet('return_to'),
+                ['patient', 'patients', 'odontogram', 'examination', 'examinations', 'contracts']
+            ) ?: ('patient/' . $id),
+        ];
+
+        return $this->view('patient/odontogram_versions', $data);
     }
 
     public function saveWhatsAppIdentity($patientId)
