@@ -526,8 +526,6 @@ $latestImagingPreviewSrc = $latest_imaging_preview_src ?? null;
 $latestImagingIsPreviewable = !empty($latestImagingAttachment['mime_type']) && strpos((string) $latestImagingAttachment['mime_type'], 'image/') === 0;
 $latestImagingViewUrl = !empty($latestImagingAttachment['id']) ? base_url('file/inline/' . $latestImagingAttachment['id']) : null;
 $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/download/' . $latestImagingAttachment['id']) : null;
-$documentAttachments = $document_attachments ?? [];
-$documentAttachmentCategoryOptions = $document_attachment_category_options ?? [];
 ?>
 
 <?= $this->section('content') ?>
@@ -766,7 +764,7 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
                                             aria-controls="attachments-content"
                                             tabindex="-1"
                                             class="tab-button inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap px-3 py-2.5 text-sm font-medium">
-                                        <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($documentAttachments) ?></span>
+                                        <i class="fas fa-paperclip shrink-0"></i><span class="truncate"><?= esc(lang('UI.patientTabAttachments')) ?></span> <span class="tab-count shrink-0"><?= count($attachments ?? []) ?></span>
                                     </button>
                                 <?php endif; ?>
                                 <?php if (!empty($contracts_enabled)): ?>
@@ -914,10 +912,10 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
                                                         <p><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                                     </div>
                                                     <?php if (!empty($attachments_enabled)): ?>
-                                                        <a href="<?= base_url('patient/' . $patient['id'] . '/imaging') ?>" class="patient-preview-action">
+                                                        <button type="button" onclick="return showTab('attachments', event)" class="patient-preview-action">
                                                             <i class="fas fa-image"></i>
                                                             <span><?= esc(lang('UI.patientOpenImagingWorkspace')) ?></span>
-                                                        </a>
+                                                        </button>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="patient-preview-frame">
@@ -1355,101 +1353,96 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="bg-white rounded-lg border border-gray-200 shadow-sm group hover:shadow-lg transition-all duration-300 mb-6">
-                                    <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-800"><?= esc(lang('UI.patientAttachmentsTitle')) ?></h3>
-                                            <p class="text-xs text-gray-500 mt-1"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
+                                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.95fr)] mb-6">
+                                    <section class="rounded-3xl border border-slate-200 bg-white shadow-[0_22px_55px_-42px_rgba(15,23,42,0.30)]">
+                                        <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/70 px-5 py-4">
+                                            <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientImagingWorkspaceLatestTitle')) ?></h3>
+                                            <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientLatestImagingHelp')) ?></p>
                                         </div>
-                                    </div>
-                                    <div class="px-6 py-4">
-                                        <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50/60 p-4 lg:flex-row lg:items-center lg:justify-between">
-                                            <div>
-                                                <p class="text-sm font-semibold text-slate-800"><?= esc(lang('UI.patientAttachmentsDocumentsOnlyTitle')) ?></p>
-                                                <p class="mt-1 text-xs text-slate-500"><?= esc(lang('UI.patientAttachmentsDocumentsOnlyHelp')) ?></p>
-                                            </div>
-                                            <a href="<?= base_url('patient/' . $patient['id'] . '/imaging') ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100">
-                                                <i class="fas fa-image text-cyan-600"></i>
-                                                <span><?= esc(lang('UI.patientOpenImagingWorkspace')) ?></span>
-                                            </a>
-                                        </div>
-                                        <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
-                                            <?= csrf_field() ?>
-                                            <div class="space-y-4">
-                                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                                        <div class="space-y-4 p-5">
+                                            <?php if (!empty($latestImagingAttachment)): ?>
+                                                <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-slate-950">
+                                                    <div class="aspect-[16/9] flex items-center justify-center">
+                                                        <?php if (!empty($latestImagingAttachment) && $latestImagingIsPreviewable && !empty($latestImagingPreviewSrc)): ?>
+                                                            <img src="<?= esc($latestImagingPreviewSrc) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
+                                                        <?php elseif (!empty($latestImagingAttachment) && $latestImagingIsPreviewable): ?>
+                                                            <img src="<?= esc($latestImagingViewUrl) ?>" alt="<?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientLatestImagingTitle')) ?>" class="h-full w-full object-contain">
+                                                        <?php else: ?>
+                                                            <div class="px-6 text-center text-sm text-slate-300"><?= esc(lang('UI.patientImagingPreviewUnavailable')) ?></div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientUploadFiles')) ?></label>
-                                                        <input type="file" name="attachment[]" id="attachmentInput" required multiple
-                                                               accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
-                                                               class="hidden">
-                                                        <div id="attachmentDropzone" tabindex="0" role="button"
-                                                             class="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-all duration-200 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400/30">
-                                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                                <div class="min-w-0">
-                                                                    <p class="text-sm text-gray-700"><?= esc(lang('UI.patientDragDropFiles')) ?></p>
-                                                                    <p class="mt-1 text-xs text-gray-500"><?= esc(lang('UI.patientAllowedFileTypes')) ?></p>
-                                                                </div>
-                                                                <label for="attachmentInput" class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100">
-                                                                    <i class="fas fa-folder-open"></i>
-                                                                    <span><?= esc(lang('UI.patientChooseFiles')) ?></span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div id="attachmentFileList" class="mt-3 space-y-2 text-sm text-gray-600"></div>
+                                                        <h4 class="text-base font-bold text-slate-900"><?= esc($latestImagingAttachment['category'] ?? lang('UI.patientLatestImagingTitle')) ?></h4>
+                                                        <p class="mt-1 text-sm text-slate-500"><?= esc($latestImagingAttachment['original_name'] ?? lang('UI.patientAttachmentFallback')) ?></p>
+                                                        <p class="mt-1 text-xs text-slate-400"><?= esc(!empty($latestImagingAttachment['created_at']) ? formatDateTime($latestImagingAttachment['created_at']) : '--') ?></p>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <?php if (!empty($latestImagingViewUrl) && $latestImagingIsPreviewable): ?>
+                                                            <a href="<?= esc($latestImagingViewUrl) ?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+                                                                <i class="fas fa-eye"></i>
+                                                                <span><?= esc(lang('UI.patientOpenImaging')) ?></span>
+                                                            </a>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($latestImagingOpenUrl)): ?>
+                                                            <a href="<?= esc($latestImagingOpenUrl) ?>" class="inline-flex items-center gap-2 rounded-xl bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-100">
+                                                                <i class="fas fa-download"></i>
+                                                                <span><?= esc(lang('UI.patientImagingWorkspaceOpenFile')) ?></span>
+                                                            </a>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-5 py-16 text-center">
+                                                    <i class="fas fa-x-ray text-3xl text-slate-300"></i>
+                                                    <p class="mt-4 text-sm text-slate-500"><?= esc(lang('UI.patientNoImagingPreview')) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </section>
+
+                                    <aside>
+                                        <section class="rounded-3xl border border-slate-200 bg-white shadow-[0_22px_55px_-42px_rgba(15,23,42,0.30)]">
+                                            <div class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-cyan-50/70 px-5 py-4">
+                                                <h3 class="text-lg font-bold text-slate-900"><?= esc(lang('UI.patientUploadFiles')) ?></h3>
+                                                <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UI.patientAttachmentsSubtitle', ['max' => ($maxFileMb === null ? lang('UI.patientUnlimited') : ((int) $maxFileMb . 'MB'))])) ?></p>
+                                            </div>
+                                            <div class="p-5">
+                                                <?php $selectedAttachmentCategory = old('category'); ?>
+                                                <form action="<?= base_url('patient/' . $patient['id'] . '/attachments/upload') ?>" method="post" enctype="multipart/form-data" class="space-y-4">
+                                                    <?= csrf_field() ?>
+                                                    <div>
+                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientUploadFiles')) ?></label>
+                                                        <input type="file" name="attachment[]" required multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip" class="block w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 file:me-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
                                                     </div>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
-                                                        <?php $selectedAttachmentCategory = old('category'); ?>
-                                                        <select
-                                                            name="category"
-                                                            id="attachmentCategory"
-                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                            data-searchable-select
-                                                            data-minimum-input-length="0"
-                                                            data-placeholder="<?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?>"
-                                                            data-allow-clear="true"
-                                                        >
+                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientAttachmentCategory')) ?></label>
+                                                        <select name="category" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200">
                                                             <option value=""><?= esc(lang('UI.patientAttachmentCategoryPlaceholder')) ?></option>
-                                                            <?php foreach ($documentAttachmentCategoryOptions as $groupLabel => $groupOptions): ?>
+                                                            <?php foreach (($attachment_category_options ?? []) as $groupLabel => $groupOptions): ?>
                                                                 <optgroup label="<?= esc($groupLabel) ?>">
                                                                     <?php foreach ($groupOptions as $optionLabel): ?>
-                                                                        <option value="<?= esc($optionLabel) ?>" <?= $selectedAttachmentCategory === $optionLabel ? 'selected' : '' ?>>
-                                                                            <?= esc($optionLabel) ?>
-                                                                        </option>
+                                                                        <option value="<?= esc($optionLabel) ?>" <?= $selectedAttachmentCategory === $optionLabel ? 'selected' : '' ?>><?= esc($optionLabel) ?></option>
                                                                     <?php endforeach; ?>
                                                                 </optgroup>
                                                             <?php endforeach; ?>
-                                                            <?php if (!empty($selectedAttachmentCategory)): ?>
-                                                                <?php
-                                                                $knownCategory = false;
-                                                                foreach ($documentAttachmentCategoryOptions as $groupOptions) {
-                                                                    if (in_array($selectedAttachmentCategory, $groupOptions, true)) {
-                                                                        $knownCategory = true;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                                ?>
-                                                                <?php if (!$knownCategory): ?>
-                                                                    <option value="<?= esc($selectedAttachmentCategory) ?>" selected><?= esc($selectedAttachmentCategory) ?></option>
-                                                                <?php endif; ?>
-                                                            <?php endif; ?>
                                                         </select>
                                                     </div>
-                                                </div>
-
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= esc(lang('UI.patientNotes')) ?></label>
-                                                    <textarea name="notes" rows="4" placeholder="<?= esc(lang('UI.patientAttachmentNotesPlaceholder')) ?>"
-                                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                                                </div>
+                                                    <div>
+                                                        <label class="mb-2 block text-sm font-medium text-slate-700"><?= esc(lang('UI.patientNotes')) ?></label>
+                                                        <textarea name="notes" rows="4" placeholder="<?= esc(lang('UI.patientAttachmentNotesPlaceholder')) ?>" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-700 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200"></textarea>
+                                                    </div>
+                                                    <div class="flex items-center justify-end">
+                                                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-700">
+                                                            <i class="fas fa-upload"></i>
+                                                            <span><?= esc(lang('UI.patientUpload')) ?></span>
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="flex items-center justify-end">
-                                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                                    <i class="fas fa-upload mr-2"></i><?= esc(lang('UI.patientUpload')) ?>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                        </section>
+                                    </aside>
                                 </div>
 
                                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -1468,9 +1461,10 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php if (!empty($documentAttachments)): ?>
-                                                    <?php foreach ($documentAttachments as $attachment): ?>
-                                                        <tr class="patient-record-row" data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>" data-href="<?= esc(base_url('file/download/' . $attachment['id'])) ?>">
+                                                <?php if (!empty($attachments)): ?>
+                                                    <?php foreach ($attachments as $attachment): ?>
+                                                        <?php $attachmentIsPreviewable = strpos((string) ($attachment['mime_type'] ?? ''), 'image/') === 0; ?>
+                                                        <tr class="patient-record-row" data-date="<?= !empty($attachment['created_at']) ? esc(date('Y-m-d', strtotime($attachment['created_at']))) : '' ?>" data-href="<?= esc($attachmentIsPreviewable ? base_url('file/inline/' . $attachment['id']) : base_url('file/download/' . $attachment['id'])) ?>">
                                                             <td class="whitespace-nowrap">
                                                                 <?= !empty($attachment['created_at']) ? formatDateTime($attachment['created_at']) : '--' ?>
                                                             </td>
@@ -1488,6 +1482,12 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
                                                             </td>
                                                             <td class="text-right">
                                                                 <div class="patient-table-actions">
+                                                                <?php if ($attachmentIsPreviewable): ?>
+                                                                <a href="<?= base_url('file/inline/' . $attachment['id']) ?>" target="_blank" rel="noopener"
+                                                                   class="patient-table-action" title="<?= esc(lang('UI.patientView')) ?>">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                                <?php endif; ?>
                                                                 <a href="<?= base_url('file/download/' . $attachment['id']) ?>" 
                                                                    class="patient-table-action" title="<?= esc(lang('UI.patientDownload')) ?>">
                                                                     <i class="fas fa-download"></i>
@@ -4048,6 +4048,8 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
     }
 
     // Global variables for filtering
+    const patientProfileUrl = new URL(window.location.href);
+    const requestedPatientTab = patientProfileUrl.searchParams.get('tab');
     let currentTab = 'details';
     let allTimelineData = [];
     let filteredTimelineData = [];
@@ -4113,13 +4115,18 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
             });
         });
 
+        const validTabs = patientTabs
+            .map(tab => tab.id.replace('-tab', ''))
+            .filter(Boolean);
+
+        let initialTab = 'details';
+        if (requestedPatientTab && validTabs.includes(requestedPatientTab)) {
+            initialTab = requestedPatientTab;
+        }
+
         const shouldOpenAttachments = <?= json_encode((bool) session('attachments_flash')) ?>;
-        if (shouldOpenAttachments) {
-            const attachmentsTab = document.getElementById('attachments-tab');
-            const attachmentsContent = document.getElementById('attachments-content');
-            if (attachmentsTab && attachmentsContent) {
-                showTab('attachments');
-            }
+        if (shouldOpenAttachments && validTabs.includes('attachments')) {
+            initialTab = 'attachments';
         }
 
         const dropzone = document.getElementById('attachmentDropzone');
@@ -4195,13 +4202,11 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
         }
 
         const shouldOpenContracts = <?= json_encode((bool) session('contracts_flash')) ?>;
-        if (shouldOpenContracts) {
-            const contractsTab = document.getElementById('contracts-tab');
-            const contractsContent = document.getElementById('contracts-content');
-            if (contractsTab && contractsContent) {
-                showTab('contracts');
-            }
+        if (shouldOpenContracts && validTabs.includes('contracts')) {
+            initialTab = 'contracts';
         }
+
+        showTab(initialTab);
     });
 
     function showTab(tabName, event = null) {
@@ -4241,6 +4246,14 @@ $documentAttachmentCategoryOptions = $document_attachment_category_options ?? []
             selectedTab.setAttribute('aria-selected', 'true');
             selectedTab.setAttribute('tabindex', '0');
         }
+
+        const nextUrl = new URL(window.location.href);
+        if (tabName === 'details') {
+            nextUrl.searchParams.delete('tab');
+        } else {
+            nextUrl.searchParams.set('tab', tabName);
+        }
+        window.history.replaceState({}, '', nextUrl.toString());
 
         const historyControls = document.getElementById('historyControls');
         if (historyControls) {
