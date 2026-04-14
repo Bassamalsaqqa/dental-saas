@@ -25,6 +25,7 @@ $patientMeta = [
     ['label' => $tr('examination_date'), 'value' => !empty($examination['examination_date']) ? formatDateTime($examination['examination_date']) : $tr('na')],
     ['label' => $tr('created_by'), 'value' => $doctorName !== '' ? $doctorName : $tr('unknown')],
 ];
+$treatmentCount = is_array($treatments ?? null) ? count($treatments) : 0;
 $clinicalFlags = $activeHealthUpdates;
 if (!empty($examination['medical_history'])) { $clinicalFlags[] = ['enabled' => true, 'label' => $tr('medical_history'), 'icon' => 'fas fa-heart-pulse', 'tone' => 'bg-slate-100 text-slate-800 border-slate-200']; }
 if (!empty($examination['dental_history'])) { $clinicalFlags[] = ['enabled' => true, 'label' => $tr('dental_history'), 'icon' => 'fas fa-tooth', 'tone' => 'bg-slate-100 text-slate-800 border-slate-200']; }
@@ -32,71 +33,45 @@ if (!empty($examination['dental_history'])) { $clinicalFlags[] = ['enabled' => t
 <div class="min-h-screen bg-slate-50">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="space-y-6">
-            <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
-                <div class="xl:col-span-8">
-                    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                            <div class="flex items-start gap-5">
-                                <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-700 to-sky-600 text-2xl font-black text-white shadow-lg shadow-cyan-900/15"><?= esc(mb_substr($patientName !== '' ? $patientName : 'P', 0, 1)) ?></div>
-                                <div class="min-w-0">
-                                    <div class="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                                        <span><?= esc($tr('examinations_registry')) ?></span><span>/</span><span class="text-cyan-700"><?= esc($examination['examination_id'] ?? ('EX-' . ($examination['id'] ?? ''))) ?></span>
-                                    </div>
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <h1 class="font-headline text-3xl font-black tracking-tight text-cyan-950"><?= esc($patientName !== '' ? $patientName : $tr('examination_details')) ?></h1>
-                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] <?= esc($statusToneMap[$statusKey] ?? 'bg-amber-100 text-amber-800') ?>"><?= esc($statusLabel) ?></span>
-                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] <?= esc($typeToneMap[$typeKey] ?? 'bg-cyan-100 text-cyan-800') ?>"><?= esc($typeLabel) ?></span>
-                                    </div>
-                                    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500"><?= esc($tr('examination_summary_help')) ?></p>
-                                    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                                        <?php foreach ($patientMeta as $meta): ?>
-                                            <div>
-                                                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($meta['label']) ?></p>
-                                                <p class="mt-1 text-sm font-semibold text-slate-800"><?= esc($meta['value']) ?></p>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
+            <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="flex items-start gap-5">
+                        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-700 to-sky-600 text-2xl font-black text-white shadow-lg shadow-cyan-900/15"><?= esc(mb_substr($patientName !== '' ? $patientName : 'P', 0, 1)) ?></div>
+                        <div class="min-w-0">
+                            <div class="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                                <span><?= esc($tr('examinations_registry')) ?></span><span>/</span><span class="text-cyan-700"><?= esc($examination['examination_id'] ?? ('EX-' . ($examination['id'] ?? ''))) ?></span>
                             </div>
-                            <div class="flex flex-wrap gap-3 lg:max-w-sm lg:justify-end">
-                                <?php if (!empty($examination['patient_id'])): ?>
-                                    <a href="<?= base_url('patient/' . $examination['patient_id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-user text-sm"></i><span><?= esc($tr('back_to_patient')) ?></span></a>
-                                <?php endif; ?>
-                                <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-arrow-left rtl-back-icon text-sm"></i><span><?= esc($tr('back_to_examinations')) ?></span></a>
-                                <a href="<?= base_url('examination/' . $examination['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-pen text-sm"></i><span><?= esc($tr('edit_examination')) ?></span></a>
-                                <?php if ($examination['status'] != 'completed'): ?>
-                                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="inline-flex">
-                                        <?= csrf_field() ?>
-                                        <?php if (!empty($return_to)): ?>
-                                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-                                        <?php endif; ?>
-                                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-cyan-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-800"><i class="fas fa-check-circle text-sm"></i><span><?= esc($tr('complete_examination')) ?></span></button>
-                                    </form>
-                                <?php endif; ?>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h1 class="font-headline text-3xl font-black tracking-tight text-cyan-950"><?= esc($patientName !== '' ? $patientName : $tr('examination_details')) ?></h1>
+                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] <?= esc($statusToneMap[$statusKey] ?? 'bg-amber-100 text-amber-800') ?>"><?= esc($statusLabel) ?></span>
+                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] <?= esc($typeToneMap[$typeKey] ?? 'bg-cyan-100 text-cyan-800') ?>"><?= esc($typeLabel) ?></span>
+                            </div>
+                            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500"><?= esc($tr('examination_summary_help')) ?></p>
+                            <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                <?php foreach ($patientMeta as $meta): ?>
+                                    <div>
+                                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($meta['label']) ?></p>
+                                        <p class="mt-1 text-sm font-semibold text-slate-800"><?= esc($meta['value']) ?></p>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="xl:col-span-4">
-                    <div class="flex h-full flex-col justify-between rounded-2xl bg-gradient-to-br from-cyan-800 to-sky-700 p-6 text-white shadow-sm">
-                        <div>
-                            <div class="flex items-center justify-between gap-3"><p class="text-[10px] font-bold uppercase tracking-[0.22em] text-white/70"><?= esc($tr('care_plan_heading')) ?></p><i class="fas fa-file-signature text-white/60"></i></div>
-                            <?php if (!empty($latest_contract)): ?>
-                                <p class="mt-4 text-3xl font-black tracking-tight"><?= formatCurrency($latest_contract['total_cost'] ?? 0) ?></p>
-                                <p class="mt-2 text-sm leading-6 text-white/80"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p>
-                            <?php else: ?>
-                                <p class="mt-4 text-2xl font-black tracking-tight"><?= esc($tr('treatment_plan')) ?></p>
-                                <p class="mt-2 text-sm leading-6 text-white/80"><?= esc($tr('treatment_plan_hint')) ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <div class="mt-6 flex flex-wrap gap-3">
-                            <?php if (!empty($latest_contract)): ?>
-                                <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"><i class="fas fa-arrow-up-right-from-square text-sm"></i><span><?= esc($tr('view')) ?></span></a>
-                            <?php endif; ?>
-                            <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-50"><i class="fas fa-plus text-sm"></i><span><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></span></a>
-                            <?php endif; ?>
-                        </div>
+                    <div class="flex flex-wrap gap-3 lg:max-w-sm lg:justify-end">
+                        <?php if (!empty($examination['patient_id'])): ?>
+                            <a href="<?= base_url('patient/' . $examination['patient_id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-user text-sm"></i><span><?= esc($tr('back_to_patient')) ?></span></a>
+                        <?php endif; ?>
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('examination') ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-arrow-left rtl-back-icon text-sm"></i><span><?= esc($tr('back_to_examinations')) ?></span></a>
+                        <a href="<?= base_url('examination/' . $examination['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-pen text-sm"></i><span><?= esc($tr('edit_examination')) ?></span></a>
+                        <?php if ($examination['status'] != 'completed'): ?>
+                            <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="inline-flex">
+                                <?= csrf_field() ?>
+                                <?php if (!empty($return_to)): ?>
+                                    <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                                <?php endif; ?>
+                                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-cyan-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-800"><i class="fas fa-check-circle text-sm"></i><span><?= esc($tr('finalize_assessment')) ?></span></button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             </section>
@@ -129,22 +104,114 @@ if (!empty($examination['dental_history'])) { $clinicalFlags[] = ['enabled' => t
                         <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
                             <div class="flex items-center gap-3"><span class="h-6 w-1.5 rounded-full bg-cyan-700"></span><div><h2 class="text-lg font-bold text-cyan-950"><?= esc($tr('care_plan_heading')) ?></h2><p class="mt-1 text-sm text-slate-500"><?= esc($tr('care_plan_help')) ?></p></div></div>
                             <?php if (has_permission('treatments', 'create')): ?>
-                                <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-plus text-sm"></i><span><?= esc($tr('add_treatment')) ?></span></a>
+                                    <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-plus text-sm"></i><span><?= esc($tr('record_procedure')) ?></span></a>
                             <?php endif; ?>
                         </div>
-                        <div class="grid grid-cols-1 gap-6 p-6 xl:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
                             <div class="space-y-4">
                                 <div class="rounded-xl bg-slate-50 p-5"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('treatment_plan')) ?></p><?php if (!empty($latest_contract)): ?><p class="mt-3 text-sm font-semibold text-cyan-950"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p><p class="mt-2 text-sm text-slate-600"><?= esc($tr('total')) ?> <?= formatCurrency($latest_contract['total_cost'] ?? 0) ?></p><?php else: ?><p class="mt-3 text-sm leading-7 text-slate-700"><?= esc($tr('treatment_plan_hint')) ?></p><?php endif; ?></div>
                                 <div class="rounded-xl bg-slate-50 p-5"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('prognosis')) ?></p><p class="mt-3 text-sm leading-7 text-slate-700"><?= !empty($examination['prognosis']) ? nl2br(esc($examination['prognosis'])) : esc($tr('no_prognosis_recorded')) ?></p></div>
                             </div>
                             <div class="space-y-4">
                                 <div class="rounded-xl bg-slate-50 p-5"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('recommendations')) ?></p><p class="mt-3 text-sm leading-7 text-slate-700"><?= !empty($examination['recommendations']) ? nl2br(esc($examination['recommendations'])) : esc($tr('no_recommendations_recorded')) ?></p></div>
-                                <div class="rounded-xl bg-cyan-900 p-5 text-white"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60"><?= esc($tr('latest_contract')) ?></p><?php if (!empty($latest_contract)): ?><p class="mt-3 text-lg font-bold"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p><div class="mt-4"><a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"><i class="fas fa-arrow-up-right-from-square text-sm"></i><span><?= esc($tr('view')) ?></span></a></div><?php else: ?><p class="mt-3 text-sm leading-7 text-white/80"><?= esc($tr('treatment_plan_hint')) ?></p><?php endif; ?></div>
+                                <?php if (!empty($examination['examination_notes'])): ?>
+                                    <div class="rounded-xl bg-slate-50 p-5"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('examination_notes')) ?></p><p class="mt-3 text-sm leading-7 text-slate-700"><?= nl2br(esc($examination['examination_notes'])) ?></p></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </section>
                 </div>
                 <div class="space-y-6 xl:col-span-4">
+                    <section class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+                        <div class="border-b border-slate-100 px-6 py-5">
+                            <div class="flex items-center gap-3">
+                                <span class="h-6 w-1.5 rounded-full bg-cyan-700"></span>
+                                <div>
+                                    <h2 class="text-lg font-bold text-cyan-950"><?= esc($tr('workflow_heading')) ?></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3 p-6">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-cyan-950"><?= esc($tr('workflow_assessment_title')) ?></p>
+                                        <p class="mt-1 text-sm text-slate-500"><?= esc($statusLabel) ?></p>
+                                    </div>
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] <?= esc($statusToneMap[$statusKey] ?? 'bg-amber-100 text-amber-800') ?>"><?= esc($statusLabel) ?></span>
+                                </div>
+                                <?php if ($examination['status'] != 'completed'): ?>
+                                    <div class="mt-3">
+                                        <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="inline-flex">
+                                            <?= csrf_field() ?>
+                                            <?php if (!empty($return_to)): ?>
+                                                <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
+                                            <?php endif; ?>
+                                            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-cyan-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-800"><i class="fas fa-check-circle text-sm"></i><span><?= esc($tr('finalize_assessment')) ?></span></button>
+                                        </form>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-cyan-950"><?= esc($tr('workflow_plan_title')) ?></p>
+                                        <?php if (!empty($latest_contract)): ?>
+                                            <p class="mt-1 text-sm text-slate-500"><?= esc($tr('contract_summary', ['id' => $latest_contract['id'], 'status' => ucfirst($latest_contract['status'] ?? 'draft')])) ?></p>
+                                        <?php else: ?>
+                                            <p class="mt-1 text-sm text-slate-500"><?= esc($tr('treatment_plan_hint')) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <i class="fas fa-file-signature text-cyan-700"></i>
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-3">
+                                    <?php if (!empty($latest_contract)): ?>
+                                        <a href="<?= base_url('contracts/' . $latest_contract['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"><i class="fas fa-arrow-up-right-from-square text-sm"></i><span><?= esc($tr('view_treatment_plan')) ?></span></a>
+                                    <?php endif; ?>
+                                    <?php if (has_permission('treatments', 'create')): ?>
+                                        <a href="<?= base_url('contracts/create/' . $examination['patient_id'] . '?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-cyan-800 ring-1 ring-cyan-200 transition hover:bg-cyan-50"><i class="fas fa-plus text-sm"></i><span><?= esc(!empty($latest_contract) ? $tr('add_new_plan') : $tr('add_treatment_plan')) ?></span></a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-cyan-950"><?= esc($tr('workflow_procedure_title')) ?></p>
+                                        <p class="mt-1 text-sm text-slate-500">
+                                            <?= $treatmentCount > 0 ? esc($treatmentCount . ' ' . $tr('related_treatments')) : esc($tr('workflow_procedure_help')) ?>
+                                        </p>
+                                    </div>
+                                    <i class="fas fa-tooth text-emerald-600"></i>
+                                </div>
+                                <?php if (has_permission('treatments', 'create')): ?>
+                                    <div class="mt-3">
+                                        <a href="<?= base_url('treatment/create?examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"><i class="fas fa-plus text-sm"></i><span><?= esc($tr('record_procedure')) ?></span></a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-cyan-950"><?= esc($tr('workflow_follow_up_title')) ?></p>
+                                        <?php if (!empty($next_appointment)): ?>
+                                            <p class="mt-1 text-sm text-slate-500"><?= formatDate($next_appointment['appointment_date']) ?> <?= formatTime($next_appointment['appointment_time']) ?></p>
+                                        <?php else: ?>
+                                            <p class="mt-1 text-sm text-slate-500"><?= esc($tr('workflow_none_scheduled')) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <i class="fas fa-calendar-plus text-violet-600"></i>
+                                </div>
+                                <?php if (has_permission('appointments', 'create')): ?>
+                                    <div class="mt-3">
+                                        <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"><i class="fas fa-calendar-plus text-sm"></i><span><?= esc($tr('schedule_follow_up')) ?></span></a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </section>
                     <section class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
                         <div class="border-b border-slate-100 px-6 py-5"><h2 class="text-sm font-bold uppercase tracking-[0.18em] text-slate-500"><?= esc($tr('medical_dental_history')) ?></h2></div>
                         <div class="space-y-4 p-6">
@@ -170,22 +237,10 @@ if (!empty($examination['dental_history'])) { $clinicalFlags[] = ['enabled' => t
                         <div class="border-b border-slate-100 px-6 py-5"><h2 class="text-sm font-bold uppercase tracking-[0.18em] text-slate-500"><?= esc($tr('follow_up_actions')) ?></h2></div>
                         <div class="space-y-4 p-6">
                             <div class="rounded-xl bg-slate-50 p-4"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('next_appointment')) ?></p><?php if (!empty($next_appointment)): ?><p class="mt-3 text-sm font-semibold text-cyan-950"><?= formatDate($next_appointment['appointment_date']) ?> <?= formatTime($next_appointment['appointment_time']) ?></p><p class="mt-2 text-sm text-slate-600"><?= esc($tr('appointment_summary', ['type' => ucfirst(str_replace('_', ' ', $next_appointment['appointment_type'] ?? 'follow_up')), 'status' => ucfirst($next_appointment['status'] ?? 'scheduled')])) ?></p><?php else: ?><p class="mt-3 text-sm text-slate-700"><?= esc($tr('no_next_appointment_scheduled')) ?></p><?php endif; ?></div>
-                            <?php if (!empty($examination['examination_notes'])): ?>
-                                <div class="rounded-xl bg-slate-50 p-4"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400"><?= esc($tr('examination_notes')) ?></p><p class="mt-3 text-sm leading-7 text-slate-700"><?= nl2br(esc($examination['examination_notes'])) ?></p></div>
-                            <?php endif; ?>
                             <div class="grid grid-cols-1 gap-3">
                                 <?php if (has_permission('appointments', 'create')): ?>
                                     <a href="<?= base_url('appointment/create?patient_id=' . $examination['patient_id'] . '&appointment_type=follow_up&examination_id=' . $examination['id'] . '&return_to=examination/' . $examination['id']) ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"><i class="fas fa-calendar-plus text-sm"></i><span><?= esc($tr('schedule_follow_up')) ?></span></a>
                                 <?php endif; ?>
-                                  <?php if ($examination['status'] != 'completed'): ?>
-                                    <form method="post" action="<?= base_url('examination/' . $examination['id'] . '/complete') ?>" class="inline-flex">
-                                        <?= csrf_field() ?>
-                                        <?php if (!empty($return_to)): ?>
-                                            <input type="hidden" name="return_to" value="<?= esc($return_to) ?>">
-                                        <?php endif; ?>
-                                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"><i class="fas fa-check text-sm"></i><span><?= esc($tr('complete_examination')) ?></span></button>
-                                    </form>
-                                  <?php endif; ?>
                             </div>
                         </div>
                     </section>

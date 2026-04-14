@@ -15,7 +15,7 @@
                             </div>
                             <div>
                                 <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                    <?= lang('Treatment.treatment_details') ?>
+                                    <?= lang('Treatment.procedure_record') ?>
                                 </h1>
                                 <p class="text-gray-600"><?= lang('Treatment.treatment_id') ?>: <?= $treatment['treatment_id'] ?? lang('Treatment.na') ?></p>
                             </div>
@@ -46,7 +46,7 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                        <?= lang('Treatment.treatment_overview') ?>
+                        <?= lang('Treatment.procedure_overview') ?>
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -249,7 +249,7 @@
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-clock text-indigo-600 mr-2"></i>
-                        <?= lang('Treatment.treatment_timeline') ?>
+                        <?= lang('Treatment.procedure_timeline') ?>
                     </h2>
                     <div class="space-y-3">
                         <div>
