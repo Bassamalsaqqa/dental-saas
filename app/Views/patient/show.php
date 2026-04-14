@@ -617,19 +617,19 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                             <?php if (has_permission('examinations', 'create')): ?>
                                 <a href="<?= base_url('examination/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-stethoscope"></i>
-                                    <span><?= esc(lang('UI.patientCreateExamination')) ?></span>
+                                    <span><?= esc(lang('UI.patientStartAssessment')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('treatments', 'create')): ?>
                                 <a href="<?= base_url('treatment/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-tooth"></i>
-                                    <span><?= esc(lang('UI.patientCreateTreatment')) ?></span>
+                                    <span><?= esc(lang('UI.patientRecordProcedure')) ?></span>
                                 </a>
                             <?php endif; ?>
                             <?php if (has_permission('prescriptions', 'create')): ?>
                                 <a href="<?= base_url('prescription/create?patient_id=' . $patient['id'] . '&return_to=patient/' . $patient['id']) ?>" class="patient-hero-clinical-button">
                                     <i class="fas fa-prescription-bottle-alt"></i>
-                                    <span><?= esc(lang('UI.patientCreatePrescription')) ?></span>
+                                    <span><?= esc(lang('UI.patientWritePrescription')) ?></span>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -641,7 +641,7 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                             <?php if (!empty($attachments_enabled)): ?>
                                 <button type="button" onclick="return showTab('attachments', event)" class="patient-hero-tool-button">
                                     <i class="fas fa-paperclip"></i>
-                                    <span><?= esc(lang('UI.patientUploadFiles')) ?></span>
+                                    <span><?= esc(lang('UI.patientOpenFilesWorkspace')) ?></span>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -1243,6 +1243,65 @@ $latestImagingOpenUrl = !empty($latestImagingAttachment['id']) ? base_url('file/
                                         ];
                                     }
                                     
+                                    // Add treatment plans / contracts
+                                    foreach (($contracts ?? []) as $contract) {
+                                        $contractStatus = ucfirst((string) ($contract['status'] ?? lang('UI.patientUnknown')));
+                                        $contractReference = (string) ($contract['id'] ?? '');
+                                        $contractMeta = [];
+                                        if (isset($contract['total_cost'])) {
+                                            $contractMeta[] = [
+                                                'icon' => 'fas fa-file-signature',
+                                                'text' => formatCurrency((float) $contract['total_cost']),
+                                            ];
+                                        }
+                                        if (!empty($contract['currency'])) {
+                                            $contractMeta[] = [
+                                                'icon' => 'fas fa-coins',
+                                                'text' => (string) $contract['currency'],
+                                            ];
+                                        }
+                                        $timeline[] = [
+                                            'type' => 'contract',
+                                            'date' => $contract['created_at'] ?? null,
+                                            'title' => lang('UI.patientTimelineContractTitle', ['reference' => ($contractReference !== '' ? $contractReference : lang('UI.patientUnknown'))]),
+                                            'description' => $contract['notes'] ?? lang('UI.patientTreatmentPlanTimelineDescription'),
+                                            'status' => $contract['status'] ?? null,
+                                            'status_label' => $contractStatus,
+                                            'id' => $contract['id'],
+                                            'icon' => 'fas fa-file-signature',
+                                            'color' => 'amber',
+                                            'url' => base_url('contracts/' . $contract['id'] . '?return_to=patient/' . $patient['id']),
+                                            'meta' => $contractMeta,
+                                        ];
+                                    }
+
+                                    $timelineImagingCategories = $attachment_category_options['Dental Imaging'] ?? [];
+                                    foreach (($attachments ?? []) as $attachment) {
+                                        $attachmentCategory = (string) ($attachment['category'] ?? '');
+                                        if (!in_array($attachmentCategory, $timelineImagingCategories, true)) {
+                                            continue;
+                                        }
+
+                                        $timeline[] = [
+                                            'type' => 'imaging',
+                                            'date' => $attachment['created_at'] ?? null,
+                                            'title' => lang('UI.patientTimelineImagingTitle', ['name' => ($attachmentCategory !== '' ? $attachmentCategory : lang('UI.patientLatestImagingTitle'))]),
+                                            'description' => $attachment['notes'] ?? ($attachment['original_name'] ?? lang('UI.patientAttachmentFallback')),
+                                            'status' => null,
+                                            'status_label' => lang('UI.patientRecorded'),
+                                            'id' => $attachment['id'],
+                                            'icon' => 'fas fa-x-ray',
+                                            'color' => 'slate',
+                                            'url' => base_url('patient/' . $patient['id'] . '?tab=attachments'),
+                                            'meta' => [
+                                                [
+                                                    'icon' => 'fas fa-file-image',
+                                                    'text' => $attachment['original_name'] ?? lang('UI.patientAttachmentFallback'),
+                                                ],
+                                            ],
+                                        ];
+                                    }
+
                                     // Add financial transactions
                                     foreach ($finances as $finance) {
                                         $financeStatus = ucfirst((string) ($finance['payment_status'] ?? lang('UI.patientUnknown')));
