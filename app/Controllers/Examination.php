@@ -215,7 +215,7 @@ class Examination extends BaseController
             return redirect()->to('/clinic/select')->with('error', 'Please select a clinic.');
         }
 
-        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.patient_id as patient_number, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
+        $examination = $this->examinationModel->select('examinations.*, patients.first_name, patients.last_name, patients.gender, patients.patient_id as patient_number, users.first_name as doctor_first_name, users.last_name as doctor_last_name')
             ->join('patients', 'patients.id = examinations.patient_id')
             ->join('users', 'users.id = examinations.created_by', 'left')
             ->where('examinations.clinic_id', $clinicId)
@@ -245,6 +245,7 @@ class Examination extends BaseController
             'latest_contract' => $latestContract,
             'signature_enabled' => $signatureEnabled,
             'odontogram' => $this->odontogramModel->where('clinic_id', $clinicId)->getOdontogramByPatient((int) $examination['patient_id']),
+            'odontogram_stats' => $this->odontogramModel->getOdontogramStats((int) $examination['patient_id']),
             'treatments' => $this->treatmentModel->where('clinic_id', $clinicId)->getTreatmentsByExamination($id),
             'condition_types' => $this->odontogramModel->getConditionTypes(),
             'tooth_positions' => $this->odontogramModel->getToothPositions(),
