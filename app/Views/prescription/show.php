@@ -40,13 +40,13 @@ $summaryMeta = [
         <div class="space-y-8">
             <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
                 <div>
-                    <div class="mb-2 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-slate-400">
+                    <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
                         <span><?= lang('Prescription.all_prescriptions') ?></span>
                         <span>/</span>
                         <span class="text-teal-700"><?= esc($prescriptionReference) ?></span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <h1 class="font-headline text-3xl font-black tracking-tight text-cyan-950"><?= lang('Prescription.details_title') ?></h1>
+                        <h1 class="text-3xl font-bold text-cyan-950"><?= lang('Prescription.details_title') ?></h1>
                         <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] <?= esc($statusMeta['tone']) ?>">
                             <?= esc($statusMeta['label']) ?>
                         </span>
@@ -81,7 +81,7 @@ $summaryMeta = [
                     <section class="rounded-xl bg-slate-100 p-6">
                         <h2 class="mb-6 text-xs font-bold uppercase tracking-[0.2em] text-slate-400"><?= lang('Prescription.patient_profile') ?></h2>
                         <div class="mb-6 flex items-center gap-4">
-                            <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white text-xl font-black text-cyan-900 shadow-sm">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-white text-xl font-bold text-cyan-900 shadow-sm">
                                 <?= esc(mb_substr($patientName !== '' ? $patientName : 'P', 0, 1)) ?>
                             </div>
                             <div>

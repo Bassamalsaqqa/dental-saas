@@ -11,8 +11,11 @@
     $lastLoginText = !empty($viewedUser->last_login) ? date('M j, Y g:i A', strtotime((string) $viewedUser->last_login)) : lang('UserRole.never');
     $statusText = (int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.active') : lang('UserRole.inactive');
     $statusClass = (int) ($viewedUser->active ?? 0) === 1
-        ? 'bg-emerald-100 text-emerald-700 ring-emerald-200'
-        : 'bg-slate-200 text-slate-700 ring-slate-300';
+        ? 'patient-hero-status patient-hero-status-active'
+        : 'patient-hero-status patient-hero-status-inactive';
+    $contentStatusClass = (int) ($viewedUser->active ?? 0) === 1
+        ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+        : 'bg-slate-100 text-slate-700 ring-slate-200';
     $providerSummary = $provider_finance_summary ?? [
         'payout_count' => 0,
         'gross_amount_total' => 0,
@@ -25,6 +28,34 @@
     $canDeleteUsers = has_permission('users', 'delete') && (int) ($viewedUser->id ?? 0) !== 1;
     $canViewFinance = has_permission('finance', 'view');
     $canEditFinance = has_permission('finance', 'edit');
+    $userGender = strtolower((string) ($viewedUser->gender ?? ''));
+    $userHeroThemeClass = 'patient-hero-card-neutral';
+    $userAvatarToneClass = 'patient-avatar-badge-neutral';
+    $userAvatarIconClass = 'fas fa-user';
+
+    if ($userGender === 'female') {
+        $userHeroThemeClass = 'patient-hero-card-female';
+        $userAvatarToneClass = 'patient-avatar-badge-female';
+        $userAvatarIconClass = 'fas fa-user-nurse';
+    } elseif ($userGender === 'male') {
+        $userHeroThemeClass = 'patient-hero-card-male';
+        $userAvatarToneClass = 'patient-avatar-badge-male';
+        $userAvatarIconClass = 'fas fa-user-doctor';
+    }
+
+    $userRoleSummary = !empty($viewedUserRoles)
+        ? implode(', ', array_map(static function ($role) {
+            return (string) (is_array($role) ? ($role['name'] ?? '') : ($role->name ?? ''));
+        }, $viewedUserRoles))
+        : lang('UserRole.noRolesAssigned');
+
+    $heroInfoCapsules = [
+        ['label' => lang('UserRole.userIdColon'), 'display_label' => '', 'value' => '#' . (string) ($viewedUser->id ?? ''), 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
+        ['label' => lang('UserRole.phone'), 'display_label' => '', 'value' => (string) ($viewedUser->phone ?? lang('UserRole.notProvided')), 'icon' => 'fas fa-phone', 'class' => 'patient-hero-chip-ltr'],
+        ['label' => lang('UserRole.email'), 'display_label' => '', 'value' => (string) ($viewedUser->email ?? lang('UserRole.na')), 'icon' => 'fas fa-envelope', 'class' => 'patient-hero-chip-ltr'],
+        ['label' => lang('UserRole.statusAndGroups'), 'display_label' => '', 'value' => $userRoleSummary, 'icon' => 'fas fa-user-shield'],
+        ['label' => lang('UserRole.lastLoginColon'), 'display_label' => '', 'value' => $lastLoginText, 'icon' => 'fas fa-clock'],
+    ];
 
     $patientAvatarFor = static function (?string $gender): array {
         $normalized = strtolower((string) ($gender ?? 'other'));
@@ -48,79 +79,425 @@
     };
 ?>
 
+<style>
+    .patient-hero-card {
+        position: relative;
+        --hero-angle: 135deg;
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        --hero-orb-primary: rgba(255, 255, 255, 0.18);
+        --hero-orb-secondary: rgba(125, 211, 252, 0.2);
+        background: linear-gradient(var(--hero-angle), var(--hero-start) 0%, var(--hero-mid) 58%, var(--hero-end) 100%);
+        box-shadow: 0 28px 70px -44px rgba(15, 23, 42, 0.75);
+    }
+
+    .patient-hero-card-male {
+        --hero-start: #0f3f90;
+        --hero-mid: #1656c1;
+        --hero-end: #0f7cc1;
+        --hero-orb-primary: rgba(255, 255, 255, 0.18);
+        --hero-orb-secondary: rgba(125, 211, 252, 0.2);
+    }
+
+    .patient-hero-card-female {
+        --hero-start: #8a245a;
+        --hero-mid: #c03579;
+        --hero-end: #7c3aed;
+        --hero-orb-primary: rgba(255, 255, 255, 0.16);
+        --hero-orb-secondary: rgba(251, 207, 232, 0.24);
+    }
+
+    .patient-hero-card-neutral {
+        --hero-start: #334155;
+        --hero-mid: #2563eb;
+        --hero-end: #0f766e;
+        --hero-orb-primary: rgba(255, 255, 255, 0.16);
+        --hero-orb-secondary: rgba(153, 246, 228, 0.2);
+    }
+
+    [dir="rtl"] .patient-hero-card {
+        --hero-angle: 225deg;
+    }
+
+    .patient-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 12% 18%, var(--hero-orb-primary), transparent 30%),
+            radial-gradient(circle at 88% 20%, var(--hero-orb-secondary), transparent 26%),
+            linear-gradient(120deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+    }
+
+    [dir="rtl"] .patient-hero-overlay {
+        background:
+            radial-gradient(circle at 88% 18%, var(--hero-orb-primary), transparent 30%),
+            radial-gradient(circle at 12% 20%, var(--hero-orb-secondary), transparent 26%),
+            linear-gradient(240deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+    }
+
+    .patient-avatar-badge {
+        display: inline-flex;
+        width: 5.5rem;
+        height: 5.5rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1.75rem;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(191, 219, 254, 0.18));
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 22px 40px -24px rgba(15, 23, 42, 0.72);
+    }
+
+    .patient-avatar-badge i {
+        font-size: 2.55rem;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    .patient-avatar-badge-male {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(191, 219, 254, 0.18));
+    }
+
+    .patient-avatar-badge-female {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(244, 114, 182, 0.18));
+    }
+
+    .patient-avatar-badge-neutral {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(94, 234, 212, 0.16));
+    }
+
+    .patient-hero-chip-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 0.85rem;
+    }
+
+    @media (min-width: 640px) {
+        .patient-hero-chip-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .patient-hero-chip-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .patient-hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 2.65rem;
+        width: 100%;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.12);
+        padding: 0.52rem 0.82rem;
+        color: #eff6ff;
+        backdrop-filter: blur(12px);
+        text-align: start;
+        overflow: hidden;
+    }
+
+    .patient-hero-chip-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.12);
+        flex-shrink: 0;
+        font-size: 0.78rem;
+    }
+
+    .patient-hero-chip-text {
+        display: flex;
+        align-items: baseline;
+        gap: 0.35rem;
+        min-width: 0;
+    }
+
+    .patient-hero-chip-label {
+        display: inline;
+        flex-shrink: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        line-height: 1.2;
+        color: rgba(219, 234, 254, 0.84);
+    }
+
+    .patient-hero-chip-value {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.76rem;
+        font-weight: 500;
+        line-height: 1.25;
+        color: #ffffff;
+    }
+
+    .patient-hero-chip-ltr .patient-hero-chip-value {
+        direction: ltr;
+    }
+
+    .patient-hero-status {
+        color: #eff6ff;
+        backdrop-filter: blur(12px);
+    }
+
+    .patient-hero-status-active {
+        background: rgba(16, 185, 129, 0.18);
+        border-color: rgba(167, 243, 208, 0.4);
+    }
+
+    .patient-hero-status-inactive {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .patient-header-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.58rem;
+        min-height: 2.65rem;
+        border-radius: 0.95rem;
+        padding: 0.58rem 0.78rem;
+        font-size: 0.76rem;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        text-align: center;
+    }
+
+    .patient-header-action:hover,
+    .patient-hero-clinical-button:hover,
+    .patient-hero-tool-button:hover {
+        transform: translateY(-1px);
+    }
+
+    .patient-header-action-soft {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.12);
+        color: #eff6ff;
+    }
+
+    .patient-header-action-primary {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.12);
+        color: #eff6ff;
+        box-shadow: none;
+    }
+
+    .patient-header-action-emerald {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        box-shadow: 0 12px 22px -20px rgba(5, 150, 105, 0.85);
+    }
+
+    .patient-header-action-gold {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        box-shadow: 0 12px 22px -20px rgba(217, 119, 6, 0.85);
+    }
+
+    .patient-header-action-danger {
+        background: linear-gradient(135deg, #f43f5e, #e11d48);
+        color: #ffffff;
+        box-shadow: 0 12px 22px -20px rgba(225, 29, 72, 0.88);
+    }
+
+    .patient-hero-clinical-button,
+    .patient-hero-tool-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        min-height: 2.4rem;
+        border-radius: 1rem;
+        padding: 0.48rem 0.72rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #eff6ff;
+        backdrop-filter: blur(12px);
+        transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+        text-align: center;
+    }
+
+    .patient-hero-clinical-button {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.45);
+    }
+
+    .patient-hero-tool-button {
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.09);
+        color: rgba(239, 246, 255, 0.92);
+    }
+
+    .patient-hero-tool-button-danger {
+        border-color: rgba(254, 205, 211, 0.4);
+        background: rgba(244, 63, 94, 0.16);
+        color: #fff1f2;
+    }
+
+    .user-role-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        background: #eef2ff;
+        padding: 0.4rem 0.78rem;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #4338ca;
+        box-shadow: inset 0 0 0 1px rgba(165, 180, 252, 0.55);
+    }
+
+    .user-summary-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 9999px;
+        background: #f8fafc;
+        padding: 0.4rem 0.78rem;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #475569;
+        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.9);
+    }
+
+    .user-ledger-status {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.76rem;
+        font-weight: 600;
+        box-shadow: inset 0 0 0 1px transparent;
+    }
+
+    .user-ledger-status-paid {
+        background: #ecfdf3;
+        color: #166534;
+        box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.9);
+    }
+
+    .user-ledger-status-partial {
+        background: #fff7ed;
+        color: #9a3412;
+        box-shadow: inset 0 0 0 1px rgba(253, 186, 116, 0.8);
+    }
+
+    .user-ledger-status-void {
+        background: #f8fafc;
+        color: #475569;
+        box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.9);
+    }
+
+    .user-ledger-status-unpaid {
+        background: #fff1f2;
+        color: #be123c;
+        box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.95);
+    }
+</style>
+
 <div class="min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="space-y-6">
-            <section class="overflow-hidden rounded-[28px] border border-indigo-200/40 bg-gradient-to-br from-slate-900 via-indigo-900 to-sky-700 text-white shadow-[0_24px_80px_-32px_rgba(15,23,42,0.55)]">
-                <div class="flex flex-col gap-6 p-6 lg:flex-row lg:items-start lg:justify-between lg:p-8">
+            <section class="patient-hero-card <?= esc($userHeroThemeClass) ?> overflow-hidden rounded-[28px] border border-slate-200 text-white">
+                <div class="patient-hero-overlay"></div>
+                <div class="relative z-10 p-6 sm:p-8">
+                <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                     <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100/90">
                             <span><?= esc(lang('UserRole.userDetails')) ?></span>
-                            <span class="h-1 w-1 rounded-full bg-white/50"></span>
-                            <span>#<?= esc((string) ($viewedUser->id ?? '')) ?></span>
+                            <span class="h-1 w-1 rounded-full bg-blue-200"></span>
+                            <span><?= esc(lang('UserRole.createdColon')) ?> <?= esc($createdAtText) ?></span>
                         </div>
-                        <div class="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
-                            <div class="flex h-20 w-20 items-center justify-center rounded-[24px] bg-white/18 text-2xl font-black text-white ring-1 ring-white/30 backdrop-blur">
-                                <?= esc(ui_initials($viewedUser->first_name ?? '', $viewedUser->last_name ?? '', 'U')) ?>
+                        <div class="mt-5 flex flex-col gap-5 lg:flex-row lg:items-start">
+                            <div class="patient-avatar-badge <?= esc($userAvatarToneClass) ?>">
+                                <i class="<?= esc($userAvatarIconClass) ?>"></i>
                             </div>
-                            <div class="min-w-0">
+                            <div class="space-y-4 min-w-0">
                                 <div class="flex flex-wrap items-center gap-3">
-                                    <h1 class="truncate text-3xl font-black tracking-tight text-white"><?= esc($userFullName) ?></h1>
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 <?= esc($statusClass) ?>">
+                                    <h1 class="truncate text-3xl font-extrabold tracking-tight text-white sm:text-4xl"><?= esc($userFullName) ?></h1>
+                                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold <?= esc($statusClass) ?>">
                                         <?= esc($statusText) ?>
                                     </span>
                                 </div>
-                                <p class="mt-2 text-sm text-white/80"><?= esc((string) ($viewedUser->email ?? '')) ?></p>
-                                <div class="mt-4 flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/90 ring-1 ring-white/15">
-                                        <i class="fas fa-phone text-[11px]"></i>
-                                        <span><?= esc((string) ($viewedUser->phone ?? lang('UserRole.notProvided'))) ?></span>
-                                    </span>
-                                    <span class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/90 ring-1 ring-white/15">
-                                        <i class="fas fa-calendar-plus text-[11px]"></i>
-                                        <span><?= esc($createdAtText) ?></span>
-                                    </span>
-                                    <span class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/90 ring-1 ring-white/15">
-                                        <i class="fas fa-clock text-[11px]"></i>
-                                        <span><?= esc($lastLoginText) ?></span>
-                                    </span>
+                                <div class="patient-hero-chip-grid">
+                                    <?php foreach ($heroInfoCapsules as $capsule): ?>
+                                        <?php
+                                            $capsuleClass = trim('patient-hero-chip ' . ($capsule['class'] ?? ''));
+                                            $capsuleValue = (string) ($capsule['value'] ?? lang('UserRole.notProvided'));
+                                            $capsuleLabel = (string) ($capsule['label'] ?? '');
+                                            $capsuleDisplayLabel = array_key_exists('display_label', $capsule) ? (string) $capsule['display_label'] : $capsuleLabel;
+                                            $capsuleIcon = (string) ($capsule['icon'] ?? 'fas fa-circle');
+                                        ?>
+                                        <div class="<?= esc($capsuleClass) ?>" title="<?= esc($capsuleLabel . ': ' . $capsuleValue) ?>">
+                                            <span class="patient-hero-chip-icon"><i class="<?= esc($capsuleIcon) ?>"></i></span>
+                                            <span class="patient-hero-chip-text">
+                                                <?php if ($capsuleDisplayLabel !== ''): ?><span class="patient-hero-chip-label"><?= esc($capsuleDisplayLabel) ?></span><?php endif; ?>
+                                                <span class="patient-hero-chip-value"><?= esc($capsuleValue) ?></span>
+                                            </span>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="w-full max-w-xl rounded-[24px] border border-white/15 bg-white/10 p-4 backdrop-blur-xl lg:w-[24rem]">
-                        <div class="flex flex-wrap gap-2">
-                            <a href="<?= base_url('users') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/14 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/22">
-                                <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?> text-xs"></i>
-                                <span><?= esc(lang('UserRole.backToUsers')) ?></span>
-                            </a>
+                    <div class="w-full space-y-2 xl:w-[21rem]">
+                        <div class="grid gap-2 sm:grid-cols-2">
                             <?php if ($canEditUsers): ?>
-                                <a href="<?= base_url('users/' . $viewedUser->id . '/edit') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
-                                    <i class="fas fa-pen-to-square text-xs"></i>
+                                <a href="<?= base_url('users/' . $viewedUser->id . '/edit') ?>" class="patient-header-action patient-header-action-primary">
+                                    <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UserRole.editUser')) ?></span>
                                 </a>
                             <?php endif; ?>
+                            <a href="<?= base_url('users') ?>" class="patient-header-action patient-header-action-soft">
+                                <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
+                                <span><?= esc(lang('UserRole.backToUsers')) ?></span>
+                            </a>
                         </div>
-                        <div class="mt-3 flex flex-wrap gap-2">
+                        <?php if ($canViewFinance): ?>
+                            <div class="grid gap-2 sm:grid-cols-2">
+                                <a href="<?= base_url('finance/payouts') ?>" class="patient-header-action patient-header-action-emerald">
+                                    <i class="fas fa-wallet"></i>
+                                    <span><?= esc(lang('Finance.openPayoutLedger')) ?></span>
+                                </a>
+                                <a href="<?= base_url('finance') ?>" class="patient-header-action patient-header-action-gold">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    <span><?= esc(lang('Finance.finance')) ?></span>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <div class="grid gap-2 sm:grid-cols-2">
                             <?php if ($canEditUsers): ?>
-                                <a href="<?= base_url('users/' . $viewedUser->id . '/change-password') ?>" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/12">
-                                    <i class="fas fa-key text-xs"></i>
+                                <a href="<?= base_url('users/' . $viewedUser->id . '/change-password') ?>" class="patient-hero-clinical-button">
+                                    <i class="fas fa-key"></i>
                                     <span><?= esc(lang('UserRole.changePassword')) ?></span>
                                 </a>
-                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/12">
-                                    <i class="fas fa-toggle-on text-xs"></i>
+                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" class="patient-hero-clinical-button">
+                                    <i class="fas fa-toggle-on"></i>
                                     <span><?= esc(((int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.deactivate') : lang('UserRole.activate')) . ' ' . lang('UserRole.user')) ?></span>
                                 </button>
                             <?php endif; ?>
-                            <?php if ($canDeleteUsers): ?>
-                                <button type="button" onclick="deleteUser(<?= (int) $viewedUser->id ?>)" class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-500/90 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
-                                    <i class="fas fa-trash text-xs"></i>
+                        </div>
+                        <?php if ($canDeleteUsers): ?>
+                            <div class="grid gap-2 sm:grid-cols-1">
+                                <button type="button" onclick="deleteUser(<?= (int) $viewedUser->id ?>)" class="patient-header-action patient-header-action-danger">
+                                    <i class="fas fa-trash"></i>
                                     <span><?= esc(lang('UserRole.deleteUser')) ?></span>
                                 </button>
-                            <?php endif; ?>
-                        </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
+                </div>
                 </div>
             </section>
 
@@ -133,7 +510,7 @@
                     <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
                         <div class="space-y-4">
                             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('UserRole.contactInformation')) ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.contactInformation')) ?></p>
                                 <div class="mt-4 space-y-3 text-sm text-slate-700">
                                     <div class="flex items-center justify-between gap-4">
                                         <span class="text-slate-500"><?= esc(lang('UserRole.phone')) ?></span>
@@ -147,7 +524,7 @@
                             </div>
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('UserRole.accountInformation')) ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.accountInformation')) ?></p>
                                 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <p class="text-xs font-medium text-slate-500"><?= esc(lang('UserRole.userIdColon')) ?></p>
@@ -163,9 +540,9 @@
 
                         <div class="space-y-4">
                             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('UserRole.statusAndGroups')) ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.statusAndGroups')) ?></p>
                                 <div class="mt-4">
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 <?= esc($statusClass) ?>">
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 <?= esc($contentStatusClass) ?>">
                                         <?= esc($statusText) ?>
                                     </span>
                                 </div>
@@ -177,12 +554,12 @@
                                                     ? ($role['name'] ?? lang('UserRole.unknownRole'))
                                                     : ($role->name ?? lang('UserRole.unknownRole'));
                                             ?>
-                                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200">
+                                            <span class="user-role-pill">
                                                 <?= esc(ucfirst((string) $roleName)) ?>
                                             </span>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                                        <span class="user-summary-badge">
                                             <?= esc(lang('UserRole.noRolesAssigned')) ?>
                                         </span>
                                     <?php endif; ?>
@@ -190,7 +567,7 @@
                             </div>
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('UserRole.activity')) ?></p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.activity')) ?></p>
                                 <div class="mt-4 space-y-3 text-sm text-slate-700">
                                     <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <span class="text-slate-500"><?= esc(lang('UserRole.createdColon')) ?></span>
@@ -216,20 +593,20 @@
                             <div class="space-y-4 p-6">
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="rounded-2xl border border-indigo-100 bg-white px-4 py-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Finance.providerShareTotal')) ?></p>
-                                        <p class="mt-2 text-xl font-black text-slate-900"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerShareTotal')) ?></p>
+                                        <p class="mt-2 text-xl font-bold text-slate-900"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
                                     </div>
                                     <div class="rounded-2xl border border-emerald-100 bg-white px-4 py-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Finance.paidToProvider')) ?></p>
-                                        <p class="mt-2 text-xl font-black text-emerald-700"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidToProvider')) ?></p>
+                                        <p class="mt-2 text-xl font-bold text-emerald-700"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
                                     </div>
                                     <div class="rounded-2xl border border-rose-100 bg-white px-4 py-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Finance.balance')) ?></p>
-                                        <p class="mt-2 text-xl font-black text-rose-700"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.balance')) ?></p>
+                                        <p class="mt-2 text-xl font-bold text-rose-700"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
                                     </div>
                                     <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"><?= esc(lang('Finance.providerPayoutCount')) ?></p>
-                                        <p class="mt-2 text-xl font-black text-slate-900"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerPayoutCount')) ?></p>
+                                        <p class="mt-2 text-xl font-bold text-slate-900"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
                                     </div>
                                 </div>
 
@@ -268,7 +645,7 @@
                             <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.payoutLedger')) ?></h2>
                             <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
                         </div>
-                        <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+                        <div class="user-summary-badge">
                             <i class="fas fa-receipt text-[11px]"></i>
                             <span><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?> <?= esc(lang('Finance.providerPayoutCount')) ?></span>
                         </div>
@@ -279,13 +656,13 @@
                             <table class="min-w-full divide-y divide-slate-200" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                                 <thead class="bg-slate-50">
                                     <tr>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.transaction')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.patient')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.businessDate')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.paidBalance')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.lastPaymentDate')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.status')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.actions')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.transaction')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.patient')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.businessDate')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.paidBalance')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.lastPaymentDate')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.status')) ?></th>
+                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.actions')) ?></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -295,10 +672,10 @@
                                             $transactionMeta = $transactionMetaFor($row['transaction_type'] ?? null);
                                             $patientAvatar = $patientAvatarFor($row['patient_gender'] ?? null);
                                             $rowStatusClass = match ($rowStatus) {
-                                                'paid' => 'bg-emerald-100 text-emerald-700 ring-emerald-200',
-                                                'partial' => 'bg-amber-100 text-amber-700 ring-amber-200',
-                                                'void' => 'bg-slate-200 text-slate-600 ring-slate-300',
-                                                default => 'bg-rose-100 text-rose-700 ring-rose-200',
+                                                'paid' => 'user-ledger-status user-ledger-status-paid',
+                                                'partial' => 'user-ledger-status user-ledger-status-partial',
+                                                'void' => 'user-ledger-status user-ledger-status-void',
+                                                default => 'user-ledger-status user-ledger-status-unpaid',
                                             };
                                             $canSettlePayout = $canEditFinance && !in_array($rowStatus, ['paid', 'void'], true);
                                         ?>
@@ -342,7 +719,7 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 align-top">
-                                                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 <?= esc($rowStatusClass) ?>">
+                                                <span class="<?= esc($rowStatusClass) ?>">
                                                     <?= esc(lang('Finance.' . $rowStatus)) ?>
                                                 </span>
                                             </td>
@@ -395,12 +772,12 @@
                 <form id="recordPayoutForm" class="space-y-4 p-5">
                     <input type="hidden" id="payoutIdInput">
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.amount')) ?></label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.amount')) ?></label>
                         <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                         <p id="payoutAmountHelp" class="mt-1 text-xs text-slate-500"></p>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.paymentMethod')) ?></label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paymentMethod')) ?></label>
                         <select id="payoutMethodInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
                             <option value="cash"><?= esc(lang('Finance.cash')) ?></option>
                             <option value="card"><?= esc(lang('Finance.card')) ?></option>
@@ -410,7 +787,7 @@
                         </select>
                     </div>
                     <div id="payoutLiquidityAccountField" class="hidden">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.paidFromAccount')) ?></label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidFromAccount')) ?></label>
                         <select id="payoutLiquidityAccountInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
                             <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                             <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
@@ -418,11 +795,11 @@
                         <p class="mt-1 text-xs text-slate-500"><?= esc(lang('Finance.checkOutgoingAccountHelp')) ?></p>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.paidDate')) ?></label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidDate')) ?></label>
                         <input type="date" id="payoutDateInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc(lang('Finance.notes')) ?></label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.notes')) ?></label>
                         <textarea id="payoutNotesInput" rows="2" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
