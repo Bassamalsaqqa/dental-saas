@@ -7,6 +7,7 @@ use App\Models\RoleModel;
 use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use App\Models\PermissionModel;
+use App\Models\ProviderPayoutModel;
 use App\Models\ClinicUserModel;
 use App\Services\PermissionService;
 use App\Libraries\IonAuth;
@@ -20,6 +21,7 @@ class Users extends BaseController
     protected $permissionModel;
     protected $permissionService;
     protected $clinicUserModel;
+    protected $providerPayoutModel;
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class Users extends BaseController
         $this->permissionModel = new PermissionModel();
         $this->permissionService = new PermissionService();
         $this->clinicUserModel = new ClinicUserModel();
+        $this->providerPayoutModel = new ProviderPayoutModel();
     }
 
     /**
@@ -360,7 +363,10 @@ class Users extends BaseController
 
         $data = [
             'title' => 'User Details',
-            'user' => $user,
+            'viewed_user' => $user,
+            'viewed_user_roles' => $user->display_roles,
+            'provider_finance_summary' => $this->providerPayoutModel->getSummaryByProviderUserId((int) $clinicId, (int) $id),
+            'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
         ];
         
         // Add current user data for view without overwriting the user being viewed

@@ -2,6 +2,7 @@
 
 <?= $this->section('content') ?>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<?php $isRtl = !empty($is_rtl); ?>
 
 <style>
 .dataTables_wrapper {
@@ -39,9 +40,32 @@
     color: #9ca3af !important;
     cursor: not-allowed !important;
 }
+[dir="rtl"] .dataTables_wrapper .dataTables_filter {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+[dir="rtl"] .dataTables_wrapper .dataTables_length {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+}
+[dir="rtl"] .dataTables_wrapper .dataTables_info {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+}
+[dir="rtl"] .dataTables_wrapper .dataTables_paginate {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+[dir="rtl"] .dataTables_wrapper table th,
+[dir="rtl"] .dataTables_wrapper table td {
+    text-align: right !important;
+}
+[dir="rtl"] .dataTables_wrapper .dataTables_filter input {
+    margin-right: 0 !important;
+}
 </style>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 relative overflow-hidden" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-green-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -50,7 +74,7 @@
     <div class="container mx-auto relative z-10 px-4 py-6 space-y-6">
         <div class="bg-white/80 backdrop-blur-sm border border-white/30 rounded-xl p-6 shadow-lg">
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                         <i class="fas fa-hand-holding-dollar text-xl"></i>
                     </div>
@@ -62,12 +86,26 @@
                 <div class="flex items-center gap-3">
                     <?php if (!empty($can_access_finance_reports)): ?>
                     <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all duration-200">
-                        <i class="fas fa-chart-bar mr-2"></i><?= lang('Finance.reports') ?>
+                        <i class="fas fa-chart-bar <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.reports') ?>
                     </a>
                     <?php endif; ?>
                     <a href="<?= base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-200 transition-all duration-200">
-                        <i class="fas fa-arrow-left mr-2"></i><?= lang('Finance.backToFinance') ?>
+                        <i class="fas <?= $isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2' ?>"></i><?= lang('Finance.backToFinance') ?>
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-amber-200 bg-amber-50/80 px-5 py-4 shadow-sm">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                        <i class="fas fa-circle-info text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-amber-900"><?= lang('Finance.providerSplit') ?></p>
+                        <p class="text-sm text-amber-800"><?= lang('Finance.supplierPayablesGuidance') ?></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,7 +121,7 @@
                                 <i class="fas fa-percent text-xl"></i>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 bg-gradient-to-r from-indigo-100 to-blue-100 px-3 py-1.5 rounded-full border border-indigo-200">
+                        <div class="flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-blue-100 px-3 py-1.5 rounded-full border border-indigo-200">
                             <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
                             <span class="text-indigo-700 font-bold text-xs"><?= lang('Finance.split') ?></span>
                         </div>
@@ -106,7 +144,7 @@
                                 <i class="fas fa-triangle-exclamation text-xl"></i>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 bg-gradient-to-r from-rose-100 to-orange-100 px-3 py-1.5 rounded-full border border-rose-200">
+                        <div class="flex items-center gap-2 bg-gradient-to-r from-rose-100 to-orange-100 px-3 py-1.5 rounded-full border border-rose-200">
                             <div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
                             <span class="text-rose-700 font-bold text-xs"><?= lang('Finance.due') ?></span>
                         </div>
@@ -129,7 +167,7 @@
                                 <i class="fas fa-building text-xl"></i>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                        <div class="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1.5 rounded-full border border-emerald-200">
                             <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                             <span class="text-emerald-700 font-bold text-xs"><?= lang('Finance.net') ?></span>
                         </div>
@@ -146,7 +184,7 @@
         <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                    <div class="flex items-center space-x-3">
+                    <div class="flex items-center gap-3">
                         <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
                         <h3 class="text-lg font-semibold text-gray-900"><?= lang('Finance.payoutLedger') ?></h3>
                     </div>
@@ -159,24 +197,24 @@
                             <option value="void"><?= lang('Finance.void') ?></option>
                         </select>
                         <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-gray-400 text-sm"><i class="fas fa-search"></i></span>
-                            <input id="payoutSearch" type="text" class="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
+                            <span class="absolute <?= $isRtl ? 'right-3' : 'left-3' ?> top-2.5 text-gray-400 text-sm"><i class="fas fa-search"></i></span>
+                            <input id="payoutSearch" type="text" class="<?= $isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3' ?> py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400" placeholder="<?= esc(lang('Finance.searchProviderPatientTxn')) ?>">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table id="providerPayoutsTable" class="w-full min-w-full">
+                <table id="providerPayoutsTable" class="w-full min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-receipt text-indigo-600 mr-2"></i><?= lang('Finance.transaction') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user text-indigo-600 mr-2"></i><?= lang('Finance.patient') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-indigo-600 mr-2"></i><?= lang('Finance.provider') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-indigo-600 mr-2"></i><?= lang('Finance.split') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-wallet text-indigo-600 mr-2"></i><?= lang('Finance.paidBalance') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-info-circle text-indigo-600 mr-2"></i><?= lang('Finance.status') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-calendar text-indigo-600 mr-2"></i><?= lang('Finance.date') ?></th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-cogs text-indigo-600 mr-2"></i><?= lang('Finance.actions') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-receipt text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.transaction') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.patient') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-user-doctor text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.provider') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-money-bill-trend-up text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.split') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-wallet text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.paidBalance') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-info-circle text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.status') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-calendar text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.date') ?></th>
+                            <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider"><i class="fas fa-cogs text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= lang('Finance.actions') ?></th>
                         </tr>
                     </thead>
                     <tbody id="providerPayoutsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
@@ -249,6 +287,28 @@ const payoutStatusLabels = {
     void: '<?= esc(lang('Finance.void')) ?>',
     unknown: '<?= esc(lang('Finance.unknown')) ?>'
 };
+
+function getPatientAvatar(gender) {
+    const normalized = String(gender || 'other').toLowerCase();
+    const map = {
+        male: { icon: 'fas fa-person', color: 'text-blue-700' },
+        female: { icon: 'fas fa-person-dress', color: 'text-rose-700' },
+        other: { icon: 'fas fa-user', color: 'text-slate-600' }
+    };
+    return map[normalized] || map.other;
+}
+
+function getTransactionTypeMeta(type) {
+    const normalized = String(type || '').toLowerCase();
+    const map = {
+        payment: { icon: 'fas fa-money-check-dollar', iconColor: 'text-emerald-700' },
+        invoice: { icon: 'fas fa-file-invoice-dollar', iconColor: 'text-blue-700' },
+        refund: { icon: 'fas fa-rotate-left', iconColor: 'text-rose-700' },
+        adjustment: { icon: 'fas fa-sliders', iconColor: 'text-amber-700' },
+        expense: { icon: 'fas fa-receipt', iconColor: 'text-orange-700' }
+    };
+    return map[normalized] || { icon: 'fas fa-tag', iconColor: 'text-slate-600' };
+}
 
 function formatCurrency(value) {
     const amount = Number(value || 0);
@@ -328,12 +388,13 @@ $(document).ready(function () {
             {
                 data: 'transaction_id',
                 render: function (data, type, row) {
+                    const typeMeta = getTransactionTypeMeta(row.transaction_type);
                     return `
                         <a href="<?= base_url('finance') ?>/${row.finance_id}" class="block rounded-md hover:bg-indigo-50/70 transition-colors duration-200 p-1 -m-1">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-receipt text-indigo-600 text-sm"></i>
-                                </div>
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                                    <i class="${typeMeta.icon} ${typeMeta.iconColor} text-xl"></i>
+                                </span>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">${data || '-'}</div>
                                     <div class="text-xs text-gray-500"><?= lang('Finance.financeTransaction') ?></div>
@@ -344,9 +405,18 @@ $(document).ready(function () {
             },
             {
                 data: 'patient_name',
-                render: function (data) {
+                render: function (data, type, row) {
+                    const avatar = getPatientAvatar(row.patient_gender);
                     const patient = data && data.trim() !== '' ? data : '<?= esc(lang('Finance.notAvailable')) ?>';
-                    return `<div class="text-sm font-medium text-gray-900">${patient}</div>`;
+                    return `<div class="flex items-center gap-3">
+                        <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
+                            <i class="${avatar.icon} ${avatar.color} text-2xl"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <div class="text-sm font-medium text-gray-900 truncate">${patient}</div>
+                            <div class="text-xs text-gray-500"><?= esc(lang('Finance.patient')) ?></div>
+                        </div>
+                    </div>`;
                 }
             },
             {
@@ -356,7 +426,7 @@ $(document).ready(function () {
                     const iconClass = isGuest ? 'fas fa-user-tie text-amber-600' : 'fas fa-user-doctor text-indigo-600';
                     const subtitle = isGuest ? '<?= esc(lang('Finance.guestProvider')) ?>' : '<?= esc(lang('Finance.clinicUser')) ?>';
                     return `
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center gap-3">
                             <div class="w-10 h-10 ${isGuest ? 'bg-amber-100' : 'bg-indigo-100'} rounded-lg flex items-center justify-center">
                                 <i class="${iconClass} text-sm"></i>
                             </div>
@@ -372,7 +442,7 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center space-x-2 text-sm font-medium text-indigo-700">
+                            <div class="flex items-center gap-2 text-sm font-medium text-indigo-700">
                                 <i class="fas fa-arrow-down text-rose-500 text-xs"></i>
                                 <span>${formatCurrency(value)}</span>
                             </div>
@@ -385,7 +455,7 @@ $(document).ready(function () {
                 render: function (value, type, row) {
                     return `
                         <div class="space-y-1">
-                            <div class="flex items-center space-x-2 text-sm font-medium text-emerald-700">
+                            <div class="flex items-center gap-2 text-sm font-medium text-emerald-700">
                                 <i class="fas fa-arrow-up text-emerald-500 text-xs"></i>
                                 <span>${formatCurrency(value)}</span>
                             </div>
@@ -405,7 +475,7 @@ $(document).ready(function () {
                 data: 'created_at_formatted',
                 render: function (value) {
                     return `
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center gap-2">
                             <i class="fas fa-calendar text-indigo-600 text-xs"></i>
                             <span class="text-sm text-gray-900">${value || '-'}</span>
                         </div>`;
@@ -417,14 +487,11 @@ $(document).ready(function () {
                 searchable: false,
                 render: function (id, type, row) {
                     const canSettle = row.status !== 'paid' && row.status !== 'void';
-                    let actions = '<div class="flex items-center space-x-2">';
+                    let actions = '<div class="flex items-center gap-2">';
                     actions += `<a href="<?= base_url('finance') ?>/${row.finance_id}" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= lang('Finance.viewTransaction') ?>"><i class="fas fa-eye"></i></a>`;
                     if (canSettle) {
-                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= lang('Finance.recordPayment') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
-                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
-                    }
-                    if (!canSettle) {
-                        actions += '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-500"><?= lang('Finance.noActions') ?></span>';
+                        actions += `<button type="button" onclick="openPayoutModal(${id}, ${Number(row.provider_balance_due || 0)})" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= lang('Finance.recordPaymentFromLedger') ?>"><i class="fas fa-money-bill-wave"></i></button>`;
+                        actions += `<button type="button" onclick="markPayoutPaid(${id})" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= lang('Finance.markFullyPaid') ?>"><i class="fas fa-check-double"></i></button>`;
                     }
                     actions += '</div>';
                     return actions;

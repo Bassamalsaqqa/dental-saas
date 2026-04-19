@@ -124,8 +124,10 @@ class ProviderPayoutModel extends TenantAwareModel
             ->select('
                 pp.*,
                 f.transaction_id,
+                f.transaction_type,
                 p.first_name AS patient_first_name,
                 p.last_name AS patient_last_name,
+                p.gender AS patient_gender,
                 u.first_name AS provider_first_name,
                 u.last_name AS provider_last_name
             ')
@@ -246,6 +248,76 @@ class ProviderPayoutModel extends TenantAwareModel
                 ? (string) $row['provider_name_snapshot']
                 : ('User #' . (string) ($row['provider_user_id'] ?? '0'));
             $row['patient_name'] = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    public function getSummaryByProviderUserId(int $clinicId, int $userId): array
+    {
+        $row = $this->db->table('provider_payouts')
+            ->select('COUNT(*) AS payout_count, SUM(gross_amount) AS gross_amount_total, SUM(provider_share_amount) AS provider_share_total, SUM(provider_paid_amount) AS provider_paid_total, SUM(provider_balance_due) AS provider_balance_total')
+            ->where('clinic_id', $clinicId)
+            ->where('provider_type', 'user')
+            ->where('provider_user_id', $userId)
+            ->get()
+            ->getRowArray();
+
+        return [
+            'payout_count' => (int) ($row['payout_count'] ?? 0),
+            'gross_amount_total' => (float) ($row['gross_amount_total'] ?? 0),
+            'provider_share_total' => (float) ($row['provider_share_total'] ?? 0),
+            'provider_paid_total' => (float) ($row['provider_paid_total'] ?? 0),
+            'provider_balance_total' => (float) ($row['provider_balance_total'] ?? 0),
+        ];
+    }
+
+    public function getRowsByProviderUserId(int $clinicId, int $userId, int $limit = 25): array
+    {
+        $limit = max(1, min($limit, 100));
+
+        $paymentsSubquery = $this->db->table('provider_payout_payments')
+            ->select('provider_payout_id, COUNT(*) AS payment_count, MAX(paid_date) AS last_paid_date')
+            ->where('clinic_id', $clinicId)
+            ->groupBy('provider_payout_id')
+            ->getCompiledSelect();
+
+        $rows = $this->db->table('provider_payouts pp')
+            ->select("
+                pp.id,
+                pp.finance_id,
+                pp.status,
+                pp.gross_amount,
+                pp.provider_share_amount,
+                pp.provider_paid_amount,
+                pp.provider_balance_due,
+                pp.created_at,
+                f.transaction_id,
+                {$this->financeDocumentDateExpr('f')} AS business_date,
+                p.patient_id AS patient_number,
+                p.first_name AS patient_first_name,
+                p.last_name AS patient_last_name,
+                p.gender AS patient_gender,
+                f.transaction_type,
+                pay.payment_count,
+                pay.last_paid_date
+            ", false)
+            ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
+            ->join('patients p', 'p.id = pp.patient_id AND p.clinic_id = pp.clinic_id', 'left')
+            ->join("({$paymentsSubquery}) pay", 'pay.provider_payout_id = pp.id', 'left', false)
+            ->where('pp.clinic_id', $clinicId)
+            ->where('pp.provider_type', 'user')
+            ->where('pp.provider_user_id', $userId)
+            ->orderBy('business_date', 'DESC')
+            ->orderBy('pp.id', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $row['patient_name'] = trim((string) (($row['patient_first_name'] ?? '') . ' ' . ($row['patient_last_name'] ?? '')));
+            $row['payment_count'] = (int) ($row['payment_count'] ?? 0);
         }
         unset($row);
 
