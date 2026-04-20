@@ -208,7 +208,14 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.payeeVendor') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
-                                        <?= esc($finance['counterparty_name']) ?>
+                                        <?php if (!empty($supplier['id'])): ?>
+                                            <a href="<?= base_url('inventory/suppliers/' . (int) $supplier['id']) ?>" class="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 hover:underline">
+                                                <i class="fas fa-truck-field text-blue-500"></i>
+                                                <span><?= esc($finance['counterparty_name']) ?></span>
+                                            </a>
+                                        <?php else: ?>
+                                            <?= esc($finance['counterparty_name']) ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <?php endif; ?>

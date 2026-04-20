@@ -89,6 +89,7 @@
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase"><?= esc($tr('contactPerson')) ?></th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase"><?= esc($tr('reach')) ?></th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase"><?= esc($tr('status')) ?></th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase"><?= esc($tr('actions')) ?></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -114,11 +115,16 @@
                                                     <?= !empty($supplier['is_active']) ? esc($tr('active')) : esc($tr('inactive')) ?>
                                                 </span>
                                             </td>
+                                            <td class="px-4 py-3">
+                                                <a href="<?= base_url('inventory/suppliers/' . (int) $supplier['id']) ?>" class="inline-flex items-center rounded-lg bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">
+                                                    <i class="fas fa-arrow-up-right-from-square mr-2"></i><?= esc($tr('openSupplierStatement')) ?>
+                                                </a>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4" class="px-4 py-8 text-center text-gray-500"><?= esc($tr('manageSuppliers')) ?></td>
+                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500"><?= esc($tr('manageSuppliers')) ?></td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>

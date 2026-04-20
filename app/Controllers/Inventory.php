@@ -658,6 +658,73 @@ class Inventory extends BaseController
         ]);
     }
 
+    public function showSupplier($id)
+    {
+        $clinicId = (int) (session()->get('active_clinic_id') ?? 0);
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $supplier = $this->supplierModel->where('clinic_id', $clinicId)->find((int) $id);
+        if (!$supplier) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Supplier not found');
+        }
+
+        $financeModel = new \App\Models\FinanceModel();
+        $paymentModel = new \App\Models\FinancePaymentModel();
+
+        $expenses = $financeModel
+            ->where('clinic_id', $clinicId)
+            ->where('transaction_type', 'expense')
+            ->where('supplier_id', (int) $id)
+            ->orderBy('COALESCE(transaction_date, paid_date, DATE(created_at))', 'DESC', false)
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
+        $totalBills = 0.0;
+        $totalPaid = 0.0;
+        $openPayables = 0.0;
+        $transactionCount = count($expenses);
+        $lastPaymentDate = null;
+
+        foreach ($expenses as &$expense) {
+            $settled = $paymentModel->getNetSettledAmount($clinicId, (int) $expense['id']);
+            $expense['settled_total'] = $settled;
+            $expense['open_balance'] = max(0, round((float) ($expense['amount'] ?? 0) - $settled, 2));
+            $expense['can_record_payment'] = $expense['open_balance'] > 0.0001;
+
+            $totalBills += (float) ($expense['amount'] ?? 0);
+            $totalPaid += $settled;
+            $openPayables += $expense['open_balance'];
+
+            $lastPayment = $paymentModel
+                ->where('clinic_id', $clinicId)
+                ->where('finance_id', (int) $expense['id'])
+                ->orderBy('payment_date', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->first();
+            if (!empty($lastPayment['payment_date']) && ($lastPaymentDate === null || $lastPayment['payment_date'] > $lastPaymentDate)) {
+                $lastPaymentDate = $lastPayment['payment_date'];
+            }
+        }
+        unset($expense);
+
+        return $this->view('inventory/supplier_show', [
+            'title' => 'Supplier Details',
+            'supplier' => $supplier,
+            'expenses' => $expenses,
+            'summary' => [
+                'total_bills' => round($totalBills, 2),
+                'total_paid' => round($totalPaid, 2),
+                'open_payables' => round($openPayables, 2),
+                'transaction_count' => $transactionCount,
+                'last_payment_date' => $lastPaymentDate,
+            ],
+            'currency_symbol' => settings()->getCurrencySymbol(),
+            'currency_position' => settings()->get('currency_position', 'before'),
+        ]);
+    }
+
     public function storeSupplier()
     {
         $clinicId = (int) (session()->get('active_clinic_id') ?? 0);

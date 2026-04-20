@@ -11,6 +11,7 @@ use App\Models\ClinicUserModel;
 use App\Models\ProviderPayoutModel;
 use App\Models\ProviderPayoutPaymentModel;
 use App\Models\FinanceLiquidityTransferModel;
+use App\Models\SupplierModel;
 use App\Models\UserModel;
 use App\Services\ActivityLogger;
 use App\Services\FinanceTreasuryService;
@@ -29,6 +30,7 @@ class Finance extends BaseController
     protected $providerPayoutModel;
     protected $providerPayoutPaymentModel;
     protected $financeLiquidityTransferModel;
+    protected $supplierModel;
     protected $userModel;
     protected $activityLogger;
     protected $storageService;
@@ -48,6 +50,7 @@ class Finance extends BaseController
         $this->providerPayoutModel = new ProviderPayoutModel();
         $this->providerPayoutPaymentModel = new ProviderPayoutPaymentModel();
         $this->financeLiquidityTransferModel = new FinanceLiquidityTransferModel();
+        $this->supplierModel = new SupplierModel();
         $this->userModel = new UserModel();
         $this->activityLogger = new ActivityLogger();
         $this->storageService = new \App\Services\StorageService();
@@ -423,6 +426,8 @@ class Finance extends BaseController
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
             'check_outgoing_liquidity_options' => $this->getCheckOutgoingLiquidityOptions(),
             'expense_category_options' => $this->getExpenseCategoryOptions(),
+            'supplier_directory' => $clinicId > 0 ? $this->supplierModel->getActiveOptionsByClinic($clinicId) : [],
+            'selected_supplier_id' => (int) ($this->request->getGet('supplier_id') ?? $this->request->getPost('supplier_id') ?? ($finance['supplier_id'] ?? 0)),
             'expense_attachment' => ($clinicId > 0 && !empty($finance['id']))
                 ? $this->attachmentModel
                     ->where('clinic_id', $clinicId)
@@ -433,8 +438,26 @@ class Finance extends BaseController
                 : null,
             'expense_has_settlement_entries' => $hasSettlementEntries,
             'expense_settled_total' => $settledTotal,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance']),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance', 'inventory/suppliers']),
         ];
+    }
+
+    private function resolveExpenseSupplierSelection(int $clinicId): array
+    {
+        $supplierIdRaw = $this->request->getPost('supplier_id');
+        $supplierId = is_numeric($supplierIdRaw) && (int) $supplierIdRaw > 0 ? (int) $supplierIdRaw : null;
+        $counterpartyName = trim((string) $this->request->getPost('counterparty_name'));
+
+        if (!$supplierId) {
+            return [null, $counterpartyName];
+        }
+
+        $supplier = $this->supplierModel->where('clinic_id', $clinicId)->find($supplierId);
+        if (!$supplier) {
+            throw new \RuntimeException('Selected supplier was not found in this clinic.');
+        }
+
+        return [$supplierId, (string) ($supplier['name'] ?? $counterpartyName)];
     }
 
     private function normalizeProviderSplitPayload(int $clinicId, float $grossAmount): ?array
@@ -696,6 +719,7 @@ class Finance extends BaseController
 
         $rules = [
             'counterparty_name' => 'required|max_length[150]',
+            'supplier_id' => 'permit_empty|integer',
             'expense_category' => 'required|in_list[' . implode(',', array_keys($this->getExpenseCategoryOptions())) . ']',
             'amount_original' => 'required|decimal|greater_than[0]',
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
@@ -712,6 +736,11 @@ class Finance extends BaseController
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
+        try {
+            [$supplierId, $counterpartyName] = $this->resolveExpenseSupplierSelection((int) $clinicId);
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
         $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
         $baseCurrency = settings()->get('currency', 'ILS');
         $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
@@ -747,7 +776,8 @@ class Finance extends BaseController
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
             'expense_category' => $this->request->getPost('expense_category'),
-            'counterparty_name' => $this->request->getPost('counterparty_name'),
+            'counterparty_name' => $counterpartyName,
+            'supplier_id' => $supplierId,
             'service_details' => $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
             'tax_percentage' => $taxPercentage,
@@ -818,7 +848,8 @@ class Finance extends BaseController
             }
             $this->db->transCommit();
 
-            return redirect()->to(base_url('finance/' . $financeId))->with('success', 'Expense has been recorded successfully.');
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'inventory/suppliers']);
+            return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $financeId))->with('success', 'Expense has been recorded successfully.');
         } catch (\Throwable $e) {
             $this->db->transRollback();
             log_message('error', 'Expense create failed: ' . $e->getMessage());
@@ -1021,6 +1052,9 @@ class Finance extends BaseController
         $patient = !empty($finance['patient_id'])
             ? $this->patientModel->where('clinic_id', $clinicId)->find($finance['patient_id'])
             : null;
+        $supplier = !empty($finance['supplier_id'])
+            ? $this->supplierModel->where('clinic_id', $clinicId)->find((int) $finance['supplier_id'])
+            : null;
         $examination = !empty($finance['examination_id'])
             ? $this->examinationModel->where('clinic_id', $clinicId)->find($finance['examination_id'])
             : null;
@@ -1062,6 +1096,7 @@ class Finance extends BaseController
             'title' => 'Financial Transaction Details - ' . $finance['transaction_id'],
             'finance' => $finance,
             'patient' => $patient,
+            'supplier' => $supplier,
             'examination' => $examination,
             'payments' => $payments,
             'paid_total' => $paidTotal,
@@ -1084,7 +1119,7 @@ class Finance extends BaseController
                 ->where('entity_id', $finance['id'])
                 ->where('purpose', 'attachment')
                 ->first(),
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance'])
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['patient', 'patients', 'finance', 'inventory/suppliers'])
         ];
 
         return $this->view('finance/show', $data);
@@ -1115,7 +1150,7 @@ class Finance extends BaseController
 
         if (($finance['transaction_type'] ?? '') === 'expense') {
             $data = $this->buildExpenseViewData($finance);
-            $data['return_to'] = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['finance']);
+            $data['return_to'] = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['finance', 'inventory/suppliers']);
             return $this->view('finance/expense_edit', $data);
         }
 
@@ -1187,6 +1222,11 @@ class Finance extends BaseController
         }
 
         $amountOriginal = floatval($this->request->getPost('amount_original'));
+        try {
+            [$supplierId, $counterpartyName] = $this->resolveExpenseSupplierSelection((int) $clinicId);
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
         $currency = $this->request->getPost('currency') ?: settings()->get('currency', 'ILS');
         $baseCurrency = settings()->get('currency', 'ILS');
         $exchangeRate = floatval($this->request->getPost('exchange_rate') ?? 0);
@@ -1320,6 +1360,7 @@ class Finance extends BaseController
     {
         $rules = [
             'counterparty_name' => 'required|max_length[150]',
+            'supplier_id' => 'permit_empty|integer',
             'expense_category' => 'required|in_list[' . implode(',', array_keys($this->getExpenseCategoryOptions())) . ']',
             'amount_original' => 'required|decimal|greater_than[0]',
             'currency' => 'required|in_list[ILS,USD,JOD,EUR,GBP]',
@@ -1381,7 +1422,8 @@ class Finance extends BaseController
             'description' => $this->request->getPost('description'),
             'service_type' => 'other',
             'expense_category' => $this->request->getPost('expense_category'),
-            'counterparty_name' => $this->request->getPost('counterparty_name'),
+            'counterparty_name' => $counterpartyName,
+            'supplier_id' => $supplierId,
             'service_details' => $this->request->getPost('service_details'),
             'discount_amount' => $discountAmount,
             'tax_percentage' => $taxPercentage,
@@ -1459,7 +1501,7 @@ class Finance extends BaseController
             }
             $this->db->transCommit();
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'inventory/suppliers']);
             return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $id))
                 ->with('success', 'Expense updated successfully.');
         } catch (\Throwable $e) {

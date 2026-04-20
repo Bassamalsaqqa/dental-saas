@@ -463,6 +463,7 @@ $routes->group('inventory', ['filter' => ['auth', 'tenant', 'subscription']], fu
     $routes->post('reorder-list/(:num)/delete', 'Inventory::deleteReorderItem/$1', ['filter' => 'permission:inventory:edit']);
     $routes->post('record-usage', 'Inventory::recordUsage', ['filter' => 'permission:inventory:edit']);
     $routes->get('suppliers', 'Inventory::suppliers', ['filter' => 'permission:inventory:view']);
+    $routes->get('suppliers/(:num)', 'Inventory::showSupplier/$1', ['filter' => 'permission:inventory:view']);
     $routes->post('suppliers/store', 'Inventory::storeSupplier', ['filter' => 'permission:inventory:edit']);
     $routes->post('suppliers/quick-create', 'Inventory::quickCreateSupplier', ['filter' => 'permission:inventory:edit']);
     $routes->get('usage-history', 'Inventory::usageHistory', ['filter' => 'permission:inventory:view']);

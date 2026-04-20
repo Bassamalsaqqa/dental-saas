@@ -45,11 +45,31 @@
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
-                                    <i class="fas fa-building text-blue-600 mr-2"></i><?= lang('Finance.payeeVendorRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
+                                    <i class="fas fa-truck-field text-indigo-600 mr-2"></i><?= esc(lang('Finance.linkedSupplierOptional')) ?>
                                 </label>
-                                <input type="text" name="counterparty_name" value="<?= esc(old('counterparty_name')) ?>" maxlength="150" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20" placeholder="<?= esc(lang('Finance.payeeVendorPlaceholder')) ?>" required>
+                                <div class="relative">
+                                    <select id="expenseSupplierSelect" name="supplier_id" data-force-select2 class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
+                                        <option value=""><?= esc(lang('Finance.selectSupplierOptional')) ?></option>
+                                        <?php foreach (($supplier_directory ?? []) as $supplier): ?>
+                                            <option value="<?= (int) $supplier['id'] ?>" <?= (string) old('supplier_id', $selected_supplier_id ?? '') === (string) $supplier['id'] ? 'selected' : '' ?>><?= esc($supplier['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 <?= !empty($is_rtl) ? 'left-0 pl-3' : 'right-0 pr-3' ?> flex items-center">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500"><?= esc(lang('Finance.linkedSupplierHelp')) ?></p>
                             </div>
 
+                            <div class="group/field relative">
+                                <label class="mb-3 block text-sm font-bold text-gray-700">
+                                    <i class="fas fa-building text-blue-600 mr-2"></i><?= lang('Finance.payeeVendorRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
+                                </label>
+                                <input type="text" id="expenseCounterpartyInput" name="counterparty_name" value="<?= esc(old('counterparty_name')) ?>" maxlength="150" class="w-full rounded-xl border-2 border-gray-200 bg-white/80 px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20" placeholder="<?= esc(lang('Finance.payeeVendorPlaceholder')) ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                             <div class="group/field relative">
                                 <label class="mb-3 block text-sm font-bold text-gray-700">
                                     <i class="fas fa-tags text-purple-600 mr-2"></i><?= lang('Finance.expenseCategoryRequired') ?><span class="required-indicator notranslate" aria-hidden="true">*</span>
@@ -291,6 +311,8 @@
     const amountPaidInput = document.querySelector('input[name="amount_paid"]');
     const accountField = document.getElementById('expenseLiquidityAccountField');
     const accountSelect = document.getElementById('expenseLiquidityAccount');
+    const supplierSelect = document.getElementById('expenseSupplierSelect');
+    const counterpartyInput = document.getElementById('expenseCounterpartyInput');
     if (!input || !label) {
         return;
     }
@@ -313,6 +335,23 @@
     paymentMethod?.addEventListener('change', syncExpenseLiquidityField);
     amountPaidInput?.addEventListener('input', syncExpenseLiquidityField);
     syncExpenseLiquidityField();
+
+    supplierSelect?.addEventListener('change', () => {
+        const selected = supplierSelect.options[supplierSelect.selectedIndex];
+        if (!selected || !counterpartyInput) {
+            return;
+        }
+        if (selected.value && counterpartyInput.value.trim() === '') {
+            counterpartyInput.value = selected.text.trim();
+        }
+    });
+
+    if (supplierSelect?.value && counterpartyInput && counterpartyInput.value.trim() === '') {
+        const selected = supplierSelect.options[supplierSelect.selectedIndex];
+        if (selected) {
+            counterpartyInput.value = selected.text.trim();
+        }
+    }
 })();
 </script>
 <?= $this->endSection() ?>
