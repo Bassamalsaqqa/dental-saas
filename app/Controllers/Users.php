@@ -361,10 +361,17 @@ class Users extends BaseController
             $user->display_roles = $this->ionAuth->getUsersGroups($id)->getResult();
         }
 
+        $assignableRoles = $this->roleModel->getAssignableRolesForClinic($clinicId, true);
+        $currentRoleAssignments = $this->userRoleModel->getUserRoles($id);
+        $currentRoleId = !empty($currentRoleAssignments) ? (int) ($currentRoleAssignments[0]['role_id'] ?? 0) : 0;
+
         $data = [
             'title' => 'User Details',
             'viewed_user' => $user,
             'viewed_user_roles' => $user->display_roles,
+            'assignable_roles' => $assignableRoles,
+            'departments' => $this->getDepartments(),
+            'current_role_id' => $currentRoleId,
             'provider_finance_summary' => $this->providerPayoutModel->getSummaryByProviderUserId((int) $clinicId, (int) $id),
             'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
         ];
@@ -441,16 +448,13 @@ class Users extends BaseController
         
         $user = (object)$userArray;
 
-        // Prevent role changes for admin user (ID: 1)
-        if ($user->id == 1) {
-            return redirect()->back()->withInput()->with('error', 'Cannot modify the role of the system administrator account.');
-        }
-
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name' => 'required|min_length[2]|max_length[50]',
             'email' => 'required|valid_email',
             'phone' => 'permit_empty|min_length[10]|max_length[20]',
+            'department' => 'permit_empty|max_length[100]',
+            'hire_date' => 'permit_empty',
             'role' => 'required|integer',
         ];
 
@@ -465,6 +469,14 @@ class Users extends BaseController
         }
 
         $roleId = $this->request->getPost('role');
+
+        $currentAssignments = $this->userRoleModel->getUserRoles($id);
+        $currentRoleId = !empty($currentAssignments) ? (int) ($currentAssignments[0]['role_id'] ?? 0) : 0;
+
+        // Prevent role changes for admin user (ID: 1)
+        if ($user->id == 1 && (int) $roleId !== $currentRoleId) {
+            return redirect()->back()->withInput()->with('error', 'Cannot modify the role of the system administrator account.');
+        }
         
         // Validate that the role exists and is active
         $roleModel = new \App\Models\RoleModel();
@@ -492,6 +504,11 @@ class Users extends BaseController
         }
 
         if ($this->ionAuth->update($id, $updateData)) {
+            $userModel->update($id, [
+                'department' => $this->request->getPost('department') ?: null,
+                'hire_date' => $this->request->getPost('hire_date') ?: null,
+            ]);
+
             // Update user role
             $userRoleModel = new \App\Models\UserRoleModel();
             $currentUserId = $this->getCurrentUser()->id;
@@ -500,7 +517,9 @@ class Users extends BaseController
             $roleUpdated = $userRoleModel->assignRoles($id, [$roleId], $currentUserId);
             
             if ($roleUpdated) {
-                return redirect()->to(base_url('users'))->with('success', 'User updated successfully!');
+                $returnTo = trim((string) $this->request->getPost('return_to'));
+                $redirectTarget = $returnTo !== '' ? base_url($returnTo) : base_url('users/' . $id);
+                return redirect()->to($redirectTarget)->with('success', 'User updated successfully!');
             } else {
                 return redirect()->back()->withInput()->with('error', 'User updated but failed to update role. Please try again.');
             }
@@ -638,6 +657,150 @@ class Users extends BaseController
             $errors = $this->ionAuth->errors();
             return $this->response->setJSON(['success' => false, 'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update user status')]);
         }
+    }
+
+    public function inlineUpdate($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
+        if (!$userArray) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
+        }
+
+        $rules = [
+            'first_name' => 'required|min_length[2]|max_length[50]',
+            'last_name' => 'required|min_length[2]|max_length[50]',
+            'email' => 'required|valid_email',
+            'phone' => 'permit_empty|min_length[10]|max_length[20]',
+            'department' => 'permit_empty|max_length[100]',
+            'hire_date' => 'permit_empty',
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => implode(' ', $this->validator->getErrors()),
+                'errors' => $this->validator->getErrors(),
+            ]);
+        }
+
+        $additionalData = [
+            'first_name' => $this->request->getPost('first_name'),
+            'last_name' => $this->request->getPost('last_name'),
+            'phone' => $this->request->getPost('phone') ?: null,
+        ];
+
+        $updated = $this->ionAuth->update($id, [
+            'email' => $this->request->getPost('email'),
+            'additional_data' => $additionalData,
+        ]);
+
+        if (!$updated) {
+            $errors = $this->ionAuth->errors();
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update user.'),
+            ]);
+        }
+
+        $userModel->update($id, [
+            'department' => $this->request->getPost('department') ?: null,
+            'hire_date' => $this->request->getPost('hire_date') ?: null,
+        ]);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'User updated successfully',
+        ]);
+    }
+
+    public function inlineUpdateRole($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
+        if (!$userArray) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
+        }
+
+        $roleId = (int) $this->request->getPost('role_id');
+        if ($roleId <= 0) {
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Invalid role selected.']);
+        }
+
+        $role = $this->roleModel->findAssignableRoleById($roleId, $clinicId, true);
+        if (!$role) {
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Invalid role selected for this clinic.']);
+        }
+
+        $currentAssignments = $this->userRoleModel->getUserRoles($id);
+        $currentRoleId = !empty($currentAssignments) ? (int) ($currentAssignments[0]['role_id'] ?? 0) : 0;
+        if ((int) $id === 1 && $roleId !== $currentRoleId) {
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Cannot modify the role of the system administrator account.']);
+        }
+
+        $updated = $this->userRoleModel->assignRoles($id, [$roleId], $this->getCurrentUser()->id);
+        if (!$updated) {
+            return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Failed to update role.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Role updated successfully',
+        ]);
+    }
+
+    public function inlineResetPassword($id)
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'TENANT_CONTEXT_REQUIRED']);
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $userArray = $userModel->findByClinic($clinicId, $id);
+        if (!$userArray) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'User not found']);
+        }
+
+        $rules = [
+            'new_password' => 'required|min_length[8]|max_length[255]',
+            'confirm_password' => 'required|matches[new_password]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => implode(' ', $this->validator->getErrors()),
+                'errors' => $this->validator->getErrors(),
+            ]);
+        }
+
+        $updated = $this->ionAuth->update($id, [
+            'password' => $this->request->getPost('new_password'),
+        ]);
+
+        if (!$updated) {
+            $errors = $this->ionAuth->errors();
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => is_array($errors) ? implode(', ', $errors) : ($errors ?: 'Failed to update password.'),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Password updated successfully',
+        ]);
     }
 
     public function getUserStats()

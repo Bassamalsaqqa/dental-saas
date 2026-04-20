@@ -5,10 +5,20 @@
     $isRtl = !empty($is_rtl);
     $viewedUser = $viewed_user ?? null;
     $viewedUserRoles = $viewed_user_roles ?? [];
+    $formatAccountDateTime = static function ($value, string $fallback) {
+        if ($value === null || $value === '' || $value === 0 || $value === '0') {
+            return $fallback;
+        }
+
+        $formatted = formatDateTime($value);
+        return $formatted !== '' ? $formatted : $fallback;
+    };
     $userFullName = trim((string) (($viewedUser->first_name ?? '') . ' ' . ($viewedUser->last_name ?? '')));
     $userFullName = $userFullName !== '' ? $userFullName : lang('UserRole.user');
-    $createdAtText = !empty($viewedUser->created_on) ? date('M j, Y g:i A', strtotime((string) $viewedUser->created_on)) : lang('UserRole.na');
-    $lastLoginText = !empty($viewedUser->last_login) ? date('M j, Y g:i A', strtotime((string) $viewedUser->last_login)) : lang('UserRole.never');
+    $createdAtText = $formatAccountDateTime($viewedUser->created_on ?? ($viewedUser->created_at ?? null), lang('UserRole.na'));
+    $lastLoginText = $formatAccountDateTime($viewedUser->last_login ?? null, lang('UserRole.never'));
+    $lastIpText = trim((string) ($viewedUser->ip_address ?? ''));
+    $lastIpText = $lastIpText !== '' ? $lastIpText : lang('UserRole.na');
     $statusText = (int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.active') : lang('UserRole.inactive');
     $statusClass = (int) ($viewedUser->active ?? 0) === 1
         ? 'patient-hero-status patient-hero-status-active'
@@ -24,6 +34,9 @@
         'provider_balance_total' => 0,
     ];
     $providerRows = $provider_payout_rows ?? [];
+    $assignableRoles = $assignable_roles ?? [];
+    $departments = $departments ?? [];
+    $currentRoleId = (int) ($current_role_id ?? 0);
     $canEditUsers = has_permission('users', 'edit');
     $canDeleteUsers = has_permission('users', 'delete') && (int) ($viewedUser->id ?? 0) !== 1;
     $canViewFinance = has_permission('finance', 'view');
@@ -53,8 +66,11 @@
         ['label' => lang('UserRole.userIdColon'), 'display_label' => '', 'value' => '#' . (string) ($viewedUser->id ?? ''), 'icon' => 'fas fa-id-card', 'class' => 'patient-hero-chip-ltr'],
         ['label' => lang('UserRole.phone'), 'display_label' => '', 'value' => (string) ($viewedUser->phone ?? lang('UserRole.notProvided')), 'icon' => 'fas fa-phone', 'class' => 'patient-hero-chip-ltr'],
         ['label' => lang('UserRole.email'), 'display_label' => '', 'value' => (string) ($viewedUser->email ?? lang('UserRole.na')), 'icon' => 'fas fa-envelope', 'class' => 'patient-hero-chip-ltr'],
+        ['label' => lang('UserRole.statusAndGroups'), 'display_label' => '', 'value' => $statusText, 'icon' => 'fas fa-toggle-on'],
+        ['label' => lang('UserRole.createdColon'), 'display_label' => '', 'value' => $createdAtText, 'icon' => 'fas fa-calendar-plus'],
+        ['label' => lang('UserRole.lastLoginColon'), 'display_label' => '', 'value' => $lastLoginText, 'icon' => 'fas fa-right-to-bracket'],
+        ['label' => lang('UserRole.lastIpColon'), 'display_label' => '', 'value' => $lastIpText, 'icon' => 'fas fa-network-wired', 'class' => 'patient-hero-chip-ltr'],
         ['label' => lang('UserRole.statusAndGroups'), 'display_label' => '', 'value' => $userRoleSummary, 'icon' => 'fas fa-user-shield'],
-        ['label' => lang('UserRole.lastLoginColon'), 'display_label' => '', 'value' => $lastLoginText, 'icon' => 'fas fa-clock'],
     ];
 
     $patientAvatarFor = static function (?string $gender): array {
@@ -403,6 +419,136 @@
         color: #be123c;
         box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.95);
     }
+
+    .user-detail-panel {
+        border-radius: 1.2rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 1));
+        box-shadow: 0 16px 40px -34px rgba(15, 23, 42, 0.38);
+    }
+
+    .user-detail-section {
+        border-radius: 1rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.9));
+        padding: 1rem;
+    }
+
+    .user-metric-tile {
+        border-radius: 0.95rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: rgba(248, 250, 252, 0.85);
+        padding: 0.9rem 1rem;
+    }
+
+    .user-metric-tile-strong {
+        background: linear-gradient(180deg, rgba(239, 246, 255, 0.88), rgba(248, 250, 252, 0.96));
+    }
+
+    .user-metric-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .user-metric-value {
+        margin-top: 0.45rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .user-metric-subtle {
+        margin-top: 0.28rem;
+        font-size: 0.74rem;
+        color: #64748b;
+    }
+
+    .user-action-tile {
+        display: flex;
+        min-height: 5.1rem;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 1rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.92));
+        padding: 0.9rem 1rem;
+        text-align: start;
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .user-action-tile:hover {
+        transform: translateY(-1px);
+    }
+
+    .user-compact-note {
+        display: flex;
+        gap: 0.75rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(253, 230, 138, 0.9);
+        background: linear-gradient(135deg, rgba(255, 251, 235, 1), rgba(255, 247, 237, 0.96));
+        padding: 0.85rem 0.9rem;
+        color: #92400e;
+    }
+
+    .user-inline-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-height: 2.65rem;
+        border-radius: 0.95rem;
+        padding: 0.58rem 0.78rem;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.12);
+        color: #eff6ff;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+    .user-inline-toggle-track {
+        position: relative;
+        width: 2.75rem;
+        height: 1.55rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.18);
+        transition: background 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .user-inline-toggle-track::after {
+        content: "";
+        position: absolute;
+        top: 0.16rem;
+        left: 0.18rem;
+        width: 1.22rem;
+        height: 1.22rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        box-shadow: 0 8px 16px -12px rgba(15, 23, 42, 0.75);
+        transition: transform 0.2s ease;
+    }
+
+    .user-inline-toggle.is-active .user-inline-toggle-track {
+        background: rgba(16, 185, 129, 0.45);
+    }
+
+    .user-inline-toggle.is-active .user-inline-toggle-track::after {
+        transform: translateX(1.16rem);
+    }
+
+    [dir="rtl"] .user-inline-toggle.is-active .user-inline-toggle-track::after {
+        transform: translateX(-1.16rem);
+    }
+
+    .user-inline-modal-backdrop {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+    }
 </style>
 
 <div class="min-h-screen bg-slate-50/80" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
@@ -454,10 +600,10 @@
                     <div class="w-full space-y-2 xl:w-[21rem]">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if ($canEditUsers): ?>
-                                <a href="<?= base_url('users/' . $viewedUser->id . '/edit') ?>" class="patient-header-action patient-header-action-primary">
+                                <button type="button" onclick="openInlineModal('editUserModal')" class="patient-header-action patient-header-action-primary">
                                     <i class="fas fa-pen"></i>
                                     <span><?= esc(lang('UserRole.editUser')) ?></span>
-                                </a>
+                                </button>
                             <?php endif; ?>
                             <a href="<?= base_url('users') ?>" class="patient-header-action patient-header-action-soft">
                                 <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i>
@@ -478,12 +624,12 @@
                         <?php endif; ?>
                         <div class="grid gap-2 sm:grid-cols-2">
                             <?php if ($canEditUsers): ?>
-                                <a href="<?= base_url('users/' . $viewedUser->id . '/change-password') ?>" class="patient-hero-clinical-button">
+                                <button type="button" onclick="openInlineModal('passwordModal')" class="patient-hero-clinical-button">
                                     <i class="fas fa-key"></i>
                                     <span><?= esc(lang('UserRole.changePassword')) ?></span>
-                                </a>
-                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" class="patient-hero-clinical-button">
-                                    <i class="fas fa-toggle-on"></i>
+                                </button>
+                                <button type="button" onclick="toggleStatus(<?= (int) $viewedUser->id ?>)" class="user-inline-toggle <?= (int) ($viewedUser->active ?? 0) === 1 ? 'is-active' : '' ?>">
+                                    <span class="user-inline-toggle-track" aria-hidden="true"></span>
                                     <span><?= esc(((int) ($viewedUser->active ?? 0) === 1 ? lang('UserRole.deactivate') : lang('UserRole.activate')) . ' ' . lang('UserRole.user')) ?></span>
                                 </button>
                             <?php endif; ?>
@@ -501,82 +647,85 @@
                 </div>
             </section>
 
-            <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
-                <section class="rounded-[24px] border border-slate-200 bg-white shadow-sm">
+            <div class="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(300px,0.8fr)]">
+                <section class="rounded-[24px] border border-slate-200 bg-white shadow-sm overflow-hidden">
                     <div class="border-b border-slate-200 px-6 py-5">
-                        <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('UserRole.userInformation')) ?></h2>
-                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.viewUserInformationPermissions')) ?></p>
+                        <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('UserRole.rolesAndPermissions')) ?></h2>
+                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.manageUsersRolesPermissions')) ?></p>
                     </div>
-                    <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
-                        <div class="space-y-4">
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.contactInformation')) ?></p>
-                                <div class="mt-4 space-y-3 text-sm text-slate-700">
-                                    <div class="flex items-center justify-between gap-4">
-                                        <span class="text-slate-500"><?= esc(lang('UserRole.phone')) ?></span>
-                                        <span class="font-semibold text-slate-900"><?= esc((string) ($viewedUser->phone ?? lang('UserRole.notProvided'))) ?></span>
-                                    </div>
-                                    <div class="flex items-center justify-between gap-4">
-                                        <span class="text-slate-500"><?= esc(lang('UserRole.email')) ?></span>
-                                        <span class="font-semibold text-slate-900"><?= esc((string) ($viewedUser->email ?? lang('UserRole.na'))) ?></span>
-                                    </div>
+                    <div class="space-y-4 p-5">
+                        <div class="user-detail-panel p-4">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                <div>
+                                    <p class="user-metric-label"><i class="fas fa-user-shield text-violet-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></p>
+                                    <h3 class="mt-2 text-base font-bold text-slate-900"><?= esc($userRoleSummary) ?></h3>
+                                    <p class="mt-2 text-sm text-slate-500"><?= esc(lang('UserRole.viewUserInformationPermissions')) ?></p>
                                 </div>
-                            </div>
-
-                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.accountInformation')) ?></p>
-                                <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <p class="text-xs font-medium text-slate-500"><?= esc(lang('UserRole.userIdColon')) ?></p>
-                                        <p class="mt-1 text-sm font-semibold text-slate-900">#<?= esc((string) ($viewedUser->id ?? '')) ?></p>
+                                <div class="grid grid-cols-2 gap-2.5 sm:min-w-[15rem]">
+                                    <div class="user-metric-tile user-metric-tile-strong">
+                                        <p class="user-metric-label"><i class="fas fa-layer-group text-indigo-500"></i><?= esc(lang('UserRole.roles')) ?></p>
+                                        <p class="user-metric-value"><?= esc((string) count($viewedUserRoles)) ?></p>
                                     </div>
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <p class="text-xs font-medium text-slate-500"><?= esc(lang('UserRole.lastIpColon')) ?></p>
-                                        <p class="mt-1 text-sm font-semibold text-slate-900"><?= esc((string) ($viewedUser->ip_address ?? lang('UserRole.na'))) ?></p>
+                                    <div class="user-metric-tile">
+                                        <p class="user-metric-label"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.providerPayoutCount')) ?></p>
+                                        <p class="user-metric-value"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.statusAndGroups')) ?></p>
-                                <div class="mt-4">
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 <?= esc($contentStatusClass) ?>">
-                                        <?= esc($statusText) ?>
-                                    </span>
-                                </div>
-                                <div class="mt-4 flex flex-wrap gap-2">
-                                    <?php if (!empty($viewedUserRoles)): ?>
-                                        <?php foreach ($viewedUserRoles as $role): ?>
-                                            <?php
-                                                $roleName = is_array($role)
-                                                    ? ($role['name'] ?? lang('UserRole.unknownRole'))
-                                                    : ($role->name ?? lang('UserRole.unknownRole'));
-                                            ?>
-                                            <span class="user-role-pill">
-                                                <?= esc(ucfirst((string) $roleName)) ?>
-                                            </span>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <span class="user-summary-badge">
-                                            <?= esc(lang('UserRole.noRolesAssigned')) ?>
+                        <div class="user-detail-panel p-4">
+                            <p class="user-metric-label"><i class="fas fa-badge-check text-sky-500"></i><?= esc(lang('UserRole.availableRoles')) ?></p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <?php if (!empty($viewedUserRoles)): ?>
+                                    <?php foreach ($viewedUserRoles as $role): ?>
+                                        <?php
+                                            $roleName = is_array($role)
+                                                ? ($role['name'] ?? lang('UserRole.unknownRole'))
+                                                : ($role->name ?? lang('UserRole.unknownRole'));
+                                        ?>
+                                        <span class="user-role-pill">
+                                            <?= esc(ucfirst((string) $roleName)) ?>
                                         </span>
-                                    <?php endif; ?>
-                                </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="user-summary-badge">
+                                        <?= esc(lang('UserRole.noRolesAssigned')) ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
-
-                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('UserRole.activity')) ?></p>
-                                <div class="mt-4 space-y-3 text-sm text-slate-700">
-                                    <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <span class="text-slate-500"><?= esc(lang('UserRole.createdColon')) ?></span>
-                                        <span class="font-semibold text-slate-900"><?= esc($createdAtText) ?></span>
+                            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-tile hover:border-sky-300 hover:bg-sky-50/70">
+                                    <p class="user-metric-label"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></p>
+                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></p>
+                                </button>
+                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-tile hover:border-indigo-300 hover:bg-indigo-50/70">
+                                    <p class="user-metric-label"><i class="fas fa-user-tag text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></p>
+                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.chooseRole')) ?></p>
+                                </button>
+                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-tile hover:border-amber-300 hover:bg-amber-50/70">
+                                    <p class="user-metric-label"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></p>
+                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.changePassword')) ?></p>
+                                </button>
+                                <?php if ($canViewFinance): ?>
+                                    <a href="<?= base_url('finance/payouts') ?>" class="user-action-tile hover:border-emerald-300 hover:bg-emerald-50/70">
+                                        <p class="user-metric-label"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.openPayoutLedger')) ?></p>
+                                        <p class="user-metric-subtle"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
+                                    </a>
+                                <?php else: ?>
+                                    <div class="user-action-tile">
+                                        <p class="user-metric-label"><i class="fas fa-bolt text-emerald-500"></i><?= esc(lang('UserRole.actions')) ?></p>
+                                        <p class="user-metric-subtle"><?= esc(lang('UserRole.editUser')) ?> · <?= esc(lang('UserRole.roleAssignment')) ?> · <?= esc(lang('UserRole.changePassword')) ?></p>
                                     </div>
-                                    <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <span class="text-slate-500"><?= esc(lang('UserRole.lastLoginColon')) ?></span>
-                                        <span class="font-semibold text-slate-900"><?= esc($lastLoginText) ?></span>
-                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mt-3 user-compact-note">
+                                <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                                    <i class="fas fa-circle-info text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold"><?= esc(lang('UserRole.actions')) ?></p>
+                                    <p class="mt-1 text-xs leading-6 text-amber-800"><?= esc(lang('UserRole.editUser')) ?> · <?= esc(lang('UserRole.roleAssignment')) ?> · <?= esc(lang('UserRole.changePassword')) ?></p>
                                 </div>
                             </div>
                         </div>
@@ -585,49 +734,49 @@
 
                 <?php if ($canViewFinance): ?>
                     <aside class="space-y-6">
-                        <section class="rounded-[24px] border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-sky-50 shadow-sm">
-                            <div class="border-b border-indigo-100 px-6 py-5">
+                        <section class="rounded-[24px] border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-sky-50 shadow-sm overflow-hidden">
+                            <div class="border-b border-indigo-100 px-5 py-4">
                                 <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.clinicalProviderCompensation')) ?></h2>
                                 <p class="mt-1 text-sm text-slate-600"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
                             </div>
-                            <div class="space-y-4 p-6">
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div class="rounded-2xl border border-indigo-100 bg-white px-4 py-4">
+                            <div class="space-y-3 p-4">
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div class="rounded-2xl border border-indigo-100 bg-white px-3.5 py-3">
                                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerShareTotal')) ?></p>
-                                        <p class="mt-2 text-xl font-bold text-slate-900"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
+                                        <p class="mt-1.5 text-lg font-bold text-slate-900"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
                                     </div>
-                                    <div class="rounded-2xl border border-emerald-100 bg-white px-4 py-4">
+                                    <div class="rounded-2xl border border-emerald-100 bg-white px-3.5 py-3">
                                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidToProvider')) ?></p>
-                                        <p class="mt-2 text-xl font-bold text-emerald-700"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                                        <p class="mt-1.5 text-lg font-bold text-emerald-700"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
                                     </div>
-                                    <div class="rounded-2xl border border-rose-100 bg-white px-4 py-4">
+                                    <div class="rounded-2xl border border-rose-100 bg-white px-3.5 py-3">
                                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.balance')) ?></p>
-                                        <p class="mt-2 text-xl font-bold text-rose-700"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                                        <p class="mt-1.5 text-lg font-bold text-rose-700"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
                                     </div>
-                                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                                    <div class="rounded-2xl border border-slate-200 bg-white px-3.5 py-3">
                                         <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerPayoutCount')) ?></p>
-                                        <p class="mt-2 text-xl font-bold text-slate-900"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
+                                        <p class="mt-1.5 text-lg font-bold text-slate-900"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
                                     </div>
                                 </div>
 
-                                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
-                                    <div class="flex items-start gap-3">
+                                <div class="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-3.5 py-3 text-sm text-amber-900">
+                                    <div class="flex items-start gap-2.5">
                                         <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
                                             <i class="fas fa-circle-info text-sm"></i>
                                         </div>
                                         <div>
-                                            <p class="font-semibold"><?= esc(lang('Finance.providerSplit')) ?></p>
-                                            <p class="mt-1 text-amber-800"><?= esc(lang('Finance.supplierPayablesGuidance')) ?></p>
+                                            <p class="text-sm font-semibold"><?= esc(lang('Finance.providerSplit')) ?></p>
+                                            <p class="mt-1 text-xs leading-6 text-amber-800"><?= esc(lang('Finance.supplierPayablesGuidance')) ?></p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="flex flex-wrap gap-2">
-                                    <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50">
+                                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50">
                                         <i class="fas fa-wallet text-xs"></i>
                                         <span><?= esc(lang('Finance.openPayoutLedger')) ?></span>
                                     </a>
-                                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                                         <i class="fas fa-arrow-up-right-from-square text-xs"></i>
                                         <span><?= esc(lang('Finance.finance')) ?></span>
                                     </a>
@@ -758,11 +907,152 @@
     </div>
 </div>
 
+<?php if ($canEditUsers): ?>
+    <div id="editUserModal" class="fixed inset-0 z-50 hidden">
+        <div class="user-inline-modal-backdrop absolute inset-0"></div>
+        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('editUserModal')">
+            <div class="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+                    <div>
+                        <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('UserRole.editUser')) ?></h4>
+                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></p>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeInlineModal('editUserModal')">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                <form id="inlineEditUserForm" class="space-y-5 p-6">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.firstNameRequired')) ?></label>
+                            <input type="text" name="first_name" value="<?= esc((string) ($viewedUser->first_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.lastNameRequired')) ?></label>
+                            <input type="text" name="last_name" value="<?= esc((string) ($viewedUser->last_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.emailRequired')) ?></label>
+                            <input type="email" name="email" value="<?= esc((string) ($viewedUser->email ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.phone')) ?></label>
+                            <input type="text" name="phone" value="<?= esc((string) ($viewedUser->phone ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.department')) ?></label>
+                            <select name="department" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                                <option value=""><?= esc(lang('UserRole.selectDepartment')) ?></option>
+                                <?php foreach ($departments as $departmentKey => $departmentName): ?>
+                                    <option value="<?= esc($departmentKey) ?>" <?= (($viewedUser->department ?? '') === $departmentKey) ? 'selected' : '' ?>><?= esc($departmentName) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.hireDateRequired')) ?></label>
+                            <input type="text" name="hire_date" data-clinic-date="1" value="<?= esc((string) ($viewedUser->hire_date ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 pt-2">
+                        <button type="button" onclick="closeInlineModal('editUserModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                            <i class="fas fa-times text-xs"></i>
+                            <span><?= esc(lang('UserRole.cancel')) ?></span>
+                        </button>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
+                            <i class="fas fa-save text-xs"></i>
+                            <span><?= esc(lang('UserRole.updateUser')) ?></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="roleModal" class="fixed inset-0 z-50 hidden">
+        <div class="user-inline-modal-backdrop absolute inset-0"></div>
+        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('roleModal')">
+            <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+                    <div>
+                        <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('UserRole.roleAssignment')) ?></h4>
+                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.chooseRole')) ?></p>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeInlineModal('roleModal')">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                <form id="inlineRoleForm" class="space-y-5 p-6">
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.roleRequired')) ?></label>
+                        <select name="role_id" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                            <option value=""><?= esc(lang('UserRole.selectRole')) ?></option>
+                            <?php foreach ($assignableRoles as $role): ?>
+                                <option value="<?= (int) ($role['id'] ?? 0) ?>" <?= $currentRoleId === (int) ($role['id'] ?? 0) ? 'selected' : '' ?>><?= esc((string) ($role['name'] ?? '')) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 pt-2">
+                        <button type="button" onclick="closeInlineModal('roleModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                            <i class="fas fa-times text-xs"></i>
+                            <span><?= esc(lang('UserRole.cancel')) ?></span>
+                        </button>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
+                            <i class="fas fa-user-tag text-xs"></i>
+                            <span><?= esc(lang('UserRole.assignRole')) ?></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="fixed inset-0 z-50 hidden">
+        <div class="user-inline-modal-backdrop absolute inset-0"></div>
+        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('passwordModal')">
+            <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+                    <div>
+                        <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('UserRole.changePassword')) ?></h4>
+                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.passwordRequirements')) ?></p>
+                    </div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closeInlineModal('passwordModal')">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+                <form id="inlinePasswordForm" class="space-y-5 p-6">
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.newPassword')) ?></label>
+                        <input type="password" name="new_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.confirmNewPassword')) ?></label>
+                        <input type="password" name="confirm_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 pt-2">
+                        <button type="button" onclick="closeInlineModal('passwordModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                            <i class="fas fa-times text-xs"></i>
+                            <span><?= esc(lang('UserRole.cancel')) ?></span>
+                        </button>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700">
+                            <i class="fas fa-key text-xs"></i>
+                            <span><?= esc(lang('UserRole.changePassword')) ?></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php if ($canEditFinance): ?>
     <div id="recordPayoutModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-slate-950/45" onclick="closePayoutModal()"></div>
-        <div class="relative flex min-h-full items-center justify-center p-4">
-            <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl">
+        <div class="absolute inset-0 bg-slate-950/45"></div>
+        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closePayoutModal()">
+            <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                     <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('Finance.recordProviderPayout')) ?></h4>
                     <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" onclick="closePayoutModal()">
@@ -827,6 +1117,14 @@ function notify(type, title, message) {
     alert(message);
 }
 
+function openInlineModal(id) {
+    document.getElementById(id)?.classList.remove('hidden');
+}
+
+function closeInlineModal(id) {
+    document.getElementById(id)?.classList.add('hidden');
+}
+
 function toggleStatus(id) {
     if (!confirm(<?= json_encode(lang('UserRole.confirmToggleUserStatus')) ?>)) {
         return;
@@ -876,6 +1174,77 @@ function deleteUser(id) {
         notify('error', <?= json_encode(lang('UserRole.error')) ?>, error.message || <?= json_encode(lang('UserRole.errorDeletingUser')) ?>);
     });
 }
+
+<?php if ($canEditUsers): ?>
+function submitInlineUserForm(formId, url, successMessage, onSuccess) {
+    const form = document.getElementById(formId);
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                [window.csrfConfig.header]: window.getCsrfToken()
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.csrf_token) {
+                window.refreshCsrfToken(data.csrf_token);
+            }
+            if (!data.success) {
+                throw new Error(data.message || <?= json_encode(lang('UserRole.error')) ?>);
+            }
+            notify('success', <?= json_encode(lang('UserRole.success')) ?>, data.message || successMessage);
+            if (typeof onSuccess === 'function') {
+                onSuccess();
+            } else {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            notify('error', <?= json_encode(lang('UserRole.error')) ?>, error.message || <?= json_encode(lang('UserRole.error')) ?>);
+        });
+    });
+}
+
+submitInlineUserForm(
+    'inlineEditUserForm',
+    `<?= base_url('users/' . (int) $viewedUser->id . '/inline-update') ?>`,
+    <?= json_encode('User updated successfully') ?>,
+    () => {
+        closeInlineModal('editUserModal');
+        location.reload();
+    }
+);
+
+submitInlineUserForm(
+    'inlineRoleForm',
+    `<?= base_url('users/' . (int) $viewedUser->id . '/inline-update-role') ?>`,
+    <?= json_encode('Role updated successfully') ?>,
+    () => {
+        closeInlineModal('roleModal');
+        location.reload();
+    }
+);
+
+submitInlineUserForm(
+    'inlinePasswordForm',
+    `<?= base_url('users/' . (int) $viewedUser->id . '/inline-reset-password') ?>`,
+    <?= json_encode('Password updated successfully') ?>,
+    () => {
+        closeInlineModal('passwordModal');
+        document.getElementById('inlinePasswordForm')?.reset();
+    }
+);
+<?php endif; ?>
 
 <?php if ($canEditFinance): ?>
 let payoutModalMaxAmount = 0;
