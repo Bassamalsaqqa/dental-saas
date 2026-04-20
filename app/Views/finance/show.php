@@ -288,7 +288,7 @@
                     </div>
                 </div>
 
-                <?php if (!empty($provider_payout)): ?>
+                <?php if (!empty($provider_payouts)): ?>
                 <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
                     <div class="px-6 py-4 border-b border-gray-100 bg-white flex justify-between items-center">
                         <div class="flex items-center space-x-3">
@@ -298,86 +298,120 @@
                             <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.providerSplit') ?></h2>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            <?= ($provider_payout['status'] ?? 'unpaid') === 'paid' ? 'bg-emerald-100 text-emerald-700' : (($provider_payout['status'] ?? 'unpaid') === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') ?>">
-                            <?= ucfirst($provider_payout['status'] ?? 'unpaid') ?>
+                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' ?>">
+                            <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? esc(lang('Finance.partial')) : esc(lang('Finance.paid')) ?>
                         </span>
                     </div>
                     <div class="p-6 space-y-5">
-                        <?php
-                            $providerDisplayName = trim(($provider_payout['provider_first_name'] ?? '') . ' ' . ($provider_payout['provider_last_name'] ?? ''));
-                            if ($providerDisplayName === '') {
-                                $providerDisplayName = $provider_payout['provider_name_snapshot'] ?? lang('Finance.guestProvider');
-                            }
-                        ?>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.provider') ?></p>
-                                <p class="mt-1 font-bold text-gray-900"><?= esc($providerDisplayName) ?></p>
-                            </div>
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.grossCollected') ?></p>
-                                <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout['gross_amount'] ?? 0) ?></p>
+                                <p class="mt-1 font-bold text-gray-900"><?= formatCurrency($provider_payout_summary['gross_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.providerShare') ?></p>
-                                <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout['provider_share_amount'] ?? 0) ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.totalProviderCompensation') ?></p>
+                                <p class="mt-1 font-bold text-indigo-700"><?= formatCurrency($provider_payout_summary['provider_share_amount'] ?? 0) ?></p>
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.clinicNet') ?></p>
-                                <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout['clinic_share_amount'] ?? 0) ?></p>
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.paidToProvider') ?></p>
+                                <p class="mt-1 font-bold text-emerald-700"><?= formatCurrency($provider_payout_summary['provider_paid_amount'] ?? 0) ?></p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.balanceDue') ?></p>
+                                <p class="mt-1 font-bold text-rose-700"><?= formatCurrency($provider_payout_summary['provider_balance_due'] ?? 0) ?></p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-emerald-700 font-semibold"><?= lang('Finance.paidToProvider') ?></p>
-                                <p class="mt-1 font-bold text-emerald-800"><?= formatCurrency($provider_payout['provider_paid_amount'] ?? 0) ?></p>
-                            </div>
-                            <div class="rounded-xl border border-rose-200 bg-rose-50 p-4">
-                                <p class="text-xs uppercase tracking-wide text-rose-700 font-semibold"><?= lang('Finance.balanceDue') ?></p>
-                                <p class="mt-1 font-bold text-rose-800"><?= formatCurrency($provider_payout['provider_balance_due'] ?? 0) ?></p>
-                            </div>
-                            <div class="rounded-xl border border-slate-200 bg-white p-4">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.splitRule') ?></p>
-                                <p class="mt-1 font-bold text-gray-900">
-                                    <?= lang('Finance.' . ($provider_payout['split_mode'] ?? 'percentage')) ?>:
-                                    <?= esc($provider_payout['split_value'] ?? 0) ?><?= ($provider_payout['split_mode'] ?? '') === 'percent' ? '%' : '' ?>
-                                </p>
-                            </div>
-                        </div>
+                        <div class="space-y-4">
+                            <?php foreach ($provider_payouts as $providerPayout): ?>
+                                <?php
+                                    $providerDisplayName = trim(($providerPayout['provider_first_name'] ?? '') . ' ' . ($providerPayout['provider_last_name'] ?? ''));
+                                    if ($providerDisplayName === '') {
+                                        $providerDisplayName = $providerPayout['provider_name_snapshot'] ?? lang('Finance.guestProvider');
+                                    }
+                                    $providerStatusKey = $providerPayout['status'] ?? 'unpaid';
+                                    $providerStatusLabel = lang('Finance.' . $providerStatusKey);
+                                    if ($providerStatusLabel === 'Finance.' . $providerStatusKey) {
+                                        $providerStatusLabel = ucfirst($providerStatusKey);
+                                    }
+                                    $providerStatusClass = $providerStatusKey === 'paid'
+                                        ? 'bg-emerald-100 text-emerald-700'
+                                        : ($providerStatusKey === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700');
+                                ?>
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
+                                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="text-base font-bold text-slate-900"><?= esc($providerDisplayName) ?></h3>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold <?= $providerStatusClass ?>">
+                                                    <?= esc($providerStatusLabel) ?>
+                                                </span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-slate-500">
+                                                <?= lang('Finance.splitRule') ?>:
+                                                <?= esc(lang('Finance.' . ($providerPayout['split_mode'] ?? 'percentage'))) ?>
+                                                <?= esc($providerPayout['split_value'] ?? 0) ?><?= ($providerPayout['split_mode'] ?? '') === 'percent' ? '%' : '' ?>
+                                            </p>
+                                            <?php if (!empty($providerPayout['notes'])): ?>
+                                                <p class="mt-2 text-sm text-slate-600"><?= esc($providerPayout['notes']) ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[34rem]">
+                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.providerShare') ?></p>
+                                                <p class="mt-1 text-sm font-bold text-indigo-700"><?= formatCurrency($providerPayout['provider_share_amount'] ?? 0) ?></p>
+                                            </div>
+                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.paidToProvider') ?></p>
+                                                <p class="mt-1 text-sm font-bold text-emerald-700"><?= formatCurrency($providerPayout['provider_paid_amount'] ?? 0) ?></p>
+                                            </div>
+                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.balanceDue') ?></p>
+                                                <p class="mt-1 text-sm font-bold text-rose-700"><?= formatCurrency($providerPayout['provider_balance_due'] ?? 0) ?></p>
+                                            </div>
+                                            <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"><?= lang('Finance.clinicNet') ?></p>
+                                                <p class="mt-1 text-sm font-bold text-sky-700"><?= formatCurrency($providerPayout['clinic_share_amount'] ?? 0) ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <?php if (floatval($provider_payout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
-                        <form id="providerPayoutPaymentForm" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.amount') ?></label>
-                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($provider_payout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.method') ?></label>
-                                <select id="providerPayoutMethodInput" name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    <option value="cash"><?= lang('Finance.cash') ?></option>
-                                    <option value="card"><?= lang('Finance.card') ?></option>
-                                    <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
-                                    <option value="check"><?= lang('Finance.check') ?></option>
-                                    <option value="other"><?= lang('Finance.other') ?></option>
-                                </select>
-                            </div>
-                            <div id="providerPayoutLiquidityAccountField" class="hidden">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.paidFromAccount') ?></label>
-                                <select name="liquidity_account" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
-                                    <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.date') ?></label>
-                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                            </div>
-                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                <i class="fas fa-plus mr-2"></i><?= lang('Finance.recordProviderPayout') ?>
-                            </button>
-                        </form>
-                        <?php endif; ?>
+                                    <?php if (floatval($providerPayout['provider_balance_due'] ?? 0) > 0 && has_permission('finance', 'edit')): ?>
+                                        <form class="provider-payout-payment-form grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
+                                              data-url="<?= esc(base_url('finance/payouts/' . (int) $providerPayout['id'] . '/payments')) ?>">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.amount') ?></label>
+                                                <input type="number" name="amount" step="0.01" min="0.01" max="<?= esc($providerPayout['provider_balance_due'] ?? 0) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.method') ?></label>
+                                                <select name="payment_method" class="provider-payout-method-input w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                                    <option value="cash"><?= lang('Finance.cash') ?></option>
+                                                    <option value="card"><?= lang('Finance.card') ?></option>
+                                                    <option value="bank_transfer"><?= lang('Finance.bankTransfer') ?></option>
+                                                    <option value="check"><?= lang('Finance.check') ?></option>
+                                                    <option value="other"><?= lang('Finance.other') ?></option>
+                                                </select>
+                                            </div>
+                                            <div class="provider-payout-liquidity-account-field hidden">
+                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.paidFromAccount') ?></label>
+                                                <select name="liquidity_account" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                                    <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
+                                                    <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.date') ?></label>
+                                                <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                            </div>
+                                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                                <i class="fas fa-plus mr-2"></i><?= lang('Finance.recordProviderPayout') ?>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -1232,10 +1266,6 @@ function voidPayment(paymentId) {
     });
 }
 
-const providerPayoutPaymentForm = document.getElementById('providerPayoutPaymentForm');
-const providerPayoutMethodInput = document.getElementById('providerPayoutMethodInput');
-const providerPayoutLiquidityAccountField = document.getElementById('providerPayoutLiquidityAccountField');
-
 function syncExpenseSettlementLiquidityField() {
     const settlementMethod = document.querySelector('#invoicePaymentForm select[name="payment_method"]');
     const settlementField = document.getElementById('settlementLiquidityAccountField');
@@ -1245,26 +1275,31 @@ function syncExpenseSettlementLiquidityField() {
     settlementField.classList.toggle('hidden', settlementMethod.value !== 'check');
 }
 
-function syncProviderPayoutLiquidityField() {
-    if (!providerPayoutMethodInput || !providerPayoutLiquidityAccountField) {
-        return;
-    }
-    providerPayoutLiquidityAccountField.classList.toggle('hidden', providerPayoutMethodInput.value !== 'check');
-}
-
 document.querySelector('#invoicePaymentForm select[name="payment_method"]')?.addEventListener('change', syncExpenseSettlementLiquidityField);
-providerPayoutMethodInput?.addEventListener('change', syncProviderPayoutLiquidityField);
 syncExpenseSettlementLiquidityField();
-syncProviderPayoutLiquidityField();
 
-if (providerPayoutPaymentForm) {
-    providerPayoutPaymentForm.addEventListener('submit', function (event) {
+document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
+    const methodInput = form.querySelector('.provider-payout-method-input');
+    const liquidityField = form.querySelector('.provider-payout-liquidity-account-field');
+
+    const syncProviderPayoutLiquidityField = () => {
+        if (!methodInput || !liquidityField) {
+            return;
+        }
+        liquidityField.classList.toggle('hidden', methodInput.value !== 'check');
+    };
+
+    methodInput?.addEventListener('change', syncProviderPayoutLiquidityField);
+    syncProviderPayoutLiquidityField();
+
+    form.addEventListener('submit', function (event) {
         event.preventDefault();
-        const formData = new FormData(providerPayoutPaymentForm);
+        const formData = new FormData(form);
         const csrfHeader = window.csrfConfig?.header || 'X-CSRF-TOKEN';
         const csrfToken = window.getCsrfToken ? window.getCsrfToken() : '';
+        const url = form.dataset.url;
 
-        fetch(`<?= base_url('finance/payouts/' . (int)($provider_payout['id'] ?? 0) . '/payments') ?>`, {
+        fetch(url, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -1288,7 +1323,7 @@ if (providerPayoutPaymentForm) {
             alert('<?= esc(lang('Finance.errorRecordingProviderPayout')) ?>');
         });
     });
-}
+});
 </script>
 <?= $this->endSection() ?>
 

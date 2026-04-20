@@ -60,12 +60,20 @@ class ProviderPayoutModel extends TenantAwareModel
     {
         return $this->where('clinic_id', $clinicId)
             ->where('finance_id', $financeId)
+            ->orderBy('id', 'ASC')
             ->first();
+    }
+
+    public function getRowsByFinanceId(int $clinicId, int $financeId): array
+    {
+        return $this->where('clinic_id', $clinicId)
+            ->where('finance_id', $financeId)
+            ->orderBy('id', 'ASC')
+            ->findAll();
     }
 
     public function getStatsByClinic(int $clinicId, ?string $startDate = null, ?string $endDate = null): array
     {
-        // Accrual view: filter by underlying finance transaction date.
         $accrualBuilder = $this->db->table('provider_payouts pp')
             ->join('finances f', 'f.id = pp.finance_id AND f.clinic_id = pp.clinic_id', 'left')
             ->where('pp.clinic_id', $clinicId);
@@ -77,14 +85,22 @@ class ProviderPayoutModel extends TenantAwareModel
             $accrualBuilder->where($this->financeDocumentDateExpr('f') . ' <= ' . $this->db->escape($endDate), null, false);
         }
 
-        $row = $accrualBuilder
+        $row = (clone $accrualBuilder)
             ->select('
                 SUM(pp.provider_share_amount) AS total_provider_share,
                 SUM(pp.provider_paid_amount) AS total_provider_paid,
-                SUM(pp.provider_balance_due) AS total_provider_balance,
-                SUM(pp.clinic_share_amount) AS total_clinic_share,
-                SUM(pp.gross_amount) AS total_gross_amount
+                SUM(pp.provider_balance_due) AS total_provider_balance
             ')
+            ->get()
+            ->getRowArray();
+
+        $financeLevelSubquery = (clone $accrualBuilder)
+            ->select('pp.finance_id, MAX(pp.gross_amount) AS gross_amount, MAX(pp.gross_amount) - SUM(pp.provider_share_amount) AS clinic_share_amount', false)
+            ->groupBy('pp.finance_id')
+            ->getCompiledSelect();
+
+        $financeLevelTotals = $this->db->table("({$financeLevelSubquery}) finance_provider_rollup")
+            ->select('SUM(gross_amount) AS total_gross_amount, SUM(clinic_share_amount) AS total_clinic_share')
             ->get()
             ->getRowArray();
 
@@ -110,8 +126,8 @@ class ProviderPayoutModel extends TenantAwareModel
             'total_provider_paid' => floatval($row['total_provider_paid'] ?? 0),
             'total_provider_paid_cash' => floatval($paidCash['total_paid_cash'] ?? 0),
             'total_provider_balance' => floatval($row['total_provider_balance'] ?? 0),
-            'total_clinic_share' => floatval($row['total_clinic_share'] ?? 0),
-            'total_gross_amount' => floatval($row['total_gross_amount'] ?? 0),
+            'total_clinic_share' => floatval($financeLevelTotals['total_clinic_share'] ?? 0),
+            'total_gross_amount' => floatval($financeLevelTotals['total_gross_amount'] ?? 0),
         ];
     }
 
