@@ -506,8 +506,6 @@
 
     .user-section-card {
         --user-card-bg: #f1f5ff;
-        --user-card-glow: rgba(79, 70, 229, 0.18);
-        --user-card-glow-soft: rgba(14, 165, 233, 0.12);
         --user-card-accent: #4f46e5;
         --user-card-accent-soft: #eef2ff;
         --user-card-accent-ring: rgba(79, 70, 229, 0.16);
@@ -517,10 +515,7 @@
         border-radius: 1rem;
         border: 1px solid rgba(255, 255, 255, 0.72);
         background-color: var(--user-card-bg);
-        background:
-            radial-gradient(circle at 14% 12%, var(--user-card-glow), transparent 32%),
-            radial-gradient(circle at 88% 88%, var(--user-card-glow-soft), transparent 34%),
-            var(--user-card-bg);
+        background: var(--user-card-bg);
         box-shadow:
             0 24px 50px -34px rgba(15, 23, 42, 0.42),
             0 14px 32px -26px var(--user-card-shadow),
@@ -528,9 +523,7 @@
     }
 
     .user-section-card-roles {
-        --user-card-bg: #eef2ff;
-        --user-card-glow: rgba(79, 70, 229, 0.2);
-        --user-card-glow-soft: rgba(99, 102, 241, 0.12);
+        --user-card-bg: #e0e7ff;
         --user-card-accent: #4f46e5;
         --user-card-accent-soft: #eef2ff;
         --user-card-accent-ring: rgba(79, 70, 229, 0.16);
@@ -538,9 +531,7 @@
     }
 
     .user-section-card-actions {
-        --user-card-bg: #e0f2fe;
-        --user-card-glow: rgba(14, 165, 233, 0.22);
-        --user-card-glow-soft: rgba(245, 158, 11, 0.13);
+        --user-card-bg: #bae6fd;
         --user-card-accent: #0284c7;
         --user-card-accent-soft: #e0f2fe;
         --user-card-accent-ring: rgba(2, 132, 199, 0.16);
@@ -549,8 +540,6 @@
 
     .user-section-card-finance {
         --user-card-bg: #dcfce7;
-        --user-card-glow: rgba(16, 185, 129, 0.2);
-        --user-card-glow-soft: rgba(59, 130, 246, 0.12);
         --user-card-accent: #059669;
         --user-card-accent-soft: #dcfce7;
         --user-card-accent-ring: rgba(5, 150, 105, 0.16);
@@ -558,9 +547,7 @@
     }
 
     .user-section-card-ledger {
-        --user-card-bg: #e2e8f0;
-        --user-card-glow: rgba(51, 65, 85, 0.16);
-        --user-card-glow-soft: rgba(79, 70, 229, 0.13);
+        --user-card-bg: #dbe4ee;
         --user-card-accent: #475569;
         --user-card-accent-soft: #e2e8f0;
         --user-card-accent-ring: rgba(71, 85, 105, 0.16);
@@ -757,8 +744,16 @@
         justify-content: flex-start;
     }
 
-    [dir="rtl"] .user-action-row-icon i {
+    [dir="rtl"] .user-action-row-arrow {
         transform: rotate(180deg);
+    }
+
+    .user-action-row-modal {
+        background: rgba(255, 255, 255, 0.86);
+    }
+
+    .user-action-row-modal:hover {
+        background: rgba(239, 246, 255, 0.94);
     }
 
     .user-action-row-copy {
@@ -779,6 +774,49 @@
         color: var(--user-card-accent);
         box-shadow: inset 0 0 0 1px var(--user-card-accent-ring);
         flex-shrink: 0;
+    }
+
+    .user-action-row-modal .user-action-row-icon {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .user-modal-select + .select2-container .select2-selection--single {
+        min-height: 3rem;
+        border: 2px solid #e5e7eb !important;
+        border-radius: 0.75rem !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 10px 18px -16px rgba(15, 23, 42, 0.45) !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .user-modal-select + .select2-container .select2-selection--single:focus,
+    .user-modal-select + .select2-container.select2-container--focus .select2-selection--single,
+    .user-modal-select + .select2-container.select2-container--open .select2-selection--single {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18) !important;
+    }
+
+    .user-modal-select + .select2-container .select2-selection__rendered {
+        padding: 0.72rem 2.75rem 0.72rem 1rem !important;
+        color: #0f172a !important;
+        font-size: 0.875rem !important;
+        line-height: 1.4rem !important;
+    }
+
+    [dir="rtl"] .user-modal-select + .select2-container .select2-selection__rendered {
+        padding: 0.72rem 1rem 0.72rem 2.75rem !important;
+        text-align: right;
+    }
+
+    .user-modal-select + .select2-container .select2-selection__arrow {
+        top: 0.55rem !important;
+        right: 0.65rem !important;
+    }
+
+    [dir="rtl"] .user-modal-select + .select2-container .select2-selection__arrow {
+        left: 0.65rem !important;
+        right: auto !important;
     }
 
     .user-record-table {
@@ -1034,26 +1072,26 @@
                     <div class="user-section-body">
                         <div class="user-action-list">
                             <?php if ($canEditUsers): ?>
-                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-row">
+                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-row user-action-row-modal">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></span>
                                     </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                    <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
                                 </button>
-                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row">
+                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row user-action-row-modal">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-user-tag text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.chooseRole')) ?></span>
                                     </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                    <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
                                 </button>
-                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-row">
+                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-row user-action-row-modal">
                                     <span class="user-action-row-main">
                                         <span class="user-action-row-title"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('UserRole.changePassword')) ?></span>
                                     </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                    <span class="user-action-row-icon"><i class="fas fa-window-restore"></i></span>
                                 </button>
                             <?php endif; ?>
                             <?php if ($canViewFinance): ?>
@@ -1062,7 +1100,7 @@
                                         <span class="user-action-row-title"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.openPayoutLedger')) ?></span>
                                         <span class="user-action-row-copy"><?= esc(lang('Finance.payoutLedger')) ?></span>
                                     </span>
-                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right user-action-row-arrow"></i></span>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -1239,9 +1277,9 @@
             <?php endif; ?>
 
 <?php if ($canEditUsers): ?>
-    <div id="editUserModal" class="fixed inset-0 z-50 hidden">
-        <div class="user-inline-modal-backdrop absolute inset-0"></div>
-        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('editUserModal')">
+    <div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="user-inline-modal-backdrop fixed inset-0"></div>
+        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('editUserModal')">
             <div class="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                     <div>
@@ -1255,28 +1293,28 @@
                 <form id="inlineEditUserForm" class="space-y-5 p-6">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.firstNameRequired')) ?></label>
-                            <input type="text" name="first_name" value="<?= esc((string) ($viewedUser->first_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                            <label for="inlineFirstNameInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.firstName')) ?></label>
+                            <input type="text" id="inlineFirstNameInput" name="first_name" value="<?= esc((string) ($viewedUser->first_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.lastNameRequired')) ?></label>
-                            <input type="text" name="last_name" value="<?= esc((string) ($viewedUser->last_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.emailRequired')) ?></label>
-                            <input type="email" name="email" value="<?= esc((string) ($viewedUser->email ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.phone')) ?></label>
-                            <input type="text" name="phone" value="<?= esc((string) ($viewedUser->phone ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                            <label for="inlineLastNameInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.lastName')) ?></label>
+                            <input type="text" id="inlineLastNameInput" name="last_name" value="<?= esc((string) ($viewedUser->last_name ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.department')) ?></label>
-                            <select name="department" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                            <label for="inlineEmailInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.email')) ?></label>
+                            <input type="email" id="inlineEmailInput" name="email" value="<?= esc((string) ($viewedUser->email ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        </div>
+                        <div>
+                            <label for="inlinePhoneInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.phone')) ?></label>
+                            <input type="text" id="inlinePhoneInput" name="phone" value="<?= esc((string) ($viewedUser->phone ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="inlineDepartmentSelect" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.department')) ?></label>
+                            <select id="inlineDepartmentSelect" name="department" class="user-modal-select w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('UserRole.selectDepartment')) ?>" data-allow-clear="true">
                                 <option value=""><?= esc(lang('UserRole.selectDepartment')) ?></option>
                                 <?php foreach ($departments as $departmentKey => $departmentName): ?>
                                     <option value="<?= esc($departmentKey) ?>" <?= (($viewedUser->department ?? '') === $departmentKey) ? 'selected' : '' ?>><?= esc($departmentName) ?></option>
@@ -1284,8 +1322,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.hireDateRequired')) ?></label>
-                            <input type="text" name="hire_date" data-clinic-date="1" value="<?= esc((string) ($viewedUser->hire_date ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                            <label for="inlineHireDateInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(preg_replace('/\s+(Required|مطلوب)$/u', '', (string) lang('UserRole.hireDateRequired'))) ?></label>
+                            <input type="text" id="inlineHireDateInput" name="hire_date" data-clinic-date="1" value="<?= esc((string) ($viewedUser->hire_date ?? '')) ?>" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
                         </div>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
@@ -1303,9 +1341,9 @@
         </div>
     </div>
 
-    <div id="roleModal" class="fixed inset-0 z-50 hidden">
-        <div class="user-inline-modal-backdrop absolute inset-0"></div>
-        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('roleModal')">
+    <div id="roleModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="user-inline-modal-backdrop fixed inset-0"></div>
+        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('roleModal')">
             <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                     <div>
@@ -1318,8 +1356,8 @@
                 </div>
                 <form id="inlineRoleForm" class="space-y-5 p-6">
                     <div>
-                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.roleRequired')) ?></label>
-                        <select name="role_id" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        <label for="inlineRoleSelect" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.role')) ?></label>
+                        <select id="inlineRoleSelect" name="role_id" class="user-modal-select w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('UserRole.selectRole')) ?>" required>
                             <option value=""><?= esc(lang('UserRole.selectRole')) ?></option>
                             <?php foreach ($assignableRoles as $role): ?>
                                 <option value="<?= (int) ($role['id'] ?? 0) ?>" <?= $currentRoleId === (int) ($role['id'] ?? 0) ? 'selected' : '' ?>><?= esc((string) ($role['name'] ?? '')) ?></option>
@@ -1341,9 +1379,9 @@
         </div>
     </div>
 
-    <div id="passwordModal" class="fixed inset-0 z-50 hidden">
-        <div class="user-inline-modal-backdrop absolute inset-0"></div>
-        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closeInlineModal('passwordModal')">
+    <div id="passwordModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="user-inline-modal-backdrop fixed inset-0"></div>
+        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closeInlineModal('passwordModal')">
             <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                     <div>
@@ -1356,12 +1394,12 @@
                 </div>
                 <form id="inlinePasswordForm" class="space-y-5 p-6">
                     <div>
-                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.newPassword')) ?></label>
-                        <input type="password" name="new_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        <label for="inlineNewPasswordInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.newPassword')) ?></label>
+                        <input type="password" id="inlineNewPasswordInput" name="new_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.confirmNewPassword')) ?></label>
-                        <input type="password" name="confirm_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
+                        <label for="inlineConfirmPasswordInput" class="mb-1 block text-sm font-semibold text-slate-700"><?= esc(lang('UserRole.confirmNewPassword')) ?></label>
+                        <input type="password" id="inlineConfirmPasswordInput" name="confirm_password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
                         <button type="button" onclick="closeInlineModal('passwordModal')" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -1380,9 +1418,9 @@
 <?php endif; ?>
 
 <?php if ($canEditFinance): ?>
-    <div id="recordPayoutModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-slate-950/45"></div>
-        <div class="relative flex min-h-full items-center justify-center p-4" onclick="closePayoutModal()">
+    <div id="recordPayoutModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="fixed inset-0 bg-slate-950/45"></div>
+        <div class="relative z-10 flex min-h-screen items-center justify-center p-4" onclick="closePayoutModal()">
             <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                     <h4 class="text-base font-semibold text-slate-900"><?= esc(lang('Finance.recordProviderPayout')) ?></h4>
@@ -1393,13 +1431,13 @@
                 <form id="recordPayoutForm" class="space-y-4 p-5">
                     <input type="hidden" id="payoutIdInput">
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.amount')) ?></label>
+                        <label for="payoutAmountInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.amount')) ?></label>
                         <input type="number" step="0.01" min="0.01" id="payoutAmountInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                         <p id="payoutAmountHelp" class="mt-1 text-xs text-slate-500"></p>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paymentMethod')) ?></label>
-                        <select id="payoutMethodInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                        <label for="payoutMethodInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paymentMethod')) ?></label>
+                        <select id="payoutMethodInput" class="user-modal-select w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paymentMethod')) ?>" data-allow-clear="false">
                             <option value="cash"><?= esc(lang('Finance.cash')) ?></option>
                             <option value="card"><?= esc(lang('Finance.card')) ?></option>
                             <option value="bank_transfer"><?= esc(lang('Finance.bankTransfer')) ?></option>
@@ -1408,19 +1446,19 @@
                         </select>
                     </div>
                     <div id="payoutLiquidityAccountField" class="hidden">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidFromAccount')) ?></label>
-                        <select id="payoutLiquidityAccountInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100">
+                        <label for="payoutLiquidityAccountInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidFromAccount')) ?></label>
+                        <select id="payoutLiquidityAccountInput" class="user-modal-select w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl" data-searchable-select data-minimum-input-length="0" data-placeholder="<?= esc(lang('Finance.paidFromAccount')) ?>" data-allow-clear="false">
                             <option value="bank"><?= esc(lang('Finance.liquidityAccount.bank')) ?></option>
                             <option value="undeposited_checks"><?= esc(lang('Finance.liquidityAccount.undeposited_checks')) ?></option>
                         </select>
                         <p class="mt-1 text-xs text-slate-500"><?= esc(lang('Finance.checkOutgoingAccountHelp')) ?></p>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidDate')) ?></label>
+                        <label for="payoutDateInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidDate')) ?></label>
                         <input type="date" id="payoutDateInput" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" required>
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.notes')) ?></label>
+                        <label for="payoutNotesInput" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.notes')) ?></label>
                         <textarea id="payoutNotesInput" rows="2" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100" placeholder="<?= esc(lang('Finance.optional')) ?>"></textarea>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
@@ -1448,13 +1486,42 @@ function notify(type, title, message) {
     alert(message);
 }
 
+function mountUserModal(id) {
+    const modal = document.getElementById(id);
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+
+    return modal;
+}
+
 function openInlineModal(id) {
-    document.getElementById(id)?.classList.remove('hidden');
+    mountUserModal(id)?.classList.remove('hidden');
 }
 
 function closeInlineModal(id) {
     document.getElementById(id)?.classList.add('hidden');
 }
+
+function closeOpenUserModals() {
+    ['editUserModal', 'roleModal', 'passwordModal'].forEach((id) => {
+        const modal = document.getElementById(id);
+        if (modal && !modal.classList.contains('hidden')) {
+            closeInlineModal(id);
+        }
+    });
+
+    const payoutModal = document.getElementById('recordPayoutModal');
+    if (payoutModal && !payoutModal.classList.contains('hidden') && typeof closePayoutModal === 'function') {
+        closePayoutModal();
+    }
+}
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        closeOpenUserModals();
+    }
+});
 
 function toggleStatus(id) {
     if (!confirm(<?= json_encode(lang('UserRole.confirmToggleUserStatus')) ?>)) {
@@ -1595,6 +1662,7 @@ function closePayoutModal() {
 }
 
 function openPayoutModal(id, maxAmount) {
+    mountUserModal('recordPayoutModal');
     payoutModalMaxAmount = Number(maxAmount || 0);
     document.getElementById('payoutIdInput').value = String(id);
     document.getElementById('payoutAmountInput').value = payoutModalMaxAmount > 0 ? payoutModalMaxAmount.toFixed(2) : '';

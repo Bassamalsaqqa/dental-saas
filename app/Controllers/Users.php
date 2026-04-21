@@ -374,6 +374,7 @@ class Users extends BaseController
             'current_role_id' => $currentRoleId,
             'provider_finance_summary' => $this->providerPayoutModel->getSummaryByProviderUserId((int) $clinicId, (int) $id),
             'provider_payout_rows' => $this->providerPayoutModel->getRowsByProviderUserId((int) $clinicId, (int) $id),
+            'loadSelect2' => true,
         ];
         
         // Add current user data for view without overwriting the user being viewed
