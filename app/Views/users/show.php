@@ -883,11 +883,18 @@
     }
 
     .user-record-row {
+        cursor: pointer;
         transition: background-color 0.18s ease;
     }
 
     .user-record-row:hover td {
         background: #f8fbff;
+    }
+
+    .user-record-row:focus-visible td {
+        background: #eef2ff;
+        outline: 2px solid #6366f1;
+        outline-offset: -2px;
     }
 
     .user-record-main {
@@ -1207,7 +1214,7 @@
                                             };
                                             $canSettlePayout = $canEditFinance && !in_array($rowStatus, ['paid', 'void'], true);
                                         ?>
-                                        <tr class="user-record-row">
+                                        <tr class="user-record-row" tabindex="0" data-transaction-url="<?= esc(base_url('finance/' . (int) ($row['finance_id'] ?? 0)), 'attr') ?>" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                             <td>
                                                 <div class="user-record-cell">
                                                     <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-slate-50">
@@ -1246,14 +1253,14 @@
                                             <td>
                                                 <div class="user-record-actions">
                                                     <span class="<?= esc($rowStatusClass) ?>"><?= esc(lang('Finance.' . $rowStatus)) ?></span>
-                                                    <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc(lang('Finance.viewTransaction')) ?>">
+                                                    <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" data-row-action="true" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <?php if ($canSettlePayout): ?>
-                                                        <button type="button" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
+                                                        <button type="button" data-row-action="true" onclick="openPayoutModal(<?= (int) $row['id'] ?>, <?= esc(number_format((float) ($row['provider_balance_due'] ?? 0), 2, '.', '')) ?>)" class="p-2 text-emerald-600 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors duration-200" title="<?= esc(lang('Finance.recordPaymentFromLedger')) ?>">
                                                             <i class="fas fa-money-bill-wave"></i>
                                                         </button>
-                                                        <button type="button" onclick="markPayoutPaid(<?= (int) $row['id'] ?>)" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= esc(lang('Finance.markFullyPaid')) ?>">
+                                                        <button type="button" data-row-action="true" onclick="markPayoutPaid(<?= (int) $row['id'] ?>)" class="p-2 text-blue-600 hover:text-blue-700 rounded-md hover:bg-blue-50 transition-colors duration-200" title="<?= esc(lang('Finance.markFullyPaid')) ?>">
                                                             <i class="fas fa-check-double"></i>
                                                         </button>
                                                     <?php endif; ?>
@@ -1521,6 +1528,30 @@ document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         closeOpenUserModals();
     }
+});
+
+document.querySelectorAll('.user-record-row[data-transaction-url]').forEach((row) => {
+    const openTransaction = () => {
+        const url = row.dataset.transactionUrl;
+        if (url) {
+            window.location.href = url;
+        }
+    };
+
+    row.addEventListener('click', function (event) {
+        if (event.target.closest('[data-row-action], a, button, input, select, textarea')) {
+            return;
+        }
+        openTransaction();
+    });
+
+    row.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+        event.preventDefault();
+        openTransaction();
+    });
 });
 
 function toggleStatus(id) {
