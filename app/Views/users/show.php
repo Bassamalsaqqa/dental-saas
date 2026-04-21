@@ -41,6 +41,13 @@
     $canDeleteUsers = has_permission('users', 'delete') && (int) ($viewedUser->id ?? 0) !== 1;
     $canViewFinance = has_permission('finance', 'view');
     $canEditFinance = has_permission('finance', 'edit');
+    $departmentKey = (string) ($viewedUser->department ?? '');
+    $departmentText = $departmentKey !== ''
+        ? (string) ($departments[$departmentKey] ?? $departmentKey)
+        : lang('UserRole.na');
+    $hireDateText = !empty($viewedUser->hire_date)
+        ? formatDate((string) $viewedUser->hire_date)
+        : lang('UserRole.na');
     $userGender = strtolower((string) ($viewedUser->gender ?? ''));
     $userHeroThemeClass = 'patient-hero-card-neutral';
     $userAvatarToneClass = 'patient-avatar-badge-neutral';
@@ -217,6 +224,14 @@
         overflow: hidden;
     }
 
+    [dir="rtl"] .patient-hero-chip {
+        flex-direction: row-reverse;
+    }
+
+    [dir="rtl"] .patient-hero-chip-ltr {
+        flex-direction: row;
+    }
+
     .patient-hero-chip-icon {
         display: inline-flex;
         align-items: center;
@@ -287,6 +302,12 @@
         font-weight: 700;
         transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         text-align: center;
+    }
+
+    [dir="rtl"] .patient-header-action,
+    [dir="rtl"] .patient-hero-clinical-button,
+    [dir="rtl"] .patient-hero-tool-button {
+        flex-direction: row-reverse;
     }
 
     .patient-header-action:hover,
@@ -420,82 +441,6 @@
         box-shadow: inset 0 0 0 1px rgba(254, 205, 211, 0.95);
     }
 
-    .user-detail-panel {
-        border-radius: 1.2rem;
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 1));
-        box-shadow: 0 16px 40px -34px rgba(15, 23, 42, 0.38);
-    }
-
-    .user-detail-section {
-        border-radius: 1rem;
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.9));
-        padding: 1rem;
-    }
-
-    .user-metric-tile {
-        border-radius: 0.95rem;
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        background: rgba(248, 250, 252, 0.85);
-        padding: 0.9rem 1rem;
-    }
-
-    .user-metric-tile-strong {
-        background: linear-gradient(180deg, rgba(239, 246, 255, 0.88), rgba(248, 250, 252, 0.96));
-    }
-
-    .user-metric-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-    }
-
-    .user-metric-value {
-        margin-top: 0.45rem;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .user-metric-subtle {
-        margin-top: 0.28rem;
-        font-size: 0.74rem;
-        color: #64748b;
-    }
-
-    .user-action-tile {
-        display: flex;
-        min-height: 5.1rem;
-        flex-direction: column;
-        justify-content: space-between;
-        border-radius: 1rem;
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.92));
-        padding: 0.9rem 1rem;
-        text-align: start;
-        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-    }
-
-    .user-action-tile:hover {
-        transform: translateY(-1px);
-    }
-
-    .user-compact-note {
-        display: flex;
-        gap: 0.75rem;
-        border-radius: 1rem;
-        border: 1px solid rgba(253, 230, 138, 0.9);
-        background: linear-gradient(135deg, rgba(255, 251, 235, 1), rgba(255, 247, 237, 0.96));
-        padding: 0.85rem 0.9rem;
-        color: #92400e;
-    }
-
     .user-inline-toggle {
         display: inline-flex;
         align-items: center;
@@ -508,6 +453,10 @@
         color: #eff6ff;
         font-size: 0.76rem;
         font-weight: 700;
+    }
+
+    [dir="rtl"] .user-inline-toggle {
+        flex-direction: row-reverse;
     }
 
     .user-inline-toggle-track {
@@ -533,6 +482,11 @@
         transition: transform 0.2s ease;
     }
 
+    [dir="rtl"] .user-inline-toggle-track::after {
+        left: auto;
+        right: 0.18rem;
+    }
+
     .user-inline-toggle.is-active .user-inline-toggle-track {
         background: rgba(16, 185, 129, 0.45);
     }
@@ -548,6 +502,380 @@
     .user-inline-modal-backdrop {
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(4px);
+    }
+
+    .user-section-card {
+        --user-card-bg: #f1f5ff;
+        --user-card-glow: rgba(79, 70, 229, 0.18);
+        --user-card-glow-soft: rgba(14, 165, 233, 0.12);
+        --user-card-accent: #4f46e5;
+        --user-card-accent-soft: #eef2ff;
+        --user-card-accent-ring: rgba(79, 70, 229, 0.16);
+        --user-card-shadow: rgba(79, 70, 229, 0.18);
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        background-color: var(--user-card-bg);
+        background:
+            radial-gradient(circle at 14% 12%, var(--user-card-glow), transparent 32%),
+            radial-gradient(circle at 88% 88%, var(--user-card-glow-soft), transparent 34%),
+            var(--user-card-bg);
+        box-shadow:
+            0 24px 50px -34px rgba(15, 23, 42, 0.42),
+            0 14px 32px -26px var(--user-card-shadow),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .user-section-card-roles {
+        --user-card-bg: #eef2ff;
+        --user-card-glow: rgba(79, 70, 229, 0.2);
+        --user-card-glow-soft: rgba(99, 102, 241, 0.12);
+        --user-card-accent: #4f46e5;
+        --user-card-accent-soft: #eef2ff;
+        --user-card-accent-ring: rgba(79, 70, 229, 0.16);
+        --user-card-shadow: rgba(79, 70, 229, 0.22);
+    }
+
+    .user-section-card-actions {
+        --user-card-bg: #e0f2fe;
+        --user-card-glow: rgba(14, 165, 233, 0.22);
+        --user-card-glow-soft: rgba(245, 158, 11, 0.13);
+        --user-card-accent: #0284c7;
+        --user-card-accent-soft: #e0f2fe;
+        --user-card-accent-ring: rgba(2, 132, 199, 0.16);
+        --user-card-shadow: rgba(14, 165, 233, 0.22);
+    }
+
+    .user-section-card-finance {
+        --user-card-bg: #dcfce7;
+        --user-card-glow: rgba(16, 185, 129, 0.2);
+        --user-card-glow-soft: rgba(59, 130, 246, 0.12);
+        --user-card-accent: #059669;
+        --user-card-accent-soft: #dcfce7;
+        --user-card-accent-ring: rgba(5, 150, 105, 0.16);
+        --user-card-shadow: rgba(16, 185, 129, 0.22);
+    }
+
+    .user-section-card-ledger {
+        --user-card-bg: #e2e8f0;
+        --user-card-glow: rgba(51, 65, 85, 0.16);
+        --user-card-glow-soft: rgba(79, 70, 229, 0.13);
+        --user-card-accent: #475569;
+        --user-card-accent-soft: #e2e8f0;
+        --user-card-accent-ring: rgba(71, 85, 105, 0.16);
+        --user-card-shadow: rgba(51, 65, 85, 0.22);
+    }
+
+    .user-profile-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 1280px) {
+        .user-profile-grid {
+            grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
+        }
+    }
+
+    .user-section-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .user-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #111827;
+        font-size: 1.125rem;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    [dir="rtl"] .user-section-title {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .user-section-title-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background: var(--user-card-accent);
+        box-shadow: 0 0 0 4px var(--user-card-accent-ring), 0 8px 18px -10px var(--user-card-accent);
+        flex-shrink: 0;
+    }
+
+    .user-section-subtitle {
+        margin-top: 0.35rem;
+        color: #64748b;
+        font-size: 0.875rem;
+        line-height: 1.55;
+    }
+
+    .user-section-body {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .user-info-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (min-width: 640px) {
+        .user-info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .user-info-tile {
+        position: relative;
+        min-height: 5rem;
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.68);
+        padding: 1rem;
+        box-shadow:
+            0 14px 28px -26px rgba(15, 23, 42, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .user-info-tile:hover {
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow:
+            0 18px 34px -28px rgba(15, 23, 42, 0.38),
+            inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        transform: translateY(-1px);
+    }
+
+    .user-info-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1rem;
+        text-transform: uppercase;
+    }
+
+    [dir="rtl"] .user-info-label {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .user-info-value {
+        margin-top: 0.45rem;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .user-info-help {
+        margin-top: 0.25rem;
+        color: #64748b;
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .user-role-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    [dir="rtl"] .user-role-list {
+        justify-content: flex-end;
+    }
+
+    .user-action-list {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .user-action-row {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        background: rgba(255, 255, 255, 0.68);
+        padding: 0.9rem 1rem;
+        box-shadow:
+            0 14px 28px -26px rgba(15, 23, 42, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        text-align: start;
+        transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    [dir="rtl"] .user-action-row {
+        direction: rtl;
+        flex-direction: row;
+    }
+
+    .user-action-row:hover {
+        border-color: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow:
+            0 18px 34px -28px rgba(15, 23, 42, 0.38),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        transform: translateY(-1px);
+    }
+
+    .user-action-row-main {
+        min-width: 0;
+        flex: 1 1 auto;
+        text-align: start;
+    }
+
+    [dir="rtl"] .user-action-row-main {
+        text-align: right;
+    }
+
+    .user-action-row-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    [dir="rtl"] .user-action-row-title {
+        direction: rtl;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+
+    [dir="rtl"] .user-action-row-icon i {
+        transform: rotate(180deg);
+    }
+
+    .user-action-row-copy {
+        margin-top: 0.25rem;
+        color: #64748b;
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .user-action-row-icon {
+        display: inline-flex;
+        width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.65rem;
+        background: var(--user-card-accent-soft);
+        color: var(--user-card-accent);
+        box-shadow: inset 0 0 0 1px var(--user-card-accent-ring);
+        flex-shrink: 0;
+    }
+
+    .user-record-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+        direction: inherit;
+    }
+
+    .user-record-table thead th {
+        padding: 0.78rem 0.75rem;
+        font-size: 0.7rem;
+        line-height: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        color: #64748b;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+        border-bottom: 1px solid #e2e8f0;
+        text-align: start !important;
+        white-space: nowrap;
+    }
+
+    .user-record-table tbody td {
+        padding: 0.65rem 0.75rem;
+        font-size: 0.86rem;
+        line-height: 1.3rem;
+        color: #0f172a;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+        background: #ffffff;
+        text-align: start;
+        white-space: nowrap;
+    }
+
+    .user-record-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    [dir="rtl"] .user-record-table th,
+    [dir="rtl"] .user-record-table td {
+        text-align: right !important;
+    }
+
+    .user-record-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 100%;
+        direction: inherit;
+    }
+
+    .user-record-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.375rem;
+        direction: inherit;
+    }
+
+    [dir="rtl"] .user-record-actions {
+        justify-content: flex-start;
+    }
+
+    .user-record-row {
+        transition: background-color 0.18s ease;
+    }
+
+    .user-record-row:hover td {
+        background: #f8fbff;
+    }
+
+    .user-record-main {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    [dir="rtl"] .user-record-main {
+        direction: rtl;
+        flex-direction: row-reverse;
+    }
+
+    .user-record-title {
+        color: #0f172a;
+        font-weight: 600;
+        min-width: 0;
+    }
+
+    .user-record-subtitle {
+        color: #64748b;
+        font-size: 0.78rem;
+        line-height: 1rem;
+        min-width: 0;
     }
 </style>
 
@@ -647,174 +975,187 @@
                 </div>
             </section>
 
-            <div class="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(300px,0.8fr)]">
-                <section class="rounded-[24px] border border-slate-200 bg-white shadow-sm overflow-hidden">
-                    <div class="border-b border-slate-200 px-6 py-5">
-                        <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('UserRole.rolesAndPermissions')) ?></h2>
-                        <p class="mt-1 text-sm text-slate-500"><?= esc(lang('UserRole.manageUsersRolesPermissions')) ?></p>
+            <div class="user-profile-grid">
+                <section class="user-section-card user-section-card-roles">
+                    <div class="user-section-header">
+                        <h2 class="user-section-title">
+                            <span class="user-section-title-dot"></span>
+                            <span><?= esc(lang('UserRole.rolesAndPermissions')) ?></span>
+                        </h2>
+                        <p class="user-section-subtitle"><?= esc(lang('UserRole.manageUsersRolesPermissions')) ?></p>
                     </div>
-                    <div class="space-y-4 p-5">
-                        <div class="user-detail-panel p-4">
-                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div>
-                                    <p class="user-metric-label"><i class="fas fa-user-shield text-violet-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></p>
-                                    <h3 class="mt-2 text-base font-bold text-slate-900"><?= esc($userRoleSummary) ?></h3>
-                                    <p class="mt-2 text-sm text-slate-500"><?= esc(lang('UserRole.viewUserInformationPermissions')) ?></p>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2.5 sm:min-w-[15rem]">
-                                    <div class="user-metric-tile user-metric-tile-strong">
-                                        <p class="user-metric-label"><i class="fas fa-layer-group text-indigo-500"></i><?= esc(lang('UserRole.roles')) ?></p>
-                                        <p class="user-metric-value"><?= esc((string) count($viewedUserRoles)) ?></p>
-                                    </div>
-                                    <div class="user-metric-tile">
-                                        <p class="user-metric-label"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.providerPayoutCount')) ?></p>
-                                        <p class="user-metric-value"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
-                                    </div>
+                    <div class="user-section-body space-y-5">
+                        <div class="user-info-grid">
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-user-shield text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></p>
+                                <p class="user-info-value"><?= esc($userRoleSummary) ?></p>
+                                <div class="mt-3 user-role-list">
+                                    <?php if (!empty($viewedUserRoles)): ?>
+                                        <?php foreach ($viewedUserRoles as $role): ?>
+                                            <?php
+                                                $roleName = is_array($role)
+                                                    ? ($role['name'] ?? lang('UserRole.unknownRole'))
+                                                    : ($role->name ?? lang('UserRole.unknownRole'));
+                                            ?>
+                                            <span class="user-role-pill"><?= esc(ucfirst((string) $roleName)) ?></span>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <span class="user-summary-badge"><?= esc(lang('UserRole.noRolesAssigned')) ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="user-detail-panel p-4">
-                            <p class="user-metric-label"><i class="fas fa-badge-check text-sky-500"></i><?= esc(lang('UserRole.availableRoles')) ?></p>
-                            <div class="mt-3 flex flex-wrap gap-2">
-                                <?php if (!empty($viewedUserRoles)): ?>
-                                    <?php foreach ($viewedUserRoles as $role): ?>
-                                        <?php
-                                            $roleName = is_array($role)
-                                                ? ($role['name'] ?? lang('UserRole.unknownRole'))
-                                                : ($role->name ?? lang('UserRole.unknownRole'));
-                                        ?>
-                                        <span class="user-role-pill">
-                                            <?= esc(ucfirst((string) $roleName)) ?>
-                                        </span>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <span class="user-summary-badge">
-                                        <?= esc(lang('UserRole.noRolesAssigned')) ?>
-                                    </span>
-                                <?php endif; ?>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-layer-group text-indigo-500"></i><?= esc(lang('UserRole.roles')) ?></p>
+                                <p class="user-info-value"><?= esc((string) count($viewedUserRoles)) ?></p>
+                                <p class="user-info-help"><?= esc(lang('UserRole.availableRoles')) ?></p>
                             </div>
-                            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-tile hover:border-sky-300 hover:bg-sky-50/70">
-                                    <p class="user-metric-label"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></p>
-                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></p>
-                                </button>
-                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-tile hover:border-indigo-300 hover:bg-indigo-50/70">
-                                    <p class="user-metric-label"><i class="fas fa-user-tag text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></p>
-                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.chooseRole')) ?></p>
-                                </button>
-                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-tile hover:border-amber-300 hover:bg-amber-50/70">
-                                    <p class="user-metric-label"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></p>
-                                    <p class="user-metric-subtle"><?= esc(lang('UserRole.changePassword')) ?></p>
-                                </button>
-                                <?php if ($canViewFinance): ?>
-                                    <a href="<?= base_url('finance/payouts') ?>" class="user-action-tile hover:border-emerald-300 hover:bg-emerald-50/70">
-                                        <p class="user-metric-label"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.openPayoutLedger')) ?></p>
-                                        <p class="user-metric-subtle"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
-                                    </a>
-                                <?php else: ?>
-                                    <div class="user-action-tile">
-                                        <p class="user-metric-label"><i class="fas fa-bolt text-emerald-500"></i><?= esc(lang('UserRole.actions')) ?></p>
-                                        <p class="user-metric-subtle"><?= esc(lang('UserRole.editUser')) ?> · <?= esc(lang('UserRole.roleAssignment')) ?> · <?= esc(lang('UserRole.changePassword')) ?></p>
-                                    </div>
-                                <?php endif; ?>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-building-user text-sky-500"></i><?= esc(lang('UserRole.department')) ?></p>
+                                <p class="user-info-value"><?= esc($departmentText) ?></p>
+                                <p class="user-info-help"><?= esc(lang('UserRole.userDetails')) ?></p>
                             </div>
-                            <div class="mt-3 user-compact-note">
-                                <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                                    <i class="fas fa-circle-info text-sm"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-semibold"><?= esc(lang('UserRole.actions')) ?></p>
-                                    <p class="mt-1 text-xs leading-6 text-amber-800"><?= esc(lang('UserRole.editUser')) ?> · <?= esc(lang('UserRole.roleAssignment')) ?> · <?= esc(lang('UserRole.changePassword')) ?></p>
-                                </div>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-calendar-check text-emerald-500"></i><?= esc(lang('UserRole.hireDateRequired')) ?></p>
+                                <p class="user-info-value"><?= esc($hireDateText) ?></p>
+                                <p class="user-info-help"><?= esc(lang('UserRole.createdColon')) ?> <?= esc($createdAtText) ?></p>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <?php if ($canViewFinance): ?>
-                    <aside class="space-y-6">
-                        <section class="rounded-[24px] border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-sky-50 shadow-sm overflow-hidden">
-                            <div class="border-b border-indigo-100 px-5 py-4">
-                                <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.clinicalProviderCompensation')) ?></h2>
-                                <p class="mt-1 text-sm text-slate-600"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
-                            </div>
-                            <div class="space-y-3 p-4">
-                                <div class="grid grid-cols-2 gap-2.5">
-                                    <div class="rounded-2xl border border-indigo-100 bg-white px-3.5 py-3">
-                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerShareTotal')) ?></p>
-                                        <p class="mt-1.5 text-lg font-bold text-slate-900"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
-                                    </div>
-                                    <div class="rounded-2xl border border-emerald-100 bg-white px-3.5 py-3">
-                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.paidToProvider')) ?></p>
-                                        <p class="mt-1.5 text-lg font-bold text-emerald-700"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
-                                    </div>
-                                    <div class="rounded-2xl border border-rose-100 bg-white px-3.5 py-3">
-                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.balance')) ?></p>
-                                        <p class="mt-1.5 text-lg font-bold text-rose-700"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
-                                    </div>
-                                    <div class="rounded-2xl border border-slate-200 bg-white px-3.5 py-3">
-                                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= esc(lang('Finance.providerPayoutCount')) ?></p>
-                                        <p class="mt-1.5 text-lg font-bold text-slate-900"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
-                                    </div>
-                                </div>
-
-                                <div class="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-3.5 py-3 text-sm text-amber-900">
-                                    <div class="flex items-start gap-2.5">
-                                        <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                                            <i class="fas fa-circle-info text-sm"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold"><?= esc(lang('Finance.providerSplit')) ?></p>
-                                            <p class="mt-1 text-xs leading-6 text-amber-800"><?= esc(lang('Finance.supplierPayablesGuidance')) ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                    <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50">
-                                        <i class="fas fa-wallet text-xs"></i>
-                                        <span><?= esc(lang('Finance.openPayoutLedger')) ?></span>
-                                    </a>
-                                    <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                                        <i class="fas fa-arrow-up-right-from-square text-xs"></i>
-                                        <span><?= esc(lang('Finance.finance')) ?></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </section>
-                    </aside>
-                <?php endif; ?>
+                <section class="user-section-card user-section-card-actions">
+                    <div class="user-section-header">
+                        <h2 class="user-section-title">
+                            <span class="user-section-title-dot"></span>
+                            <span><?= esc(lang('UserRole.actions')) ?></span>
+                        </h2>
+                        <p class="user-section-subtitle"><?= esc(lang('UserRole.viewUserInformationPermissions')) ?></p>
+                    </div>
+                    <div class="user-section-body">
+                        <div class="user-action-list">
+                            <?php if ($canEditUsers): ?>
+                                <button type="button" onclick="openInlineModal('editUserModal')" class="user-action-row">
+                                    <span class="user-action-row-main">
+                                        <span class="user-action-row-title"><i class="fas fa-pen text-sky-500"></i><?= esc(lang('UserRole.editUser')) ?></span>
+                                        <span class="user-action-row-copy"><?= esc(lang('UserRole.updateUserInformationDescription')) ?></span>
+                                    </span>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                </button>
+                                <button type="button" onclick="openInlineModal('roleModal')" class="user-action-row">
+                                    <span class="user-action-row-main">
+                                        <span class="user-action-row-title"><i class="fas fa-user-tag text-indigo-500"></i><?= esc(lang('UserRole.roleAssignment')) ?></span>
+                                        <span class="user-action-row-copy"><?= esc(lang('UserRole.chooseRole')) ?></span>
+                                    </span>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                </button>
+                                <button type="button" onclick="openInlineModal('passwordModal')" class="user-action-row">
+                                    <span class="user-action-row-main">
+                                        <span class="user-action-row-title"><i class="fas fa-key text-amber-500"></i><?= esc(lang('UserRole.accountSecurity')) ?></span>
+                                        <span class="user-action-row-copy"><?= esc(lang('UserRole.changePassword')) ?></span>
+                                    </span>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                </button>
+                            <?php endif; ?>
+                            <?php if ($canViewFinance): ?>
+                                <a href="<?= base_url('finance/payouts') ?>" class="user-action-row">
+                                    <span class="user-action-row-main">
+                                        <span class="user-action-row-title"><i class="fas fa-wallet text-emerald-500"></i><?= esc(lang('Finance.openPayoutLedger')) ?></span>
+                                        <span class="user-action-row-copy"><?= esc(lang('Finance.payoutLedger')) ?></span>
+                                    </span>
+                                    <span class="user-action-row-icon"><i class="fas fa-arrow-right"></i></span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <?php if ($canViewFinance): ?>
-                <section class="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
-                    <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-900"><?= esc(lang('Finance.payoutLedger')) ?></h2>
-                            <p class="mt-1 text-sm text-slate-500"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
+                <section class="user-section-card user-section-card-finance">
+                    <div class="user-section-header">
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <h2 class="user-section-title">
+                                    <span class="user-section-title-dot"></span>
+                                    <span><?= esc(lang('Finance.clinicalProviderCompensation')) ?></span>
+                                </h2>
+                                <p class="user-section-subtitle"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="<?= base_url('finance/payouts') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50">
+                                    <i class="fas fa-wallet text-xs"></i>
+                                    <span><?= esc(lang('Finance.openPayoutLedger')) ?></span>
+                                </a>
+                                <a href="<?= base_url('finance') ?>" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                                    <i class="fas fa-arrow-up-right-from-square text-xs"></i>
+                                    <span><?= esc(lang('Finance.finance')) ?></span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="user-summary-badge">
-                            <i class="fas fa-receipt text-[11px]"></i>
-                            <span><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?> <?= esc(lang('Finance.providerPayoutCount')) ?></span>
+                    </div>
+                    <div class="user-section-body">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-percent text-indigo-500"></i><?= esc(lang('Finance.providerShareTotal')) ?></p>
+                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_share_total'] ?? 0) ?></p>
+                            </div>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-money-bill-wave text-emerald-500"></i><?= esc(lang('Finance.paidToProvider')) ?></p>
+                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_paid_total'] ?? 0) ?></p>
+                            </div>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-triangle-exclamation text-rose-500"></i><?= esc(lang('Finance.balance')) ?></p>
+                                <p class="user-info-value"><?= formatCurrency($providerSummary['provider_balance_total'] ?? 0) ?></p>
+                            </div>
+                            <div class="user-info-tile">
+                                <p class="user-info-label"><i class="fas fa-receipt text-slate-500"></i><?= esc(lang('Finance.providerPayoutCount')) ?></p>
+                                <p class="user-info-value"><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            <?php endif; ?>
+
+            <?php if ($canViewFinance): ?>
+                <section class="user-section-card user-section-card-ledger">
+                    <div class="user-section-header">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="user-section-title">
+                                    <span class="user-section-title-dot"></span>
+                                    <span><?= esc(lang('Finance.payoutLedger')) ?></span>
+                                </h2>
+                                <p class="user-section-subtitle"><?= esc(lang('Finance.clinicalProviderCompensationHelp')) ?></p>
+                            </div>
+                            <div class="user-summary-badge">
+                                <i class="fas fa-receipt text-[11px]"></i>
+                                <span><?= esc((string) ($providerSummary['payout_count'] ?? 0)) ?> <?= esc(lang('Finance.providerPayoutCount')) ?></span>
+                            </div>
                         </div>
                     </div>
 
                     <?php if (!empty($providerRows)): ?>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-slate-200" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
-                                <thead class="bg-slate-50">
+                            <table class="user-record-table min-w-full" dir="<?= $isRtl ? 'rtl' : 'ltr' ?>">
+                                <colgroup>
+                                    <col style="width: 20%;">
+                                    <col style="width: 16%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 28%;">
+                                    <col style="width: 15%;">
+                                    <col style="width: 9%;">
+                                </colgroup>
+                                <thead>
                                     <tr>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.transaction')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.patient')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.businessDate')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.paidBalance')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.lastPaymentDate')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.status')) ?></th>
-                                        <th class="px-6 py-4 text-start text-xs font-semibold uppercase tracking-wider text-gray-600"><?= esc(lang('Finance.actions')) ?></th>
+                                        <th><i class="fas fa-receipt text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.transaction')) ?></th>
+                                        <th><i class="fas fa-user text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.patient')) ?></th>
+                                        <th><i class="fas fa-calendar text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.businessDate')) ?></th>
+                                        <th><i class="fas fa-wallet text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.paidBalance')) ?></th>
+                                        <th><i class="fas fa-money-check-dollar text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.lastPaymentDate')) ?></th>
+                                        <th><i class="fas fa-cogs text-indigo-600 <?= $isRtl ? 'ml-2' : 'mr-2' ?>"></i><?= esc(lang('Finance.actions')) ?></th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100 bg-white">
+                                <tbody>
                                     <?php foreach ($providerRows as $row): ?>
                                         <?php
                                             $rowStatus = strtolower((string) ($row['status'] ?? 'unknown'));
@@ -828,52 +1169,45 @@
                                             };
                                             $canSettlePayout = $canEditFinance && !in_array($rowStatus, ['paid', 'void'], true);
                                         ?>
-                                        <tr class="hover:bg-slate-50/70">
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="flex items-center gap-3">
-                                                    <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
-                                                        <i class="<?= esc($transactionMeta['icon']) ?> <?= esc($transactionMeta['color']) ?> text-xl"></i>
+                                        <tr class="user-record-row">
+                                            <td>
+                                                <div class="user-record-cell">
+                                                    <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-slate-50">
+                                                        <i class="<?= esc($transactionMeta['icon']) ?> <?= esc($transactionMeta['color']) ?> text-sm"></i>
                                                     </span>
-                                                    <div class="space-y-1 min-w-0">
-                                                        <div class="text-sm font-semibold text-slate-900 truncate"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></div>
-                                                        <div class="text-xs text-slate-500">#<?= esc((string) ($row['id'] ?? '')) ?></div>
+                                                    <div class="user-record-main">
+                                                        <span class="user-record-title"><?= esc((string) ($row['transaction_id'] ?? '-')) ?></span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="flex items-center gap-3">
-                                                    <span class="inline-flex items-center justify-center w-7 h-7 flex-shrink-0">
-                                                        <i class="<?= esc($patientAvatar['icon']) ?> <?= esc($patientAvatar['color']) ?> text-2xl"></i>
+                                            <td>
+                                                <div class="user-record-cell">
+                                                    <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-slate-50">
+                                                        <i class="<?= esc($patientAvatar['icon']) ?> <?= esc($patientAvatar['color']) ?> text-base"></i>
                                                     </span>
-                                                    <div class="space-y-1 min-w-0">
-                                                        <div class="text-sm font-semibold text-slate-900 truncate"><?= esc((string) (((string) ($row['patient_name'] ?? '')) !== '' ? $row['patient_name'] : lang('Finance.notAvailable'))) ?></div>
-                                                        <div class="text-xs text-slate-500"><?= esc((string) ($row['patient_number'] ?? '')) ?></div>
+                                                    <div class="user-record-main">
+                                                        <span class="user-record-title"><?= esc((string) (((string) ($row['patient_name'] ?? '')) !== '' ? $row['patient_name'] : lang('Finance.notAvailable'))) ?></span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 align-top text-sm text-slate-700">
+                                            <td class="whitespace-nowrap">
                                                 <?= !empty($row['business_date']) ? esc(formatDate((string) $row['business_date'])) : '&mdash;' ?>
                                             </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="space-y-1 text-sm">
-                                                    <div class="font-semibold text-indigo-700"><?= formatCurrency($row['provider_share_amount'] ?? 0) ?></div>
-                                                    <div class="text-emerald-700"><?= esc(lang('Finance.paid')) ?>: <?= formatCurrency($row['provider_paid_amount'] ?? 0) ?></div>
-                                                    <div class="text-rose-700"><?= esc(lang('Finance.balance')) ?>: <?= formatCurrency($row['provider_balance_due'] ?? 0) ?></div>
+                                            <td>
+                                                <div class="inline-flex max-w-full items-center gap-1.5 whitespace-nowrap">
+                                                    <span class="font-semibold text-indigo-700"><?= formatCurrency($row['provider_share_amount'] ?? 0) ?></span>
+                                                    <span class="text-emerald-700"><?= esc(lang('Finance.paid')) ?> <?= formatCurrency($row['provider_paid_amount'] ?? 0) ?></span>
+                                                    <span class="text-rose-700"><?= esc(lang('Finance.balance')) ?> <?= formatCurrency($row['provider_balance_due'] ?? 0) ?></span>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="space-y-1 text-sm text-slate-700">
-                                                    <div><?= !empty($row['last_paid_date']) ? esc(formatDate((string) $row['last_paid_date'])) : esc(lang('UserRole.never')) ?></div>
-                                                    <div class="text-xs text-slate-500"><?= esc((string) ($row['payment_count'] ?? 0)) ?> <?= esc(lang('Finance.paymentsCount')) ?></div>
+                                            <td>
+                                                <div class="user-record-main">
+                                                    <span class="user-record-title"><?= !empty($row['last_paid_date']) ? esc(formatDate((string) $row['last_paid_date'])) : esc(lang('UserRole.never')) ?></span>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <span class="<?= esc($rowStatusClass) ?>">
-                                                    <?= esc(lang('Finance.' . $rowStatus)) ?>
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="flex items-center gap-2">
+                                            <td>
+                                                <div class="user-record-actions">
+                                                    <span class="<?= esc($rowStatusClass) ?>"><?= esc(lang('Finance.' . $rowStatus)) ?></span>
                                                     <a href="<?= base_url('finance/' . (int) ($row['finance_id'] ?? 0)) ?>" class="p-2 text-indigo-600 hover:text-indigo-700 rounded-md hover:bg-indigo-50 transition-colors duration-200" title="<?= esc(lang('Finance.viewTransaction')) ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
@@ -903,9 +1237,6 @@
                     <?php endif; ?>
                 </section>
             <?php endif; ?>
-        </div>
-    </div>
-</div>
 
 <?php if ($canEditUsers): ?>
     <div id="editUserModal" class="fixed inset-0 z-50 hidden">
