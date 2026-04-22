@@ -1,6 +1,7 @@
 
 <?php
 $tm = static fn(string $key, array $params = []) => lang('TenantMisc.' . $key, $params);
+$tf = static fn(string $key, array $params = []) => lang('Finance.' . $key, $params);
 $activeReportType = $report_type ?? 'overview';
 $request = service('request');
 $workspaceBaseQuery = $request->getGet();
@@ -21,16 +22,27 @@ $currentMeta = [
 ][$activeReportType] ?? ['headline' => $tm('reportsAnalyticsTitle'), 'summary' => $tm('reportsAnalyticsDesc')];
 ?>
 <style>
+    .report-workspace-card {
+        min-height: 92px;
+    }
+
+    .report-workspace-desc {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
     .report-workspace-card[aria-current="page"] {
-        background-color: #0369a1 !important;
-        border-color: #0369a1 !important;
+        background: linear-gradient(135deg, #0f766e, #059669) !important;
+        border-color: #059669 !important;
         color: #ffffff !important;
-        box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.45) !important;
+        box-shadow: 0 18px 35px rgba(5, 150, 105, 0.18) !important;
     }
 
     .report-detail-tab[data-active="true"] {
-        background-color: #0369a1 !important;
-        border-color: #0369a1 !important;
+        background: linear-gradient(135deg, #16a34a, #059669) !important;
+        border-color: #059669 !important;
         color: #ffffff !important;
     }
 
@@ -54,35 +66,118 @@ $currentMeta = [
         border-color: #10b981;
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
+
+    .report-table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .report-table-control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .report-table-export-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        transition: all 0.2s ease;
+    }
+
+    .report-table-export-button:hover {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
+    }
+
+    .report-table-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px -3px rgba(17, 24, 39, 0.1), 0 4px 6px -4px rgba(17, 24, 39, 0.1);
+        overflow: hidden;
+    }
+
+    .report-table-head {
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        padding: 16px 24px;
+    }
+
+    .report-table-scroll {
+        overflow-x: auto;
+    }
+
+    .report-detail-panel {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: #ffffff;
+    }
+
+    @media (max-width: 767.98px) {
+        .report-table-toolbar,
+        .report-table-control-group {
+            align-items: stretch;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .report-table-control,
+        .report-table-export-button {
+            width: 100%;
+        }
+    }
 </style>
-<div class="space-y-6">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-100">
+<div class="space-y-6 px-3 py-4 sm:px-4 sm:py-6">
     <div class="mx-auto max-w-7xl space-y-6">
     <div class="mb-6 sm:mb-8">
-            <div class="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-100 via-indigo-100 to-slate-100 p-6 shadow-xl shadow-sky-900/10">
-                <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-start">
+            <div class="rounded-xl border border-white/30 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div class="flex items-start gap-3">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-700 text-white shadow-lg shadow-sky-700/20">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
                             <i class="fas fa-chart-pie text-xl"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-wide text-sky-800"><?= esc($tm('reportsAnalyticsTitle')) ?></p>
+                        <div class="max-w-2xl">
+                            <p class="text-xs font-bold uppercase tracking-wide text-green-700"><?= esc($tm('reportsAnalyticsTitle')) ?></p>
                             <h1 class="text-3xl font-black text-slate-950"><?= esc($currentMeta['headline']) ?></h1>
                             <p class="mt-2 max-w-3xl text-sm font-medium text-slate-700"><?= esc($currentMeta['summary']) ?></p>
                         </div>
                     </div>
-                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-                        <span class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200">
+                    <div class="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[28rem]">
+                        <span class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-gray-200">
                             <i class="fas fa-calendar-range"></i>
                             <span><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></span>
                         </span>
-                        <button onclick="exportReport('pdf')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-white">
-                            <i class="fas fa-file-pdf"></i>
-                            <?= esc(lang('TenantMisc.exportHtml')) ?>
-            </button>
-                        <button onclick="exportReport('excel')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-md transition hover:bg-slate-800">
-                            <i class="fas fa-file-excel"></i>
-                            <?= esc(lang('TenantMisc.exportExcelCsv')) ?>
-            </button>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="exportReport('pdf')" class="report-table-export-button">
+                                <i class="fas fa-file-pdf text-red-600"></i>
+                                <?= esc($tf('exportPdf')) ?>
+                            </button>
+                            <button onclick="printReport()" class="report-table-export-button">
+                                <i class="fas fa-print text-gray-600"></i>
+                                <?= esc($tf('print')) ?>
+                            </button>
+                            <button onclick="exportReport('excel')" class="report-table-export-button">
+                                <i class="fas fa-file-csv text-green-600"></i>
+                                <?= esc($tf('exportCsv')) ?>
+                            </button>
+                        </div>
                     </div>
                 </div>
         </div>
@@ -90,17 +185,22 @@ $currentMeta = [
 
     <div class="mb-6 sm:mb-8">
         <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <?php foreach ($workspaceCards as $card): ?>
                     <?php $isActiveCard = $activeReportType === $card['type']; ?>
                     <?php $tabQuery = array_merge($workspaceBaseQuery, ['report_type' => $card['type']]); ?>
                     <a
-                        class="report-workspace-card inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all <?= $isActiveCard ? 'border-sky-700 bg-sky-700 text-white shadow-sm ring-2 ring-sky-200' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50' ?>"
+                        class="report-workspace-card group flex items-start gap-3 rounded-xl border p-3 text-start transition-all <?= $isActiveCard ? 'border-green-600 bg-green-600 text-white shadow-lg shadow-green-500/20' : 'border-gray-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50/50 hover:shadow-md' ?>"
                         href="<?= esc(current_url() . '?' . http_build_query($tabQuery)) ?>"
                         aria-current="<?= $isActiveCard ? 'page' : 'false' ?>"
                     >
-                        <i class="fas <?= esc($card['icon']) ?>"></i>
-                        <span><?= esc($card['title']) ?></span>
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg <?= $isActiveCard ? 'bg-white/20 text-white' : 'bg-green-50 text-green-700 group-hover:bg-white' ?>">
+                            <i class="fas <?= esc($card['icon']) ?>"></i>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-sm font-bold"><?= esc($card['title']) ?></span>
+                            <span class="report-workspace-desc mt-1 block text-xs leading-5 <?= $isActiveCard ? 'text-green-50' : 'text-slate-500' ?>"><?= esc($card['desc']) ?></span>
+                        </span>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -215,7 +315,7 @@ $currentMeta = [
                     </select>
                 </div>
                 <div class="flex items-end xl:flex-none xl:justify-end">
-                    <button onclick="generateReport()" class="inline-flex h-[46px] min-w-[6.5rem] items-center justify-center px-4 py-2.5 bg-sky-700 text-white text-sm font-semibold rounded-xl hover:bg-sky-800 transition">
+                    <button onclick="generateReport()" class="inline-flex h-[46px] min-w-[6.5rem] items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-green-600 hover:to-emerald-700">
                         <?= esc(lang('TenantMisc.applyFilters')) ?>
                     </button>
                 </div>
@@ -382,7 +482,8 @@ $currentMeta = [
                         <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= esc($card['label']) ?></p>
                         <p class="mt-1 text-lg font-bold text-gray-900"><?= $card['currency'] ? formatCurrency($card['current']) : number_format($card['current']) ?></p>
                         <p class="mt-1 text-xs <?= $up ? 'text-emerald-600' : 'text-rose-600' ?> font-semibold">
-                            <?= $up ? '▲' : '▼' ?> <?= $card['currency'] ? formatCurrency(abs($delta)) : number_format(abs($delta)) ?>
+                            <i class="fas <?= $up ? 'fa-arrow-up' : 'fa-arrow-down' ?>"></i>
+                            <?= $card['currency'] ? formatCurrency(abs($delta)) : number_format(abs($delta)) ?>
                         </p>
                     </div>
                     <?php endforeach; ?>
@@ -499,9 +600,9 @@ $currentMeta = [
                 </div>
 
                 <?php if (!empty($reports['top_balance_patients'])): ?>
-                <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                        <div class="flex items-center justify-between">
+                <div class="report-table-card">
+                    <div class="report-table-head">
+                        <div class="report-table-toolbar">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                                 <div>
@@ -509,11 +610,25 @@ $currentMeta = [
                                     <p class="text-sm text-gray-600"><?= esc($tm('topBalancePatientsDesc')) ?></p>
                                 </div>
                             </div>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                <button onclick="exportReport('pdf')" class="report-table-export-button">
+                                    <i class="fas fa-file-pdf text-red-600"></i>
+                                    <?= esc($tf('exportPdf')) ?>
+                                </button>
+                                <button onclick="printReport()" class="report-table-export-button">
+                                    <i class="fas fa-print text-gray-600"></i>
+                                    <?= esc($tf('print')) ?>
+                                </button>
+                                <button onclick="exportReport('excel')" class="report-table-export-button">
+                                    <i class="fas fa-file-csv text-green-600"></i>
+                                    <?= esc($tf('exportCsv')) ?>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="report-table-scroll">
                         <div class="dataTables-wrapper">
-                        <table class="w-full min-w-full text-sm">
+                        <table id="topBalancePatientsTable" class="w-full min-w-full text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -764,11 +879,11 @@ $currentMeta = [
 
         <?php if (!empty($detail_tables ?? []) && $activeReportType !== 'finance'): ?>
         <div class="mb-8">
-            <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div id="reportDetailTables" class="report-table-card">
+                <div class="report-table-head">
+                <div class="report-table-toolbar">
                     <div>
-                            <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3">
                             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
@@ -776,17 +891,31 @@ $currentMeta = [
                             </div>
                         </div>
                     </div>
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <button onclick="exportReport('pdf')" class="report-table-export-button">
+                            <i class="fas fa-file-pdf text-red-600"></i>
+                            <?= esc($tf('exportPdf')) ?>
+                        </button>
+                        <button onclick="printReport()" class="report-table-export-button">
+                            <i class="fas fa-print text-gray-600"></i>
+                            <?= esc($tf('print')) ?>
+                        </button>
+                        <button onclick="exportReport('excel')" class="report-table-export-button">
+                            <i class="fas fa-file-csv text-green-600"></i>
+                            <?= esc($tf('exportCsv')) ?>
+                        </button>
+                    </div>
                 </div>
-                    <div class="mt-5 flex flex-wrap gap-2">
+                    <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                             <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                             <button
                                 type="button"
-                                class="report-detail-tab inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold border transition-all <?= $idx === 0 ? 'bg-sky-700 text-white border-sky-700' : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300' ?>"
+                                class="report-detail-tab flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm font-semibold transition-all <?= $idx === 0 ? 'border-green-600 bg-green-600 text-white shadow-md shadow-green-500/15' : 'border-gray-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50' ?>"
                                 data-target="<?= esc($table['id']) ?>"
                                 data-active="<?= $idx === 0 ? 'true' : 'false' ?>"
                             >
-                                <?= esc($table['title']) ?>
-                                <span class="text-xs <?= $idx === 0 ? 'text-sky-100' : 'text-slate-400' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
+                                <span class="truncate"><?= esc($table['title']) ?></span>
+                                <span class="rounded-full px-2 py-0.5 text-xs <?= $idx === 0 ? 'bg-white/20 text-green-50' : 'bg-gray-100 text-slate-500' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
                             </button>
                             <?php endforeach; ?>
                     </div>
@@ -804,22 +933,30 @@ $currentMeta = [
 
                     <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                     <div class="report-detail-panel <?= $idx === 0 ? '' : 'hidden' ?>" data-panel="<?= esc($table['id']) ?>">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <h4 class="text-lg font-semibold text-gray-800"><?= esc($table['title']) ?></h4>
-                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                            <select class="report-detail-per-page report-table-control">
-                                <option value="25">25 <?= lang('TenantMisc.rows') ?></option>
-                                <option value="50">50 <?= lang('TenantMisc.rows') ?></option>
-                                <option value="100">100 <?= lang('TenantMisc.rows') ?></option>
-                            </select>
-                            <div class="relative">
-                            <input type="text" class="report-detail-search report-table-control w-full md:w-72" placeholder="<?= lang('TenantMisc.searchRowsPlaceholder') ?>">
+                    <div class="report-table-head rounded-none">
+                        <div class="report-table-toolbar">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <h4 class="text-lg font-semibold text-gray-900"><?= esc($table['title']) ?></h4>
+                            </div>
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <label class="report-table-control-group">
+                                    <span><?= lang('TenantMisc.showing') ?></span>
+                                    <select class="report-detail-per-page report-table-control">
+                                        <option value="25">25 <?= lang('TenantMisc.rows') ?></option>
+                                        <option value="50">50 <?= lang('TenantMisc.rows') ?></option>
+                                        <option value="100">100 <?= lang('TenantMisc.rows') ?></option>
+                                    </select>
+                                </label>
+                                <label class="report-table-control-group">
+                                    <span><?= esc($tf('search')) ?></span>
+                                    <input type="text" class="report-detail-search report-table-control w-full md:w-72" placeholder="<?= lang('TenantMisc.searchRowsPlaceholder') ?>">
+                                </label>
                             </div>
                         </div>
                     </div>
-                    </div>
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                    <div class="report-table-scroll">
+                        <div class="dataTables-wrapper">
                         <table class="w-full min-w-full text-sm report-detail-table">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -859,6 +996,7 @@ $currentMeta = [
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div class="text-sm text-gray-500 report-detail-pagination-info"><?= lang('TenantMisc.showing') ?> <?= (int) min(($table['row_count'] ?? 0), 25) ?> <?= lang('TenantMisc.of') ?> <?= (int) ($table['row_count'] ?? 0) ?> <?= lang('TenantMisc.rows') ?></div>
@@ -875,6 +1013,7 @@ $currentMeta = [
         </div>
         <?php endif; ?>
         </div>
+</div>
 </div>
 
 <script>
@@ -1095,6 +1234,10 @@ function exportReport(format) {
     form.remove();
 }
 
+function printReport() {
+    window.print();
+}
+
 document.getElementById('dateRange')?.addEventListener('change', (event) => {
     const fromInput = document.getElementById('customFrom');
     const toInput = document.getElementById('customTo');
@@ -1112,17 +1255,22 @@ function setActiveDetailTab(target) {
     document.querySelectorAll('.report-detail-tab').forEach((b) => {
         const active = b.dataset.target === target;
         b.dataset.active = active ? 'true' : 'false';
-        b.classList.toggle('bg-sky-700', active);
+        b.classList.toggle('bg-green-600', active);
         b.classList.toggle('text-white', active);
-        b.classList.toggle('border-sky-700', active);
+        b.classList.toggle('border-green-600', active);
+        b.classList.toggle('shadow-md', active);
+        b.classList.toggle('shadow-green-500/15', active);
         b.classList.toggle('bg-white', !active);
         b.classList.toggle('text-slate-700', !active);
-        b.classList.toggle('border-slate-200', !active);
-        b.classList.toggle('hover:border-sky-300', !active);
-        const countSpan = b.querySelector('span');
+        b.classList.toggle('border-gray-200', !active);
+        b.classList.toggle('hover:border-green-300', !active);
+        b.classList.toggle('hover:bg-green-50', !active);
+        const countSpan = b.querySelectorAll('span')[1];
         if (countSpan) {
-            countSpan.classList.toggle('text-sky-100', active);
-            countSpan.classList.toggle('text-slate-400', !active);
+            countSpan.classList.toggle('bg-white/20', active);
+            countSpan.classList.toggle('text-green-50', active);
+            countSpan.classList.toggle('bg-gray-100', !active);
+            countSpan.classList.toggle('text-slate-500', !active);
         }
     });
     document.querySelectorAll('.report-detail-panel').forEach((panel) => {
