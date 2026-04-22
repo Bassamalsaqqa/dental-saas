@@ -438,7 +438,7 @@ class Finance extends BaseController
                 : null,
             'expense_has_settlement_entries' => $hasSettlementEntries,
             'expense_settled_total' => $settledTotal,
-            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance', 'inventory/suppliers']),
+            'return_to' => $this->sanitizeInternalReturnTo($this->request->getGet('return_to') ?? $this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']),
         ];
     }
 
@@ -907,7 +907,7 @@ class Finance extends BaseController
             }
             $this->db->transCommit();
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'inventory/suppliers']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
             return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $financeId))->with('success', 'Expense has been recorded successfully.');
         } catch (\Throwable $e) {
             $this->db->transRollback();
@@ -1222,7 +1222,7 @@ class Finance extends BaseController
 
         if (($finance['transaction_type'] ?? '') === 'expense') {
             $data = $this->buildExpenseViewData($finance);
-            $data['return_to'] = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['finance', 'inventory/suppliers']);
+            $data['return_to'] = $this->sanitizeInternalReturnTo($this->request->getGet('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
             return $this->view('finance/expense_edit', $data);
         }
 
@@ -1573,7 +1573,7 @@ class Finance extends BaseController
             }
             $this->db->transCommit();
 
-            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'inventory/suppliers']);
+            $returnTo = $this->sanitizeInternalReturnTo($this->request->getPost('return_to'), ['finance', 'finance/payables', 'inventory/suppliers']);
             return redirect()->to($returnTo ? base_url($returnTo) : base_url('finance/' . $id))
                 ->with('success', 'Expense updated successfully.');
         } catch (\Throwable $e) {
@@ -1735,6 +1735,48 @@ class Finance extends BaseController
             'can_access_finance_reports' => $this->canAccessFinanceReports((int) $clinicId),
             'liquidity_account_options' => $this->getLiquidityAccountOptions(),
             'validation' => \Config\Services::validation(),
+        ]);
+    }
+
+    public function payables()
+    {
+        $clinicId = session()->get('active_clinic_id');
+        if (!$clinicId) {
+            return redirect()->to('/clinic/select');
+        }
+
+        $asOfDate = $this->normalizeDateOnly($this->request->getGet('as_of')) ?? date('Y-m-d');
+        $rows = $this->financeModel->getAccountsPayableAgingDetailByClinic((int) $clinicId, $asOfDate, 500);
+        $agingSummary = $this->financeModel->getAccountsPayableAgingSummaryByClinic((int) $clinicId, $asOfDate);
+
+        $summary = [
+            'open_count' => count($rows),
+            'open_balance' => 0.0,
+            'document_total' => 0.0,
+            'overdue_count' => 0,
+            'overdue_balance' => 0.0,
+        ];
+
+        foreach ($rows as $row) {
+            $balance = (float) ($row['balance_due'] ?? 0);
+            $summary['open_balance'] += $balance;
+            $summary['document_total'] += (float) ($row['total_amount'] ?? 0);
+            if ((int) ($row['days_past_due'] ?? 0) > 0) {
+                $summary['overdue_count']++;
+                $summary['overdue_balance'] += $balance;
+            }
+        }
+
+        return $this->view('finance/payables', [
+            'title' => 'Supplier Payables',
+            'as_of_date' => $asOfDate,
+            'rows' => $rows,
+            'summary' => $summary,
+            'aging_summary' => $agingSummary,
+            'can_access_finance_reports' => $this->canAccessFinanceReports((int) $clinicId),
+            'liquidity_account_options' => $this->getLiquidityAccountOptions(),
+            'currency_symbol' => settings()->getCurrencySymbol(),
+            'currency_position' => settings()->get('currency_position', 'before'),
         ]);
     }
 

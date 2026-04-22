@@ -312,6 +312,7 @@ $routes->group('finance', ['filter' => ['auth', 'tenant', 'subscription']], func
     $routes->get('reports', 'Finance::reports', ['filter' => 'permission:finance:reports']);
     $routes->get('transfers', 'Finance::transfers', ['filter' => 'permission:finance:view']);
     $routes->post('transfers/store', 'Finance::storeTransfer', ['filter' => 'permission:finance:create']);
+    $routes->get('payables', 'Finance::payables', ['filter' => 'permission:finance:view']);
     $routes->get('(:num)/invoice', 'Finance::generateInvoice/$1', ['filter' => 'permission:finance:view']);
     $routes->get('(:num)', 'Finance::show/$1', ['filter' => 'permission:finance:view']);
     $routes->get('(:num)/edit', 'Finance::edit/$1', ['filter' => 'permission:finance:edit']);

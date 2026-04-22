@@ -274,6 +274,10 @@ $returnToContextEncoded = urlencode($returnToContext);
                             <i class="fas fa-right-left mr-2"></i>
                             <?= esc($tr('treasuryTransfers')) ?>
                         </a>
+                        <a href="<?= base_url('finance/payables') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-amber-100 text-amber-800 text-sm font-semibold leading-none rounded-lg hover:bg-amber-200 transition-all duration-200">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i>
+                            <?= esc($tr('supplierPayablesNav')) ?>
+                        </a>
                         <a href="<?= base_url('finance/payouts') ?>" class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2.5 bg-indigo-100 text-indigo-700 text-sm font-semibold leading-none rounded-lg hover:bg-indigo-200 transition-all duration-200">
                             <i class="fas fa-hand-holding-dollar mr-2"></i>
                             <?= esc($tr('providerPayoutsNav')) ?>

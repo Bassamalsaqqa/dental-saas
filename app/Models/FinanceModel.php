@@ -697,12 +697,18 @@ class FinanceModel extends TenantAwareModel
                 {$sumField} AS total_amount,
                 finances.balance_due,
                 finances.payment_status,
+                finances.supplier_id,
+                suppliers.name AS supplier_name,
+                suppliers.contact_person AS supplier_contact_person,
+                suppliers.phone AS supplier_phone,
+                suppliers.email AS supplier_email,
                 finances.counterparty_name,
                 finances.expense_category,
                 finances.due_date,
                 finances.transaction_date,
                 finances.created_at
             ", false)
+            ->join('suppliers', 'suppliers.id = finances.supplier_id AND suppliers.clinic_id = finances.clinic_id', 'left')
             ->where('finances.clinic_id', $clinicId)
             ->where('finances.transaction_type', 'expense')
             ->where('finances.balance_due >', 0)
