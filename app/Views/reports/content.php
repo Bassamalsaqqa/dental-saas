@@ -37,26 +37,49 @@ $currentMeta = [
     .report-detail-tab[data-active="true"] span {
         color: #e0f2fe !important;
     }
+
+    .report-table-control {
+        padding: 8px 12px;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .report-table-control:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
 </style>
 <div class="space-y-6">
     <div class="mx-auto max-w-7xl space-y-6">
     <div class="mb-6 sm:mb-8">
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div class="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-100 via-indigo-100 to-slate-100 p-6 shadow-xl shadow-sky-900/10">
                 <div class="flex flex-col gap-4 xl:flex-row xl:justify-between xl:items-start">
-                    <div>
-                        <h1 class="text-3xl font-bold text-slate-900"><?= esc($currentMeta['headline']) ?></h1>
-                        <p class="mt-2 text-sm text-slate-600"><?= esc($currentMeta['summary']) ?></p>
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-700 text-white shadow-lg shadow-sky-700/20">
+                            <i class="fas fa-chart-pie text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wide text-sky-800"><?= esc($tm('reportsAnalyticsTitle')) ?></p>
+                            <h1 class="text-3xl font-black text-slate-950"><?= esc($currentMeta['headline']) ?></h1>
+                            <p class="mt-2 max-w-3xl text-sm font-medium text-slate-700"><?= esc($currentMeta['summary']) ?></p>
+                        </div>
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-                        <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+                        <span class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200">
                             <i class="fas fa-calendar-range"></i>
                             <span><?= esc($filters['period_label'] ?? (($date_range ?? '30') . ' ' . $tm('days'))) ?></span>
                         </span>
-                        <button onclick="exportReport('pdf')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-white text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+                        <button onclick="exportReport('pdf')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-white">
                             <i class="fas fa-file-pdf"></i>
                             <?= esc(lang('TenantMisc.exportHtml')) ?>
             </button>
-                        <button onclick="exportReport('excel')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-sky-700 text-white text-sm font-semibold rounded-xl hover:bg-sky-800 transition">
+                        <button onclick="exportReport('excel')" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-md transition hover:bg-slate-800">
                             <i class="fas fa-file-excel"></i>
                             <?= esc(lang('TenantMisc.exportExcelCsv')) ?>
             </button>
@@ -66,7 +89,7 @@ $currentMeta = [
     </div>
 
     <div class="mb-6 sm:mb-8">
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
             <div class="flex flex-wrap gap-2">
                 <?php foreach ($workspaceCards as $card): ?>
                     <?php $isActiveCard = $activeReportType === $card['type']; ?>
@@ -86,7 +109,7 @@ $currentMeta = [
 
         <!-- Report Controls -->
     <div class="mb-6 sm:mb-8">
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
             <div class="mb-5 flex flex-col gap-1">
                 <h2 class="text-base font-bold text-slate-900"><?= esc($tm('reportControlsTitle')) ?></h2>
                 <p class="text-sm text-slate-600"><?= esc($tm('reportControlsDesc')) ?></p>
@@ -217,7 +240,7 @@ $currentMeta = [
         <div class="mb-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Summary Stats -->
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold text-slate-900 mb-2"><?= lang('TenantMisc.summaryStatistics') ?></h3>
                     </div>
@@ -232,7 +255,7 @@ $currentMeta = [
                                 <p class="text-xs text-slate-500"><?= lang('TenantMisc.allTime') ?></p>
                             </div>
                         </div>
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['total_patients'] ?? 0 ?></p>
                                     <p class="text-xs text-emerald-700 font-semibold">+<?= $reports['summary']['new_patients'] ?? 0 ?> <?= lang('TenantMisc.new') ?></p>
                         </div>
@@ -248,7 +271,7 @@ $currentMeta = [
                                 <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['examinations_this_period'] ?? 0 ?></p>
                                     <p class="text-xs text-slate-500 font-semibold"><?= $reports['summary']['total_examinations'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
@@ -264,7 +287,7 @@ $currentMeta = [
                                 <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="text-2xl font-bold text-slate-900"><?= $reports['summary']['appointments_this_period'] ?? 0 ?></p>
                                     <p class="text-xs text-slate-500 font-semibold"><?= $reports['summary']['total_appointments'] ?? 0 ?> <?= $tm('totalLower') ?></p>
                         </div>
@@ -280,7 +303,7 @@ $currentMeta = [
                                 <p class="text-xs text-slate-500"><?= lang('TenantMisc.thisPeriod') ?></p>
                             </div>
                         </div>
-                        <div class="text-right">
+                        <div class="text-end">
                             <p class="text-2xl font-bold text-slate-900"><?= formatCurrency($reports['summary']['revenue_this_period'] ?? 0) ?></p>
                                     <p class="text-xs text-slate-500 font-semibold"><?= formatCurrency($reports['summary']['total_revenue'] ?? 0) ?> <?= $tm('totalLower') ?></p>
                     </div>
@@ -289,7 +312,7 @@ $currentMeta = [
             </div>
 
                     <!-- Monthly Revenue Chart -->
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('monthlyRevenueTitle') ?></h3>
                 </div>
@@ -303,7 +326,7 @@ $currentMeta = [
         <!-- Additional Charts -->
         <div class="mb-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('examinationTypesTitle') ?></h3>
                     </div>
@@ -312,7 +335,7 @@ $currentMeta = [
                     </div>
                 </div>
 
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                     <div class="mb-6">
                         <h3 class="text-xl font-bold text-slate-900 mb-2"><?= $tm('appointmentStatusTitle') ?></h3>
                     </div>
@@ -323,7 +346,7 @@ $currentMeta = [
             </div>
         </div>
         <div class="mb-8">
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+            <div class="rounded-xl border border-emerald-200 bg-emerald-100 p-6 shadow-lg shadow-emerald-900/5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="max-w-3xl">
                         <h3 class="text-xl font-bold text-slate-900"><?= $tm('primaryFinanceWorkspaceTitle') ?></h3>
@@ -386,7 +409,7 @@ $currentMeta = [
             $patientScopeLabel = !empty($filters['patient_id']) ? $tm('patientScoped') : $tm('allPatients');
         ?>
         <div class="mb-8 space-y-6">
-            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                 <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><?= esc($reportPeriodLabel) ?></p>
@@ -421,7 +444,7 @@ $currentMeta = [
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr,0.9fr]">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('patientMixTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('patientMixDesc')) ?></p>
@@ -444,14 +467,14 @@ $currentMeta = [
                         </div>
                     </div>
 
-                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+                    <div class="rounded-xl border border-emerald-200 bg-emerald-100 p-6 shadow-lg shadow-emerald-900/5">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div>
                                 <h4 class="text-lg font-bold text-slate-900"><?= $tm('patientBalanceTitle') ?></h4>
                                 <p class="mt-1 text-sm text-slate-600"><?= $tm('patientBalanceDesc', ['date' => $filters['end_date'] ?? date('Y-m-d')]) ?></p>
                             </div>
-                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
-                                <i class="fas fa-arrow-up-right-from-square mr-2"></i><?= $tm('openFinanceReports') ?>
+                            <a href="<?= base_url('finance/reports') ?>" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
+                                <i class="fas fa-arrow-up-right-from-square"></i><?= $tm('openFinanceReports') ?>
                             </a>
                         </div>
                         <div class="mt-5 grid grid-cols-2 gap-3">
@@ -476,35 +499,73 @@ $currentMeta = [
                 </div>
 
                 <?php if (!empty($reports['top_balance_patients'])): ?>
-                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <div class="mb-5">
-                        <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('topBalancePatientsTitle')) ?></h4>
-                        <p class="mt-1 text-sm text-slate-600"><?= esc($tm('topBalancePatientsDesc')) ?></p>
+                <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900"><?= esc($tm('topBalancePatientsTitle')) ?></h4>
+                                    <p class="text-sm text-gray-600"><?= esc($tm('topBalancePatientsDesc')) ?></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto rounded-xl border border-slate-200">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <div class="overflow-x-auto">
+                        <div class="dataTables-wrapper">
+                        <table class="w-full min-w-full text-sm">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-3"><?= $tm('patient') ?></th>
-                                    <th class="px-4 py-3"><?= $tm('outstandingInvoices') ?></th>
-                                    <th class="px-4 py-3"><?= $tm('daysPastDue') ?></th>
-                                    <th class="px-4 py-3 text-right"><?= $tm('balanceDue') ?></th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-user text-green-600"></i>
+                                            <span><?= $tm('patient') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-file-invoice text-green-600"></i>
+                                            <span><?= $tm('outstandingInvoices') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-clock text-green-600"></i>
+                                            <span><?= $tm('daysPastDue') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-dollar-sign text-green-600"></i>
+                                            <span><?= $tm('balanceDue') ?></span>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 bg-white">
+                            <tbody class="bg-white divide-y divide-gray-200">
                                 <?php foreach (($reports['top_balance_patients'] ?? []) as $row): ?>
-                                <tr class="cursor-pointer transition-colors hover:bg-slate-50" data-href="<?= esc((string) ($row['row_href'] ?? ''), 'attr') ?>">
-                                    <td class="px-4 py-3">
-                                        <div class="font-semibold text-slate-900"><?= esc((string) ($row['full_name'] ?? '')) ?></div>
-                                        <div class="text-xs text-slate-500"><?= esc((string) ($row['patient_number'] ?? $tm('patientNumberPrefix') . ($row['patient_id'] ?? ''))) ?></div>
+                                <tr class="cursor-pointer transition-colors hover:bg-green-50/50" data-href="<?= esc((string) ($row['row_href'] ?? ''), 'attr') ?>">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900 truncate"><?= esc((string) ($row['full_name'] ?? '')) ?></div>
                                     </td>
-                                    <td class="px-4 py-3 text-slate-700"><?= (int) ($row['open_invoices'] ?? 0) ?></td>
-                                    <td class="px-4 py-3 text-slate-700"><?= (int) ($row['max_days_past_due'] ?? 0) ?></td>
-                                    <td class="px-4 py-3 text-right font-semibold text-emerald-700"><?= formatCurrency($row['balance_due'] ?? 0) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= (int) ($row['open_invoices'] ?? 0) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium <?= ((int) ($row['max_days_past_due'] ?? 0)) > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' ?>">
+                                            <i class="fas fa-clock"></i>
+                                            <?= (int) ($row['max_days_past_due'] ?? 0) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-arrow-up text-green-600 text-xs"></i>
+                                            <span class="text-sm font-medium text-green-600"><?= formatCurrency($row['balance_due'] ?? 0) ?></span>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -530,7 +591,7 @@ $currentMeta = [
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('clinicalMixTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('clinicalMixDesc')) ?></p>
@@ -549,7 +610,7 @@ $currentMeta = [
                         </div>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('activityTrendTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('activityTrendDesc')) ?></p>
@@ -590,7 +651,7 @@ $currentMeta = [
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('statusBreakdownTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('statusBreakdownDesc')) ?></p>
@@ -609,7 +670,7 @@ $currentMeta = [
                         </div>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('typeBreakdownTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('typeBreakdownDesc')) ?></p>
@@ -650,7 +711,7 @@ $currentMeta = [
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('statusBreakdownTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('statusBreakdownDesc')) ?></p>
@@ -669,7 +730,7 @@ $currentMeta = [
                         </div>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
                         <div class="mb-5">
                             <h4 class="text-lg font-bold text-slate-900"><?= esc($tm('typeBreakdownTitle')) ?></h4>
                             <p class="mt-1 text-sm text-slate-600"><?= esc($tm('typeBreakdownDesc')) ?></p>
@@ -690,7 +751,7 @@ $currentMeta = [
                 </div>
 
             <?php else: ?>
-                <div class="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
+                <div class="rounded-xl border border-gray-200 bg-white px-6 py-10 text-center shadow-lg">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-sky-50 text-sky-700">
                         <i class="fas fa-chart-bar text-xl"></i>
                     </div>
@@ -703,14 +764,20 @@ $currentMeta = [
 
         <?php if (!empty($detail_tables ?? []) && $activeReportType !== 'finance'): ?>
         <div class="mb-8">
-            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                <div class="mb-5 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-lg">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-slate-900"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
-                        <p class="text-sm text-slate-600"><?= lang('TenantMisc.rowsBehindReportDesc') ?></p>
+                            <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900"><?= lang('TenantMisc.rowsBehindReport') ?></h3>
+                                <p class="text-sm text-gray-600"><?= lang('TenantMisc.rowsBehindReportDesc') ?></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                    <div class="flex flex-wrap gap-2 mb-5">
+                    <div class="mt-5 flex flex-wrap gap-2">
                             <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                             <button
                                 type="button"
@@ -719,10 +786,12 @@ $currentMeta = [
                                 data-active="<?= $idx === 0 ? 'true' : 'false' ?>"
                             >
                                 <?= esc($table['title']) ?>
-                                <span class="ml-2 text-xs <?= $idx === 0 ? 'text-sky-100' : 'text-slate-400' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
+                                <span class="text-xs <?= $idx === 0 ? 'text-sky-100' : 'text-slate-400' ?>"><?= (int) ($table['row_count'] ?? 0) ?></span>
                             </button>
                             <?php endforeach; ?>
                     </div>
+                </div>
+                <div class="p-6">
                     <div id="reportDrillBadge" class="hidden mb-4">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-sm font-semibold">
                             <i class="fas fa-filter"></i>
@@ -735,41 +804,51 @@ $currentMeta = [
 
                     <?php foreach (($detail_tables ?? []) as $idx => $table): ?>
                     <div class="report-detail-panel <?= $idx === 0 ? '' : 'hidden' ?>" data-panel="<?= esc($table['id']) ?>">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <h4 class="text-lg font-semibold text-gray-800"><?= esc($table['title']) ?></h4>
-                        <div class="flex items-center gap-2">
-                            <select class="report-detail-per-page px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <select class="report-detail-per-page report-table-control">
                                 <option value="25">25 <?= lang('TenantMisc.rows') ?></option>
                                 <option value="50">50 <?= lang('TenantMisc.rows') ?></option>
                                 <option value="100">100 <?= lang('TenantMisc.rows') ?></option>
                             </select>
                             <div class="relative">
-                            <input type="text" class="report-detail-search w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="<?= lang('TenantMisc.searchRowsPlaceholder') ?>">
+                            <input type="text" class="report-detail-search report-table-control w-full md:w-72" placeholder="<?= lang('TenantMisc.searchRowsPlaceholder') ?>">
                             </div>
                         </div>
                     </div>
+                    </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                        <table class="min-w-full text-sm report-detail-table">
+                        <table class="w-full min-w-full text-sm report-detail-table">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
-                                    <th data-key="<?= esc($column['key'] ?? '') ?>" class="text-left px-4 py-3 font-semibold text-gray-600 whitespace-nowrap"><?= esc($column['label'] ?? $column['key']) ?></th>
+                                    <th data-key="<?= esc($column['key'] ?? '') ?>" class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-table text-green-600"></i>
+                                            <span><?= esc($column['label'] ?? $column['key']) ?></span>
+                                        </div>
+                                    </th>
                                     <?php endforeach; ?>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="bg-white divide-y divide-gray-200">
                                 <?php if (empty($table['rows'])): ?>
                                 <tr>
-                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-4 py-8 text-center text-gray-500"><?= lang('TenantMisc.noRowsForPeriod') ?></td>
+                                    <td colspan="<?= count($table['columns'] ?? []) ?>" class="px-6 py-8 text-center text-gray-500"><?= lang('TenantMisc.noRowsForPeriod') ?></td>
                                 </tr>
                                 <?php else: ?>
                                 <?php foreach ($table['rows'] as $row): ?>
-                                <tr class="report-detail-row <?= !empty($row['row_href'] ?? '') ? 'cursor-pointer hover:bg-blue-50/50' : 'hover:bg-blue-50/30' ?> transition-colors"<?= !empty($row['row_href'] ?? '') ? ' data-href="' . esc((string) $row['row_href'], 'attr') . '"' : '' ?>>
+                                <tr class="report-detail-row <?= !empty($row['row_href'] ?? '') ? 'cursor-pointer hover:bg-green-50/50' : 'hover:bg-green-50/30' ?> transition-colors"<?= !empty($row['row_href'] ?? '') ? ' data-href="' . esc((string) $row['row_href'], 'attr') . '"' : '' ?>>
                                     <?php foreach (($table['columns'] ?? []) as $column): ?>
                                     <?php $key = $column['key'] ?? ''; $value = $row[$key] ?? ''; ?>
-                                    <td class="px-4 py-3 text-gray-700 whitespace-nowrap">
+                                    <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
                                         <?php if (is_numeric($value) && preg_match('/amount|balance|total|share|paid/i', (string) $key)): ?>
-                                            <span class="font-semibold"><?= formatCurrency($value) ?></span>
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-arrow-up text-green-600 text-xs"></i>
+                                                <span class="text-sm font-medium text-green-600"><?= formatCurrency($value) ?></span>
+                                            </div>
                                         <?php else: ?>
                                             <?= esc((string) $value) ?>
                                         <?php endif; ?>
@@ -781,16 +860,17 @@ $currentMeta = [
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div class="text-sm text-gray-500 report-detail-pagination-info"><?= lang('TenantMisc.showing') ?> <?= (int) min(($table['row_count'] ?? 0), 25) ?> <?= lang('TenantMisc.of') ?> <?= (int) ($table['row_count'] ?? 0) ?> <?= lang('TenantMisc.rows') ?></div>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.previous') ?></button>
+                            <button type="button" class="report-detail-prev px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.previous') ?></button>
                             <span class="report-detail-page-label text-sm text-gray-600 min-w-[110px] text-center"><?= lang('TenantMisc.page') ?> 1</span>
-                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.next') ?></button>
+                            <button type="button" class="report-detail-next px-3 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-green-300 disabled:opacity-50 disabled:cursor-not-allowed"><?= lang('TenantMisc.next') ?></button>
                         </div>
                     </div>
                 </div>
                     <?php endforeach; ?>
+                </div>
             </div>
         </div>
         <?php endif; ?>
@@ -1155,7 +1235,7 @@ document.querySelectorAll('.report-detail-panel').forEach((panel) => {
         loadDetailPanel(panelId, currentPage + 1);
     });
     panel.querySelectorAll('thead th[data-key]').forEach((th) => {
-        th.classList.add('cursor-pointer', 'select-none', 'hover:text-blue-700');
+        th.classList.add('cursor-pointer', 'select-none', 'hover:text-green-700');
         th.addEventListener('click', () => {
             const key = th.dataset.key || '';
             if (!key) return;
@@ -1206,18 +1286,19 @@ function renderDetailRows(panel, payload) {
     panel.querySelectorAll('thead th[data-key]').forEach((th) => {
         const key = th.dataset.key || '';
         const active = key && key === state.sortBy;
-        th.classList.toggle('text-blue-700', active);
+        th.classList.toggle('text-green-700', active);
         th.classList.toggle('font-bold', active);
-        const baseLabel = th.dataset.baseLabel || th.textContent.replace(/\s[▲▼]$/, '');
+        const label = th.querySelector('span') || th;
+        const baseLabel = th.dataset.baseLabel || label.textContent.replace(/\s[\^v]$/, '');
         th.dataset.baseLabel = baseLabel;
-        th.textContent = active ? `${baseLabel} ${state.sortDir === 'desc' ? '▼' : '▲'}` : baseLabel;
+        label.textContent = active ? `${baseLabel} ${state.sortDir === 'desc' ? 'v' : '^'}` : baseLabel;
     });
 
     if (rows.length === 0) {
         const emptyRow = document.createElement('tr');
         const emptyCell = document.createElement('td');
         emptyCell.colSpan = columns.length;
-        emptyCell.className = 'px-4 py-8 text-center text-gray-500';
+        emptyCell.className = 'px-6 py-8 text-center text-gray-500';
         emptyCell.textContent = reportI18n.noRowsMatch;
         emptyRow.appendChild(emptyCell);
         tbody.replaceChildren(emptyRow);
@@ -1227,8 +1308,8 @@ function renderDetailRows(panel, payload) {
             const tr = document.createElement('tr');
             const rowHref = row.row_href || '';
             tr.className = rowHref
-                ? 'report-detail-row cursor-pointer hover:bg-blue-50/50 transition-colors'
-                : 'report-detail-row hover:bg-blue-50/30 transition-colors';
+                ? 'report-detail-row cursor-pointer hover:bg-green-50/50 transition-colors'
+                : 'report-detail-row hover:bg-green-50/30 transition-colors';
             if (rowHref) {
                 tr.dataset.href = rowHref;
             }
@@ -1238,13 +1319,19 @@ function renderDetailRows(panel, payload) {
                 const raw = row[key] ?? '';
                 const isMoney = /amount|balance|total|share|paid/i.test(key) && !Number.isNaN(parseFloat(raw));
                 const td = document.createElement('td');
-                td.className = 'px-4 py-3 text-gray-700 whitespace-nowrap';
+                td.className = 'px-6 py-4 text-gray-700 whitespace-nowrap';
 
                 if (isMoney) {
+                    const wrapper = document.createElement('div');
+                    const icon = document.createElement('i');
                     const span = document.createElement('span');
-                    span.className = 'font-semibold';
+                    wrapper.className = 'flex items-center gap-2';
+                    icon.className = 'fas fa-arrow-up text-green-600 text-xs';
+                    span.className = 'text-sm font-medium text-green-600';
                     span.textContent = formatCurrency(raw);
-                    td.appendChild(span);
+                    wrapper.appendChild(icon);
+                    wrapper.appendChild(span);
+                    td.appendChild(wrapper);
                 } else {
                     td.textContent = String(raw ?? '');
                 }
