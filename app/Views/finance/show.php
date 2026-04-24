@@ -1,4 +1,4 @@
-﻿<?= $this->extend('layouts/main_auth') ?>
+<?= $this->extend('layouts/main_auth') ?>
 
 <?= $this->section('content') ?>
 <?php
@@ -47,117 +47,604 @@
     $settlementCardTitle = $isExpense ? lang('Finance.expenseSettlementOverview') : lang('Finance.invoiceSettlementOverview');
     $recordPaymentTitle = $isExpense ? lang('Finance.recordExpensePayment') : lang('Finance.recordInvoicePayment');
     $markFullyPaidLabel = $isExpense ? lang('Finance.markExpenseAsFullyPaid') : lang('Finance.markInvoiceAsFullyPaid');
+    $deleteLedgerLabel = lang('Finance.deleteLedger');
+    if ($deleteLedgerLabel === 'Finance.deleteLedger') {
+        $deleteLedgerLabel = service('request')->getLocale() === 'ar' ? 'حذف السجل' : 'Delete Ledger';
+    }
+    $isRtl = in_array(service('request')->getLocale(), ['ar', 'he', 'fa', 'ur'], true);
+    $settlementProgress = $totalAmount > 0 ? max(0, min(100, round(($paidSoFar / $totalAmount) * 100))) : 0;
+    $statusTone = match ($paymentStatusKey) {
+        'paid' => ['pill' => 'bg-emerald-100 text-emerald-700', 'dot' => 'bg-emerald-500', 'text' => 'text-emerald-700'],
+        'partial' => ['pill' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-500', 'text' => 'text-blue-700'],
+        'pending' => ['pill' => 'bg-amber-100 text-amber-700', 'dot' => 'bg-amber-500', 'text' => 'text-amber-700'],
+        'overdue' => ['pill' => 'bg-rose-100 text-rose-700', 'dot' => 'bg-rose-500', 'text' => 'text-rose-700'],
+        default => ['pill' => 'bg-gray-100 text-gray-700', 'dot' => 'bg-gray-400', 'text' => 'text-gray-700'],
+    };
+    $typeTone = $isExpense
+        ? ['icon' => 'fa-receipt', 'bg' => 'bg-amber-600', 'soft' => 'bg-amber-100 text-amber-800']
+        : ['icon' => 'fa-file-invoice-dollar', 'bg' => 'bg-blue-600', 'soft' => 'bg-blue-100 text-blue-800'];
+    $counterpartyName = trim((string) ($finance['counterparty_name'] ?? ''));
+    $relatedPartyTitle = $isExpense ? lang('Finance.payeeVendor') : lang('Finance.patient');
+    $relatedPartyValue = $isExpense ? $counterpartyName : trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+    $relatedPartyMeta = $isExpense
+        ? ($counterpartyName !== '' ? $expenseCategoryLabel : lang('Finance.unknown'))
+        : (!empty($patient['patient_id']) ? lang('Finance.idLabel') . ': ' . $patient['patient_id'] : lang('Finance.unknown'));
+    $descriptionPreview = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($finance['description'] ?? ''))));
 ?>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+<style>
+    .finance-show-shell {
+        min-height: 100vh;
+        background: #f8fafc;
+    }
+
+    .finance-show-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+    }
+
+    .finance-show-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+    }
+
+    .finance-show-card-body {
+        padding: 24px;
+    }
+
+    .finance-show-page-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .finance-show-main {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .finance-show-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .finance-show-sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .finance-show-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .finance-show-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .finance-show-hero-summary {
+        border: 1px solid #dbeafe;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .finance-show-info-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #ffffff;
+        padding: 14px 16px;
+    }
+
+    .finance-show-clamp {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .finance-show-section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .finance-show-kpi {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 20px 22px;
+        box-shadow: 0 8px 14px -8px rgba(15, 23, 42, 0.15);
+        min-height: 144px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .finance-show-kpi-label {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .finance-show-progress {
+        position: relative;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e2e8f0;
+        height: 10px;
+    }
+
+    .finance-show-progress > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #0f766e 0%, #10b981 100%);
+    }
+
+    .finance-show-mini-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .finance-show-mini-stat {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #ffffff;
+        padding: 12px 14px;
+    }
+
+    .finance-show-input,
+    .finance-show-select,
+    .finance-show-textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #0f172a;
+        padding: 12px 14px;
+        font-size: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .finance-show-input:focus,
+    .finance-show-select:focus,
+    .finance-show-textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .finance-show-input[readonly] {
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .finance-show-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .finance-show-btn-primary {
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 8px 16px -10px rgba(15, 23, 42, 0.5);
+    }
+
+    .finance-show-btn-primary:hover {
+        background: #1e293b;
+    }
+
+    .finance-show-btn-soft {
+        background: #f8fafc;
+        color: #334155;
+        border: 1px solid #d1d5db;
+    }
+
+    .finance-show-btn-soft:hover {
+        background: #eff6ff;
+        border-color: #94a3b8;
+    }
+
+    .finance-show-btn-success {
+        background: #059669;
+        color: #ffffff;
+    }
+
+    .finance-show-btn-success:hover {
+        background: #047857;
+    }
+
+    .finance-show-btn-danger {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .finance-show-btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    .finance-show-btn-warning {
+        background: #d97706;
+        color: #ffffff;
+    }
+
+    .finance-show-btn-warning:hover {
+        background: #b45309;
+    }
+
+    .finance-show-table thead th {
+        padding: 16px 24px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #4b5563;
+        background: #f9fafb;
+        text-align: start;
+        white-space: nowrap;
+    }
+
+    .finance-show-table tbody td {
+        padding: 16px 24px;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+
+    .finance-show-field-label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .finance-show-muted-box {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #f8fafc;
+        padding: 16px;
+    }
+
+    .finance-show-meta-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .finance-show-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .finance-show-meta-row dt {
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .finance-show-meta-row dd {
+        margin: 0;
+        text-align: end;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .finance-show-sidebar-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        background: #ffffff;
+        padding: 20px;
+    }
+
+    .finance-show-action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    @media (min-width: 1280px) {
+        .finance-show-page-grid {
+            grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
+            align-items: start;
+        }
+
+        .finance-show-sidebar {
+            position: sticky;
+            top: 88px;
+        }
+
+        .finance-show-hero {
+            grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+            align-items: stretch;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .finance-show-card-header,
+        .finance-show-card-body {
+            padding: 18px;
+        }
+
+        .finance-show-hero-summary {
+            padding: 18px;
+        }
+
+        .finance-show-table thead th,
+        .finance-show-table tbody td {
+            padding: 14px 16px;
+        }
+
+        .finance-show-mini-stat-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .finance-show-action-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
+<div class="finance-show-shell">
     <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6">
-                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-                    <div class="space-y-3">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-                                <i class="fas fa-file-invoice-dollar text-white text-xl"></i>
-                            </div>
+        <div class="mb-8 finance-show-card p-6">
+            <div class="finance-show-hero">
+                <div class="space-y-5">
+                    <div class="flex items-start gap-4">
+                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl <?= esc($typeTone['bg']) ?> text-white shadow-lg">
+                            <i class="fas <?= esc($typeTone['icon']) ?> text-2xl"></i>
+                        </div>
+                        <div class="space-y-3">
                             <div>
-                                <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                                    <?= $isExpense ? lang('Finance.expenseTransaction') : lang('Finance.financialTransaction') ?>
-                                </h1>
-                                <p class="text-gray-600"><?= lang('Finance.transactionIdLabel') ?>: <?= $finance['transaction_id'] ?></p>
+                                <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500"><?= esc($transactionTypeLabel) ?></p>
+                                <h1 class="mt-1 text-3xl font-black text-slate-950"><?= $isExpense ? lang('Finance.expenseTransaction') : lang('Finance.financialTransaction') ?></h1>
+                                <p class="mt-2 text-sm font-medium text-slate-600"><?= lang('Finance.transactionIdLabel') ?>: <span class="font-bold text-slate-900"><?= esc($finance['transaction_id']) ?></span></p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
+                                    <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
+                                    <?= esc($paymentStatusLabel) ?>
+                                </span>
+                                <span class="inline-flex items-center rounded-full <?= esc($typeTone['soft']) ?> px-3 py-1 text-sm font-bold">
+                                    <?= esc($isExpense ? $expenseCategoryLabel : $serviceTypeLabel) ?>
+                                </span>
+                                <?php if (!empty($finance['transaction_date'])): ?>
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+                                        <i class="fas fa-calendar-day text-slate-500"></i>
+                                        <?= formatDate($finance['transaction_date']) ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+
+                    <div class="finance-show-toolbar">
                         <?php if (!empty($patient)): ?>
-                        <a href="<?= base_url('patient/' . $patient['id']) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-user mr-2"></i><?= lang('Finance.backToPatient') ?>
+                        <a href="<?= base_url('patient/' . $patient['id']) ?>" class="finance-show-btn finance-show-btn-soft">
+                            <i class="fas fa-user"></i><?= lang('Finance.backToPatient') ?>
                         </a>
                         <?php endif; ?>
-                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-arrow-left mr-2"></i><?= lang('Finance.backToFinance') ?>
+                        <a href="<?= !empty($return_to) ? base_url($return_to) : base_url('finance') ?>" class="finance-show-btn finance-show-btn-soft">
+                            <i class="fas <?= $isRtl ? 'fa-arrow-right' : 'fa-arrow-left' ?>"></i><?= lang('Finance.backToFinance') ?>
                         </a>
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-edit mr-2"></i><?= lang('Finance.editTransaction') ?>
+                        <a href="<?= base_url('finance/' . $finance['id'] . '/edit' . (!empty($return_to) ? '?return_to=' . urlencode($return_to) : '')) ?>" class="finance-show-btn finance-show-btn-primary">
+                            <i class="fas fa-pen"></i><?= lang('Finance.editTransaction') ?>
                         </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:max-w-3xl">
+                        <div class="finance-show-info-card">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= $relatedPartyTitle ?></p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= esc($relatedPartyValue !== '' ? $relatedPartyValue : lang('Finance.unknown')) ?></p>
+                            <p class="mt-1 text-xs text-slate-500"><?= esc($relatedPartyMeta) ?></p>
+                        </div>
+                        <div class="finance-show-info-card">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= lang('Finance.standardMethod') ?></p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= lang('Finance.' . $finance['payment_method']) ?></p>
+                            <p class="mt-1 text-xs text-slate-500">
+                                <?php if (!empty($finance['liquidity_account'])): ?>
+                                    <?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?>
+                                <?php else: ?>
+                                    <?= esc($baseCurrency) ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <div class="finance-show-info-card">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= lang('Finance.createdByLabel') ?></p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?></p>
+                            <p class="mt-1 text-xs text-slate-500">
+                                <?= !empty($finance['due_date']) ? lang('Finance.dueDate') . ': ' . formatDate($finance['due_date']) : (!empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown')) ?>
+                            </p>
+                        </div>
+                        <div class="finance-show-info-card">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= $isExpense ? lang('Finance.expenseDescription') : lang('Finance.serviceDescription') ?></p>
+                            <p class="mt-2 text-sm font-semibold text-slate-700 finance-show-clamp">
+                                <?= esc($descriptionPreview !== '' ? $descriptionPreview : lang('Finance.noDescriptionProvided')) ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="finance-show-hero-summary">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500"><?= esc($settlementCardTitle) ?></p>
+                            <p class="mt-2 text-4xl font-black text-slate-950"><?= number_format($totalAmount, 2) ?></p>
+                            <p class="mt-1 text-sm font-semibold text-slate-500"><?= esc($baseCurrency) ?></p>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
+                            <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
+                            <?= esc($paymentStatusLabel) ?>
+                        </span>
+                    </div>
+                    <?php if ($showSettlementSummary): ?>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-3 text-sm">
+                                <span class="font-semibold text-slate-600"><?= lang('Finance.paidToDate') ?></span>
+                                <span class="font-bold text-slate-900"><?= formatCurrency($paidSoFar) ?></span>
+                            </div>
+                            <div class="finance-show-progress">
+                                <span style="width: <?= esc((string) $settlementProgress) ?>%;"></span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 text-sm">
+                                <span class="font-semibold text-slate-600"><?= lang('Finance.balanceDue') ?></span>
+                                <span class="font-bold <?= $balanceDue > 0 ? 'text-rose-700' : 'text-emerald-700' ?>"><?= formatCurrency($balanceDue) ?></span>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                            <p class="text-xs font-bold uppercase tracking-[0.16em] text-slate-500"><?= lang('Finance.transactionType') ?></p>
+                            <p class="mt-2 text-lg font-black text-slate-950"><?= esc($transactionTypeLabel) ?></p>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="finance-show-mini-stat-grid">
+                        <div class="finance-show-mini-stat">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= $relatedPartyTitle ?></p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= esc($relatedPartyValue !== '' ? $relatedPartyValue : lang('Finance.unknown')) ?></p>
+                            <p class="mt-1 text-xs text-slate-500"><?= esc($relatedPartyMeta) ?></p>
+                        </div>
+                        <div class="finance-show-mini-stat">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500"><?= lang('Finance.createdByLabel') ?></p>
+                            <p class="mt-2 text-sm font-bold text-slate-900"><?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?></p>
+                            <p class="mt-1 text-xs text-slate-500"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 border-t border-slate-200 pt-4">
+                        <?php if ($finance['payment_status'] != 'paid' && $showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                            <button type="button" onclick="document.getElementById('invoicePaymentForm')?.scrollIntoView({behavior:'smooth', block:'start'})" class="finance-show-btn finance-show-btn-success w-full">
+                                <i class="fas fa-plus-circle"></i><?= esc($recordPaymentTitle) ?>
+                            </button>
+                        <?php endif; ?>
+                        <div class="finance-show-action-grid">
+                            <?php if ($finance['payment_status'] != 'paid'): ?>
+                                <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="finance-show-btn finance-show-btn-soft w-full">
+                                    <i class="fas fa-check-circle text-emerald-600"></i><?= esc($markFullyPaidLabel) ?>
+                                </button>
+                            <?php endif; ?>
+                            <?php if (($finance['transaction_type'] ?? '') === 'invoice' && floatval($finance['balance_due'] ?? 0) > 0): ?>
+                                <button onclick="closeBalance(<?= (int) $finance['id'] ?>)" class="finance-show-btn finance-show-btn-soft w-full">
+                                    <i class="fas fa-scale-balanced text-amber-600"></i><?= lang('Finance.closeBalanceCredit') ?>
+                                </button>
+                            <?php endif; ?>
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="finance-show-btn finance-show-btn-soft w-full">
+                                <i class="fas fa-file-invoice text-blue-600"></i><?= lang('Finance.exportInvoice') ?>
+                            </a>
+                            <?php if (has_permission('finance', 'delete')): ?>
+                                <button onclick="deleteFinance(<?= $finance['id'] ?>)" class="finance-show-btn finance-show-btn-soft w-full text-rose-700 border-rose-200 hover:bg-rose-50 hover:border-rose-300">
+                                    <i class="fas fa-trash-alt text-rose-600"></i><?= esc($deleteLedgerLabel) ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column: Main Content (2/3) -->
-            <div class="lg:col-span-2 space-y-6">
-                
-                <!-- Transaction Overview Stats -->
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-gray-900 mb-1 group-hover:scale-110 transition-transform duration-300">
-                                <?= number_format($totalAmount, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
-                            </div>
-                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.totalAmount') ?></div>
+        <div class="finance-show-page-grid">
+            <div class="finance-show-main">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="finance-show-kpi">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="finance-show-kpi-label"><?= lang('Finance.totalAmount') ?></span>
+                            <i class="fas fa-wallet text-slate-400"></i>
+                        </div>
+                        <div class="text-3xl font-black text-slate-950">
+                            <?= number_format($totalAmount, 2) ?> <span class="text-sm font-semibold text-slate-500"><?= esc($baseCurrency) ?></span>
                         </div>
                     </div>
 
                     <?php if ($showSettlementSummary): ?>
-                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-emerald-700 mb-1 group-hover:scale-110 transition-transform duration-300">
-                                    <?= number_format($paidSoFar, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
-                                </div>
-                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paidToDate') ?></div>
+                        <div class="finance-show-kpi">
+                            <div class="mb-3 flex items-center justify-between">
+                                <span class="finance-show-kpi-label"><?= lang('Finance.paidToDate') ?></span>
+                                <i class="fas fa-check-circle text-emerald-500"></i>
+                            </div>
+                            <div class="text-3xl font-black text-emerald-700">
+                                <?= number_format($paidSoFar, 2) ?> <span class="text-sm font-semibold text-slate-500"><?= esc($baseCurrency) ?></span>
                             </div>
                         </div>
 
-                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold <?= $balanceDue > 0 ? 'text-rose-700' : 'text-gray-900' ?> mb-1 group-hover:scale-110 transition-transform duration-300">
-                                    <?= number_format($balanceDue, 2) ?> <span class="text-sm text-gray-500 font-medium"><?= esc($baseCurrency) ?></span>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
-                                        <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' :
-                                            ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
-                                            ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' :
-                                            ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
-                                        <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
-                                        <?= esc($paymentStatusLabel) ?>
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.balanceDue') ?></div>
+                        <div class="finance-show-kpi">
+                            <div class="mb-3 flex items-center justify-between">
+                                <span class="finance-show-kpi-label"><?= lang('Finance.balanceDue') ?></span>
+                                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
+                                    <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
+                                    <?= esc($paymentStatusLabel) ?>
+                                </span>
                             </div>
+                        <div class="text-3xl font-black <?= $balanceDue > 0 ? 'text-rose-700' : 'text-slate-950' ?>">
+                            <?= number_format($balanceDue, 2) ?> <span class="text-sm font-semibold text-slate-500"><?= esc($baseCurrency) ?></span>
                         </div>
+                        <p class="mt-3 text-sm text-slate-500"><?= $balanceDue > 0 ? lang('Finance.settlementOverviewHelp') : lang('Finance.paidToDate') ?></p>
+                    </div>
                     <?php else: ?>
-                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                            <div class="text-center">
-                                <div class="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center">
-                                    <i class="fas fa-exchange-alt mr-2 text-blue-500/50 group-hover:rotate-180 transition-transform duration-500"></i>
-                                    <?= esc($transactionTypeLabel) ?>
-                                </div>
-                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.transactionType') ?></div>
+                        <div class="finance-show-kpi">
+                            <div class="mb-3 flex items-center justify-between">
+                                <span class="finance-show-kpi-label"><?= lang('Finance.transactionType') ?></span>
+                                <i class="fas fa-exchange-alt text-slate-400"></i>
                             </div>
+                            <div class="text-xl font-black text-slate-950"><?= esc($transactionTypeLabel) ?></div>
                         </div>
 
-                        <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 hover:shadow-2xl transition-all duration-300 group">
-                            <div class="text-center">
-                                <div class="mb-2">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-sm
-                                        <?= $finance['payment_status'] == 'paid' ? 'bg-emerald-100 text-emerald-700' :
-                                            ($finance['payment_status'] == 'partial' ? 'bg-blue-100 text-blue-700' :
-                                            ($finance['payment_status'] == 'pending' ? 'bg-amber-100 text-amber-700' :
-                                            ($finance['payment_status'] == 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-700'))) ?>">
-                                        <i class="fas fa-circle text-[8px] mr-2 opacity-50"></i>
-                                        <?= esc($paymentStatusLabel) ?>
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider"><?= lang('Finance.paymentStatusUpper') ?></div>
+                        <div class="finance-show-kpi">
+                            <div class="mb-3 flex items-center justify-between">
+                                <span class="finance-show-kpi-label"><?= lang('Finance.paymentStatusUpper') ?></span>
+                                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold <?= esc($statusTone['pill']) ?>">
+                                    <span class="h-2 w-2 rounded-full <?= esc($statusTone['dot']) ?>"></span>
+                                    <?= esc($paymentStatusLabel) ?>
+                                </span>
                             </div>
-                        </div>
+                        <div class="text-xl font-black <?= esc($statusTone['text']) ?>"><?= esc($paymentStatusLabel) ?></div>
+                    </div>
                     <?php endif; ?>
+
+                    <div class="finance-show-kpi">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="finance-show-kpi-label"><?= lang('Finance.standardMethod') ?></span>
+                            <i class="fas fa-credit-card text-slate-400"></i>
+                        </div>
+                        <div class="text-xl font-black text-slate-950"><?= lang('Finance.' . $finance['payment_method']) ?></div>
+                        <p class="mt-3 text-sm text-slate-500">
+                            <?php if (!empty($finance['liquidity_account'])): ?>
+                                <?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?>
+                            <?php else: ?>
+                                <?= esc($baseCurrency) ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
                 </div>
 
                 <?php if ($showSettlementSummary): ?>
-                <div class="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm">
+                <div class="finance-show-card px-6 py-5">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                             <h2 class="text-lg font-bold text-gray-900"><?= esc($settlementCardTitle) ?></h2>
@@ -182,10 +669,10 @@
                 <?php endif; ?>
 
                 <!-- Financial Details & Breakdown -->
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-white flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+                <div class="finance-show-card overflow-hidden">
+                    <div class="finance-show-card-header">
+                        <div class="finance-show-section-title">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                                 <i class="fas fa-list-ul"></i>
                             </div>
                             <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.detailsBreakdown') ?></h2>
@@ -194,19 +681,19 @@
                             <?= esc($isExpense ? $expenseCategoryLabel : $serviceTypeLabel) ?>
                         </span>
                     </div>
-                    <div class="p-6">
+                    <div class="finance-show-card-body">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- Description -->
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= $isExpense ? lang('Finance.expenseDescription') : lang('Finance.serviceDescription') ?></label>
+                                    <label class="finance-show-field-label"><?= $isExpense ? lang('Finance.expenseDescription') : lang('Finance.serviceDescription') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= !empty($finance['description']) ? nl2br(htmlspecialchars($finance['description'])) : '<span class="text-gray-400 italic">' . esc(lang('Finance.noDescriptionProvided')) . '</span>' ?>
                                     </div>
                                 </div>
                                 <?php if ($isExpense && !empty($finance['counterparty_name'])): ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.payeeVendor') ?></label>
+                                    <label class="finance-show-field-label"><?= lang('Finance.payeeVendor') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
                                         <?php if (!empty($supplier['id'])): ?>
                                             <a href="<?= base_url('inventory/suppliers/' . (int) $supplier['id']) ?>" class="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 hover:underline">
@@ -221,14 +708,14 @@
                                 <?php endif; ?>
                                 <?php if (!empty($finance['service_details'])): ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.technicalDetails') ?></label>
+                                    <label class="finance-show-field-label"><?= lang('Finance.technicalDetails') ?></label>
                                     <div class="text-gray-800 leading-relaxed">
                                         <?= nl2br(htmlspecialchars($finance['service_details'])) ?>
                                     </div>
                                 </div>
                                 <?php endif; ?>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.createdByLabel') ?></label>
+                                    <label class="finance-show-field-label"><?= lang('Finance.createdByLabel') ?></label>
                                     <div class="text-gray-800 leading-relaxed font-semibold">
                                         <?= $creatorName !== '' ? 'Dr. ' . esc($creatorName) : lang('Finance.unknown') ?>
                                     </div>
@@ -236,7 +723,7 @@
                             </div>
 
                             <!-- Calculations -->
-                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 shadow-inner">
+                            <div class="finance-show-muted-box shadow-inner">
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-gray-600 font-medium"><?= lang('Finance.subtotal') ?></span>
@@ -289,10 +776,10 @@
                 </div>
 
                 <?php if (!empty($provider_payouts)): ?>
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-white flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                <div class="finance-show-card overflow-hidden">
+                    <div class="finance-show-card-header">
+                        <div class="finance-show-section-title">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
                                 <i class="fas fa-hand-holding-dollar"></i>
                             </div>
                             <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.providerSplit') ?></h2>
@@ -302,7 +789,7 @@
                             <?= ($provider_payout_summary['provider_balance_due'] ?? 0) > 0 ? esc(lang('Finance.partial')) : esc(lang('Finance.paid')) ?>
                         </span>
                     </div>
-                    <div class="p-6 space-y-5">
+                    <div class="finance-show-card-body space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold"><?= lang('Finance.grossCollected') ?></p>
@@ -404,8 +891,8 @@
                                                 <label class="block text-xs font-semibold text-gray-600 mb-1"><?= lang('Finance.date') ?></label>
                                                 <input type="text" name="paid_date" data-clinic-date="1" value="<?= esc(date('Y-m-d')) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                             </div>
-                                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                                <i class="fas fa-plus mr-2"></i><?= lang('Finance.recordProviderPayout') ?>
+                                                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
+                                                <i class="fas fa-plus"></i><?= lang('Finance.recordProviderPayout') ?>
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -417,31 +904,79 @@
                 <?php endif; ?>
 
                 <?php if ($isInvoice || $isExpense): ?>
-                <!-- Invoice Payments Ledger -->
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center space-x-3">
-                        <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                            <i class="fas fa-history"></i>
+                <div class="finance-show-card overflow-hidden">
+                    <div class="finance-show-card-header">
+                        <div class="flex items-center gap-3">
+                            <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900"><?= lang('Finance.settlementHistoryTitle') ?></h3>
+                                <p class="text-xs text-gray-500"><?= lang('Finance.historyOfSettlements') ?></p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800"><?= lang('Finance.settlementHistoryTitle') ?></h3>
-                            <p class="text-xs text-gray-500"><?= lang('Finance.historyOfSettlements') ?></p>
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+                                <?= count($payments ?? []) ?> <?= lang('Finance.settlement') ?>
+                            </span>
+                            <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                <i class="fas fa-file-pdf text-red-600"></i>
+                                <?= lang('Finance.exportInvoice') ?>
+                            </a>
                         </div>
                     </div>
-                    
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-100">
+                        <div class="dataTables-wrapper">
+                        <table class="finance-show-table min-w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.date') ?></th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.status') ?></th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.method') ?></th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.recordedBy') ?></th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.settlement') ?></th>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.amountBase') ?></th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.notes') ?></th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-calendar text-green-600"></i>
+                                            <span><?= lang('Finance.date') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-circle-dot text-green-600"></i>
+                                            <span><?= lang('Finance.status') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-credit-card text-green-600"></i>
+                                            <span><?= lang('Finance.method') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-user-doctor text-green-600"></i>
+                                            <span><?= lang('Finance.recordedBy') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-coins text-green-600"></i>
+                                            <span><?= lang('Finance.settlement') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-end text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <i class="fas fa-wallet text-green-600"></i>
+                                            <span><?= lang('Finance.amountBase') ?></span>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-start text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-note-sticky text-green-600"></i>
+                                            <span><?= lang('Finance.notes') ?></span>
+                                        </div>
+                                    </th>
                                     <?php if (has_permission('finance', 'edit')): ?>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"><?= lang('Finance.actions') ?></th>
+                                    <th class="px-6 py-4 text-end text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <i class="fas fa-cogs text-green-600"></i>
+                                            <span><?= lang('Finance.actions') ?></span>
+                                        </div>
+                                    </th>
                                     <?php endif; ?>
                                 </tr>
                             </thead>
@@ -501,7 +1036,7 @@
                                                 <?php endif; ?>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right <?= $amountClass ?>">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-end <?= $amountClass ?>">
                                             <?= $prefix . formatCurrency($payment['amount']) ?>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs italic">
@@ -512,7 +1047,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <?php if (has_permission('finance', 'edit')): ?>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                             <?php if ($type === 'payment'): ?>
                                                 <button type="button" onclick="voidPayment(<?= (int) $payment['id'] ?>)" class="text-gray-400 hover:text-rose-600 transition-colors" title="<?= esc(lang('Finance.voidPayment')) ?>">
                                                     <i class="fas fa-ban"></i>
@@ -532,20 +1067,23 @@
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
 
                 <?php if (has_permission('finance', 'edit')): ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Record Payment Form -->
-                    <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                    <div class="finance-show-card overflow-hidden">
+                        <div class="finance-show-card-header">
+                            <div class="finance-show-section-title">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                                 <i class="fas fa-plus-circle text-sm"></i>
                             </div>
                             <h2 class="text-xl font-bold text-gray-800"><?= esc($recordPaymentTitle) ?></h2>
+                            </div>
                         </div>
-                        <div class="p-6">
+                        <div class="finance-show-card-body">
                             <form id="invoicePaymentForm" class="space-y-6">
                                 <?= csrf_field() ?>
                                 <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
@@ -553,23 +1091,23 @@
                                 </p>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-dollar-sign text-emerald-600"></i>
                                             <span><?= lang('Finance.amountRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 hover:shadow-xl"
+                                                   class="finance-show-input"
                                                    placeholder="0.00" required>
                                         </div>
                                     </div>
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-coins text-amber-500"></i>
                                             <span><?= lang('Finance.currency') ?></span>
                                         </label>
                                         <div class="relative">
-                                            <select name="currency" data-settlement-currency class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                            <select name="currency" data-settlement-currency class="finance-show-select appearance-none">
                                                 <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
                                                     <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
                                                 <?php endforeach; ?>
@@ -582,35 +1120,35 @@
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-chart-line text-indigo-600"></i>
                                             <span><?= lang('Finance.exchangeRate') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
+                                                   class="finance-show-input">
                                         </div>
                                     </div>
                                     <div class="group/field relative md:col-span-2">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-scale-balanced text-slate-600"></i>
                                             <span><?= lang('Finance.amountBase') ?> (<?= esc($baseCurrency) ?>)</span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" data-settlement-base readonly
-                                                   class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl shadow-inner text-slate-700 font-semibold"
+                                                   class="finance-show-input font-semibold"
                                                    value="0.00">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-credit-card text-blue-600"></i>
                                             <span><?= lang('Finance.methodRequired') ?></span>
                                         </label>
                                         <div class="relative">
-                                            <select name="payment_method" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                            <select name="payment_method" class="finance-show-select appearance-none">
                                                 <option value="cash"><?= lang('Finance.cash') ?></option>
                                                 <option value="card"><?= lang('Finance.card') ?></option>
                                                 <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -624,12 +1162,12 @@
                                     </div>
                                     <?php if ($isExpense): ?>
                                     <div class="group/field relative hidden" id="settlementLiquidityAccountField">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-vault text-indigo-600"></i>
                                             <span><?= lang('Finance.paidFromAccount') ?></span>
                                         </label>
                                         <div class="relative">
-                                            <select id="settlementLiquidityAccount" name="liquidity_account" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                            <select id="settlementLiquidityAccount" name="liquidity_account" class="finance-show-select appearance-none">
                                                 <option value="bank"><?= esc(($check_outgoing_liquidity_options ?? [])['bank'] ?? 'Bank') ?></option>
                                                 <option value="undeposited_checks"><?= esc(($check_outgoing_liquidity_options ?? [])['undeposited_checks'] ?? 'Checks on Hand') ?></option>
                                             </select>
@@ -641,29 +1179,29 @@
                                     </div>
                                     <?php endif; ?>
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-calendar-alt text-rose-600"></i>
                                             <span><?= lang('Finance.dateRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl">
+                                                   class="finance-show-input">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                         <i class="fas fa-sticky-note text-purple-600"></i>
                                         <span><?= lang('Finance.notes') ?></span>
                                     </label>
                                     <div class="relative">
-                                        <textarea name="notes" rows="2" 
-                                                  class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 hover:shadow-xl resize-none" 
+                                        <textarea name="notes" rows="2"
+                                                  class="finance-show-textarea resize-none"
                                                   placeholder="<?= esc(lang('Finance.optionalNotesPlaceholder')) ?>"></textarea>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                                    <i class="fas fa-check-double mr-2"></i><?= lang('Finance.postSettlement') ?>
+                                <button type="submit" class="finance-show-btn finance-show-btn-success w-full px-8 py-4 text-sm">
+                                    <i class="fas fa-check-double"></i><?= lang('Finance.postSettlement') ?>
                                 </button>
                             </form>
                         </div>
@@ -671,14 +1209,16 @@
 
                     <?php if ($isInvoice): ?>
                     <!-- Record Refund Form -->
-                    <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
+                    <div class="finance-show-card overflow-hidden">
+                        <div class="finance-show-card-header">
+                            <div class="finance-show-section-title">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
                                 <i class="fas fa-undo-alt text-sm"></i>
                             </div>
                             <h2 class="text-xl font-bold text-gray-800"><?= lang('Finance.recordRefund') ?></h2>
+                            </div>
                         </div>
-                        <div class="p-6">
+                        <div class="finance-show-card-body">
                             <form id="invoiceRefundForm" class="space-y-6">
                                 <?= csrf_field() ?>
                                 <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
@@ -686,23 +1226,23 @@
                                 </p>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-dollar-sign text-rose-600"></i>
                                             <span><?= lang('Finance.amountRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="number" name="<?= $supportsPaymentExchangeFields ? 'amount_original' : 'amount' ?>" step="0.01" min="0.01"
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl"
+                                                   class="finance-show-input"
                                                    placeholder="0.00" required>
                                         </div>
                                     </div>
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-coins text-amber-500"></i>
                                             <span><?= lang('Finance.currency') ?></span>
                                         </label>
                                         <div class="relative">
-                                            <select name="currency" data-settlement-currency class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                            <select name="currency" data-settlement-currency class="finance-show-select appearance-none">
                                                 <?php foreach (($currency_options ?? [$baseCurrency]) as $currencyOption): ?>
                                                     <option value="<?= esc($currencyOption) ?>" <?= $currencyOption === $baseCurrency ? 'selected' : '' ?>><?= esc($currencyOption) ?></option>
                                                 <?php endforeach; ?>
@@ -715,35 +1255,35 @@
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-chart-line text-indigo-600"></i>
                                             <span><?= lang('Finance.exchangeRate') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="number" name="exchange_rate" data-settlement-rate step="0.0001" min="0.0001" value="1"
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 hover:shadow-xl">
+                                                   class="finance-show-input">
                                         </div>
                                     </div>
                                     <div class="group/field relative md:col-span-2">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-scale-balanced text-slate-600"></i>
                                             <span><?= lang('Finance.amountBase') ?> (<?= esc($baseCurrency) ?>)</span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" data-settlement-base readonly
-                                                   class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl shadow-inner text-slate-700 font-semibold"
+                                                   class="finance-show-input font-semibold"
                                                    value="0.00">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-credit-card text-blue-600"></i>
                                             <span><?= lang('Finance.methodRequired') ?></span>
                                         </label>
                                         <div class="relative">
-                                            <select name="payment_method" class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 hover:shadow-xl appearance-none">
+                                            <select name="payment_method" class="finance-show-select appearance-none">
                                                 <option value="cash"><?= lang('Finance.cash') ?></option>
                                                 <option value="card"><?= lang('Finance.card') ?></option>
                                                 <option value="bank_transfer"><?= lang('Finance.bankTransferShort') ?></option>
@@ -756,29 +1296,29 @@
                                         </div>
                                     </div>
                                     <div class="group/field relative">
-                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                             <i class="fas fa-calendar-alt text-amber-600"></i>
                                             <span><?= lang('Finance.dateRequired') ?></span>
                                         </label>
                                         <div class="relative">
                                             <input type="text" name="payment_date" data-clinic-date="1" value="<?= date('Y-m-d') ?>" 
-                                                   class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 hover:shadow-xl">
+                                                   class="finance-show-input">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="group/field relative">
-                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center space-x-2">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                                         <i class="fas fa-sticky-note text-rose-600"></i>
                                         <span><?= lang('Finance.reason') ?></span>
                                     </label>
                                     <div class="relative">
-                                        <textarea name="notes" rows="2" 
-                                                  class="w-full px-4 py-3 bg-white/80 border-2 border-gray-200 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 hover:shadow-xl resize-none" 
+                                        <textarea name="notes" rows="2"
+                                                  class="finance-show-textarea resize-none"
                                                   placeholder="<?= esc(lang('Finance.refundReasonPlaceholder')) ?>"></textarea>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-rose-500/25 hover:shadow-rose-500/40 transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                                    <i class="fas fa-reply-all mr-2"></i><?= lang('Finance.processReversal') ?>
+                                <button type="submit" class="finance-show-btn finance-show-btn-danger w-full px-8 py-4 text-sm">
+                                    <i class="fas fa-reply-all"></i><?= lang('Finance.processReversal') ?>
                                 </button>
                             </form>
                         </div>
@@ -790,9 +1330,9 @@
 
                 <?php if (!empty($finance['notes'])): ?>
                 <!-- Additional Notes -->
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-sticky-note mr-3 text-yellow-600"></i><?= lang('Finance.administrativeNotes') ?>
+                <div class="finance-show-card p-6">
+                    <h2 class="mb-4 flex items-center gap-3 text-xl font-bold text-gray-800">
+                        <i class="fas fa-sticky-note text-yellow-600"></i><?= lang('Finance.administrativeNotes') ?>
                     </h2>
                     <div class="text-gray-700 leading-relaxed bg-yellow-50 p-4 rounded-xl border border-yellow-100">
                         <?= nl2br(htmlspecialchars($finance['notes'])) ?>
@@ -801,53 +1341,16 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Right Column: Sidebar (1/3) -->
-            <div class="space-y-6">
-                
-                <!-- Action Card -->
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-bolt text-orange-600 mr-2"></i>
-                        <?= lang('Finance.quickActions') ?>
-                    </h2>
-                    <div class="space-y-3">
-                        <?php if ($finance['payment_status'] != 'paid'): ?>
-                            <?php if ($showSettlementSummary && floatval($finance['balance_due'] ?? 0) > 0): ?>
-                                <button type="button" onclick="document.getElementById('invoicePaymentForm')?.scrollIntoView({behavior:'smooth', block:'start'})" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-blue-500">
-                                    <i class="fas fa-plus-circle mr-2 text-white"></i><?= esc($recordPaymentTitle) ?>
-                                </button>
-                            <?php endif; ?>
-                            <button onclick="markAsPaid(<?= $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-green-500">
-                                <i class="fas fa-check-circle mr-2 text-white"></i><?= esc($markFullyPaidLabel) ?>
-                            </button>
-                        <?php endif; ?>
-                        <?php if (($finance['transaction_type'] ?? '') === 'invoice' && floatval($finance['balance_due'] ?? 0) > 0): ?>
-                            <button onclick="closeBalance(<?= (int) $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-xl hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-amber-500">
-                                <i class="fas fa-scale-balanced mr-2 text-white"></i><?= lang('Finance.closeBalanceCredit') ?>
-                            </button>
-                        <?php endif; ?>
-                        
-                        <a href="<?= base_url('finance/' . $finance['id'] . '/invoice') ?>" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-blue-500">
-                            <i class="fas fa-file-invoice mr-2 text-white"></i><?= lang('Finance.exportInvoice') ?>
-                        </a>
-
-                        <?php if (has_permission('finance', 'delete')): ?>
-                        <button onclick="deleteFinance(<?= $finance['id'] ?>)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 shadow-lg hover:shadow-xl border border-red-500">
-                            <i class="fas fa-trash-alt mr-2 text-white"></i><?= lang('Finance.deleteLedger') ?>
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Patient Card -->
+            <aside class="finance-show-sidebar">
+                <div class="finance-show-sidebar-stack">
                 <?php if ($patient): ?>
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-user text-purple-600 mr-2"></i>
+                <div class="finance-show-sidebar-card">
+                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                        <i class="fas fa-user text-purple-600"></i>
                         <?= lang('Finance.patientInformation') ?>
                     </h2>
                     <div class="flex flex-col items-center text-center mb-6">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-xl group-hover:scale-110 transition-transform mb-4">
+                        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white shadow-lg">
                             <?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?>
                         </div>
                         <div class="min-w-0">
@@ -857,53 +1360,52 @@
                             <div class="text-sm text-gray-500"><?= lang('Finance.idLabel') ?>: <?= $patient['patient_id'] ?></div>
                         </div>
                     </div>
-                    <a href="<?= base_url('patient/' . $patient['id']) ?>" class="block w-full text-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-bold rounded-xl transition-all duration-300">
+                    <a href="<?= base_url('patient/' . $patient['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
                         <?= lang('Finance.viewProfile') ?>
                     </a>
                 </div>
                 <?php endif; ?>
 
-                <!-- Metadata Card -->
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 text-sm group hover:shadow-2xl transition-all duration-500">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-info-circle text-gray-600 mr-2"></i>
+                <div class="finance-show-sidebar-card text-sm">
+                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                        <i class="fas fa-info-circle text-gray-600"></i>
                         <?= lang('Finance.metadata') ?>
                     </h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.standardMethod') ?></label>
-                            <p class="text-gray-800 font-semibold"><?= lang('Finance.' . $finance['payment_method']) ?></p>
+                    <dl class="finance-show-meta-list">
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.standardMethod') ?></dt>
+                            <dd><?= lang('Finance.' . $finance['payment_method']) ?></dd>
                         </div>
                         <?php if (!empty($finance['liquidity_account'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.liquidityAccount') ?></label>
-                            <p class="text-gray-800 font-semibold"><?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?></p>
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.liquidityAccount') ?></dt>
+                            <dd><?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?></dd>
                         </div>
                         <?php endif; ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.currency') ?></label>
-                            <p class="text-gray-800 font-semibold">
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.currency') ?></dt>
+                            <dd>
                                 <?= esc($baseCurrency) ?>
                                 <?php if ($isConverted): ?>
                                     <span class="text-xs text-gray-500"><?= lang('Finance.fromCurrency') ?> <?= esc($finance['currency']) ?></span>
                                 <?php endif; ?>
-                            </p>
+                            </dd>
                         </div>
                         <?php if ($isConverted): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.exchangeRate') ?></label>
-                            <p class="text-gray-800 font-semibold"><?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></p>
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.exchangeRate') ?></dt>
+                            <dd><?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></dd>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($check_attachment)): ?>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></label>
+                        <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                            <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></dt>
                             <div class="flex flex-wrap items-center gap-3">
-                                <a class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-download mr-2"></i><?= lang('Finance.download') ?>
+                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-download"></i><?= lang('Finance.download') ?>
                                 </a>
-                                <a class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-eye mr-2"></i><?= lang('Finance.view') ?>
+                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
                                 </a>
                             </div>
                             <?php
@@ -919,14 +1421,14 @@
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($finance_attachment)): ?>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></label>
+                        <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                            <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></dt>
                             <div class="flex flex-wrap items-center gap-3">
-                                <a class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-download mr-2"></i><?= lang('Finance.download') ?>
+                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-download"></i><?= lang('Finance.download') ?>
                                 </a>
-                                <a class="inline-flex items-center px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-eye mr-2"></i><?= lang('Finance.view') ?>
+                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
                                 </a>
                                 <span class="text-xs text-gray-500"><?= esc($finance_attachment['original_name'] ?? '') ?></span>
                             </div>
@@ -941,38 +1443,37 @@
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($finance['transaction_date'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.transactionDate') ?></label>
-                            <p class="text-blue-600 font-bold"><?= formatDate($finance['transaction_date']) ?></p>
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.transactionDate') ?></dt>
+                            <dd class="text-blue-600"><?= formatDate($finance['transaction_date']) ?></dd>
                         </div>
                         <?php endif; ?>
                         <?php if (!empty($finance['due_date'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.dueDate') ?></label>
-                            <p class="text-rose-600 font-bold"><?= formatDate($finance['due_date']) ?></p>
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.dueDate') ?></dt>
+                            <dd class="text-rose-600"><?= formatDate($finance['due_date']) ?></dd>
                         </div>
                         <?php endif; ?>
-                         <?php if (!empty($finance['paid_date'])): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1"><?= lang('Finance.settlementDate') ?></label>
-                            <p class="text-emerald-600 font-bold"><?= formatDate($finance['paid_date']) ?></p>
+                        <?php if (!empty($finance['paid_date'])): ?>
+                        <div class="finance-show-meta-row">
+                            <dt><?= lang('Finance.settlementDate') ?></dt>
+                            <dd class="text-emerald-600"><?= formatDate($finance['paid_date']) ?></dd>
                         </div>
                         <?php endif; ?>
                         <div class="pt-4 border-t border-gray-100">
                             <p class="text-[10px] text-gray-400"><?= lang('Finance.lastUpdated') ?>: <?= formatDateTime($finance['updated_at']) ?></p>
                         </div>
-                    </div>
+                    </dl>
                 </div>
 
-                <!-- Related Examination -->
                 <?php if ($examination): ?>
-                <div class="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-6 group hover:shadow-2xl transition-all duration-500">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-stethoscope text-emerald-600 mr-2"></i>
+                <div class="finance-show-sidebar-card">
+                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                        <i class="fas fa-stethoscope text-emerald-600"></i>
                         <?= lang('Finance.clinicalLink') ?>
                     </h2>
-                    <div class="flex items-center space-x-4 mb-4">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shadow-inner group-hover:bg-emerald-100 transition-colors">
+                    <div class="mb-4 flex items-center gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-inner">
                             <i class="fas fa-stethoscope"></i>
                         </div>
                         <div class="min-w-0">
@@ -984,12 +1485,13 @@
                             </div>
                         </div>
                     </div>
-                    <a href="<?= base_url('examination/' . $examination['id']) ?>" class="block w-full text-center px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-sm font-bold rounded-xl transition-all duration-300">
+                    <a href="<?= base_url('examination/' . $examination['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
                         <?= lang('Finance.viewClinicalRecord') ?>
                     </a>
                 </div>
                 <?php endif; ?>
-            </div>
+                </div>
+            </aside>
         </div>
     </div>
 </div>
@@ -1326,5 +1828,4 @@ document.querySelectorAll('.provider-payout-payment-form').forEach((form) => {
 });
 </script>
 <?= $this->endSection() ?>
-
 
