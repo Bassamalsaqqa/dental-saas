@@ -215,14 +215,18 @@
     }
 
     [dir="rtl"] .finance-show-page-meta,
-    [dir="rtl"] .finance-show-page-actions,
     [dir="rtl"] .finance-show-section-title {
         flex-direction: row-reverse;
     }
 
+    [dir="rtl"] .finance-show-page-header-top {
+        align-items: flex-end;
+    }
+
     [dir="rtl"] .finance-show-page-actions {
+        direction: rtl;
         justify-content: flex-end;
-        flex-direction: row-reverse;
+        align-self: stretch;
     }
 
     [dir="rtl"] .finance-show-page-actions .finance-show-btn {
@@ -282,9 +286,9 @@
     }
 
     .finance-show-sidebar-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
+        display: grid;
+        gap: 18px;
+        align-content: start;
     }
 
     .finance-show-full-span {
@@ -533,6 +537,11 @@
         text-align: right;
     }
 
+    [dir="rtl"] .finance-show-context-head,
+    [dir="rtl"] .finance-show-attachment-actions {
+        flex-direction: row-reverse;
+    }
+
     [dir="rtl"] .finance-show-meta-row {
         flex-direction: row-reverse;
     }
@@ -545,8 +554,51 @@
         border: 1px solid #dce6f2;
         border-radius: 16px;
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-        padding: 20px;
+        padding: 18px;
         box-shadow: 0 10px 22px -20px rgba(15, 23, 42, 0.18);
+    }
+
+    .finance-show-context-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .finance-show-context-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .finance-show-context-avatar {
+        display: flex;
+        height: 64px;
+        width: 64px;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: #ffffff;
+        font-size: 1.125rem;
+        font-weight: 800;
+        box-shadow: 0 16px 26px -22px rgba(37, 99, 235, 0.75);
+    }
+
+    .finance-show-context-actions {
+        display: grid;
+        gap: 10px;
+    }
+
+    .finance-show-attachment-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .finance-show-context-divider {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 16px;
     }
 
     .finance-show-sidebar-stack > .finance-show-sidebar-card:nth-child(3n + 1) {
@@ -592,8 +644,23 @@
     }
 
     [dir="rtl"] .finance-inline-modal-header {
+        position: relative;
         flex-direction: row-reverse;
         text-align: right;
+        align-items: flex-start;
+        padding-inline-start: 72px;
+    }
+
+    [dir="rtl"] .finance-inline-modal-header > :first-child {
+        flex: 1 1 auto;
+    }
+
+    [dir="rtl"] .finance-inline-modal-header > :last-child {
+        flex: 0 0 auto;
+        position: absolute;
+        left: 24px;
+        right: auto;
+        top: 22px;
     }
 
     .finance-inline-modal-kicker {
@@ -612,6 +679,7 @@
 
     [dir="rtl"] .finance-inline-modal-kicker {
         flex-direction: row-reverse;
+        justify-content: flex-start;
     }
 
     .finance-inline-modal-kicker.finance-inline-modal-kicker-danger {
@@ -697,7 +765,7 @@
 
     @media (min-width: 1280px) {
         .finance-show-page-grid {
-            grid-template-columns: minmax(0, 1.9fr) minmax(280px, 0.82fr);
+            grid-template-columns: minmax(0, 1.95fr) minmax(300px, 0.8fr);
             align-items: start;
         }
 
@@ -742,9 +810,8 @@
             align-self: start;
         }
 
-        .finance-show-sidebar {
-            position: sticky;
-            top: 88px;
+        .finance-show-sidebar-stack {
+            grid-template-columns: minmax(0, 1fr);
         }
 
         [dir="rtl"] .finance-show-page-grid {
@@ -753,6 +820,15 @@
 
         [dir="ltr"] .finance-show-page-grid {
             direction: ltr;
+        }
+
+        [dir="rtl"] .finance-show-page-header-top {
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        [dir="rtl"] .finance-show-page-actions {
+            max-width: 100%;
         }
     }
 
@@ -773,6 +849,12 @@
 
         .finance-show-summary-card {
             padding: 20px;
+        }
+
+        .finance-show-context-head {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .finance-inline-modal-header,
@@ -812,6 +894,10 @@
                         <span><?= esc($ui['type']) ?>: <strong class="font-semibold text-slate-800"><?= esc($transactionTypeLabel) ?></strong></span>
                         <span class="text-slate-300">|</span>
                         <span><?= esc($ui['date']) ?>: <strong class="font-semibold text-slate-800"><?= !empty($finance['transaction_date']) ? formatDate($finance['transaction_date']) : lang('Finance.unknown') ?></strong></span>
+                        <span class="text-slate-300">|</span>
+                        <span><?= esc($ui['method']) ?>: <strong class="font-semibold text-slate-800"><?= lang('Finance.' . $finance['payment_method']) ?></strong></span>
+                        <span class="text-slate-300">|</span>
+                        <span><?= lang('Finance.currency') ?>: <strong class="font-semibold text-slate-800"><?= esc($baseCurrency) ?></strong></span>
                     </div>
                 </div>
                 <div class="finance-show-page-actions">
@@ -1106,162 +1192,109 @@
 
             <aside class="finance-show-sidebar">
                 <div class="finance-show-sidebar-stack">
-                <?php if ($patient): ?>
-                <div class="finance-show-sidebar-card">
-                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
-                        <i class="fas fa-user text-purple-600"></i>
-                        <?= esc($ui['patient']) ?>
-                    </h2>
-                    <div class="flex flex-col items-center text-center mb-6">
-                        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white shadow-lg">
-                            <?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-lg font-bold text-gray-800">
-                                <?= $patient['first_name'] . ' ' . $patient['last_name'] ?>
+                    <?php if ($patient): ?>
+                    <div class="finance-show-sidebar-card finance-show-context-card">
+                        <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                            <i class="fas fa-user text-purple-600"></i>
+                            <?= esc($ui['patient']) ?>
+                        </h2>
+                        <div class="finance-show-context-head">
+                            <div class="finance-show-context-avatar">
+                                <?= esc(ui_initials($patient['first_name'] ?? '', $patient['last_name'] ?? '', 'P')) ?>
                             </div>
-                            <div class="text-sm text-gray-500"><?= lang('Finance.idLabel') ?>: <?= $patient['patient_id'] ?></div>
+                            <div class="min-w-0">
+                                <div class="text-lg font-bold text-gray-800">
+                                    <?= esc(trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''))) ?>
+                                </div>
+                                <div class="mt-1 text-sm text-gray-500"><?= lang('Finance.idLabel') ?>: <?= esc($patient['patient_id']) ?></div>
+                            </div>
+                        </div>
+                        <div class="finance-show-context-actions">
+                            <a href="<?= base_url('patient/' . $patient['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
+                                <?= esc($ui['openProfile']) ?>
+                            </a>
                         </div>
                     </div>
-                    <a href="<?= base_url('patient/' . $patient['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
-                        <?= esc($ui['openProfile']) ?>
-                    </a>
-                </div>
-                <?php endif; ?>
-
-                <div class="finance-show-sidebar-card text-sm">
-                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
-                        <i class="fas fa-info-circle text-gray-600"></i>
-                        <?= esc($ui['paymentInfo']) ?>
-                    </h2>
-                    <dl class="finance-show-meta-compact">
-                        <div class="finance-show-meta-card">
-                            <dt><?= esc($ui['method']) ?></dt>
-                            <dd><?= lang('Finance.' . $finance['payment_method']) ?></dd>
-                        </div>
-                        <div class="finance-show-meta-card">
-                            <dt><?= lang('Finance.currency') ?></dt>
-                            <dd>
-                                <?= esc($baseCurrency) ?>
-                                <?php if ($isConverted): ?>
-                                    <span class="text-xs text-gray-500"><?= lang('Finance.fromCurrency') ?> <?= esc($finance['currency']) ?></span>
-                                <?php endif; ?>
-                            </dd>
-                        </div>
-                        <?php if (!empty($finance['transaction_date'])): ?>
-                        <div class="finance-show-meta-card">
-                            <dt><?= esc($ui['date']) ?></dt>
-                            <dd class="text-blue-600"><?= formatDate($finance['transaction_date']) ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($isConverted): ?>
-                        <div class="finance-show-meta-card">
-                            <dt><?= lang('Finance.exchangeRate') ?></dt>
-                            <dd><?= rtrim(rtrim(number_format($exchangeRate, 6), '0'), '.') ?></dd>
-                        </div>
-                        <?php elseif (!empty($finance['paid_date'])): ?>
-                        <div class="finance-show-meta-card">
-                            <dt><?= lang('Finance.settlementDate') ?></dt>
-                            <dd class="text-emerald-600"><?= formatDate($finance['paid_date']) ?></dd>
-                        </div>
-                        <?php endif; ?>
-                    </dl>
-                    <?php if (!empty($finance['liquidity_account']) || !empty($finance['due_date']) || ($isConverted && !empty($finance['paid_date']))): ?>
-                    <dl class="finance-show-meta-list mt-4">
-                        <?php if (!empty($finance['liquidity_account'])): ?>
-                        <div class="finance-show-meta-row">
-                            <dt><?= lang('Finance.liquidityAccount') ?></dt>
-                            <dd><?= esc(($liquidity_account_options ?? [])[$finance['liquidity_account']] ?? $finance['liquidity_account']) ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($finance['due_date'])): ?>
-                        <div class="finance-show-meta-row">
-                            <dt><?= lang('Finance.dueDate') ?></dt>
-                            <dd class="text-rose-600"><?= formatDate($finance['due_date']) ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($isConverted && !empty($finance['paid_date'])): ?>
-                        <div class="finance-show-meta-row">
-                            <dt><?= lang('Finance.settlementDate') ?></dt>
-                            <dd class="text-emerald-600"><?= formatDate($finance['paid_date']) ?></dd>
-                        </div>
-                        <?php endif; ?>
-                    </dl>
                     <?php endif; ?>
-                        <?php if (!empty($check_attachment)): ?>
-                        <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                            <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></dt>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-download"></i><?= lang('Finance.download') ?>
-                                </a>
-                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
-                                </a>
-                            </div>
-                            <?php
-                                $isImage = !empty($check_attachment['mime_type']) && strpos($check_attachment['mime_type'], 'image/') === 0;
-                            ?>
-                            <?php if ($isImage): ?>
-                                <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
-                                    <img src="<?= base_url('file/download/' . $check_attachment['id']) ?>" alt="<?= esc(lang('Finance.checkScanPreview')) ?>" class="max-h-56 w-auto rounded-lg">
-                                </div>
-                            <?php else: ?>
-                                <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($finance_attachment)): ?>
-                        <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                            <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></dt>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-download"></i><?= lang('Finance.download') ?>
-                                </a>
-                                <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
-                                    <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
-                                </a>
-                                <span class="text-xs text-gray-500"><?= esc($finance_attachment['original_name'] ?? '') ?></span>
-                            </div>
-                            <?php $isFinanceAttachmentImage = !empty($finance_attachment['mime_type']) && strpos($finance_attachment['mime_type'], 'image/') === 0; ?>
-                            <?php if ($isFinanceAttachmentImage): ?>
-                                <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
-                                    <img src="<?= base_url('file/download/' . $finance_attachment['id']) ?>" alt="<?= esc(lang('Finance.attachmentPreview')) ?>" class="max-h-56 w-auto rounded-lg">
-                                </div>
-                            <?php else: ?>
-                                <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    <div class="mt-4 pt-3 border-t border-gray-100">
-                        <p class="text-[10px] text-gray-400"><?= esc($ui['updated']) ?>: <?= formatDateTime($finance['updated_at']) ?></p>
-                    </div>
-                </div>
 
-                <?php if ($examination): ?>
-                <div class="finance-show-sidebar-card">
-                    <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
-                        <i class="fas fa-stethoscope text-emerald-600"></i>
-                        <?= lang('Finance.clinicalLink') ?>
-                    </h2>
-                    <div class="mb-4 flex items-center gap-4">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-inner">
-                            <i class="fas fa-stethoscope"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-bold text-gray-800">
-                                <?= formatDate($examination['examination_date']) ?>
+                    <?php if (!empty($check_attachment) || !empty($finance_attachment)): ?>
+                    <div class="finance-show-sidebar-card text-sm">
+                        <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                            <i class="fas fa-paperclip text-slate-600"></i>
+                            <?= $isRtl ? 'المرفقات' : 'Attachments' ?>
+                        </h2>
+                        <dl class="finance-show-meta-list">
+                            <?php if (!empty($check_attachment)): ?>
+                            <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                                <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.checkScanLabel') ?></dt>
+                                <div class="finance-show-attachment-actions">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-download"></i><?= lang('Finance.download') ?>
+                                    </a>
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $check_attachment['id']) ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
+                                    </a>
+                                </div>
+                                <?php $isImage = !empty($check_attachment['mime_type']) && strpos($check_attachment['mime_type'], 'image/') === 0; ?>
+                                <?php if ($isImage): ?>
+                                    <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                        <img src="<?= base_url('file/download/' . $check_attachment['id']) ?>" alt="<?= esc(lang('Finance.checkScanPreview')) ?>" class="max-h-56 w-auto rounded-lg">
+                                    </div>
+                                <?php else: ?>
+                                    <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
+                                <?php endif; ?>
                             </div>
-                            <div class="text-xs text-gray-500">
-                                <?= lang('Finance.status') ?>: <?= ucfirst($examination['status']) ?>
+                            <?php endif; ?>
+                            <?php if (!empty($finance_attachment)): ?>
+                            <div class="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                                <dt class="block text-sm font-medium text-gray-600"><?= lang('Finance.attachmentLabel') ?></dt>
+                                <div class="finance-show-attachment-actions">
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-download"></i><?= lang('Finance.download') ?>
+                                    </a>
+                                    <a class="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition-colors" href="<?= base_url('file/download/' . $finance_attachment['id']) ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-eye"></i><?= lang('Finance.view') ?>
+                                    </a>
+                                    <span class="text-xs text-gray-500"><?= esc($finance_attachment['original_name'] ?? '') ?></span>
+                                </div>
+                                <?php $isFinanceAttachmentImage = !empty($finance_attachment['mime_type']) && strpos($finance_attachment['mime_type'], 'image/') === 0; ?>
+                                <?php if ($isFinanceAttachmentImage): ?>
+                                    <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-2">
+                                        <img src="<?= base_url('file/download/' . $finance_attachment['id']) ?>" alt="<?= esc(lang('Finance.attachmentPreview')) ?>" class="max-h-56 w-auto rounded-lg">
+                                    </div>
+                                <?php else: ?>
+                                    <p class="text-xs text-gray-500"><?= lang('Finance.imagePreviewOnly') ?></p>
+                                <?php endif; ?>
                             </div>
-                        </div>
+                            <?php endif; ?>
+                        </dl>
                     </div>
-                    <a href="<?= base_url('examination/' . $examination['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
-                        <?= lang('Finance.viewClinicalRecord') ?>
-                    </a>
-                </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php if ($examination): ?>
+                    <div class="finance-show-sidebar-card">
+                        <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-gray-800">
+                            <i class="fas fa-stethoscope text-emerald-600"></i>
+                            <?= lang('Finance.clinicalLink') ?>
+                        </h2>
+                        <div class="mb-4 flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-inner">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-bold text-gray-800">
+                                    <?= formatDate($examination['examination_date']) ?>
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    <?= lang('Finance.status') ?>: <?= ucfirst($examination['status']) ?>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('examination/' . $examination['id']) ?>" class="finance-show-btn finance-show-btn-soft w-full">
+                            <?= lang('Finance.viewClinicalRecord') ?>
+                        </a>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </aside>
         </div>
